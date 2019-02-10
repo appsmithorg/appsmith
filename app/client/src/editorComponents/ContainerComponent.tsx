@@ -1,17 +1,17 @@
 import * as React from "react"
 import BaseComponent, { IComponentProps } from "./BaseComponent"
 import { ContainerOrientation } from "../constants/WidgetConstants"
-import styled from "styled-components"
+import styled from "../constants/DefaultTheme"
 
 const Container = styled.div`
-  background: "black";
+  background: ${props => props.theme.primaryColor};
   color: "black";
 `
 
 class ContainerComponent extends BaseComponent<IContainerProps> {
   render() {
     return (
-      <Container>
+      <Container key={this.componentData.widgetId}>
         {this.props.children
           ? this.props.children.map(child => {
               return child

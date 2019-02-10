@@ -14,7 +14,6 @@ const initialState: CanvasReduxState = {
       {
         widgetId: "1",
         widgetType: "TEXT_WIDGET",
-        //text: "Hello World",
         topRow: 0,
         leftColumn: 0,
         bottomRow: 5,

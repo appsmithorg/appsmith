@@ -1,7 +1,7 @@
 import ContainerWidget from "../widgets/ContainerWidget"
 
 export type ActionType = "LOAD_CANVAS" | "CLEAR_CANVAS" | "DROP_WIDGET_CANVAS" | "REMOVE_WIDGET_CANVAS"
-export const ActionTypes = {
+export const ActionTypes: { [id: string]: ActionType } = {
     LOAD_CANVAS: "LOAD_CANVAS",
     CLEAR_CANVAS: "CLEAR_CANVAS",
     DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",

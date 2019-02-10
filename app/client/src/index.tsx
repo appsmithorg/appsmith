@@ -10,18 +10,21 @@ import { BrowserRouter, Route, Switch } from "react-router-dom"
 import { createStore } from "redux"
 import appReducer from "./reducers"
 import WidgetBuilderRegistry from "./utils/WidgetRegistry"
+import { ThemeProvider, theme } from "./constants/DefaultTheme"
 
 WidgetBuilderRegistry.registerWidgetBuilders()
 const store = createStore(appReducer)
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter>
-      <Switch>
-        <Route exact path="/" component={App} />
-        <Route exact path="/builder" component={Editor} />
-        <Route component={PageNotFound} />
-      </Switch>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={App} />
+          <Route exact path="/builder" component={Editor} />
+          <Route component={PageNotFound} />
+        </Switch>
+      </BrowserRouter>
+    </ThemeProvider>
   </Provider>,
   document.getElementById("root")
 )
