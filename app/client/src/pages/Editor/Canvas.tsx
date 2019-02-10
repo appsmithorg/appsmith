@@ -1,14 +1,30 @@
-import React, { Component } from 'react';
-import { Card } from '@blueprintjs/core';
+import React, { Component } from "react"
+import { connect } from "react-redux"
+import { AppState } from "../../reducers"
+import WidgetFactory from "../../utils/WidgetFactory"
+import { CanvasReduxState } from "../../reducers/uiReducers/canvasReducer"
 
-class Canvas extends Component {
+class Canvas extends Component<{ canvas: CanvasReduxState }> {
   render() {
-    return (
-        <Card>
-            
-        </Card>
-    );
+    const canvasWidgetData = this.props.canvas.canvasWidgetProps
+    if (canvasWidgetData) {
+      const canvasWidget = WidgetFactory.createWidget(canvasWidgetData)
+      return canvasWidget.getWidgetView()
+    } else return undefined
   }
 }
 
-export default Canvas;
+const mapStateToProps = (state: AppState, props: any) => {
+  return {
+    canvas: state.ui.canvas
+  }
+}
+
+const mapDispatchToProps = (dispatch: any) => {
+  return {}
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Canvas)
