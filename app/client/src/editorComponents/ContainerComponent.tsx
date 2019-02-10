@@ -4,8 +4,8 @@ import { ContainerOrientation } from "../constants/WidgetConstants"
 import styled from "styled-components"
 
 const Container = styled.div`
-  background: papayawhip;
-  color: ${props => (props.theme ? props.theme.colors.text : "white")};
+  background: "black";
+  color: "black";
 `
 
 class ContainerComponent extends BaseComponent<IContainerProps> {
@@ -24,11 +24,11 @@ class ContainerComponent extends BaseComponent<IContainerProps> {
 
 export interface IContainerProps extends IComponentProps {
   children?: React.Component[]
-  snapColumnSpace: number
-  snapRowSpace: number
-  snapColumns: number
-  snapRows: number
-  orientation: ContainerOrientation
+  snapColumnSpace?: number
+  snapRowSpace?: number
+  snapColumns?: number
+  snapRows?: number
+  orientation?: ContainerOrientation
 }
 
 export default ContainerComponent

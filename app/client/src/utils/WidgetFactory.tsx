@@ -4,7 +4,7 @@ import { IComponentProps } from "../editorComponents/BaseComponent";
 
 class WidgetFactory {
 
-    static widgetMap: Map<WidgetType, IWidgetBuilder<IWidgetProps, IComponentProps>>
+    static widgetMap: Map<WidgetType, IWidgetBuilder<IWidgetProps, IComponentProps>> = new Map()
 
     static registerWidgetBuilder(widgetType: WidgetType, widgetBuilder: IWidgetBuilder<IWidgetProps, IComponentProps>) {
         this.widgetMap.set(widgetType, widgetBuilder)

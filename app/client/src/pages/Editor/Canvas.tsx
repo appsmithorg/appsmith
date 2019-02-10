@@ -10,7 +10,7 @@ class Canvas extends Component<{ canvas: CanvasReduxState }> {
     if (canvasWidgetData) {
       const canvasWidget = WidgetFactory.createWidget(canvasWidgetData)
       return canvasWidget.getWidgetView()
-    } else return undefined
+    } else return <div></div>
   }
 }
 

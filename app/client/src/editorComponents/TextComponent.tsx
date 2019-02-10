@@ -10,8 +10,8 @@ class TextComponent extends React.Component<ITextComponentProps> {
 }
 
 export interface ITextComponentProps extends IComponentProps {
-  text: string
-  ellipsize: boolean
+  text?: string
+  ellipsize?: boolean
 }
 
 export default TextComponent

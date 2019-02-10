@@ -12,12 +12,10 @@ class ContainerWidget extends BaseWidget<
 > {
   constructor(widgetProps: IContainerWidgetProps) {
     super(widgetProps)
-    if (this.widgetData) {
-      this.widgetData.snapColumns = 13
-      this.widgetData.snapColumnSpace = this.width / this.widgetData.snapColumns
-      this.widgetData.snapRowSpace = 100
-      this.widgetData.snapRows = this.height / this.widgetData.snapRowSpace
-    }
+    this.widgetData.snapColumns = 13
+    this.widgetData.snapColumnSpace = this.width / this.widgetData.snapColumns
+    this.widgetData.snapRowSpace = 100
+    this.widgetData.snapRows = this.height / this.widgetData.snapRowSpace
   }
 
   getComponentProps(): IContainerProps {
@@ -36,8 +34,13 @@ class ContainerWidget extends BaseWidget<
       <ContainerComponent {...this.getComponentProps()}>
         {this.widgetData.children
           ? this.widgetData.children.map(childWidgetData => {
-              childWidgetData.parentColumnSpace = this.widgetData.snapColumnSpace
+              childWidgetData.parentColumnSpace = this.widgetData
+                .snapColumnSpace
+                ? this.widgetData.snapColumnSpace
+                : 0
               childWidgetData.parentRowSpace = this.widgetData.snapRowSpace
+                ? this.widgetData.snapRowSpace
+                : 0
               return WidgetFactory.createWidget(childWidgetData).getWidgetView()
             })
           : undefined}
@@ -48,16 +51,15 @@ class ContainerWidget extends BaseWidget<
   getWidgetType(): WidgetType {
     return "CONTAINER_WIDGET"
   }
-
 }
 
 export interface IContainerWidgetProps extends IWidgetProps {
   children?: IWidgetProps[]
-  snapColumnSpace: number
-  snapRowSpace: number
-  snapColumns: number
-  snapRows: number
-  orientation: ContainerOrientation
+  snapColumnSpace?: number
+  snapRowSpace?: number
+  snapColumns?: number
+  snapRows?: number
+  orientation?: ContainerOrientation
 }
 
 export default ContainerWidget
