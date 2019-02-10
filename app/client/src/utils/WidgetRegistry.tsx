@@ -1,4 +1,4 @@
-import BaseWidget from "../widgets/BaseWidget"
+import BaseWidget, { IWidgetProps } from "../widgets/BaseWidget"
 import ContainerWidget, {
   IContainerWidgetProps
 } from "../widgets/ContainerWidget"
@@ -14,8 +14,8 @@ class WidgetBuilderRegistry {
     
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {
       buildWidget(
-        widgetData: IContainerWidgetProps
-      ): BaseWidget<IContainerWidgetProps, IContainerProps> {
+        widgetData: IContainerWidgetProps<IWidgetProps>
+      ): BaseWidget<IContainerWidgetProps<IWidgetProps>, IContainerProps> {
         return new ContainerWidget(widgetData)
       }
     })

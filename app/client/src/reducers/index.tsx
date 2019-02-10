@@ -13,7 +13,7 @@ export default appReducer
 
 export interface AppState {
   ui: {
-    canvas: CanvasReduxState
+    canvas: CanvasReduxState<any>
   }
   entities: {
     canvasWidgets: CanvasWidgetsReduxState

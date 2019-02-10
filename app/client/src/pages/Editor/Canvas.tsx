@@ -4,7 +4,7 @@ import { AppState } from "../../reducers"
 import WidgetFactory from "../../utils/WidgetFactory"
 import { CanvasReduxState } from "../../reducers/uiReducers/canvasReducer"
 
-class Canvas extends Component<{ canvas: CanvasReduxState }> {
+class Canvas extends Component<{ canvas: CanvasReduxState<any> }> {
   render() {
     const canvasWidgetData = this.props.canvas.canvasWidgetProps
     if (canvasWidgetData) {

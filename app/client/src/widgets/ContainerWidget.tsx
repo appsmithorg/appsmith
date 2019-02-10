@@ -7,10 +7,10 @@ import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants"
 import WidgetFactory from "../utils/WidgetFactory"
 
 class ContainerWidget extends BaseWidget<
-  IContainerWidgetProps,
+  IContainerWidgetProps<IWidgetProps>,
   IContainerProps
 > {
-  constructor(widgetProps: IContainerWidgetProps) {
+  constructor(widgetProps: IContainerWidgetProps<IWidgetProps>) {
     super(widgetProps)
     this.widgetData.snapColumns = 13
     this.widgetData.snapColumnSpace = this.width / this.widgetData.snapColumns
@@ -53,8 +53,8 @@ class ContainerWidget extends BaseWidget<
   }
 }
 
-export interface IContainerWidgetProps extends IWidgetProps {
-  children?: IWidgetProps[]
+export interface IContainerWidgetProps<T extends IWidgetProps> extends IWidgetProps {
+  children?: T[]
   snapColumnSpace?: number
   snapRowSpace?: number
   snapColumns?: number

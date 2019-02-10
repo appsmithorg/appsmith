@@ -5,8 +5,10 @@ import {
   ReduxAction
 } from "../../constants/ActionConstants"
 import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
+import { IWidgetProps } from "../../widgets/BaseWidget";
+import { ITextWidgetProps } from "../../widgets/TextWidget";
 
-const initialState: CanvasReduxState = {
+const initialState: CanvasReduxState<any> = {
   canvasWidgetProps: {
     widgetId: "0",
     widgetType: "CONTAINER_WIDGET",
@@ -19,7 +21,8 @@ const initialState: CanvasReduxState = {
         bottomRow: 5,
         rightColumn: 5,
         parentColumnSpace: 100,
-        parentRowSpace: 100
+        parentRowSpace: 100,
+        text: "whaat"
       }
     ],
     topRow: 0,
@@ -33,15 +36,15 @@ const initialState: CanvasReduxState = {
 
 const canvasReducer = createReducer(initialState, {
   [ActionTypes.LOAD_CANVAS]: (
-    state: CanvasReduxState,
+    state: CanvasReduxState<any>,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
     return { containerWidget: action.payload }
   }
 })
 
-export interface CanvasReduxState {
-  canvasWidgetProps?: IContainerWidgetProps
+export interface CanvasReduxState<T extends IWidgetProps> {
+  canvasWidgetProps?: IContainerWidgetProps<any>
 }
 
 export default canvasReducer

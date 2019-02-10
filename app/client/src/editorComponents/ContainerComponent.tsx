@@ -5,7 +5,7 @@ import styled from "../constants/DefaultTheme"
 
 const Container = styled.div`
   background: ${props => props.theme.primaryColor};
-  color: "black";
+  color: ${props => props.theme.primaryColor};
 `
 
 class ContainerComponent extends BaseComponent<IContainerProps> {
