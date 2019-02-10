@@ -3,7 +3,9 @@ import logo from './assets/images/logo.svg';
 import './App.css';
 import { createStore } from 'redux'
 import appReducer from './reducers';
+import WidgetBuilderRegistry from "./utils/WidgetRegistry"
 
+WidgetBuilderRegistry.registerWidgetBuilders()
 const store = createStore(appReducer)
 
 class App extends Component {
