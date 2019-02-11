@@ -1,14 +1,13 @@
-import * as React from "react"
+import { Component } from "react"
+import React from "react"
+import { PositionType, CSSUnit } from "../constants/WidgetConstants"
 /***
  * Components are responsible for binding render inputs to corresponding UI SDKs
  */
-abstract class BaseComponent<T extends IComponentProps> extends React.Component<T> {
-
-    componentData: T
+abstract class BaseComponent<T extends IComponentProps> extends Component<T> {
 
     constructor(componentProps: T) {
         super(componentProps)
-        this.componentData = componentProps
     }
 
 }
@@ -16,11 +15,18 @@ abstract class BaseComponent<T extends IComponentProps> extends React.Component<
 export interface BaseStyle {
     height?: number
     width?: number
+    positionType: PositionType
+    xPosition: number
+    yPosition: number
+    xPositionUnit: CSSUnit
+    yPositionUnit: CSSUnit
+    heightUnit?: CSSUnit
+    widthUnit?: CSSUnit
 }
 
 export interface IComponentProps {
     widgetId: string
-    style?: BaseStyle
+    style: BaseStyle
 }
 
 export default BaseComponent

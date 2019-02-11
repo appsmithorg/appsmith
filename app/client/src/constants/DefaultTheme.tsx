@@ -33,7 +33,7 @@ const defaultFont: IFontInterface = {
 }
 
 export const theme = {
-  primaryColor: Colors.FullWhite,
+  primaryColor: Colors.FullBlack,
   secondaryColor: Colors.FullWhite,
   ascentColor: Colors.FullBlack,
   headerFont: defaultFont,

@@ -1,8 +1,8 @@
-export type Color = "full-white" | "full-black"
+export type Color = "#ffffff" | "#000000"
 
 export const Colors: { [id: string]: Color } = {
-    FullWhite: "full-white",
-    FullBlack: "full-black"
+    FullWhite: "#ffffff",
+    FullBlack: "#000000"
 }
 
 export type FontFamily = "Brandon-Regular" | "Roboto-Bold"

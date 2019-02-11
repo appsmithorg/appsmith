@@ -8,8 +8,7 @@ class Canvas extends Component<{ canvas: CanvasReduxState<any> }> {
   render() {
     const canvasWidgetData = this.props.canvas.canvasWidgetProps
     if (canvasWidgetData) {
-      const canvasWidget = WidgetFactory.createWidget(canvasWidgetData)
-      return canvasWidget.getWidgetView()
+        return WidgetFactory.createWidget(canvasWidgetData)
     } else return <div></div>
   }
 }

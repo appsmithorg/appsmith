@@ -1,11 +1,21 @@
 import * as React from "react"
-import { Text } from "@blueprintjs/core"
-import { IComponentProps } from "./BaseComponent";
+import { IComponentProps } from "./BaseComponent"
+import styled from "../constants/DefaultTheme"
+
+const TextContainer = styled("span")<ITextComponentProps>`
+  color: ${props => props.theme.primaryColor};
+  position: ${props => props.style.positionType};
+  left: ${props => {
+    return props.style.xPosition + props.style.xPositionUnit
+  }};
+  top: ${props => {
+    return props.style.yPosition + props.style.yPositionUnit
+  }};
+`
 
 class TextComponent extends React.Component<ITextComponentProps> {
-
   render() {
-    return <Text ellipsize={this.props.ellipsize}>{this.props.text}</Text>
+    return <TextContainer {...this.props}>{this.props.text}</TextContainer>
   }
 }
 

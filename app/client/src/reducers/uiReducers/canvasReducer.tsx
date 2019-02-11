@@ -6,7 +6,6 @@ import {
 } from "../../constants/ActionConstants"
 import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
 import { IWidgetProps } from "../../widgets/BaseWidget";
-import { ITextWidgetProps } from "../../widgets/TextWidget";
 
 const initialState: CanvasReduxState<any> = {
   canvasWidgetProps: {
@@ -17,7 +16,7 @@ const initialState: CanvasReduxState<any> = {
         widgetId: "1",
         widgetType: "TEXT_WIDGET",
         topRow: 0,
-        leftColumn: 0,
+        leftColumn: 2,
         bottomRow: 5,
         rightColumn: 5,
         parentColumnSpace: 100,
@@ -26,9 +25,9 @@ const initialState: CanvasReduxState<any> = {
       }
     ],
     topRow: 0,
-    bottomRow: 100,
+    bottomRow: 600,
     leftColumn: 0,
-    rightColumn: 100,
+    rightColumn: 1200,
     parentColumnSpace: 1,
     parentRowSpace: 1
   }
