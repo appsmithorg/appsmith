@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	goFitDb := db.GoFitDb{}
-	goFitDb.InitDb()
+	db := db.NewDb(db.PostgresDb)
+	db.InitDb()
 
 	router := httprouter.New()
 

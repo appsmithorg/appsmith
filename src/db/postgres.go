@@ -19,9 +19,7 @@ const (
 )
 
 // InitDb initializes the database
-func (d *GoFitDb) InitDb() {
-
-	var err error
+func (d *postgresDb) InitDb() (err error) {
 
 	// Initialize the database
 	d.dbConfig()
@@ -34,20 +32,21 @@ func (d *GoFitDb) InitDb() {
 	db, err = sql.Open("postgres", psqlInfo)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// Setup connection pool
 	db.SetMaxOpenConns(d.MaxOpenConnections)
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Println("Successfully connected!")
 	listTables()
+	return nil
 }
 
-func (d *GoFitDb) dbConfig() {
+func (d *postgresDb) dbConfig() {
 	var ok bool
 	d.Dbhost, ok = os.LookupEnv(dbhost)
 	if !ok {
