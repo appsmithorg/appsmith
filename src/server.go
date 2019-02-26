@@ -23,6 +23,7 @@ func main() {
 
 	// Component CRUD Endpoints
 	router.GET("/api/v1/components", api.GetComponents)
+	router.POST("/api/v1/components", api.CreateComponents)
 
 	// Page CRUD Endpoints
 

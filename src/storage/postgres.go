@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"database/sql"
 	"fmt"
 	"internal-tools-server/models"
 	"log"
 	"os"
 
-	_ "github.com/lib/pq"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 type PostgresDataStore struct {
@@ -17,7 +17,7 @@ type PostgresDataStore struct {
 	Dbpass             string
 	Dbname             string
 	MaxOpenConnections int
-	db                 *sql.DB
+	DB                 *gorm.DB
 }
 
 const (
@@ -41,7 +41,7 @@ func InitPostgresDb() (datastore DataStore, err error) {
 		d.Dbhost, d.Dbport,
 		d.Dbuser, d.Dbpass, d.Dbname)
 
-	d.db, err = sql.Open("postgres", psqlInfo)
+	d.DB, err = gorm.Open("postgres", psqlInfo)
 
 	if err != nil {
 		return nil, err
@@ -49,18 +49,14 @@ func InitPostgresDb() (datastore DataStore, err error) {
 
 	// Since the error returned from “Open” does not check if the datasource is valid calling
 	// Ping on the database is required
-	err = d.db.Ping()
+	err = d.DB.DB().Ping()
 	if err != nil {
 		log.Fatal("Error: Could not establish a connection with the database")
 	}
 
 	// Setup connection pool
-	d.db.SetMaxOpenConns(d.MaxOpenConnections)
+	d.DB.DB().SetMaxOpenConns(d.MaxOpenConnections)
 
-	err = d.db.Ping()
-	if err != nil {
-		return nil, err
-	}
 	fmt.Println("Successfully connected!")
 	// listTables()
 	return &d, nil
@@ -93,7 +89,7 @@ func (d *PostgresDataStore) dbConfig() {
 
 // ExecuteQuery executes the query on the DB
 func (d *PostgresDataStore) ExecuteQuery(query string) ([]models.Component, error) {
-	rows, err := d.db.Query(query)
+	rows, err := d.DB.Raw(query).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -113,36 +109,6 @@ func (d *PostgresDataStore) ExecuteQuery(query string) ([]models.Component, erro
 	return components, nil
 }
 
-type schemaSummary struct {
-	tableName string
-}
-
-// listTables first fetches the tables from the db
-func listTables() error {
-	tables := []schemaSummary{}
-
-	rows, err := db.Query(`
-		SELECT table_name as tableName FROM information_schema.tables WHERE table_schema='public'; `)
-	if err != nil {
-		return err
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-		schema := schemaSummary{}
-		err = rows.Scan(
-			&schema.tableName,
-		)
-		fmt.Printf("Name: %s\n", schema.tableName)
-		if err != nil {
-			return err
-		}
-		tables = append(tables, schema)
-	}
-	err = rows.Err()
-	if err != nil {
-		return err
-	}
-	fmt.Printf("\nTables: %x\n", tables)
-	return nil
+func (d *PostgresDataStore) GetDatastore() *gorm.DB {
+	return d.DB
 }
