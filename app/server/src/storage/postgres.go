@@ -1,14 +1,24 @@
-package db
+package storage
 
 import (
 	"database/sql"
 	"fmt"
+	"internal-tools-server/models"
+	"log"
 	"os"
 
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+type PostgresDataStore struct {
+	Dbhost             string
+	Dbport             string
+	Dbuser             string
+	Dbpass             string
+	Dbname             string
+	MaxOpenConnections int
+	db                 *sql.DB
+}
 
 const (
 	dbhost = "DBHOST"
@@ -18,8 +28,10 @@ const (
 	dbname = "DBNAME"
 )
 
-// InitDb initializes the database
-func (d *postgresDb) InitDb() (err error) {
+// InitPostgresDb initializes the database
+func InitPostgresDb() (datastore DataStore, err error) {
+
+	d := PostgresDataStore{}
 
 	// Initialize the database
 	d.dbConfig()
@@ -29,24 +41,32 @@ func (d *postgresDb) InitDb() (err error) {
 		d.Dbhost, d.Dbport,
 		d.Dbuser, d.Dbpass, d.Dbname)
 
-	db, err = sql.Open("postgres", psqlInfo)
+	d.db, err = sql.Open("postgres", psqlInfo)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// Setup connection pool
-	db.SetMaxOpenConns(d.MaxOpenConnections)
 
-	err = db.Ping()
+	// Since the error returned from “Open” does not check if the datasource is valid calling
+	// Ping on the database is required
+	err = d.db.Ping()
 	if err != nil {
-		return err
+		log.Fatal("Error: Could not establish a connection with the database")
+	}
+
+	// Setup connection pool
+	d.db.SetMaxOpenConns(d.MaxOpenConnections)
+
+	err = d.db.Ping()
+	if err != nil {
+		return nil, err
 	}
 	fmt.Println("Successfully connected!")
-	listTables()
-	return nil
+	// listTables()
+	return &d, nil
 }
 
-func (d *postgresDb) dbConfig() {
+func (d *PostgresDataStore) dbConfig() {
 	var ok bool
 	d.Dbhost, ok = os.LookupEnv(dbhost)
 	if !ok {
@@ -66,9 +86,31 @@ func (d *postgresDb) dbConfig() {
 	}
 	d.Dbname, ok = os.LookupEnv(dbname)
 	if !ok {
-		d.Dbname = "gofit"
+		d.Dbname = "mobtools"
 	}
 	d.MaxOpenConnections = 5
+}
+
+// ExecuteQuery executes the query on the DB
+func (d *PostgresDataStore) ExecuteQuery(query string) ([]models.Component, error) {
+	rows, err := d.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	components := []models.Component{}
+
+	for rows.Next() {
+		component := models.Component{}
+		err = rows.Scan(
+			&component.ID,
+			&component.Name,
+			&component.Type,
+		)
+		components = append(components, component)
+	}
+
+	return components, nil
 }
 
 type schemaSummary struct {

@@ -1,11 +1,13 @@
 # Go parameters
+
+BINARY_NAME=internal-tools-server
+BINARY_UNIX=$(BINARY_NAME)_unix
+
 GOCMD=go
-GOBUILD=$(GOCMD) build
+GOBUILD=$(GOCMD) build -o dist/${BINARY_NAME}
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
-BINARY_NAME=internal-tools-server
-BINARY_UNIX=$(BINARY_NAME)_unix
 
 all: test build
 build: 
@@ -14,17 +16,12 @@ test:
 		$(GOTEST) -v ./...
 clean: 
 		$(GOCLEAN)
-		rm -f $(BINARY_NAME)
-		rm -f $(BINARY_UNIX)
+		rm -f dist
 run: build
-		./$(BINARY_NAME)
-deps:
-		$(GOGET) github.com/markbates/goth
-		$(GOGET) github.com/markbates/pop
-
+		./dist/$(BINARY_NAME)
 
 # Cross compilation
 build-linux:
-		CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_UNIX) -v
+		CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o dist/$(BINARY_UNIX) -v
 docker-build:
-		docker run --rm -it -v "$(GOPATH)":/go -w /go/src/bitbucket.org/rsohlich/makepost golang:latest go build -o "$(BINARY_UNIX)" -v
+		docker run --rm -it -v "$(GOPATH)":/go -w /go/src/bitbucket.org/rsohlich/makepost golang:latest go build -o "dist/$(BINARY_UNIX)" -v

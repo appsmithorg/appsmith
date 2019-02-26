@@ -2,7 +2,7 @@ package main
 
 import (
 	"internal-tools-server/api"
-	"internal-tools-server/db"
+	"internal-tools-server/storage"
 	"log"
 	"net/http"
 
@@ -10,13 +10,23 @@ import (
 )
 
 func main() {
-	db := db.NewDb(db.PostgresDb)
-	db.InitDb()
+	// Initialize the database
+	var err error
+	storage.StorageEngine, err = storage.CreateDatastore("postgres")
+	if err != nil {
+		log.Fatalln("Exception while creating datastore")
+	}
 
 	router := httprouter.New()
 
-	router.GET("/api/index", api.IndexHandler)
-	router.GET("/api/table/:name", api.TableHandler)
+	// Account CRUD Endpoints
+
+	// Component CRUD Endpoints
+	router.GET("/api/v1/components", api.GetComponents)
+
+	// Page CRUD Endpoints
+
+	// Query CRUD Endpoints
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
