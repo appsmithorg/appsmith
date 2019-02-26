@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"internal-tools-server/models"
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 var db *sql.DB
@@ -14,6 +16,7 @@ var StorageEngine DataStore
 // DataStore defines the interface that all db implementations must implement.
 type DataStore interface {
 	ExecuteQuery(query string) ([]models.Component, error)
+	GetDatastore() *gorm.DB
 }
 
 type DataStoreFactory func() (DataStore, error)
