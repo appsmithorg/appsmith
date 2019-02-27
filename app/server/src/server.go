@@ -17,20 +17,24 @@ const baseURL = "/api"
 const apiVersion = "/v1"
 
 func main() {
-	var err error
 
 	// Read all configurations
 	parseConfig()
 
 	// Initialize the database
-	dialect := viper.GetString("datastore.dialect")
-	storage.StorageEngine, err = storage.CreateDatastore(dialect)
-	if err != nil {
-		panic(fmt.Errorf("Exception while creating datastore"))
-	}
+	initializeDatastore()
 
+	// Run any migrations on the datastore
 	runMigrations()
 
+	router := intializeServer()
+
+	host := viper.GetString("server.host")
+	port := viper.GetString("server.port")
+	log.Fatal(http.ListenAndServe(host+":"+port, router))
+}
+
+func intializeServer() *httprouter.Router {
 	router := httprouter.New()
 
 	// Account CRUD Endpoints
@@ -43,9 +47,17 @@ func main() {
 	// Page CRUD Endpoints
 
 	// Query CRUD Endpoints
-	host := viper.GetString("server.host")
-	port := viper.GetString("server.port")
-	log.Fatal(http.ListenAndServe(host+":"+port, router))
+
+	return router
+}
+
+func initializeDatastore() {
+	var err error
+	dialect := viper.GetString("datastore.dialect")
+	storage.StorageEngine, err = storage.CreateDatastore(dialect)
+	if err != nil {
+		panic(fmt.Errorf("Exception while creating datastore"))
+	}
 }
 
 func parseConfig() {
@@ -58,7 +70,6 @@ func parseConfig() {
 }
 
 func runMigrations() {
-	log.Println("Going to run migrations")
 	storage.StorageEngine.GetDatastore().AutoMigrate(
 		&models.Component{},
 		&models.Account{},
