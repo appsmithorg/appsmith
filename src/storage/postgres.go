@@ -3,7 +3,8 @@ package storage
 import (
 	"fmt"
 	"log"
-	"os"
+
+	"github.com/spf13/viper"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -19,14 +20,6 @@ type PostgresDataStore struct {
 	DB                 *gorm.DB
 }
 
-const (
-	dbhost = "DBHOST"
-	dbport = "DBPORT"
-	dbuser = "DBUSER"
-	dbpass = "DBPASS"
-	dbname = "DBNAME"
-)
-
 // InitPostgresDb initializes the database
 func InitPostgresDb() (datastore DataStore, err error) {
 
@@ -40,7 +33,7 @@ func InitPostgresDb() (datastore DataStore, err error) {
 		d.Dbhost, d.Dbport,
 		d.Dbuser, d.Dbpass, d.Dbname)
 
-	d.DB, err = gorm.Open("postgres", psqlInfo)
+	d.DB, err = gorm.Open(viper.GetString("datastore.dialect"), psqlInfo)
 
 	if err != nil {
 		return nil, err
@@ -62,28 +55,28 @@ func InitPostgresDb() (datastore DataStore, err error) {
 }
 
 func (d *PostgresDataStore) dbConfig() {
-	var ok bool
-	d.Dbhost, ok = os.LookupEnv(dbhost)
-	if !ok {
+
+	d.Dbhost = viper.GetString("datastore.host")
+	if d.Dbhost == "" {
 		d.Dbhost = "localhost"
 	}
-	d.Dbport, ok = os.LookupEnv(dbport)
-	if !ok {
+	d.Dbport = viper.GetString("datastore.port")
+	if d.Dbport == "" {
 		d.Dbport = "5432"
 	}
-	d.Dbuser, ok = os.LookupEnv(dbuser)
-	if !ok {
+	d.Dbuser = viper.GetString("datastore.user")
+	if d.Dbuser == "" {
 		d.Dbuser = "postgres"
 	}
-	d.Dbpass, ok = os.LookupEnv(dbpass)
-	if !ok {
+	d.Dbpass = viper.GetString("datastore.password")
+	if d.Dbpass == "" {
 		d.Dbpass = "root"
 	}
-	d.Dbname, ok = os.LookupEnv(dbname)
-	if !ok {
+	d.Dbname = viper.GetString("datastore.schema")
+	if d.Dbname == "" {
 		d.Dbname = "mobtools"
 	}
-	d.MaxOpenConnections = 5
+	d.MaxOpenConnections = viper.GetInt("datastore.maxOpenConnections")
 }
 
 // ExecuteQuery executes the query on the DB
