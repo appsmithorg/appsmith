@@ -18,9 +18,14 @@ func ConvertMapToStruct(obj interface{}, objTags interface{}, m map[string]inter
 }
 
 func setField(obj interface{}, tags map[string]string, name string, value interface{}) error {
+
+	// If the value is nil, then simply proceed without setting the value in the struct
+	if value == nil {
+		return nil
+	}
+
 	structValue := reflect.ValueOf(obj).Elem()
 
-	// structFieldName := structValue.FieldByName(name)
 	structFieldName := structValue.FieldByName(tags[name])
 	if !structFieldName.IsValid() {
 		return fmt.Errorf("No such field: %s in obj", name)

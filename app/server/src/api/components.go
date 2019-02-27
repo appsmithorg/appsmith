@@ -50,3 +50,24 @@ func CreateComponents(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 	w.WriteHeader(200)
 	fmt.Fprintf(w, "%s", componentJSON)
 }
+
+func UpdateComponent(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	component := models.Component{}
+	err := json.NewDecoder(r.Body).Decode(&component)
+	if err != nil {
+		HandleAPIError(w, r, err)
+		return
+	}
+
+	component, err = services.UpdateComponent(component)
+	if err != nil {
+		HandleAPIError(w, r, err)
+		return
+	}
+
+	// Write content-type, statuscode, payload
+	componentJSON, _ := json.Marshal(component)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	fmt.Fprintf(w, "%s", componentJSON)
+}
