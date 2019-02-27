@@ -1,14 +1,11 @@
 package storage
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
 )
-
-var db *sql.DB
 
 var StorageEngine DataStore
 
@@ -22,6 +19,12 @@ type DataStoreFactory func() (DataStore, error)
 
 var datastoreFactories = make(map[string]DataStoreFactory)
 
+// Constructor for the storage package
+func init() {
+	Register("postgres", InitPostgresDb)
+}
+
+// Register adds the DataStoreFactory against a name to the registry incase it's not present
 func Register(name string, factory DataStoreFactory) {
 	if factory == nil {
 		log.Panicf("Datastore factory %s does not exist.", name)
@@ -33,10 +36,8 @@ func Register(name string, factory DataStoreFactory) {
 	datastoreFactories[name] = factory
 }
 
-func init() {
-	Register("postgres", InitPostgresDb)
-}
-
+// CreateDatastore initializes a datastore with connection pooling for a specific data storage name
+// This name must have been registered with datastoreFactories when the storage package is initialized
 func CreateDatastore(name string) (DataStore, error) {
 	engine, ok := datastoreFactories[name]
 	if !ok {
