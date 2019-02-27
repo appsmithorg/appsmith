@@ -1,0 +1,12 @@
+server:
+  host: 0.0.0.0
+  port: 8000
+
+datastore:
+  dialect: postgres
+  host: localhost
+  port: 5432
+  user: postgres
+  password: root
+  schema: mobtools
+  maxOpenConnections: 5
