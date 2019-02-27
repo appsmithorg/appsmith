@@ -34,3 +34,15 @@ func CreateComponent(component models.Component) (models.Component, error) {
 	datastore.Create(&component)
 	return component, nil
 }
+
+// UpdateComponent updates an existing component in the DB
+func UpdateComponent(component models.Component) (models.Component, error) {
+	datastore := storage.StorageEngine.GetDatastore()
+
+	// Update only the non-nil values in the struct
+	datastore.Model(&component).Updates(component)
+
+	// Select the updated record to return back to the client
+	datastore.First(&component)
+	return component, nil
+}
