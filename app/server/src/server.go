@@ -47,7 +47,9 @@ func intializeServer() *httprouter.Router {
 	// Page CRUD Endpoints
 
 	// Query CRUD Endpoints
-
+	router.POST(baseURL+apiVersion+url.QueryURL+"/execute", api.PostQuery)
+	router.POST(baseURL+apiVersion+url.QueryURL, api.CreateQuery)
+	router.PUT(baseURL+apiVersion+url.QueryURL, api.UpdateQuery)
 	return router
 }
 
@@ -76,6 +78,7 @@ func runMigrations() {
 		&models.User{},
 		&models.Role{},
 		&models.Page{},
+		&models.Query{},
 	)
 	log.Println("Successfully run all migrations")
 }
