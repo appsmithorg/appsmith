@@ -5,11 +5,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"internal-tools-server/models"
-	"internal-tools-server/services"
+
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
+	"gitlab.com/mobtools/internal-tools-server/models"
+	"gitlab.com/mobtools/internal-tools-server/services"
 )
 
 // GetComponents fetches the list of components from the DB

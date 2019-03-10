@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"internal-tools-server/api"
-	"internal-tools-server/models"
-	"internal-tools-server/storage"
-	"internal-tools-server/url"
 	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/spf13/viper"
+	"gitlab.com/mobtools/internal-tools-server/api"
+	"gitlab.com/mobtools/internal-tools-server/models"
+	"gitlab.com/mobtools/internal-tools-server/storage"
+	"gitlab.com/mobtools/internal-tools-server/url"
 )
 
 const baseURL = "/api"

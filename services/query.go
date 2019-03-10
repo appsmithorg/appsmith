@@ -2,10 +2,10 @@ package services
 
 import (
 	"fmt"
-	"internal-tools-server/models"
-	"internal-tools-server/storage"
 
 	"github.com/jinzhu/gorm"
+	"gitlab.com/mobtools/internal-tools-server/models"
+	"gitlab.com/mobtools/internal-tools-server/storage"
 )
 
 // ExecuteQuery runs a custom SQL query on the client database

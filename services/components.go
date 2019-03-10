@@ -2,9 +2,11 @@ package services
 
 import (
 	"fmt"
-	"internal-tools-server/models"
-	"internal-tools-server/storage"
-	"internal-tools-server/utils"
+
+	"gitlab.com/mobtools/internal-tools-server/storage"
+
+	"gitlab.com/mobtools/internal-tools-server/models"
+	"gitlab.com/mobtools/internal-tools-server/utils"
 )
 
 // GetComponent fetches a list of components from the DB based a particular user's plan
@@ -20,7 +22,7 @@ func GetComponent(values map[string][]string) ([]models.Component, error) {
 		var component models.Component
 		err = utils.ConvertMapToStruct(&component, component, m)
 		if err != nil {
-			return nil, fmt.Errorf("Found error while converting the map to struct", err)
+			return nil, fmt.Errorf("Found error while converting the map to struct: %s", err)
 		}
 		components = append(components, component)
 	}
