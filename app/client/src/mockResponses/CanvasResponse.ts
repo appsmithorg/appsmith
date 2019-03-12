@@ -5,17 +5,26 @@ import ContainerWidget, { IContainerWidgetProps } from "../widgets/ContainerWidg
 const CanvasResponse: IContainerWidgetProps<any> = {
   widgetId: "0",
   widgetType: "CONTAINER_WIDGET",
+  snapColumns: 10,
+  snapRows: 10,
   children: [
     {
       widgetId: "1",
       widgetType: "TEXT_WIDGET",
-      topRow: 0,
-      leftColumn: 2,
+      topRow: 2,
+      leftColumn: 5,
       bottomRow: 5,
       rightColumn: 5,
-      parentColumnSpace: 100,
-      parentRowSpace: 100,
-      text: "whaat"
+      text: "hey"
+    },
+    {
+      widgetId: "1",
+      widgetType: "TEXT_WIDGET",
+      topRow: 6,
+      leftColumn: 5,
+      bottomRow: 5,
+      rightColumn: 5,
+      text: "hey2"
     }
   ],
   topRow: 0,
