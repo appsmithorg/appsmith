@@ -6,6 +6,7 @@ import TextWidget, { ITextWidgetProps } from "../widgets/TextWidget";
 import InputTextWidget, {
   IInputTextWidgetProps
 } from "../widgets/InputTextWidget";
+import CalloutWidget, { ICalloutWidgetProps } from "../widgets/CalloutWidget";
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
 
@@ -28,6 +29,12 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("INPUT_TEXT_WIDGET", {
       buildWidget(widgetData: IInputTextWidgetProps): JSX.Element {
         return <InputTextWidget {...widgetData} />;
+      }
+    });
+
+    WidgetFactory.registerWidgetBuilder("CALLOUT_WIDGET", {
+      buildWidget(widgetData: ICalloutWidgetProps): JSX.Element {
+        return <CalloutWidget {...widgetData} />;
       }
     });
   }

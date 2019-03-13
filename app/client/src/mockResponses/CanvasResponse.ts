@@ -33,6 +33,18 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       minLength: "4",
       maxLength: "12",
       size: "30"
+    },
+    {
+      widgetId: "1",
+      widgetType: "CALLOUT_WIDGET",
+      topRow: 3,
+      leftColumn: 1,
+      bottomRow: 5,
+      rightColumn: 5,
+      id: "sample_id",
+      heading: "Visually important content",
+      description:
+        "The component is a simple wrapper around the CSS API that provides props for modifiers and optional title element. Any additional HTML props will be spread to the rendered <div> element."
     }
   ],
   topRow: 0,

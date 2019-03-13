@@ -1,17 +1,17 @@
 import * as React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
 import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
-import InputTextComponent from "../editorComponents/InputTextComponent";
+import CalloutComponent from "../editorComponents/CalloutComponent";
 import _ from "lodash";
 
-class InputTextWidget extends BaseWidget<IInputTextWidgetProps, IWidgetState> {
-  constructor(widgetProps: IInputTextWidgetProps) {
+class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
+  constructor(widgetProps: ICalloutWidgetProps) {
     super(widgetProps);
   }
 
   getWidgetView() {
     return (
-      <InputTextComponent
+      <CalloutComponent
         style={{
           positionType: "ABSOLUTE",
           yPosition: this.props.topRow * this.props.parentRowSpace,
@@ -21,31 +21,23 @@ class InputTextWidget extends BaseWidget<IInputTextWidgetProps, IWidgetState> {
         }}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        placeholder={this.props.placeholder}
         id={this.props.id}
-        type={this.props.type}
-        required={this.props.required}
-        minLength={this.props.minLength}
-        maxLength={this.props.maxLength}
-        size={this.props.size}
+        heading={this.props.heading}
+        description={this.props.description}
       />
     );
   }
 
   getWidgetType(): WidgetType {
-    return "INPUT_TEXT_WIDGET";
+    return "CALLOUT_WIDGET";
   }
 }
 
-export interface IInputTextWidgetProps extends IWidgetProps {
-  type?: string;
+export interface ICalloutWidgetProps extends IWidgetProps {
   id?: string;
-  placeholder?: string;
+  heading?: string;
+  description?: string;
   ellipsize?: boolean;
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  size?: number;
 }
 
-export default InputTextWidget;
+export default CalloutWidget;
