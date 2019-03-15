@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IComponentProps } from "./BaseComponent";
+import { Callout, Code, H5, Intent, Switch } from "@blueprintjs/core";
 import styled from "../constants/DefaultTheme";
 
 const CalloutContainer = styled("span")<ICalloutComponentProps>`
@@ -17,10 +18,12 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
   render() {
     return (
       <CalloutContainer {...this.props}>
-        <div className="bp3-callout">
-          <h4 className="bp3-heading">{this.props.heading}</h4>
+        <Callout
+          {...this.props}
+          title={this.props.title ? this.props.title : undefined}
+        >
           {this.props.description}
-        </div>
+        </Callout>
       </CalloutContainer>
     );
   }
@@ -28,8 +31,9 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
 
 export interface ICalloutComponentProps extends IComponentProps {
   id?: string;
-  heading?: string;
+  title?: string;
   description?: string;
+  intent?: Intent;
   ellipsize?: boolean;
 }
 

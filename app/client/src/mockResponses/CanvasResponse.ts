@@ -42,9 +42,22 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       bottomRow: 5,
       rightColumn: 5,
       id: "sample_id",
-      heading: "Visually important content",
+      title: "Visually important content",
       description:
-        "The component is a simple wrapper around the CSS API that provides props for modifiers and optional title element. Any additional HTML props will be spread to the rendered <div> element."
+        "The component is a simple wrapper around the CSS API that provides props for modifiers and optional title element. Any additional HTML props will be spread to the rendered <div> element.",
+      icon: "",
+      intent: "primary"
+    },
+    {
+      widgetId: "1",
+      widgetType: "ICON_WIDGET",
+      topRow: 4,
+      leftColumn: 4,
+      bottomRow: 5,
+      rightColumn: 5,
+      icon: "globe",
+      iconSize: "20",
+      intent: "primary"
     }
   ],
   topRow: 0,

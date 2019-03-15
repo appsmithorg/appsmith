@@ -1,18 +1,19 @@
 import * as React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { Callout, Code, H5, Intent, Switch } from "@blueprintjs/core";
 import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
-import CalloutComponent from "../editorComponents/CalloutComponent";
+import { Icon, Intent } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import IconComponent from "../editorComponents/IconComponent";
 import _ from "lodash";
 
-class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
-  constructor(widgetProps: ICalloutWidgetProps) {
+class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
+  constructor(widgetProps: IIconWidgetProps) {
     super(widgetProps);
   }
 
   getWidgetView() {
     return (
-      <CalloutComponent
+      <IconComponent
         style={{
           positionType: "ABSOLUTE",
           yPosition: this.props.topRow * this.props.parentRowSpace,
@@ -22,24 +23,22 @@ class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
         }}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        id={this.props.id}
-        title={this.props.title}
-        description={this.props.description}
+        icon={this.props.icon}
+        iconSize={this.props.iconSize}
       />
     );
   }
 
   getWidgetType(): WidgetType {
-    return "CALLOUT_WIDGET";
+    return "ICON_WIDGET";
   }
 }
 
-export interface ICalloutWidgetProps extends IWidgetProps {
-  id?: string;
-  title?: string;
-  description?: string;
-  intent?: Intent;
+export interface IIconWidgetProps extends IWidgetProps {
+  icon?: IconName;
+  iconSize?: number;
   ellipsize?: boolean;
+  intent?: Intent;
 }
 
-export default CalloutWidget;
+export default IconWidget;
