@@ -20,7 +20,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       text: "Lorem Ipsum"
     },
     {
-      widgetId: "1",
+      widgetId: "2",
       widgetType: "INPUT_TEXT_WIDGET",
       topRow: 1,
       leftColumn: 1,
@@ -35,7 +35,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       size: "30"
     },
     {
-      widgetId: "1",
+      widgetId: "3",
       widgetType: "CALLOUT_WIDGET",
       topRow: 3,
       leftColumn: 1,
@@ -49,7 +49,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       intent: "primary"
     },
     {
-      widgetId: "1",
+      widgetId: "4",
       widgetType: "ICON_WIDGET",
       topRow: 4,
       leftColumn: 4,
@@ -58,6 +58,15 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       icon: "globe",
       iconSize: "20",
       intent: "primary"
+    },
+    {
+      widgetId: "5",
+      widgetType: "SPINNER_WIDGET",
+      topRow: 5,
+      leftColumn: 6,
+      bottomRow: 5,
+      rightColumn: 5,
+      size: 20
     }
   ],
   topRow: 0,

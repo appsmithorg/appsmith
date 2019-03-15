@@ -8,6 +8,7 @@ import InputTextWidget, {
 } from "../widgets/InputTextWidget";
 import CalloutWidget, { ICalloutWidgetProps } from "../widgets/CalloutWidget";
 import IconWidget, { IIconWidgetProps } from "../widgets/IconWidget";
+import SpinnerWidget, { ISpinnerWidgetProps } from "../widgets/SpinnerWidget";
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
 
@@ -42,6 +43,12 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("ICON_WIDGET", {
       buildWidget(widgetData: IIconWidgetProps): JSX.Element {
         return <IconWidget {...widgetData} />;
+      }
+    });
+
+    WidgetFactory.registerWidgetBuilder("SPINNER_WIDGET", {
+      buildWidget(widgetData: ISpinnerWidgetProps): JSX.Element {
+        return <SpinnerWidget {...widgetData} />;
       }
     });
   }

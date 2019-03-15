@@ -1,19 +1,18 @@
 import * as React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
 import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
-import { Icon, Intent } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
-import IconComponent from "../editorComponents/IconComponent";
+import { Spinner, Intent } from "@blueprintjs/core";
+import SpinnerComponent from "../editorComponents/SpinnerComponent";
 import _ from "lodash";
 
-class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
-  constructor(widgetProps: IIconWidgetProps) {
+class SpinnerWidget extends BaseWidget<ISpinnerWidgetProps, IWidgetState> {
+  constructor(widgetProps: ISpinnerWidgetProps) {
     super(widgetProps);
   }
 
   getWidgetView() {
     return (
-      <IconComponent
+      <SpinnerComponent
         style={{
           positionType: "ABSOLUTE",
           yPosition: this.props.topRow * this.props.parentRowSpace,
@@ -23,22 +22,23 @@ class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
         }}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        icon={this.props.icon}
-        iconSize={this.props.iconSize}
+        size={this.props.size}
+        value={this.props.value}
+        intent={this.props.intent}
       />
     );
   }
 
   getWidgetType(): WidgetType {
-    return "ICON_WIDGET";
+    return "SPINNER_WIDGET";
   }
 }
 
-export interface IIconWidgetProps extends IWidgetProps {
-  icon?: IconName;
-  iconSize?: number;
+export interface ISpinnerWidgetProps extends IWidgetProps {
+  size?: number;
+  value?: number;
   ellipsize?: boolean;
-  intent?: string;
+  intent?: Intent;
 }
 
-export default IconWidget;
+export default SpinnerWidget;

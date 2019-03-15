@@ -28,7 +28,7 @@ class IconComponent extends React.Component<IIconComponentProps> {
 export interface IIconComponentProps extends IComponentProps {
   iconSize?: number;
   icon?: IconName;
-  intent?: Intent;
+  intent?: string;
   ellipsize?: boolean;
 }
 

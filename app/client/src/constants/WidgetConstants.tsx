@@ -5,7 +5,8 @@ export type WidgetType =
 	| "LIST_WIDGET"
 	| "INPUT_TEXT_WIDGET"
 	| "CALLOUT_WIDGET"
-	| "ICON_WIDGET";
+	| "ICON_WIDGET"
+	| "SPINNER_WIDGET";
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
 export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION";
 export type CSSUnit =
