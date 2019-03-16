@@ -3,8 +3,8 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
-import { WidgetType } from "../constants/WidgetConstants"
-import { Component } from "react"
+import { WidgetType } from "../constants/WidgetConstants";
+import { Component } from "react";
 
 abstract class BaseWidget<
   T extends IWidgetProps,
@@ -18,7 +18,7 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace
-    )
+    );
   }
 
   componentWillReceiveProps(prevProps: T, nextProps: T) {
@@ -29,7 +29,7 @@ abstract class BaseWidget<
       nextProps.bottomRow,
       nextProps.parentColumnSpace,
       nextProps.parentRowSpace
-    )
+    );
   }
 
   calculateWidgetBounds(
@@ -43,38 +43,38 @@ abstract class BaseWidget<
     const widgetState: IWidgetState = {
       width: (rightColumn - leftColumn) * parentColumnSpace,
       height: (bottomRow - topRow) * parentRowSpace
-    }
-    this.setState(widgetState)
+    };
+    this.setState(widgetState);
   }
 
   render() {
-    return this.getWidgetView()
+    return this.getWidgetView();
   }
 
-  abstract getWidgetView(): JSX.Element
+  abstract getWidgetView(): JSX.Element;
 
-  abstract getWidgetType(): WidgetType
+  abstract getWidgetType(): WidgetType;
 }
 
 export interface IWidgetState {
-  height: number
-  width: number
+  height: number;
+  width: number;
 }
 
 export interface IWidgetBuilder<T extends IWidgetProps> {
-  buildWidget(data: T): JSX.Element
+  buildWidget(data: T): JSX.Element;
 }
 
 export interface IWidgetProps {
-  widgetType: WidgetType
-  key?: string
-  widgetId: string
-  topRow: number
-  leftColumn: number
-  bottomRow: number
-  rightColumn: number
-  parentColumnSpace: number
-  parentRowSpace: number
+  widgetType: WidgetType;
+  key?: string;
+  widgetId: string;
+  topRow: number;
+  leftColumn: number;
+  bottomRow: number;
+  rightColumn: number;
+  parentColumnSpace: number;
+  parentRowSpace: number;
 }
 
-export default BaseWidget
+export default BaseWidget;

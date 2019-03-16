@@ -3,9 +3,9 @@ import ContainerWidget, {
   IContainerWidgetProps
 } from "../widgets/ContainerWidget";
 import TextWidget, { ITextWidgetProps } from "../widgets/TextWidget";
-import InputTextWidget, {
-  IInputTextWidgetProps
-} from "../widgets/InputTextWidget";
+import InputGroupWidget, {
+  IInputGroupWidgetProps
+} from "../widgets/InputGroupWidget";
 import CalloutWidget, { ICalloutWidgetProps } from "../widgets/CalloutWidget";
 import IconWidget, { IIconWidgetProps } from "../widgets/IconWidget";
 import SpinnerWidget, { ISpinnerWidgetProps } from "../widgets/SpinnerWidget";
@@ -28,12 +28,6 @@ class WidgetBuilderRegistry {
       }
     });
 
-    WidgetFactory.registerWidgetBuilder("INPUT_TEXT_WIDGET", {
-      buildWidget(widgetData: IInputTextWidgetProps): JSX.Element {
-        return <InputTextWidget {...widgetData} />;
-      }
-    });
-
     WidgetFactory.registerWidgetBuilder("CALLOUT_WIDGET", {
       buildWidget(widgetData: ICalloutWidgetProps): JSX.Element {
         return <CalloutWidget {...widgetData} />;
@@ -49,6 +43,12 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("SPINNER_WIDGET", {
       buildWidget(widgetData: ISpinnerWidgetProps): JSX.Element {
         return <SpinnerWidget {...widgetData} />;
+      }
+    });
+
+    WidgetFactory.registerWidgetBuilder("INPUT_GROUP_WIDGET", {
+      buildWidget(widgetData: IInputGroupWidgetProps): JSX.Element {
+        return <InputGroupWidget {...widgetData} />;
       }
     });
   }

@@ -9,6 +9,12 @@ const CanvasResponse: IContainerWidgetProps<any> = {
   widgetType: "CONTAINER_WIDGET",
   snapColumns: 10,
   snapRows: 10,
+  topRow: 0,
+  bottomRow: 600,
+  leftColumn: 0,
+  rightColumn: 1200,
+  parentColumnSpace: 1,
+  parentRowSpace: 1,
   children: [
     {
       widgetId: "1",
@@ -21,26 +27,20 @@ const CanvasResponse: IContainerWidgetProps<any> = {
     },
     {
       widgetId: "2",
-      widgetType: "INPUT_TEXT_WIDGET",
+      widgetType: "INPUT_GROUP_WIDGET",
       topRow: 1,
       leftColumn: 1,
       bottomRow: 5,
       rightColumn: 5,
-      placeholder: "Lorem Ipsum",
-      id: "sample_id",
-      type: "number",
-      required: false,
-      minLength: "4",
-      maxLength: "12",
-      size: "30"
+      placeholder: "Lorem Ipsum"
     },
     {
       widgetId: "3",
       widgetType: "CALLOUT_WIDGET",
       topRow: 3,
-      leftColumn: 1,
-      bottomRow: 5,
-      rightColumn: 5,
+      leftColumn: 2,
+      bottomRow: 8,
+      rightColumn: 4,
       id: "sample_id",
       title: "Visually important content",
       description:
@@ -68,13 +68,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       rightColumn: 5,
       size: 20
     }
-  ],
-  topRow: 0,
-  bottomRow: 600,
-  leftColumn: 0,
-  rightColumn: 1200,
-  parentColumnSpace: 1,
-  parentRowSpace: 1
+  ]
 };
 
 export default CanvasResponse;
