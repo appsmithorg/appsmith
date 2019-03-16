@@ -46,7 +46,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       description:
         "The component is a simple wrapper around the CSS API that provides props for modifiers and optional title element. Any additional HTML props will be spread to the rendered <div> element.",
       icon: "",
-      intent: "primary"
+      intent: "danger"
     },
     {
       widgetId: "4",

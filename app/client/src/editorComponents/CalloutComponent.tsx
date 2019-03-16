@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IComponentProps } from "./BaseComponent";
 import PositionContainer from "./PositionContainer";
-import { Callout, Code, H5, Intent, Switch } from "@blueprintjs/core";
+import { Callout, Intent } from "@blueprintjs/core";
 
 class CalloutComponent extends React.Component<ICalloutComponentProps> {
   render() {
@@ -10,7 +10,7 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
         <Callout
           {...this.props}
           title={this.props.title ? this.props.title : undefined}
-          intent={this.props.intent}
+          intent={"primary"}
         >
           {this.props.description}
         </Callout>
