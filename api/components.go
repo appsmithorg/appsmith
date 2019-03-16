@@ -8,13 +8,12 @@ import (
 
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
 	"gitlab.com/mobtools/internal-tools-server/models"
 	"gitlab.com/mobtools/internal-tools-server/services"
 )
 
 // GetComponents fetches the list of components from the DB
-func GetComponents(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func GetComponents(w http.ResponseWriter, r *http.Request) {
 	queryValues := r.URL.Query()
 
 	components, err := services.GetComponent(queryValues)
@@ -31,7 +30,7 @@ func GetComponents(w http.ResponseWriter, r *http.Request, params httprouter.Par
 }
 
 // CreateComponents creates components in the DB
-func CreateComponents(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func CreateComponents(w http.ResponseWriter, r *http.Request) {
 	component := models.Component{}
 	err := json.NewDecoder(r.Body).Decode(&component)
 	if err != nil {
@@ -52,7 +51,7 @@ func CreateComponents(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 	fmt.Fprintf(w, "%s", componentJSON)
 }
 
-func UpdateComponent(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func UpdateComponent(w http.ResponseWriter, r *http.Request) {
 	component := models.Component{}
 	err := json.NewDecoder(r.Body).Decode(&component)
 	if err != nil {

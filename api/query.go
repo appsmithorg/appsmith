@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
 	"gitlab.com/mobtools/internal-tools-server/models"
 	"gitlab.com/mobtools/internal-tools-server/services"
 )
@@ -16,7 +15,7 @@ import (
 */
 
 // PostQuery executes a custom sql query on the client database
-func PostQuery(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func PostQuery(w http.ResponseWriter, r *http.Request) {
 	queryBody := models.ExecQuery{}
 	err := json.NewDecoder(r.Body).Decode(&queryBody)
 	if err != nil {
@@ -39,7 +38,7 @@ func PostQuery(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 // CreateQuery creates a new query for the user in the table
-func CreateQuery(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func CreateQuery(w http.ResponseWriter, r *http.Request) {
 	queryBody := models.Query{}
 	err := json.NewDecoder(r.Body).Decode(&queryBody)
 	if err != nil {
@@ -61,7 +60,7 @@ func CreateQuery(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 // UpdateQuery updates a given query in the database for a given account
-func UpdateQuery(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func UpdateQuery(w http.ResponseWriter, r *http.Request) {
 	queryBody := models.Query{}
 	err := json.NewDecoder(r.Body).Decode(&queryBody)
 	if err != nil {
