@@ -10,7 +10,7 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
         <Callout
           {...this.props}
           title={this.props.title ? this.props.title : undefined}
-          intent={"primary"}
+          intent={this.props.intent}
         >
           {this.props.description}
         </Callout>

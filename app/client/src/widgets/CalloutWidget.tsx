@@ -25,6 +25,7 @@ class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
         id={this.props.id}
         title={this.props.title}
         description={this.props.description}
+        intent={this.props.intent}
       />
     );
   }

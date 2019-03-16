@@ -25,6 +25,7 @@ class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
         key={this.props.widgetId}
         icon={this.props.icon}
         iconSize={this.props.iconSize}
+        intent={this.props.intent}
       />
     );
   }
@@ -38,7 +39,7 @@ export interface IIconWidgetProps extends IWidgetProps {
   icon?: IconName;
   iconSize?: number;
   ellipsize?: boolean;
-  intent?: string;
+  intent?: Intent;
 }
 
 export default IconWidget;

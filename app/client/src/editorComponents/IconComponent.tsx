@@ -8,7 +8,11 @@ class IconComponent extends React.Component<IIconComponentProps> {
   render() {
     return (
       <PositionContainer {...this.props}>
-        <Icon icon={this.props.icon} iconSize={this.props.iconSize} />
+        <Icon
+          icon={this.props.icon}
+          iconSize={this.props.iconSize}
+          intent={this.props.intent}
+        />
       </PositionContainer>
     );
   }
@@ -17,7 +21,7 @@ class IconComponent extends React.Component<IIconComponentProps> {
 export interface IIconComponentProps extends IComponentProps {
   iconSize?: number;
   icon?: IconName;
-  intent?: string;
+  intent?: Intent;
   ellipsize?: boolean;
 }
 
