@@ -10,3 +10,10 @@ datastore:
   password: root
   schema: mobtools
   maxOpenConnections: 5
+
+auth:
+  provider: google
+  key: 447275779593-5gd5vlqtofcmstit1et2gh949b8m8ss2.apps.googleusercontent.com
+  secret: xJpQZ1Xd5YvJZ6gcVMmBVqFz
+  callbackUrl: /auth/google/callback
+  sessionSecret: (Nm<7b4Sa$
