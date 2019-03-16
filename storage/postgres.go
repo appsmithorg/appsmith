@@ -50,7 +50,7 @@ func InitPostgresDb() (datastore DataStore, err error) {
 	d.DB.DB().SetMaxOpenConns(d.MaxOpenConnections)
 
 	fmt.Println("Successfully connected!")
-	// listTables()
+	d.DB.LogMode(true)
 	return &d, nil
 }
 
