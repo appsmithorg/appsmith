@@ -49,25 +49,25 @@ func intializeServer() *mux.Router {
 	}
 
 	// Auth Endpoints
-	router.HandleFunc(url.LoginURL, middleware.Chain(api.Login, middleware.Method("GET"), middleware.Logging()))
-	router.HandleFunc(url.AuthURL, middleware.Chain(api.InitiateAuth, middleware.Method("GET"), middleware.Logging()))
-	router.HandleFunc(url.AuthCallbackURL, middleware.Chain(api.AuthCallback, middleware.Method("GET"), middleware.Logging()))
-	router.HandleFunc(url.LogoutURL, middleware.Chain(api.Logout, middleware.Method("GET"), middleware.Logging()))
-	router.HandleFunc(url.ProfileURL, middleware.Chain(api.GetUserProfile, middleware.Method("GET"), middleware.Logging()))
+	router.HandleFunc(url.LoginURL, middleware.Chain(api.Login, middleware.Logging())).Methods("GET")
+	router.HandleFunc(url.AuthURL, middleware.Chain(api.InitiateAuth, middleware.Logging())).Methods("GET")
+	router.HandleFunc(url.AuthCallbackURL, middleware.Chain(api.AuthCallback, middleware.Logging())).Methods("GET")
+	router.HandleFunc(url.LogoutURL, middleware.Chain(api.Logout, middleware.Logging())).Methods("GET")
+	router.HandleFunc(url.ProfileURL, middleware.Chain(api.GetUserProfile, middleware.Logging())).Methods("GET")
 
 	// Account CRUD Endpoints
 
 	// Component CRUD Endpoints
-	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.GetComponents, middleware.Method("GET"), middleware.Authenticated(), middleware.Logging()))
-	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.CreateComponents, middleware.Method("POST"), middleware.Authenticated(), middleware.Logging()))
-	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.UpdateComponent, middleware.Method("PUT"), middleware.Authenticated(), middleware.Logging()))
+	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.GetComponents, middleware.Authenticated(), middleware.Logging())).Methods("GET")
+	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.CreateComponents, middleware.Authenticated(), middleware.Logging())).Methods("POST")
+	router.HandleFunc(baseAPIURL+apiVersion+url.ComponentURL, middleware.Chain(api.UpdateComponent, middleware.Authenticated(), middleware.Logging())).Methods("PUT")
 
 	// Page CRUD Endpoints
 
 	// Query CRUD Endpoints
-	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL+"/execute", middleware.Chain(api.PostQuery, middleware.Method("POST"), middleware.Authenticated(), middleware.Logging()))
-	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL, middleware.Chain(api.CreateQuery, middleware.Method("POST"), middleware.Authenticated(), middleware.Logging()))
-	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL, middleware.Chain(api.UpdateQuery, middleware.Method("PUT"), middleware.Authenticated(), middleware.Logging()))
+	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL+"/execute", middleware.Chain(api.PostQuery, middleware.Authenticated(), middleware.Logging())).Methods("POST")
+	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL, middleware.Chain(api.CreateQuery, middleware.Authenticated(), middleware.Logging())).Methods("POST")
+	router.HandleFunc(baseAPIURL+apiVersion+url.QueryURL+"/{id}", middleware.Chain(api.UpdateQuery, middleware.Authenticated(), middleware.Logging())).Methods("PUT")
 
 	return router
 }

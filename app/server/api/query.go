@@ -3,7 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 
 	"gitlab.com/mobtools/internal-tools-server/models"
 	"gitlab.com/mobtools/internal-tools-server/services"
@@ -64,10 +68,13 @@ func UpdateQuery(w http.ResponseWriter, r *http.Request) {
 	queryBody := models.Query{}
 	err := json.NewDecoder(r.Body).Decode(&queryBody)
 	if err != nil {
+		log.Printf("Got error when decoding the queryBody. %s", err.Error())
 		HandleAPIError(w, r, err)
 		return
 	}
 
+	queryBody.ID, _ = strconv.ParseInt(mux.Vars(r)["id"], 10, 64)
+	log.Printf("Got query.ID as %d", queryBody.ID)
 	queryBody, err = services.UpdateQuery(queryBody)
 	if err != nil {
 		HandleAPIError(w, r, err)
