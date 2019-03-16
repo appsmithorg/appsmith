@@ -1,22 +1,11 @@
 import * as React from "react";
 import { IComponentProps } from "./BaseComponent";
-import styled from "../constants/DefaultTheme";
-
-const InputTextContainer = styled("span")<IInputTextComponentProps>`
-  color: ${props => props.theme.primaryColor};
-  position: ${props => props.style.positionType};
-  left: ${props => {
-    return props.style.xPosition + props.style.xPositionUnit;
-  }};
-  top: ${props => {
-    return props.style.yPosition + props.style.yPositionUnit;
-  }};
-`;
+import PositionContainer from "./PositionContainer";
 
 class InputTextComponent extends React.Component<IInputTextComponentProps> {
   render() {
     return (
-      <InputTextContainer {...this.props}>
+      <PositionContainer {...this.props}>
         <input
           placeholder={this.props.placeholder}
           type={this.props.type}
@@ -26,7 +15,7 @@ class InputTextComponent extends React.Component<IInputTextComponentProps> {
           maxLength={this.props.maxLength}
           size={this.props.size}
         />
-      </InputTextContainer>
+      </PositionContainer>
     );
   }
 }

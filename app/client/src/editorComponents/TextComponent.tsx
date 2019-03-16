@@ -1,21 +1,10 @@
 import * as React from "react"
 import { IComponentProps } from "./BaseComponent"
-import styled from "../constants/DefaultTheme"
-
-const TextContainer = styled("span")<ITextComponentProps>`
-  color: ${props => props.theme.primaryColor};
-  position: ${props => props.style.positionType};
-  left: ${props => {
-    return props.style.xPosition + props.style.xPositionUnit
-  }};
-  top: ${props => {
-    return props.style.yPosition + props.style.yPositionUnit
-  }};
-`
+import PositionContainer from "./PositionContainer";
 
 class TextComponent extends React.Component<ITextComponentProps> {
   render() {
-    return <TextContainer {...this.props}>{this.props.text}</TextContainer>
+    return <PositionContainer {...this.props}>{this.props.text}</PositionContainer>
   }
 }
 
