@@ -47,7 +47,7 @@ class ContainerWidget extends BaseWidget<
     return WidgetFactory.createWidget(childWidgetData);
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <ContainerComponent
         widgetId={this.props.widgetId}

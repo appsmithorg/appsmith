@@ -10,7 +10,7 @@ class SpinnerWidget extends BaseWidget<ISpinnerWidgetProps, IWidgetState> {
     super(widgetProps);
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <SpinnerComponent
         style={{

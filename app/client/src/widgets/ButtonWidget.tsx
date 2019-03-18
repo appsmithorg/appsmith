@@ -10,7 +10,7 @@ class ButtonWidget extends BaseWidget<IButtonWidgetProps, IWidgetState> {
     super(widgetProps)
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <ButtonComponent
         style={{

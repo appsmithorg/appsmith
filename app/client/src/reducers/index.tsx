@@ -3,6 +3,7 @@ import entityReducer from "./entityReducers"
 import uiReducer from "./uiReducers"
 import { CanvasReduxState } from "./uiReducers/canvasReducer"
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducers"
+import { WidgetPaneReduxState } from "./uiReducers/widgetPaneReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -13,7 +14,8 @@ export default appReducer
 
 export interface AppState {
   ui: {
-    canvas: CanvasReduxState<any>
+    canvas: CanvasReduxState<any>,
+    widgetPaneReducer: WidgetPaneReduxState
   }
   entities: {
     canvasWidgets: CanvasWidgetsReduxState

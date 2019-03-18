@@ -11,7 +11,7 @@ class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
     super(widgetProps);
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <IconComponent
         style={{

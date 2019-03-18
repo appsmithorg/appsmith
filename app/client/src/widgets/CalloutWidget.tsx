@@ -10,7 +10,7 @@ class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
     super(widgetProps);
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <CalloutComponent
         style={{

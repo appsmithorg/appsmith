@@ -31,6 +31,12 @@ class WidgetBuilderRegistry {
       }
     });
 
+    WidgetFactory.registerWidgetBuilder("BUTTON_WIDGET", {
+      buildWidget(widgetData: IButtonWidgetProps): JSX.Element {
+        return <ButtonWidget {...widgetData} />;
+      }
+    });
+
     WidgetFactory.registerWidgetBuilder("CALLOUT_WIDGET", {
       buildWidget(widgetData: ICalloutWidgetProps): JSX.Element {
         return <CalloutWidget {...widgetData} />;

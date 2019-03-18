@@ -13,7 +13,7 @@ class InputGroupWidget extends BaseWidget<
     super(widgetProps);
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <InputGroupComponent
         style={{

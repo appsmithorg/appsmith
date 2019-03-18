@@ -3,8 +3,12 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
-import { WidgetType } from "../constants/WidgetConstants";
-import { Component } from "react";
+import {
+  WidgetType,
+  RenderMode,
+  RenderModes
+} from "../constants/WidgetConstants"
+import { Component } from "react"
 
 abstract class BaseWidget<
   T extends IWidgetProps,
@@ -18,7 +22,7 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace
-    );
+    )
   }
 
   componentWillReceiveProps(prevProps: T, nextProps: T) {
@@ -29,7 +33,7 @@ abstract class BaseWidget<
       nextProps.bottomRow,
       nextProps.parentColumnSpace,
       nextProps.parentRowSpace
-    );
+    )
   }
 
   calculateWidgetBounds(
@@ -43,38 +47,60 @@ abstract class BaseWidget<
     const widgetState: IWidgetState = {
       width: (rightColumn - leftColumn) * parentColumnSpace,
       height: (bottomRow - topRow) * parentRowSpace
-    };
-    this.setState(widgetState);
+    }
+    this.setState(widgetState)
   }
 
   render() {
-    return this.getWidgetView();
+    return this.getWidgetView()
   }
 
-  abstract getWidgetView(): JSX.Element;
+  getWidgetView(): JSX.Element {
+    switch (this.props.renderMode) {
+      case RenderModes.CANVAS:
+        return this.getCanvasView()
+      case RenderModes.COMPONENT_PANE:
+        return this.getComponentPaneView()
+      case RenderModes.PAGE:
+        return this.getPageView()
+      default:
+        return this.getPageView()
+    }
+  }
 
-  abstract getWidgetType(): WidgetType;
+  abstract getPageView(): JSX.Element
+
+  getCanvasView(): JSX.Element {
+    return this.getPageView()
+  }
+
+  getComponentPaneView(): JSX.Element {
+    return this.getPageView()
+  }
+
+  abstract getWidgetType(): WidgetType
 }
 
 export interface IWidgetState {
-  height: number;
-  width: number;
+  height: number
+  width: number
 }
 
 export interface IWidgetBuilder<T extends IWidgetProps> {
-  buildWidget(data: T): JSX.Element;
+  buildWidget(data: T): JSX.Element
 }
 
 export interface IWidgetProps {
-  widgetType: WidgetType;
-  key?: string;
-  widgetId: string;
-  topRow: number;
-  leftColumn: number;
-  bottomRow: number;
-  rightColumn: number;
-  parentColumnSpace: number;
-  parentRowSpace: number;
+  widgetType: WidgetType
+  key?: string
+  widgetId: string
+  topRow: number
+  leftColumn: number
+  bottomRow: number
+  rightColumn: number
+  parentColumnSpace: number
+  parentRowSpace: number
+  renderMode: RenderMode
 }
 
-export default BaseWidget;
+export default BaseWidget

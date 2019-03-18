@@ -9,7 +9,7 @@ class TextWidget extends BaseWidget<ITextWidgetProps, IWidgetState> {
     super(widgetProps)
   }
 
-  getWidgetView() {
+  getPageView() {
     return (
       <TextComponent
         style={{
