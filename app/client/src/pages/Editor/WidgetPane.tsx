@@ -7,7 +7,7 @@ import { IWidgetProps } from "../../widgets/BaseWidget";
 
 class WidgetPane extends Component<WidgetPaneReduxState> {
   render() {
-    return (<div>
+    return (<div style={{ height: "600px", width: "300px", backgroundColor: "#f4f4f4", position: "absolute", top: 100 }}>
       {this.props.widgets.map((widget: IWidgetProps) => {
         return WidgetFactory.createWidget(widget)
       })}
@@ -17,7 +17,7 @@ class WidgetPane extends Component<WidgetPaneReduxState> {
 
 const mapStateToProps = (state: AppState, props: any): WidgetPaneReduxState => {
   return {
-    widgets: state.ui.widgetPaneReducer.widgets
+    widgets: state.ui.widgetPane.widgets
   }
 }
 

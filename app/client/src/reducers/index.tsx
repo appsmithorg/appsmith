@@ -15,7 +15,7 @@ export default appReducer
 export interface AppState {
   ui: {
     canvas: CanvasReduxState<any>,
-    widgetPaneReducer: WidgetPaneReduxState
+    widgetPane: WidgetPaneReduxState
   }
   entities: {
     canvasWidgets: CanvasWidgetsReduxState
