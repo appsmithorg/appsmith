@@ -6,11 +6,11 @@ import reactor.core.publisher.Mono;
 
 public interface WidgetService {
 
-    Mono<Widget> getByName(String id);
+    Mono<Widget> getByName(String name);
 
     Flux<Widget> get();
 
     Mono<Widget> create(Widget widget);
 
-    Mono<Widget> update(Long id);
+    Mono<Widget> update(Widget widget) throws Exception;
 }

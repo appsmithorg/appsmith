@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 // Specially adding the table name here because the keyword "User" is reserved in Postgres

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WidgetRepository extends BaseRepository<Widget, Long> {
 
+    Widget findByName(String name);
 }
