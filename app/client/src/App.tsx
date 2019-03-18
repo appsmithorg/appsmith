@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
-import logo from './assets/images/logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import logo from "./assets/images/logo.svg";
+import "./App.css";
+import "../node_modules/@blueprintjs/core/src/blueprint.scss";
 
 class App extends Component {
   render() {
