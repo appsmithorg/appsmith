@@ -7,9 +7,7 @@ import {
 import { IWidgetProps } from "../../widgets/BaseWidget";
 import WidgetPaneResponse from "../../mockResponses/WidgetPaneResponse"
 
-const initialState: WidgetPaneReduxState = {
-  widgets: WidgetPaneResponse.widgets
-}
+const initialState: WidgetPaneReduxState = WidgetPaneResponse
 
 const widgetPaneReducer = createReducer(initialState, {
   [ActionTypes.LOAD_CANVAS]: (
@@ -21,7 +19,7 @@ const widgetPaneReducer = createReducer(initialState, {
 })
 
 export interface WidgetPaneReduxState {
-  widgets: Partial<IWidgetProps | any>[]
+  widgets: (IWidgetProps | any)[]
 }
 
 export default widgetPaneReducer
