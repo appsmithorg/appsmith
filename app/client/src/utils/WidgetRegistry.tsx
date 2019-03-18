@@ -5,6 +5,9 @@ import ContainerWidget, {
 import TextWidget, {
   ITextWidgetProps
 } from "../widgets/TextWidget"
+import ButtonWidget, {
+  IButtonWidgetProps
+} from "../widgets/ButtonWidget"
 import WidgetFactory from "./WidgetFactory"
 import React from "react"
 
@@ -24,6 +27,14 @@ class WidgetBuilderRegistry {
         widgetData: ITextWidgetProps
       ): JSX.Element {
         return <TextWidget {...widgetData} />
+      }
+    })
+
+    WidgetFactory.registerWidgetBuilder("BUTTON_WIDGET", {
+      buildWidget(
+        widgetData: IButtonWidgetProps
+      ): JSX.Element {
+        return <ButtonWidget {...widgetData} />
       }
     })
   

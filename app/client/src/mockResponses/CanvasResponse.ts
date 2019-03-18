@@ -25,6 +25,15 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       bottomRow: 5,
       rightColumn: 5,
       text: "hey2"
+    },
+    {
+      widgetId: "1",
+      widgetType: "BUTTON_WIDGET",
+      topRow: 6,
+      leftColumn: 5,
+      bottomRow: 5,
+      rightColumn: 5,
+      text: "hey2"
     }
   ],
   topRow: 0,
