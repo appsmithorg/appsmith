@@ -1,0 +1,7 @@
+package com.mobtools.server.constants;
+
+public interface Url {
+    String BASE_URL = "/api";
+    String VERSION = "/v1";
+    String WIDGET_URL = BASE_URL + VERSION + "/widgets";
+}
