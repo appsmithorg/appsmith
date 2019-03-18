@@ -3,6 +3,7 @@ package com.mobtools.server.domains;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -18,6 +19,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
+@DynamicUpdate
 public abstract class BaseDomain implements Serializable {
 
     private static final long serialVersionUID = 7459916000501322517L;

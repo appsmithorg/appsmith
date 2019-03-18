@@ -22,13 +22,16 @@ public class WidgetServiceImpl extends BaseService implements WidgetService {
     }
 
     @Override
-    public Mono<Widget> getByName(String id) {
-        return null;
+    public Mono<Widget> getByName(String name) {
+        return Mono.fromCallable(() -> widgetRepository.findByName(name))
+                .subscribeOn(scheduler);
     }
 
     @Override
     public Flux<Widget> get() {
-        return null;
+        return Mono.fromCallable(() -> widgetRepository.findAll())
+                .flatMapMany(Flux::fromIterable)
+                .subscribeOn(scheduler);
     }
 
     @Override
@@ -39,7 +42,13 @@ public class WidgetServiceImpl extends BaseService implements WidgetService {
     }
 
     @Override
-    public Mono<Widget> update(Long id) {
-        return null;
+    public Mono<Widget> update(Widget widget) throws Exception {
+        if(widget.getId() == null) {
+            throw new Exception("Invalid id provided");
+        }
+
+        return Mono.fromCallable(
+                () -> widgetRepository.save(widget)
+        ).subscribeOn(this.scheduler);
     }
 }

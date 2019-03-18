@@ -29,19 +29,19 @@ public class WidgetController extends BaseController {
     @GetMapping("")
     public Flux<ResponseDto<Widget>> getAllWidgets() {
         return widgetService.get()
-                .map(user -> new ResponseDto<>(HttpStatus.OK.value(), user, null));
+                .map(widgets -> new ResponseDto<>(HttpStatus.OK.value(), widgets, null));
     }
 
     @GetMapping("/{name}")
-    public Mono<ResponseDto<Widget>> getByName(@PathVariable String id) {
-        return widgetService.getByName(id)
-                .map(user -> new ResponseDto<>(HttpStatus.OK.value(), user, null));
+    public Mono<ResponseDto<Widget>> getByName(@PathVariable String name) {
+        return widgetService.getByName(name)
+                .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
     }
 
-    @PutMapping("/{id}")
-    public Mono<ResponseDto<Widget>> getCureFitUser(@PathVariable Long id) {
-        return widgetService.update(id)
-                .map(cfUser -> new ResponseDto<>(HttpStatus.OK.value(), cfUser, null));
+    @PutMapping("")
+    public Mono<ResponseDto<Widget>> update(@RequestBody Widget widget) throws Exception {
+        return widgetService.update(widget)
+                .map(updatedWidget -> new ResponseDto<>(HttpStatus.OK.value(), updatedWidget, null));
     }
 
 }
