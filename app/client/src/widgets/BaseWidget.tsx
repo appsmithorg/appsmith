@@ -16,9 +16,14 @@ import _ from "lodash"
 abstract class BaseWidget<
   T extends IWidgetProps,
   K extends IWidgetState
-> extends Component<T, K> {
+> extends Component<T, Partial<K>> {
   constructor(props: T) {
     super(props)
+    const initialState: Partial<K> = {
+    }
+    initialState.height = 0
+    initialState.width = 0
+    this.state = initialState
   }
 
   componentDidMount(): void {
@@ -99,6 +104,8 @@ abstract class BaseWidget<
         this.props.renderMode === RenderModes.COMPONENT_PANE
           ? "CONTAINER_DIRECTION"
           : "ABSOLUTE",
+      height: this.state.height,
+      width: this.state.width,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,

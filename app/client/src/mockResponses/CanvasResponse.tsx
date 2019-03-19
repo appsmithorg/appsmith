@@ -4,6 +4,7 @@ import ContainerWidget, {
   IContainerWidgetProps
 } from "../widgets/ContainerWidget";
 import { RenderModes } from "../constants/WidgetConstants";
+import { Colors } from "../constants/StyleConstants";
 
 const CanvasResponse: IContainerWidgetProps<any> = {
   widgetId: "0",
@@ -12,7 +13,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
   snapRows: 10,
   topRow: 100,
   bottomRow: 700,
-  leftColumn: 200,
+  leftColumn: 100,
   rightColumn: 800,
   parentColumnSpace: 1,
   parentRowSpace: 1,
@@ -22,10 +23,10 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       widgetId: "1",
       widgetType: "TEXT_WIDGET",
       topRow: 2,
-      leftColumn: 5,
+      leftColumn: 1,
       bottomRow: 5,
-      rightColumn: 5,
-      text: "Lorem Ipsum",
+      rightColumn: 3,
+      text: "Lorem Ipsum asda asd kjhsadjhas kdh kashkjdas kdhas d as",
       renderMode: RenderModes.CANVAS
     },
     {
@@ -43,7 +44,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       widgetType: "INPUT_GROUP_WIDGET",
       topRow: 1,
       leftColumn: 1,
-      bottomRow: 5,
+      bottomRow: 1,
       rightColumn: 5,
       placeholder: "Lorem Ipsum",
       renderMode: RenderModes.CANVAS

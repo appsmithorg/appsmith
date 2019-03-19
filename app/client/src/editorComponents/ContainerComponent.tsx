@@ -6,9 +6,9 @@ import React from "react"
 const Container = styled("div")<IContainerProps>`
   display: "flex"
   flexDirection: ${(props) => { return props.orientation === "HORIZONTAL" ? "row" : "column" }};
-  background: ${props => props.theme.secondaryColor};
+  background: ${props => props.style.backgroundColor};
   color: ${props => props.theme.primaryColor};
-  position: ${props => props.style.positionType};
+  position: ${props => { return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative" }};
   left: ${props => {
     return props.style.xPosition + props.style.xPositionUnit
   }};
