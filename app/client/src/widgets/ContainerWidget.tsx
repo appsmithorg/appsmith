@@ -25,20 +25,19 @@ class ContainerWidget extends BaseWidget<
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
     this.state = {
-      height: 0,
-      width: 0
-    };
+      width: 0,
+      height: 0
+    }
   }
 
-  componentWillReceiveProps(
-    previousProps: IContainerWidgetProps<IWidgetProps>,
-    nextProps: IContainerWidgetProps<IWidgetProps>
+  componentDidUpdate(
+    previousProps: IContainerWidgetProps<IWidgetProps>
   ) {
-    super.componentWillReceiveProps(previousProps, nextProps);
+    super.componentDidUpdate(previousProps);
     this.snapColumnSpace =
-      this.state.width / (nextProps.snapColumns || DEFAULT_NUM_COLS);
+      this.state.width / (this.props.snapColumns || DEFAULT_NUM_COLS);
     this.snapRowSpace =
-      this.state.height / (nextProps.snapRows || DEFAULT_NUM_ROWS);
+      this.state.height / (this.props.snapRows || DEFAULT_NUM_ROWS);
   }
 
   renderChildWidget(childWidgetData: IWidgetProps) {

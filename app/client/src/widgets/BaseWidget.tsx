@@ -10,12 +10,17 @@ import {
   CSSUnits
 } from "../constants/WidgetConstants"
 import { Component } from "react"
-import { BaseStyle } from "../editorComponents/BaseComponent";
+import { BaseStyle } from "../editorComponents/BaseComponent"
+import _ from "lodash"
 
 abstract class BaseWidget<
   T extends IWidgetProps,
   K extends IWidgetState
 > extends Component<T, K> {
+  constructor(props: T) {
+    super(props)
+  }
+
   componentDidMount(): void {
     this.calculateWidgetBounds(
       this.props.rightColumn,
@@ -27,14 +32,14 @@ abstract class BaseWidget<
     )
   }
 
-  componentWillReceiveProps(prevProps: T, nextProps: T) {
+  componentDidUpdate(prevProps: T) {
     this.calculateWidgetBounds(
-      nextProps.rightColumn,
-      nextProps.leftColumn,
-      nextProps.topRow,
-      nextProps.bottomRow,
-      nextProps.parentColumnSpace,
-      nextProps.parentRowSpace
+      this.props.rightColumn,
+      this.props.leftColumn,
+      this.props.topRow,
+      this.props.bottomRow,
+      this.props.parentColumnSpace,
+      this.props.parentRowSpace
     )
   }
 
@@ -50,7 +55,13 @@ abstract class BaseWidget<
       width: (rightColumn - leftColumn) * parentColumnSpace,
       height: (bottomRow - topRow) * parentRowSpace
     }
-    this.setState(widgetState)
+    if (
+      _.isNil(this.state) ||
+      widgetState.height !== this.state.height ||
+      widgetState.width !== this.state.width
+    ) {
+      this.setState(widgetState)
+    }
   }
 
   render() {
@@ -84,7 +95,10 @@ abstract class BaseWidget<
 
   getPositionStyle(): BaseStyle {
     return {
-      positionType: this.props.renderMode === RenderModes.COMPONENT_PANE ? "CONTAINER_DIRECTION" : "ABSOLUTE",
+      positionType:
+        this.props.renderMode === RenderModes.COMPONENT_PANE
+          ? "CONTAINER_DIRECTION"
+          : "ABSOLUTE",
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
@@ -92,6 +106,12 @@ abstract class BaseWidget<
     }
   }
 
+  static defaultProps: Partial<IWidgetProps> = {
+    parentRowSpace: 1,
+    parentColumnSpace: 1,
+    topRow: 0,
+    leftColumn: 0
+  }
 }
 
 export interface IWidgetState {

@@ -29,7 +29,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "1",
+      widgetId: "2",
       widgetType: "BUTTON_WIDGET",
       topRow: 2,
       leftColumn: 4,
@@ -39,7 +39,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "2",
+      widgetId: "3",
       widgetType: "INPUT_GROUP_WIDGET",
       topRow: 1,
       leftColumn: 1,
@@ -49,7 +49,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "3",
+      widgetId: "4",
       widgetType: "CALLOUT_WIDGET",
       topRow: 3,
       leftColumn: 2,
@@ -64,7 +64,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "4",
+      widgetId: "5",
       widgetType: "ICON_WIDGET",
       topRow: 4,
       leftColumn: 4,
@@ -76,7 +76,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "5",
+      widgetId: "6",
       widgetType: "SPINNER_WIDGET",
       topRow: 5,
       leftColumn: 6,

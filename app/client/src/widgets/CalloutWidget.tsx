@@ -13,8 +13,7 @@ class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
   getPageView() {
     return (
       <CalloutComponent
-        
-      style={this.getPositionStyle()}
+        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         id={this.props.id}
