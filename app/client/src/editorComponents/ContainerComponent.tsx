@@ -4,6 +4,8 @@ import styled from "../constants/DefaultTheme"
 import React from "react"
 
 const Container = styled("div")<IContainerProps>`
+  display: "flex"
+  flexDirection: ${(props) => { return props.orientation === "HORIZONTAL" ? "row" : "column" }};
   background: ${props => props.theme.secondaryColor};
   color: ${props => props.theme.primaryColor};
   position: ${props => props.style.positionType};

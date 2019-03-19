@@ -6,9 +6,11 @@
 import {
   WidgetType,
   RenderMode,
-  RenderModes
+  RenderModes,
+  CSSUnits
 } from "../constants/WidgetConstants"
 import { Component } from "react"
+import { BaseStyle } from "../editorComponents/BaseComponent";
 
 abstract class BaseWidget<
   T extends IWidgetProps,
@@ -79,6 +81,17 @@ abstract class BaseWidget<
   }
 
   abstract getWidgetType(): WidgetType
+
+  getPositionStyle(): BaseStyle {
+    return {
+      positionType: this.props.renderMode === RenderModes.COMPONENT_PANE ? "CONTAINER_DIRECTION" : "ABSOLUTE",
+      yPosition: this.props.topRow * this.props.parentRowSpace,
+      xPosition: this.props.leftColumn * this.props.parentColumnSpace,
+      xPositionUnit: CSSUnits.PIXEL,
+      yPositionUnit: CSSUnits.PIXEL
+    }
+  }
+
 }
 
 export interface IWidgetState {

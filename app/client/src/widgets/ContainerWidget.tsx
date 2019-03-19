@@ -52,13 +52,9 @@ class ContainerWidget extends BaseWidget<
       <ContainerComponent
         widgetId={this.props.widgetId}
         style={{
+          ...this.getPositionStyle(),
           height: this.state.height,
-          width: this.state.width,
-          positionType: "ABSOLUTE",
-          yPosition: this.props.topRow * this.props.parentRowSpace,
-          xPosition: this.props.leftColumn * this.props.parentColumnSpace,
-          xPositionUnit: CSSUnits.PIXEL,
-          yPositionUnit: CSSUnits.PIXEL
+          width: this.state.width
         }}
         snapColumnSpace={this.snapColumnSpace}
         snapRowSpace={this.snapRowSpace}

@@ -13,13 +13,7 @@ class SpinnerWidget extends BaseWidget<ISpinnerWidgetProps, IWidgetState> {
   getPageView() {
     return (
       <SpinnerComponent
-        style={{
-          positionType: "ABSOLUTE",
-          yPosition: this.props.topRow * this.props.parentRowSpace,
-          xPosition: this.props.leftColumn * this.props.parentColumnSpace,
-          xPositionUnit: CSSUnits.PIXEL,
-          yPositionUnit: CSSUnits.PIXEL
-        }}
+        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         size={this.props.size}

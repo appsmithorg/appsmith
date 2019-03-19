@@ -32,7 +32,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       widgetId: "1",
       widgetType: "BUTTON_WIDGET",
       topRow: 2,
-      leftColumn: 7,
+      leftColumn: 4,
       bottomRow: 5,
       rightColumn: 5,
       text: "Lorem Ipsum",

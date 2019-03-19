@@ -14,13 +14,7 @@ class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
   getPageView() {
     return (
       <IconComponent
-        style={{
-          positionType: "ABSOLUTE",
-          yPosition: this.props.topRow * this.props.parentRowSpace,
-          xPosition: this.props.leftColumn * this.props.parentColumnSpace,
-          xPositionUnit: CSSUnits.PIXEL,
-          yPositionUnit: CSSUnits.PIXEL
-        }}
+        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         icon={this.props.icon}

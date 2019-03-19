@@ -12,13 +12,7 @@ class TextWidget extends BaseWidget<ITextWidgetProps, IWidgetState> {
   getPageView() {
     return (
       <TextComponent
-        style={{
-          positionType: "ABSOLUTE",
-          yPosition: this.props.topRow * this.props.parentRowSpace,
-          xPosition: this.props.leftColumn * this.props.parentColumnSpace,
-          xPositionUnit: CSSUnits.PIXEL,
-          yPositionUnit: CSSUnits.PIXEL
-        }}
+        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         text={this.props.text}
