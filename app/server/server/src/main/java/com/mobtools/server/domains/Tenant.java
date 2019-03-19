@@ -4,20 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 
-@Entity
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@SequenceGenerator(initialValue = 1, name = "tenant_gen", sequenceName = "tenant_gen")
+@Document
 public class Tenant extends BaseDomain {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tenant_gen")
-    @Column(nullable = false, updatable = false)
-    private Long id;
 
     private String domain;
 

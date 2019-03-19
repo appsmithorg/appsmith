@@ -38,9 +38,9 @@ public class WidgetController extends BaseController {
                 .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
     }
 
-    @PutMapping("")
-    public Mono<ResponseDto<Widget>> update(@RequestBody Widget widget) throws Exception {
-        return widgetService.update(widget)
+    @PutMapping("/{id}")
+    public Mono<ResponseDto<Widget>> update(@PathVariable String id, @RequestBody Widget widget) throws Exception {
+        return widgetService.update(id, widget)
                 .map(updatedWidget -> new ResponseDto<>(HttpStatus.OK.value(), updatedWidget, null));
     }
 

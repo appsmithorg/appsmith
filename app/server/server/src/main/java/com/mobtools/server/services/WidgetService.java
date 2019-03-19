@@ -12,5 +12,5 @@ public interface WidgetService {
 
     Mono<Widget> create(Widget widget);
 
-    Mono<Widget> update(Widget widget) throws Exception;
+    Mono<Widget> update(String id, Widget widget) throws Exception;
 }
