@@ -4,4 +4,5 @@ public interface Url {
     String BASE_URL = "/api";
     String VERSION = "/v1";
     String WIDGET_URL = BASE_URL + VERSION + "/widgets";
+    String TENANT_URL = BASE_URL + VERSION + "/tenants";
 }

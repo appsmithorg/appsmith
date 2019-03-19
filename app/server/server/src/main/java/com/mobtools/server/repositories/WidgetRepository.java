@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface WidgetRepository extends BaseRepository<Widget, Long> {
+public interface WidgetRepository extends BaseRepository<Widget, String> {
 
     Mono<Widget> findByName(String name);
 }

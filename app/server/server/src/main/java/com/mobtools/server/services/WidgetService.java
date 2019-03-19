@@ -1,16 +1,9 @@
 package com.mobtools.server.services;
 
 import com.mobtools.server.domains.Widget;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface WidgetService {
+public interface WidgetService extends CrudService<Widget, String> {
 
     Mono<Widget> getByName(String name);
-
-    Flux<Widget> get();
-
-    Mono<Widget> create(Widget widget);
-
-    Mono<Widget> update(String id, Widget widget) throws Exception;
 }
