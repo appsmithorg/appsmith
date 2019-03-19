@@ -1,9 +1,9 @@
 package com.mobtools.server.controllers;
 
 import com.mobtools.server.constants.Url;
-import com.mobtools.server.domains.Widget;
+import com.mobtools.server.domains.Tenant;
 import com.mobtools.server.dtos.ResponseDto;
-import com.mobtools.server.services.WidgetService;
+import com.mobtools.server.services.TenantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,19 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(Url.WIDGET_URL)
-public class WidgetController extends BaseController<WidgetService, Widget, String> {
+@RequestMapping(Url.TENANT_URL)
+public class TenantController extends BaseController<TenantService, Tenant, String> {
 
-    private final WidgetService widgetService;
+    private final TenantService tenantService;
 
-    public WidgetController(WidgetService service) {
-        super(service);
-        this.widgetService = service;
+    public TenantController(TenantService tenantService) {
+        super(tenantService);
+        this.tenantService = tenantService;
     }
 
     @GetMapping("/{name}")
-    public Mono<ResponseDto<Widget>> getByName(@PathVariable String name) {
-        return widgetService.getByName(name)
+    public Mono<ResponseDto<Tenant>> getByName(@PathVariable String name) {
+        return tenantService.getByName(name)
                 .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
     }
+
 }
