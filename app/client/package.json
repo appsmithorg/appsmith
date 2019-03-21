@@ -22,6 +22,7 @@
     "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
     "node-sass": "^4.11.0",
+    "normalizr": "^3.3.0",
     "prettier": "^1.16.0",
     "react": "^16.7.0",
     "react-dnd": "^7.0.2",

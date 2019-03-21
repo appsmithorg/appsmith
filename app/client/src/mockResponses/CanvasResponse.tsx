@@ -1,10 +1,5 @@
-import { CanvasReduxState } from "../reducers/uiReducers/canvasReducer"
-import { IWidgetProps } from "../widgets/BaseWidget"
-import ContainerWidget, {
-  IContainerWidgetProps
-} from "../widgets/ContainerWidget"
+import { IContainerWidgetProps } from "../widgets/ContainerWidget"
 import { RenderModes } from "../constants/WidgetConstants"
-import { Colors } from "../constants/StyleConstants"
 
 const CanvasResponse: IContainerWidgetProps<any> = {
   widgetId: "0",
@@ -14,7 +9,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
   topRow: 100,
   bottomRow: 700,
   leftColumn: 100,
-  rightColumn: 800,
+  rightColumn: 1000,
   parentColumnSpace: 1,
   parentRowSpace: 1,
   renderMode: RenderModes.CANVAS,
@@ -52,10 +47,10 @@ const CanvasResponse: IContainerWidgetProps<any> = {
     {
       widgetId: "4",
       widgetType: "CALLOUT_WIDGET",
-      topRow: 3,
-      leftColumn: 2,
-      bottomRow: 8,
-      rightColumn: 4,
+      topRow: 2,
+      leftColumn: 8,
+      bottomRow: 4,
+      rightColumn: 14,
       id: "sample_id",
       title: "Visually important content",
       description:
@@ -86,7 +81,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       size: 20
     },
     {
-      widgetId: "6",
+      widgetId: "7",
       widgetType: "BREADCRUMBS_WIDGET",
       topRow: 6,
       leftColumn: 2,
@@ -107,7 +102,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       ]
     },
     {
-      widgetId: "7",
+      widgetId: "8",
       widgetType: "TAG_INPUT_WIDGET",
       topRow: 7,
       leftColumn: 1,
@@ -118,7 +113,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "8",
+      widgetId: "9",
       widgetType: "NUMERIC_INPUT_WIDGET",
       topRow: 4,
       leftColumn: 1,
@@ -129,7 +124,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       renderMode: RenderModes.CANVAS
     },
     {
-      widgetId: "8",
+      widgetId: "10",
       widgetType: "CHECKBOX_WIDGET",
       topRow: 6,
       leftColumn: 1,
@@ -151,7 +146,7 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       ]
     },
     {
-      widgetId: "9",
+      widgetId: "11",
       widgetType: "RADIO_GROUP_WIDGET",
       topRow: 6,
       leftColumn: 1,

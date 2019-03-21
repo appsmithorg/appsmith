@@ -2,15 +2,24 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 import { AppState } from "../../reducers"
 import WidgetFactory from "../../utils/WidgetFactory"
-import { CanvasReduxState } from "../../reducers/uiReducers/canvasReducer"
+import { loadCanvas } from "../../actions/CanvasActions";
+import CanvasResponse from "../../mockResponses/CanvasResponse";
+import { denormalize } from "normalizr";
+import CanvasWidgetsNormalizer, { widgetSchema } from "../../normalizers/CanvasWidgetsNormalizer";
+import { IContainerWidgetProps } from "../../widgets/ContainerWidget";
 
-class Canvas extends Component<{ canvas: CanvasReduxState<any> }> {
+class Canvas extends Component<{ pageWidget: IContainerWidgetProps<any>, loadCanvas: Function }> {
+
+  componentDidMount() {
+    this.props.loadCanvas()
+  }
+
   render() {
-    const canvasWidgetData = this.props.canvas.canvasWidgetProps
+    const pageWidget = this.props.pageWidget
     return (
       <div>
-        {canvasWidgetData
-          ? WidgetFactory.createWidget(canvasWidgetData)
+        {pageWidget
+          ? WidgetFactory.createWidget(pageWidget)
           : undefined}
       </div>
     )
@@ -18,13 +27,18 @@ class Canvas extends Component<{ canvas: CanvasReduxState<any> }> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
+  const pageWidget = CanvasWidgetsNormalizer.denormalize(state.ui.canvas.pageWidgetId, state.entities)
   return {
-    canvas: state.ui.canvas
+    pageWidget: pageWidget
   }
 }
 
 const mapDispatchToProps = (dispatch: any) => {
-  return {}
+  return {
+    loadCanvas: () => {
+      dispatch(loadCanvas({ pageWidget: CanvasResponse }))
+    }
+  }
 }
 
 export default connect(

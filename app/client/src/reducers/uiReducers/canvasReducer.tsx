@@ -4,25 +4,22 @@ import {
   LoadCanvasPayload,
   ReduxAction
 } from "../../constants/ActionConstants"
-import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
-import { IWidgetProps } from "../../widgets/BaseWidget";
-import CanvasResponse from "../../mockResponses/CanvasResponse"
 
-const initialState: CanvasReduxState<any> = {
-  canvasWidgetProps: CanvasResponse
+const initialState: CanvasReduxState = {
+  pageWidgetId: "0"
 }
 
 const canvasReducer = createReducer(initialState, {
   [ActionTypes.LOAD_CANVAS]: (
-    state: CanvasReduxState<any>,
+    state: CanvasReduxState,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
-    return { containerWidget: action.payload }
+    return { pageWidgetId: action.payload.pageWidgetId }
   }
 })
 
-export interface CanvasReduxState<T extends IWidgetProps> {
-  canvasWidgetProps?: IContainerWidgetProps<any>
+export interface CanvasReduxState {
+  pageWidgetId: string
 }
 
 export default canvasReducer
