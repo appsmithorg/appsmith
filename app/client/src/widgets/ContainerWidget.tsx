@@ -55,10 +55,6 @@ class ContainerWidget extends BaseWidget<
           ...this.getPositionStyle(),
           backgroundColor: this.props.backgroundColor
         }}
-        snapColumnSpace={this.snapColumnSpace}
-        snapRowSpace={this.snapRowSpace}
-        snapColumns={this.props.snapColumns || DEFAULT_NUM_COLS}
-        snapRows={this.props.snapRows || DEFAULT_NUM_ROWS}
         orientation={this.props.orientation || "VERTICAL"}
       >
         {_.map(this.props.children, this.renderChildWidget)}

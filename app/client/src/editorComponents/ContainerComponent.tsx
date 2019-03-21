@@ -3,12 +3,16 @@ import { ContainerOrientation } from "../constants/WidgetConstants"
 import styled from "../constants/DefaultTheme"
 import React from "react"
 
-const Container = styled("div")<IContainerProps>`
+export const Container = styled("div")<IContainerProps>`
   display: "flex"
-  flexDirection: ${(props) => { return props.orientation === "HORIZONTAL" ? "row" : "column" }};
+  flexDirection: ${props => {
+    return props.orientation === "HORIZONTAL" ? "row" : "column"
+  }};
   background: ${props => props.style.backgroundColor};
   color: ${props => props.theme.primaryColor};
-  position: ${props => { return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative" }};
+  position: ${props => {
+    return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative"
+  }};
   left: ${props => {
     return props.style.xPosition + props.style.xPositionUnit
   }};
@@ -19,25 +23,13 @@ const Container = styled("div")<IContainerProps>`
 
 class ContainerComponent extends BaseComponent<IContainerProps> {
   render() {
-    return (
-      <Container {...this.props}>
-        {this.props.children
-          ? this.props.children.map(child => {
-              return child
-            })
-          : undefined}
-      </Container>
-    )
+    return <Container {...this.props}>{this.props.children}</Container>
   }
 }
 
 export interface IContainerProps extends IComponentProps {
-  children?: JSX.Element[]
-  snapColumnSpace: number
-  snapRowSpace: number
-  snapColumns: number
-  snapRows: number
-  orientation: ContainerOrientation
+  children?: JSX.Element[] | JSX.Element
+  orientation?: ContainerOrientation
 }
 
 export default ContainerComponent

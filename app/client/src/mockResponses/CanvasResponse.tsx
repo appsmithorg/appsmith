@@ -1,10 +1,10 @@
-import { CanvasReduxState } from "../reducers/uiReducers/canvasReducer";
-import { IWidgetProps } from "../widgets/BaseWidget";
+import { CanvasReduxState } from "../reducers/uiReducers/canvasReducer"
+import { IWidgetProps } from "../widgets/BaseWidget"
 import ContainerWidget, {
   IContainerWidgetProps
-} from "../widgets/ContainerWidget";
-import { RenderModes } from "../constants/WidgetConstants";
-import { Colors } from "../constants/StyleConstants";
+} from "../widgets/ContainerWidget"
+import { RenderModes } from "../constants/WidgetConstants"
+import { Colors } from "../constants/StyleConstants"
 
 const CanvasResponse: IContainerWidgetProps<any> = {
   widgetId: "0",
@@ -68,9 +68,9 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       widgetId: "5",
       widgetType: "ICON_WIDGET",
       topRow: 4,
-      leftColumn: 4,
+      leftColumn: 2,
       bottomRow: 5,
-      rightColumn: 5,
+      rightColumn: 3,
       icon: "globe",
       iconSize: "20",
       intent: "warning",
@@ -83,10 +83,96 @@ const CanvasResponse: IContainerWidgetProps<any> = {
       leftColumn: 6,
       bottomRow: 5,
       rightColumn: 5,
+      size: 20
+    },
+    {
+      widgetId: "6",
+      widgetType: "BREADCRUMBS_WIDGET",
+      topRow: 6,
+      leftColumn: 2,
+      bottomRow: 5,
+      rightColumn: 5,
+      width: "100%",
+      collapseFrom: "start",
+      className: "breadcrumbs",
       size: 20,
+      renderMode: RenderModes.CANVAS,
+      items: [
+        { icon: "folder-close", text: "All files" },
+        { icon: "folder-close", text: "Users" },
+        { icon: "folder-close", text: "Janet" },
+        { href: "#", icon: "folder-close", text: "Photos" },
+        { href: "#", icon: "folder-close", text: "Wednesday" },
+        { icon: "document", text: "image.jpg" }
+      ]
+    },
+    {
+      widgetId: "7",
+      widgetType: "TAG_INPUT_WIDGET",
+      topRow: 7,
+      leftColumn: 1,
+      bottomRow: 5,
+      rightColumn: 5,
+      palceholder: "Lorem, Ipsum",
+      values: ["abx", "somf", "soke"],
       renderMode: RenderModes.CANVAS
+    },
+    {
+      widgetId: "8",
+      widgetType: "NUMERIC_INPUT_WIDGET",
+      topRow: 4,
+      leftColumn: 1,
+      bottomRow: 5,
+      rightColumn: 5,
+      palceholder: "Numeric input",
+      allowNumericCharactersOnly: true,
+      renderMode: RenderModes.CANVAS
+    },
+    {
+      widgetId: "8",
+      widgetType: "CHECKBOX_WIDGET",
+      topRow: 6,
+      leftColumn: 1,
+      bottomRow: 5,
+      rightColumn: 5,
+      items: [
+        {
+          label: "a",
+          value: 1
+        },
+        {
+          label: "b",
+          value: 2
+        },
+        {
+          label: "c",
+          value: 3
+        }
+      ]
+    },
+    {
+      widgetId: "9",
+      widgetType: "RADIO_GROUP_WIDGET",
+      topRow: 6,
+      leftColumn: 1,
+      bottomRow: 5,
+      rightColumn: 5,
+      items: [
+        {
+          label: "a",
+          value: 1
+        },
+        {
+          label: "b",
+          value: 2
+        },
+        {
+          label: "c",
+          value: 3
+        }
+      ]
     }
   ]
-};
+}
 
-export default CanvasResponse;
+export default CanvasResponse
