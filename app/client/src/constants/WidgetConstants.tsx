@@ -8,6 +8,11 @@ export type WidgetType =
   | "INPUT_GROUP_WIDGET"
   | "SPINNER_WIDGET"
   | "BUTTON_WIDGET"
+  | "BREADCRUMBS_WIDGET"
+  | "TAG_INPUT_WIDGET"
+  | "NUMERIC_INPUT_WIDGET"
+  | "CHECKBOX_WIDGET"
+  | "RADIO_GROUP_WIDGET"
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL"
 export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION"
 export type CSSUnit =
@@ -27,7 +32,11 @@ export type CSSUnit =
   | "vmax"
   | "%"
 
-export type RenderMode = "COMPONENT_PANE" | "CANVAS" | "PAGE" | "CANVAS_SELECTED"
+export type RenderMode =
+  | "COMPONENT_PANE"
+  | "CANVAS"
+  | "PAGE"
+  | "CANVAS_SELECTED"
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",

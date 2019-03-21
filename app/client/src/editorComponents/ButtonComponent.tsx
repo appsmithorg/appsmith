@@ -1,14 +1,14 @@
 import * as React from "react"
 import { Button, MaybeElement } from "@blueprintjs/core"
 import { ITextComponentProps } from "./TextComponent"
-import PositionContainer from "./PositionContainer"
+import { Container } from "./ContainerComponent"
 
-class ButtomComponent extends React.Component<IButtonComponentProps> {
+class ButtonComponent extends React.Component<IButtonComponentProps> {
   render() {
     return (
-      <PositionContainer {...this.props}>
+      <Container {...this.props}>
         <Button text={this.props.text} icon={this.props.icon} />
-      </PositionContainer>
+      </Container>
     )
   }
 }
@@ -17,4 +17,4 @@ interface IButtonComponentProps extends ITextComponentProps {
   icon?: MaybeElement
 }
 
-export default ButtomComponent
+export default ButtonComponent
