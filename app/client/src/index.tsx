@@ -7,13 +7,20 @@ import Editor from "./pages/Editor";
 import PageNotFound from "./pages/PageNotFound";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { createStore } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import appReducer from "./reducers";
 import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
+import createSagaMiddleware from 'redux-saga'
+import { rootSaga } from "./sagas"
+import { ActionType } from "./constants/ActionConstants";
 
 WidgetBuilderRegistry.registerWidgetBuilders();
-const store = createStore(appReducer);
+const sagaMiddleware = createSagaMiddleware()
+const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(rootSaga)
+export const action = (type: ActionType) => store.dispatch({type})
+
 ReactDOM.render(
   <Provider store={store}>
     <ThemeProvider theme={theme}>

@@ -2,13 +2,15 @@ import ContainerWidget from "../widgets/ContainerWidget"
 import { IWidgetProps } from "../widgets/BaseWidget"
 
 export type ActionType =
-  | "LOAD_CANVAS"
+  | "UPDATE_CANVAS"
+  | "FETCH_CANVAS"
   | "CLEAR_CANVAS"
   | "DROP_WIDGET_CANVAS"
   | "REMOVE_WIDGET_CANVAS"
   | "LOAD_WIDGET_PANE"
 export const ActionTypes: { [id: string]: ActionType } = {
-  LOAD_CANVAS: "LOAD_CANVAS",
+  UPDATE_CANVAS: "UPDATE_CANVAS",
+  FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
   DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",
   REMOVE_WIDGET_CANVAS: "REMOVE_WIDGET_CANVAS",

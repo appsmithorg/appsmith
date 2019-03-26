@@ -2,16 +2,15 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 import { AppState } from "../../reducers"
 import WidgetFactory from "../../utils/WidgetFactory"
-import { loadCanvas } from "../../actions/CanvasActions";
-import CanvasResponse from "../../mockResponses/CanvasResponse";
-import { denormalize } from "normalizr";
 import CanvasWidgetsNormalizer, { widgetSchema } from "../../normalizers/CanvasWidgetsNormalizer";
 import { IContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { action } from "../../index"
+import { ActionTypes } from "../../constants/ActionConstants";
 
 class Canvas extends Component<{ pageWidget: IContainerWidgetProps<any>, loadCanvas: Function }> {
 
   componentDidMount() {
-    this.props.loadCanvas()
+    action(ActionTypes.FETCH_CANVAS)
   }
 
   render() {
@@ -35,9 +34,6 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    loadCanvas: () => {
-      dispatch(loadCanvas({ pageWidget: CanvasResponse }))
-    }
   }
 }
 

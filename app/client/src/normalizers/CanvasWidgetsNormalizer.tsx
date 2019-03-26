@@ -1,5 +1,5 @@
 import { normalize, schema, denormalize } from 'normalizr';
-import { PageResponse } from '../actions/CanvasActions';
+import { PageResponse } from '../api/PageApi';
 import { IContainerWidgetProps } from '../widgets/ContainerWidget';
 
 export const widgetSchema = new schema.Entity('canvasWidgets', { }, { idAttribute: "widgetId" }, );

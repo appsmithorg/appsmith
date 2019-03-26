@@ -7,6 +7,7 @@
     "@blueprintjs/datetime": "^3.6.0",
     "@blueprintjs/icons": "^3.5.0",
     "@blueprintjs/table": "^3.4.0",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^23.3.13",
     "@types/lodash": "^4.14.120",
     "@types/moment-timezone": "^0.5.10",

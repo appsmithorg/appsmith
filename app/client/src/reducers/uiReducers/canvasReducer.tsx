@@ -10,7 +10,7 @@ const initialState: CanvasReduxState = {
 }
 
 const canvasReducer = createReducer(initialState, {
-  [ActionTypes.LOAD_CANVAS]: (
+  [ActionTypes.UPDATE_CANVAS]: (
     state: CanvasReduxState,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
