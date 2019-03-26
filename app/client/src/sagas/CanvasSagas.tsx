@@ -21,7 +21,3 @@ export function* fetchCanvas() {
 export function* watchFetchCanvas() {
   yield takeEvery(ActionTypes.FETCH_CANVAS, fetchCanvas)
 }
-
-export function* canvasSagas() {
-  yield all([fetchCanvas(), watchFetchCanvas()])
-}
