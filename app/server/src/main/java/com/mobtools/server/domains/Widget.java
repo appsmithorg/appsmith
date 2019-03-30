@@ -7,6 +7,8 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -21,4 +23,6 @@ public class Widget extends BaseDomain {
     private WidgetType type;
 
     private PricingPlan pricingPlan;
+
+    private List<Property> properties;
 }
