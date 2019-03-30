@@ -52,10 +52,14 @@ class Api {
   }
 
   static convertObjectToQueryParams(object: any): string {
-    const paramArray: string[] = _.map(_.keys(object), key => {
-      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key])
-    })
-    return "?" + _.join(paramArray, "&")
+    if (!_.isNil(object)) {
+      const paramArray: string[] = _.map(_.keys(object), key => {
+        return encodeURIComponent(key) + "=" + encodeURIComponent(object[key])
+      })
+      return "?" + _.join(paramArray, "&")
+    } else {
+      return ""
+    }
   }
 }
 

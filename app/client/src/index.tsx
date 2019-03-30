@@ -13,13 +13,12 @@ import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
-import { ActionType } from "./constants/ActionConstants";
+import { ActionType, ReduxAction } from "./constants/ActionConstants";
 
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
-export const action = (type: ActionType) => store.dispatch({type})
 
 ReactDOM.render(
   <Provider store={store}>

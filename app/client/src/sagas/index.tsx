@@ -1,6 +1,6 @@
 import { all } from "redux-saga/effects"
-import { watchFetchCanvas } from "../sagas/CanvasSagas"
+import { watchFetchPage } from "../sagas/PageSagas"
 
 export function* rootSaga() {
-  yield all([watchFetchCanvas()])
+  yield all([watchFetchPage()])
 }
