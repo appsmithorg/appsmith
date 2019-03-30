@@ -5,4 +5,5 @@ public interface Url {
     String VERSION = "/v1";
     String WIDGET_URL = BASE_URL + VERSION + "/widgets";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
+    String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
 }

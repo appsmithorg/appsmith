@@ -32,9 +32,6 @@ public abstract class BaseDomain implements Persistable<String> {
 
     protected Boolean deleted = false;
 
-//    @Version
-//    protected Long version;
-
     @Override
     public boolean isNew() {
         return this.getId() == null;

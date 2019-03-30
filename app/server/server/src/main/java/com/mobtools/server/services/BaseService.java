@@ -60,6 +60,11 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
     }
 
     @Override
+    public Mono<T> getById(ID id) {
+        return repository.findById(id);
+    }
+    
+    @Override
     public Mono<T> create(T widget) {
         return repository.save(widget);
     }

@@ -22,7 +22,7 @@ public class WidgetController extends BaseController<WidgetService, Widget, Stri
         this.widgetService = service;
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public Mono<ResponseDto<Widget>> getByName(@PathVariable String name) {
         return widgetService.getByName(name)
                 .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
