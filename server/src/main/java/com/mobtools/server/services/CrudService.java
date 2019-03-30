@@ -11,4 +11,6 @@ public interface CrudService<T extends BaseDomain, ID> {
     Mono<T> create(T resource);
 
     Mono<T> update(ID id, T resource) throws Exception;
+
+    Mono<T> getById(ID id);
 }
