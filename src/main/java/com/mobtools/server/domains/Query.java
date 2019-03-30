@@ -23,5 +23,9 @@ public class Query extends BaseDomain {
     @DBRef
     Plugin plugin;
 
+    String confirmationMsg;
+
+    String name;
+
     List<Property> properties;
 }
