@@ -7,18 +7,21 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
-public class Widget extends BaseDomain {
+public class Plugin extends BaseDomain {
 
     @Indexed(unique = true)
-    private String name;
+    String name;
 
-    private WidgetType type;
+    PluginType type;
 
-    private PricingPlan pricingPlan;
+    String executorClass;
+
+    List<Property> properties;
 }

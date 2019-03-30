@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public abstract class BaseController<S extends CrudService, T extends BaseDomain, ID> {
 
-    private final S service;
+    protected final S service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
