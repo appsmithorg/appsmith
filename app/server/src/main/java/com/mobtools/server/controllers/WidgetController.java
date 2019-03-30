@@ -4,6 +4,7 @@ import com.mobtools.server.constants.Url;
 import com.mobtools.server.domains.Widget;
 import com.mobtools.server.dtos.ResponseDto;
 import com.mobtools.server.services.WidgetService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,16 +16,14 @@ import reactor.core.publisher.Mono;
 @RequestMapping(Url.WIDGET_URL)
 public class WidgetController extends BaseController<WidgetService, Widget, String> {
 
-    private final WidgetService widgetService;
-
+    @Autowired
     public WidgetController(WidgetService service) {
         super(service);
-        this.widgetService = service;
     }
 
     @GetMapping("/name/{name}")
     public Mono<ResponseDto<Widget>> getByName(@PathVariable String name) {
-        return widgetService.getByName(name)
+        return service.getByName(name)
                 .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
     }
 }

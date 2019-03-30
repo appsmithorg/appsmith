@@ -19,11 +19,11 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     final Scheduler scheduler;
 
-    private final MongoConverter mongoConverter;
+    protected final MongoConverter mongoConverter;
 
-    private final ReactiveMongoTemplate mongoTemplate;
+    protected final ReactiveMongoTemplate mongoTemplate;
 
-    private final R repository;
+    protected final R repository;
 
     public BaseService(Scheduler scheduler,
                        MongoConverter mongoConverter,
