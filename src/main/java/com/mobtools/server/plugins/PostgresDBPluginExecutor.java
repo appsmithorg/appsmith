@@ -1,7 +1,8 @@
-package com.mobtools.server.services;
+package com.mobtools.server.plugins;
 
 import com.mobtools.server.domains.Query;
 import com.mobtools.server.dtos.CommandQueryParams;
+import com.mobtools.server.services.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

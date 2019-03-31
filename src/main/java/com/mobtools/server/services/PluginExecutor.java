@@ -26,17 +26,17 @@ public abstract class PluginExecutor {
      * @param params
      * @return Flux<Object>
      */
-    abstract Flux<Object> execute(Query query, CommandQueryParams params);
+    protected abstract Flux<Object> execute(Query query, CommandQueryParams params);
 
     /**
      * This function should be run when the plugin is initialized
      */
-    abstract void init();
+    protected abstract void init();
 
     /**
      * This function should be run when the plugin is destroyed
      */
-    abstract void destroy();
+    protected abstract void destroy();
 
     /**
      * This function replaces the variables in the query commandTemplate with the actual params
@@ -45,7 +45,7 @@ public abstract class PluginExecutor {
      * @param query Query
      * @param params CommandQueryParams
      */
-    Query replaceTemplate(Query query, CommandQueryParams params) {
+    protected Query replaceTemplate(Query query, CommandQueryParams params) {
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache mustache = mf.compile(new StringReader(query.getCommandTemplate()), "commandTemplate");
         Writer writer = new StringWriter();
