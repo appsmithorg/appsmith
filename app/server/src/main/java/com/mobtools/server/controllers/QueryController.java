@@ -3,10 +3,8 @@ package com.mobtools.server.controllers;
 import com.mobtools.server.constants.Url;
 import com.mobtools.server.domains.Query;
 import com.mobtools.server.dtos.CommandQueryParams;
-import com.mobtools.server.dtos.ResponseDto;
 import com.mobtools.server.services.QueryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -21,7 +19,6 @@ public class QueryController extends BaseController<QueryService, Query, String>
 
     @PostMapping("/execute/{id}")
     public Flux<Object> executeQuery(@PathVariable String id, @RequestBody CommandQueryParams params) {
-        return service.executeQuery(id, params)
-                .map(result -> new ResponseDto<>(HttpStatus.OK.value(), result, null));
+        return service.executeQuery(id, params);
     }
 }
