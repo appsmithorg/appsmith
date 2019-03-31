@@ -35,12 +35,20 @@ public class QueryServiceImpl extends BaseService<QueryRepository, Query, String
         log.debug("Going to execute query with id: {}", id);
 
         // 1. Fetch the query from the DB to get the type
-        return repository.findById(id)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new MobtoolsException("Unable to find query by id: " + id))))
-                // 2. Instantiate the implementation class based on the query type
-                .map(queryObj -> pluginService.getPluginExecutor(queryObj.getPlugin().getType(), queryObj.getPlugin().getExecutorClass()))
-                // 3. Execute the query
-                .flatMapMany(plugin -> plugin.execute());
+        Mono<Query> queryMono = repository.findById(id)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new MobtoolsException("Unable to find query by id: " + id))));
+
+        // 2. Instantiate the implementation class based on the query type
+        Mono<PluginExecutor> pluginExecutorMono = queryMono.map(queryObj ->
+                pluginService.getPluginExecutor(queryObj.getPlugin().getType(), queryObj.getPlugin().getExecutorClass()));
+
+        // 3. Execute the query
+        return queryMono
+                .zipWith(pluginExecutorMono, (queryObj, pluginExecutor) -> {
+                    Query newQueryObj = pluginExecutor.replaceTemplate(queryObj, params);
+                    return pluginExecutor.execute(newQueryObj, params);
+                })
+                .flatMapIterable(Flux::toIterable).subscribeOn(scheduler);
     }
 
 }
