@@ -17,17 +17,17 @@ public class PostgresDBPluginExecutor extends PluginExecutor {
 
     // JDBC driver name and database URL
     @Value("${jdbc.postgres.driver}")
-    static final String JDBC_DRIVER = "org.postgresql.Driver";
+    String JDBC_DRIVER;
 
     @Value("${jdbc.postgres.url}")
-    static final String DB_URL = "jdbc:postgresql://localhost/mobtools";
+    String DB_URL;
 
     //  Database credentials
     @Value("${jdbc.postgres.username}")
-    static final String DB_USER = "postgres";
+    String DB_USER;
 
     @Value("${jdbc.postgres.password}")
-    static final String DB_PASS = "root";
+    String DB_PASS;
 
     Connection conn = null;
 
@@ -61,9 +61,10 @@ public class PostgresDBPluginExecutor extends PluginExecutor {
     public void init() {
         log.debug("Going to initialize the PostgresDBPluginExecutor");
         try {
+
             // Load the class into JVM
             Class.forName(JDBC_DRIVER);
-
+            log.debug("Got the jdbc url as {}", DB_URL);
             // Create the connection
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
         } catch (ClassNotFoundException e) {
