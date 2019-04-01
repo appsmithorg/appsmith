@@ -15,12 +15,17 @@ import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
 import { ActionType, ReduxAction } from "./constants/ActionConstants";
 
+import { DragDropContextProvider } from "react-dnd"
+import HTML5Backend from "react-dnd-html5-backend"
+
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
 
 ReactDOM.render(
+
+  <DragDropContextProvider backend={HTML5Backend}>
   <Provider store={store}>
     <ThemeProvider theme={theme}>
       <BrowserRouter>
@@ -31,7 +36,7 @@ ReactDOM.render(
         </Switch>
       </BrowserRouter>
     </ThemeProvider>
-  </Provider>,
+  </Provider></DragDropContextProvider>,
   document.getElementById("root")
 );
 

@@ -11,7 +11,11 @@ import {
 } from "../constants/WidgetConstants"
 import { Component } from "react"
 import { BaseStyle } from "../editorComponents/BaseComponent"
+import DraggableWidget from "./DraggableWidget"
 import _ from "lodash"
+import * as React from "react"
+import ContainerWidget from "./ContainerWidget";
+import ContainerComponent from "../editorComponents/ContainerComponent";
 
 abstract class BaseWidget<
   T extends IWidgetProps,
@@ -19,8 +23,7 @@ abstract class BaseWidget<
 > extends Component<T, Partial<K>> {
   constructor(props: T) {
     super(props)
-    const initialState: Partial<K> = {
-    }
+    const initialState: Partial<K> = {}
     initialState.height = 0
     initialState.width = 0
     this.state = initialState
@@ -93,7 +96,18 @@ abstract class BaseWidget<
   }
 
   getComponentPaneView(): JSX.Element {
-    return this.getPageView()
+    return (
+      <DraggableWidget
+        {...this.props}
+        widgetId={this.props.widgetId}
+        style={{
+          ...this.getPositionStyle()
+        }}
+        orientation={"VERTICAL"}
+      >
+        {this.getPageView()}
+      </DraggableWidget>
+    )
   }
 
   abstract getWidgetType(): WidgetType
