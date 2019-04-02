@@ -31,12 +31,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         Class<?> clazz;
         try {
             clazz = Class.forName(className);
-            switch(pluginType) {
-                case DB:
-                    return (PluginExecutor) applicationContext.getBean(clazz);
-                case REST: break;
-                default: break;
-            }
+            return (PluginExecutor) applicationContext.getBean(clazz);
         } catch (ClassNotFoundException e) {
             log.error("Unable to find class {}. ", className, e);
         }
