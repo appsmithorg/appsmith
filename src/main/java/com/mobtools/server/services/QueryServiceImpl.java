@@ -31,12 +31,12 @@ public class QueryServiceImpl extends BaseService<QueryRepository, Query, String
 
 
     @Override
-    public Flux<Object> executeQuery(String id, CommandQueryParams params) {
-        log.debug("Going to execute query with id: {}", id);
+    public Flux<Object> executeQuery(String name, CommandQueryParams params) {
+        log.debug("Going to execute query with name: {}", name);
 
         // 1. Fetch the query from the DB to get the type
-        Mono<Query> queryMono = repository.findById(id)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new MobtoolsException("Unable to find query by id: " + id))));
+        Mono<Query> queryMono = repository.findByName(name)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new MobtoolsException("Unable to find query by id: " + name))));
 
         // 2. Instantiate the implementation class based on the query type
         Mono<PluginExecutor> pluginExecutorMono = queryMono.map(queryObj ->
@@ -50,5 +50,4 @@ public class QueryServiceImpl extends BaseService<QueryRepository, Query, String
                 })
                 .flatMapIterable(Flux::toIterable).subscribeOn(scheduler);
     }
-
 }

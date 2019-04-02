@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -25,7 +26,10 @@ public class Query extends BaseDomain {
 
     String confirmationMsg;
 
+    @Indexed(unique = true)
     String name;
 
     List<Property> properties;
+
+    List<Property> headers;
 }
