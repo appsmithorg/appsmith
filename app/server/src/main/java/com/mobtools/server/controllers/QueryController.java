@@ -17,8 +17,8 @@ public class QueryController extends BaseController<QueryService, Query, String>
         super(service);
     }
 
-    @PostMapping("/execute/{id}")
-    public Flux<Object> executeQuery(@PathVariable String id, @RequestBody CommandQueryParams params) {
-        return service.executeQuery(id, params);
+    @PostMapping("/execute/{name}")
+    public Flux<Object> executeQuery(@PathVariable String name, @RequestBody CommandQueryParams params) {
+        return service.executeQuery(name, params);
     }
 }
