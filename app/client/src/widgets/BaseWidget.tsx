@@ -11,22 +11,25 @@ import {
 } from "../constants/WidgetConstants"
 import { Component } from "react"
 import { BaseStyle } from "../editorComponents/BaseComponent"
-import DraggableWidget from "./DraggableWidget"
 import _ from "lodash"
 import * as React from "react"
-import ContainerWidget from "./ContainerWidget";
-import ContainerComponent from "../editorComponents/ContainerComponent";
+import ContainerWidget from "./ContainerWidget"
+import ContainerComponent from "../editorComponents/ContainerComponent"
+import DraggableComponent from "../editorComponents/DraggableComponent"
 
 abstract class BaseWidget<
   T extends IWidgetProps,
   K extends IWidgetState
-> extends Component<T, Partial<K>> {
+> extends Component<T, K> {
   constructor(props: T) {
     super(props)
-    const initialState: Partial<K> = {}
+    const initialState: IWidgetState = {
+      height: 0,
+      width: 0
+    }
     initialState.height = 0
     initialState.width = 0
-    this.state = initialState
+    this.state = initialState as K
   }
 
   componentDidMount(): void {
@@ -68,6 +71,7 @@ abstract class BaseWidget<
       widgetState.height !== this.state.height ||
       widgetState.width !== this.state.width
     ) {
+      console.log("*** " + this.props.widgetId + " " + JSON.stringify(widgetState))
       this.setState(widgetState)
     }
   }
@@ -97,16 +101,15 @@ abstract class BaseWidget<
 
   getComponentPaneView(): JSX.Element {
     return (
-      <DraggableWidget
+      <DraggableComponent
         {...this.props}
-        widgetId={this.props.widgetId}
         style={{
           ...this.getPositionStyle()
         }}
         orientation={"VERTICAL"}
       >
         {this.getPageView()}
-      </DraggableWidget>
+      </DraggableComponent>
     )
   }
 
@@ -115,7 +118,7 @@ abstract class BaseWidget<
   getPositionStyle(): BaseStyle {
     return {
       positionType:
-        this.props.renderMode === RenderModes.COMPONENT_PANE
+        this.props.renderMode !== RenderModes.PAGE
           ? "CONTAINER_DIRECTION"
           : "ABSOLUTE",
       height: this.state.height,

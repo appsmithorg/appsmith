@@ -8,14 +8,13 @@ import CanvasWidgetsNormalizer, {
 import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
 import { fetchPage } from "../../actions/pageActions"
 import { RenderModes } from "../../constants/WidgetConstants"
-import DraggableWidget from "../../widgets/DraggableWidget";
 
 class Canvas extends Component<{
   pageWidget: IContainerWidgetProps<any>
   fetchPage: Function
 }> {
   componentDidMount() {
-    this.props.fetchPage("123")
+    this.props.fetchPage("1")
   }
 
   render() {

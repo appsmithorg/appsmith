@@ -8,7 +8,7 @@ const WidgetPaneResponse: WidgetPaneReduxState = {
       text: "Lorem Ipsum",
       renderMode: RenderModes.COMPONENT_PANE,
       bottomRow: 50,
-      widgetId: "1",
+      widgetId: "wp1",
       rightColumn: 200
     },
     {
@@ -16,7 +16,7 @@ const WidgetPaneResponse: WidgetPaneReduxState = {
       text: "Lorem Ipsum",
       renderMode: RenderModes.COMPONENT_PANE,
       bottomRow: 50,
-      widgetId: "2",
+      widgetId: "wp2",
       rightColumn: 200
     },
     {
@@ -24,7 +24,7 @@ const WidgetPaneResponse: WidgetPaneReduxState = {
       renderMode: RenderModes.COMPONENT_PANE,
       backgroundColor: "#434343",
       bottomRow: 50,
-      widgetId: "3",
+      widgetId: "wp3",
       rightColumn: 200
     }
   ]

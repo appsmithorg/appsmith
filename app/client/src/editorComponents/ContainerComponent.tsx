@@ -14,10 +14,10 @@ export const Container = styled("div")<IContainerProps>`
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative"
   }};
   left: ${props => {
-    return props.style.xPosition + props.style.xPositionUnit
+    return props.style.positionType !== "ABSOLUTE" ? undefined : props.style.xPosition + props.style.xPositionUnit
   }};
   top: ${props => {
-    return props.style.yPosition + props.style.yPositionUnit
+    return props.style.positionType !== "ABSOLUTE" ? undefined : props.style.yPosition + props.style.yPositionUnit
   }};
 `
 

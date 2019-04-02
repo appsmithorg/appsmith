@@ -22,6 +22,10 @@ class WidgetFactory {
         }
     }
 
+    static getWidgetTypes(): WidgetType[] {
+        return Array.from(this.widgetMap.keys());
+    }
+
 }
 
 export interface IWidgetCreationException {
