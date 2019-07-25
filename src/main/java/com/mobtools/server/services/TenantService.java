@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface TenantService extends CrudService<Tenant, String> {
 
     Mono<Tenant> getByName(String name);
+
+    Mono<Tenant> create(Tenant object);
 }
