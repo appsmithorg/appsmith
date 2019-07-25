@@ -65,8 +65,8 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
     }
     
     @Override
-    public Mono<T> create(T widget) {
-        return repository.save(widget);
+    public Mono<T> create(T object) {
+        return repository.save(object);
     }
 
     private DBObject getDbObject(Object o) {

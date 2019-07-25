@@ -34,8 +34,8 @@ public class PostgresDBPluginExecutor extends PluginExecutor {
 
     @Override
     public Flux<Object> execute(Query queryObj, CommandQueryParams params) {
-        if(conn == null) {
-             init();
+        if (conn == null) {
+            init();
         }
         ArrayList list = new ArrayList(50);
         try {
@@ -45,9 +45,9 @@ public class PostgresDBPluginExecutor extends PluginExecutor {
             ResultSet resultSet = statement.executeQuery(queryTemplate);
             ResultSetMetaData metaData = resultSet.getMetaData();
             Integer colCount = metaData.getColumnCount();
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 HashMap row = new HashMap(colCount);
-                for(int i = 1; i<=colCount; i++) {
+                for (int i = 1; i <= colCount; i++) {
                     row.put(metaData.getColumnName(i), resultSet.getObject(i));
                 }
                 list.add(row);
