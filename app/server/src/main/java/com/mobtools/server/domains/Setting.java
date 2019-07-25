@@ -4,24 +4,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
-
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
-public class Tenant extends BaseDomain {
+public class Setting extends BaseDomain {
 
-    private String domain;
+    @Indexed(unique = true)
+    private String key;
 
-    private String name;
+    private String defaultValue;
 
-    private String website;
-
-    private List<TenantSetting> tenantSettings;
+    private Boolean isTenantSetting;
 
 }

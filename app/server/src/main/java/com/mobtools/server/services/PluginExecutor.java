@@ -42,7 +42,7 @@ public abstract class PluginExecutor {
      * This function replaces the variables in the query commandTemplate with the actual params
      * Executors can override this function to provide their own implementation if they wish to do something custom
      *
-     * @param query Query
+     * @param query  Query
      * @param params CommandQueryParams
      */
     protected Query replaceTemplate(Query query, CommandQueryParams params) {
@@ -52,7 +52,7 @@ public abstract class PluginExecutor {
 
         Map<String, String> queryMap = new HashMap<>();
         Map<String, String> headerMap = new HashMap<>();
-        if(params.getQueryParams() != null) {
+        if (params.getQueryParams() != null) {
             queryMap = params
                     .getQueryParams()
                     .stream()
@@ -61,7 +61,7 @@ public abstract class PluginExecutor {
                                     // Incase there's a conflict, we pick the older value
                                     (oldValue, newValue) -> oldValue));
         }
-        if(params.getHeaderParams() != null) {
+        if (params.getHeaderParams() != null) {
             headerMap = params
                     .getHeaderParams()
                     .stream()

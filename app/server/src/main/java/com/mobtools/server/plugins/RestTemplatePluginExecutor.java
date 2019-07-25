@@ -31,8 +31,8 @@ public class RestTemplatePluginExecutor extends PluginExecutor {
     protected Flux<Object> execute(Query query, CommandQueryParams params) {
         String requestBody = query.getCommandTemplate();
         Map<String, Property> propertyMap = query.getProperties()
-                                                    .stream()
-                                                    .collect(Collectors.toMap(Property::getKey, prop -> prop));
+                .stream()
+                .collect(Collectors.toMap(Property::getKey, prop -> prop));
 
         String url = propertyMap.get(PROP_URL).getValue();
         String httpMethod = propertyMap.get(PROP_HTTP_METHOD).getValue();
@@ -43,7 +43,7 @@ public class RestTemplatePluginExecutor extends PluginExecutor {
                 .build();
 
         WebClient.RequestHeadersSpec<?> request = webClient.method(HttpMethod.resolve(httpMethod))
-                                                            .body(BodyInserters.fromObject(requestBody));
+                .body(BodyInserters.fromObject(requestBody));
 
         Mono<ClientResponse> responseMono = request.exchange();
         ClientResponse clientResponse = responseMono.block();
@@ -51,14 +51,14 @@ public class RestTemplatePluginExecutor extends PluginExecutor {
         List<String> contentTypes = clientResponse.headers().header(HttpHeaders.CONTENT_TYPE);
 
         Class clazz = String.class;
-        if(contentTypes != null && contentTypes.size() > 0) {
+        if (contentTypes != null && contentTypes.size() > 0) {
             String contentType = contentTypes.get(0);
             boolean isJson = MediaType.APPLICATION_JSON_UTF8_VALUE.toLowerCase()
                     .equals(contentType.toLowerCase()
                             .replaceAll("\\s", ""))
                     || MediaType.APPLICATION_JSON_VALUE.equals(contentType.toLowerCase());
 
-            if(isJson) {
+            if (isJson) {
                 clazz = JSONObject.class;
             }
         }
