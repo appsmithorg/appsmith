@@ -28,6 +28,7 @@ public class SecurityConfig {
 
     /**
      * This configuration enables CORS requests for the most common HTTP Methods
+     *
      * @return
      */
     @Bean

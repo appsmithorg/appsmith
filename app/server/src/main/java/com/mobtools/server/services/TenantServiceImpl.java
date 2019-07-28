@@ -13,8 +13,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.constraints.NotNull;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -39,29 +39,44 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
         return repository.findByName(name);
     }
 
+    /*
+     * Create needs to first fetch and embed Setting in TenantSetting
+     * for the settings that have diverged from the default. Once the
+     * settings has been embedded in all the tenant settings, the library
+     * function is called to store the enhanced tenant object.
+     */
     @Override
-    public Mono<Tenant> create(@NotNull Tenant tenant) {
+    public Mono<Tenant> create(Tenant tenant) {
 
-        //Embed the setting object into tenantSetting. This is done only for settings for which the values deviate from the default.
-        //It is assumed that the tenant create API body would only contain the settings for which the default value and
-        //true value are different.
-        if (tenant.getTenantSettings() != null) {
-
-            try (Stream<TenantSetting> stream = tenant.getTenantSettings().stream()) {
-                Flux<TenantSetting> tenantSettingFlux = Flux.fromStream(stream);
-                tenantSettingFlux.map(this::getAndStoreSettingObjectInTenantSetting).subscribe();
-            }
-        }
-
-        return repository.save(tenant);
-
+        return Mono.just(tenant)
+                //transform the tenant data to embed setting object in each object in tenantSetting list.
+                .flatMap(this::enhanceTenantSettingList)
+                //Call the library function to save the updated tenant
+                .flatMap(tenantUpdated -> repository.save(tenantUpdated))
+                .subscribeOn(scheduler);
     }
 
-    private Object getAndStoreSettingObjectInTenantSetting(TenantSetting tenantSetting) {
+    private Mono<Tenant> enhanceTenantSettingList(Tenant tenant) {
+
+        if (tenant.getTenantSettings() == null) tenant.setTenantSettings(new ArrayList<>());
+
+        Flux<TenantSetting> tenantSettingFlux = Flux.fromIterable(tenant.getTenantSettings());
+        // For each tenant setting, fetch and embed the setting, and once all the tenant setting are done, collect it
+        // back into a single list of tenant settings.
+        Mono<List<TenantSetting>> listMono = tenantSettingFlux.flatMap(this::fetchAndEmbedSetting).collectList();
+        return listMono.map(list -> {
+            tenant.setTenantSettings(list);
+            return list;
+        }).thenReturn(tenant);
+    }
+
+    private Mono<TenantSetting> fetchAndEmbedSetting(TenantSetting tenantSetting) {
+
         String key = tenantSetting.getSetting().getKey();
         Mono<Setting> setting = settingService.getByKey(key);
-        return setting.doOnNext(set -> tenantSetting.setSetting(set))
-                .thenReturn(tenantSetting)
-                .subscribe();
+        return setting.map(setting1 -> {
+            tenantSetting.setSetting(setting1);
+            return tenantSetting;
+        });
     }
 }
