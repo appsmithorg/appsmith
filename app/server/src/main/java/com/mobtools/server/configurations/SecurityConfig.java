@@ -2,9 +2,10 @@ package com.mobtools.server.configurations;
 
 
 import com.mobtools.server.constants.Security;
+import com.mobtools.server.repositories.UserRepository;
+import com.mobtools.server.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -16,15 +17,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-import org.springframework.web.reactive.config.EnableWebFlux;
 
 import java.util.Arrays;
 
-@Configuration
-@EnableWebFlux
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private UserService userService;
 
     /**
      * This configuration enables CORS requests for the most common HTTP Methods
@@ -68,6 +68,9 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and().httpBasic()
+                .and().oauth2Login()
+                        .authorizedClientRepository(new ClientUserRepository(userService))
+                .and().formLogin()
                 .and().build();
     }
 }
