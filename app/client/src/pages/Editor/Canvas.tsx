@@ -19,11 +19,7 @@ class Canvas extends Component<{
 
   render() {
     const pageWidget = this.props.pageWidget
-    return (
-      <div>
-        {pageWidget ? WidgetFactory.createWidget(pageWidget) : undefined}
-      </div>
-    )
+    return pageWidget ? WidgetFactory.createWidget(pageWidget) : null
   }
 }
 

@@ -7,9 +7,9 @@ import { IWidgetProps } from "../../widgets/BaseWidget";
 
 class WidgetPane extends Component<WidgetPaneReduxState> {
   render() {
-    return (<div style={{ height: "600px", width: "300px", backgroundColor: "#f4f4f4", position: "absolute", top: 100 }}>
+    return (<div style={{ width: "300px", backgroundColor: "#fff", borderRadius: "5px", boxShadow: "0px 0px 3px #ccc", padding: "5px 10px", display: "flex", flexFlow: "row wrap" }}>
       {this.props.widgets.map((widget: IWidgetProps) => {
-        return WidgetFactory.createWidget(widget)
+        
       })}
     </div>)
   }

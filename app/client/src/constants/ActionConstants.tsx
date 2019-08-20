@@ -9,6 +9,11 @@ export type ActionType =
   | "REMOVE_WIDGET_CANVAS"
   | "LOAD_WIDGET_PANE"
   | "FETCH_PAGE"
+  | "ZOOM_IN_CANVAS"
+  | "ZOOM_OUT_CANVAS"
+  | "PUBLISH"
+  | "UNDO_CANVAS_ACTION"
+  | "REDO_CANVAS_ACTION"
 
 export const ActionTypes: { [id: string]: ActionType } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -17,7 +22,12 @@ export const ActionTypes: { [id: string]: ActionType } = {
   FETCH_PAGE: "FETCH_PAGE",
   DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",
   REMOVE_WIDGET_CANVAS: "REMOVE_WIDGET_CANVAS",
-  LOAD_WIDGET_PANE: "LOAD_WIDGET_PANE"
+  LOAD_WIDGET_PANE: "LOAD_WIDGET_PANE",
+  ZOOM_IN_CANVAS: "ZOOM_IN_CANVAS",
+  ZOOM_OUT_CANVAS: "ZOOM_OUT_CANVAS",
+  UNDO_CANVAS_ACTION: "UNDO_CANVAS_ACTION",
+  REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
+  PUBLISH: "PUBLISH"
 }
 
 export interface ReduxAction<T> {
@@ -33,3 +43,5 @@ export interface LoadCanvasPayload {
 export interface LoadWidgetPanePayload {
   widgets: IWidgetProps[]
 }
+
+
