@@ -20,7 +20,7 @@ export interface IFontInterface {
 export interface IThemeInterface {
   primaryColor: Color
   secondaryColor: Color
-  ascentColor: Color
+  accentColor: Color
   headerFont: IFontInterface,
   titleFont: IFontInterface,
   subTitleFont: IFontInterface
@@ -35,7 +35,7 @@ const defaultFont: IFontInterface = {
 export const theme = {
   primaryColor: Colors.FullBlack,
   secondaryColor: Colors.FullWhite,
-  ascentColor: Colors.FullBlack,
+  accentColor: Colors.FullBlack,
   headerFont: defaultFont,
   titleFont: defaultFont,
   subTitleFont: defaultFont

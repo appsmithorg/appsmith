@@ -6,6 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "outDir": "./out/js/src",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,6 +21,6 @@
     "jsx": "preserve"
   },
   "include": [
-    "src"
+    "./src/**/*"
   ]
 }
