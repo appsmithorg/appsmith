@@ -1,23 +1,22 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import { AppState } from "../../reducers"
-import WidgetFactory from "../../utils/WidgetFactory"
-import { WidgetPaneReduxState } from "../../reducers/uiReducers/widgetPaneReducer";
-import { IWidgetProps } from "../../widgets/BaseWidget";
+import { WidgetCardsPaneReduxState } from "../../reducers/uiReducers/widgetCardsPaneReducer";
 
-class WidgetPane extends Component<WidgetPaneReduxState> {
+class WidgetCardsPane extends Component<WidgetCardsPaneReduxState> {
   render() {
+    const groups = Object.keys(this.props.cards)
     return (<div style={{ width: "300px", backgroundColor: "#fff", borderRadius: "5px", boxShadow: "0px 0px 3px #ccc", padding: "5px 10px", display: "flex", flexFlow: "row wrap" }}>
-      {this.props.widgets.map((widget: IWidgetProps) => {
-        
+      {groups.map((group: string) => {
+          
       })}
     </div>)
   }
 }
 
-const mapStateToProps = (state: AppState, props: any): WidgetPaneReduxState => {
+const mapStateToProps = (state: AppState, props: any): WidgetCardsPaneReduxState => {
   return {
-    widgets: state.ui.widgetPane.widgets
+    cards: state.ui.widgetCardsPane.cards
   }
 }
 
@@ -28,4 +27,4 @@ const mapDispatchToProps = (dispatch: any) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(WidgetPane)
+)(WidgetCardsPane)

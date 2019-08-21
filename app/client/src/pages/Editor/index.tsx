@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import styled from "styled-components"
 import Canvas from "./Canvas"
-import WidgetPane from "./WidgetPane"
+import WidgetCardsPane from "./WidgetCardsPane"
 import EditorHeader from "./EditorHeader"
 import { CALCULATOR } from "@blueprintjs/icons/lib/esm/generated/iconContents";
 
@@ -30,7 +30,7 @@ class Editor extends Component {
         overflow: "hidden",
         padding: "10px",
         height: "calc(100vh - 60px)"}}>
-        <WidgetPane />
+        <WidgetCardsPane />
         <ArtBoard>
           <Canvas />
         </ArtBoard>

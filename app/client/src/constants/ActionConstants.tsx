@@ -1,5 +1,5 @@
 import ContainerWidget from "../widgets/ContainerWidget"
-import { IWidgetProps } from "../widgets/BaseWidget"
+import { IWidgetProps, IWidgetCardProps } from "../widgets/BaseWidget"
 
 export type ActionType =
   | "UPDATE_CANVAS"
@@ -14,6 +14,9 @@ export type ActionType =
   | "PUBLISH"
   | "UNDO_CANVAS_ACTION"
   | "REDO_CANVAS_ACTION"
+  | "FETCH_WIDGET_CARDS"
+  | "SUCCESS_FETCHING_WIDGET_CARDS"
+  | "ERROR_FETCHING_WIDGET_CARDS"
 
 export const ActionTypes: { [id: string]: ActionType } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -27,7 +30,9 @@ export const ActionTypes: { [id: string]: ActionType } = {
   ZOOM_OUT_CANVAS: "ZOOM_OUT_CANVAS",
   UNDO_CANVAS_ACTION: "UNDO_CANVAS_ACTION",
   REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
-  PUBLISH: "PUBLISH"
+  PUBLISH: "PUBLISH",
+  SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
+  ERROR_FETCHING_WIDGET_CARDS: "ERROR_FETCHING_WIDGET_CARDS"
 }
 
 export interface ReduxAction<T> {
@@ -44,4 +49,6 @@ export interface LoadWidgetPanePayload {
   widgets: IWidgetProps[]
 }
 
-
+export interface LoadWidgetCardsPanePayload {
+  cards: { [id: string] : IWidgetCardProps[] }
+}

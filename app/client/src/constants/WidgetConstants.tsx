@@ -13,6 +13,8 @@ export type WidgetType =
   | "NUMERIC_INPUT_WIDGET"
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
+  | "INPUT_WIDGET"
+  | "TOGGLE_WIDGET"
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL"
 export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION"
 export type CSSUnit =

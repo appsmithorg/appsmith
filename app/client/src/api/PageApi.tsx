@@ -30,7 +30,8 @@ class PageApi extends Api {
   static savePage(savePageRequest: SavePageRequest): Promise<PageResponse> {
     return Api.post(PageApi.url, undefined, savePageRequest)
   }
-
 }
+
+
 
 export default PageApi
