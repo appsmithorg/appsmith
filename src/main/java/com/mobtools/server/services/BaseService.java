@@ -1,6 +1,7 @@
 package com.mobtools.server.services;
 
 import com.mobtools.server.domains.BaseDomain;
+import com.mobtools.server.exceptions.MobtoolsException;
 import com.mobtools.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -65,7 +66,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
     }
     
     @Override
-    public Mono<T> create(T object) {
+    public Mono<T> create(T object) throws MobtoolsException {
         return repository.save(object);
     }
 
