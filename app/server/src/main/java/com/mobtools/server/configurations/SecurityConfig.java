@@ -2,7 +2,7 @@ package com.mobtools.server.configurations;
 
 
 import com.mobtools.server.constants.Security;
-import com.mobtools.server.repositories.UserRepository;
+import com.mobtools.server.services.TenantService;
 import com.mobtools.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +25,9 @@ public class SecurityConfig {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TenantService tenantService;
 
     /**
      * This configuration enables CORS requests for the most common HTTP Methods
@@ -69,7 +72,7 @@ public class SecurityConfig {
                 .authenticated()
                 .and().httpBasic()
                 .and().oauth2Login()
-                        .authorizedClientRepository(new ClientUserRepository(userService))
+                        .authorizedClientRepository(new ClientUserRepository(userService, tenantService))
                 .and().formLogin()
                 .and().build();
     }

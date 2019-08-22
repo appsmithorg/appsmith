@@ -23,5 +23,15 @@ public class Plugin extends BaseDomain {
 
     String executorClass;
 
-    List<Property> properties;
+    String jarLocation;
+
+    List<PluginParameterType> resourceParams;
+
+    List<PluginParameterType> actionParams;
+    
+    String minAppsmithVersionSupported;
+    
+    String maxAppsmithVersionSupported;
+
+    String version;
 }

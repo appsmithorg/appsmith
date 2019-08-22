@@ -24,4 +24,6 @@ public class Tenant extends BaseDomain {
 
     private List<TenantSetting> tenantSettings;
 
+    private List<TenantPlugin> plugins;
+
 }
