@@ -79,4 +79,14 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
             return tenantSetting;
         });
     }
+
+    @Override
+    public Mono<Tenant> findById(String id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public Mono<Tenant> save(Tenant tenant) {
+        return repository.save(tenant);
+    }
 }

@@ -3,9 +3,9 @@ package com.mobtools.server.configurations;
 import com.mobtools.server.domains.LoginSource;
 import com.mobtools.server.domains.User;
 import com.mobtools.server.domains.UserState;
-import com.mobtools.server.repositories.UserRepository;
+import com.mobtools.server.services.TenantService;
 import com.mobtools.server.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -39,12 +39,15 @@ import java.util.Map;
  * saveAuthorizedClient is called on every successful OAuth2 authentication, this solves the problem
  * of plugging a handler for the same purpose.
  */
+@Configuration
 public class ClientUserRepository implements ServerOAuth2AuthorizedClientRepository {
 
     UserService userService;
+    TenantService tenantService;
 
-    public ClientUserRepository(UserService userService) {
+    public ClientUserRepository(UserService userService, TenantService tenantService) {
         this.userService = userService;
+        this.tenantService = tenantService;
     }
 
     private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
@@ -83,7 +86,7 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
                 .then(Mono.empty());
     }
 
-    private Mono<User> checkAndCreateUser(OidcUser user) {
+    public Mono<User> checkAndCreateUser(OidcUser user) {
         User newUser = new User();
         newUser.setName(user.getFullName());
         newUser.setEmail(user.getEmail());
@@ -91,7 +94,19 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
 
-        return userService.findByEmail(user.getEmail())
+        /** TODO
+         * Tenant here is being hardcoded. This is a stop gap measure
+         * A flow needs to be added to connect a User to a Tenant. Once
+         * that is done, during the login, the tenant should be picked up
+         * and a user should be hence created.
+         */
+
+        return tenantService.findById("5d3e90a2dfec7c00047a81ea")
+                .map(tenant -> {
+                    newUser.setTenant(tenant);
+                    return newUser;
+                })
+                .then(userService.findByEmail(user.getEmail()))
                 .switchIfEmpty(userService.save(newUser));
     }
 
