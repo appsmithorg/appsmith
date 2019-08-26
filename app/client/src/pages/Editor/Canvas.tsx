@@ -1,47 +1,30 @@
-import React, { Component } from "react"
-import { connect } from "react-redux"
-import { AppState } from "../../reducers"
+import React, { Props } from "react"
 import WidgetFactory from "../../utils/WidgetFactory"
-import CanvasWidgetsNormalizer, {
-  widgetSchema
-} from "../../normalizers/CanvasWidgetsNormalizer"
+import { WidgetTypes } from "../../constants/WidgetConstants"
+import { DraggableWidget } from "../../widgets/BaseWidget"
+import { useDrop } from 'react-dnd'
 import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
-import { fetchPage } from "../../actions/pageActions"
-import { RenderModes } from "../../constants/WidgetConstants"
 
-class Canvas extends Component<{
+interface CanvasProps {
   pageWidget: IContainerWidgetProps<any>
-  fetchPage: Function
-}> {
-  componentDidMount() {
-    this.props.fetchPage("1")
-  }
-
-  render() {
-    const pageWidget = this.props.pageWidget
-    return pageWidget ? WidgetFactory.createWidget(pageWidget) : null
-  }
+  addWidget: Function
+  removeWidget: Function
 }
 
-const mapStateToProps = (state: AppState, props: any) => {
-  const pageWidget = CanvasWidgetsNormalizer.denormalize(
-    state.ui.canvas.pageWidgetId,
-    state.entities
+const Canvas : React.SFC<CanvasProps> = (props) => {
+  const [, drop] = useDrop({
+    accept: Object.values(WidgetTypes),
+    drop(item: DraggableWidget, monitor) {
+      console.log("dropped")
+      props.addWidget(item.type);
+      return undefined
+    },
+  })
+  return (
+    <div ref={drop}>
+      {props.pageWidget && WidgetFactory.createWidget(props.pageWidget)}
+    </div>
   )
-  return {
-    pageWidget: pageWidget
-  }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    fetchPage: (pageId: string) => {
-      return dispatch(fetchPage(pageId, RenderModes.CANVAS))
-    }
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Canvas)
+export default Canvas

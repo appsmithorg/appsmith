@@ -15,7 +15,7 @@ import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
 import { ActionType, ReduxAction } from "./constants/ActionConstants";
 
-import { DragDropContextProvider } from "react-dnd"
+import { DndProvider } from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 
 WidgetBuilderRegistry.registerWidgetBuilders();
@@ -25,18 +25,19 @@ sagaMiddleware.run(rootSaga)
 
 ReactDOM.render(
 
-  <DragDropContextProvider backend={HTML5Backend}>
-  <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path="/" component={App} />
-          <Route exact path="/builder" component={Editor} />
-          <Route component={PageNotFound} />
-        </Switch>
-      </BrowserRouter>
-    </ThemeProvider>
-  </Provider></DragDropContextProvider>,
+  <DndProvider backend={HTML5Backend}>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path="/" component={App} />
+            <Route exact path="/builder" component={Editor} />
+            <Route component={PageNotFound} />
+          </Switch>
+        </BrowserRouter>
+      </ThemeProvider>
+    </Provider>
+  </DndProvider>,
   document.getElementById("root")
 );
 

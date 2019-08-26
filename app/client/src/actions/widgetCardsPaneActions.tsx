@@ -10,16 +10,22 @@ export const fetchWidgetCards = () => {
   }
 }
 
-export const errorFetchingWidgetCards = (error: T) => {
+export const errorFetchingWidgetCards = (error: any) => {
   return {
     type: ActionTypes.ERROR_FETCHING_WIDGET_CARDS,
     error
   }
 }
 
-export const successFetchingWidgetCards = (cards: <string, IWidgetCardProps[]>) => {
+export const successFetchingWidgetCards = (cards: { [id: string]: IWidgetCardProps[] }) => {
   return {
     type: ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS,
     cards
   }
+}
+
+export default {
+  fetchWidgetCards,
+  errorFetchingWidgetCards,
+  successFetchingWidgetCards
 }

@@ -16,7 +16,7 @@ class ButtonWidget extends BaseWidget<IButtonWidgetProps, IWidgetState> {
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        text={this.props.text}
+        text={this.props.text || "Button"}
       />
     )
   }

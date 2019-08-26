@@ -1,12 +1,14 @@
 import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
 import { ActionTypes, ReduxAction } from "../constants/ActionConstants"
 import WidgetCardsPaneApi, { WidgetCardsPaneResponse, WidgetCardsPaneRequest } from "../api/WidgetCardsPaneApi"
+import { successFetchingWidgetCards } from "../actions/widgetCardsPaneActions"
 import { call, put, takeLeading, all, takeEvery, takeLatest } from "redux-saga/effects"
+
 
 export function* fetchWidgetCards(widgetCardsRequestAction: ReduxAction<WidgetCardsPaneRequest>) {
   try {
     const widgetCards: WidgetCardsPaneResponse = yield call(WidgetCardsPaneApi.fetchWidgetCards)
-    yield put({ type: ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS, widgetCards})
+    yield put(successFetchingWidgetCards(widgetCards.cards))
   } catch(err) {
     yield put({ type: ActionTypes.ERROR_FETCHING_WIDGET_CARDS, err})
   }

@@ -10,10 +10,11 @@ import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse
 const initialState: WidgetCardsPaneReduxState = WidgetCardsPaneResponse
 
 const widgetCardsPaneReducer = createReducer(initialState, {
-  [ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
+  [ActionTypes.ERROR_FETCHING_WIDGET_CARDS]: (
     state: WidgetCardsPaneReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>
   ) => {
+    console.log(action)
     return { cards: action.payload.cards }
   }
 })

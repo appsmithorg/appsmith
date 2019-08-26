@@ -15,6 +15,14 @@ export type WidgetType =
   | "RADIO_GROUP_WIDGET"
   | "INPUT_WIDGET"
   | "TOGGLE_WIDGET"
+
+export const WidgetTypes: {[id: string]: WidgetType } = {
+  BUTTON_WIDGET: "BUTTON_WIDGET",
+  TEXT_WIDGET: "TEXT_WIDGET",
+  INPUT_WIDGET: "INPUT_WIDGET",
+  TOGGLE_WIDGET: "TOGGLE_WIDGET",
+}
+
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL"
 export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION"
 export type CSSUnit =

@@ -99,6 +99,7 @@ class WidgetBuilderRegistry {
         return <RadioGroupWidget {...widgetData} />
       }
     })
+    
   }
 }
 

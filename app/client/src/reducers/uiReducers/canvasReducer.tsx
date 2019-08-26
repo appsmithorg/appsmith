@@ -14,6 +14,7 @@ const canvasReducer = createReducer(initialState, {
     state: CanvasReduxState,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
+    console.log(action.payload);
     return { pageWidgetId: action.payload.pageWidgetId }
   }
 })

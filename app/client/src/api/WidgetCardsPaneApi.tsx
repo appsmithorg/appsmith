@@ -4,7 +4,7 @@ import { IContainerWidgetProps } from "../widgets/ContainerWidget"
 import { ApiResponse } from "./ApiResponses"
 
 export interface WidgetCardsPaneResponse {
-  cards : Map<string, IWidgetCardProps[]>
+  cards : { [id: string]: IWidgetCardProps[]}
 }
 export interface WidgetCardsPaneRequest {}
 

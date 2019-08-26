@@ -71,7 +71,7 @@ abstract class BaseWidget<
       widgetState.height !== this.state.height ||
       widgetState.width !== this.state.width
     ) {
-      console.log("*** " + this.props.widgetId + " " + JSON.stringify(widgetState))
+      // console.log("*** " + this.props.widgetId + " " + JSON.stringify(widgetState))
       this.setState(widgetState)
     }
   }
@@ -141,6 +141,11 @@ abstract class BaseWidget<
 export interface IWidgetState {
   height: number
   width: number
+}
+
+export interface DraggableWidget {
+  type: string,
+  widget: IWidgetProps
 }
 
 export interface IWidgetBuilder<T extends IWidgetProps> {

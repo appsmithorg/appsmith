@@ -1,30 +1,42 @@
 import React, { Component } from "react"
-import { connect } from "react-redux"
-import { AppState } from "../../reducers"
-import { WidgetCardsPaneReduxState } from "../../reducers/uiReducers/widgetCardsPaneReducer";
+import WidgetCard from "./WidgetCard"
+import styled from "styled-components"
+import { IWidgetCardProps } from "../../widgets/BaseWidget"
 
-class WidgetCardsPane extends Component<WidgetCardsPaneReduxState> {
-  render() {
-    const groups = Object.keys(this.props.cards)
-    return (<div style={{ width: "300px", backgroundColor: "#fff", borderRadius: "5px", boxShadow: "0px 0px 3px #ccc", padding: "5px 10px", display: "flex", flexFlow: "row wrap" }}>
-      {groups.map((group: string) => {
-          
-      })}
-    </div>)
-  }
+interface WidgetCardPaneProps  {
+  cards: { [id: string]: IWidgetCardProps[]}
 }
 
-const mapStateToProps = (state: AppState, props: any): WidgetCardsPaneReduxState => {
-  return {
-    cards: state.ui.widgetCardsPane.cards
-  }
+const CardsPaneWrapper = styled.div`
+  width: 300px;
+  background-color: #fff; 
+  border-radius: 5px;
+  box-shadow: 0px 0px 3px #ccc;
+  padding: 5px 10px;
+`;
+
+const CardsWrapper = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+`;
+
+const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (props) => {
+  const groups = Object.keys(props.cards)  
+  return (
+      <CardsPaneWrapper>
+        {
+          groups.map((group: string) => 
+            <React.Fragment key={group}>
+              <h5>{group}</h5>
+              <CardsWrapper>
+                { props.cards[group].map((card: IWidgetCardProps) => <WidgetCard details={card} key={card.widgetType} />) }
+              </CardsWrapper>
+            </React.Fragment>
+          )
+        }
+      </CardsPaneWrapper>
+    )
 }
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {}
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WidgetCardsPane)
+export default WidgetCardsPane

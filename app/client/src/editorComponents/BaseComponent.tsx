@@ -1,6 +1,7 @@
 import { Component } from "react"
 import React from "react"
 import { PositionType, CSSUnit } from "../constants/WidgetConstants"
+import { Color } from "../constants/StyleConstants"
 /***
  * Components are responsible for binding render inputs to corresponding UI SDKs
  */
@@ -22,6 +23,8 @@ export interface BaseStyle {
     yPositionUnit: CSSUnit
     heightUnit?: CSSUnit
     widthUnit?: CSSUnit
+    backgroundColor?: Color
+
 }
 
 export interface IComponentProps {
