@@ -48,6 +48,7 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
     @Override
     public Mono<Tenant> create(Tenant tenant) {
 
+        log.debug("Going to create the tenant");
         return Mono.just(tenant)
                 //transform the tenant data to embed setting object in each object in tenantSetting list.
                 .flatMap(this::enhanceTenantSettingList)

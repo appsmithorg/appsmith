@@ -62,7 +62,8 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     @Override
     public Mono<T> getById(ID id) {
-        return repository.findById(id);
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new MobtoolsException("Unable to find resource with id: " + id.toString())));
     }
     
     @Override
