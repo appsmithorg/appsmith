@@ -25,4 +25,6 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     public Mono<Tenant> uninstallPlugin(PluginTenantDTO plugin);
 
+    public Mono<Plugin> findByName(String name);
+
 }
