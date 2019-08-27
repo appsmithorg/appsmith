@@ -11,5 +11,5 @@ public interface TenantService extends CrudService<Tenant, String> {
 
     Mono<Tenant> findById(String id);
 
-    Mono<Tenant> save (Tenant tenant);
+    Mono<Tenant> save(Tenant tenant);
 }
