@@ -13,6 +13,7 @@ import com.mobtools.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -35,6 +36,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final ApplicationContext applicationContext;
     private final ClientUserRepository clientUserRepository;
     private final TenantService tenantService;
+
+    @Value("${tenant.id}")
+    private String tenantId;
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -97,7 +101,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
          * be stored as part of user and this tenant should be used to store
          * the installed plugin or to delete plugin during uninstallation.
          */
-        Mono<Tenant> tenantMono = tenantService.findById("5d3e90a2dfec7c00047a81ea");
+        Mono<Tenant> tenantMono = tenantService.findById(tenantId);
 
         return tenantMono
                 .map(tenant -> {
@@ -141,7 +145,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
          * be stored as part of user and this tenant should be used to store
          * the installed plugin or to delete plugin during uninstallation.
          */
-        Mono<Tenant> tenantMono = tenantService.findById("5d3e90a2dfec7c00047a81ea");
+        Mono<Tenant> tenantMono = tenantService.findById(tenantId);
 
         Mono<Object> userObjectMono = ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
@@ -156,7 +160,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             for (TenantPlugin listPlugin : tenantPluginList) {
                 if (listPlugin.getPlugin().getName().equals(plugin.getName())) {
                     log.debug("Plugin {} is already installed for Tenant {}. Don't add again.",
-                     plugin.getName(), tenant.getName());
+                            plugin.getName(), tenant.getName());
                     return tenant;
                 }
             }
@@ -170,5 +174,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             tenant.setPlugins(tenantPluginList);
             return tenant;
         }).flatMap(tenantService::save);
+    }
+
+    public Mono<Plugin> findByName(String name) {
+        return repository.findByName(name);
     }
 }

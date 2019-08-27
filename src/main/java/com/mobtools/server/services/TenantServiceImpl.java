@@ -90,4 +90,6 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
     public Mono<Tenant> save(Tenant tenant) {
         return repository.save(tenant);
     }
+
 }
+
