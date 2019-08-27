@@ -74,4 +74,9 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
                 })
                 .flatMap(repository::save);
     }
+
+    @Override
+    public Mono<Resource> findByName(String name) {
+        return repository.findByName(name);
+    }
 }
