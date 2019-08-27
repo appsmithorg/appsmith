@@ -8,11 +8,11 @@
 		<version>2.1.3.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.mobtools</groupId>
+	<groupId>com.appsmith</groupId>
 	<artifactId>server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>server</name>
-	<description>This is the API server for the Mobtools project</description>
+	<description>This is the API server for the Appsmith project</description>
 
 	<properties>
 		<java.version>11</java.version>
