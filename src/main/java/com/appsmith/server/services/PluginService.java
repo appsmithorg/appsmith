@@ -19,8 +19,6 @@ public interface PluginService extends CrudService<Plugin, String> {
      */
     PluginExecutor getPluginExecutor(PluginType pluginType, String className);
 
-    public Mono<Plugin> create(Plugin plugin) throws AppsmithException;
-
     public Mono<Tenant> installPlugin(PluginTenantDTO plugin);
 
     public Mono<Tenant> uninstallPlugin(PluginTenantDTO plugin);

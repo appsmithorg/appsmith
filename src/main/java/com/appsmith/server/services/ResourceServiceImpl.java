@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantPlugin;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ResourceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
     @Override
     public Mono<Resource> create(@NotNull Resource resource) throws AppsmithException {
         if (resource.getId() != null) {
-            throw new AppsmithException("During create resource, Id is not null. Can't create new resource.");
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
         }
 
         Mono<Tenant> tenantMono = tenantService.findById(tenantId);

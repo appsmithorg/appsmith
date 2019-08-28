@@ -18,4 +18,13 @@ public class ResponseDto<T> implements Serializable {
     private T data;
 
     private String message;
+
+    private boolean success = true;
+
+    public ResponseDto(int status, T data, String message) {
+        this.status = status;
+        this.data = data;
+        this.message = message;
+    }
+
 }

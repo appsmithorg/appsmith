@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.dtos.CommandQueryParams;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.QueryRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ public class QueryServiceImpl extends BaseService<QueryRepository, Query, String
 
         // 1. Fetch the query from the DB to get the type
         Mono<Query> queryMono = repository.findByName(name)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new AppsmithException("Unable to find query by id: " + name))));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "query", name))));
 
         // 2. Instantiate the implementation class based on the query type
         Mono<PluginExecutor> pluginExecutorMono = queryMono.map(queryObj ->

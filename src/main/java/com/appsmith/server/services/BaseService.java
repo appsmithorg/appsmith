@@ -1,8 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.BaseDomain;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseRepository;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -63,7 +65,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
     @Override
     public Mono<T> getById(ID id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException("Unable to find resource with id: " + id.toString())));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
     
     @Override
