@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantPlugin;
 import com.appsmith.server.dtos.PluginTenantDTO;
 import com.appsmith.server.dtos.TenantPluginStatus;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -71,7 +72,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Mono<Plugin> create(Plugin plugin) throws AppsmithException {
         if (plugin.getId() != null) {
-            throw new AppsmithException("During create plugin, Id is not null. Can't create new plugin.");
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
         }
         plugin.setDeleted(false);
         return pluginRepository.save(plugin);
