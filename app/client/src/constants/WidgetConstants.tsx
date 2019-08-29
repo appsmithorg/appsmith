@@ -57,6 +57,6 @@ export const RenderModes: { [id: string]: RenderMode } = {
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
-  RELATIVE_FONTSIZE: "em",
+  RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%"
 }

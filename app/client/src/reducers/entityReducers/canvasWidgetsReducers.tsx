@@ -5,13 +5,13 @@ import {
   ReduxAction
 } from "../../constants/ActionConstants"
 import { IWidgetProps } from "../../widgets/BaseWidget"
-import CanvasWidgetsNormalizer, { widgetSchema } from "../../normalizers/CanvasWidgetsNormalizer";
+import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 
 const initialState: CanvasWidgetsReduxState = {}
 
 
 export interface IFlattenedWidgetProps extends IWidgetProps {
-  children?: string[] 
+  children?: string[];
 }
 
 const canvasWidgetsReducer = createReducer(initialState, {

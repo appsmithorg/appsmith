@@ -1,5 +1,4 @@
 import {
-  ReduxAction,
   ActionTypes
 } from "../constants/ActionConstants"
 import { IWidgetCardProps } from '../widgets/BaseWidget'

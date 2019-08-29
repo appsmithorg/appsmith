@@ -1,15 +1,18 @@
-import React from 'react';
-import { useDrag, DragSourceMonitor } from 'react-dnd'
+import React, { useState, useLayoutEffect, MutableRefObject } from 'react';
+import { useDrag, DragSourceMonitor, DragPreviewImage } from 'react-dnd'
+import blankImage from "../../assets/images/blank.png"
 import { IWidgetCardProps } from '../../widgets/BaseWidget'
 import styled from 'styled-components'
 import { Icon } from '@blueprintjs/core'
-import { IconNames } from '@blueprintjs/icons'
+import {  IconNames } from '@blueprintjs/icons'
+import { generateReactKey } from "../../utils/generators"
 
-interface WidgetCardProps {
-  details: IWidgetCardProps
+
+type WidgetCardProps = {
+  details: IWidgetCardProps;
 }
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display:flex;
   flex-direction: row;
   justify-content: center;
@@ -25,7 +28,7 @@ const Wrapper = styled.div`
     cursor: grab;
   }
 `;
-const IconLabel = styled.h5`
+export const IconLabel = styled.h5`
   text-align: center;
   padding: 10px 0;
   margin: 0;
@@ -35,20 +38,39 @@ const IconLabel = styled.h5`
   font-size: 0.5rem;
 `;
 
-const WidgetCard: React.SFC<WidgetCardProps> = (props) => {
-  const [{ isDragging }, drag] = useDrag({
-    item: { type: props.details.widgetType, widget: props.details },
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const WidgetCard = (props: WidgetCardProps) => {
+  const [initialOffset, setInitialOffset] = useState({ x: 0, y: 0})
+
+  const [{ isDragging }, drag, preview] = useDrag({ 
+    item: { type: props.details.widgetType, widget: props.details, key: generateReactKey(), initialOffset},
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
   })
+  const card: MutableRefObject<HTMLDivElement | null> = React.useRef(null)
+  useLayoutEffect(()=> {
+    const el = card.current
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      setInitialOffset({
+        x: Math.ceil(rect.left),
+        y: Math.ceil(rect.top)
+      })
+      console.log(rect)
+    }
+  }, [setInitialOffset])
+
   return (
+    <React.Fragment >
+      <DragPreviewImage connect={preview} src={blankImage} />
     <Wrapper ref={drag}>
-      <div>
-        <Icon icon="segmented-control" iconSize={20} />
+      <div ref={card}>
+        <Icon icon={IconNames.SEGMENTED_CONTROL} iconSize={20} />
         <IconLabel>{props.details.label}</IconLabel>
       </div>
     </Wrapper>
+    </React.Fragment>
   )
 }
 

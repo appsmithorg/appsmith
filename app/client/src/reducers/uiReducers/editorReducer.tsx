@@ -6,7 +6,7 @@ import {
   LoadWidgetCardsPanePayload
 } from "../../constants/ActionConstants"
 import { IWidgetCardProps, IWidgetProps } from "../../widgets/BaseWidget"
-import { IContainerWidgetProps } from "../../widgets/ContainerWidget"
+import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
 
 const initialState: EditorReduxState = {}
 
@@ -32,9 +32,9 @@ const editorReducer = createReducer(initialState, {
 })
 
 export interface EditorReduxState {
-  pageWidget?: IContainerWidgetProps<any>
+  pageWidget?: ContainerWidgetProps<any>;
   cards?: {
-    [id: string]: IWidgetCardProps[]
+    [id: string]: IWidgetCardProps[];
   }
 }
 

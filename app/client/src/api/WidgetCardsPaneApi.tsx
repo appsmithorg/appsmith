@@ -1,7 +1,5 @@
 import Api from "./Api"
 import { IWidgetCardProps } from "../widgets/BaseWidget"
-import { IContainerWidgetProps } from "../widgets/ContainerWidget"
-import { ApiResponse } from "./ApiResponses"
 
 export interface WidgetCardsPaneResponse {
   cards : { [id: string]: IWidgetCardProps[]}

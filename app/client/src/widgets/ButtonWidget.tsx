@@ -1,14 +1,9 @@
 import * as React from "react"
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
+import { WidgetType } from "../constants/WidgetConstants"
 import ButtonComponent from "../editorComponents/ButtonComponent"
-import _ from "lodash"
-import WidgetFactory from "../utils/WidgetFactory";
 
-class ButtonWidget extends BaseWidget<IButtonWidgetProps, IWidgetState> {
-  constructor(widgetProps: IButtonWidgetProps) {
-    super(widgetProps)
-  }
+class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
 
   getPageView() {
     return (
@@ -26,9 +21,9 @@ class ButtonWidget extends BaseWidget<IButtonWidgetProps, IWidgetState> {
   }
 }
 
-export interface IButtonWidgetProps extends IWidgetProps {
-  text?: string
-  ellipsize?: boolean
+export interface ButtonWidgetProps extends IWidgetProps {
+  text?: string;
+  ellipsize?: boolean;
 }
 
 export default ButtonWidget

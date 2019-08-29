@@ -1,18 +1,14 @@
 import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "../widgets/BaseWidget"
-import _ from "lodash"
+import { IWidgetProps, IWidgetState } from "../widgets/BaseWidget"
 import { DragSource, DragSourceConnector, DragSourceMonitor } from "react-dnd"
-import { IContainerProps } from "./ContainerComponent"
+import { ContainerProps } from "./ContainerComponent"
 
-export interface IDraggableProps extends IContainerProps {
-  connectDragSource: Function
-  isDragging?: boolean
+export interface DraggableProps extends ContainerProps {
+  connectDragSource: Function;
+  isDragging?: boolean;
 }
 
-class DraggableComponent extends React.Component<
-  IDraggableProps,
-  IWidgetState
-> {
+class DraggableComponent extends React.Component<DraggableProps, IWidgetState> {
   render() {
     return this.props.connectDragSource(
       <div

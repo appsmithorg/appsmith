@@ -1,8 +1,4 @@
 import { createReducer } from "../../utils/PicassoUtils"
-import {
-  ActionTypes,
-  ReduxAction
-} from "../../constants/ActionConstants"
 
 const initialState: EditorHeaderReduxState = {}
 

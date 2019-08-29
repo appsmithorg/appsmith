@@ -1,37 +1,34 @@
+import React from "react"
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import ContainerComponent, {
-  IContainerProps
-} from "../editorComponents/ContainerComponent"
+import ContainerComponent from "../editorComponents/ContainerComponent"
 import {
   ContainerOrientation,
   WidgetType,
-  CSSUnits
 } from "../constants/WidgetConstants"
 import WidgetFactory from "../utils/WidgetFactory"
-import React from "react"
 import _ from "lodash"
 import { Color } from "../constants/StyleConstants"
 import DroppableComponent from "../editorComponents/DroppableComponent"
 
-const DEFAULT_NUM_COLS = 13
-const DEFAULT_NUM_ROWS = 13
+const DEFAULT_NUM_COLS = 16
+const DEFAULT_NUM_ROWS = 16
 
 class ContainerWidget extends BaseWidget<
-  IContainerWidgetProps<IWidgetProps>,
-  IContainerWidgetState
+  ContainerWidgetProps<IWidgetProps>,
+  ContainerWidgetState
 > {
-  constructor(props: IContainerWidgetProps<IWidgetProps>) {
+  constructor(props: ContainerWidgetProps<IWidgetProps>) {
     super(props)
     this.renderChildWidget = this.renderChildWidget.bind(this)
     this.state = {
       width: 0,
       height: 0,
-      snapColumnSpace: 1,
-      snapRowSpace: 1
+      snapColumnSpace: DEFAULT_NUM_COLS,
+      snapRowSpace: DEFAULT_NUM_ROWS
     }
   }
 
-  componentDidUpdate(previousProps: IContainerWidgetProps<IWidgetProps>) {
+  componentDidUpdate(previousProps: ContainerWidgetProps<IWidgetProps>) {
     super.componentDidUpdate(previousProps)
     let snapColumnSpace = this.state.snapColumnSpace
     let snapRowSpace = this.state.snapRowSpace
@@ -91,18 +88,18 @@ class ContainerWidget extends BaseWidget<
   }
 }
 
-export interface IContainerWidgetState extends IWidgetState {
-  snapColumnSpace: number
-  snapRowSpace: number
+export interface ContainerWidgetState extends IWidgetState {
+  snapColumnSpace: number;
+  snapRowSpace: number;
 }
 
-export interface IContainerWidgetProps<T extends IWidgetProps>
+export interface ContainerWidgetProps<T extends IWidgetProps>
   extends IWidgetProps {
-  children?: T[]
-  snapColumns?: number
-  snapRows?: number
-  orientation?: ContainerOrientation
-  backgroundColor?: Color
+  children?: T[];
+  snapColumns?: number;
+  snapRows?: number;
+  orientation?: ContainerOrientation;
+  backgroundColor?: Color;
 }
 
 export default ContainerWidget

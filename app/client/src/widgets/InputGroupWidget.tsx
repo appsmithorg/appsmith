@@ -1,17 +1,13 @@
-import * as React from "react";
+import React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
+import { WidgetType } from "../constants/WidgetConstants";
 import InputGroupComponent from "../editorComponents/InputGroupComponent";
-import { IconName, InputGroup, Intent } from "@blueprintjs/core";
-import _ from "lodash";
+import { IconName, Intent } from "@blueprintjs/core";
 
 class InputGroupWidget extends BaseWidget<
-  IInputGroupWidgetProps,
+  InputGroupWidgetProps,
   IWidgetState
 > {
-  constructor(widgetProps: IInputGroupWidgetProps) {
-    super(widgetProps);
-  }
 
   getPageView() {
     return (
@@ -40,7 +36,7 @@ class InputGroupWidget extends BaseWidget<
   }
 }
 
-export interface IInputGroupWidgetProps extends IWidgetProps {
+export interface InputGroupWidgetProps extends IWidgetProps {
   className?: string;
   disabled?: boolean;
   large?: boolean;

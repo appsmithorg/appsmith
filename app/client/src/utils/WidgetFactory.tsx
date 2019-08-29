@@ -15,7 +15,7 @@ class WidgetFactory {
         if (widgetBuilder)
             return widgetBuilder.buildWidget(widgetData)
         else {
-            const ex: IWidgetCreationException = {
+            const ex: WidgetCreationException = {
                 message: "Widget Builder not registered for widget type" + widgetData.widgetType
             }
             throw ex
@@ -28,8 +28,8 @@ class WidgetFactory {
 
 }
 
-export interface IWidgetCreationException {
-    message: string
+export interface WidgetCreationException {
+    message: string;
 }
 
 export default WidgetFactory

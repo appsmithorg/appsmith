@@ -1,17 +1,16 @@
 import * as React from "react"
 import { IWidgetProps, IWidgetState } from "../widgets/BaseWidget"
-import _ from "lodash"
 import { DropTargetConnector, DropTargetMonitor, DropTarget, XYCoord } from "react-dnd"
-import { IContainerProps } from "./ContainerComponent"
+import { ContainerProps } from "./ContainerComponent"
 import WidgetFactory from "../utils/WidgetFactory";
 
-export interface IDroppableProps extends IContainerProps {
-  connectDropTarget: Function
-  isOver?: boolean
+export interface DroppableProps extends ContainerProps {
+  connectDropTarget: Function;
+  isOver?: boolean;
 }
 
 class DroppableComponent extends React.Component<
-  IDroppableProps,
+  DroppableProps,
   IWidgetState
 > {
   render() {

@@ -1,5 +1,5 @@
-export default function snapToGrid(x: number, y: number) {
-  const snappedX = Math.round(x / 32) * 32
-  const snappedY = Math.round(y / 32) * 32
+export default function snapToGrid(cellSize: number, x: number, y: number) {
+  const snappedX = Math.round(x / cellSize) * cellSize
+  const snappedY = Math.round(y / cellSize) * cellSize
   return [snappedX, snappedY]
 }

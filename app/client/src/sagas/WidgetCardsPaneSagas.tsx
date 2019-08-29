@@ -1,8 +1,8 @@
-import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
+// import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
 import { ActionTypes, ReduxAction } from "../constants/ActionConstants"
 import WidgetCardsPaneApi, { WidgetCardsPaneResponse, WidgetCardsPaneRequest } from "../api/WidgetCardsPaneApi"
 import { successFetchingWidgetCards } from "../actions/widgetCardsPaneActions"
-import { call, put, takeLeading, all, takeEvery, takeLatest } from "redux-saga/effects"
+import { call, put, takeLatest } from "redux-saga/effects"
 
 
 export function* fetchWidgetCards(widgetCardsRequestAction: ReduxAction<WidgetCardsPaneRequest>) {

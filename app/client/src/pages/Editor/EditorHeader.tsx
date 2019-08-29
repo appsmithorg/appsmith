@@ -2,9 +2,7 @@ import React, { Component } from "react"
 import styled from "styled-components"
 import { connect } from "react-redux"
 import { AppState } from "../../reducers"
-import WidgetFactory from "../../utils/WidgetFactory"
 import { EditorHeaderReduxState } from "../../reducers/uiReducers/editorHeaderReducer";
-import { IWidgetProps } from "../../widgets/BaseWidget";
 
 const Header = styled.header`
   height: 50px;

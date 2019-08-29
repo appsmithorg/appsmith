@@ -2,7 +2,7 @@ import * as React from "react"
 import { IComponentProps } from "./BaseComponent"
 import { Intent, ITagProps, TagInput, HTMLInputProps } from "@blueprintjs/core"
 import { Container } from "./ContainerComponent"
-class TagInputComponent extends React.Component<ITagInputComponentProps> {
+class TagInputComponent extends React.Component<TagInputComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -15,7 +15,7 @@ class TagInputComponent extends React.Component<ITagInputComponentProps> {
   }
 }
 
-export interface ITagInputComponentProps extends IComponentProps {
+export interface TagInputComponentProps extends IComponentProps {
   addOnPaste?: boolean
   className?: string
   disabled?: boolean

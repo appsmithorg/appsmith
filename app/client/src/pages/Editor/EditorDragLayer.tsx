@@ -3,16 +3,17 @@ import styled from 'styled-components'
 import { XYCoord, useDragLayer } from 'react-dnd'
 import snapToGrid from './snapToGrid'
 import WidgetFactory from '../../utils/WidgetFactory';
-import { RenderModes, WidgetTypes, WidgetType } from '../../constants/WidgetConstants';
+import { RenderModes,  WidgetType } from '../../constants/WidgetConstants';
 
 const WrappedDragLayer = styled.div`
-  position: fixed;
+  position: absolute;
   pointer-events: none;
   z-index: 100;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
+  border: 10px solid #000;
 `;
 
 
@@ -30,7 +31,7 @@ function getItemStyles(
 
     x -= initialOffset.x
     y -= initialOffset.y
-    ;[x, y] = snapToGrid(x, y)
+    ;[x, y] = snapToGrid(64, x, y)
     x += initialOffset.x
     y += initialOffset.y
   
@@ -57,10 +58,12 @@ const EditorDragLayer: React.FC = () => {
     isDragging: monitor.isDragging(),
   }))
 
+  // console.log("itemType", itemType, "isDragging", isDragging, "item", item, "initialOffset", initialOffset, "currentOffset", currentOffset);
+
   function renderItem() {
       return WidgetFactory.createWidget({
         widgetType: itemType as WidgetType,
-        widgetId: '2',
+        widgetId: item.key,
         topRow: 10,
         leftColumn: 10,
         bottomRow: 14,

@@ -1,10 +1,10 @@
-import React, { Component } from "react"
+import React from "react"
 import WidgetCard from "./WidgetCard"
 import styled from "styled-components"
 import { IWidgetCardProps } from "../../widgets/BaseWidget"
 
-interface WidgetCardPaneProps  {
-  cards: { [id: string]: IWidgetCardProps[]}
+type WidgetCardPaneProps  = {
+  cards: { [id: string]: IWidgetCardProps[]};
 }
 
 const CardsPaneWrapper = styled.div`
@@ -21,7 +21,7 @@ const CardsWrapper = styled.div`
   justify-content: flex-start;
 `;
 
-const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (props) => {
+const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (props: WidgetCardPaneProps) => {
   const groups = Object.keys(props.cards)  
   return (
       <CardsPaneWrapper>

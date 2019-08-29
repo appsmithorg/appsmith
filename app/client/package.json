@@ -1,5 +1,5 @@
 {
-  "name": "picasso",
+  "name": "appsmith",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,6 +11,7 @@
     "@types/jest": "^23.3.13",
     "@types/lodash": "^4.14.120",
     "@types/moment-timezone": "^0.5.10",
+    "@types/nanoid": "^2.0.0",
     "@types/node": "^10.12.18",
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
@@ -22,6 +23,7 @@
     "husky": "^1.3.1",
     "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
+    "nanoid": "^2.0.4",
     "node-sass": "^4.11.0",
     "normalizr": "^3.3.0",
     "prettier": "^1.16.0",
@@ -32,10 +34,11 @@
     "react-redux": "^6.0.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.3",
+    "react-scripts": "^3.1.1",
     "redux": "^4.0.1",
     "redux-saga": "^1.0.0",
     "styled-components": "^4.1.3",
+    "ts-loader": "^6.0.4",
     "typescript": "^3.2.4"
   },
   "scripts": {
@@ -55,6 +58,10 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
     "redux-devtools": "^3.5.0"
   }
 }
