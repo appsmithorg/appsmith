@@ -1,7 +1,7 @@
 import { ReduxAction } from "../constants/ActionConstants"
 import { SENTRY_PROD_CONFIG, SENTRY_STAGE_CONFIG, HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV } from "../constants/ThirdPartyConstants";
 import * as Sentry from '@sentry/browser';
-import HotjarUtil from "./HotjarUtil"
+import AnalyticsUtil from "./AnalyticsUtil"
 
 export const createReducer = (
   initialState: any,
@@ -20,13 +20,13 @@ export const appInitializer = () => {
   switch (process.env.REACT_APP_ENVIRONMENT) {
     case "PRODUCTION":
       Sentry.init(SENTRY_PROD_CONFIG);    
-      HotjarUtil.initializeHotjar(HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV);
+      AnalyticsUtil.initializeHotjar(HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV);
+      AnalyticsUtil.initializeSegment();
       break;
     case "STAGING":
         Sentry.init(SENTRY_STAGE_CONFIG);
       break
     case "LOCAL":
-        HotjarUtil.initializeHotjar(HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV);
       break;
   }
 }
