@@ -12,14 +12,15 @@ import appReducer from "./reducers";
 import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
+import * as Sentry from '@sentry/browser';
 import { rootSaga } from "./sagas"
-import { ActionType, ReduxAction } from "./constants/ActionConstants";
+import { SENTRY_CONFIG } from "./constants/ThirdPartyConstants";
 
+Sentry.init(SENTRY_CONFIG);
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
-
 ReactDOM.render(
   <Provider store={store}>
     <ThemeProvider theme={theme}>
