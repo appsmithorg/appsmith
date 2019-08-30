@@ -1,5 +1,5 @@
 {
-  "name": "picasso",
+  "name": "appsmith",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -57,7 +57,6 @@
   ],
   "devDependencies": {
     "dotenv": "^8.1.0",
-    "redux-devtools": "^3.5.0",
-    "webpack-cli": "^3.3.7"
+    "redux-devtools": "^3.5.0"
   }
 }
