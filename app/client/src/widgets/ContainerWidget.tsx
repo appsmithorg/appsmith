@@ -52,8 +52,7 @@ class ContainerWidget extends BaseWidget<
       <ContainerComponent
         widgetId={this.props.widgetId}
         style={{
-          ...this.getPositionStyle(),
-          backgroundColor: this.props.backgroundColor
+          ...this.getPositionStyle()
         }}
         orientation={this.props.orientation || "VERTICAL"}
       >

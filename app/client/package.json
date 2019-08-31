@@ -1,5 +1,5 @@
 {
-  "name": "picasso",
+  "name": "appsmith",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -11,6 +11,7 @@
     "@blueprintjs/datetime": "^3.6.0",
     "@blueprintjs/icons": "^3.5.0",
     "@blueprintjs/table": "^3.4.0",
+    "@sentry/browser": "^5.6.3",
     "@types/axios": "^0.14.0",
     "@types/jest": "^23.3.13",
     "@types/lodash": "^4.14.120",
@@ -59,6 +60,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "dotenv": "^8.1.0",
     "redux-devtools": "^3.5.0"
   }
 }
