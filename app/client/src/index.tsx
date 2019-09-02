@@ -16,8 +16,7 @@ import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
-
-appInitializer()
+appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));

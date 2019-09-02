@@ -1,21 +1,19 @@
 import * as React from "react"
-
-import { Card, Elevation } from "@blueprintjs/core"
 import { RouterProps } from "react-router";
+import netlifyIdentity from 'netlify-identity-widget';
 
 class LoginPage extends React.PureComponent<RouterProps> {
 
-  componentDidMount() {
-    let windowDoc: any = window
-    windowDoc.netlifyIdentity.open();
-  }
+    componentDidMount() {
+        netlifyIdentity.open()
+    }
 
-  render() {
-    return (
-      <div style={{ textAlign: "center" }}>
-      </div>
-    )
-  }
+    render() {
+        return (
+            <div style={{ textAlign: "center" }}>
+            </div>
+        )
+    }
 }
 
 export default LoginPage
