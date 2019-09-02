@@ -10,6 +10,7 @@
       "es2015.iterable"
     ],
     "strict": true,
+    "outDir": "./out/js/src",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -25,6 +26,6 @@
     "importHelpers": true
   },
   "include": [
-    "src/**/*"
+    "./src/**/*"
   ]
 }

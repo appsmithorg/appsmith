@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
 	"printWidth": 80,
 	"tabWidth": 2,
 	"useTabs": false,
@@ -7,3 +8,13 @@
 	"trailingComma": "all",
 	"parser": "typescript"
 }
+=======
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "parser": "typescript"
+}
+>>>>>>> dc48b1294cb310d72a1725857b915381f9da8335

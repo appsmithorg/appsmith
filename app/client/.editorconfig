@@ -9,4 +9,8 @@ indent_size = 2
 trim_trailing_whitespace = true
 
 [*.md]
+<<<<<<< HEAD
 trim_trailing_whitespace = false
+=======
+trim_trailing_whitespace = false
+>>>>>>> dc48b1294cb310d72a1725857b915381f9da8335

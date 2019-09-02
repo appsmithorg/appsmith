@@ -17,12 +17,13 @@ import { rootSaga } from "./sagas"
 
 import { DndProvider } from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
+import { appInitializer } from "./utils/AppsmithUtils";
 
+appInitializer()
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
-
 ReactDOM.render(
 
   <DndProvider backend={HTML5Backend}>

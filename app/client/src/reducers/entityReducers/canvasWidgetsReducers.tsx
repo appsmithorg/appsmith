@@ -1,4 +1,4 @@
-import { createReducer } from "../../utils/PicassoUtils"
+import { createReducer } from "../../utils/AppsmithUtils"
 import {
   ActionTypes,
   LoadCanvasPayload,
