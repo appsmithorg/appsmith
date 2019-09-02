@@ -14,7 +14,6 @@ const widgetCardsPaneReducer = createReducer(initialState, {
     state: WidgetCardsPaneReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>
   ) => {
-    console.log(action)
     return { cards: action.payload.cards }
   }
 })

@@ -69,7 +69,6 @@ abstract class BaseWidget<
       widgetState.height !== this.state.height ||
       widgetState.width !== this.state.width
     ) {
-      // console.log("*** " + this.props.widgetId + " " + JSON.stringify(widgetState))
       this.setState(widgetState)
     }
   }
@@ -98,7 +97,6 @@ abstract class BaseWidget<
   }
 
   getComponentPaneView(): JSX.Element {
-    console.log(this.props)
     return (
       <DraggableComponent
         {...this.props}

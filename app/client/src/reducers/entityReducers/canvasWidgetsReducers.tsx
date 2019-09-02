@@ -39,7 +39,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
 })
 
 export interface CanvasWidgetsReduxState {
-  [widgetId: string]: IFlattenedWidgetProps
+  [widgetId: string]: IFlattenedWidgetProps;
 }
 
 export default canvasWidgetsReducer

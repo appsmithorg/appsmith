@@ -52,10 +52,9 @@ interface ArtBoardProps {
 const Canvas = (props: CanvasProps) => {
   const [width, setWidth] = React.useState(1)
   const artBoardMask: MutableRefObject<HTMLDivElement | null> = React.useRef(null)
-  const [collectedProps, drop] = useDrop({
+  const [, drop] = useDrop({
     accept: Object.values(WidgetTypes),
-    drop(item: DraggableWidget, monitor) {
-      console.log("dropped", collectedProps, item, monitor.didDrop())
+    drop(item: DraggableWidget) {
       props.addWidget(item.type, item.key);
       return undefined
     },
@@ -66,7 +65,6 @@ const Canvas = (props: CanvasProps) => {
     if (el) {
       const rect = el.getBoundingClientRect()
       setWidth(rect.width)
-      console.log(rect)
     }
   }, [setWidth])
 

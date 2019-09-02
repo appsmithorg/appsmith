@@ -36,22 +36,6 @@ const ContainerComponent = (props: ContainerProps) => {
   })
   return <Container ref={drop} {...props}>{props.children}</Container> 
 }
-// class ContainerComponent extends BaseComponent<ContainerProps> {
-//   render() {
-//     const addWidgetFn = this.props.addWidget;
-//     const [, drop] = useDrop({
-//       accept: Object.values(WidgetTypes),
-//       drop(item: DraggableWidget, monitor) {
-//         console.log("dropped")
-//         if (addWidgetFn){
-//           addWidgetFn(item.type);
-//         }
-//         return undefined
-//       },
-//     })
-//     return <Container {...this.props}>{this.props.children}</Container>
-//   }
-// }
 
 export interface ContainerProps extends IComponentProps {
   children?: JSX.Element[] | JSX.Element;

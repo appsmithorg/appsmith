@@ -58,8 +58,6 @@ const EditorDragLayer: React.FC = () => {
     isDragging: monitor.isDragging(),
   }))
 
-  // console.log("itemType", itemType, "isDragging", isDragging, "item", item, "initialOffset", initialOffset, "currentOffset", currentOffset);
-
   function renderItem() {
       return WidgetFactory.createWidget({
         widgetType: itemType as WidgetType,

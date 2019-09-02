@@ -9,7 +9,6 @@ import WidgetCardsPane from "./WidgetCardsPane"
 import EditorHeader from "./EditorHeader"
 import { WidgetType } from "../../constants/WidgetConstants"
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer"
-import { fetchWidgetCards } from "../../actions/widgetCardsPaneActions"
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
 import { fetchPage, addWidget } from "../../actions/pageActions"
 import { RenderModes } from "../../constants/WidgetConstants"
@@ -44,19 +43,17 @@ const EditorWrapper = styled.div`
 type EditorProps = {
   pageWidget: ContainerWidgetProps<any> | any;
   fetchCanvasWidgets: Function;
-  fetchWidgetCardsPane: Function;
   cards: { [id: string]: IWidgetCardProps[] } | any;
   addPageWidget: Function;
+  page: string;
 }
 
 class Editor extends Component<EditorProps> {
   componentDidMount() {
-    this.props.fetchWidgetCardsPane()
     this.props.fetchCanvasWidgets("1")
   }
 
   addWidgetToCanvas = (widgetType: WidgetType, key: string): void => {
-    console.log(widgetType);
     this.props.addPageWidget("1", {
       key: key,
       bottomRow: 9,
@@ -73,10 +70,6 @@ class Editor extends Component<EditorProps> {
       widgetType: widgetType
     })
   }
-
-  // removeWidgetFromCanvas = (widgetId: string): null => {
-
-  // }
 
   public render() {
     return (
@@ -107,7 +100,6 @@ const mapStateToProps = (state: AppState, props: EditorProps): EditorReduxState 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     fetchCanvasWidgets: (pageId: string) => dispatch(fetchPage(pageId, RenderModes.CANVAS)),
-    fetchWidgetCardsPane: () => dispatch(fetchWidgetCards()),
     addPageWidget: (pageId: string, widgetProps: IWidgetProps) => dispatch(addWidget(pageId, widgetProps))
   }
 }

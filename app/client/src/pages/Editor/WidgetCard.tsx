@@ -57,7 +57,6 @@ const WidgetCard = (props: WidgetCardProps) => {
         x: Math.ceil(rect.left),
         y: Math.ceil(rect.top)
       })
-      console.log(rect)
     }
   }, [setInitialOffset])
 

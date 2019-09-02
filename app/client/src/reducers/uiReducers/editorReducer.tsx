@@ -35,7 +35,7 @@ export interface EditorReduxState {
   pageWidget?: ContainerWidgetProps<any>;
   cards?: {
     [id: string]: IWidgetCardProps[];
-  }
+  };
 }
 
 export default editorReducer
