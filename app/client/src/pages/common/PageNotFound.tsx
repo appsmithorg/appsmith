@@ -1,7 +1,6 @@
 import * as React from "react"
 
 import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core"
-import App from "../App";
 import { RouterProps } from "react-router";
 
 class PageNotFound extends React.PureComponent<RouterProps> {
