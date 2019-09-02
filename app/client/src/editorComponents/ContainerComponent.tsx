@@ -6,7 +6,7 @@ import { WidgetTypes } from "../constants/WidgetConstants"
 import { DraggableWidget } from "../widgets/BaseWidget"
 import React from "react";
 
-export const Container = styled("div")<IContainerProps>`
+export const Container = styled("div")<ContainerProps>`
   display: flex;
   flex-direction: ${props => {
     return props.orientation === "HORIZONTAL" ? "row" : "column"

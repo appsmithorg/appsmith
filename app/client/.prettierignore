@@ -2,9 +2,5 @@ build/
 node_modules/
 package-lock.json
 yarn.lock
-<<<<<<< HEAD
 package.json
 
-=======
-package.json
->>>>>>> dc48b1294cb310d72a1725857b915381f9da8335
