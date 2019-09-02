@@ -14,6 +14,7 @@ import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
 import { appInitializer } from "./utils/AppsmithUtils";
+import NetlifyIdentityWidget from "netlify-identity-widget"
 
 appInitializer()
 WidgetBuilderRegistry.registerWidgetBuilders();
