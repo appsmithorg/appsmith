@@ -4,7 +4,8 @@ import { Provider } from "react-redux";
 import "./index.css";
 import App from "./App";
 import Editor from "./pages/Editor";
-import PageNotFound from "./pages/PageNotFound";
+import PageNotFound from "./pages/common/PageNotFound";
+import LoginPage from "./pages/common/LoginPage";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
@@ -14,6 +15,7 @@ import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
 import { appInitializer } from "./utils/AppsmithUtils";
+import ProtectedRoute from "./pages/common/ProtectedRoute";
 
 appInitializer()
 WidgetBuilderRegistry.registerWidgetBuilders();
@@ -26,7 +28,8 @@ ReactDOM.render(
       <BrowserRouter>
         <Switch>
           <Route exact path="/" component={App} />
-          <Route exact path="/builder" component={Editor} />
+          <ProtectedRoute path="/builder" component={Editor} />
+          <Route exact path="/login" component={LoginPage} />
           <Route component={PageNotFound} />
         </Switch>
       </BrowserRouter>
