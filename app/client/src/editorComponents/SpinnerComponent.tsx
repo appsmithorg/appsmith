@@ -3,7 +3,7 @@ import { IComponentProps } from "./BaseComponent"
 import { Spinner, Intent } from "@blueprintjs/core"
 import { Container } from "./ContainerComponent"
 
-class SpinnerComponent extends React.Component<ISpinnerComponentProps> {
+class SpinnerComponent extends React.Component<SpinnerComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -17,7 +17,7 @@ class SpinnerComponent extends React.Component<ISpinnerComponentProps> {
   }
 }
 
-export interface ISpinnerComponentProps extends IComponentProps {
+export interface SpinnerComponentProps extends IComponentProps {
   size?: number
   value?: number
   intent?: Intent

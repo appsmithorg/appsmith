@@ -7,7 +7,7 @@ class ButtonComponent extends React.Component<IButtonComponentProps> {
   render() {
     return (
       <Container {...this.props}>
-        <Button text={this.props.text} icon={this.props.icon} />
+        <Button  icon={this.props.icon}>{this.props.text}</Button>
       </Container>
     )
   }

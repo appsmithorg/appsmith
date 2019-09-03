@@ -3,15 +3,11 @@ import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
 import { WidgetType } from "../constants/WidgetConstants"
 import NumericInputComponent from "../editorComponents/NumericInputComponent"
 import { Intent, IconName } from "@blueprintjs/core"
-import _ from "lodash"
 
 class NumericInputWidget extends BaseWidget<
-  INumericInputWidgetProps,
+  NumericInputWidgetProps,
   IWidgetState
 > {
-  constructor(widgetProps: INumericInputWidgetProps) {
-    super(widgetProps)
-  }
 
   getPageView() {
     return (
@@ -47,27 +43,27 @@ class NumericInputWidget extends BaseWidget<
   }
 }
 
-export interface INumericInputWidgetProps extends IWidgetProps {
-  className?: string
-  disabled?: boolean
-  large?: boolean
-  intent?: Intent
-  defaultValue?: string
-  leftIcon?: IconName
-  rightElement?: JSX.Element
-  allowNumericCharactersOnly?: boolean
-  fill?: boolean
-  majorStepSize?: number | null
-  max?: number
-  min?: number
-  minorStepSize?: number | null
-  onValueChange?: (valueAsNumber: number, valueAsString: string) => void
-  onButtonClick?: (valueAsNumber: number, valueAsString: string) => void
-  inputRef?: (ref: HTMLInputElement | null) => any
-  selectAllOnFocus?: boolean
-  selectAllOnIncrement?: boolean
-  stepSize?: number
-  placeholder?: string
+export interface NumericInputWidgetProps extends IWidgetProps {
+  className?: string;
+  disabled?: boolean;
+  large?: boolean;
+  intent?: Intent;
+  defaultValue?: string;
+  leftIcon?: IconName;
+  rightElement?: JSX.Element;
+  allowNumericCharactersOnly?: boolean;
+  fill?: boolean;
+  majorStepSize?: number | null;
+  max?: number;
+  min?: number;
+  minorStepSize?: number | null;
+  onValueChange?: (valueAsNumber: number, valueAsString: string) => void;
+  onButtonClick?: (valueAsNumber: number, valueAsString: string) => void;
+  inputRef?: (ref: HTMLInputElement | null) => any;
+  selectAllOnFocus?: boolean;
+  selectAllOnIncrement?: boolean;
+  stepSize?: number;
+  placeholder?: string;
 }
 
 export default NumericInputWidget

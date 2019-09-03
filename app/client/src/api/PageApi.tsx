@@ -1,27 +1,27 @@
 import Api from "./Api"
-import { IContainerWidgetProps } from "../widgets/ContainerWidget"
+import { ContainerWidgetProps } from "../widgets/ContainerWidget"
 import { ApiResponse } from "./ApiResponses"
 import { RenderMode } from "../constants/WidgetConstants";
 
 export interface PageRequest {
-  pageId: string,
-  renderMode: RenderMode
+  pageId: string;
+  renderMode: RenderMode;
 }
 
 export interface SavePageRequest {
-  pageWidget: IContainerWidgetProps<any>
+  pageWidget: ContainerWidgetProps<any>;
 }
 
 export interface PageResponse extends ApiResponse {
-  pageWidget: IContainerWidgetProps<any>
+  pageWidget: ContainerWidgetProps<any>;
 }
 
 export interface SavePageResponse {
-  pageId: string
+  pageId: string;
 }
 
 class PageApi extends Api {
-  static url: string = "/page"
+  static url = "/page"
   
   static fetchPage(pageRequest: PageRequest): Promise<PageResponse> {
     return Api.get(PageApi.url + "/" + pageRequest.pageId, pageRequest)
@@ -30,7 +30,8 @@ class PageApi extends Api {
   static savePage(savePageRequest: SavePageRequest): Promise<PageResponse> {
     return Api.post(PageApi.url, undefined, savePageRequest)
   }
-
 }
+
+
 
 export default PageApi

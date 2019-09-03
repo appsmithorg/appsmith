@@ -12,18 +12,22 @@ import {
 import { Component } from "react"
 import { BaseStyle } from "../editorComponents/BaseComponent"
 import _ from "lodash"
+import React from "react"
+import DraggableComponent from "../editorComponents/DraggableComponent"
 
 abstract class BaseWidget<
   T extends IWidgetProps,
   K extends IWidgetState
-> extends Component<T, Partial<K>> {
+> extends Component<T, K> {
   constructor(props: T) {
     super(props)
-    const initialState: Partial<K> = {
+    const initialState: IWidgetState = {
+      height: 0,
+      width: 0
     }
     initialState.height = 0
     initialState.width = 0
-    this.state = initialState
+    this.state = initialState as K
   }
 
   componentDidMount(): void {
@@ -93,7 +97,17 @@ abstract class BaseWidget<
   }
 
   getComponentPaneView(): JSX.Element {
-    return this.getPageView()
+    return (
+      <DraggableComponent
+        {...this.props}
+        style={{
+          ...this.getPositionStyle()
+        }}
+        orientation={"VERTICAL"}
+      >
+        {this.getPageView()}
+      </DraggableComponent>
+    )
   }
 
   abstract getWidgetType(): WidgetType
@@ -101,7 +115,7 @@ abstract class BaseWidget<
   getPositionStyle(): BaseStyle {
     return {
       positionType:
-        this.props.renderMode === RenderModes.COMPONENT_PANE
+        this.props.renderMode !== RenderModes.PAGE
           ? "CONTAINER_DIRECTION"
           : "ABSOLUTE",
       height: this.state.height,
@@ -114,33 +128,47 @@ abstract class BaseWidget<
   }
 
   static defaultProps: Partial<IWidgetProps> = {
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
+    parentRowSpace: 64,
+    parentColumnSpace: 64,
     topRow: 0,
     leftColumn: 0
   }
 }
 
 export interface IWidgetState {
-  height: number
-  width: number
+  height: number;
+  width: number;
+}
+
+export interface DraggableWidget {
+  type: string;
+  widget: IWidgetProps;
+  key: string;
 }
 
 export interface IWidgetBuilder<T extends IWidgetProps> {
-  buildWidget(data: T): JSX.Element
+  buildWidget(data: T): JSX.Element;
 }
 
 export interface IWidgetProps {
-  widgetType: WidgetType
-  key?: string
-  widgetId: string
-  topRow: number
-  leftColumn: number
-  bottomRow: number
-  rightColumn: number
-  parentColumnSpace: number
-  parentRowSpace: number
-  renderMode: RenderMode
+  widgetType: WidgetType;
+  key?: string;
+  widgetId: string;
+  topRow: number;
+  leftColumn: number;
+  bottomRow: number;
+  rightColumn: number;
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  renderMode: RenderMode;
+}
+
+export interface IWidgetCardProps {
+  widgetType: WidgetType;
+  key?: string;
+  label: string;
+  icon: string;
+  groups: string[];
 }
 
 export default BaseWidget

@@ -14,6 +14,10 @@ import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
+// import { ActionType, ReduxAction } from "./constants/ActionConstants";
+
+import { DndProvider } from "react-dnd"
+import HTML5Backend from "react-dnd-html5-backend"
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
 appInitializer();
@@ -22,18 +26,21 @@ const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
 ReactDOM.render(
-  <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path="/" component={App} />
-          <ProtectedRoute path="/builder" component={Editor} />
-          <Route exact path="/login" component={LoginPage} />
-          <Route component={PageNotFound} />
-        </Switch>
-      </BrowserRouter>
-    </ThemeProvider>
-  </Provider>,
+
+  <DndProvider backend={HTML5Backend}>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path="/" component={App} />
+            <Route exact path="/builder" component={Editor} />
+            <Route exact path="/login" component={LoginPage} />
+            <Route component={PageNotFound} />
+          </Switch>
+        </BrowserRouter>
+      </ThemeProvider>
+    </Provider>
+  </DndProvider>,
   document.getElementById("root")
 );
 
