@@ -2,6 +2,7 @@ import { ReduxAction } from "../constants/ActionConstants"
 import { SENTRY_PROD_CONFIG, SENTRY_STAGE_CONFIG, HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV } from "../constants/ThirdPartyConstants";
 import * as Sentry from '@sentry/browser';
 import AnalyticsUtil from "./AnalyticsUtil"
+import netlifyIdentity from 'netlify-identity-widget';
 
 export const createReducer = (
   initialState: any,
@@ -17,6 +18,7 @@ export const createReducer = (
 }
 
 export const appInitializer = () => {
+  netlifyIdentity.init();
   switch (process.env.REACT_APP_ENVIRONMENT) {
     case "PRODUCTION":
       Sentry.init(SENTRY_PROD_CONFIG);    

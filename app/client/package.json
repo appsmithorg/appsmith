@@ -30,6 +30,7 @@
     "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
     "nanoid": "^2.0.4",
+    "netlify-identity-widget": "^1.5.5",
     "node-sass": "^4.11.0",
     "normalizr": "^3.3.0",
     "prettier": "^1.16.0",
