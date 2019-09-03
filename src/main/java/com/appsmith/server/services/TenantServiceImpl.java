@@ -91,5 +91,10 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
         return repository.save(tenant);
     }
 
+    @Override
+    public Mono<Tenant> findByIdAndPluginsPluginId(String tenantId, String pluginId) {
+        return repository.findByIdAndPluginsPluginId(tenantId, pluginId);
+    }
+
 }
 
