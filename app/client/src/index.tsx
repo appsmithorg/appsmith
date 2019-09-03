@@ -33,7 +33,7 @@ ReactDOM.render(
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={App} />
-            <Route exact path="/builder" component={Editor} />
+            <ProtectedRoute path="/builder" component={Editor} />
             <Route exact path="/login" component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>
