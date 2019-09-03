@@ -59,7 +59,7 @@ public class MDCFilter implements WebFilter {
 
     private Mono<Void> addContextToHttpResponse(final ServerHttpResponse response) {
         return Mono.subscriberContext().doOnNext(ctx -> {
-            if(!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
+            if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
                 return;
             }
 
@@ -67,12 +67,12 @@ public class MDCFilter implements WebFilter {
             // Add all the request MDC keys to the response object
             ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP)
                     .forEach((key, value) -> {
-                        if(!key.contains(REQUEST_ID_LOG)) {
+                        if (!key.contains(REQUEST_ID_LOG)) {
                             httpHeaders.add(MDC_HEADER_PREFIX + key, value);
                         } else {
                             httpHeaders.add(REQUEST_ID_HEADER, value);
                         }
-            });
+                    });
 
         }).then();
     }

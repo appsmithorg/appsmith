@@ -1,14 +1,18 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.PluginTenantDTO;
 import com.appsmith.server.dtos.ResponseDto;
 import com.appsmith.server.services.PluginService;
-import com.appsmith.server.constants.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;

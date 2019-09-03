@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
 @Getter
 @Setter
@@ -13,8 +12,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @NoArgsConstructor
 public class TenantPlugin extends BaseDomain {
 
-    @DBRef
-    private Plugin plugin;
+    private String pluginId;
 
     TenantPluginStatus status;
 

@@ -8,5 +8,6 @@ import reactor.core.publisher.Mono;
 public interface UserRepository extends BaseRepository<User, String> {
 
     Mono<User> findByName(String name);
+
     Mono<User> findByEmail(String email);
 }

@@ -12,15 +12,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -80,14 +76,17 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Override
     public Mono<Tenant> installPlugin(PluginTenantDTO pluginTenantDTO) {
-        return pluginRepository
-                .findByName(pluginTenantDTO.getName())
-                .flatMap(plugin1 -> storeTenantPlugin(plugin1, pluginTenantDTO.getStatus()))
+        if (pluginTenantDTO.getPluginId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
+        }
+
+        return Mono.just(pluginTenantDTO)
+                .flatMap(plugin -> storeTenantPlugin(plugin, pluginTenantDTO.getStatus()))
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Mono<Tenant> uninstallPlugin(PluginTenantDTO plugin) {
+    public Mono<Tenant> uninstallPlugin(PluginTenantDTO pluginDTO) {
         /*TODO
          * Tenant & user association is being mocked here by forcefully
          * only using a hardcoded tenant. This needs to be replaced by
@@ -102,36 +101,28 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
          * be stored as part of user and this tenant should be used to store
          * the installed plugin or to delete plugin during uninstallation.
          */
-        Mono<Tenant> tenantMono = tenantService.findById(tenantId);
+        if (pluginDTO.getPluginId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
+        }
+
+        //Find the tenant using id and plugin id -> This is to find if the tenant has the plugin installed
+        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, pluginDTO.getPluginId());
 
         return tenantMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, tenantId)))
+                //In case the plugin is not found for the tenant, the tenantMono would not emit and the rest of the flow would stop
+                //i.e. the rest of the code flow would only happen when there is a plugin found for the tenant that can
+                //be uninstalled.
                 .map(tenant -> {
                     List<TenantPlugin> tenantPluginList = tenant.getPlugins();
-                    if (tenantPluginList == null || tenantPluginList.isEmpty()) {
-                        return tenant;
-                    }
-                    for (TenantPlugin listPlugin : tenantPluginList) {
-                        if (listPlugin.getPlugin().getName().equals(plugin.getName())) {
-                            log.debug("Plugin {} found. Uninstalling now from Tenant {}.",
-                                    plugin.getName(), tenant.getName());
-                            tenantPluginList.remove(listPlugin);
-                            tenant.setPlugins(tenantPluginList);
-                            return tenant;
-                        }
-                    }
-                    log.debug("Plugin {} not found. Can't uninstall a plugin which is not installed",
-                            plugin.getName());
+                    tenantPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
+                    tenant.setPlugins(tenantPluginList);
                     return tenant;
                 })
-                /* TODO
-                 * Extra save is happening below in the edge case scenario of a plugin
-                 * which needs to be removed from the installed list, didnt exist in this list
-                 * to be begin with. Small optimization opportunity.
-                 */
                 .flatMap(tenantService::save);
     }
 
-    private Mono<Tenant> storeTenantPlugin(Plugin plugin, TenantPluginStatus status) {
+    private Mono<Tenant> storeTenantPlugin(PluginTenantDTO pluginDTO, TenantPluginStatus status) {
         /*TODO
          * Tenant & user association is being mocked here by forcefully
          * only using a hardcoded tenant. This needs to be replaced by
@@ -144,40 +135,37 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
          *         .map(Authentication::getPrincipal);
          * Once the user has been pulled using this, tenant should already
          * be stored as part of user and this tenant should be used to store
-         * the installed plugin or to delete plugin during uninstallation.
+         * the installed plugin or to delete plugin during uninstalling.
          */
-        Mono<Tenant> tenantMono = tenantService.findById(tenantId);
 
-        Mono<Object> userObjectMono = ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal);
+        //Find the tenant using id and plugin id -> This is to find if the tenant already has the plugin installed
+        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, pluginDTO.getPluginId());
 
-        return Mono.zip(tenantMono, userObjectMono, (tenant, user) -> {
-            List<TenantPlugin> tenantPluginList = tenant.getPlugins();
-            if (tenantPluginList == null) {
-                tenantPluginList = new ArrayList<TenantPlugin>();
-            }
-
-            for (TenantPlugin listPlugin : tenantPluginList) {
-                if (listPlugin.getPlugin().getName().equals(plugin.getName())) {
-                    log.debug("Plugin {} is already installed for Tenant {}. Don't add again.",
-                            plugin.getName(), tenant.getName());
-                    return tenant;
-                }
-            }
-            TenantPlugin tenantPlugin = new TenantPlugin();
-            //Set an ID in the nested document so that installed plugins can be referred to uniquely using IDs
-            ObjectId objectId = new ObjectId();
-            tenantPlugin.setId(objectId.toString());
-            tenantPlugin.setPlugin(plugin);
-            tenantPlugin.setStatus(status);
-            tenantPluginList.add(tenantPlugin);
-            tenant.setPlugins(tenantPluginList);
-            return tenant;
-        }).flatMap(tenantService::save);
+        return tenantMono
+                .switchIfEmpty(Mono.defer(() -> {
+                    //If the plugin is not found in the tenant, its not already installed. Install now.
+                    return tenantService.findById(tenantId).map(tenant -> {
+                        List<TenantPlugin> tenantPluginList = tenant.getPlugins();
+                        if (tenantPluginList == null) {
+                            tenantPluginList = new ArrayList<TenantPlugin>();
+                        }
+                        log.debug("Installing plugin {} for tenant {}", pluginDTO.getPluginId(), tenant.getName());
+                        TenantPlugin tenantPlugin = new TenantPlugin();
+                        tenantPlugin.setPluginId(pluginDTO.getPluginId());
+                        tenantPlugin.setStatus(status);
+                        tenantPluginList.add(tenantPlugin);
+                        tenant.setPlugins(tenantPluginList);
+                        return tenant;
+                    }).flatMap(tenantService::save);
+                }));
     }
 
     public Mono<Plugin> findByName(String name) {
         return repository.findByName(name);
+    }
+
+    @Override
+    public Mono<Plugin> findById(String id) {
+        return repository.findById(id);
     }
 }

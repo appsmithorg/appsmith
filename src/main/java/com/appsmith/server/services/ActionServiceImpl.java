@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -20,25 +22,32 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     private final ActionRepository repository;
     private final ResourceService resourceService;
+    private final PluginService pluginService;
 
     @Autowired
-    public ActionServiceImpl(Scheduler scheduler, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ActionRepository repository, ResourceService resourceService) {
+    public ActionServiceImpl(Scheduler scheduler, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ActionRepository repository, ResourceService resourceService, PluginService pluginService) {
         super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
         this.resourceService = resourceService;
+        this.pluginService = pluginService;
     }
 
     @Override
     public Mono<Action> create(@NotNull Action action) throws AppsmithException {
         if (action.getId() != null) {
             throw new AppsmithException("During create action, Id is not null. Can't create new action.");
+        } else if (action.getResourceId() == null) {
+            throw new AppsmithException(AppsmithError.RESOURCE_ID_NOT_GIVEN);
         }
 
-        Mono<Resource> resourceMono = resourceService.findByName(action.getResource().getName());
+        Mono<Resource> resourceMono = resourceService.findById(action.getResourceId());
+        Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId()));
 
-        return resourceMono
-                .map(resource -> {
-                    action.setResource(resource);
+
+        return pluginMono
+                //Set plugin in the action before saving.
+                .map(plugin -> {
+                    action.setPluginId(plugin.getId());
                     return action;
                 })
                 .flatMap(repository::save);
