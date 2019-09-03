@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface TenantRepository extends BaseRepository<Tenant, String> {
     Mono<Tenant> findByName(String name);
+
+    Mono<Tenant> findByIdAndPluginsPluginId(String tenantId, String pluginId);
 }

@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PluginTenantDTO {
-    String name;
+    String pluginId;
     TenantPluginStatus status;
 }

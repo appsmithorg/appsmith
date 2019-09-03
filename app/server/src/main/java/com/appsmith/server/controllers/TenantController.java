@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.services.TenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
