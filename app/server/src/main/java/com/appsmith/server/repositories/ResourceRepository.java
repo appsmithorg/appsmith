@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface ResourceRepository extends BaseRepository<Resource, String> {
     Mono<Resource> findByName(String name);
+
+    Mono<Resource> findById(String id);
 }

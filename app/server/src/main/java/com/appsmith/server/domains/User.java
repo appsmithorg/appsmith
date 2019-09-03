@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @ToString
 @NoArgsConstructor
 @Document
-public class User extends BaseDomain  implements UserDetails {
+public class User extends BaseDomain implements UserDetails {
 
     private String name;
 

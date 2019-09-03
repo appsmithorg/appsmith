@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -17,8 +16,9 @@ public class Action extends BaseDomain {
     @Indexed(unique = true)
     String name;
 
-    @DBRef
-    Resource resource;
+    String resourceId;
+
+    String pluginId;
 
     ActionConfiguration actionConfiguration;
 }

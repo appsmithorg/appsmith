@@ -1,9 +1,9 @@
 package com.appsmith.server.configurations;
 
 
-import com.appsmith.server.services.UserService;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;

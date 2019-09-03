@@ -1,9 +1,9 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Widget;
 import com.appsmith.server.dtos.ResponseDto;
 import com.appsmith.server.services.WidgetService;
-import com.appsmith.server.constants.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

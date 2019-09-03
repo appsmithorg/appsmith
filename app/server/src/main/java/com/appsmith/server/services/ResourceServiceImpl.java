@@ -1,9 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
 import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantPlugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ResourceRepository;
@@ -17,8 +15,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -43,41 +39,32 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
     public Mono<Resource> create(@NotNull Resource resource) throws AppsmithException {
         if (resource.getId() != null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+        } else if (resource.getPluginId() == null) {
+            throw new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN);
         }
 
-        Mono<Tenant> tenantMono = tenantService.findById(tenantId);
-        Mono<Plugin> pluginMono = pluginService.findByName(resource.getPlugin().getName());
-        Mono<Resource> updatedResourceMono = Mono.zip(tenantMono, pluginMono, (tenant, plugin) -> {
-            resource.setTenant(tenant);
-            resource.setPlugin(plugin);
-            return resource;
-        });
+        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, resource.getPluginId());
 
-        return updatedResourceMono
-                .filter(updatedResource -> {
-                    AtomicReference<Boolean> temp = new AtomicReference<>(false);
-                    tenantMono.map(tenant -> {
-                        List<TenantPlugin> tenantPlugins = tenant.getPlugins();
-                        if (tenantPlugins == null || tenantPlugins.isEmpty()) {
-                            temp.set(false);
-                            return temp;
-                        }
-                        for (TenantPlugin tenantPlugin : tenantPlugins) {
-                            if (tenantPlugin.getPlugin().getName().equals(resource.getPlugin().getName())) {
-                                temp.set(true);
-                                return temp;
-                            }
-                        }
-                        temp.set(false);
-                        return temp;
-                    }).block();
-                    return temp.get();
-                })
+        //Add tenant id to the resource.
+        Mono<Resource> updatedResourceMono = Mono.just(resource)
+                .map(updatedResource -> {
+                    updatedResource.setTenantId(tenantId);
+                    return updatedResource;
+                });
+
+        return tenantMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, tenantId)))
+                .then(updatedResourceMono)
                 .flatMap(repository::save);
     }
 
     @Override
     public Mono<Resource> findByName(String name) {
         return repository.findByName(name);
+    }
+
+    @Override
+    public Mono<Resource> findById(String id) {
+        return repository.findById(id);
     }
 }

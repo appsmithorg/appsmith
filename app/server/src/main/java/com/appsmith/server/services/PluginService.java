@@ -4,7 +4,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.PluginTenantDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import reactor.core.publisher.Mono;
 
 public interface PluginService extends CrudService<Plugin, String> {
@@ -24,5 +23,7 @@ public interface PluginService extends CrudService<Plugin, String> {
     public Mono<Tenant> uninstallPlugin(PluginTenantDTO plugin);
 
     public Mono<Plugin> findByName(String name);
+
+    public Mono<Plugin> findById(String id);
 
 }
