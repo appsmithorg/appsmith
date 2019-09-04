@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
+                             Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
@@ -46,7 +48,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              ApplicationContext applicationContext,
                              ClientUserRepository clientUserRepository,
                              TenantService tenantService) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.userRepository = userRepository;
         this.applicationContext = applicationContext;
         pluginRepository = repository;
@@ -66,10 +68,11 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Plugin> create(Plugin plugin) throws AppsmithException {
+    public Mono<Plugin> create(Plugin plugin) {
         if (plugin.getId() != null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
+
         plugin.setDeleted(false);
         return pluginRepository.save(plugin);
     }

@@ -11,16 +11,19 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
+
 @Service
 public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService, UserDetailsService {
 
     private UserRepository repository;
 
     public UserServiceImpl(Scheduler scheduler,
+                           Validator validator,
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
     }
 

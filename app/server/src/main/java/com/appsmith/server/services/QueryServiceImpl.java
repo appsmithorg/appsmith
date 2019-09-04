@@ -14,6 +14,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
+
 @Slf4j
 @Service
 public class QueryServiceImpl extends BaseService<QueryRepository, Query, String> implements QueryService {
@@ -22,11 +24,12 @@ public class QueryServiceImpl extends BaseService<QueryRepository, Query, String
 
     @Autowired
     public QueryServiceImpl(Scheduler scheduler,
+                            Validator validator,
                             MongoConverter mongoConverter,
                             ReactiveMongoTemplate reactiveMongoTemplate,
                             QueryRepository repository,
                             PluginService pluginService) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.pluginService = pluginService;
     }
 

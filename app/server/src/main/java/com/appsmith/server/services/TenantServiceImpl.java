@@ -1,8 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantSetting;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +29,12 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
 
     @Autowired
     public TenantServiceImpl(Scheduler scheduler,
+                             Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              TenantRepository repository,
                              SettingService settingService) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
         this.settingService = settingService;
     }
@@ -47,19 +52,24 @@ public class TenantServiceImpl extends BaseService<TenantRepository, Tenant, Str
      */
     @Override
     public Mono<Tenant> create(Tenant tenant) {
+        if (tenant == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TENANT));
+        }
 
-        log.debug("Going to create the tenant");
+        log.debug("Going to create the tenant {}", tenant.getName());
         return Mono.just(tenant)
+                .flatMap(this::validateObject)
                 //transform the tenant data to embed setting object in each object in tenantSetting list.
                 .flatMap(this::enhanceTenantSettingList)
                 //Call the library function to save the updated tenant
-                .flatMap(tenantUpdated -> repository.save(tenantUpdated))
-                .subscribeOn(scheduler);
+                .flatMap(repository::save);
     }
 
     private Mono<Tenant> enhanceTenantSettingList(Tenant tenant) {
 
-        if (tenant.getTenantSettings() == null) tenant.setTenantSettings(new ArrayList<>());
+        if (tenant.getTenantSettings() == null) {
+            tenant.setTenantSettings(new ArrayList<>());
+        }
 
         Flux<TenantSetting> tenantSettingFlux = Flux.fromIterable(tenant.getTenantSettings());
         // For each tenant setting, fetch and embed the setting, and once all the tenant setting are done, collect it
