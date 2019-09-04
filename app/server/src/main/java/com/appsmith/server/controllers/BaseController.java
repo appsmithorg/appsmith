@@ -47,7 +47,7 @@ public abstract class BaseController<S extends CrudService, T extends BaseDomain
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDto<T>> update(@PathVariable ID id, @RequestBody T resource) throws Exception {
+    public Mono<ResponseDto<T>> update(@PathVariable ID id, @RequestBody T resource) {
         log.debug("Going to update resource with id: {}", id);
         return service.update(id, resource)
                 .map(updatedResource -> new ResponseDto<>(HttpStatus.OK.value(), updatedResource, null));

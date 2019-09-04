@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 
@@ -18,6 +19,7 @@ public class Tenant extends BaseDomain {
 
     private String domain;
 
+    @NotNull
     private String name;
 
     private String website;

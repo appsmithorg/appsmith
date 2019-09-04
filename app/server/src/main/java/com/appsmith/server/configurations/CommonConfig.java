@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 @Configuration
 public class CommonConfig {
 
@@ -15,4 +18,8 @@ public class CommonConfig {
         return Schedulers.newElastic(ELASTIC_THREAD_POOL_NAME);
     }
 
+    @Bean
+    public Validator validator() {
+        return Validation.buildDefaultValidatorFactory().getValidator();
+    }
 }

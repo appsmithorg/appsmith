@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
+
 @Service
 @Slf4j
 public class WidgetServiceImpl extends BaseService<WidgetRepository, Widget, String> implements WidgetService {
@@ -18,10 +20,11 @@ public class WidgetServiceImpl extends BaseService<WidgetRepository, Widget, Str
 
     @Autowired
     public WidgetServiceImpl(Scheduler scheduler,
+                             Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate mongoTemplate,
                              WidgetRepository widgetRepository) {
-        super(scheduler, mongoConverter, mongoTemplate, widgetRepository);
+        super(scheduler, validator, mongoConverter, mongoTemplate, widgetRepository);
         this.widgetRepository = widgetRepository;
     }
 

@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .authenticated()
                 .and().httpBasic()
                 .and().oauth2Login()
-                        .authorizedClientRepository(new ClientUserRepository(userService, tenantService))
+                .authorizedClientRepository(new ClientUserRepository(userService, tenantService))
                 .and().formLogin()
                 .and().build();
     }
