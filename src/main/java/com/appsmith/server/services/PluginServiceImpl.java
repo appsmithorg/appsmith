@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.ClientUserRepository;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.TenantPlugin;
-import com.appsmith.server.dtos.PluginTenantDTO;
-import com.appsmith.server.dtos.TenantPluginStatus;
+import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
@@ -33,10 +33,10 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final UserRepository userRepository;
     private final ApplicationContext applicationContext;
     private final ClientUserRepository clientUserRepository;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
 
-    @Value("${tenant.id}")
-    private String tenantId;
+    @Value("${organization.id}")
+    private String organizationId;
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -47,13 +47,13 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              UserRepository userRepository,
                              ApplicationContext applicationContext,
                              ClientUserRepository clientUserRepository,
-                             TenantService tenantService) {
+                             OrganizationService organizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.userRepository = userRepository;
         this.applicationContext = applicationContext;
         pluginRepository = repository;
         this.clientUserRepository = clientUserRepository;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
     }
 
     public PluginExecutor getPluginExecutor(PluginType pluginType, String className) {
@@ -78,88 +78,88 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Tenant> installPlugin(PluginTenantDTO pluginTenantDTO) {
-        if (pluginTenantDTO.getPluginId() == null) {
+    public Mono<Organization> installPlugin(PluginOrgDTO pluginOrgDTO) {
+        if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
-        return Mono.just(pluginTenantDTO)
-                .flatMap(plugin -> storeTenantPlugin(plugin, pluginTenantDTO.getStatus()))
+        return Mono.just(pluginOrgDTO)
+                .flatMap(plugin -> storeOrganizationPlugin(plugin, pluginOrgDTO.getStatus()))
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Mono<Tenant> uninstallPlugin(PluginTenantDTO pluginDTO) {
+    public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
         /*TODO
-         * Tenant & user association is being mocked here by forcefully
-         * only using a hardcoded tenant. This needs to be replaced by
-         * a user-tenant association flow. The Tenant needs to be picked
+         * Organization & user association is being mocked here by forcefully
+         * only using a hardcoded organization. This needs to be replaced by
+         * a user-organization association flow. The Organization needs to be picked
          * up from a user object. This is being used in install/uninstall
-         * plugin from a tenant flow. Instead, the current user should be read
+         * plugin from a organization flow. Instead, the current user should be read
          * using the following :
          * ReactiveSecurityContextHolder.getContext()
          *         .map(SecurityContext::getAuthentication)
          *         .map(Authentication::getPrincipal);
-         * Once the user has been pulled using this, tenant should already
-         * be stored as part of user and this tenant should be used to store
+         * Once the user has been pulled using this, organization should already
+         * be stored as part of user and this organization should be used to store
          * the installed plugin or to delete plugin during uninstallation.
          */
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
-        //Find the tenant using id and plugin id -> This is to find if the tenant has the plugin installed
-        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, pluginDTO.getPluginId());
+        //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
+        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, pluginDTO.getPluginId());
 
-        return tenantMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, tenantId)))
-                //In case the plugin is not found for the tenant, the tenantMono would not emit and the rest of the flow would stop
-                //i.e. the rest of the code flow would only happen when there is a plugin found for the tenant that can
+        return organizationMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, organizationId)))
+                //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
+                //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
-                .map(tenant -> {
-                    List<TenantPlugin> tenantPluginList = tenant.getPlugins();
-                    tenantPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
-                    tenant.setPlugins(tenantPluginList);
-                    return tenant;
+                .map(organization -> {
+                    List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                    organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
+                    organization.setPlugins(organizationPluginList);
+                    return organization;
                 })
-                .flatMap(tenantService::save);
+                .flatMap(organizationService::save);
     }
 
-    private Mono<Tenant> storeTenantPlugin(PluginTenantDTO pluginDTO, TenantPluginStatus status) {
+    private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
         /*TODO
-         * Tenant & user association is being mocked here by forcefully
-         * only using a hardcoded tenant. This needs to be replaced by
-         * a user-tenant association flow. The Tenant needs to be picked
+         * Organization & user association is being mocked here by forcefully
+         * only using a hardcoded organization. This needs to be replaced by
+         * a user-organization association flow. The Organization needs to be picked
          * up from a user object. This is being used in install/uninstall
-         * plugin from a tenant flow. Instead, the current user should be read
+         * plugin from a organization flow. Instead, the current user should be read
          * using the following :
          * ReactiveSecurityContextHolder.getContext()
          *         .map(SecurityContext::getAuthentication)
          *         .map(Authentication::getPrincipal);
-         * Once the user has been pulled using this, tenant should already
-         * be stored as part of user and this tenant should be used to store
+         * Once the user has been pulled using this, organization should already
+         * be stored as part of user and this organization should be used to store
          * the installed plugin or to delete plugin during uninstalling.
          */
 
-        //Find the tenant using id and plugin id -> This is to find if the tenant already has the plugin installed
-        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, pluginDTO.getPluginId());
+        //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
+        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, pluginDTO.getPluginId());
 
-        return tenantMono
+        return organizationMono
                 .switchIfEmpty(Mono.defer(() -> {
-                    //If the plugin is not found in the tenant, its not already installed. Install now.
-                    return tenantService.findById(tenantId).map(tenant -> {
-                        List<TenantPlugin> tenantPluginList = tenant.getPlugins();
-                        if (tenantPluginList == null) {
-                            tenantPluginList = new ArrayList<TenantPlugin>();
+                    //If the plugin is not found in the organization, its not already installed. Install now.
+                    return organizationService.findById(organizationId).map(organization -> {
+                        List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                        if (organizationPluginList == null) {
+                            organizationPluginList = new ArrayList<OrganizationPlugin>();
                         }
-                        log.debug("Installing plugin {} for tenant {}", pluginDTO.getPluginId(), tenant.getName());
-                        TenantPlugin tenantPlugin = new TenantPlugin();
-                        tenantPlugin.setPluginId(pluginDTO.getPluginId());
-                        tenantPlugin.setStatus(status);
-                        tenantPluginList.add(tenantPlugin);
-                        tenant.setPlugins(tenantPluginList);
-                        return tenant;
-                    }).flatMap(tenantService::save);
+                        log.debug("Installing plugin {} for organization {}", pluginDTO.getPluginId(), organization.getName());
+                        OrganizationPlugin organizationPlugin = new OrganizationPlugin();
+                        organizationPlugin.setPluginId(pluginDTO.getPluginId());
+                        organizationPlugin.setStatus(status);
+                        organizationPluginList.add(organizationPlugin);
+                        organization.setPlugins(organizationPluginList);
+                        return organization;
+                    }).flatMap(organizationService::save);
                 }));
     }
 

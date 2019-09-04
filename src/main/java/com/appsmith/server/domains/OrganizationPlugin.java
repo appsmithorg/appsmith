@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.server.dtos.TenantPluginStatus;
+import com.appsmith.server.dtos.OrganizationPluginStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,10 +10,10 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class TenantPlugin extends BaseDomain {
+public class OrganizationPlugin extends BaseDomain {
 
     private String pluginId;
 
-    TenantPluginStatus status;
+    OrganizationPluginStatus status;
 
 }

@@ -18,7 +18,7 @@ public class Resource extends BaseDomain {
 
     String pluginId;
 
-    String tenantId;
+    String organizationId;
 
     ResourceConfiguration resourceConfiguration;
 

@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @Setter
 @ToString
 @NoArgsConstructor
-public class TenantSetting extends BaseDomain {
+public class OrganizationSetting extends BaseDomain {
 
     @DBRef
     private Setting setting;

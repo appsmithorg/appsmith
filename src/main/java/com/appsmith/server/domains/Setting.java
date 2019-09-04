@@ -19,6 +19,6 @@ public class Setting extends BaseDomain {
 
     private String defaultValue;
 
-    private Boolean isTenantSetting;
+    private Boolean isOrganizationSetting;
 
 }

@@ -3,7 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
@@ -46,10 +46,10 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
             WebSessionServerOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS";
     private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
     UserService userService;
-    TenantService tenantService;
-    public ClientUserRepository(UserService userService, TenantService tenantService) {
+    OrganizationService organizationService;
+    public ClientUserRepository(UserService userService, OrganizationService organizationService) {
         this.userService = userService;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
     }
 
     @Override
@@ -93,15 +93,15 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         newUser.setIsEnabled(true);
 
         /** TODO
-         * Tenant here is being hardcoded. This is a stop gap measure
-         * A flow needs to be added to connect a User to a Tenant. Once
-         * that is done, during the login, the tenant should be picked up
+         * Organization here is being hardcoded. This is a stop gap measure
+         * A flow needs to be added to connect a User to a Organization. Once
+         * that is done, during the login, the organization should be picked up
          * and a user should be hence created.
          */
 
-        return tenantService.findById("5d3e90a2dfec7c00047a81ea")
-                .map(tenant -> {
-                    newUser.setTenant(tenant);
+        return organizationService.findById("5d3e90a2dfec7c00047a81ea")
+                .map(organization -> {
+                    newUser.setOrganization(organization);
                     return newUser;
                 })
                 .then(userService.findByEmail(user.getEmail()))

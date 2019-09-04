@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Resource;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ResourceRepository;
@@ -21,18 +21,18 @@ import javax.validation.constraints.NotNull;
 @Service
 public class ResourceServiceImpl extends BaseService<ResourceRepository, Resource, String> implements ResourceService {
 
-    @Value("${tenant.id}")
-    private String tenantId;
+    @Value("${organization.id}")
+    private String organizationId;
 
     private final ResourceRepository repository;
-    private final TenantService tenantService;
+    private final OrganizationService organizationService;
     private final PluginService pluginService;
 
     @Autowired
-    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, TenantService tenantService, PluginService pluginService) {
+    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, OrganizationService organizationService, PluginService pluginService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
-        this.tenantService = tenantService;
+        this.organizationService = organizationService;
         this.pluginService = pluginService;
     }
 
@@ -44,17 +44,17 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
-        Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, resource.getPluginId());
+        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, resource.getPluginId());
 
-        //Add tenant id to the resource.
+        //Add organization id to the resource.
         Mono<Resource> updatedResourceMono = Mono.just(resource)
                 .map(updatedResource -> {
-                    updatedResource.setTenantId(tenantId);
+                    updatedResource.setOrganizationId(organizationId);
                     return updatedResource;
                 });
 
-        return tenantMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, tenantId)))
+        return organizationMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, organizationId)))
                 .then(updatedResourceMono)
                 .flatMap(repository::save);
     }

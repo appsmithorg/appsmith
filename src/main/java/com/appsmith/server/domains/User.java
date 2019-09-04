@@ -35,7 +35,7 @@ public class User extends BaseDomain implements UserDetails {
 
     private Boolean isEnabled;
 
-    private Tenant tenant;
+    private Organization organization;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
