@@ -28,9 +28,9 @@ public class Plugin extends BaseDomain {
     List<PluginParameterType> resourceParams;
 
     List<PluginParameterType> actionParams;
-    
+
     String minAppsmithVersionSupported;
-    
+
     String maxAppsmithVersionSupported;
 
     String version;

@@ -9,15 +9,18 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
+
 @Slf4j
 @Service
 public class LayoutServiceImpl extends BaseService<LayoutRepository, Layout, String> implements LayoutService {
 
     @Autowired
     public LayoutServiceImpl(Scheduler scheduler,
+                             Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              LayoutRepository repository) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
+
 @Service
 public class SettingServiceImpl extends BaseService<SettingRepository, Setting, String> implements SettingService {
 
@@ -16,10 +18,11 @@ public class SettingServiceImpl extends BaseService<SettingRepository, Setting, 
 
     @Autowired
     public SettingServiceImpl(Scheduler scheduler,
+                              Validator validator,
                               MongoConverter mongoConverter,
                               ReactiveMongoTemplate reactiveMongoTemplate,
                               SettingRepository repository) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
     }
 
