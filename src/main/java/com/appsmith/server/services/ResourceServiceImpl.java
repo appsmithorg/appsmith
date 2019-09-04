@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
 @Slf4j
@@ -28,19 +29,19 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
     private final PluginService pluginService;
 
     @Autowired
-    public ResourceServiceImpl(Scheduler scheduler, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, TenantService tenantService, PluginService pluginService) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, TenantService tenantService, PluginService pluginService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
         this.tenantService = tenantService;
         this.pluginService = pluginService;
     }
 
     @Override
-    public Mono<Resource> create(@NotNull Resource resource) throws AppsmithException {
+    public Mono<Resource> create(@NotNull Resource resource) {
         if (resource.getId() != null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         } else if (resource.getPluginId() == null) {
-            throw new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN);
+            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
         Mono<Tenant> tenantMono = tenantService.findByIdAndPluginsPluginId(tenantId, resource.getPluginId());

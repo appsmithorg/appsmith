@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 
 @Slf4j
@@ -25,24 +26,29 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PluginService pluginService;
 
     @Autowired
-    public ActionServiceImpl(Scheduler scheduler, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ActionRepository repository, ResourceService resourceService, PluginService pluginService) {
-        super(scheduler, mongoConverter, reactiveMongoTemplate, repository);
+    public ActionServiceImpl(Scheduler scheduler,
+                             Validator validator,
+                             MongoConverter mongoConverter,
+                             ReactiveMongoTemplate reactiveMongoTemplate,
+                             ActionRepository repository,
+                             ResourceService resourceService,
+                             PluginService pluginService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
         this.resourceService = resourceService;
         this.pluginService = pluginService;
     }
 
     @Override
-    public Mono<Action> create(@NotNull Action action) throws AppsmithException {
+    public Mono<Action> create(@NotNull Action action) {
         if (action.getId() != null) {
-            throw new AppsmithException("During create action, Id is not null. Can't create new action.");
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         } else if (action.getResourceId() == null) {
-            throw new AppsmithException(AppsmithError.RESOURCE_ID_NOT_GIVEN);
+            return Mono.error(new AppsmithException(AppsmithError.RESOURCE_ID_NOT_GIVEN));
         }
 
         Mono<Resource> resourceMono = resourceService.findById(action.getResourceId());
         Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId()));
-
 
         return pluginMono
                 //Set plugin in the action before saving.

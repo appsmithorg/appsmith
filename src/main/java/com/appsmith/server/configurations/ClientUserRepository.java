@@ -24,14 +24,14 @@ import java.util.Map;
  * This code has been copied from WebSessionServerOAuth2AuthorizedClientRepository.java
  * which also implements ServerOAuth2AuthorizedClientRepository. This was done to make changes
  * to saveAuthorizedClient to also handle adding users to UserRepository.
- *
+ * <p>
  * This was done because on authorization, the user needs to be stored in appsmith domain.
  * To achieve this, saveAuthorizedClient function has been edited in the following manner.
  * In the reactive flow, post doOnSuccess transformation, another Mono.then has been added. In this,
  * Authentication object is passed to checkAndCreateUser function. This object is used to get OidcUser from which
  * user attributes like name, email, etc are extracted. If the user doesnt exist in User
  * Repository, a new user is created and saved.
- *
+ * <p>
  * The ClientUserRepository is created during SecurityWebFilterChain Bean creation. By
  * configuring to use Oauth2Login, this ServerOAuth2AuthorizedClientRepository implementation
  * is injected. This hack is used to ensure that on successful authentication, we are able
@@ -42,17 +42,15 @@ import java.util.Map;
 @Configuration
 public class ClientUserRepository implements ServerOAuth2AuthorizedClientRepository {
 
+    private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
+            WebSessionServerOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS";
+    private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
     UserService userService;
     TenantService tenantService;
-
     public ClientUserRepository(UserService userService, TenantService tenantService) {
         this.userService = userService;
         this.tenantService = tenantService;
     }
-
-    private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
-            WebSessionServerOAuth2AuthorizedClientRepository.class.getName() +  ".AUTHORIZED_CLIENTS";
-    private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;
 
     @Override
     @SuppressWarnings("unchecked")
