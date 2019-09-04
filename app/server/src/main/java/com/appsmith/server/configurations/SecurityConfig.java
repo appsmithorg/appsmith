@@ -2,7 +2,7 @@ package com.appsmith.server.configurations;
 
 
 import com.appsmith.server.constants.Security;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,7 @@ public class SecurityConfig {
     private UserService userService;
 
     @Autowired
-    private TenantService tenantService;
+    private OrganizationService organizationService;
 
     /**
      * This configuration enables CORS requests for the most common HTTP Methods
@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .authenticated()
                 .and().httpBasic()
                 .and().oauth2Login()
-                .authorizedClientRepository(new ClientUserRepository(userService, tenantService))
+                .authorizedClientRepository(new ClientUserRepository(userService, organizationService))
                 .and().formLogin()
                 .and().build();
     }

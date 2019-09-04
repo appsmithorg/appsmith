@@ -15,7 +15,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
-public class Tenant extends BaseDomain {
+public class Organization extends BaseDomain {
 
     private String domain;
 
@@ -24,8 +24,8 @@ public class Tenant extends BaseDomain {
 
     private String website;
 
-    private List<TenantSetting> tenantSettings;
+    private List<OrganizationSetting> organizationSettings;
 
-    private List<TenantPlugin> plugins;
+    private List<OrganizationPlugin> plugins;
 
 }

@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.dtos.PluginTenantDTO;
+import com.appsmith.server.dtos.PluginOrgDTO;
 import reactor.core.publisher.Mono;
 
 public interface PluginService extends CrudService<Plugin, String> {
@@ -18,9 +18,9 @@ public interface PluginService extends CrudService<Plugin, String> {
      */
     PluginExecutor getPluginExecutor(PluginType pluginType, String className);
 
-    public Mono<Tenant> installPlugin(PluginTenantDTO plugin);
+    public Mono<Organization> installPlugin(PluginOrgDTO plugin);
 
-    public Mono<Tenant> uninstallPlugin(PluginTenantDTO plugin);
+    public Mono<Organization> uninstallPlugin(PluginOrgDTO plugin);
 
     public Mono<Plugin> findByName(String name);
 

@@ -5,7 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PluginTenantDTO {
+public class PluginOrgDTO {
+
     String pluginId;
-    TenantPluginStatus status;
+
+    OrganizationPluginStatus status;
 }

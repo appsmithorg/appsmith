@@ -16,10 +16,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class BaseService<R extends BaseRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
 
