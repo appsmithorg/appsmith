@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, MutableRefObject } from 'react';
 import { useDrag, DragSourceMonitor, DragPreviewImage } from 'react-dnd'
 import blankImage from "../../assets/images/blank.png"
 import { IWidgetCardProps } from '../../widgets/BaseWidget'
-import styled from 'styled-components'
+import styled from 'styled-components';
 import { Icon } from '@blueprintjs/core'
 import {  IconNames } from '@blueprintjs/icons'
 import { generateReactKey } from "../../utils/generators"
@@ -21,8 +21,8 @@ export const Wrapper = styled.div`
   padding: 10px 5px 10px 5px;
   margin: 0px 10px 0 0;
   border-radius: 5px;
-  background: #eee
-  border: 1px solid #eee;
+  background: ${props => props.theme.colors.paneCard};
+  border: 1px solid ${props=> props.theme.colors.paneCard};
   &:hover{
     background: #fff;
     cursor: grab;
@@ -59,7 +59,6 @@ const WidgetCard = (props: WidgetCardProps) => {
       })
     }
   }, [setInitialOffset])
-
   return (
     <React.Fragment >
       <DragPreviewImage connect={preview} src={blankImage} />

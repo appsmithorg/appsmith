@@ -1,4 +1,4 @@
-import { IComponentProps } from "./BaseComponent";
+import { ComponentProps } from "./BaseComponent";
 import { ContainerOrientation } from "../constants/WidgetConstants";
 import styled from "../constants/DefaultTheme";
 import { useDrop } from "react-dnd"
@@ -12,7 +12,7 @@ export const Container = styled("div")<ContainerProps>`
     return props.orientation === "HORIZONTAL" ? "row" : "column"
   }};
   background: ${props => props.style.backgroundColor};
-  color: ${props => props.theme.primaryColor};
+  color: ${props => props.theme.colors.primary};
   position: ${props => {
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative"
   }};
@@ -37,7 +37,7 @@ const ContainerComponent = (props: ContainerProps) => {
   return <Container ref={drop} {...props}>{props.children}</Container> 
 }
 
-export interface ContainerProps extends IComponentProps {
+export interface ContainerProps extends ComponentProps {
   children?: JSX.Element[] | JSX.Element;
   orientation?: ContainerOrientation;
   addWidget?: Function;

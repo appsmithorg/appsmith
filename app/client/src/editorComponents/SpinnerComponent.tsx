@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
+import { ComponentProps } from "./BaseComponent"
 import { Spinner, Intent } from "@blueprintjs/core"
 import { Container } from "./ContainerComponent"
 
@@ -17,10 +17,10 @@ class SpinnerComponent extends React.Component<SpinnerComponentProps> {
   }
 }
 
-export interface SpinnerComponentProps extends IComponentProps {
-  size?: number
-  value?: number
-  intent?: Intent
+export interface SpinnerComponentProps extends ComponentProps {
+  size?: number;
+  value?: number;
+  intent?: Intent;
 }
 
 export default SpinnerComponent

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
+import { ComponentProps } from "./BaseComponent"
 import { Text } from "@blueprintjs/core"
 import { Container } from "./ContainerComponent"
 class TextComponent extends React.Component<ITextComponentProps> {
@@ -14,10 +14,10 @@ class TextComponent extends React.Component<ITextComponentProps> {
   }
 }
 
-export interface ITextComponentProps extends IComponentProps {
-  text?: string
-  ellipsize?: boolean
-  tagName?: keyof JSX.IntrinsicElements
+export interface ITextComponentProps extends ComponentProps {
+  text?: string;
+  ellipsize?: boolean;
+  tagName?: keyof JSX.IntrinsicElements;
 }
 
 export default TextComponent

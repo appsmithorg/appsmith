@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
+import { ComponentProps } from "./BaseComponent"
 import { Icon, Intent } from "@blueprintjs/core"
 import { IconName } from "@blueprintjs/icons"
 import { Container } from "./ContainerComponent"
@@ -17,7 +17,7 @@ class IconComponent extends React.Component<IconComponentProps> {
   }
 }
 
-export interface IconComponentProps extends IComponentProps {
+export interface IconComponentProps extends ComponentProps {
   iconSize?: number;
   icon?: IconName;
   intent?: Intent;

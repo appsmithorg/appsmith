@@ -9,9 +9,9 @@ type WidgetCardPaneProps  = {
 
 const CardsPaneWrapper = styled.div`
   width: 300px;
-  background-color: #fff; 
+  background-color: ${props => props.theme.colors.paneBG}; 
   border-radius: 5px;
-  box-shadow: 0px 0px 3px #ccc;
+  box-shadow: 0px 0px 3px ${props => props.theme.colors.paneBG};
   padding: 5px 10px;
 `;
 

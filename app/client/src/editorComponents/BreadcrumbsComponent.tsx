@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
+import { ComponentProps } from "./BaseComponent"
 import {
   Boundary,
   Breadcrumbs,
@@ -22,7 +22,7 @@ class BreadcrumbsComponent extends React.Component<BreadcrumbsComponentProps> {
   }
 }
 
-export interface BreadcrumbsComponentProps extends IComponentProps {
+export interface BreadcrumbsComponentProps extends ComponentProps {
   width?: number;
   collapseFrom?: Boundary;
   className?: string;
