@@ -1342,6 +1342,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
+"@types/fontfaceobserver@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@types/fontfaceobserver/-/fontfaceobserver-0.0.6.tgz#14a4a02b77e66e6a1070622981d431c885a174ed"
+  integrity sha512-QJ1znjr9CDax2L17rgBnDOfNHsC1XtVAMswu+lRWvWb+kANhHA0slUNSSBsG8FVNvM4I4yXlN9doJRot3A2hkQ==
+
 "@types/history@*":
   version "4.7.3"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.7.3.tgz#856c99cdc1551d22c22b18b5402719affec9839a"
@@ -4719,6 +4724,11 @@ follow-redirects@^1.0.0:
   integrity sha512-micCIbldHioIegeKs41DoH0KS3AXfFzgS30qVkM6z/XOE/GJgvmsoc839NUqa1B9udYe9dQxgv7KFwng6+p/dw==
   dependencies:
     debug "^3.0.0"
+
+fontfaceobserver@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/fontfaceobserver/-/fontfaceobserver-2.1.0.tgz#e2705d293e2c585a6531c2a722905657317a2991"
+  integrity sha512-ReOsO2F66jUa0jmv2nlM/s1MiutJx/srhAe2+TE8dJCMi02ZZOcCTxTCQFr3Yet+uODUtnr4Mewg+tNQ+4V1Ng==
 
 for-in@^0.1.3:
   version "0.1.8"

@@ -1,7 +1,7 @@
 import {
   ActionTypes
 } from "../constants/ActionConstants"
-import { IWidgetCardProps } from '../widgets/BaseWidget'
+import { WidgetCardProps } from '../widgets/BaseWidget'
 
 export const fetchWidgetCards = () => {
   return {
@@ -16,7 +16,7 @@ export const errorFetchingWidgetCards = (error: any) => {
   }
 }
 
-export const successFetchingWidgetCards = (cards: { [id: string]: IWidgetCardProps[] }) => {
+export const successFetchingWidgetCards = (cards: { [id: string]: WidgetCardProps[] }) => {
   return {
     type: ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS,
     cards

@@ -1,5 +1,5 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
-import { IWidgetProps, IWidgetCardProps } from "../widgets/BaseWidget"
+import { IWidgetProps, WidgetCardProps } from "../widgets/BaseWidget"
 
 export type ActionType =
   | "UPDATE_CANVAS"
@@ -41,19 +41,19 @@ export const ActionTypes: { [id: string]: ActionType } = {
 }
 
 export interface ReduxAction<T> {
-  type: ActionType
-  payload: T
+  type: ActionType;
+  payload: T;
 }
 
 export interface LoadCanvasPayload {
-  pageWidgetId: string
-  widgets: { [widgetId: string]: IWidgetProps }
+  pageWidgetId: string;
+  widgets: { [widgetId: string]: IWidgetProps };
 }
 
 export interface LoadWidgetPanePayload {
-  widgets: IWidgetProps[]
+  widgets: IWidgetProps[];
 }
 
 export interface LoadWidgetCardsPanePayload {
-  cards: { [id: string] : IWidgetCardProps[] }
+  cards: { [id: string]: WidgetCardProps[] }
 }

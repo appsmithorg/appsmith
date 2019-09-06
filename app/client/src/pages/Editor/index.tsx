@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
 import Canvas from "./Canvas"
-import { IWidgetCardProps, IWidgetProps } from '../../widgets/BaseWidget'
+import { WidgetCardProps, IWidgetProps } from '../../widgets/BaseWidget'
 import { AppState } from "../../reducers"
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer"
 import WidgetCardsPane from "./WidgetCardsPane"
@@ -43,7 +43,7 @@ const EditorWrapper = styled.div`
 type EditorProps = {
   pageWidget: ContainerWidgetProps<any> | any;
   fetchCanvasWidgets: Function;
-  cards: { [id: string]: IWidgetCardProps[] } | any;
+  cards: { [id: string]: WidgetCardProps[] } | any;
   addPageWidget: Function;
   page: string;
 }
