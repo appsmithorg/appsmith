@@ -14,12 +14,21 @@ import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
-// import { ActionType, ReduxAction } from "./constants/ActionConstants";
-
+import FontFaceObserver from "fontfaceobserver";
 import { DndProvider } from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { appInitializer } from "./utils/AppsmithUtils";
-import ProtectedRoute from "./pages/common/ProtectedRoute";
+
+// font face observer
+const textFont = new FontFaceObserver("DM Sans");
+const widgetIconFont = new FontFaceObserver("appmith-widget-font");
+Promise.all([textFont.load(), widgetIconFont.load()]).then(()=>{
+  document.body.className += "fontLoaded";
+}).catch(err => {
+  console.log(err);
+});
+
+
 appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
@@ -33,7 +42,7 @@ ReactDOM.render(
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={App} />
-            <ProtectedRoute path="/builder" component={Editor} />
+            <Route path="/builder" component={Editor} />
             <Route exact path="/login" component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>

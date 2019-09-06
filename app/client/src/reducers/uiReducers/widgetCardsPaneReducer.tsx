@@ -4,7 +4,7 @@ import {
   ReduxAction,
   LoadWidgetCardsPanePayload
 } from "../../constants/ActionConstants"
-import { IWidgetCardProps } from "../../widgets/BaseWidget";
+import { WidgetCardProps } from "../../widgets/BaseWidget";
 import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse"
 
 const initialState: WidgetCardsPaneReduxState = WidgetCardsPaneResponse
@@ -20,8 +20,8 @@ const widgetCardsPaneReducer = createReducer(initialState, {
 
 export interface WidgetCardsPaneReduxState {
   cards: {
-    [id: string]: IWidgetCardProps[]
-  }
+    [id: string]: WidgetCardProps[];
+  };
 }
 
 export default widgetCardsPaneReducer

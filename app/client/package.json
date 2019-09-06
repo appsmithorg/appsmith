@@ -13,6 +13,7 @@
     "@blueprintjs/table": "^3.4.0",
     "@sentry/browser": "^5.6.3",
     "@types/axios": "^0.14.0",
+    "@types/fontfaceobserver": "^0.0.6",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.120",
     "@types/moment-timezone": "^0.5.10",
@@ -26,6 +27,7 @@
     "@types/styled-components": "^4.1.8",
     "axios": "^0.18.0",
     "flow-bin": "^0.91.0",
+    "fontfaceobserver": "^2.1.0",
     "husky": "^1.3.1",
     "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
@@ -71,9 +73,9 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
+    "dotenv": "^8.1.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "dotenv": "^8.1.0",
     "redux-devtools": "^3.5.0"
   }
 }

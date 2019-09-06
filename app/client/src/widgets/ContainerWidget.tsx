@@ -7,7 +7,7 @@ import {
 } from "../constants/WidgetConstants"
 import WidgetFactory from "../utils/WidgetFactory"
 import _ from "lodash"
-import { Color } from "../constants/StyleConstants"
+import { Color } from "../constants/DefaultTheme"
 import DroppableComponent from "../editorComponents/DroppableComponent"
 
 const DEFAULT_NUM_COLS = 16

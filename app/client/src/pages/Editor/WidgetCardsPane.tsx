@@ -1,24 +1,26 @@
 import React from "react"
 import WidgetCard from "./WidgetCard"
 import styled from "styled-components"
-import { IWidgetCardProps } from "../../widgets/BaseWidget"
+import { WidgetCardProps } from "../../widgets/BaseWidget"
 
 type WidgetCardPaneProps  = {
-  cards: { [id: string]: IWidgetCardProps[]};
+  cards: { [id: string]: WidgetCardProps[]};
 }
 
 const CardsPaneWrapper = styled.div`
-  width: 300px;
-  background-color: #fff; 
-  border-radius: 5px;
-  box-shadow: 0px 0px 3px #ccc;
+  width: 256px;
+  background-color: ${props => props.theme.colors.paneBG}; 
+  border-radius: ${props => props.theme.radii[2]}px;
+  box-shadow: 0px 0px 3px ${props => props.theme.colors.paneBG};
   padding: 5px 10px;
+  color: ${props => props.theme.colors.textOnDarkBG};
+  text-transform: capitalize;
 `;
 
 const CardsWrapper = styled.div`
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: ${props => props.theme.spaces[2]}px;
 `;
 
 const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (props: WidgetCardPaneProps) => {
@@ -30,7 +32,7 @@ const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (props: WidgetCardPanePr
             <React.Fragment key={group}>
               <h5>{group}</h5>
               <CardsWrapper>
-                { props.cards[group].map((card: IWidgetCardProps) => <WidgetCard details={card} key={card.widgetType} />) }
+                { props.cards[group].map((card: WidgetCardProps) => <WidgetCard details={card} key={card.widgetType} />) }
               </CardsWrapper>
             </React.Fragment>
           )

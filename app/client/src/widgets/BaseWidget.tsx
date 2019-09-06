@@ -163,12 +163,11 @@ export interface IWidgetProps {
   renderMode: RenderMode;
 }
 
-export interface IWidgetCardProps {
+export interface WidgetCardProps {
   widgetType: WidgetType;
   key?: string;
   label: string;
   icon: string;
-  groups: string[];
 }
 
 export default BaseWidget

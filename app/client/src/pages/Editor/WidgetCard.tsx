@@ -1,15 +1,13 @@
 import React, { useState, useLayoutEffect, MutableRefObject } from 'react';
 import { useDrag, DragSourceMonitor, DragPreviewImage } from 'react-dnd'
 import blankImage from "../../assets/images/blank.png"
-import { IWidgetCardProps } from '../../widgets/BaseWidget'
-import styled from 'styled-components'
-import { Icon } from '@blueprintjs/core'
-import {  IconNames } from '@blueprintjs/icons'
+import { WidgetCardProps } from '../../widgets/BaseWidget'
+import styled from 'styled-components';
 import { generateReactKey } from "../../utils/generators"
 
 
-type WidgetCardProps = {
-  details: IWidgetCardProps;
+type CardProps = {
+  details: WidgetCardProps;
 }
 
 export const Wrapper = styled.div`
@@ -19,27 +17,38 @@ export const Wrapper = styled.div`
   align-items: center;
   flex: 1;
   padding: 10px 5px 10px 5px;
-  margin: 0px 10px 0 0;
-  border-radius: 5px;
-  background: #eee
-  border: 1px solid #eee;
+  border-radius: ${props => props.theme.radii[1]}px;
+  background: ${props => props.theme.colors.paneCard};
+  border: 1px solid ${props=> props.theme.colors.paneCard};
+  color: ${props => props.theme.colors.textOnDarkBG};
+  & > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
   &:hover{
     background: #fff;
     cursor: grab;
+    color: ${props => props.theme.colors.textDefault}
+  }
+  & i {
+    font-family: ${props => props.theme.fonts[2]};
+    font-size: ${props => props.theme.fontSizes[7]}px;
   }
 `;
+
 export const IconLabel = styled.h5`
   text-align: center;
-  padding: 10px 0;
   margin: 0;
   text-transform: uppercase;
-  font-weight: normal;
+  font-weight: ${props => props.theme.fontWeights[1]};
   flex-shrink: 1;
-  font-size: 0.5rem;
+  font-size: ${props => props.theme.fontSizes[1]}px;
 `;
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-const WidgetCard = (props: WidgetCardProps) => {
+const WidgetCard = (props: CardProps) => {
   const [initialOffset, setInitialOffset] = useState({ x: 0, y: 0})
 
   const [{ isDragging }, drag, preview] = useDrag({ 
@@ -58,17 +67,16 @@ const WidgetCard = (props: WidgetCardProps) => {
         y: Math.ceil(rect.top)
       })
     }
-  }, [setInitialOffset])
-
+  }, [setInitialOffset]);
   return (
     <React.Fragment >
       <DragPreviewImage connect={preview} src={blankImage} />
-    <Wrapper ref={drag}>
-      <div ref={card}>
-        <Icon icon={IconNames.SEGMENTED_CONTROL} iconSize={20} />
-        <IconLabel>{props.details.label}</IconLabel>
-      </div>
-    </Wrapper>
+      <Wrapper ref={drag}>
+        <div ref={card}>
+          <i className={props.details.icon} />
+          <IconLabel>{props.details.label}</IconLabel>
+        </div>
+      </Wrapper>
     </React.Fragment>
   )
 }
