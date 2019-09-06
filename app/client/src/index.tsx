@@ -14,20 +14,9 @@ import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
-import FontFaceObserver from "fontfaceobserver";
 import { DndProvider } from "react-dnd"
 import HTML5Backend from "react-dnd-html5-backend"
 import { appInitializer } from "./utils/AppsmithUtils";
-
-// font face observer
-const textFont = new FontFaceObserver("DM Sans");
-const widgetIconFont = new FontFaceObserver("appmith-widget-font");
-Promise.all([textFont.load(), widgetIconFont.load()]).then(()=>{
-  document.body.className += "fontLoaded";
-}).catch(err => {
-  console.log(err);
-});
-
 
 appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();

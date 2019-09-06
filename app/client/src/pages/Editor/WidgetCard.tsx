@@ -11,11 +11,6 @@ type CardProps = {
 }
 
 export const Wrapper = styled.div`
-  display:flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
   padding: 10px 5px 10px 5px;
   border-radius: ${props => props.theme.radii[1]}px;
   background: ${props => props.theme.colors.paneCard};
@@ -45,6 +40,7 @@ export const IconLabel = styled.h5`
   font-weight: ${props => props.theme.fontWeights[1]};
   flex-shrink: 1;
   font-size: ${props => props.theme.fontSizes[1]}px;
+  line-height: ${props => props.theme.lineHeights[1]}px;
 `;
 
 /* eslint-disable @typescript-eslint/no-unused-vars */

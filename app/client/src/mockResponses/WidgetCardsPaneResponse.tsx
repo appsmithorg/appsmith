@@ -4,16 +4,60 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
   cards: {
     common: [
       {
-        widgetType: "BUTTON_WIDGET",
-        icon: "appsmith-widget-button",
-        label: "Button",
+        widgetType: "TEXT_WIDGET",
+        icon: "appsmith-widget-text",
+        label: "Container",
       },
-    ],
-    form: [
+      {
+        widgetType: "CHECKBOX_WIDGET",
+        icon: "appsmith-widget-checkbox",
+        label: "Container",
+      },
+      {
+        widgetType: "RADIO_GROUP_WIDGET",
+        icon: "appsmith-widget-radio",
+        label: "Container",
+      },
       {
         widgetType: "BUTTON_WIDGET",
         icon: "appsmith-widget-button",
         label: "Button",
+      },
+      {
+        widgetType: "INPUT_GROUP_WIDGET",
+        icon: "appsmith-widget-input",
+        label: "Input",
+      },
+      {
+        widgetType: "SPINNER_WIDGET",
+        icon: "appsmith-widget-switch",
+        label: "Spinner",
+      },
+      {
+        widgetType: "CONTAINER_WIDGET",
+        icon: "appsmith-widget-modal",
+        label: "Container",
+      },
+      {
+        widgetType: "BREADCRUMBS_WIDGET",
+        icon: "appsmith-widget-collapse",
+        label: "Input",
+      },{
+        widgetType: "TAG_INPUT_WIDGET",
+        icon: "appsmith-widget-dropdown",
+        label: "Tag",
+      },
+      {
+        widgetType: "NUMERIC_INPUT_WIDGET",
+        icon: "appsmith-widget-table",
+        label: "Numeric",
+      }
+    ],
+    form: [
+      {
+        widgetType: "ICON_WIDGET",
+        icon: "appsmith-widget-button",
+        label: "Icon",
       },
       {
         widgetType: "CALLOUT_WIDGET",
@@ -23,9 +67,9 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
     ],
     view: [
       {
-        widgetType: "BUTTON_WIDGET",
-        icon: "appsmith-widget-button",
-        label: "Button",
+        widgetType: "INPUT_GROUP_WIDGET",
+        icon: "appsmith-widget-input",
+        label: "Input",
       }
     ]
   }

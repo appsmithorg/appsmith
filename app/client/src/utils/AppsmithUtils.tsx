@@ -1,3 +1,4 @@
+import FontFaceObserver from 'fontfaceobserver'
 import { ReduxAction } from "../constants/ActionConstants"
 import { SENTRY_PROD_CONFIG, SENTRY_STAGE_CONFIG, HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV } from "../constants/ThirdPartyConstants";
 import * as Sentry from '@sentry/browser';
@@ -31,6 +32,11 @@ export const appInitializer = () => {
     case "LOCAL":
       break;
   }
+
+  const textFont = new FontFaceObserver("DM Sans");
+  textFont.load().then(()=> {
+    document.body.className += "fontLoaded";
+  }).catch(err => {
+    console.log(err);
+  });
 }
-
-
