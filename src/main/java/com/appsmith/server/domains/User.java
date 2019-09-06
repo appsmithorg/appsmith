@@ -33,9 +33,9 @@ public class User extends BaseDomain implements UserDetails {
 
     private UserState state;
 
-    private Boolean isEnabled;
+    private Boolean isEnabled = true;
 
-    private Organization organization;
+    private String organizationId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

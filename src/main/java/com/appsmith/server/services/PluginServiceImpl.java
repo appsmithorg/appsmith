@@ -1,19 +1,17 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.configurations.ClientUserRepository;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -30,13 +28,9 @@ import java.util.List;
 public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, String> implements PluginService {
 
     private final PluginRepository pluginRepository;
-    private final UserRepository userRepository;
     private final ApplicationContext applicationContext;
-    private final ClientUserRepository clientUserRepository;
     private final OrganizationService organizationService;
-
-    @Value("${organization.id}")
-    private String organizationId;
+    private final UserService userService;
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -44,16 +38,13 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
-                             UserRepository userRepository,
                              ApplicationContext applicationContext,
-                             ClientUserRepository clientUserRepository,
-                             OrganizationService organizationService) {
+                             OrganizationService organizationService, UserService userService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
-        this.userRepository = userRepository;
         this.applicationContext = applicationContext;
         pluginRepository = repository;
-        this.clientUserRepository = clientUserRepository;
         this.organizationService = organizationService;
+        this.userService = userService;
     }
 
     public PluginExecutor getPluginExecutor(PluginType pluginType, String className) {
@@ -90,29 +81,17 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Override
     public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
-        /*TODO
-         * Organization & user association is being mocked here by forcefully
-         * only using a hardcoded organization. This needs to be replaced by
-         * a user-organization association flow. The Organization needs to be picked
-         * up from a user object. This is being used in install/uninstall
-         * plugin from a organization flow. Instead, the current user should be read
-         * using the following :
-         * ReactiveSecurityContextHolder.getContext()
-         *         .map(SecurityContext::getAuthentication)
-         *         .map(Authentication::getPrincipal);
-         * Once the user has been pulled using this, organization should already
-         * be stored as part of user and this organization should be used to store
-         * the installed plugin or to delete plugin during uninstallation.
-         */
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, pluginDTO.getPluginId());
+        Mono<User> userMono = userService.getCurrentUser();
+        Mono<Organization> organizationMono = userMono.flatMap(user ->
+                organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 
         return organizationMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, organizationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
                 //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
                 //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
@@ -126,40 +105,33 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
-        /*TODO
-         * Organization & user association is being mocked here by forcefully
-         * only using a hardcoded organization. This needs to be replaced by
-         * a user-organization association flow. The Organization needs to be picked
-         * up from a user object. This is being used in install/uninstall
-         * plugin from a organization flow. Instead, the current user should be read
-         * using the following :
-         * ReactiveSecurityContextHolder.getContext()
-         *         .map(SecurityContext::getAuthentication)
-         *         .map(Authentication::getPrincipal);
-         * Once the user has been pulled using this, organization should already
-         * be stored as part of user and this organization should be used to store
-         * the installed plugin or to delete plugin during uninstalling.
-         */
 
         //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, pluginDTO.getPluginId());
+        Mono<User> userMono = userService.getCurrentUser();
+        Mono<Organization> organizationMono = userMono.flatMap(user ->
+                organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 
+
+        //If plugin is already present for the organization, just return the organization, else install and return organization
         return organizationMono
                 .switchIfEmpty(Mono.defer(() -> {
-                    //If the plugin is not found in the organization, its not already installed. Install now.
-                    return organizationService.findById(organizationId).map(organization -> {
-                        List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
-                        if (organizationPluginList == null) {
-                            organizationPluginList = new ArrayList<OrganizationPlugin>();
-                        }
-                        log.debug("Installing plugin {} for organization {}", pluginDTO.getPluginId(), organization.getName());
-                        OrganizationPlugin organizationPlugin = new OrganizationPlugin();
-                        organizationPlugin.setPluginId(pluginDTO.getPluginId());
-                        organizationPlugin.setStatus(status);
-                        organizationPluginList.add(organizationPlugin);
-                        organization.setPlugins(organizationPluginList);
-                        return organization;
-                    }).flatMap(organizationService::save);
+                    //If the plugin is not found in the organization, its not installed already. Install now.
+                    return userMono
+                            .flatMap(user -> organizationService.findById(user.getOrganizationId()))
+                            .map(organization -> {
+                                List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                                if (organizationPluginList == null) {
+                                    organizationPluginList = new ArrayList<OrganizationPlugin>();
+                                }
+                                log.debug("Installing plugin {} for organization {}", pluginDTO.getPluginId(), organization.getName());
+                                OrganizationPlugin organizationPlugin = new OrganizationPlugin();
+                                organizationPlugin.setPluginId(pluginDTO.getPluginId());
+                                organizationPlugin.setStatus(status);
+                                organizationPluginList.add(organizationPlugin);
+                                organization.setPlugins(organizationPluginList);
+                                return organization;
+                            })
+                            .flatMap(organizationService::save);
                 }));
     }
 
