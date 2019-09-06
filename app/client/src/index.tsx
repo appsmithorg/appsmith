@@ -4,7 +4,8 @@ import { Provider } from "react-redux";
 import "./index.css";
 import App from "./App";
 import Editor from "./pages/Editor";
-import PageNotFound from "./pages/PageNotFound";
+import PageNotFound from "./pages/common/PageNotFound";
+import LoginPage from "./pages/common/LoginPage";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
@@ -13,25 +14,42 @@ import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from 'redux-saga'
 import { rootSaga } from "./sagas"
-import { ActionType, ReduxAction } from "./constants/ActionConstants";
+import FontFaceObserver from "fontfaceobserver";
+import { DndProvider } from "react-dnd"
+import HTML5Backend from "react-dnd-html5-backend"
+import { appInitializer } from "./utils/AppsmithUtils";
 
+// font face observer
+const textFont = new FontFaceObserver("DM Sans");
+const widgetIconFont = new FontFaceObserver("appmith-widget-font");
+Promise.all([textFont.load(), widgetIconFont.load()]).then(()=>{
+  document.body.className += "fontLoaded";
+}).catch(err => {
+  console.log(err);
+});
+
+
+appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSaga)
-
 ReactDOM.render(
-  <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path="/" component={App} />
-          <Route exact path="/builder" component={Editor} />
-          <Route component={PageNotFound} />
-        </Switch>
-      </BrowserRouter>
-    </ThemeProvider>
-  </Provider>,
+
+  <DndProvider backend={HTML5Backend}>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path="/" component={App} />
+            <Route path="/builder" component={Editor} />
+            <Route exact path="/login" component={LoginPage} />
+            <Route component={PageNotFound} />
+          </Switch>
+        </BrowserRouter>
+      </ThemeProvider>
+    </Provider>
+  </DndProvider>,
   document.getElementById("root")
 );
 

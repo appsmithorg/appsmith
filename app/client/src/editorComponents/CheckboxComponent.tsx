@@ -1,7 +1,7 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { Checkbox } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Checkbox } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 class CheckboxComponent extends React.Component<ICheckboxComponentProps> {
   render() {
     return (
@@ -14,16 +14,16 @@ class CheckboxComponent extends React.Component<ICheckboxComponentProps> {
           />
         ))}
       </Container>
-    )
+    );
   }
 }
 
-export interface ICheckboxComponentProps extends IComponentProps {
+export interface ICheckboxComponentProps extends ComponentProps {
   items: Array<{
-    label: string
-    defaultIndeterminate: boolean
-    value: number | string
-  }>
+    label: string;
+    defaultIndeterminate: boolean;
+    value: number | string;
+  }>;
 }
 
-export default CheckboxComponent
+export default CheckboxComponent;

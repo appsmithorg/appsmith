@@ -15,17 +15,21 @@ class WidgetFactory {
         if (widgetBuilder)
             return widgetBuilder.buildWidget(widgetData)
         else {
-            const ex: IWidgetCreationException = {
+            const ex: WidgetCreationException = {
                 message: "Widget Builder not registered for widget type" + widgetData.widgetType
             }
             throw ex
         }
     }
 
+    static getWidgetTypes(): WidgetType[] {
+        return Array.from(this.widgetMap.keys());
+    }
+
 }
 
-export interface IWidgetCreationException {
-    message: string
+export interface WidgetCreationException {
+    message: string;
 }
 
 export default WidgetFactory

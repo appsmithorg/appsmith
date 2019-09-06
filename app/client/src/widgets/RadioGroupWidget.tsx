@@ -1,17 +1,13 @@
 import * as React from "react"
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
+import { WidgetType } from "../constants/WidgetConstants"
 import RadioGroupComponent from "../editorComponents/RadioGroupComponent"
 import { IOptionProps } from "@blueprintjs/core"
-import _ from "lodash"
 
 class RadioButtonWidget extends BaseWidget<
-  IRadioGroupWidgetProps,
+  RadioGroupWidgetProps,
   IWidgetState
 > {
-  constructor(widgetProps: IRadioGroupWidgetProps) {
-    super(widgetProps)
-  }
 
   getPageView() {
     return (
@@ -37,19 +33,19 @@ class RadioButtonWidget extends BaseWidget<
   }
 }
 
-export interface IRadioGroupWidgetProps extends IWidgetProps {
-  label: string
-  inline: boolean
-  selectedValue: string | number
-  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void
-  disabled: boolean
-  className: string
-  name: string
-  options: IOptionProps[]
+export interface RadioGroupWidgetProps extends IWidgetProps {
+  label: string;
+  inline: boolean;
+  selectedValue: string | number;
+  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void;
+  disabled: boolean;
+  className: string;
+  name: string;
+  options: IOptionProps[];
   items: Array<{
-    label: string
-    value: number | string
-  }>
+    label: string;
+    value: number | string;
+  }>;
 }
 
 export default RadioButtonWidget

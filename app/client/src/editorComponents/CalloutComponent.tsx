@@ -1,5 +1,5 @@
 import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
+import { ComponentProps } from "./BaseComponent"
 import { Callout, Intent } from "@blueprintjs/core"
 import { Container } from "./ContainerComponent"
 class CalloutComponent extends React.Component<ICalloutComponentProps> {
@@ -17,7 +17,7 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
   }
 }
 
-export interface ICalloutComponentProps extends IComponentProps {
+export interface ICalloutComponentProps extends ComponentProps {
   id?: string
   title?: string
   description?: string

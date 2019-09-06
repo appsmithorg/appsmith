@@ -1,17 +1,13 @@
-import * as React from "react"
+import React from "react"
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
+import { WidgetType } from "../constants/WidgetConstants"
 import { Boundary, IBreadcrumbProps } from "@blueprintjs/core"
 import BreadcrumbsComponent from "../editorComponents/BreadcrumbsComponent"
-import _ from "lodash"
 
 class BreadcrumbsWidget extends BaseWidget<
-  IBreadcrumbsWidgetProps,
+  BreadcrumbsWidgetProps,
   IWidgetState
 > {
-  constructor(widgetProps: IBreadcrumbsWidgetProps) {
-    super(widgetProps)
-  }
 
   getPageView() {
     return (
@@ -32,12 +28,12 @@ class BreadcrumbsWidget extends BaseWidget<
   }
 }
 
-export interface IBreadcrumbsWidgetProps extends IWidgetProps {
-  width?: number
-  collapseFrom?: Boundary
-  className?: string
-  minVisibleItems?: number
-  items?: IBreadcrumbProps[]
+export interface BreadcrumbsWidgetProps extends IWidgetProps {
+  width?: number;
+  collapseFrom?: Boundary;
+  className?: string;
+  minVisibleItems?: number;
+  items?: IBreadcrumbProps[];
 }
 
 export default BreadcrumbsWidget

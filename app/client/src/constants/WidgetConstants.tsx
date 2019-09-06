@@ -13,6 +13,16 @@ export type WidgetType =
   | "NUMERIC_INPUT_WIDGET"
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
+  | "INPUT_WIDGET"
+  | "TOGGLE_WIDGET"
+
+export const WidgetTypes: {[id: string]: WidgetType } = {
+  BUTTON_WIDGET: "BUTTON_WIDGET",
+  TEXT_WIDGET: "TEXT_WIDGET",
+  INPUT_WIDGET: "INPUT_WIDGET",
+  TOGGLE_WIDGET: "TOGGLE_WIDGET",
+}
+
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL"
 export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION"
 export type CSSUnit =
@@ -47,6 +57,6 @@ export const RenderModes: { [id: string]: RenderMode } = {
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
-  RELATIVE_FONTSIZE: "em",
+  RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%"
 }
