@@ -68,7 +68,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     @Override
     public Mono<T> getById(ID id) {
-        if(id == null) {
+        if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
@@ -98,12 +98,12 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
      */
     protected Mono<T> validateObject(T obj) {
         return Mono.just(obj)
-            .map(o -> validator.validate(o))
-            .flatMap(constraint -> {
-                if(constraint.isEmpty()) {
-                    return Mono.just(obj);
-                }
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
-            });
+                .map(o -> validator.validate(o))
+                .flatMap(constraint -> {
+                    if (constraint.isEmpty()) {
+                        return Mono.just(obj);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
+                });
     }
 }

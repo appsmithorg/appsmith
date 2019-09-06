@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      *
      * @param e        AppsmithException that will be caught by the function
      * @param exchange ServerWebExchange contract in order to extract the response and set the http status code
-     * @return Mono<ResponseDto < ErrorDTO>>
+     * @return Mono<ResponseDto       <       ErrorDTO>>
      */
     @ExceptionHandler
     @ResponseBody
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
      *
      * @param e        Exception that will be caught by the function
      * @param exchange ServerWebExchange contract in order to extract the response and set the http status code
-     * @return Mono<ResponseDto < ErrorDTO>>
+     * @return Mono<ResponseDto       <       ErrorDTO>>
      */
     @ExceptionHandler
     @ResponseBody

@@ -2,12 +2,12 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Resource;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ResourceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -21,19 +21,16 @@ import javax.validation.constraints.NotNull;
 @Service
 public class ResourceServiceImpl extends BaseService<ResourceRepository, Resource, String> implements ResourceService {
 
-    @Value("${organization.id}")
-    private String organizationId;
-
     private final ResourceRepository repository;
     private final OrganizationService organizationService;
-    private final PluginService pluginService;
+    private final UserService userService;
 
     @Autowired
-    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, OrganizationService organizationService, PluginService pluginService) {
+    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, OrganizationService organizationService, PluginService pluginService, UserService userService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
         this.repository = repository;
         this.organizationService = organizationService;
-        this.pluginService = pluginService;
+        this.userService = userService;
     }
 
     @Override
@@ -44,17 +41,19 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
-        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(organizationId, resource.getPluginId());
+        Mono<User> userMono = userService.getCurrentUser();
+
+        Mono<Organization> organizationMono = userMono.flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), resource.getPluginId()));
 
         //Add organization id to the resource.
-        Mono<Resource> updatedResourceMono = Mono.just(resource)
-                .map(updatedResource -> {
-                    updatedResource.setOrganizationId(organizationId);
-                    return updatedResource;
+        Mono<Resource> updatedResourceMono = organizationMono
+                .map(organization -> {
+                    resource.setOrganizationId(organization.getId());
+                    return resource;
                 });
 
         return organizationMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, organizationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, resource.getPluginId())))
                 .then(updatedResourceMono)
                 .flatMap(repository::save);
     }
