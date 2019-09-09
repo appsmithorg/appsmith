@@ -6,7 +6,7 @@ import {
   REQUEST_HEADERS,
 } from "../constants/ApiConstants";
 
-const axios = require("axios");
+const axios = require("axios"); //eslint-disable-line @typescript-eslint/no-var-requires
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

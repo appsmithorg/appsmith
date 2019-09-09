@@ -12,19 +12,18 @@ import { createStore, applyMiddleware } from "redux";
 import appReducer from "./reducers";
 import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
-import createSagaMiddleware from 'redux-saga'
-import { rootSaga } from "./sagas"
-import { DndProvider } from "react-dnd"
-import HTML5Backend from "react-dnd-html5-backend"
+import createSagaMiddleware from "redux-saga";
+import { rootSaga } from "./sagas";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
 
 appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
-sagaMiddleware.run(rootSaga)
+sagaMiddleware.run(rootSaga);
 ReactDOM.render(
-
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -39,7 +38,7 @@ ReactDOM.render(
       </ThemeProvider>
     </Provider>
   </DndProvider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 
 // If you want your app to work offline and load faster, you can change

@@ -4,7 +4,7 @@ import uiReducer from "./uiReducers";
 import { CanvasReduxState } from "./uiReducers/canvasReducer";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducers";
 import { WidgetCardsPaneReduxState } from "./uiReducers/widgetCardsPaneReducer";
-import { EditorHeaderReduxState } from "./uiReducers/editorHeaderReducer";
+// import { EditorHeaderReduxState } from "./uiReducers/editorHeaderReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 
 const appReducer = combineReducers({
@@ -18,7 +18,7 @@ export interface AppState {
   ui: {
     canvas: CanvasReduxState;
     widgetCardsPane: WidgetCardsPaneReduxState;
-    editorHeader: EditorHeaderReduxState;
+    // editorHeader: EditorHeaderReduxState;
     editor: EditorReduxState;
   };
   entities: {

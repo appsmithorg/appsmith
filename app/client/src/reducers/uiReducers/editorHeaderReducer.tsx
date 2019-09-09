@@ -1,9 +1,9 @@
-import { createReducer } from "../../utils/AppsmithUtils"
+import { createReducer } from "../../utils/AppsmithUtils";
 
-const initialState: EditorHeaderReduxState = {}
+const initialState = {};
 
-const editorHeaderReducer = createReducer(initialState, {})
+const editorHeaderReducer = createReducer(initialState, {});
 
-export interface EditorHeaderReduxState {}
+// export interface EditorHeaderReduxState {}
 
-export default editorHeaderReducer
+export default editorHeaderReducer;
