@@ -12,4 +12,5 @@ public interface Url {
     String RESOURCE_URL = BASE_URL + VERSION + "/resources";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
     String USER_URL = BASE_URL + VERSION + "/users";
+    String APPLICATION_URL = BASE_URL + VERSION + "/applications";
 }

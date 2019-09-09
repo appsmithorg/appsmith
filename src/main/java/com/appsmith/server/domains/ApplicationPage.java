@@ -4,15 +4,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.minidev.json.JSONObject;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class Layout extends BaseDomain {
+public class ApplicationPage {
 
-    ScreenType screen;
+    String id;
 
-    JSONObject data;
+    String name;
+
+    Boolean isDefault;
 }
