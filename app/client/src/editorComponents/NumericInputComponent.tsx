@@ -1,9 +1,9 @@
-import * as React from "react"
-import { ComponentProps } from "./BaseComponent"
-import { Intent, NumericInput, IconName } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Intent, NumericInput, IconName } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 class NumericInputComponent extends React.Component<
-  INumericInputComponentProps
+  NumericInputComponentProps
 > {
   render() {
     return (
@@ -30,11 +30,11 @@ class NumericInputComponent extends React.Component<
           stepSize={this.props.stepSize}
         />
       </Container>
-    )
+    );
   }
 }
 
-export interface INumericInputComponentProps extends ComponentProps {
+export interface NumericInputComponentProps extends ComponentProps {
   className?: string;
   disabled?: boolean;
   large?: boolean;
@@ -57,4 +57,4 @@ export interface INumericInputComponentProps extends ComponentProps {
   placeholder?: string;
 }
 
-export default NumericInputComponent
+export default NumericInputComponent;

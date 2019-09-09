@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 import styled from "styled-components"
 import Canvas from "./Canvas"
-import { WidgetCardProps, IWidgetProps } from '../../widgets/BaseWidget'
+import { WidgetCardProps, WidgetProps } from '../../widgets/BaseWidget'
 import { AppState } from "../../reducers"
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer"
 import WidgetCardsPane from "./WidgetCardsPane"
@@ -23,7 +23,10 @@ const CanvasContainer = styled.section`
   margin: 0px 10px;
   &:before {
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1000;
     pointer-events: none;
   }
@@ -100,7 +103,7 @@ const mapStateToProps = (state: AppState, props: EditorProps): EditorReduxState 
 const mapDispatchToProps = (dispatch: any) => {
   return {
     fetchCanvasWidgets: (pageId: string) => dispatch(fetchPage(pageId, RenderModes.CANVAS)),
-    addPageWidget: (pageId: string, widgetProps: IWidgetProps) => dispatch(addWidget(pageId, widgetProps))
+    addPageWidget: (pageId: string, widgetProps: WidgetProps) => dispatch(addWidget(pageId, widgetProps))
   }
 }
 

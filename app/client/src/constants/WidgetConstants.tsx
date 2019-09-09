@@ -14,17 +14,17 @@ export type WidgetType =
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
   | "INPUT_WIDGET"
-  | "TOGGLE_WIDGET"
+  | "TOGGLE_WIDGET";
 
-export const WidgetTypes: {[id: string]: WidgetType } = {
+export const WidgetTypes: { [id: string]: WidgetType } = {
   BUTTON_WIDGET: "BUTTON_WIDGET",
   TEXT_WIDGET: "TEXT_WIDGET",
   INPUT_WIDGET: "INPUT_WIDGET",
   TOGGLE_WIDGET: "TOGGLE_WIDGET",
-}
+};
 
-export type ContainerOrientation = "HORIZONTAL" | "VERTICAL"
-export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION"
+export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
+export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION";
 export type CSSUnit =
   | "px"
   | "cm"
@@ -40,23 +40,23 @@ export type CSSUnit =
   | "vh"
   | "vmin"
   | "vmax"
-  | "%"
+  | "%";
 
 export type RenderMode =
   | "COMPONENT_PANE"
   | "CANVAS"
   | "PAGE"
-  | "CANVAS_SELECTED"
+  | "CANVAS_SELECTED";
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",
   CANVAS: "CANVAS",
   PAGE: "PAGE",
-  CANVAS_SELECTED: "CANVAS_SELECTED"
-}
+  CANVAS_SELECTED: "CANVAS_SELECTED",
+};
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
   RELATIVE_FONTSIZE: "rem",
-  RELATIVE_PARENT: "%"
-}
+  RELATIVE_PARENT: "%",
+};

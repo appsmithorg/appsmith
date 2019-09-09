@@ -1,14 +1,10 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import InputGroupComponent from "../editorComponents/InputGroupComponent";
 import { IconName, Intent } from "@blueprintjs/core";
 
-class InputGroupWidget extends BaseWidget<
-  InputGroupWidgetProps,
-  IWidgetState
-> {
-
+class InputGroupWidget extends BaseWidget<InputGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <InputGroupComponent
@@ -36,7 +32,7 @@ class InputGroupWidget extends BaseWidget<
   }
 }
 
-export interface InputGroupWidgetProps extends IWidgetProps {
+export interface InputGroupWidgetProps extends WidgetProps {
   className?: string;
   disabled?: boolean;
   large?: boolean;

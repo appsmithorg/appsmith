@@ -1,8 +1,8 @@
-import * as React from "react"
-import { ComponentProps } from "./BaseComponent"
-import { Icon, Intent } from "@blueprintjs/core"
-import { IconName } from "@blueprintjs/icons"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Icon, Intent } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import { Container } from "./ContainerComponent";
 class IconComponent extends React.Component<IconComponentProps> {
   render() {
     return (
@@ -13,7 +13,7 @@ class IconComponent extends React.Component<IconComponentProps> {
           intent={this.props.intent}
         />
       </Container>
-    )
+    );
   }
 }
 
@@ -24,4 +24,4 @@ export interface IconComponentProps extends ComponentProps {
   ellipsize?: boolean;
 }
 
-export default IconComponent
+export default IconComponent;

@@ -1,10 +1,10 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { Intent } from "@blueprintjs/core";
 import { WidgetType } from "../constants/WidgetConstants";
 import CalloutComponent from "../editorComponents/CalloutComponent";
 
-class CalloutWidget extends BaseWidget<CalloutWidgetProps, IWidgetState> {
+class CalloutWidget extends BaseWidget<CalloutWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CalloutComponent
@@ -24,7 +24,7 @@ class CalloutWidget extends BaseWidget<CalloutWidgetProps, IWidgetState> {
   }
 }
 
-export interface CalloutWidgetProps extends IWidgetProps {
+export interface CalloutWidgetProps extends WidgetProps {
   id?: string;
   title?: string;
   description?: string;

@@ -1,14 +1,10 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import RadioGroupComponent from "../editorComponents/RadioGroupComponent"
-import { IOptionProps } from "@blueprintjs/core"
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import RadioGroupComponent from "../editorComponents/RadioGroupComponent";
+import { IOptionProps } from "@blueprintjs/core";
 
-class RadioButtonWidget extends BaseWidget<
-  RadioGroupWidgetProps,
-  IWidgetState
-> {
-
+class RadioButtonWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
@@ -25,15 +21,15 @@ class RadioButtonWidget extends BaseWidget<
         className={this.props.className}
         options={this.props.options}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "RADIO_GROUP_WIDGET"
+    return "RADIO_GROUP_WIDGET";
   }
 }
 
-export interface RadioGroupWidgetProps extends IWidgetProps {
+export interface RadioGroupWidgetProps extends WidgetProps {
   label: string;
   inline: boolean;
   selectedValue: string | number;
@@ -45,7 +41,8 @@ export interface RadioGroupWidgetProps extends IWidgetProps {
   items: Array<{
     label: string;
     value: number | string;
+    key: string;
   }>;
 }
 
-export default RadioButtonWidget
+export default RadioButtonWidget;

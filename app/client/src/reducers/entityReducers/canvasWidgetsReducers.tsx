@@ -4,13 +4,13 @@ import {
   LoadCanvasPayload,
   ReduxAction
 } from "../../constants/ActionConstants"
-import { IWidgetProps } from "../../widgets/BaseWidget"
+import { WidgetProps } from "../../widgets/BaseWidget"
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 
 const initialState: CanvasWidgetsReduxState = {}
 
 
-export interface IFlattenedWidgetProps extends IWidgetProps {
+export interface IFlattenedWidgetProps extends WidgetProps {
   children?: string[];
 }
 
@@ -23,7 +23,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
   },
   [ActionTypes.ADD_PAGE_WIDGET]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<{pageId: string, widget: IWidgetProps}>
+    action: ReduxAction<{pageId: string, widget: WidgetProps}>
   ) => {
     const widget = action.payload.widget
     const widgetTree = CanvasWidgetsNormalizer.denormalize("0", { canvasWidgets: state })

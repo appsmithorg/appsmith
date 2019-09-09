@@ -1,7 +1,7 @@
-import * as React from "react"
-import { ComponentProps } from "./BaseComponent"
-import { Radio, RadioGroup, IOptionProps } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Radio, RadioGroup, IOptionProps } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
@@ -17,11 +17,11 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           options={this.props.options}
         >
           {this.props.items.map(item => (
-            <Radio label={item.label} value={item.value} />
+            <Radio key={item.key} label={item.label} value={item.value} />
           ))}
         </RadioGroup>
       </Container>
-    )
+    );
   }
 }
 
@@ -36,8 +36,9 @@ export interface RadioGroupComponentProps extends ComponentProps {
   options: IOptionProps[];
   items: Array<{
     label: string;
+    key: string;
     value: number | string;
   }>;
 }
 
-export default RadioGroupComponent
+export default RadioGroupComponent;

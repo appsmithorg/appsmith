@@ -42,7 +42,8 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "BREADCRUMBS_WIDGET",
         icon: "icon-collapse",
         label: "Input",
-      },{
+      },
+      {
         widgetType: "TAG_INPUT_WIDGET",
         icon: "icon-dropdown",
         label: "Tag",
@@ -51,7 +52,7 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "NUMERIC_INPUT_WIDGET",
         icon: "icon-table",
         label: "Numeric",
-      }
+      },
     ],
     form: [
       {
@@ -63,17 +64,16 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "CALLOUT_WIDGET",
         icon: "icon-alert",
         label: "Callout",
-      }
+      },
     ],
     view: [
       {
         widgetType: "INPUT_GROUP_WIDGET",
         icon: "icon-input",
         label: "Input",
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
-
 
 export default WidgetCardsPaneResponse;

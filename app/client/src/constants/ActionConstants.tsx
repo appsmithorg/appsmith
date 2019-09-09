@@ -1,5 +1,5 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
-import { IWidgetProps, WidgetCardProps } from "../widgets/BaseWidget"
+import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
 export type ActionType =
   | "UPDATE_CANVAS"
@@ -18,7 +18,7 @@ export type ActionType =
   | "SUCCESS_FETCHING_WIDGET_CARDS"
   | "ERROR_FETCHING_WIDGET_CARDS"
   | "ADD_PAGE_WIDGET"
-  | "REMOVE_PAGE_WIDGET"
+  | "REMOVE_PAGE_WIDGET";
 
 export const ActionTypes: { [id: string]: ActionType } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -37,8 +37,8 @@ export const ActionTypes: { [id: string]: ActionType } = {
   SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
   ERROR_FETCHING_WIDGET_CARDS: "ERROR_FETCHING_WIDGET_CARDS",
   ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
-  REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET"
-}
+  REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
+};
 
 export interface ReduxAction<T> {
   type: ActionType;
@@ -47,13 +47,13 @@ export interface ReduxAction<T> {
 
 export interface LoadCanvasPayload {
   pageWidgetId: string;
-  widgets: { [widgetId: string]: IWidgetProps };
+  widgets: { [widgetId: string]: WidgetProps };
 }
 
 export interface LoadWidgetPanePayload {
-  widgets: IWidgetProps[];
+  widgets: WidgetProps[];
 }
 
 export interface LoadWidgetCardsPanePayload {
-  cards: { [id: string]: WidgetCardProps[] }
+  cards: { [id: string]: WidgetCardProps[] };
 }

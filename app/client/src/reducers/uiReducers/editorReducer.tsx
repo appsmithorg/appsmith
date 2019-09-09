@@ -5,7 +5,7 @@ import {
   LoadCanvasPayload,
   LoadWidgetCardsPanePayload
 } from "../../constants/ActionConstants"
-import { WidgetCardProps, IWidgetProps } from "../../widgets/BaseWidget"
+import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget"
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
 
 const initialState: EditorReduxState = {}
@@ -19,7 +19,7 @@ const editorReducer = createReducer(initialState, {
   },
   [ActionTypes.ADD_PAGE_WIDGET]: (
     state: EditorReduxState,
-    action: ReduxAction<{pageId: string, widget: IWidgetProps}>
+    action: ReduxAction<{pageId: string, widget: WidgetProps}>
   ) => {
     return state
   },

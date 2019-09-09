@@ -1,14 +1,13 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import NumericInputComponent from "../editorComponents/NumericInputComponent"
-import { Intent, IconName } from "@blueprintjs/core"
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import NumericInputComponent from "../editorComponents/NumericInputComponent";
+import { Intent, IconName } from "@blueprintjs/core";
 
 class NumericInputWidget extends BaseWidget<
   NumericInputWidgetProps,
-  IWidgetState
+  WidgetState
 > {
-
   getPageView() {
     return (
       <NumericInputComponent
@@ -35,15 +34,15 @@ class NumericInputWidget extends BaseWidget<
         selectAllOnIncrement={this.props.selectAllOnIncrement}
         stepSize={this.props.stepSize}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "NUMERIC_INPUT_WIDGET"
+    return "NUMERIC_INPUT_WIDGET";
   }
 }
 
-export interface NumericInputWidgetProps extends IWidgetProps {
+export interface NumericInputWidgetProps extends WidgetProps {
   className?: string;
   disabled?: boolean;
   large?: boolean;
@@ -66,4 +65,4 @@ export interface NumericInputWidgetProps extends IWidgetProps {
   placeholder?: string;
 }
 
-export default NumericInputWidget
+export default NumericInputWidget;
