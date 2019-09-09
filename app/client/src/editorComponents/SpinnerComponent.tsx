@@ -1,9 +1,9 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { Spinner, Intent } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Spinner, Intent } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 
-class SpinnerComponent extends React.Component<ISpinnerComponentProps> {
+class SpinnerComponent extends React.Component<SpinnerComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -13,14 +13,14 @@ class SpinnerComponent extends React.Component<ISpinnerComponentProps> {
           intent={this.props.intent}
         />
       </Container>
-    )
+    );
   }
 }
 
-export interface ISpinnerComponentProps extends IComponentProps {
-  size?: number
-  value?: number
-  intent?: Intent
+export interface SpinnerComponentProps extends ComponentProps {
+  size?: number;
+  value?: number;
+  intent?: Intent;
 }
 
-export default SpinnerComponent
+export default SpinnerComponent;

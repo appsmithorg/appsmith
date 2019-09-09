@@ -1,18 +1,13 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
-import { Boundary, IBreadcrumbProps } from "@blueprintjs/core"
-import BreadcrumbsComponent from "../editorComponents/BreadcrumbsComponent"
-import _ from "lodash"
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import { Boundary, IBreadcrumbProps } from "@blueprintjs/core";
+import BreadcrumbsComponent from "../editorComponents/BreadcrumbsComponent";
 
 class BreadcrumbsWidget extends BaseWidget<
-  IBreadcrumbsWidgetProps,
-  IWidgetState
+  BreadcrumbsWidgetProps,
+  WidgetState
 > {
-  constructor(widgetProps: IBreadcrumbsWidgetProps) {
-    super(widgetProps)
-  }
-
   getPageView() {
     return (
       <BreadcrumbsComponent
@@ -24,20 +19,20 @@ class BreadcrumbsWidget extends BaseWidget<
         minVisibleItems={this.props.minVisibleItems}
         className={this.props.className}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "BREADCRUMBS_WIDGET"
+    return "BREADCRUMBS_WIDGET";
   }
 }
 
-export interface IBreadcrumbsWidgetProps extends IWidgetProps {
-  width?: number
-  collapseFrom?: Boundary
-  className?: string
-  minVisibleItems?: number
-  items?: IBreadcrumbProps[]
+export interface BreadcrumbsWidgetProps extends WidgetProps {
+  width?: number;
+  collapseFrom?: Boundary;
+  className?: string;
+  minVisibleItems?: number;
+  items?: IBreadcrumbProps[];
 }
 
-export default BreadcrumbsWidget
+export default BreadcrumbsWidget;

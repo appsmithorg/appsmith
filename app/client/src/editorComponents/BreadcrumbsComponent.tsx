@@ -1,15 +1,9 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import {
-  Boundary,
-  Breadcrumbs,
-  Breadcrumb,
-  Card,
-  IBreadcrumbProps
-} from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Boundary, Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 
-class BreadcrumbsComponent extends React.Component<IBreadcrumbsComponentProps> {
+class BreadcrumbsComponent extends React.Component<BreadcrumbsComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -20,16 +14,16 @@ class BreadcrumbsComponent extends React.Component<IBreadcrumbsComponentProps> {
           className={this.props.className}
         />
       </Container>
-    )
+    );
   }
 }
 
-export interface IBreadcrumbsComponentProps extends IComponentProps {
-  width?: number
-  collapseFrom?: Boundary
-  className?: string
-  minVisibleItems?: number
-  items?: IBreadcrumbProps[]
+export interface BreadcrumbsComponentProps extends ComponentProps {
+  width?: number;
+  collapseFrom?: Boundary;
+  className?: string;
+  minVisibleItems?: number;
+  items?: IBreadcrumbProps[];
 }
 
-export default BreadcrumbsComponent
+export default BreadcrumbsComponent;

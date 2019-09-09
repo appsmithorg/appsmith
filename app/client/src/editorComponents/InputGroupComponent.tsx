@@ -1,8 +1,8 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { IconName, InputGroup, Intent } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
-class InputGroupComponent extends React.Component<IInputGroupComponentProps> {
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { IconName, InputGroup, Intent } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
+class InputGroupComponent extends React.Component<InputGroupComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -21,23 +21,23 @@ class InputGroupComponent extends React.Component<IInputGroupComponentProps> {
           type={this.props.type}
         />
       </Container>
-    )
+    );
   }
 }
 
-export interface IInputGroupComponentProps extends IComponentProps {
-  className?: string
-  disabled?: boolean
-  large?: boolean
-  intent?: Intent
-  defaultValue?: string
-  leftIcon?: IconName
-  rightElement?: JSX.Element
-  round?: boolean
-  small?: boolean
-  type?: string
-  value?: string
-  placeholder?: string
+export interface InputGroupComponentProps extends ComponentProps {
+  className?: string;
+  disabled?: boolean;
+  large?: boolean;
+  intent?: Intent;
+  defaultValue?: string;
+  leftIcon?: IconName;
+  rightElement?: JSX.Element;
+  round?: boolean;
+  small?: boolean;
+  type?: string;
+  value?: string;
+  placeholder?: string;
 }
 
-export default InputGroupComponent
+export default InputGroupComponent;

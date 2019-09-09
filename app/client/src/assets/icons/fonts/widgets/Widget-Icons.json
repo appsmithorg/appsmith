@@ -1,0 +1,19 @@
+{
+    "alert": "\\f101",
+    "button": "\\f102",
+    "checkbox": "\\f103",
+    "collapse": "\\f104",
+    "datepicker": "\\f105",
+    "dropdown": "\\f106",
+    "file upload": "\\f107",
+    "image": "\\f108",
+    "input": "\\f109",
+    "location picker": "\\f10a",
+    "modal": "\\f10b",
+    "radio": "\\f10c",
+    "rich text": "\\f10d",
+    "switch": "\\f10e",
+    "table": "\\f10f",
+    "tabs": "\\f110",
+    "text": "\\f111"
+}

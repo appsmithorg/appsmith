@@ -1,14 +1,9 @@
-import * as React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
 import TextComponent from "../editorComponents/TextComponent";
-import _ from "lodash";
 
-class TextWidget extends BaseWidget<ITextWidgetProps, IWidgetState> {
-  constructor(widgetProps: ITextWidgetProps) {
-    super(widgetProps);
-  }
-
+class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
       <TextComponent
@@ -26,7 +21,7 @@ class TextWidget extends BaseWidget<ITextWidgetProps, IWidgetState> {
   }
 }
 
-export interface ITextWidgetProps extends IWidgetProps {
+export interface TextWidgetProps extends WidgetProps {
   text?: string;
   ellipsize?: boolean;
   tagName?: keyof JSX.IntrinsicElements;

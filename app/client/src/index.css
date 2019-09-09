@@ -6,6 +6,11 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #efefef;
+}
+
+body.fontLoaded {
+  font-family: "DM Sans", sans-serif;
 }
 
 code {

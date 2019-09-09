@@ -1,16 +1,11 @@
-import * as React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
-import { Icon, Intent } from "@blueprintjs/core";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import { Intent } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import IconComponent from "../editorComponents/IconComponent";
-import _ from "lodash";
 
-class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
-  constructor(widgetProps: IIconWidgetProps) {
-    super(widgetProps);
-  }
-
+class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   getPageView() {
     return (
       <IconComponent
@@ -29,7 +24,7 @@ class IconWidget extends BaseWidget<IIconWidgetProps, IWidgetState> {
   }
 }
 
-export interface IIconWidgetProps extends IWidgetProps {
+export interface IconWidgetProps extends WidgetProps {
   icon?: IconName;
   iconSize?: number;
   ellipsize?: boolean;

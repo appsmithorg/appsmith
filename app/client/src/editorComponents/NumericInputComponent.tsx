@@ -1,9 +1,9 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { Intent, NumericInput, IconName } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Intent, NumericInput, IconName } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 class NumericInputComponent extends React.Component<
-  INumericInputComponentProps
+  NumericInputComponentProps
 > {
   render() {
     return (
@@ -30,31 +30,31 @@ class NumericInputComponent extends React.Component<
           stepSize={this.props.stepSize}
         />
       </Container>
-    )
+    );
   }
 }
 
-export interface INumericInputComponentProps extends IComponentProps {
-  className?: string
-  disabled?: boolean
-  large?: boolean
-  intent?: Intent
-  defaultValue?: string
-  leftIcon?: IconName
-  rightElement?: JSX.Element
-  allowNumericCharactersOnly?: boolean
-  fill?: boolean
-  majorStepSize?: number | null
-  max?: number
-  min?: number
-  minorStepSize?: number | null
-  onValueChange?: (valueAsNumber: number, valueAsString: string) => void
-  onButtonClick?: (valueAsNumber: number, valueAsString: string) => void
-  inputRef?: (ref: HTMLInputElement | null) => any
-  selectAllOnFocus?: boolean
-  selectAllOnIncrement?: boolean
-  stepSize?: number
-  placeholder?: string
+export interface NumericInputComponentProps extends ComponentProps {
+  className?: string;
+  disabled?: boolean;
+  large?: boolean;
+  intent?: Intent;
+  defaultValue?: string;
+  leftIcon?: IconName;
+  rightElement?: JSX.Element;
+  allowNumericCharactersOnly?: boolean;
+  fill?: boolean;
+  majorStepSize?: number | null;
+  max?: number;
+  min?: number;
+  minorStepSize?: number | null;
+  onValueChange?: (valueAsNumber: number, valueAsString: string) => void;
+  onButtonClick?: (valueAsNumber: number, valueAsString: string) => void;
+  inputRef?: (ref: HTMLInputElement | null) => any;
+  selectAllOnFocus?: boolean;
+  selectAllOnIncrement?: boolean;
+  stepSize?: number;
+  placeholder?: string;
 }
 
-export default NumericInputComponent
+export default NumericInputComponent;

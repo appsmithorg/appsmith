@@ -1,50 +1,55 @@
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import ContainerComponent, {
-  IContainerProps
-} from "../editorComponents/ContainerComponent"
-import {
-  ContainerOrientation,
-  WidgetType,
-  CSSUnits
-} from "../constants/WidgetConstants"
-import WidgetFactory from "../utils/WidgetFactory"
-import React from "react"
-import _ from "lodash"
-import { Color } from "../constants/StyleConstants"
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import ContainerComponent from "../editorComponents/ContainerComponent";
+import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
+import WidgetFactory from "../utils/WidgetFactory";
+import _ from "lodash";
+import { Color } from "../constants/DefaultTheme";
+import DroppableComponent from "../editorComponents/DroppableComponent";
 
-const DEFAULT_NUM_COLS = 13
-const DEFAULT_NUM_ROWS = 13
+const DEFAULT_NUM_COLS = 16;
+const DEFAULT_NUM_ROWS = 16;
 
 class ContainerWidget extends BaseWidget<
-  IContainerWidgetProps<IWidgetProps>,
-  IWidgetState
+  ContainerWidgetProps<WidgetProps>,
+  ContainerWidgetState
 > {
-  snapColumnSpace: number = 100
-  snapRowSpace: number = 100
-
-  constructor(props: IContainerWidgetProps<IWidgetProps>) {
-    super(props)
-    this.renderChildWidget = this.renderChildWidget.bind(this)
+  constructor(props: ContainerWidgetProps<WidgetProps>) {
+    super(props);
+    this.renderChildWidget = this.renderChildWidget.bind(this);
     this.state = {
       width: 0,
-      height: 0
+      height: 0,
+      snapColumnSpace: DEFAULT_NUM_COLS,
+      snapRowSpace: DEFAULT_NUM_ROWS,
+    };
+  }
+
+  componentDidUpdate(previousProps: ContainerWidgetProps<WidgetProps>) {
+    super.componentDidUpdate(previousProps);
+    let snapColumnSpace = this.state.snapColumnSpace;
+    let snapRowSpace = this.state.snapRowSpace;
+    if (this.state.width)
+      snapColumnSpace =
+        this.state.width / (this.props.snapColumns || DEFAULT_NUM_COLS);
+    if (this.state.height)
+      snapRowSpace =
+        this.state.height / (this.props.snapRows || DEFAULT_NUM_ROWS);
+    if (
+      this.state.snapColumnSpace !== snapColumnSpace ||
+      this.state.snapRowSpace !== snapRowSpace
+    ) {
+      this.setState({
+        snapColumnSpace: snapColumnSpace,
+        snapRowSpace: snapRowSpace,
+      });
     }
   }
 
-  componentDidUpdate(previousProps: IContainerWidgetProps<IWidgetProps>) {
-    super.componentDidUpdate(previousProps)
-    if (this.state.width)
-      this.snapColumnSpace =
-        this.state.width / (this.props.snapColumns || DEFAULT_NUM_COLS)
-    if (this.state.height)
-      this.snapRowSpace =
-        this.state.height / (this.props.snapRows || DEFAULT_NUM_ROWS)
-  }
-
-  renderChildWidget(childWidgetData: IWidgetProps) {
-    childWidgetData.parentColumnSpace = this.snapColumnSpace
-    childWidgetData.parentRowSpace = this.snapRowSpace
-    return WidgetFactory.createWidget(childWidgetData)
+  renderChildWidget(childWidgetData: WidgetProps) {
+    childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
+    childWidgetData.parentRowSpace = this.state.snapRowSpace;
+    return WidgetFactory.createWidget(childWidgetData);
   }
 
   getPageView() {
@@ -52,27 +57,45 @@ class ContainerWidget extends BaseWidget<
       <ContainerComponent
         widgetId={this.props.widgetId}
         style={{
-          ...this.getPositionStyle()
+          ...this.getPositionStyle(),
         }}
         orientation={this.props.orientation || "VERTICAL"}
       >
         {_.map(this.props.children, this.renderChildWidget)}
       </ContainerComponent>
-    )
+    );
+  }
+
+  getCanvasView() {
+    return (
+      <DroppableComponent
+        {...this.props}
+        style={{
+          ...this.getPositionStyle(),
+        }}
+      >
+        {super.getCanvasView()}
+      </DroppableComponent>
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "CONTAINER_WIDGET"
+    return "CONTAINER_WIDGET";
   }
 }
 
-export interface IContainerWidgetProps<T extends IWidgetProps>
-  extends IWidgetProps {
-  children?: T[]
-  snapColumns?: number
-  snapRows?: number
-  orientation?: ContainerOrientation
-  backgroundColor?: Color
+export interface ContainerWidgetState extends WidgetState {
+  snapColumnSpace: number;
+  snapRowSpace: number;
 }
 
-export default ContainerWidget
+export interface ContainerWidgetProps<T extends WidgetProps>
+  extends WidgetProps {
+  children?: T[];
+  snapColumns?: number;
+  snapRows?: number;
+  orientation?: ContainerOrientation;
+  backgroundColor?: Color;
+}
+
+export default ContainerWidget;

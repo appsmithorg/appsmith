@@ -1,18 +1,10 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
-import RadioGroupComponent from "../editorComponents/RadioGroupComponent"
-import { IOptionProps } from "@blueprintjs/core"
-import _ from "lodash"
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import RadioGroupComponent from "../editorComponents/RadioGroupComponent";
+import { IOptionProps } from "@blueprintjs/core";
 
-class RadioButtonWidget extends BaseWidget<
-  IRadioGroupWidgetProps,
-  IWidgetState
-> {
-  constructor(widgetProps: IRadioGroupWidgetProps) {
-    super(widgetProps)
-  }
-
+class RadioButtonWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
@@ -29,27 +21,28 @@ class RadioButtonWidget extends BaseWidget<
         className={this.props.className}
         options={this.props.options}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "RADIO_GROUP_WIDGET"
+    return "RADIO_GROUP_WIDGET";
   }
 }
 
-export interface IRadioGroupWidgetProps extends IWidgetProps {
-  label: string
-  inline: boolean
-  selectedValue: string | number
-  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void
-  disabled: boolean
-  className: string
-  name: string
-  options: IOptionProps[]
+export interface RadioGroupWidgetProps extends WidgetProps {
+  label: string;
+  inline: boolean;
+  selectedValue: string | number;
+  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void;
+  disabled: boolean;
+  className: string;
+  name: string;
+  options: IOptionProps[];
   items: Array<{
-    label: string
-    value: number | string
-  }>
+    label: string;
+    value: number | string;
+    key: string;
+  }>;
 }
 
-export default RadioButtonWidget
+export default RadioButtonWidget;

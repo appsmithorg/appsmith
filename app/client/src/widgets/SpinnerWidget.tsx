@@ -1,15 +1,10 @@
-import * as React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
-import { Spinner, Intent } from "@blueprintjs/core";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import { Intent } from "@blueprintjs/core";
 import SpinnerComponent from "../editorComponents/SpinnerComponent";
-import _ from "lodash";
 
-class SpinnerWidget extends BaseWidget<ISpinnerWidgetProps, IWidgetState> {
-  constructor(widgetProps: ISpinnerWidgetProps) {
-    super(widgetProps);
-  }
-
+class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SpinnerComponent
@@ -28,7 +23,7 @@ class SpinnerWidget extends BaseWidget<ISpinnerWidgetProps, IWidgetState> {
   }
 }
 
-export interface ISpinnerWidgetProps extends IWidgetProps {
+export interface SpinnerWidgetProps extends WidgetProps {
   size?: number;
   value?: number;
   ellipsize?: boolean;

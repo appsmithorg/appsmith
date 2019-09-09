@@ -7,23 +7,27 @@ import {
   WidgetType,
   RenderMode,
   RenderModes,
-  CSSUnits
-} from "../constants/WidgetConstants"
-import { Component } from "react"
-import { BaseStyle } from "../editorComponents/BaseComponent"
-import _ from "lodash"
+  CSSUnits,
+} from "../constants/WidgetConstants";
+import { Component } from "react";
+import { BaseStyle } from "../editorComponents/BaseComponent";
+import _ from "lodash";
+import React from "react";
+import DraggableComponent from "../editorComponents/DraggableComponent";
 
 abstract class BaseWidget<
-  T extends IWidgetProps,
-  K extends IWidgetState
-> extends Component<T, Partial<K>> {
+  T extends WidgetProps,
+  K extends WidgetState
+> extends Component<T, K> {
   constructor(props: T) {
-    super(props)
-    const initialState: Partial<K> = {
-    }
-    initialState.height = 0
-    initialState.width = 0
-    this.state = initialState
+    super(props);
+    const initialState: WidgetState = {
+      height: 0,
+      width: 0,
+    };
+    initialState.height = 0;
+    initialState.width = 0;
+    this.state = initialState as K;
   }
 
   componentDidMount(): void {
@@ -33,10 +37,10 @@ abstract class BaseWidget<
       this.props.topRow,
       this.props.bottomRow,
       this.props.parentColumnSpace,
-      this.props.parentRowSpace
-    )
+      this.props.parentRowSpace,
+    );
   }
-
+  //eslint-disable-next-line @typescript-eslint/no-unused-vars
   componentDidUpdate(prevProps: T) {
     this.calculateWidgetBounds(
       this.props.rightColumn,
@@ -44,8 +48,8 @@ abstract class BaseWidget<
       this.props.topRow,
       this.props.bottomRow,
       this.props.parentColumnSpace,
-      this.props.parentRowSpace
-    )
+      this.props.parentRowSpace,
+    );
   }
 
   calculateWidgetBounds(
@@ -54,54 +58,64 @@ abstract class BaseWidget<
     topRow: number,
     bottomRow: number,
     parentColumnSpace: number,
-    parentRowSpace: number
+    parentRowSpace: number,
   ) {
-    const widgetState: IWidgetState = {
+    const widgetState: WidgetState = {
       width: (rightColumn - leftColumn) * parentColumnSpace,
-      height: (bottomRow - topRow) * parentRowSpace
-    }
+      height: (bottomRow - topRow) * parentRowSpace,
+    };
     if (
       _.isNil(this.state) ||
       widgetState.height !== this.state.height ||
       widgetState.width !== this.state.width
     ) {
-      this.setState(widgetState)
+      this.setState(widgetState);
     }
   }
 
   render() {
-    return this.getWidgetView()
+    return this.getWidgetView();
   }
 
   getWidgetView(): JSX.Element {
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        return this.getCanvasView()
+        return this.getCanvasView();
       case RenderModes.COMPONENT_PANE:
-        return this.getComponentPaneView()
+        return this.getComponentPaneView();
       case RenderModes.PAGE:
-        return this.getPageView()
+        return this.getPageView();
       default:
-        return this.getPageView()
+        return this.getPageView();
     }
   }
 
-  abstract getPageView(): JSX.Element
+  abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    return this.getPageView()
+    return this.getPageView();
   }
 
   getComponentPaneView(): JSX.Element {
-    return this.getPageView()
+    return (
+      <DraggableComponent
+        {...this.props}
+        style={{
+          ...this.getPositionStyle(),
+        }}
+        orientation={"VERTICAL"}
+      >
+        {this.getPageView()}
+      </DraggableComponent>
+    );
   }
 
-  abstract getWidgetType(): WidgetType
+  abstract getWidgetType(): WidgetType;
 
   getPositionStyle(): BaseStyle {
     return {
       positionType:
-        this.props.renderMode === RenderModes.COMPONENT_PANE
+        this.props.renderMode !== RenderModes.PAGE
           ? "CONTAINER_DIRECTION"
           : "ABSOLUTE",
       height: this.state.height,
@@ -109,38 +123,51 @@ abstract class BaseWidget<
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL
-    }
+      yPositionUnit: CSSUnits.PIXEL,
+    };
   }
 
-  static defaultProps: Partial<IWidgetProps> = {
-    parentRowSpace: 1,
-    parentColumnSpace: 1,
+  static defaultProps: Partial<WidgetProps> = {
+    parentRowSpace: 64,
+    parentColumnSpace: 64,
     topRow: 0,
-    leftColumn: 0
-  }
+    leftColumn: 0,
+  };
 }
 
-export interface IWidgetState {
-  height: number
-  width: number
+export interface WidgetState {
+  height: number;
+  width: number;
 }
 
-export interface IWidgetBuilder<T extends IWidgetProps> {
-  buildWidget(data: T): JSX.Element
+export interface DraggableWidget {
+  type: string;
+  widget: WidgetProps;
+  key: string;
 }
 
-export interface IWidgetProps {
-  widgetType: WidgetType
-  key?: string
-  widgetId: string
-  topRow: number
-  leftColumn: number
-  bottomRow: number
-  rightColumn: number
-  parentColumnSpace: number
-  parentRowSpace: number
-  renderMode: RenderMode
+export interface WidgetBuilder<T extends WidgetProps> {
+  buildWidget(data: T): JSX.Element;
 }
 
-export default BaseWidget
+export interface WidgetProps {
+  widgetType: WidgetType;
+  key?: string;
+  widgetId: string;
+  topRow: number;
+  leftColumn: number;
+  bottomRow: number;
+  rightColumn: number;
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  renderMode: RenderMode;
+}
+
+export interface WidgetCardProps {
+  widgetType: WidgetType;
+  key?: string;
+  label: string;
+  icon: string;
+}
+
+export default BaseWidget;

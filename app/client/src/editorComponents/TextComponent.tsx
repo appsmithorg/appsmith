@@ -1,8 +1,8 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { Text } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
-class TextComponent extends React.Component<ITextComponentProps> {
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Text } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
+class TextComponent extends React.Component<TextComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -10,14 +10,14 @@ class TextComponent extends React.Component<ITextComponentProps> {
           {this.props.text}
         </Text>
       </Container>
-    )
+    );
   }
 }
 
-export interface ITextComponentProps extends IComponentProps {
-  text?: string
-  ellipsize?: boolean
-  tagName?: keyof JSX.IntrinsicElements
+export interface TextComponentProps extends ComponentProps {
+  text?: string;
+  ellipsize?: boolean;
+  tagName?: keyof JSX.IntrinsicElements;
 }
 
-export default TextComponent
+export default TextComponent;

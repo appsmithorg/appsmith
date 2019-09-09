@@ -1,0 +1,71 @@
+@font-face {
+    font-family: "Widget-Icons";
+    src: url("./Widget-Icons.eot?8c5fb10027fde9f328ea41c7f2f3873d?#iefix") format("embedded-opentype"),
+url("./Widget-Icons.woff2?8c5fb10027fde9f328ea41c7f2f3873d") format("woff2"),
+url("./Widget-Icons.woff?8c5fb10027fde9f328ea41c7f2f3873d") format("woff"),
+url("./Widget-Icons.ttf?8c5fb10027fde9f328ea41c7f2f3873d") format("truetype"),
+url("./Widget-Icons.svg?8c5fb10027fde9f328ea41c7f2f3873d#Widget-Icons") format("svg");
+}
+
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+    font-family: Widget-Icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-alert:before {
+    content: "\f101";
+}
+.icon-button:before {
+    content: "\f102";
+}
+.icon-checkbox:before {
+    content: "\f103";
+}
+.icon-collapse:before {
+    content: "\f104";
+}
+.icon-datepicker:before {
+    content: "\f105";
+}
+.icon-dropdown:before {
+    content: "\f106";
+}
+.icon-file upload:before {
+    content: "\f107";
+}
+.icon-image:before {
+    content: "\f108";
+}
+.icon-input:before {
+    content: "\f109";
+}
+.icon-location picker:before {
+    content: "\f10a";
+}
+.icon-modal:before {
+    content: "\f10b";
+}
+.icon-radio:before {
+    content: "\f10c";
+}
+.icon-rich text:before {
+    content: "\f10d";
+}
+.icon-switch:before {
+    content: "\f10e";
+}
+.icon-table:before {
+    content: "\f10f";
+}
+.icon-tabs:before {
+    content: "\f110";
+}
+.icon-text:before {
+    content: "\f111";
+}

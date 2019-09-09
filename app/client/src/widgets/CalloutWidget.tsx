@@ -1,15 +1,10 @@
-import * as React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { Callout, Code, H5, Intent, Switch } from "@blueprintjs/core";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { Intent } from "@blueprintjs/core";
+import { WidgetType } from "../constants/WidgetConstants";
 import CalloutComponent from "../editorComponents/CalloutComponent";
-import _ from "lodash";
 
-class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
-  constructor(widgetProps: ICalloutWidgetProps) {
-    super(widgetProps);
-  }
-
+class CalloutWidget extends BaseWidget<CalloutWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CalloutComponent
@@ -29,7 +24,7 @@ class CalloutWidget extends BaseWidget<ICalloutWidgetProps, IWidgetState> {
   }
 }
 
-export interface ICalloutWidgetProps extends IWidgetProps {
+export interface CalloutWidgetProps extends WidgetProps {
   id?: string;
   title?: string;
   description?: string;

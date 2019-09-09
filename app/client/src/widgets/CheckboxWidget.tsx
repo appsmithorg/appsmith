@@ -1,16 +1,9 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants"
-import { Icon, Intent } from "@blueprintjs/core"
-import { IconName } from "@blueprintjs/icons"
-import CheckboxComponent from "../editorComponents/CheckboxComponent"
-import _ from "lodash"
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import CheckboxComponent from "../editorComponents/CheckboxComponent";
 
-class CheckboxWidget extends BaseWidget<ICheckboxWidgetProps, IWidgetState> {
-  constructor(widgetProps: ICheckboxWidgetProps) {
-    super(widgetProps)
-  }
-
+class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
@@ -19,20 +12,21 @@ class CheckboxWidget extends BaseWidget<ICheckboxWidgetProps, IWidgetState> {
         key={this.props.widgetId}
         items={this.props.items}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "ICON_WIDGET"
+    return "ICON_WIDGET";
   }
 }
 
-export interface ICheckboxWidgetProps extends IWidgetProps {
+export interface CheckboxWidgetProps extends WidgetProps {
   items: Array<{
-    label: string
-    defaultIndeterminate: boolean
-    value: number | string
-  }>
+    label: string;
+    key: string;
+    defaultIndeterminate: boolean;
+    value: number | string;
+  }>;
 }
 
-export default CheckboxWidget
+export default CheckboxWidget;

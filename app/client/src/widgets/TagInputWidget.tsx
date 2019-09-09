@@ -1,16 +1,10 @@
-import * as React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
-import { WidgetType, CSSUnits } from "../constants/WidgetConstants";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
 import TagInputComponent from "../editorComponents/TagInputComponent";
-import { Intent, ITagProps, TagInput, HTMLInputProps } from "@blueprintjs/core";
+import { Intent, ITagProps, HTMLInputProps } from "@blueprintjs/core";
 
-import _ from "lodash";
-
-class TagInputWidget extends BaseWidget<ITagInputWidgetProps, IWidgetState> {
-  constructor(widgetProps: ITagInputWidgetProps) {
-    super(widgetProps);
-  }
-
+class TagInputWidget extends BaseWidget<TagInputWidgetProps, WidgetState> {
   getPageView() {
     return (
       <TagInputComponent
@@ -28,7 +22,7 @@ class TagInputWidget extends BaseWidget<ITagInputWidgetProps, IWidgetState> {
   }
 }
 
-export interface ITagInputWidgetProps extends IWidgetProps {
+export interface TagInputWidgetProps extends WidgetProps {
   addOnPaste?: boolean;
   className?: string;
   disabled?: boolean;

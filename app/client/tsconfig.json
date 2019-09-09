@@ -4,21 +4,26 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es5",
+      "es2015.collection",
+      "es2015.iterable"
     ],
+    "strict": true,
     "outDir": "./out/js/src",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "react",
+    "downlevelIteration": true,
+    "importHelpers": true
   },
   "include": [
     "./src/**/*"

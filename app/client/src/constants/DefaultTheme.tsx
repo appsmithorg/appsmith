@@ -1,45 +1,47 @@
-import * as styledComponents from "styled-components"
-import { Color, FontFamily, Colors, Fonts } from "./StyleConstants"
+import * as styledComponents from "styled-components";
+import * as Colors from "./Colors";
+import * as FontFamilies from "./Fonts";
+
+export type Color = (typeof Colors)[keyof typeof Colors];
+export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 const {
   default: styled,
   css,
   keyframes,
   createGlobalStyle,
-  ThemeProvider
-} = styledComponents as styledComponents.ThemedStyledComponentsModule<
-  IThemeInterface
->
+  ThemeProvider,
+} = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
-export interface IFontInterface {
-    fontSize: number
-    fontColor: Color,
-    fontFamily: FontFamily
-}
+export type Theme = {
+  radii: Array<number>;
+  fontSizes: Array<number>;
+  spaces: Array<number>;
+  fontWeights: Array<number>;
+  colors: Record<string, Color>;
+  lineHeights: Array<number>;
+  fonts: Array<FontFamily>;
+};
 
-export interface IThemeInterface {
-  primaryColor: Color
-  secondaryColor: Color
-  accentColor: Color
-  headerFont: IFontInterface,
-  titleFont: IFontInterface,
-  subTitleFont: IFontInterface
-}
+export const theme: Theme = {
+  radii: [0, 4, 8, 10, 20],
+  fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
+  spaces: [0, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
+  fontWeights: [0, 400, 500, 700],
+  colors: {
+    primary: Colors.GREEN,
+    error: Colors.RED,
+    hover: Colors.POLAR,
+    textDefault: Colors.BLACK_PEARL,
+    textOnDarkBG: Colors.WHITE,
+    textAnchor: Colors.PURPLE,
+    border: Colors.GEYSER,
+    paneCard: Colors.SHARK,
+    paneBG: Colors.OUTER_SPACE,
+  },
+  lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
+  fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
+};
 
-const defaultFont: IFontInterface = {
-  fontSize: 14,
-  fontColor: Colors.FullBlack,
-  fontFamily: Fonts.RobotoBold
-}
-
-export const theme = {
-  primaryColor: Colors.FullBlack,
-  secondaryColor: Colors.FullWhite,
-  accentColor: Colors.FullBlack,
-  headerFont: defaultFont,
-  titleFont: defaultFont,
-  subTitleFont: defaultFont
-}
-
-export default styled
-export { css, createGlobalStyle, keyframes, ThemeProvider }
+export { css, createGlobalStyle, keyframes, ThemeProvider };
+export default styled;

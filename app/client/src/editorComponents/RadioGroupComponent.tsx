@@ -1,8 +1,8 @@
-import * as React from "react"
-import { IComponentProps } from "./BaseComponent"
-import { Radio, RadioGroup, IOptionProps } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
-class RadioGroupComponent extends React.Component<IRadioGroupComponentProps> {
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Radio, RadioGroup, IOptionProps } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
+class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -17,27 +17,28 @@ class RadioGroupComponent extends React.Component<IRadioGroupComponentProps> {
           options={this.props.options}
         >
           {this.props.items.map(item => (
-            <Radio label={item.label} value={item.value} />
+            <Radio key={item.key} label={item.label} value={item.value} />
           ))}
         </RadioGroup>
       </Container>
-    )
+    );
   }
 }
 
-export interface IRadioGroupComponentProps extends IComponentProps {
-  label: string
-  inline: boolean
-  selectedValue: string | number
-  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void
-  disabled: boolean
-  className: string
-  name: string
-  options: IOptionProps[]
+export interface RadioGroupComponentProps extends ComponentProps {
+  label: string;
+  inline: boolean;
+  selectedValue: string | number;
+  handleRadioChange: (event: React.FormEvent<HTMLInputElement>) => void;
+  disabled: boolean;
+  className: string;
+  name: string;
+  options: IOptionProps[];
   items: Array<{
-    label: string
-    value: number | string
-  }>
+    label: string;
+    key: string;
+    value: number | string;
+  }>;
 }
 
-export default RadioGroupComponent
+export default RadioGroupComponent;
