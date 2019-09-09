@@ -1,2 +1,2 @@
 export const DMSans = "DM Sans";
-export const AppsmithWidget = "appsmith-widget-font";
+export const AppsmithWidget = "Widget-Icons";

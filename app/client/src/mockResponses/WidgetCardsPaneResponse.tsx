@@ -5,70 +5,70 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
     common: [
       {
         widgetType: "TEXT_WIDGET",
-        icon: "appsmith-widget-text",
+        icon: "icon-text",
         label: "Container",
       },
       {
         widgetType: "CHECKBOX_WIDGET",
-        icon: "appsmith-widget-checkbox",
+        icon: "icon-checkbox",
         label: "Container",
       },
       {
         widgetType: "RADIO_GROUP_WIDGET",
-        icon: "appsmith-widget-radio",
+        icon: "icon-radio",
         label: "Container",
       },
       {
         widgetType: "BUTTON_WIDGET",
-        icon: "appsmith-widget-button",
+        icon: "icon-button",
         label: "Button",
       },
       {
         widgetType: "INPUT_GROUP_WIDGET",
-        icon: "appsmith-widget-input",
+        icon: "icon-input",
         label: "Input",
       },
       {
         widgetType: "SPINNER_WIDGET",
-        icon: "appsmith-widget-switch",
+        icon: "icon-switch",
         label: "Spinner",
       },
       {
         widgetType: "CONTAINER_WIDGET",
-        icon: "appsmith-widget-modal",
+        icon: "icon-modal",
         label: "Container",
       },
       {
         widgetType: "BREADCRUMBS_WIDGET",
-        icon: "appsmith-widget-collapse",
+        icon: "icon-collapse",
         label: "Input",
       },{
         widgetType: "TAG_INPUT_WIDGET",
-        icon: "appsmith-widget-dropdown",
+        icon: "icon-dropdown",
         label: "Tag",
       },
       {
         widgetType: "NUMERIC_INPUT_WIDGET",
-        icon: "appsmith-widget-table",
+        icon: "icon-table",
         label: "Numeric",
       }
     ],
     form: [
       {
         widgetType: "ICON_WIDGET",
-        icon: "appsmith-widget-button",
+        icon: "icon-button",
         label: "Icon",
       },
       {
         widgetType: "CALLOUT_WIDGET",
-        icon: "appsmith-widget-alert",
+        icon: "icon-alert",
         label: "Callout",
       }
     ],
     view: [
       {
         widgetType: "INPUT_GROUP_WIDGET",
-        icon: "appsmith-widget-input",
+        icon: "icon-input",
         label: "Input",
       }
     ]
