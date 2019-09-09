@@ -29,6 +29,9 @@ public class SecurityConfig {
     @Autowired
     private OrganizationService organizationService;
 
+    @Autowired
+    private CommonConfig commonConfig;
+
     /**
      * This configuration enables CORS requests for the most common HTTP Methods
      *
@@ -72,7 +75,7 @@ public class SecurityConfig {
                 .authenticated()
                 .and().httpBasic()
                 .and().oauth2Login()
-                .authorizedClientRepository(new ClientUserRepository(userService, organizationService))
+                .authorizedClientRepository(new ClientUserRepository(userService, organizationService, commonConfig))
                 .and().formLogin()
                 .and().build();
     }
