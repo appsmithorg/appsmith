@@ -28,7 +28,7 @@ class InputGroupWidget extends BaseWidget<InputGroupWidgetProps, WidgetState> {
   }
 
   getWidgetType(): WidgetType {
-    return "INPUT_GROUP_WIDGET";
+    return "INPUT_WIDGET";
   }
 }
 

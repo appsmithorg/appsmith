@@ -16,7 +16,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   getWidgetType(): WidgetType {
-    return "ICON_WIDGET";
+    return "CHECKBOX_WIDGET";
   }
 }
 
