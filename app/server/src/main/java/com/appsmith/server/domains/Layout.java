@@ -14,5 +14,5 @@ public class Layout extends BaseDomain {
 
     ScreenType screen;
 
-    JSONObject data;
+    JSONObject dsl;
 }
