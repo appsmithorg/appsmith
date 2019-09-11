@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
@@ -16,6 +17,7 @@ import java.util.List;
 public class Page extends BaseDomain {
     String name;
 
+    @NotNull
     String applicationId;
 
     List<Layout> layouts;
