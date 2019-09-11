@@ -83,7 +83,7 @@ public class LayoutServiceTest {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
         obj.put("key1", "value1");
-        testLayout.setData(obj);
+        testLayout.setDsl(obj);
 
         Page testPage = new Page();
         testPage.setName("LayoutServiceTest createValidLayout Page");
@@ -103,7 +103,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getData().equals(obj));
+                    assertThat(layout.getDsl().equals(obj));
                 })
                 .verifyComplete();
     }
@@ -114,7 +114,7 @@ public class LayoutServiceTest {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
         obj.put("key", "value");
-        testLayout.setData(obj);
+        testLayout.setDsl(obj);
         AtomicReference<String> pageId = new AtomicReference<>();
 
         Page testPage = new Page();
@@ -137,7 +137,7 @@ public class LayoutServiceTest {
         Layout updateLayout = new Layout();
         obj = new JSONObject();
         obj.put("key", "value-updated");
-        updateLayout.setData(obj);
+        updateLayout.setDsl(obj);
 
         Mono<Layout> updatedLayoutMono = layoutService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
 
@@ -154,7 +154,7 @@ public class LayoutServiceTest {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
         obj.put("key", "value");
-        testLayout.setData(obj);
+        testLayout.setDsl(obj);
 
         Page testPage = new Page();
         testPage.setName("LayoutServiceTest updateLayoutValidPage");
@@ -173,7 +173,7 @@ public class LayoutServiceTest {
         Layout updateLayout = new Layout();
         JSONObject obj1 = new JSONObject();
         obj1.put("key1", "value-updated");
-        updateLayout.setData(obj);
+        updateLayout.setDsl(obj);
 
         Mono<Layout> updatedLayoutMono = layoutService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
 
@@ -182,7 +182,7 @@ public class LayoutServiceTest {
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getData().equals(obj1));
+                    assertThat(layout.getDsl().equals(obj1));
                 })
                 .verifyComplete();
     }
