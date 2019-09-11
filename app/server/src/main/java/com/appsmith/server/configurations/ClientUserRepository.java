@@ -7,7 +7,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -84,10 +83,10 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         // Check if the list of configured custom domains match the authenticated principal.
         // This is to provide more control over which accounts can be used to access the application.
         // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list relevant accounts only
-        if(!commonConfig.getAllowedDomains().isEmpty()) {
+        if (!commonConfig.getAllowedDomains().isEmpty()) {
             DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
             String domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
-            if(!commonConfig.getAllowedDomains().contains(domain)) {
+            if (!commonConfig.getAllowedDomains().contains(domain)) {
                 return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
             }
         }
