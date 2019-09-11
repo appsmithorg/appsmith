@@ -12,6 +12,7 @@ public enum AppsmithError {
     PLUGIN_NOT_INSTALLED(400, 4001, "Plugin {0} not installed"),
     PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please input correct plugin id"),
     RESOURCE_ID_NOT_GIVEN(400, 4003, "Missing resource id. Please input correct resource id"),
+    PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization."),
     UNAUTHORIZED_DOMAIN(401, 4001, "Invalid email domain provided. Please sign in with a valid work email ID"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request");
 
