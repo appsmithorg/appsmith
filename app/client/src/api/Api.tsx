@@ -63,4 +63,6 @@ class Api {
   }
 }
 
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" 
+
 export default Api

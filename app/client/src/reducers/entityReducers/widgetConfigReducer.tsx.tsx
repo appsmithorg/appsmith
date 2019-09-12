@@ -1,9 +1,9 @@
 import { createReducer } from "../../utils/AppsmithUtils"
 import {
-  ActionTypes,
+  ReduxActionTypes,
   ReduxAction,
   LoadWidgetConfigPayload
-} from "../../constants/ActionConstants"
+} from "../../constants/ReduxActionConstants"
 import { IWidgetProps } from "../../widgets/BaseWidget"
 import WidgetConfigResponse from '../../mockResponses/WidgetConfigResponse';
 import { ButtonWidgetProps } from '../../widgets/ButtonWidget';
@@ -44,7 +44,7 @@ export interface WidgetConfigReducerState {
 }
 
 const widgetConfigReducer = createReducer(initialState, {
-  [ActionTypes.LOAD_WIDGET_CONFIG]: (
+  [ReduxActionTypes.LOAD_WIDGET_CONFIG]: (
     state: WidgetConfigReducerState,
     action: ReduxAction<LoadWidgetConfigPayload>
   ) => {

@@ -1,4 +1,4 @@
-import { ReduxAction } from "../constants/ActionConstants"
+import { ReduxAction } from "../constants/ReduxActionConstants"
 import { SENTRY_PROD_CONFIG, SENTRY_STAGE_CONFIG, HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV } from "../constants/ThirdPartyConstants";
 import * as Sentry from '@sentry/browser';
 import AnalyticsUtil from "./AnalyticsUtil"

@@ -1,16 +1,16 @@
 import { createReducer } from "../../utils/AppsmithUtils"
 import {
-  ActionTypes,
+  ReduxActionTypes,
   ReduxAction,
   LoadWidgetCardsPanePayload
-} from "../../constants/ActionConstants"
+} from "../../constants/ReduxActionConstants"
 import { WidgetCardProps } from "../../widgets/BaseWidget";
 import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse"
 
 const initialState: WidgetCardsPaneReduxState = WidgetCardsPaneResponse
 
 const widgetCardsPaneReducer = createReducer(initialState, {
-  [ActionTypes.ERROR_FETCHING_WIDGET_CARDS]: (
+  [ReduxActionTypes.ERROR_FETCHING_WIDGET_CARDS]: (
     state: WidgetCardsPaneReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>
   ) => {

@@ -1,9 +1,9 @@
 import { createReducer } from "../../utils/AppsmithUtils"
 import {
-  ActionTypes,
+  ReduxActionTypes,
   LoadCanvasPayload,
   ReduxAction
-} from "../../constants/ActionConstants"
+} from "../../constants/ReduxActionConstants"
 import { IWidgetProps } from "../../widgets/BaseWidget"
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 
@@ -15,13 +15,13 @@ export interface IFlattenedWidgetProps extends IWidgetProps {
 }
 
 const canvasWidgetsReducer = createReducer(initialState, {
-  [ActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
     return { ...action.payload.widgets }
   },
-  [ActionTypes.ADD_PAGE_WIDGET]: (
+  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<{pageId: string, widget: IWidgetProps}>
   ) => {

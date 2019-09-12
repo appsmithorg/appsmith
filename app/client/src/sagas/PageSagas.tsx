@@ -1,5 +1,5 @@
 import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
-import { ActionTypes, ReduxAction } from "../constants/ActionConstants"
+import { ReduxActionTypes, ReduxAction } from "../constants/ReduxActionConstants"
 import PageApi, { PageResponse, PageRequest } from "../api/PageApi"
 import { call, put, takeEvery } from "redux-saga/effects"
 import { RenderModes } from "../constants/WidgetConstants"
@@ -14,7 +14,7 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets
       }
-      yield put({ type: ActionTypes.UPDATE_CANVAS, payload })
+      yield put({ type: ReduxActionTypes.UPDATE_CANVAS, payload })
     }
   } catch(err){
     //TODO(abhinav): REFACTOR THIS
@@ -22,5 +22,5 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
 }
 
 export function* watchFetchPage() {
-  yield takeEvery(ActionTypes.FETCH_PAGE, fetchPageSaga)
+  yield takeEvery(ReduxActionTypes.FETCH_PAGE, fetchPageSaga)
 }

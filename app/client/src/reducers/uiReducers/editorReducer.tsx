@@ -1,29 +1,29 @@
 import { createReducer } from "../../utils/AppsmithUtils"
 import {
-  ActionTypes,
+  ReduxActionTypes,
   ReduxAction,
   LoadCanvasPayload,
   LoadWidgetCardsPanePayload
-} from "../../constants/ActionConstants"
+} from "../../constants/ReduxActionConstants"
 import { WidgetCardProps, IWidgetProps } from "../../widgets/BaseWidget"
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
 
 const initialState: EditorReduxState = {}
 
 const editorReducer = createReducer(initialState, {
-  [ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
+  [ReduxActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>
   ) => {
     return { ...state.pageWidget, ...action.payload }
   },
-  [ActionTypes.ADD_PAGE_WIDGET]: (
+  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
     state: EditorReduxState,
     action: ReduxAction<{pageId: string, widget: IWidgetProps}>
   ) => {
     return state
   },
-  [ActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadCanvasPayload>
   ) => {
