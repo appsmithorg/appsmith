@@ -20,7 +20,7 @@ export type ActionType =
   | "EXECUTE_JS" 
   | "SET_VALUE" 
   | "DOWNLOAD_DATA"
-  
+
 export interface ActionPayload {
   actionType: ActionType
   contextParams: Record<string, string>

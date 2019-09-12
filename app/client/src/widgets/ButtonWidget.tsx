@@ -2,6 +2,7 @@ import * as React from "react"
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
 import { WidgetType } from "../constants/WidgetConstants"
 import ButtonComponent from "../editorComponents/ButtonComponent"
+import { ActionPayload } from '../constants/ActionConstants';
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
 
@@ -21,13 +22,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
   }
 }
 
-export 
-
 export type ButtonStyle = "PRIMARY_BUTTON" | "SECONDARY_BUTTON" | "SUCCESS_BUTTON" | "DANGER_BUTTON"
 
 export interface ButtonWidgetProps extends IWidgetProps {
   text?: string;
   buttonStyle?: ButtonStyle
+  onClick?: ActionPayload[]
 }
 
 export default ButtonWidget

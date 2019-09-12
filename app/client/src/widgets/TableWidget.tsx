@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import TextComponent from "../editorComponents/TextComponent";
+import { ActionPayload } from '../constants/ActionConstants';
 
 class TableWidget extends BaseWidget<TableWidgetProps, IWidgetState> {
 
@@ -22,6 +22,9 @@ export interface TableWidgetProps extends IWidgetProps {
   pageKey?: string;
   label: string
   tableData?: object[]
+  onPageChange?: ActionPayload[]
+  onRowSelected?: ActionPayload[]
+  onColumnActionClick?: Record<string, ActionPayload[]>
 }
 
 export default TableWidget;

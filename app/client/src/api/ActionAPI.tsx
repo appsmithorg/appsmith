@@ -1,5 +1,4 @@
 import Api, { HttpMethod } from "./Api"
-import { ContainerWidgetProps } from "../widgets/ContainerWidget"
 import { ApiResponse } from "./ApiResponses"
 import { APIRequest } from './ApiRequests';
 
@@ -25,36 +24,33 @@ export interface QueryConfig {
   queryString: string
 }
 
-export interface PageResponse extends ApiResponse {
-  pageWidget: ContainerWidgetProps<any>;
+export interface ActionCreatedResponse extends ApiResponse {
+  actionId: string
 }
 
-export interface SavePageResponse {
-  pageId: string;
+export interface ActionUpdatedResponse extends ActionCreatedResponse {
+  
 }
 
 class ActionAPI extends Api {
   static url = "/actions"
   
-  static createAPI(createAPI: CreateActionRequest<APIConfig>): Promise<PageResponse> {
+  static createAPI(createAPI: CreateActionRequest<APIConfig>): Promise<ActionCreatedResponse> {
     return Api.post(ActionAPI.url, createAPI)
   }
 
-  static updateAPI(updateAPI: UpdateActionRequest<APIConfig>): Promise<PageResponse> {
+  static updateAPI(updateAPI: UpdateActionRequest<APIConfig>): Promise<ActionUpdatedResponse> {
     return Api.post(ActionAPI.url, updateAPI)
   }
 
-  static createQuery(createQuery: CreateActionRequest<QueryConfig>): Promise<PageResponse> {
+  static createQuery(createQuery: CreateActionRequest<QueryConfig>): Promise<ActionCreatedResponse> {
     return Api.post(ActionAPI.url, createQuery)
   }
 
-  static updateQuery(updateQuery: UpdateActionRequest<QueryConfig>): Promise<PageResponse> {
+  static updateQuery(updateQuery: UpdateActionRequest<QueryConfig>): Promise<ActionUpdatedResponse> {
     return Api.post(ActionAPI.url, updateQuery)
   }
-  
+
 }
-
-
-
 
 export default ActionAPI
