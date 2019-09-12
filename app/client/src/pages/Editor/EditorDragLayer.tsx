@@ -61,6 +61,7 @@ const EditorDragLayer: React.FC = () => {
   function renderItem() {
       return WidgetFactory.createWidget({
         widgetType: itemType as WidgetType,
+        widgetName: "",
         widgetId: item.key,
         topRow: 10,
         leftColumn: 10,

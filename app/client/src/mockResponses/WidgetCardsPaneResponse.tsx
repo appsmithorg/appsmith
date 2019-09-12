@@ -14,11 +14,6 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "BUTTON_WIDGET",
         icon: "appsmith-widget-button",
         label: "Button",
-      },
-      {
-        widgetType: "CALLOUT_WIDGET",
-        icon: "appsmith-widget-alert",
-        label: "Callout",
       }
     ],
     view: [

@@ -19,6 +19,7 @@ export type ActionType =
   | "ERROR_FETCHING_WIDGET_CARDS"
   | "ADD_PAGE_WIDGET"
   | "REMOVE_PAGE_WIDGET"
+  | "LOAD_WIDGET_CONFIG"
 
 export const ActionTypes: { [id: string]: ActionType } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -32,6 +33,7 @@ export const ActionTypes: { [id: string]: ActionType } = {
   ZOOM_OUT_CANVAS: "ZOOM_OUT_CANVAS",
   UNDO_CANVAS_ACTION: "UNDO_CANVAS_ACTION",
   REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
+  LOAD_WIDGET_CONFIG: "LOAD_WIDGET_CONFIG",
   PUBLISH: "PUBLISH",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
   SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
@@ -48,6 +50,10 @@ export interface ReduxAction<T> {
 export interface LoadCanvasPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: IWidgetProps };
+}
+
+export interface LoadWidgetConfigPayload {
+  [widgetId: string]: IWidgetProps
 }
 
 export interface LoadWidgetPanePayload {

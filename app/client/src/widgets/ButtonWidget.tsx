@@ -21,9 +21,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
   }
 }
 
+export type ButtonStyle = "PRIMARY_BUTTON" | "SECONDARY_BUTTON" | "SUCCESS_BUTTON" | "DANGER_BUTTON"
+
 export interface ButtonWidgetProps extends IWidgetProps {
   text?: string;
-  ellipsize?: boolean;
+  buttonStyle?: ButtonStyle
 }
 
 export default ButtonWidget
