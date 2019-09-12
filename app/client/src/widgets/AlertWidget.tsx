@@ -1,7 +1,6 @@
 import React from "react";
 import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import CalloutComponent from "../editorComponents/CalloutComponent";
 import { ActionPayload } from '../constants/ActionConstants';
 
 class AlertWidget extends BaseWidget<AlertWidgetProps, IWidgetState> {

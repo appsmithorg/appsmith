@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
 )
 
 class Api {
-  static get(url: string, queryParams: any) {
+  static get(url: string, queryParams?: any) {
     return axiosInstance.get(url + this.convertObjectToQueryParams(queryParams))
   }
 

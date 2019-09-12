@@ -1,5 +1,6 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
 import { IWidgetProps, WidgetCardProps } from "../widgets/BaseWidget"
+import { ExecuteActionResponse } from '../api/ActionAPI';
 
 export type ReduxActionType =
   | "UPDATE_CANVAS"
@@ -20,6 +21,8 @@ export type ReduxActionType =
   | "ADD_PAGE_WIDGET"
   | "REMOVE_PAGE_WIDGET"
   | "LOAD_WIDGET_CONFIG"
+  | "LOAD_API_RESPONSE"
+  | "LOAD_QUERY_RESPONSE"
 
 export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -39,7 +42,9 @@ export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
   ERROR_FETCHING_WIDGET_CARDS: "ERROR_FETCHING_WIDGET_CARDS",
   ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
-  REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET"
+  REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
+  LOAD_API_RESPONSE: "LOAD_API_RESPONSE",
+  LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE"
 }
 
 export interface ReduxAction<T> {
@@ -54,6 +59,12 @@ export interface LoadCanvasPayload {
 
 export interface LoadWidgetConfigPayload {
   [widgetId: string]: IWidgetProps
+}
+
+export interface LoadAPIResponsePayload extends ExecuteActionResponse {
+}
+
+export interface LoadQueryResponsePayload extends ExecuteActionResponse {
 }
 
 export interface LoadWidgetPanePayload {

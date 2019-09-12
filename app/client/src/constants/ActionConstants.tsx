@@ -13,13 +13,13 @@ export type EventType =
   | "ON_DATE_RANGE_SELECTED"
 
 export type ActionType = 
-  | "CALL_API" 
-  | "EXECUTE_QUERY" 
-  | "NAVIGATE_PAGE" 
-  | "SHOW_ALERT" 
-  | "EXECUTE_JS" 
+  | "API"
+  | "QUERY" 
+  | "NAVIGATION" 
+  | "ALERT" 
+  | "JS_FUNCTION" 
   | "SET_VALUE" 
-  | "DOWNLOAD_DATA"
+  | "DOWNLOAD"
 
 export interface ActionPayload {
   actionType: ActionType
@@ -65,4 +65,11 @@ export interface DownloadDataActionPayload extends ActionPayload {
     data: JSON
     fileName: string
     fileType: DownloadFiletype
+}
+
+export interface PageAction {
+  actionId: string
+  actionType: ActionType
+  actionName: string
+  dynamicBindings: string[]
 }

@@ -31,8 +31,9 @@ const canvasWidgetsReducer = createReducer(initialState, {
     children.push(widget)
     widgetTree.children = children
     const newState =  CanvasWidgetsNormalizer.normalize({
-      responseMeta: {},
-      pageWidget: widgetTree
+      responseMeta: { responseCode: "SUCCESS" },
+      pageWidget: widgetTree,
+      pageActions: []
     }).entities
     return newState.canvasWidgets
   }

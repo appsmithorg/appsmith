@@ -1,7 +1,8 @@
-export type ApiErrorCodes = "INVALID_REQUEST" | "UNKNOWN"
+export type APIResponseCode = "SUCCESS" | "UNKNOWN"
 
 export interface ResponseMeta {
-  errorCode?: ApiErrorCodes
+  responseCode: APIResponseCode
+  message?: string
 }
 
 export interface ApiResponse {

@@ -12,7 +12,7 @@ import { ContainerWidgetProps } from '../../widgets/ContainerWidget';
 import { ImageWidgetProps } from '../../widgets/ImageWidget';
 import { InputWidgetProps } from '../../widgets/InputWidget';
 import { SwitchWidgetProps } from '../../widgets/SwitchWidget';
-import SpinnerWidget from '../../widgets/SpinnerWidget';
+import { SpinnerWidgetProps } from '../../widgets/SpinnerWidget';
 import { DatePickerWidgetProps } from '../../widgets/DatePickerWidget';
 import { TableWidgetProps } from '../../widgets/TableWidget';
 import { DropdownWidgetProps } from '../../widgets/DropdownWidget';
@@ -34,7 +34,7 @@ export interface WidgetConfigReducerState {
   INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps
   SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps
   CONTAINER_WIDGET: Partial<ContainerWidgetProps<IWidgetProps>> & WidgetConfigProps
-  SPINNER_WIDGET: Partial<SpinnerWidget> & WidgetConfigProps
+  SPINNER_WIDGET: Partial<SpinnerWidgetProps> & WidgetConfigProps
   DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps
   TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps
   DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps
@@ -48,7 +48,7 @@ const widgetConfigReducer = createReducer(initialState, {
     state: WidgetConfigReducerState,
     action: ReduxAction<LoadWidgetConfigPayload>
   ) => {
-    return { ...action.payload.widgets }
+    return { ...action.payload }
   }
 })
 

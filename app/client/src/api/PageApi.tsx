@@ -2,6 +2,7 @@ import Api from "./Api"
 import { ContainerWidgetProps } from "../widgets/ContainerWidget"
 import { ApiResponse } from "./ApiResponses"
 import { RenderMode } from "../constants/WidgetConstants";
+import { PageAction } from '../constants/ActionConstants';
 
 export interface PageRequest {
   pageId: string;
@@ -14,6 +15,7 @@ export interface SavePageRequest {
 
 export interface PageResponse extends ApiResponse {
   pageWidget: ContainerWidgetProps<any>;
+  pageActions: PageAction[]
 }
 
 export interface SavePageResponse {

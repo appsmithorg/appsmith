@@ -32,6 +32,16 @@ export interface ActionUpdatedResponse extends ActionCreatedResponse {
   
 }
 
+export interface ExecuteActionRequest extends APIRequest {
+  actionId: string
+  dynamicBindingMap: Record<string, string>
+}
+
+export interface ExecuteActionResponse extends ApiResponse {
+  actionId: string
+  data: any
+}
+
 class ActionAPI extends Api {
   static url = "/actions"
   
@@ -49,6 +59,10 @@ class ActionAPI extends Api {
 
   static updateQuery(updateQuery: UpdateActionRequest<QueryConfig>): Promise<ActionUpdatedResponse> {
     return Api.post(ActionAPI.url, updateQuery)
+  }
+
+  static executeAction(executeAction: ExecuteActionRequest): Promise<ActionUpdatedResponse> {
+    return Api.post(ActionAPI.url, executeAction)
   }
 
 }
