@@ -12,7 +12,7 @@ widgetSchema.define({ children: [widgetSchema] });
 
 class CanvasWidgetsNormalizer {
   static normalize(pageResponse: PageResponse): { entities: any; result: any } {
-    return normalize(pageResponse.pageWidget, widgetSchema);
+    return normalize(pageResponse.layout.dsl, widgetSchema);
   }
 
   static denormalize(

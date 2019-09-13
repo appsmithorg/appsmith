@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
 );
 
 class Api {
-  static get(url: string, queryParams: any) {
+  static get(url: string, queryParams?: any) {
     return axiosInstance.get(
       url + this.convertObjectToQueryParams(queryParams),
     );
@@ -65,5 +65,7 @@ class Api {
     }
   }
 }
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 export default Api;

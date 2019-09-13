@@ -2,7 +2,7 @@ import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import RadioGroupComponent from "../editorComponents/RadioGroupComponent";
-import { IOptionProps } from "@blueprintjs/core";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
@@ -32,6 +32,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   label: string;
   options: RadioOption[];
   defaultOptionValue: string;
+  onOptionSelected?: ActionPayload[];
 }
 
 export default RadioGroupWidget;
