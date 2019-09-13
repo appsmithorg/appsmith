@@ -24,11 +24,6 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         label: "Button",
       },
       {
-        widgetType: "INPUT_GROUP_WIDGET",
-        icon: "icon-input",
-        label: "Input",
-      },
-      {
         widgetType: "SPINNER_WIDGET",
         icon: "icon-switch",
         label: "Spinner",
@@ -38,39 +33,19 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         icon: "icon-modal",
         label: "Container",
       },
-      {
-        widgetType: "BREADCRUMBS_WIDGET",
-        icon: "icon-collapse",
-        label: "Input",
-      },
-      {
-        widgetType: "TAG_INPUT_WIDGET",
-        icon: "icon-dropdown",
-        label: "Tag",
-      },
-      {
-        widgetType: "NUMERIC_INPUT_WIDGET",
-        icon: "icon-table",
-        label: "Numeric",
-      },
     ],
     form: [
       {
-        widgetType: "ICON_WIDGET",
-        icon: "icon-button",
-        label: "Icon",
-      },
-      {
-        widgetType: "CALLOUT_WIDGET",
-        icon: "icon-alert",
-        label: "Callout",
+        widgetType: "BUTTON_WIDGET",
+        icon: "appsmith-widget-button",
+        label: "Button",
       },
     ],
     view: [
       {
-        widgetType: "INPUT_GROUP_WIDGET",
-        icon: "icon-input",
-        label: "Input",
+        widgetType: "BUTTON_WIDGET",
+        icon: "appsmith-widget-button",
+        label: "Button",
       },
     ],
   },
