@@ -1,10 +1,10 @@
-import React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import CheckboxComponent from "../editorComponents/CheckboxComponent"
-import { ActionPayload } from '../constants/ActionConstants';
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import CheckboxComponent from "../editorComponents/CheckboxComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
-class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, IWidgetState> {
+class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
@@ -14,18 +14,18 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, IWidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "CHECKBOX_WIDGET"
+    return "CHECKBOX_WIDGET";
   }
 }
 
-export interface CheckboxWidgetProps extends IWidgetProps {
-  label: string
-  defaultCheckedState: boolean
-  onCheckChange?: ActionPayload[]
+export interface CheckboxWidgetProps extends WidgetProps {
+  label: string;
+  defaultCheckedState: boolean;
+  onCheckChange?: ActionPayload[];
 }
 
-export default CheckboxWidget
+export default CheckboxWidget;

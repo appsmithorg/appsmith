@@ -1,14 +1,11 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import { ActionPayload } from '../constants/ActionConstants';
+import { ActionPayload } from "../constants/ActionConstants";
 
-class DropdownWidget extends BaseWidget<DropdownWidgetProps, IWidgetState> {
-
+class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   getPageView() {
-    return (
-      <div/>
-    );
+    return <div />;
   }
 
   getWidgetType(): WidgetType {
@@ -16,18 +13,18 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, IWidgetState> {
   }
 }
 
-export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT>"
+export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT>";
 export interface DropdownOption {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
-export interface DropdownWidgetProps extends IWidgetProps {
+export interface DropdownWidgetProps extends WidgetProps {
   placeholder?: string;
-  label?: string
-  type: SelectionType
-  options?: DropdownOption[]
-  onOptionSelected?: ActionPayload[]
+  label?: string;
+  type: SelectionType;
+  options?: DropdownOption[];
+  onOptionSelected?: ActionPayload[];
 }
 
 export default DropdownWidget;

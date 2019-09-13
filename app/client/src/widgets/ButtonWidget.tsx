@@ -1,11 +1,10 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import ButtonComponent from "../editorComponents/ButtonComponent"
-import { ActionPayload } from '../constants/ActionConstants';
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import ButtonComponent from "../editorComponents/ButtonComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
-class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
-
+class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   getPageView() {
     return (
       <ButtonComponent
@@ -14,20 +13,24 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
         key={this.props.widgetId}
         text={this.props.text || "Button"}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET"
+    return "BUTTON_WIDGET";
   }
 }
 
-export type ButtonStyle = "PRIMARY_BUTTON" | "SECONDARY_BUTTON" | "SUCCESS_BUTTON" | "DANGER_BUTTON"
+export type ButtonStyle =
+  | "PRIMARY_BUTTON"
+  | "SECONDARY_BUTTON"
+  | "SUCCESS_BUTTON"
+  | "DANGER_BUTTON";
 
-export interface ButtonWidgetProps extends IWidgetProps {
+export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
-  buttonStyle?: ButtonStyle
-  onClick?: ActionPayload[]
+  buttonStyle?: ButtonStyle;
+  onClick?: ActionPayload[];
 }
 
-export default ButtonWidget
+export default ButtonWidget;

@@ -1,26 +1,30 @@
 import { ComponentProps } from "./BaseComponent";
 import { ContainerOrientation } from "../constants/WidgetConstants";
 import styled from "../constants/DefaultTheme";
-import { useDrop } from "react-dnd"
-import { WidgetTypes } from "../constants/WidgetConstants"
-import { DraggableWidget } from "../widgets/BaseWidget"
+import { useDrop } from "react-dnd";
+import { WidgetTypes } from "../constants/WidgetConstants";
+import { DraggableWidget } from "../widgets/BaseWidget";
 import React from "react";
 
 export const Container = styled("div")<ContainerProps>`
   display: flex;
   flex-direction: ${props => {
-    return props.orientation === "HORIZONTAL" ? "row" : "column"
+    return props.orientation === "HORIZONTAL" ? "row" : "column";
   }};
   background: ${props => props.style.backgroundColor};
   color: ${props => props.theme.colors.primary};
   position: ${props => {
-    return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative"
+    return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative";
   }};
   left: ${props => {
-    return props.style.positionType !== "ABSOLUTE" ? undefined : props.style.xPosition + props.style.xPositionUnit
+    return props.style.positionType !== "ABSOLUTE"
+      ? undefined
+      : props.style.xPosition + props.style.xPositionUnit;
   }};
   top: ${props => {
-    return props.style.positionType !== "ABSOLUTE" ? undefined : props.style.yPosition + props.style.yPositionUnit
+    return props.style.positionType !== "ABSOLUTE"
+      ? undefined
+      : props.style.yPosition + props.style.yPositionUnit;
   }};
 `;
 const ContainerComponent = (props: ContainerProps) => {
@@ -28,14 +32,18 @@ const ContainerComponent = (props: ContainerProps) => {
   const [, drop] = useDrop({
     accept: Object.values(WidgetTypes),
     drop(item: DraggableWidget, monitor) {
-      if (addWidgetFn && monitor.isOver({shallow: true})){
+      if (addWidgetFn && monitor.isOver({ shallow: true })) {
         addWidgetFn(item.type);
       }
-      return undefined
+      return undefined;
     },
-  })
-  return <Container ref={drop} {...props}>{props.children}</Container> 
-}
+  });
+  return (
+    <Container ref={drop} {...props}>
+      {props.children}
+    </Container>
+  );
+};
 
 export interface ContainerProps extends ComponentProps {
   children?: JSX.Element[] | JSX.Element;
@@ -43,4 +51,4 @@ export interface ContainerProps extends ComponentProps {
   addWidget?: Function;
 }
 
-export default ContainerComponent
+export default ContainerComponent;

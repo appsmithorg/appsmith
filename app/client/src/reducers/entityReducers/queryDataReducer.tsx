@@ -1,27 +1,23 @@
-import { createReducer } from "../../utils/AppsmithUtils"
+import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadAPIResponsePayload,
-  LoadQueryResponsePayload
-} from "../../constants/ReduxActionConstants"
-import { ExecuteActionResponse } from '../../api/ActionAPI'
+} from "../../constants/ReduxActionConstants";
+import { ExecuteActionResponse } from "../../api/ActionAPI";
 
-const initialState: QueryDataState = {
-
-}
+const initialState: QueryDataState = {};
 
 export interface QueryDataState {
-  [name: string]: ExecuteActionResponse
+  [name: string]: ExecuteActionResponse;
 }
 
 const queryDataReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_API_RESPONSE]: (
     state: QueryDataState,
-    action: ReduxAction<LoadQueryResponsePayload>
+    action: ReduxAction<ExecuteActionResponse>,
   ) => {
-    return { ...state, [action.payload.actionId]: action.payload }
-  }
-})
+    return { ...state, [action.payload.actionId]: action.payload };
+  },
+});
 
-export default queryDataReducer
+export default queryDataReducer;

@@ -1,7 +1,6 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
-import { IWidgetProps, WidgetCardProps } from "../widgets/BaseWidget"
-import { ExecuteActionResponse } from '../api/ActionAPI';
-import { PageAction } from './ActionConstants';
+import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
+import { ExecuteActionResponse } from "../api/ActionAPI";
 
 export type ReduxActionType =
   | "LOAD_CANVAS_WIDGETS"
@@ -25,7 +24,7 @@ export type ReduxActionType =
   | "LOAD_API_RESPONSE"
   | "LOAD_QUERY_RESPONSE"
   | "EXECUTE_ACTION"
-  | "LOAD_CANVAS_ACTIONS"
+  | "LOAD_CANVAS_ACTIONS";
 
 export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
@@ -49,8 +48,8 @@ export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   LOAD_API_RESPONSE: "LOAD_API_RESPONSE",
   LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE",
   EXECUTE_ACTION: "EXECUTE_ACTION",
-  LOAD_CANVAS_ACTIONS: "LOAD_CANVAS_ACTIONS"
-}
+  LOAD_CANVAS_ACTIONS: "LOAD_CANVAS_ACTIONS",
+};
 
 export interface ReduxAction<T> {
   type: ReduxActionType;
@@ -59,23 +58,21 @@ export interface ReduxAction<T> {
 
 export interface LoadCanvasWidgetsPayload {
   pageWidgetId: string;
-  widgets: { [widgetId: string]: IWidgetProps };
+  widgets: { [widgetId: string]: WidgetProps };
 }
 
 export interface LoadWidgetConfigPayload {
-  [widgetId: string]: IWidgetProps
+  [widgetId: string]: WidgetProps;
 }
 
-export interface LoadAPIResponsePayload extends ExecuteActionResponse {
-}
+// export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
 
-export interface LoadQueryResponsePayload extends ExecuteActionResponse {
-}
+// export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
 export interface LoadWidgetPanePayload {
-  widgets: IWidgetProps[];
+  widgets: WidgetProps[];
 }
 
 export interface LoadWidgetCardsPanePayload {
-  cards: { [id: string]: WidgetCardProps[] }
+  cards: { [id: string]: WidgetCardProps[] };
 }
