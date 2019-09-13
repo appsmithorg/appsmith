@@ -3,19 +3,8 @@ import ContainerWidget, {
   ContainerWidgetProps,
 } from "../widgets/ContainerWidget";
 import TextWidget, { TextWidgetProps } from "../widgets/TextWidget";
-import InputGroupWidget, {
-  InputGroupWidgetProps,
-} from "../widgets/InputGroupWidget";
-import CalloutWidget, { CalloutWidgetProps } from "../widgets/CalloutWidget";
-// import IconWidget, { IconWidgetProps } from "../widgets/IconWidget";
+import InputWidget, { InputWidgetProps } from "../widgets/InputWidget";
 import SpinnerWidget, { SpinnerWidgetProps } from "../widgets/SpinnerWidget";
-// import BreadcrumbsWidget, {
-//   BreadcrumbsWidgetProps,
-// } from "../widgets/BreadcrumbsWidget";
-// import TagInputWidget, { TagInputWidgetProps } from "../widgets/TagInputWidget";
-// import NumericInputWidget, {
-//   NumericInputWidgetProps,
-// } from "../widgets/NumericInputWidget";
 import CheckboxWidget, { CheckboxWidgetProps } from "../widgets/CheckboxWidget";
 import RadioGroupWidget, {
   RadioGroupWidgetProps,
@@ -44,12 +33,6 @@ class WidgetBuilderRegistry {
       },
     });
 
-    WidgetFactory.registerWidgetBuilder("CALLOUT_WIDGET", {
-      buildWidget(widgetData: CalloutWidgetProps): JSX.Element {
-        return <CalloutWidget {...widgetData} />;
-      },
-    });
-
     WidgetFactory.registerWidgetBuilder("SPINNER_WIDGET", {
       buildWidget(widgetData: SpinnerWidgetProps): JSX.Element {
         return <SpinnerWidget {...widgetData} />;
@@ -57,8 +40,8 @@ class WidgetBuilderRegistry {
     });
 
     WidgetFactory.registerWidgetBuilder("INPUT_WIDGET", {
-      buildWidget(widgetData: InputGroupWidgetProps): JSX.Element {
-        return <InputGroupWidget {...widgetData} />;
+      buildWidget(widgetData: InputWidgetProps): JSX.Element {
+        return <InputWidget {...widgetData} />;
       },
     });
 

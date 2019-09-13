@@ -5,27 +5,17 @@ import { Container } from "./ContainerComponent";
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
     return (
-      <Container {...this.props}>
-        {this.props.items.map(item => (
-          <Checkbox
-            key={item.key}
-            label={item.label}
-            defaultIndeterminate={item.defaultIndeterminate}
-            value={item.value}
-          />
-        ))}
-      </Container>
+      <Checkbox
+        label={this.props.label}
+        defaultIndeterminate={this.props.defaultCheckedState}
+      />
     );
   }
 }
 
 export interface CheckboxComponentProps extends ComponentProps {
-  items: Array<{
-    key: string;
-    label: string;
-    defaultIndeterminate: boolean;
-    value: number | string;
-  }>;
+  label: string;
+  defaultCheckedState: boolean;
 }
 
 export default CheckboxComponent;

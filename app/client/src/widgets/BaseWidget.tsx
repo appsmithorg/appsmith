@@ -151,9 +151,10 @@ export interface WidgetBuilder<T extends WidgetProps> {
 }
 
 export interface WidgetProps {
-  widgetType: WidgetType;
-  key?: string;
   widgetId: string;
+  widgetType: WidgetType;
+  widgetName: string;
+  key?: string;
   topRow: number;
   leftColumn: number;
   bottomRow: number;
@@ -161,6 +162,7 @@ export interface WidgetProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   renderMode: RenderMode;
+  isVisible?: boolean;
 }
 
 export interface WidgetCardProps {

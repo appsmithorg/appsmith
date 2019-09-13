@@ -21,9 +21,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 }
 
+export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
+
 export interface TextWidgetProps extends WidgetProps {
   text?: string;
-  ellipsize?: boolean;
+  textStyle?: TextStyle;
   tagName?: keyof JSX.IntrinsicElements;
 }
 

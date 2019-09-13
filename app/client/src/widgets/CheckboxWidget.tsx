@@ -8,9 +8,10 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return (
       <CheckboxComponent
         style={this.getPositionStyle()}
+        defaultCheckedState={this.props.defaultCheckedState}
+        label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        items={this.props.items}
       />
     );
   }
@@ -21,12 +22,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 }
 
 export interface CheckboxWidgetProps extends WidgetProps {
-  items: Array<{
-    label: string;
-    key: string;
-    defaultIndeterminate: boolean;
-    value: number | string;
-  }>;
+  label: string;
+  defaultCheckedState: boolean;
 }
 
 export default CheckboxWidget;
