@@ -7,17 +7,17 @@ import {
 } from "../../constants/ReduxActionConstants"
 import { ExecuteActionResponse } from '../../api/ActionAPI'
 
-const initialState: QueryDataReducer = {
+const initialState: QueryDataState = {
 
 }
 
-export interface QueryDataReducer {
+export interface QueryDataState {
   [name: string]: ExecuteActionResponse
 }
 
 const queryDataReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_API_RESPONSE]: (
-    state: QueryDataReducer,
+    state: QueryDataState,
     action: ReduxAction<LoadQueryResponsePayload>
   ) => {
     return { ...state, [action.payload.actionId]: action.payload }

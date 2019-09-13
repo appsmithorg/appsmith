@@ -1,7 +1,7 @@
 import { createReducer } from "../../utils/AppsmithUtils"
 import {
   ReduxActionTypes,
-  LoadCanvasPayload,
+  LoadCanvasWidgetsPayload,
   ReduxAction
 } from "../../constants/ReduxActionConstants"
 
@@ -12,7 +12,7 @@ const initialState: CanvasReduxState = {
 const canvasReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasReduxState,
-    action: ReduxAction<LoadCanvasPayload>
+    action: ReduxAction<LoadCanvasWidgetsPayload>
   ) => {
     return { pageWidgetId: action.payload.pageWidgetId }
   }

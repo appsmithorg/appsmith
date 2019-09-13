@@ -26,6 +26,7 @@ export interface QueryConfig {
 
 export interface ActionCreatedResponse extends ApiResponse {
   actionId: string
+  dynamicBindingMap: Record<string, string>
 }
 
 export interface ActionUpdatedResponse extends ActionCreatedResponse {
@@ -34,7 +35,7 @@ export interface ActionUpdatedResponse extends ActionCreatedResponse {
 
 export interface ExecuteActionRequest extends APIRequest {
   actionId: string
-  dynamicBindingMap: Record<string, string>
+  dynamicBindingMap: Record<string, any>
 }
 
 export interface ExecuteActionResponse extends ApiResponse {

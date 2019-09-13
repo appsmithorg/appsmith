@@ -1,9 +1,10 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
 import { IWidgetProps, WidgetCardProps } from "../widgets/BaseWidget"
 import { ExecuteActionResponse } from '../api/ActionAPI';
+import { PageAction } from './ActionConstants';
 
 export type ReduxActionType =
-  | "UPDATE_CANVAS"
+  | "LOAD_CANVAS_WIDGETS"
   | "FETCH_CANVAS"
   | "CLEAR_CANVAS"
   | "DROP_WIDGET_CANVAS"
@@ -23,9 +24,11 @@ export type ReduxActionType =
   | "LOAD_WIDGET_CONFIG"
   | "LOAD_API_RESPONSE"
   | "LOAD_QUERY_RESPONSE"
+  | "EXECUTE_ACTION"
+  | "LOAD_CANVAS_ACTIONS"
 
 export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
-  UPDATE_CANVAS: "UPDATE_CANVAS",
+  LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
   FETCH_PAGE: "FETCH_PAGE",
@@ -44,7 +47,9 @@ export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
   REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
   LOAD_API_RESPONSE: "LOAD_API_RESPONSE",
-  LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE"
+  LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE",
+  EXECUTE_ACTION: "EXECUTE_ACTION",
+  LOAD_CANVAS_ACTIONS: "LOAD_CANVAS_ACTIONS"
 }
 
 export interface ReduxAction<T> {
@@ -52,7 +57,7 @@ export interface ReduxAction<T> {
   payload: T;
 }
 
-export interface LoadCanvasPayload {
+export interface LoadCanvasWidgetsPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: IWidgetProps };
 }

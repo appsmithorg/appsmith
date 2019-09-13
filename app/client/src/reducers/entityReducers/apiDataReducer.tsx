@@ -6,17 +6,17 @@ import {
 } from "../../constants/ReduxActionConstants"
 import { ExecuteActionResponse } from '../../api/ActionAPI'
 
-const initialState: APIDataReducer = {
+const initialState: APIDataState = {
 
 }
 
-export interface APIDataReducer {
+export interface APIDataState {
   [name: string]: ExecuteActionResponse
 }
 
 const apiDataReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_API_RESPONSE]: (
-    state: APIDataReducer,
+    state: APIDataState,
     action: ReduxAction<LoadAPIResponsePayload>
   ) => {
     return { ...state, [action.payload.actionId]: action.payload }

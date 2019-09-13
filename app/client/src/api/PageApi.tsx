@@ -13,9 +13,13 @@ export interface SavePageRequest {
   pageWidget: ContainerWidgetProps<any>;
 }
 
+export interface PageLayout {
+  dsl: ContainerWidgetProps<any>
+  actions: PageAction[]
+}
+
 export interface PageResponse extends ApiResponse {
-  pageWidget: ContainerWidgetProps<any>;
-  pageActions: PageAction[]
+  layout: PageLayout
 }
 
 export interface SavePageResponse {

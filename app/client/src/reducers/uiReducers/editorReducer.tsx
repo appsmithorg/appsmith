@@ -2,7 +2,7 @@ import { createReducer } from "../../utils/AppsmithUtils"
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadCanvasPayload,
+  LoadCanvasWidgetsPayload,
   LoadWidgetCardsPanePayload
 } from "../../constants/ReduxActionConstants"
 import { WidgetCardProps, IWidgetProps } from "../../widgets/BaseWidget"
@@ -25,7 +25,7 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: EditorReduxState,
-    action: ReduxAction<LoadCanvasPayload>
+    action: ReduxAction<LoadCanvasWidgetsPayload>
   ) => {
     return { pageWidgetId: action.payload.pageWidgetId }
   }
