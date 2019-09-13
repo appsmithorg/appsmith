@@ -1,16 +1,10 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 
-class SwitchWidget extends BaseWidget<
-  SwitchWidgetProps,
-  IWidgetState
-> {
-
+class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {
-    return (
-      <div/>
-    );
+    return <div />;
   }
 
   getWidgetType(): WidgetType {
@@ -18,9 +12,9 @@ class SwitchWidget extends BaseWidget<
   }
 }
 
-export interface SwitchWidgetProps extends IWidgetProps {
-  isOn: boolean
-  label: string
+export interface SwitchWidgetProps extends WidgetProps {
+  isOn: boolean;
+  label: string;
 }
 
 export default SwitchWidget;

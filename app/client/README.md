@@ -1,3 +1,11 @@
+## GIT Commit Hooks
+
+This project has scripts to ESLint fix and Prettier write the code on the git commit hook.
+It is recommended to install ESLint and Prettier global for successful git commits
+
+`yarn global add eslint`
+`yarn global add prettier`
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

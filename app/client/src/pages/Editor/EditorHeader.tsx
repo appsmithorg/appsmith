@@ -1,8 +1,8 @@
-import React, { Component } from "react"
-import styled from "styled-components"
-import { connect } from "react-redux"
-import { AppState } from "../../reducers"
-import { EditorHeaderReduxState } from "../../reducers/uiReducers/editorHeaderReducer";
+import React, { Component } from "react";
+import styled from "styled-components";
+// import { connect } from "react-redux";
+// import { AppState } from "../../reducers";
+// import { EditorHeaderReduxState } from "../../reducers/uiReducers/editorHeaderReducer";
 
 const Header = styled.header`
   height: 50px;
@@ -10,25 +10,26 @@ const Header = styled.header`
   background: #fff;
 `;
 
-
-class EditorHeader extends Component<EditorHeaderReduxState> {
+class EditorHeader extends Component {
   render() {
-    return (
-      <Header>
-      </Header>
-    )
+    return <Header></Header>;
   }
 }
 
-const mapStateToProps = (state: AppState, props: any): EditorHeaderReduxState => {
-  return {}
-}
+export default EditorHeader;
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {}
-}
+// const mapStateToProps = (
+//   state: AppState,
+//   props: any,
+// ): EditorHeaderReduxState => {
+//   return state;
+// };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditorHeader)
+// const mapDispatchToProps = (dispatch: any) => {
+//   return {};
+// };
+
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps,
+// )(EditorHeader);

@@ -1,16 +1,10 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 
-class InputWidget extends BaseWidget<
-  InputWidgetProps,
-  IWidgetState
-> {
-
+class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   getPageView() {
-    return (
-      <div/>
-    );
+    return <div />;
   }
 
   getWidgetType(): WidgetType {
@@ -18,15 +12,23 @@ class InputWidget extends BaseWidget<
   }
 }
 
-export type InputType = "TEXT" | "NUMBER" | "INTEGER" | "PHONE_NUMBER" | "EMAIL" | "PASSWORD" | "CURRENCY" | "SEARCH"
+export type InputType =
+  | "TEXT"
+  | "NUMBER"
+  | "INTEGER"
+  | "PHONE_NUMBER"
+  | "EMAIL"
+  | "PASSWORD"
+  | "CURRENCY"
+  | "SEARCH";
 
-export interface InputWidgetProps extends IWidgetProps {
-  errorMessage?: string
+export interface InputWidgetProps extends WidgetProps {
+  errorMessage?: string;
   inputType: InputType;
   defaultText?: string;
   placeholder?: string;
   label: string;
-  focusIndex?: number
+  focusIndex?: number;
 }
 
 export default InputWidget;

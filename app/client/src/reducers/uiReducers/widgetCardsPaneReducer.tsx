@@ -1,22 +1,22 @@
-import { createReducer } from "../../utils/AppsmithUtils"
+import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ActionTypes,
   ReduxAction,
-  LoadWidgetCardsPanePayload
-} from "../../constants/ActionConstants"
+  LoadWidgetCardsPanePayload,
+} from "../../constants/ActionConstants";
 import { WidgetCardProps } from "../../widgets/BaseWidget";
-import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse"
+import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse";
 
-const initialState: WidgetCardsPaneReduxState = WidgetCardsPaneResponse
+const initialState: WidgetCardsPaneReduxState = WidgetCardsPaneResponse;
 
 const widgetCardsPaneReducer = createReducer(initialState, {
   [ActionTypes.ERROR_FETCHING_WIDGET_CARDS]: (
     state: WidgetCardsPaneReduxState,
-    action: ReduxAction<LoadWidgetCardsPanePayload>
+    action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { cards: action.payload.cards }
-  }
-})
+    return { cards: action.payload.cards };
+  },
+});
 
 export interface WidgetCardsPaneReduxState {
   cards: {
@@ -24,4 +24,4 @@ export interface WidgetCardsPaneReduxState {
   };
 }
 
-export default widgetCardsPaneReducer
+export default widgetCardsPaneReducer;

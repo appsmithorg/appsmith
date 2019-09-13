@@ -1,6 +1,6 @@
-import * as React from "react"
+import * as React from "react";
 
-import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core"
+import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core";
 import { RouterProps } from "react-router";
 
 class PageNotFound extends React.PureComponent<RouterProps> {
@@ -14,12 +14,20 @@ class PageNotFound extends React.PureComponent<RouterProps> {
             description={
               "The page you were looking for does not appear to exist"
             }
-            action={<Button onClick={() => { this.props.history.push("/") }}>{"Home"}</Button>}
+            action={
+              <Button
+                onClick={() => {
+                  this.props.history.push("/");
+                }}
+              >
+                {"Home"}
+              </Button>
+            }
           />
         </Card>
       </div>
-    )
+    );
   }
 }
 
-export default PageNotFound
+export default PageNotFound;

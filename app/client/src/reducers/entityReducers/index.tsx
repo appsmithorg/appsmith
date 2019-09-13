@@ -1,5 +1,5 @@
-import { combineReducers } from "redux"
-import canvasWidgetsReducer from "./canvasWidgetsReducer"
+import { combineReducers } from "redux";
+import canvasWidgetsReducer from "./canvasWidgetsReducer";
 
-const entityReducer = combineReducers({ canvasWidgets: canvasWidgetsReducer })
-export default entityReducer
+const entityReducer = combineReducers({ canvasWidgets: canvasWidgetsReducer });
+export default entityReducer;

@@ -1,8 +1,8 @@
-import * as React from "react"
-import { ComponentProps } from "./BaseComponent"
-import { Callout, Intent } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
-class CalloutComponent extends React.Component<ICalloutComponentProps> {
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Callout, Intent } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
+class CalloutComponent extends React.Component<CalloutComponentProps> {
   render() {
     return (
       <Container {...this.props}>
@@ -13,16 +13,16 @@ class CalloutComponent extends React.Component<ICalloutComponentProps> {
           {this.props.description}
         </Callout>
       </Container>
-    )
+    );
   }
 }
 
-export interface ICalloutComponentProps extends ComponentProps {
-  id?: string
-  title?: string
-  description?: string
-  intent?: Intent
-  ellipsize?: boolean
+export interface CalloutComponentProps extends ComponentProps {
+  id?: string;
+  title?: string;
+  description?: string;
+  intent?: Intent;
+  ellipsize?: boolean;
 }
 
-export default CalloutComponent
+export default CalloutComponent;

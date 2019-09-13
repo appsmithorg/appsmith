@@ -1,14 +1,11 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import TextComponent from "../editorComponents/TextComponent";
 
-class TableWidget extends BaseWidget<TableWidgetProps, IWidgetState> {
-
+class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
-    return (
-      <div/>
-    );
+    return <div />;
   }
 
   getWidgetType(): WidgetType {
@@ -16,12 +13,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, IWidgetState> {
   }
 }
 
-export type PaginationType = "PAGES" | "INFINITE_SCROLL"
+export type PaginationType = "PAGES" | "INFINITE_SCROLL";
 
-export interface TableWidgetProps extends IWidgetProps {
+export interface TableWidgetProps extends WidgetProps {
   pageKey?: string;
-  label: string
-  tableData?: object[]
+  label: string;
+  tableData?: object[];
 }
 
 export default TableWidget;

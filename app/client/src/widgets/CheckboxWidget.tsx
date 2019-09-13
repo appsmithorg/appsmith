@@ -1,9 +1,9 @@
-import React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import CheckboxComponent from "../editorComponents/CheckboxComponent"
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import CheckboxComponent from "../editorComponents/CheckboxComponent";
 
-class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, IWidgetState> {
+class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
@@ -13,17 +13,17 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, IWidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "CHECKBOX_WIDGET"
+    return "CHECKBOX_WIDGET";
   }
 }
 
-export interface CheckboxWidgetProps extends IWidgetProps {
-  label: string
-  defaultCheckedState: boolean
+export interface CheckboxWidgetProps extends WidgetProps {
+  label: string;
+  defaultCheckedState: boolean;
 }
 
-export default CheckboxWidget
+export default CheckboxWidget;

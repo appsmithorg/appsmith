@@ -1,26 +1,23 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
 
-class ImageWidget extends BaseWidget<ImageWidgetProps, IWidgetState> {
-
+class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   getPageView() {
-    return (
-      <div/>
-    )
+    return <div />;
   }
 
   getWidgetType(): WidgetType {
-    return "IMAGE_WIDGET"
+    return "IMAGE_WIDGET";
   }
 }
 
-export type ImageShape = "RECTANGLE" | "CIRCLE" | "ROUNDED"
+export type ImageShape = "RECTANGLE" | "CIRCLE" | "ROUNDED";
 
-export interface ImageWidgetProps extends IWidgetProps {
-  image: string
-  imageShape: ImageShape
-  defaultImage: string
+export interface ImageWidgetProps extends WidgetProps {
+  image: string;
+  imageShape: ImageShape;
+  defaultImage: string;
 }
 
-export default ImageWidget
+export default ImageWidget;

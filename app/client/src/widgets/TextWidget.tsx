@@ -1,10 +1,9 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import TextComponent from "../editorComponents/TextComponent";
 
-class TextWidget extends BaseWidget<TextWidgetProps, IWidgetState> {
-
+class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
       <TextComponent
@@ -22,11 +21,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, IWidgetState> {
   }
 }
 
-export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT"
+export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
 
-export interface TextWidgetProps extends IWidgetProps {
+export interface TextWidgetProps extends WidgetProps {
   text?: string;
-  textStyle?: TextStyle
+  textStyle?: TextStyle;
   tagName?: keyof JSX.IntrinsicElements;
 }
 
