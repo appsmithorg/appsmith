@@ -60,7 +60,7 @@ const Canvas = (props: CanvasProps) => {
     },
   })
 
-  useLayoutEffect(()=> {
+  useLayoutEffect(() => {
     const el = artBoardMask.current
     if (el) {
       const rect = el.getBoundingClientRect()
@@ -71,10 +71,10 @@ const Canvas = (props: CanvasProps) => {
   return (
     <React.Fragment>
       <EditorDragLayer />
-    <ArtBoard ref={drop} cellSize={(Math.floor(width / 16) - 1)+ "px"}>
-      <ArtBoardBackgroundMask ref={artBoardMask}></ArtBoardBackgroundMask>
-      {props.pageWidget && WidgetFactory.createWidget(props.pageWidget)}
-    </ArtBoard>
+      <ArtBoard ref={drop} cellSize={(Math.floor(width / 16) - 1) + "px"}>
+        <ArtBoardBackgroundMask ref={artBoardMask}></ArtBoardBackgroundMask>
+        {props.pageWidget && WidgetFactory.createWidget(props.pageWidget)}
+      </ArtBoard>
     </React.Fragment>
   )
 }
