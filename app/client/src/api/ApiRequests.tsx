@@ -7,5 +7,5 @@ export interface APIHeaders {
 }
 
 export interface APIRequest {
-  requestId: string;
+  requestId?: string;
 }
