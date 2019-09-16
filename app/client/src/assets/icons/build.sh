@@ -1,13 +1,12 @@
 #!/bin/bash
 # assumes yarn is installed globally
 
-yarn global add icon-fonts-generator;
 cd "$(dirname "$0")"
 mkdir fonts;
-for d in */;
+find ./ -maxdepth 1 -mindepth 1 -type d \! -name fonts | sed -e "s/^\.\/\///g" | while read d;
 do
-	mkdir fonts/${d%/};
-	icon-font-generator ${d}*.svg -o fonts/${d%/} -n "${d%/}-icons";
+	mkdir fonts/${d};
+	npx icon-font-generator ${d}/*.svg -o fonts/${d} -n "${d}-icons";
 done;
 
 # using relative path for now

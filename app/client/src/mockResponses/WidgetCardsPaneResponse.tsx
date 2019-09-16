@@ -61,7 +61,7 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         key: generateReactKey(),
       },
       {
-        widgetType: "RADIO_BUTTON_WIDGET",
+        widgetType: "RADIO_GROUP_WIDGET",
         icon: "icon-radio",
         label: "Radio Button",
         key: generateReactKey(),

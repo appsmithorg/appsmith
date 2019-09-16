@@ -19,7 +19,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   getWidgetType(): WidgetType {
-    return "RADIO_BUTTON_WIDGET";
+    return "RADIO_GROUP_WIDGET";
   }
 }
 

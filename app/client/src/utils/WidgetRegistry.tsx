@@ -51,7 +51,7 @@ class WidgetBuilderRegistry {
       },
     });
 
-    WidgetFactory.registerWidgetBuilder("RADIO_BUTTON_WIDGET", {
+    WidgetFactory.registerWidgetBuilder("RADIO_GROUP_WIDGET", {
       buildWidget(widgetData: RadioGroupWidgetProps): JSX.Element {
         return <RadioGroupWidget {...widgetData} />;
       },
