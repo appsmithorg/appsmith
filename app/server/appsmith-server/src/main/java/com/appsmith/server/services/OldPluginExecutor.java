@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class PluginExecutor {
+public abstract class OldPluginExecutor {
 
     /**
      * This function executes the command against a backend datasource.
