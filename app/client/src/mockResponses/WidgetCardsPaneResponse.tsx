@@ -1,4 +1,5 @@
 import { WidgetCardsPaneReduxState } from "../reducers/uiReducers/widgetCardsPaneReducer";
+import { generateReactKey } from "../utils/generators";
 
 const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
   cards: {
@@ -7,26 +8,31 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "TEXT_WIDGET",
         icon: "icon-plus",
         label: "Text",
+        key: generateReactKey(),
       },
       {
         widgetType: "IMAGE_WIDGET",
         icon: "icon-image",
         label: "Image",
+        key: generateReactKey(),
       },
       {
         widgetType: "BUTTON_WIDGET",
         icon: "icon-button",
         label: "Button",
+        key: generateReactKey(),
       },
       {
         widgetType: "SPINNER_WIDGET",
         icon: "icon-switch",
         label: "Spinner",
+        key: generateReactKey(),
       },
       {
         widgetType: "CONTAINER_WIDGET",
         icon: "icon-container",
         label: "Container",
+        key: generateReactKey(),
       },
     ],
     form: [
@@ -34,31 +40,37 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "BUTTON_WIDGET",
         icon: "icon-button",
         label: "Button",
+        key: generateReactKey(),
       },
       {
         widgetType: "BUTTON_WIDGET",
         icon: "icon-button",
         label: "Button",
+        key: generateReactKey(),
       },
       {
-        widgetType: "DROPDOWN_WIDGET",
+        widgetType: "DROP_DOWN_WIDGET",
         icon: "icon-dropdown",
         label: "Dropdown",
+        key: generateReactKey(),
       },
       {
-        widgetType: "DATEPICKER_WIDGET",
+        widgetType: "DATE_PICKER_WIDGET",
         icon: "icon-datepicker",
         label: "DatePicker",
+        key: generateReactKey(),
       },
       {
         widgetType: "RADIO_BUTTON_WIDGET",
         icon: "icon-radio",
         label: "Radio Button",
+        key: generateReactKey(),
       },
       {
-        widgetType: "TOGGLE_WIDGET",
+        widgetType: "SWITCH_WIDGET",
         icon: "icon-switch",
         label: "Toggle",
+        key: generateReactKey(),
       },
     ],
     view: [
@@ -66,31 +78,31 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         widgetType: "TEXT_WIDGET",
         icon: "icon-text",
         label: "Text",
+        key: generateReactKey(),
       },
       {
         widgetType: "IMAGE_WIDGET",
         icon: "icon-image",
         label: "Image",
+        key: generateReactKey(),
       },
       {
         widgetType: "CONTAINER_WIDGET",
         icon: "icon-container",
         label: "Container",
-      },
-      {
-        widgetType: "MODAL_WIDGET",
-        icon: "icon-modal",
-        label: "Modal",
+        key: generateReactKey(),
       },
       {
         widgetType: "SPINNER_WIDGET",
         icon: "icon-spinner",
         label: "Spinner",
+        key: generateReactKey(),
       },
       {
         widgetType: "TABLE_WIDGET",
         icon: "icon-table",
         label: "Table",
+        key: generateReactKey(),
       },
     ],
   },

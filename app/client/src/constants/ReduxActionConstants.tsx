@@ -1,6 +1,5 @@
 // import ContainerWidget from "../widgets/ContainerWidget"
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
-import { ExecuteActionResponse } from "../api/ActionAPI";
 
 export type ReduxActionType =
   | "LOAD_CANVAS_WIDGETS"

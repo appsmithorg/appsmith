@@ -1,0 +1,86 @@
+@font-face {
+    font-family: "widget-icons";
+    src: url("./widget-icons.eot?c93d21284eacfd6f38e8887beff24cad?#iefix") format("embedded-opentype"),
+url("./widget-icons.woff2?c93d21284eacfd6f38e8887beff24cad") format("woff2"),
+url("./widget-icons.woff?c93d21284eacfd6f38e8887beff24cad") format("woff"),
+url("./widget-icons.ttf?c93d21284eacfd6f38e8887beff24cad") format("truetype"),
+url("./widget-icons.svg?c93d21284eacfd6f38e8887beff24cad#widget-icons") format("svg");
+}
+
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+    font-family: widget-icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-alert:before {
+    content: "\f101";
+}
+.icon-button:before {
+    content: "\f102";
+}
+.icon-checkbox:before {
+    content: "\f103";
+}
+.icon-collapse:before {
+    content: "\f104";
+}
+.icon-container:before {
+    content: "\f105";
+}
+.icon-datepicker:before {
+    content: "\f106";
+}
+.icon-dropdown:before {
+    content: "\f107";
+}
+.icon-file upload:before {
+    content: "\f108";
+}
+.icon-file-upload:before {
+    content: "\f109";
+}
+.icon-image:before {
+    content: "\f10a";
+}
+.icon-input:before {
+    content: "\f10b";
+}
+.icon-location picker:before {
+    content: "\f10c";
+}
+.icon-location-picker:before {
+    content: "\f10d";
+}
+.icon-modal:before {
+    content: "\f10e";
+}
+.icon-plus:before {
+    content: "\f10f";
+}
+.icon-radio:before {
+    content: "\f110";
+}
+.icon-rich text:before {
+    content: "\f111";
+}
+.icon-rich-text:before {
+    content: "\f112";
+}
+.icon-switch:before {
+    content: "\f113";
+}
+.icon-table:before {
+    content: "\f114";
+}
+.icon-tabs:before {
+    content: "\f115";
+}
+.icon-text:before {
+    content: "\f116";
+}
