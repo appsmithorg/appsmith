@@ -17,6 +17,7 @@ import { rootSaga } from "./sagas";
 import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
+import ProtectedRoute from "./pages/common/ProtectedRoute";
 
 appInitializer();
 WidgetBuilderRegistry.registerWidgetBuilders();
@@ -30,7 +31,7 @@ ReactDOM.render(
         <BrowserRouter>
           <Switch>
             <Route exact path="/" component={App} />
-            <Route path="/builder" component={Editor} />
+            <ProtectedRoute path="/builder" component={Editor} />
             <Route exact path="/login" component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>

@@ -11,7 +11,6 @@ const ProtectedRoute = ({
   path: string;
   component: React.ReactType;
 }) => {
-  // let windowDoc: any = window
   return (
     <Route
       {...rest}

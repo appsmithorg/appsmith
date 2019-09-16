@@ -1,8 +1,5 @@
 // import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../constants/ReduxActionConstants";
+import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 import WidgetCardsPaneApi, {
   WidgetCardsPaneResponse,
 } from "../api/WidgetCardsPaneApi";

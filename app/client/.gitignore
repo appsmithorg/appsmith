@@ -24,3 +24,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /out
+/public/fonts
+/src/assets/icon/fonts
