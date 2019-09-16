@@ -2,6 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import CheckboxComponent from "../editorComponents/CheckboxComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
@@ -24,6 +25,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 export interface CheckboxWidgetProps extends WidgetProps {
   label: string;
   defaultCheckedState: boolean;
+  onCheckChange?: ActionPayload[];
 }
 
 export default CheckboxWidget;

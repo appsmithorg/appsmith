@@ -1,9 +1,11 @@
 import { ContentType, DataType } from "../constants/ApiConstants";
 
-export interface ApiHeaders {
+export interface APIHeaders {
   Accept: ContentType;
   "Content-Type": ContentType;
   dataType: DataType;
 }
 
-export {};
+export interface APIRequest {
+  requestId?: string;
+}

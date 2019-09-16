@@ -9,7 +9,7 @@ export interface WidgetCardsPaneResponse {
 class WidgetCardsPaneApi extends Api {
   static url = "/widgetCards";
   static fetchWidgetCards(): Promise<WidgetCardsPaneResponse> {
-    return Api.get(WidgetCardsPaneApi.url, {});
+    return Api.get(WidgetCardsPaneApi.url);
   }
 }
 

@@ -1,65 +1,75 @@
-// import ContainerWidget from "../widgets/ContainerWidget"
-import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
+import { AlertType, MessageIntent } from "../widgets/AlertWidget";
 
-export type ActionType =
-  | "UPDATE_CANVAS"
-  | "FETCH_CANVAS"
-  | "CLEAR_CANVAS"
-  | "DROP_WIDGET_CANVAS"
-  | "REMOVE_WIDGET_CANVAS"
-  | "LOAD_WIDGET_PANE"
-  | "FETCH_PAGE"
-  | "ZOOM_IN_CANVAS"
-  | "ZOOM_OUT_CANVAS"
-  | "PUBLISH"
-  | "UNDO_CANVAS_ACTION"
-  | "REDO_CANVAS_ACTION"
-  | "FETCH_WIDGET_CARDS"
-  | "SUCCESS_FETCHING_WIDGET_CARDS"
-  | "ERROR_FETCHING_WIDGET_CARDS"
-  | "ADD_PAGE_WIDGET"
-  | "REMOVE_PAGE_WIDGET"
-  | "LOAD_WIDGET_CONFIG";
+export type EventType = 
+  | "ON_CLICK" 
+  | "ON_HOVER" 
+  | "ON_TOGGLE" 
+  | "ON_LOAD" 
+  | "ON_TEXT_CHANGE" 
+  | "ON_SUBMIT" 
+  | "ON_CHECK_CHANGE" 
+  | "ON_SELECT" 
+  | "ON_DATE_SELECTED" 
+  | "ON_DATE_RANGE_SELECTED"
 
-export const ActionTypes: { [id: string]: ActionType } = {
-  UPDATE_CANVAS: "UPDATE_CANVAS",
-  FETCH_CANVAS: "FETCH_CANVAS",
-  CLEAR_CANVAS: "CLEAR_CANVAS",
-  FETCH_PAGE: "FETCH_PAGE",
-  DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",
-  REMOVE_WIDGET_CANVAS: "REMOVE_WIDGET_CANVAS",
-  LOAD_WIDGET_PANE: "LOAD_WIDGET_PANE",
-  ZOOM_IN_CANVAS: "ZOOM_IN_CANVAS",
-  ZOOM_OUT_CANVAS: "ZOOM_OUT_CANVAS",
-  UNDO_CANVAS_ACTION: "UNDO_CANVAS_ACTION",
-  REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
-  LOAD_WIDGET_CONFIG: "LOAD_WIDGET_CONFIG",
-  PUBLISH: "PUBLISH",
-  FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
-  SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
-  ERROR_FETCHING_WIDGET_CARDS: "ERROR_FETCHING_WIDGET_CARDS",
-  ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
-  REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
-};
+export type ActionType = 
+  | "API"
+  | "QUERY" 
+  | "NAVIGATION" 
+  | "ALERT" 
+  | "JS_FUNCTION" 
+  | "SET_VALUE" 
+  | "DOWNLOAD"
 
-export interface ReduxAction<T> {
-  type: ActionType;
-  payload: T;
+export interface ActionPayload {
+  actionType: ActionType
+  contextParams: Record<string, string>
 }
 
-export interface LoadCanvasPayload {
-  pageWidgetId: string;
-  widgets: { [widgetId: string]: WidgetProps };
+export interface APIActionPayload extends ActionPayload {
+    apiId: string
 }
 
-export interface LoadWidgetConfigPayload {
-  [widgetId: string]: WidgetProps;
+export interface QueryActionPayload extends ActionPayload {
+    queryId: string
 }
 
-export interface LoadWidgetPanePayload {
-  widgets: WidgetProps[];
+export type NavigationType = "NEW_TAB" | "INLINE"
+
+export interface NavigateActionPayload extends ActionPayload {
+  pageUrl: string
+  navigationType: NavigationType
 }
 
-export interface LoadWidgetCardsPanePayload {
-  cards: { [id: string]: WidgetCardProps[] };
+export interface ShowAlertActionPayload extends ActionPayload {
+    header: string
+    message: string
+    alertType: AlertType
+    intent: MessageIntent
+}
+
+export interface SetValueActionPayload extends ActionPayload {
+    header: string
+    message: string
+    alertType: AlertType
+    intent: MessageIntent
+}
+
+export interface ExecuteJSActionPayload extends ActionPayload {
+    jsFunctionId: string
+}
+
+export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT"
+
+export interface DownloadDataActionPayload extends ActionPayload {
+    data: JSON
+    fileName: string
+    fileType: DownloadFiletype
+}
+
+export interface PageAction {
+  actionId: string
+  actionType: ActionType
+  actionName: string
+  dynamicBindings: string[]
 }

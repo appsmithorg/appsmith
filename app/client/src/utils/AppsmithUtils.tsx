@@ -1,5 +1,4 @@
-import FontFaceObserver from "fontfaceobserver";
-import { ReduxAction } from "../constants/ActionConstants";
+import { ReduxAction } from "../constants/ReduxActionConstants";
 import {
   SENTRY_PROD_CONFIG,
   SENTRY_STAGE_CONFIG,
@@ -9,6 +8,7 @@ import {
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import netlifyIdentity from "netlify-identity-widget";
+import FontFaceObserver from "fontfaceobserver";
 
 export const createReducer = (
   initialState: any,

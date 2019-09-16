@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import CalloutComponent from "../editorComponents/CalloutComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class AlertWidget extends BaseWidget<AlertWidgetProps, WidgetState> {
   getPageView() {
@@ -21,6 +21,7 @@ export interface AlertWidgetProps extends WidgetProps {
   intent: MessageIntent;
   header: string;
   message: string;
+  onPrimaryClick: ActionPayload[];
 }
 
 export default AlertWidget;

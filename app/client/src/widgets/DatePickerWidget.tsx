@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import { Moment } from "moment";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   getPageView() {
@@ -23,6 +23,8 @@ export interface DatePickerWidgetProps extends WidgetProps {
   enableTime: boolean;
   label: string;
   datePickerType: DatePickerType;
+  onDateSelected: ActionPayload[];
+  onDateRangeSelected: ActionPayload[];
 }
 
 export default DatePickerWidget;

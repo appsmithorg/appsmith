@@ -1,18 +1,18 @@
 import { createReducer } from "../../utils/AppsmithUtils";
 import {
-  ActionTypes,
-  LoadCanvasPayload,
+  ReduxActionTypes,
+  LoadCanvasWidgetsPayload,
   ReduxAction,
-} from "../../constants/ActionConstants";
+} from "../../constants/ReduxActionConstants";
 
 const initialState: CanvasReduxState = {
   pageWidgetId: "0",
 };
 
 const canvasReducer = createReducer(initialState, {
-  [ActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasReduxState,
-    action: ReduxAction<LoadCanvasPayload>,
+    action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
     return { pageWidgetId: action.payload.pageWidgetId };
   },

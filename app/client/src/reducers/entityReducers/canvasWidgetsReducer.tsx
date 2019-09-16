@@ -1,9 +1,9 @@
 import { createReducer } from "../../utils/AppsmithUtils";
 import {
-  ActionTypes,
-  LoadCanvasPayload,
+  ReduxActionTypes,
+  LoadCanvasWidgetsPayload,
   ReduxAction,
-} from "../../constants/ActionConstants";
+} from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 
@@ -14,13 +14,13 @@ export interface FlattenedWidgetProps extends WidgetProps {
 }
 
 const canvasWidgetsReducer = createReducer(initialState, {
-  [ActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<LoadCanvasPayload>,
+    action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
     return { ...action.payload.widgets };
   },
-  [ActionTypes.ADD_PAGE_WIDGET]: (
+  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
   ) => {
@@ -32,8 +32,8 @@ const canvasWidgetsReducer = createReducer(initialState, {
     children.push(widget);
     widgetTree.children = children;
     const newState = CanvasWidgetsNormalizer.normalize({
-      responseMeta: {},
-      pageWidget: widgetTree,
+      responseMeta: { responseCode: "SUCCESS" },
+      layout: { dsl: widgetTree, actions: [] },
     }).entities;
     return newState.canvasWidgets;
   },

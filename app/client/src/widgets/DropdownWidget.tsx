@@ -1,6 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   getPageView() {
@@ -23,6 +24,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   label?: string;
   type: SelectionType;
   options?: DropdownOption[];
+  onOptionSelected?: ActionPayload[];
 }
 
 export default DropdownWidget;

@@ -5,6 +5,9 @@ import { CanvasReduxState } from "./uiReducers/canvasReducer";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { WidgetCardsPaneReduxState } from "./uiReducers/widgetCardsPaneReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
+import { APIDataState } from "./entityReducers/apiDataReducer";
+import { QueryDataState } from "./entityReducers/queryDataReducer";
+import { ActionDataState } from "./entityReducers/actionsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -22,5 +25,8 @@ export interface AppState {
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
+    apiData: APIDataState;
+    queryData: QueryDataState;
+    actions: ActionDataState;
   };
 }

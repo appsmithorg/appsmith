@@ -1,9 +1,9 @@
 import { createReducer } from "../../utils/AppsmithUtils";
 import {
-  ActionTypes,
+  ReduxActionTypes,
   ReduxAction,
   LoadWidgetConfigPayload,
-} from "../../constants/ActionConstants";
+} from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import WidgetConfigResponse from "../../mockResponses/WidgetConfigResponse";
 import { ButtonWidgetProps } from "../../widgets/ButtonWidget";
@@ -12,7 +12,7 @@ import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { ImageWidgetProps } from "../../widgets/ImageWidget";
 import { InputWidgetProps } from "../../widgets/InputWidget";
 import { SwitchWidgetProps } from "../../widgets/SwitchWidget";
-import SpinnerWidget from "../../widgets/SpinnerWidget";
+import { SpinnerWidgetProps } from "../../widgets/SpinnerWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
 import { TableWidgetProps } from "../../widgets/TableWidget";
 import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
@@ -35,7 +35,7 @@ export interface WidgetConfigReducerState {
   SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
   CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
     WidgetConfigProps;
-  SPINNER_WIDGET: Partial<SpinnerWidget> & WidgetConfigProps;
+  SPINNER_WIDGET: Partial<SpinnerWidgetProps> & WidgetConfigProps;
   DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
   TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
   DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
@@ -45,11 +45,11 @@ export interface WidgetConfigReducerState {
 }
 
 const widgetConfigReducer = createReducer(initialState, {
-  [ActionTypes.LOAD_WIDGET_CONFIG]: (
+  [ReduxActionTypes.LOAD_WIDGET_CONFIG]: (
     state: WidgetConfigReducerState,
     action: ReduxAction<LoadWidgetConfigPayload>,
   ) => {
-    return { ...action.payload.widgets };
+    return { ...action.payload };
   },
 });
 

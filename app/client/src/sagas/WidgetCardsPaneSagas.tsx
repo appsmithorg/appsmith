@@ -1,5 +1,8 @@
 // import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
-import { ActionTypes } from "../constants/ActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "../constants/ReduxActionConstants";
 import WidgetCardsPaneApi, {
   WidgetCardsPaneResponse,
 } from "../api/WidgetCardsPaneApi";
@@ -13,10 +16,10 @@ export function* fetchWidgetCards() {
     );
     yield put(successFetchingWidgetCards(widgetCards.cards));
   } catch (err) {
-    yield put({ type: ActionTypes.ERROR_FETCHING_WIDGET_CARDS, err });
+    yield put({ type: ReduxActionTypes.ERROR_FETCHING_WIDGET_CARDS, err });
   }
 }
 
 export function* fetchWidgetCardsSaga() {
-  yield takeLatest(ActionTypes.FETCH_WIDGET_CARDS, fetchWidgetCards);
+  yield takeLatest(ReduxActionTypes.FETCH_WIDGET_CARDS, fetchWidgetCards);
 }

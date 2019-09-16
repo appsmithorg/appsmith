@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ComponentProps } from "./BaseComponent";
 import { Checkbox } from "@blueprintjs/core";
-import { Container } from "./ContainerComponent";
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
     return (
