@@ -47,11 +47,11 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         this.userService = userService;
     }
 
-    public PluginExecutor getPluginExecutor(PluginType pluginType, String className) {
+    public OldPluginExecutor getPluginExecutor(PluginType pluginType, String className) {
         Class<?> clazz;
         try {
             clazz = Class.forName(className);
-            return (PluginExecutor) applicationContext.getBean(clazz);
+            return (OldPluginExecutor) applicationContext.getBean(clazz);
         } catch (ClassNotFoundException e) {
             log.error("Unable to find class {}. ", className, e);
         }
