@@ -16,7 +16,7 @@ public interface PluginService extends CrudService<Plugin, String> {
      * @param className
      * @return PluginExecutor
      */
-    PluginExecutor getPluginExecutor(PluginType pluginType, String className);
+    OldPluginExecutor getPluginExecutor(PluginType pluginType, String className);
 
     public Mono<Organization> installPlugin(PluginOrgDTO plugin);
 

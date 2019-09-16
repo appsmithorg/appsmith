@@ -2,7 +2,7 @@ package com.appsmith.server.plugins;
 
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.dtos.CommandQueryParams;
-import com.appsmith.server.services.PluginExecutor;
+import com.appsmith.server.services.OldPluginExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Component
-public class PostgresDBPluginExecutor extends PluginExecutor {
+public class PostgresDBOldPluginExecutor extends OldPluginExecutor {
 
     // JDBC driver name and database URL
     @Value("${jdbc.postgres.driver}")
