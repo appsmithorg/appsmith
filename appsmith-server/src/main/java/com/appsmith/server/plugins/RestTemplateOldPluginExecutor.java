@@ -3,7 +3,7 @@ package com.appsmith.server.plugins;
 import com.appsmith.server.domains.Property;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.dtos.CommandQueryParams;
-import com.appsmith.server.services.PluginExecutor;
+import com.appsmith.server.services.OldPluginExecutor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class RestTemplatePluginExecutor extends PluginExecutor {
+public class RestTemplateOldPluginExecutor extends OldPluginExecutor {
 
     final String PROP_URL = "url";
     final String PROP_HTTP_METHOD = "method";
