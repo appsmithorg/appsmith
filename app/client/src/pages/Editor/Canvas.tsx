@@ -1,8 +1,8 @@
 import React, { MutableRefObject, useLayoutEffect } from "react";
 import styled from "styled-components";
 import WidgetFactory from "../../utils/WidgetFactory";
-import { WidgetTypes } from "../../constants/WidgetConstants";
-import { DraggableWidget } from "../../widgets/BaseWidget";
+import { WidgetTypes, RenderModes } from "../../constants/WidgetConstants";
+import { DraggableWidget, WidgetFunctions } from "../../widgets/BaseWidget";
 import { useDrop } from "react-dnd";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import EditorDragLayer from "./EditorDragLayer";
@@ -46,6 +46,7 @@ const ArtBoard = styled.div<ArtBoardProps>`
 interface CanvasProps {
   pageWidget: ContainerWidgetProps<any>;
   addWidget: Function;
+  widgetFunctions: WidgetFunctions;
 }
 
 interface ArtBoardProps {
@@ -78,7 +79,12 @@ const Canvas = (props: CanvasProps) => {
       <EditorDragLayer />
       <ArtBoard ref={drop} cellSize={Math.floor(width / 16) - 1 + "px"}>
         <ArtBoardBackgroundMask ref={artBoardMask}></ArtBoardBackgroundMask>
-        {props.pageWidget && WidgetFactory.createWidget(props.pageWidget)}
+        {props.pageWidget &&
+          WidgetFactory.createWidget(
+            props.pageWidget,
+            props.widgetFunctions,
+            RenderModes.CANVAS,
+          )}
       </ArtBoard>
     </React.Fragment>
   );

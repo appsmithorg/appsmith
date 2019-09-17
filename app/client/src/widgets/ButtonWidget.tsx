@@ -5,13 +5,20 @@ import ButtonComponent from "../editorComponents/ButtonComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
+  onButtonClick() {
+    this.props.executeAction(this.props.onClick);
+  }
+
   getPageView() {
     return (
       <ButtonComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        text={this.props.text || "Button"}
+        text={this.props.text}
+        onClick={() => {
+          this.onButtonClick();
+        }}
       />
     );
   }

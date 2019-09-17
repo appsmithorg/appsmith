@@ -4,6 +4,7 @@ import { XYCoord, useDragLayer } from "react-dnd";
 import snapToGrid from "./snapToGrid";
 import WidgetFactory from "../../utils/WidgetFactory";
 import { RenderModes, WidgetType } from "../../constants/WidgetConstants";
+import { ActionPayload } from "../../constants/ActionConstants";
 
 const WrappedDragLayer = styled.div`
   position: absolute;
@@ -57,18 +58,21 @@ const EditorDragLayer: React.FC = () => {
   }));
 
   function renderItem() {
-    return WidgetFactory.createWidget({
-      widgetType: itemType as WidgetType,
-      widgetName: "",
-      widgetId: item.key,
-      topRow: 10,
-      leftColumn: 10,
-      bottomRow: 14,
-      rightColumn: 20,
-      parentColumnSpace: 1,
-      parentRowSpace: 1,
-      renderMode: RenderModes.CANVAS,
-    });
+    return WidgetFactory.createWidget(
+      {
+        widgetType: itemType as WidgetType,
+        widgetName: "",
+        widgetId: item.key,
+        topRow: 10,
+        leftColumn: 10,
+        bottomRow: 14,
+        rightColumn: 20,
+        parentColumnSpace: 1,
+        parentRowSpace: 1,
+      },
+      { executeAction: (actionPayload?: ActionPayload[]) => {} },
+      RenderModes.CANVAS,
+    );
   }
 
   if (!isDragging) {

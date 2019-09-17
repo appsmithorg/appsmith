@@ -36,6 +36,6 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
   }
 }
 
-export function* watchFetchPage() {
+export function* watchFetchPageSaga() {
   yield takeEvery(ReduxActionTypes.FETCH_PAGE, fetchPageSaga);
 }

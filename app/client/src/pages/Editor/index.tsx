@@ -11,7 +11,9 @@ import { WidgetType } from "../../constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { fetchPage, addWidget } from "../../actions/pageActions";
+import { executeAction } from "../../actions/widgetActions";
 import { RenderModes } from "../../constants/WidgetConstants";
+import { ActionPayload } from "../../constants/ActionConstants";
 // import EditorDragLayer  from "./EditorDragLayer"
 
 const CanvasContainer = styled.section`
@@ -46,6 +48,7 @@ const EditorWrapper = styled.div`
 type EditorProps = {
   pageWidget: ContainerWidgetProps<any> | any;
   fetchCanvasWidgets: Function;
+  executeAction: (actionPayloads?: ActionPayload[]) => void;
   cards: { [id: string]: WidgetCardProps[] } | any;
   addPageWidget: Function;
   page: string;
@@ -84,6 +87,7 @@ class Editor extends Component<EditorProps> {
             <Canvas
               pageWidget={this.props.pageWidget}
               addWidget={this.addWidgetToCanvas}
+              widgetFunctions={{ executeAction: this.props.executeAction }}
             />
           </CanvasContainer>
         </EditorWrapper>
@@ -105,6 +109,8 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    executeAction: (actionPayloads?: ActionPayload[]) =>
+      dispatch(executeAction(actionPayloads)),
     fetchCanvasWidgets: (pageId: string) =>
       dispatch(fetchPage(pageId, RenderModes.CANVAS)),
     addPageWidget: (pageId: string, widgetProps: WidgetProps) =>
