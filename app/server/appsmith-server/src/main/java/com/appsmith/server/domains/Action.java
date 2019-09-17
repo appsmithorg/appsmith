@@ -20,5 +20,7 @@ public class Action extends BaseDomain {
 
     String pluginId;
 
+    String pageId;
+
     ActionConfiguration actionConfiguration;
 }
