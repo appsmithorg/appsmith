@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  appsmith-internal-server:
+    image: appsmith-server
+    ports:
+      - "8080:8080"
+    links:
+      - mongo
+    networks:
+      - appsmith
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - appsmith
+
+networks:
+  appsmith:
+    driver: bridge
