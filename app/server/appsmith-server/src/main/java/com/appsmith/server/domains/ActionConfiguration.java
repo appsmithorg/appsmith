@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -24,10 +26,11 @@ public class ActionConfiguration extends BaseDomain {
      */
 
     // API fields
-    String resourceEndPoint;
+    String path;
     List<Property> headers;
     List<Property> queryParameters;
-    String body;
+    JSONObject body;
+    HttpMethod httpMethod;
 
     // DB action fields
     String query;

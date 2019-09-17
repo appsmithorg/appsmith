@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document
 public class Action extends BaseDomain {
-    @Indexed(unique = true)
+
     String name;
 
     String resourceId;
