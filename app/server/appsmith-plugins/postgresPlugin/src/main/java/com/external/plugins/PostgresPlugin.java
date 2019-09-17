@@ -1,6 +1,9 @@
 package com.external.plugins;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.CommandParams;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 
+import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -70,15 +75,19 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Flux<Object> execute(String command, CommandParams commandParams) {
-            log.debug("In the PostgresPlugin execute with command: {}", command);
+        public Flux<Object> execute(ResourceConfiguration resourceConfiguration,
+                                    ActionConfiguration actionConfiguration,
+                                    List<Param> params) {
+
+            log.debug("In the PostgresPlugin execute with resourceConfiguration: {}, ActionConfig: {}",
+                    resourceConfiguration, actionConfiguration);
             Assert.notNull(conn);
 
             ArrayList list = new ArrayList(50);
             try {
                 Statement statement = conn.createStatement();
 
-                ResultSet resultSet = statement.executeQuery(command);
+                ResultSet resultSet = statement.executeQuery(actionConfiguration.getQuery());
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 Integer colCount = metaData.getColumnCount();
                 while (resultSet.next()) {

@@ -29,7 +29,7 @@ public class Query extends BaseDomain {
     @Indexed(unique = true)
     String name;
 
-    List<Property> properties;
+    List<OldProperty> properties;
 
-    List<Property> headers;
+    List<OldProperty> headers;
 }
