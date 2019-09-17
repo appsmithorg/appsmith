@@ -1,6 +1,5 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
-import com.appsmith.server.dtos.AuthenticationDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
-public class ResourceConfiguration extends BaseDomain {
+public class ResourceConfiguration {
 
     String url;
 

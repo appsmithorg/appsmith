@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.dtos.CommandQueryParams;
-import com.appsmith.server.dtos.Param;
+import com.appsmith.server.dtos.OldParam;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -52,21 +52,21 @@ public abstract class OldPluginExecutor {
 
         Map<String, String> queryMap = new HashMap<>();
         Map<String, String> headerMap = new HashMap<>();
-        if (params.getQueryParams() != null) {
+        if (params.getQueryOldParams() != null) {
             queryMap = params
-                    .getQueryParams()
+                    .getQueryOldParams()
                     .stream()
                     .collect(
-                            Collectors.toMap(Param::getKey, Param::getValue,
+                            Collectors.toMap(OldParam::getKey, OldParam::getValue,
                                     // Incase there's a conflict, we pick the older value
                                     (oldValue, newValue) -> oldValue));
         }
-        if (params.getHeaderParams() != null) {
+        if (params.getHeaderOldParams() != null) {
             headerMap = params
-                    .getHeaderParams()
+                    .getHeaderOldParams()
                     .stream()
                     .collect(
-                            Collectors.toMap(Param::getKey, Param::getValue,
+                            Collectors.toMap(OldParam::getKey, OldParam::getValue,
                                     // Incase there's a conflict, we pick the older value
                                     (oldValue, newValue) -> oldValue));
         }

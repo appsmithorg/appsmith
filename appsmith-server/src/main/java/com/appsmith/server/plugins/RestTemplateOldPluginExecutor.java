@@ -1,6 +1,6 @@
 package com.appsmith.server.plugins;
 
-import com.appsmith.server.domains.Property;
+import com.appsmith.server.domains.OldProperty;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.dtos.CommandQueryParams;
 import com.appsmith.server.services.OldPluginExecutor;
@@ -30,9 +30,9 @@ public class RestTemplateOldPluginExecutor extends OldPluginExecutor {
     @Override
     protected Flux<Object> execute(Query query, CommandQueryParams params) {
         String requestBody = query.getCommandTemplate();
-        Map<String, Property> propertyMap = query.getProperties()
+        Map<String, OldProperty> propertyMap = query.getProperties()
                 .stream()
-                .collect(Collectors.toMap(Property::getKey, prop -> prop));
+                .collect(Collectors.toMap(OldProperty::getKey, prop -> prop));
 
         String url = propertyMap.get(PROP_URL).getValue();
         String httpMethod = propertyMap.get(PROP_HTTP_METHOD).getValue();

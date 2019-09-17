@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class CommandQueryParams {
-    List<Param> queryParams;
+    List<OldParam> queryOldParams;
 
-    List<Param> headerParams;
+    List<OldParam> headerOldParams;
 }

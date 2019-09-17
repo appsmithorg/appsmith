@@ -1,10 +1,10 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.minidev.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
-public class ActionConfiguration extends BaseDomain {
+public class ActionConfiguration {
     /*
      * Any of the fields mentioned below could be represented in mustache
      * template. If the mustache template is found, it would be replaced
