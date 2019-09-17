@@ -8,22 +8,21 @@ import {
 import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 
-const initialState: EditorReduxState = {};
+const initialState: EditorReduxState = {
+  pageWidgetId: "0",
+};
 
 const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { ...state.pageWidget, ...action.payload };
+    return { ...state.layout, ...action.payload };
   },
-  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
-    state: EditorReduxState,
-    action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
-  ) => {
+  [ReduxActionTypes.ADD_PAGE_WIDGET]: (state: EditorReduxState) => {
     return state;
   },
-  [ReduxActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
@@ -32,10 +31,11 @@ const editorReducer = createReducer(initialState, {
 });
 
 export interface EditorReduxState {
-  pageWidget?: ContainerWidgetProps<any>;
+  layout?: ContainerWidgetProps<WidgetProps>;
   cards?: {
     [id: string]: WidgetCardProps[];
   };
+  pageWidgetId: string;
 }
 
 export default editorReducer;

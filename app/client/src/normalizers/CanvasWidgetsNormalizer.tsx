@@ -1,5 +1,5 @@
 import { normalize, schema, denormalize } from "normalizr";
-import { PageResponse } from "../api/PageApi";
+import { FetchPageResponse } from "../api/PageApi";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 
 export const widgetSchema = new schema.Entity(
@@ -10,7 +10,9 @@ export const widgetSchema = new schema.Entity(
 widgetSchema.define({ children: [widgetSchema] });
 
 class CanvasWidgetsNormalizer {
-  static normalize(pageResponse: PageResponse): { entities: any; result: any } {
+  static normalize(
+    pageResponse: FetchPageResponse,
+  ): { entities: any; result: any } {
     return normalize(pageResponse.layout.dsl, widgetSchema);
   }
 

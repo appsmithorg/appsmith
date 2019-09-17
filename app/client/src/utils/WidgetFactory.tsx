@@ -14,6 +14,7 @@ class WidgetFactory {
   static createWidget(widgetData: WidgetProps): JSX.Element {
     widgetData.key = widgetData.widgetId;
     const widgetBuilder = this.widgetMap.get(widgetData.type);
+
     if (widgetBuilder) return widgetBuilder.buildWidget(widgetData);
     else {
       const ex: WidgetCreationException = {

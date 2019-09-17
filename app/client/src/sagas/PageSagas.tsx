@@ -4,11 +4,21 @@ import {
   ReduxAction,
   LoadCanvasWidgetsPayload,
 } from "../constants/ReduxActionConstants";
-import PageApi, { PageResponse, PageRequest } from "../api/PageApi";
-import { call, put, takeEvery, all } from "redux-saga/effects";
+import {
+  loadCanvasWidgets,
+  savePageError,
+  savePageSuccess,
+} from "../actions/pageActions";
+import PageApi, {
+  FetchPageResponse,
+  SavePageResponse,
+  FetchPageRequest,
+  SavePageRequest,
+} from "../api/PageApi";
+import { call, put, takeLatest, all } from "redux-saga/effects";
 import { RenderModes } from "../constants/WidgetConstants";
 
-export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
+export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
   const pageRequest = pageRequestAction.payload;
   try {
     // const pageResponse: PageResponse = yield call(
@@ -22,12 +32,12 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
           "dsl": {
             "widgetId": "0",
             "type": "CONTAINER_WIDGET",
-            "snapColumns": 1000,
-            "snapRows": 1500,
+            "snapColumns": 16,
+            "snapRows": 100,
             "topRow": 0,
-            "bottomRow": 2,
+            "bottomRow": 2000,
             "leftColumn": 0,
-            "rightColumn": 2,
+            "rightColumn": 1000,
             "parentColumnSpace": 1,
             "parentRowSpace": 1,
             "backgroundColor": "#ffffff",
@@ -39,9 +49,9 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
                 "snapColumns": 10,
                 "snapRows": 10,
                 "topRow": 1,
-                "bottomRow": 2,
+                "bottomRow": 20,
                 "leftColumn": 1,
-                "rightColumn": 2,
+                "rightColumn": 16,
                 "backgroundColor": "#000000",
                 "renderMode": "CANVAS",
                 "children": []
@@ -57,19 +67,37 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets,
       };
-      yield all([
-        put({ type: ReduxActionTypes.UPDATE_CANVAS, canvasWidgetsPayload }),
-        put({
-          type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-          payload: pageResponse.layout.actions,
-        }),
-      ]);
+
+      yield put(loadCanvasWidgets(canvasWidgetsPayload));
+      yield put({
+        type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
+        payload: pageResponse.layout.actions,
+      });
     }
   } catch (err) {
+    console.log(err);
     //TODO(abhinav): REFACTOR THIS
   }
 }
 
-export function* watchFetchPage() {
-  yield takeEvery(ReduxActionTypes.FETCH_PAGE, fetchPageSaga);
+export function* savePage(savePageAction: ReduxAction<SavePageRequest>) {
+  const savePageRequest = savePageAction.payload;
+
+  try {
+    const savePageResponse: SavePageResponse = yield call(
+      PageApi.savePage,
+      savePageRequest,
+    );
+    yield put(savePageSuccess(savePageResponse));
+  } catch (err) {
+    console.log(err);
+    yield put(savePageError(err));
+  }
+}
+
+export default function* pageSagas() {
+  yield all([
+    takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPage),
+    takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePage),
+  ]);
 }

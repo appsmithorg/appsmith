@@ -96,7 +96,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   snapRows?: number;
   orientation?: ContainerOrientation;
   backgroundColor?: Color;
-  onDrop?: Function;
+  onPropertyChange?: Function;
 }
 
 export default ContainerWidget;

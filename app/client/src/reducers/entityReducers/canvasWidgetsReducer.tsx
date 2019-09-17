@@ -14,7 +14,7 @@ export interface FlattenedWidgetProps extends WidgetProps {
 }
 
 const canvasWidgetsReducer = createReducer(initialState, {
-  [ReduxActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {

@@ -2,14 +2,18 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
-import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
+import {
+  WidgetCardProps,
+  WidgetProps,
+  WidgetDynamicProperty,
+} from "../../widgets/BaseWidget";
 import { AppState } from "../../reducers";
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
 import WidgetCardsPane from "./WidgetCardsPane";
 import EditorHeader from "./EditorHeader";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { fetchPage, addWidget } from "../../actions/pageActions";
+import { fetchPage, updateWidget } from "../../actions/pageActions";
 import { RenderModes } from "../../constants/WidgetConstants";
 import EditorDragLayer from "./EditorDragLayer";
 
@@ -43,10 +47,10 @@ const EditorWrapper = styled.div`
 `;
 
 type EditorProps = {
-  pageWidget: ContainerWidgetProps<WidgetProps> | any;
+  layout: ContainerWidgetProps<WidgetProps> | any;
   fetchCanvasWidgets: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
-  addPageWidget: Function;
+  updateWidgetProperty: Function;
   page: string;
 };
 
@@ -54,8 +58,6 @@ class Editor extends Component<EditorProps> {
   componentDidMount() {
     this.props.fetchCanvasWidgets("1");
   }
-
-  addWidgetToCanvas = (): void => {};
 
   public render() {
     return (
@@ -67,8 +69,8 @@ class Editor extends Component<EditorProps> {
           <CanvasContainer>
             <Canvas
               layout={{
-                ...this.props.pageWidget,
-                onDrop: this.props.addPageWidget,
+                ...this.props.layout,
+                onPropertyChange: this.props.updateWidgetProperty,
               }}
             />
           </CanvasContainer>
@@ -79,13 +81,14 @@ class Editor extends Component<EditorProps> {
 }
 
 const mapStateToProps = (state: AppState): EditorReduxState => {
-  const pageWidget = CanvasWidgetsNormalizer.denormalize(
-    state.ui.canvas.pageWidgetId,
+  const layout = CanvasWidgetsNormalizer.denormalize(
+    state.ui.editor.pageWidgetId,
     state.entities,
   );
   return {
     cards: state.ui.widgetCardsPane.cards,
-    pageWidget,
+    layout,
+    pageWidgetId: state.ui.editor.pageWidgetId,
   };
 };
 
@@ -93,8 +96,11 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     fetchCanvasWidgets: (pageId: string) =>
       dispatch(fetchPage(pageId, RenderModes.CANVAS)),
-    addPageWidget: (pageId: string, widgetProps: WidgetProps) =>
-      dispatch(addWidget(pageId, widgetProps)),
+    updateWidgetProperty: (
+      propertyType: WidgetDynamicProperty,
+      widgetProps: WidgetProps,
+      payload: any,
+    ) => dispatch(updateWidget(propertyType, widgetProps, payload)),
   };
 };
 

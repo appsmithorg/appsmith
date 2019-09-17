@@ -43,7 +43,7 @@ export const IconLabel = styled.h5`
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     item: props.details,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),

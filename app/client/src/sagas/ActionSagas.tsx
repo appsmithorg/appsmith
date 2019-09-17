@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "../constants/ReduxActionConstants";
-import PageApi, { PageResponse, PageRequest } from "../api/PageApi";
+import PageApi, { FetchPageResponse, FetchPageRequest } from "../api/PageApi";
 import { call, put, takeEvery, select, all } from "redux-saga/effects";
 import { RenderModes } from "../constants/WidgetConstants";
 import {
@@ -71,10 +71,12 @@ export function* executeQueryAction(queryAction: QueryActionPayload) {
   });
 }
 
-export function* executeAction(pageRequestAction: ReduxAction<PageRequest>) {
+export function* executeAction(
+  pageRequestAction: ReduxAction<FetchPageRequest>,
+) {
   const pageRequest = pageRequestAction.payload;
   try {
-    const pageResponse: PageResponse = yield call(
+    const pageResponse: FetchPageResponse = yield call(
       PageApi.fetchPage,
       pageRequest,
     );
@@ -86,9 +88,10 @@ export function* executeAction(pageRequestAction: ReduxAction<PageRequest>) {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets,
       };
-      yield put({ type: ReduxActionTypes.UPDATE_CANVAS, payload });
+      yield put({ type: ReduxActionTypes.LOAD_CANVAS_WIDGETS, payload });
     }
   } catch (err) {
+    console.log(err);
     //TODO(abhinav): REFACTOR THIS
   }
 }

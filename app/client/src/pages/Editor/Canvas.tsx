@@ -19,7 +19,7 @@ const Canvas = (props: CanvasProps) => {
   return (
     <React.Fragment>
       <ArtBoard>
-        {props.layout && WidgetFactory.createWidget(props.layout)}
+        {props.layout.widgetId && WidgetFactory.createWidget(props.layout)}
       </ArtBoard>
     </React.Fragment>
   );

@@ -172,4 +172,13 @@ export interface WidgetCardProps {
   icon: string;
 }
 
+export const WidgetDynamicProperties = {
+  POSITION: "POSITION",
+  SIZE: "SIZE",
+  CHILDREN: "CHILDREN",
+  EXISTENCE: "EXISTENCE",
+};
+
+export type WidgetDynamicProperty = (typeof WidgetDynamicProperties)[keyof typeof WidgetDynamicProperties];
+
 export default BaseWidget;

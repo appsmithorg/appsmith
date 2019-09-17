@@ -1,9 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { XYCoord, useDragLayer } from "react-dnd";
-import snapToGrid from "./snapToGrid";
-import WidgetFactory from "../../utils/WidgetFactory";
-import { RenderModes, WidgetType } from "../../constants/WidgetConstants";
+import { useDragLayer } from "react-dnd";
 
 const WrappedDragLayer = styled.div`
   position: absolute;
@@ -13,51 +10,17 @@ const WrappedDragLayer = styled.div`
   top: 0;
   width: 100%;
   height: 100%;
+  cursor: grab;
 `;
 
-function getItemStyles(
-  initialOffset: XYCoord | null,
-  currentOffset: XYCoord | null,
-) {
-  if (!initialOffset || !currentOffset) {
-    return {
-      display: "none",
-    };
-  }
-
-  let { x, y } = currentOffset;
-
-  x -= initialOffset.x;
-  y -= initialOffset.y;
-  [x, y] = snapToGrid(64, x, y);
-  x += initialOffset.x;
-  y += initialOffset.y;
-
-  const transform = `translate(${x}px, ${y}px)`;
-  return {
-    transform,
-    WebkitTransform: transform,
-  };
-}
-
 const EditorDragLayer = () => {
-  const { isDragging, initialOffset, currentOffset } = useDragLayer(
-    monitor => ({
-      item: monitor.getItem(),
-      itemType: monitor.getItemType(),
-      initialOffset: monitor.getInitialSourceClientOffset(),
-      currentOffset: monitor.getSourceClientOffset(),
-      isDragging: monitor.isDragging(),
-    }),
-  );
+  const { isDragging } = useDragLayer(monitor => ({
+    isDragging: monitor.isDragging(),
+  }));
 
   if (!isDragging) {
     return null;
   }
-  return (
-    <WrappedDragLayer>
-      <div style={getItemStyles(initialOffset, currentOffset)}></div>
-    </WrappedDragLayer>
-  );
+  return <WrappedDragLayer></WrappedDragLayer>;
 };
 export default EditorDragLayer;

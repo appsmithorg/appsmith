@@ -7,7 +7,7 @@ import { ContainerProps } from "./ContainerComponent";
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     item: props,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
@@ -17,6 +17,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
       <div
+        ref={drag}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -33,37 +34,5 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     </React.Fragment>
   );
 };
-
-// class DraggableComponent extends React.Component<DraggableProps, WidgetState> {
-//   render() {
-//     return props.connectDragSource(
-//       ,
-//     );
-//   }
-// }
-
-// const widgetSource = {
-//   beginDrag(props: WidgetProps) {
-//     return {
-//       widgetId: props.widgetId,
-//       widgetType: props.type,
-//     };
-//   },
-// };
-
-const widgetType = (props: WidgetProps) => {
-  return props.type;
-};
-
-// function collect(connect: DragSourceConnector, monitor: DragSourceMonitor) {
-//   return {
-//     connectDragSource: connect.dragSource(),
-//     isDragging: monitor.isDragging(),
-//   };
-// }
-
-// export default DragSource(widgetType, widgetSource, collect)(
-//   DraggableComponent,
-// );
 
 export default DraggableComponent;

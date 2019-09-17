@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetProps, WidgetDynamicProperties } from "../widgets/BaseWidget";
 import { useDrop, XYCoord } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
-type DropTargetComponentProps = ContainerProps & { onDrop: Function };
+type DropTargetComponentProps = ContainerProps & {
+  onPropertyChange?: Function;
+};
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [isOver, setIsOver] = useState(false);
   const [, drop] = useDrop({
@@ -14,7 +16,12 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         const delta = monitor.getDifferenceFromInitialOffset() as XYCoord;
         const left = Math.round(item.left + delta.x);
         const top = Math.round(item.top + delta.y);
-        props.onDrop && props.onDrop({ item, left, top });
+        props.onPropertyChange &&
+          props.onPropertyChange(WidgetDynamicProperties.CHILDREN, props, {
+            item,
+            left,
+            top,
+          });
       }
       return undefined;
     },
