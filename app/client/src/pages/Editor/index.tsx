@@ -11,6 +11,7 @@ import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { fetchPage, addWidget } from "../../actions/pageActions";
 import { RenderModes } from "../../constants/WidgetConstants";
+import EditorDragLayer from "./EditorDragLayer";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -42,7 +43,7 @@ const EditorWrapper = styled.div`
 `;
 
 type EditorProps = {
-  pageWidget: ContainerWidgetProps<any> | any;
+  pageWidget: ContainerWidgetProps<WidgetProps> | any;
   fetchCanvasWidgets: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
   addPageWidget: Function;
@@ -62,10 +63,13 @@ class Editor extends Component<EditorProps> {
         <EditorHeader></EditorHeader>
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
+          <EditorDragLayer />
           <CanvasContainer>
             <Canvas
-              pageWidget={this.props.pageWidget}
-              addWidget={this.addWidgetToCanvas}
+              layout={{
+                ...this.props.pageWidget,
+                onDrop: this.props.addPageWidget,
+              }}
             />
           </CanvasContainer>
         </EditorWrapper>

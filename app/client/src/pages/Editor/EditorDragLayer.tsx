@@ -13,7 +13,6 @@ const WrappedDragLayer = styled.div`
   top: 0;
   width: 100%;
   height: 100%;
-  border: 10px solid #000;
 `;
 
 function getItemStyles(
@@ -41,44 +40,23 @@ function getItemStyles(
   };
 }
 
-const EditorDragLayer: React.FC = () => {
-  const {
-    itemType,
-    isDragging,
-    item,
-    initialOffset,
-    currentOffset,
-  } = useDragLayer(monitor => ({
-    item: monitor.getItem(),
-    itemType: monitor.getItemType(),
-    initialOffset: monitor.getInitialSourceClientOffset(),
-    currentOffset: monitor.getSourceClientOffset(),
-    isDragging: monitor.isDragging(),
-  }));
-
-  function renderItem() {
-    return WidgetFactory.createWidget({
-      widgetType: itemType as WidgetType,
-      widgetName: "",
-      widgetId: item.key,
-      topRow: 10,
-      leftColumn: 10,
-      bottomRow: 14,
-      rightColumn: 20,
-      parentColumnSpace: 1,
-      parentRowSpace: 1,
-      renderMode: RenderModes.CANVAS,
-    });
-  }
+const EditorDragLayer = () => {
+  const { isDragging, initialOffset, currentOffset } = useDragLayer(
+    monitor => ({
+      item: monitor.getItem(),
+      itemType: monitor.getItemType(),
+      initialOffset: monitor.getInitialSourceClientOffset(),
+      currentOffset: monitor.getSourceClientOffset(),
+      isDragging: monitor.isDragging(),
+    }),
+  );
 
   if (!isDragging) {
     return null;
   }
   return (
     <WrappedDragLayer>
-      <div style={getItemStyles(initialOffset, currentOffset)}>
-        {renderItem()}
-      </div>
+      <div style={getItemStyles(initialOffset, currentOffset)}></div>
     </WrappedDragLayer>
   );
 };

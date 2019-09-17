@@ -1,54 +1,69 @@
 import * as React from "react";
-import { WidgetProps, WidgetState } from "../widgets/BaseWidget";
-import { DragSource, DragSourceConnector, DragSourceMonitor } from "react-dnd";
+import { WidgetProps } from "../widgets/BaseWidget";
+import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
+import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
 
-export interface DraggableProps extends ContainerProps {
-  connectDragSource: Function;
-  isDragging?: boolean;
-}
+type DraggableComponentProps = WidgetProps & ContainerProps;
 
-class DraggableComponent extends React.Component<DraggableProps, WidgetState> {
-  render() {
-    return this.props.connectDragSource(
+const DraggableComponent = (props: DraggableComponentProps) => {
+  const [{ isDragging }, drag, preview] = useDrag({
+    item: props,
+    collect: (monitor: DragSourceMonitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  return (
+    <React.Fragment>
+      <DragPreviewImage connect={preview} src={blankImage} />
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          left: this.props.style
-            ? this.props.style.xPosition + this.props.style.xPositionUnit
+          left: props.style
+            ? props.style.xPosition + props.style.xPositionUnit
             : 0,
-          top: this.props.style
-            ? this.props.style.yPosition + this.props.style.yPositionUnit
+          top: props.style
+            ? props.style.yPosition + props.style.yPositionUnit
             : 0,
         }}
       >
-        {this.props.children}
-      </div>,
-    );
-  }
-}
-
-const widgetSource = {
-  beginDrag(props: WidgetProps) {
-    return {
-      widgetId: props.widgetId,
-      widgetType: props.widgetType,
-    };
-  },
+        {props.children}
+      </div>
+    </React.Fragment>
+  );
 };
+
+// class DraggableComponent extends React.Component<DraggableProps, WidgetState> {
+//   render() {
+//     return props.connectDragSource(
+//       ,
+//     );
+//   }
+// }
+
+// const widgetSource = {
+//   beginDrag(props: WidgetProps) {
+//     return {
+//       widgetId: props.widgetId,
+//       widgetType: props.type,
+//     };
+//   },
+// };
 
 const widgetType = (props: WidgetProps) => {
-  return props.widgetType;
+  return props.type;
 };
 
-function collect(connect: DragSourceConnector, monitor: DragSourceMonitor) {
-  return {
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging(),
-  };
-}
+// function collect(connect: DragSourceConnector, monitor: DragSourceMonitor) {
+//   return {
+//     connectDragSource: connect.dragSource(),
+//     isDragging: monitor.isDragging(),
+//   };
+// }
 
-export default DragSource(widgetType, widgetSource, collect)(
-  DraggableComponent,
-);
+// export default DragSource(widgetType, widgetSource, collect)(
+//   DraggableComponent,
+// );
+
+export default DraggableComponent;

@@ -152,7 +152,7 @@ export interface WidgetBuilder<T extends WidgetProps> {
 
 export interface WidgetProps {
   widgetId: string;
-  widgetType: WidgetType;
+  type: WidgetType;
   widgetName: string;
   key?: string;
   topRow: number;
@@ -166,7 +166,7 @@ export interface WidgetProps {
 }
 
 export interface WidgetCardProps {
-  widgetType: WidgetType;
+  type: WidgetType;
   key?: string;
   label: string;
   icon: string;

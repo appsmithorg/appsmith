@@ -7,7 +7,6 @@ export const widgetSchema = new schema.Entity(
   {},
   { idAttribute: "widgetId" },
 );
-// const widgets = new schema.Array(widgetSchema);
 widgetSchema.define({ children: [widgetSchema] });
 
 class CanvasWidgetsNormalizer {

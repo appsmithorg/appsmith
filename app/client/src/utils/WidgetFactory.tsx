@@ -13,13 +13,12 @@ class WidgetFactory {
 
   static createWidget(widgetData: WidgetProps): JSX.Element {
     widgetData.key = widgetData.widgetId;
-    const widgetBuilder = this.widgetMap.get(widgetData.widgetType);
+    const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) return widgetBuilder.buildWidget(widgetData);
     else {
       const ex: WidgetCreationException = {
         message:
-          "Widget Builder not registered for widget type" +
-          widgetData.widgetType,
+          "Widget Builder not registered for widget type" + widgetData.type,
       };
       throw ex;
     }

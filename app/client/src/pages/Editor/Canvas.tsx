@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import WidgetFactory from "../../utils/WidgetFactory";
-import { WidgetTypes } from "../../constants/WidgetConstants";
-import { useDrop } from "react-dnd";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { WidgetProps } from "../../widgets/BaseWidget";
 
 const ArtBoard = styled.div`
   width: 100%;
@@ -13,19 +12,14 @@ const ArtBoard = styled.div`
 `;
 
 interface CanvasProps {
-  pageWidget: ContainerWidgetProps<any>;
-  addWidget: Function;
+  layout: ContainerWidgetProps<WidgetProps>;
 }
 
 const Canvas = (props: CanvasProps) => {
-  const [, drop] = useDrop({
-    accept: Object.values(WidgetTypes),
-  });
-
   return (
     <React.Fragment>
-      <ArtBoard ref={drop}>
-        {props.pageWidget && WidgetFactory.createWidget(props.pageWidget)}
+      <ArtBoard>
+        {props.layout && WidgetFactory.createWidget(props.layout)}
       </ArtBoard>
     </React.Fragment>
   );

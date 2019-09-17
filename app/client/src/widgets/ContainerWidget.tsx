@@ -5,7 +5,7 @@ import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
 import WidgetFactory from "../utils/WidgetFactory";
 import _ from "lodash";
 import { Color } from "../constants/DefaultTheme";
-import DroppableComponent from "../editorComponents/DroppableComponent";
+import DropTargetComponent from "../editorComponents/DropTargetComponent";
 
 const DEFAULT_NUM_COLS = 16;
 const DEFAULT_NUM_ROWS = 16;
@@ -68,14 +68,14 @@ class ContainerWidget extends BaseWidget<
 
   getCanvasView() {
     return (
-      <DroppableComponent
+      <DropTargetComponent
         {...this.props}
         style={{
           ...this.getPositionStyle(),
         }}
       >
         {super.getCanvasView()}
-      </DroppableComponent>
+      </DropTargetComponent>
     );
   }
 
@@ -96,6 +96,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   snapRows?: number;
   orientation?: ContainerOrientation;
   backgroundColor?: Color;
+  onDrop?: Function;
 }
 
 export default ContainerWidget;

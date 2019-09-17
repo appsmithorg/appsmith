@@ -24,6 +24,7 @@ export const Container = styled("div")<ContainerProps>`
       : props.style.yPosition + props.style.yPositionUnit;
   }};
 `;
+
 const ContainerComponent = (props: ContainerProps) => {
   return <Container {...props}>{props.children}</Container>;
 };
@@ -31,7 +32,6 @@ const ContainerComponent = (props: ContainerProps) => {
 export interface ContainerProps extends ComponentProps {
   children?: JSX.Element[] | JSX.Element;
   orientation?: ContainerOrientation;
-  addWidget?: Function;
 }
 
 export default ContainerComponent;

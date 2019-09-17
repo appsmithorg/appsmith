@@ -56,7 +56,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
   DROP_DOWN_WIDGET: {
     rows: 1,
     columns: 3,
-    type: "SINGLE_SELECT",
+    selectionType: "SINGLE_SELECT",
     label: "Pick me!",
   },
   CHECKBOX_WIDGET: {

@@ -11,11 +11,45 @@ import { RenderModes } from "../constants/WidgetConstants";
 export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
   const pageRequest = pageRequestAction.payload;
   try {
-    const pageResponse: PageResponse = yield call(
-      PageApi.fetchPage,
-      pageRequest,
-    );
+    // const pageResponse: PageResponse = yield call(
+    //   PageApi.fetchPage,
+    //   pageRequest,
+    // );
     if (pageRequest.renderMode === RenderModes.CANVAS) {
+      const pageResponse = JSON.parse(`{
+        "responseMeta": {},
+        "layout": {
+          "dsl": {
+            "widgetId": "0",
+            "type": "CONTAINER_WIDGET",
+            "snapColumns": 1000,
+            "snapRows": 1500,
+            "topRow": 0,
+            "bottomRow": 2,
+            "leftColumn": 0,
+            "rightColumn": 2,
+            "parentColumnSpace": 1,
+            "parentRowSpace": 1,
+            "backgroundColor": "#ffffff",
+            "renderMode": "CANVAS",
+            "children": [
+              {
+                "widgetId": "1",
+                "type": "CONTAINER_WIDGET",
+                "snapColumns": 10,
+                "snapRows": 10,
+                "topRow": 1,
+                "bottomRow": 2,
+                "leftColumn": 1,
+                "rightColumn": 2,
+                "backgroundColor": "#000000",
+                "renderMode": "CANVAS",
+                "children": []
+              }
+            ]
+          }
+        }
+      }`);
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
         pageResponse,
       );
