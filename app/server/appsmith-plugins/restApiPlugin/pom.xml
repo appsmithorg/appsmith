@@ -5,18 +5,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.external.plugins</groupId>
-  <artifactId>postgresPlugin</artifactId>
+  <artifactId>restApiPlugin</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>postgresPlugin</name>
+  <name>restApiPlugin</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <plugin.id>postgres-plugin</plugin.id>
-    <plugin.class>com.external.plugins.PostgresPlugin</plugin.class>
+    <plugin.id>restapi-plugin</plugin.id>
+    <plugin.class>com.external.plugins.RestApiPlugin</plugin.class>
     <plugin.version>1.0-SNAPSHOT</plugin.version>
     <plugin.provider>tech@appsmith.com</plugin.provider>
     <plugin.dependencies />
@@ -40,6 +40,12 @@
       <groupId>com.appsmith</groupId>
       <artifactId>interfaces</artifactId>
       <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
+      <version>5.1.5.RELEASE</version>
     </dependency>
 
     <dependency>
