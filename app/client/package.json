@@ -26,6 +26,7 @@
     "@types/react-router-dom": "^4.3.5",
     "@types/styled-components": "^4.1.8",
     "axios": "^0.18.0",
+    "eslint": "^6.4.0",
     "flow-bin": "^0.91.0",
     "fontfaceobserver": "^2.1.0",
     "husky": "^3.0.5",
@@ -57,7 +58,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "flow": "flow",
+    "postinstall": "./src/assets/icons/build.sh"
   },
   "resolutions": {
     "jest": "24.8.0"
@@ -80,6 +82,7 @@
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
+    "icon-font-generator": "^2.1.10",
     "redux-devtools": "^3.5.0"
   },
   "husky": {

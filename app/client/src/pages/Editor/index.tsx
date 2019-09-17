@@ -7,14 +7,12 @@ import { AppState } from "../../reducers";
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
 import WidgetCardsPane from "./WidgetCardsPane";
 import EditorHeader from "./EditorHeader";
-import { WidgetType } from "../../constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { fetchPage, addWidget } from "../../actions/pageActions";
 import { executeAction } from "../../actions/widgetActions";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ActionPayload } from "../../constants/ActionConstants";
-// import EditorDragLayer  from "./EditorDragLayer"
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -59,23 +57,7 @@ class Editor extends Component<EditorProps> {
     this.props.fetchCanvasWidgets("1");
   }
 
-  addWidgetToCanvas = (widgetType: WidgetType, key: string): void => {
-    this.props.addPageWidget("1", {
-      key: key,
-      bottomRow: 9,
-      leftColumn: 1,
-      parentColumnSpace: 90,
-      parentRowSpace: 50,
-      renderMode: RenderModes.CANVAS,
-      rightColumn: 3,
-      snapColumns: 20,
-      snapRows: 20,
-      children: [],
-      topRow: 1,
-      widgetId: key,
-      widgetType: widgetType,
-    });
-  };
+  addWidgetToCanvas = (): void => {};
 
   public render() {
     return (

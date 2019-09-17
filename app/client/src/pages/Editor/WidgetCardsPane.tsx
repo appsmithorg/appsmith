@@ -35,7 +35,7 @@ const WidgetCardsPane: React.SFC<WidgetCardPaneProps> = (
           <h5>{group}</h5>
           <CardsWrapper>
             {props.cards[group].map((card: WidgetCardProps) => (
-              <WidgetCard details={card} key={card.widgetType} />
+              <WidgetCard details={card} key={card.key} />
             ))}
           </CardsWrapper>
         </React.Fragment>
