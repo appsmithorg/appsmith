@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Param {
+public class OldParam {
 
     String key;
 

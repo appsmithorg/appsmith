@@ -1,4 +1,4 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
 import lombok.Getter;
 import lombok.Setter;
