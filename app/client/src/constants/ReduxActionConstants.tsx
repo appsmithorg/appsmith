@@ -1,30 +1,4 @@
-// import ContainerWidget from "../widgets/ContainerWidget"
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
-
-// export type ReduxActionType =
-//   | "LOAD_CANVAS_WIDGETS"
-//   | "UPDATE_CANVAS"
-//   | "FETCH_CANVAS"
-//   | "CLEAR_CANVAS"
-//   | "DROP_WIDGET_CANVAS"
-//   | "REMOVE_WIDGET_CANVAS"
-//   | "LOAD_WIDGET_PANE"
-//   | "FETCH_PAGE"
-//   | "ZOOM_IN_CANVAS"
-//   | "ZOOM_OUT_CANVAS"
-//   | "PUBLISH"
-//   | "UNDO_CANVAS_ACTION"
-//   | "REDO_CANVAS_ACTION"
-//   | "FETCH_WIDGET_CARDS"
-//   | "SUCCESS_FETCHING_WIDGET_CARDS"
-//   | "ERROR_FETCHING_WIDGET_CARDS"
-//   | "ADD_PAGE_WIDGET"
-//   | "REMOVE_PAGE_WIDGET"
-//   | "LOAD_WIDGET_CONFIG"
-//   | "LOAD_API_RESPONSE"
-//   | "LOAD_QUERY_RESPONSE"
-//   | "EXECUTE_ACTION"
-//   | "LOAD_CANVAS_ACTIONS";
 
 export const ReduxActionTypes = {
   LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
