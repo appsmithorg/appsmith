@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

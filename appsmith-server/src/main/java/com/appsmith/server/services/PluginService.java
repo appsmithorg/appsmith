@@ -18,12 +18,11 @@ public interface PluginService extends CrudService<Plugin, String> {
      */
     OldPluginExecutor getPluginExecutor(PluginType pluginType, String className);
 
-    public Mono<Organization> installPlugin(PluginOrgDTO plugin);
+    Mono<Organization> installPlugin(PluginOrgDTO plugin);
 
-    public Mono<Organization> uninstallPlugin(PluginOrgDTO plugin);
+    Mono<Organization> uninstallPlugin(PluginOrgDTO plugin);
 
-    public Mono<Plugin> findByName(String name);
+    Mono<Plugin> findByName(String name);
 
-    public Mono<Plugin> findById(String id);
-
+    Mono<Plugin> findById(String id);
 }
