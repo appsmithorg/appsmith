@@ -1,28 +1,28 @@
-import { createReducer } from "../../utils/AppsmithUtils"
+import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
-} from "../../constants/ReduxActionConstants"
-import _ from "lodash"
-import { ActionCreatedResponse } from '../../api/ActionAPI'
-import { PageAction } from '../../constants/ActionConstants';
+} from "../../constants/ReduxActionConstants";
+import _ from "lodash";
+import { ActionCreateUpdateResponse } from "../../api/ActionAPI";
+import { PageAction } from "../../constants/ActionConstants";
 
-const initialState: ActionDataState = {
-
-}
+const initialState: ActionDataState = {};
 
 export interface ActionDataState {
-  [name: string]: ActionCreatedResponse
+  [name: string]: ActionCreateUpdateResponse;
 }
 
 const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_CANVAS_ACTIONS]: (
     state: ActionDataState,
-    action: ReduxAction<PageAction[]>
+    action: ReduxAction<PageAction[]>,
   ) => {
-    const actionMap = _.mapKeys(action.payload, (action: PageAction) => { return action.actionId })
-    return { ...state, ...actionMap }
-  }
-})
+    const actionMap = _.mapKeys(action.payload, (action: PageAction) => {
+      return action.actionId;
+    });
+    return { ...state, ...actionMap };
+  },
+});
 
-export default actionsReducer
+export default actionsReducer;
