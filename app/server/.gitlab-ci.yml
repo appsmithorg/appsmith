@@ -1,0 +1,57 @@
+.only-default: &only-default
+  only:
+    - master
+    - merge_requests
+
+image: docker:latest
+services:
+  - docker:dind
+  - mongo:latest
+
+cache:
+  paths:
+    - ./.m2/repository
+  # keep cache across branch
+  key: "$CI_BUILD_REF_NAME"
+
+variables:
+  DOCKER_DRIVER: overlay
+  SPRING_PROFILES_ACTIVE: docker
+  MAVEN_OPTS: "-Djava.awt.headless=true -Dmaven.repo.local=./.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+  HEROKU_API_KEY: "467e709c-8489-4e26-be07-050030251f3d"
+
+stages:
+  - build
+  - package
+  - deploy
+
+maven-build:
+  image: maven:3-jdk-11-slim
+  stage: build
+  script: "mvn package -DskipTests -B"
+  artifacts:
+    paths:
+      - appsmith-server/target/*.jar
+  only:
+    - master
+    - merge_requests
+
+docker-package:
+  stage: package
+  script:
+    - docker build -t $DOCKER_IMAGE_NAME .
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - docker push $DOCKER_IMAGE_NAME
+  only:
+    - master
+
+
+heroku-deploy:
+  stage: deploy
+  image: tmaier/dpl:latest
+  script:
+    - dpl --provider=heroku --app=appsmith-test --api-key=$HEROKU_API_KEY
+  only:
+    - master
