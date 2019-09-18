@@ -1,6 +1,6 @@
 package com.appsmith.server.exceptions;
 
-import com.appsmith.server.dtos.ResponseDto;
+import com.appsmith.server.dtos.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,10 +28,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDto<ErrorDTO>> catchAppsmithException(AppsmithException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchAppsmithException(AppsmithException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(e.getHttpStatus()));
         log.error("", e);
-        return Mono.just(new ResponseDto<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage()), null, false));
+        return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage())));
     }
 
     /**
@@ -44,11 +44,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDto<ErrorDTO>> catchException(Exception e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchException(Exception e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         log.error("", e);
-        return Mono.just(new ResponseDto<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDTO(AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode(),
-                AppsmithError.INTERNAL_SERVER_ERROR.getMessage()), null, false));
+        return Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDTO(AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode(),
+                AppsmithError.INTERNAL_SERVER_ERROR.getMessage())));
     }
 
 }
