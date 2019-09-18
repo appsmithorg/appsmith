@@ -1,0 +1,3 @@
+{
+	"src/**/*.tsx": ["npx eslint --fix", "npx prettier --write", "git add"]
+}

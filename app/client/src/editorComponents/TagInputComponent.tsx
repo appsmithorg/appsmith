@@ -1,7 +1,7 @@
-import * as React from "react"
-import { ComponentProps } from "./BaseComponent"
-import { Intent, ITagProps, TagInput, HTMLInputProps } from "@blueprintjs/core"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { ComponentProps } from "./BaseComponent";
+import { Intent, ITagProps, TagInput, HTMLInputProps } from "@blueprintjs/core";
+import { Container } from "./ContainerComponent";
 class TagInputComponent extends React.Component<TagInputComponentProps> {
   render() {
     return (
@@ -11,7 +11,7 @@ class TagInputComponent extends React.Component<TagInputComponentProps> {
           values={this.props.values}
         />
       </Container>
-    )
+    );
   }
 }
 
@@ -32,4 +32,4 @@ export interface TagInputComponentProps extends ComponentProps {
   values?: string[]; //Required field
 }
 
-export default TagInputComponent
+export default TagInputComponent;

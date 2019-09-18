@@ -1,18 +1,18 @@
-import React, { Component } from "react"
-import { connect } from "react-redux"
-import styled from "styled-components"
-import Canvas from "./Canvas"
-import { WidgetCardProps, IWidgetProps } from '../../widgets/BaseWidget'
-import { AppState } from "../../reducers"
-import { EditorReduxState } from "../../reducers/uiReducers/editorReducer"
-import WidgetCardsPane from "./WidgetCardsPane"
-import EditorHeader from "./EditorHeader"
-import { WidgetType } from "../../constants/WidgetConstants"
-import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer"
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
-import { fetchPage, addWidget } from "../../actions/pageActions"
-import { RenderModes } from "../../constants/WidgetConstants"
-// import EditorDragLayer  from "./EditorDragLayer"
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import styled from "styled-components";
+import Canvas from "./Canvas";
+import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
+import { AppState } from "../../reducers";
+import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
+import WidgetCardsPane from "./WidgetCardsPane";
+import EditorHeader from "./EditorHeader";
+import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
+import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { fetchPage, addWidget } from "../../actions/pageActions";
+import { executeAction } from "../../actions/widgetActions";
+import { RenderModes } from "../../constants/WidgetConstants";
+import { ActionPayload } from "../../constants/ActionConstants";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -23,7 +23,10 @@ const CanvasContainer = styled.section`
   margin: 0px 10px;
   &:before {
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1000;
     pointer-events: none;
   }
@@ -43,33 +46,18 @@ const EditorWrapper = styled.div`
 type EditorProps = {
   pageWidget: ContainerWidgetProps<any> | any;
   fetchCanvasWidgets: Function;
+  executeAction: (actionPayloads?: ActionPayload[]) => void;
   cards: { [id: string]: WidgetCardProps[] } | any;
   addPageWidget: Function;
   page: string;
-}
+};
 
 class Editor extends Component<EditorProps> {
   componentDidMount() {
-    this.props.fetchCanvasWidgets("1")
+    this.props.fetchCanvasWidgets("1");
   }
 
-  addWidgetToCanvas = (widgetType: WidgetType, key: string): void => {
-    this.props.addPageWidget("1", {
-      key: key,
-      bottomRow: 9,
-      leftColumn: 1,
-      parentColumnSpace: 90,
-      parentRowSpace: 50,
-      renderMode: RenderModes.CANVAS,
-      rightColumn: 3,
-      snapColumns: 20,
-      snapRows: 20,
-      children: [],
-      topRow: 1,
-      widgetId: key,
-      widgetType: widgetType
-    })
-  }
+  addWidgetToCanvas = (): void => {};
 
   public render() {
     return (
@@ -78,33 +66,41 @@ class Editor extends Component<EditorProps> {
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
           <CanvasContainer>
-            <Canvas pageWidget={this.props.pageWidget} addWidget={this.addWidgetToCanvas} />
+            <Canvas
+              pageWidget={this.props.pageWidget}
+              addWidget={this.addWidgetToCanvas}
+              widgetFunctions={{ executeAction: this.props.executeAction }}
+            />
           </CanvasContainer>
         </EditorWrapper>
       </React.Fragment>
-    )
+    );
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps): EditorReduxState => {
+const mapStateToProps = (state: AppState): EditorReduxState => {
   const pageWidget = CanvasWidgetsNormalizer.denormalize(
     state.ui.canvas.pageWidgetId,
-    state.entities
-  )
+    state.entities,
+  );
   return {
     cards: state.ui.widgetCardsPane.cards,
     pageWidget,
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    fetchCanvasWidgets: (pageId: string) => dispatch(fetchPage(pageId, RenderModes.CANVAS)),
-    addPageWidget: (pageId: string, widgetProps: IWidgetProps) => dispatch(addWidget(pageId, widgetProps))
-  }
-}
+    executeAction: (actionPayloads?: ActionPayload[]) =>
+      dispatch(executeAction(actionPayloads)),
+    fetchCanvasWidgets: (pageId: string) =>
+      dispatch(fetchPage(pageId, RenderModes.CANVAS)),
+    addPageWidget: (pageId: string, widgetProps: WidgetProps) =>
+      dispatch(addWidget(pageId, widgetProps)),
+  };
+};
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)(Editor)
+  mapDispatchToProps,
+)(Editor);

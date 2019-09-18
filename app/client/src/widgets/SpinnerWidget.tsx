@@ -1,11 +1,10 @@
 import React from "react";
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import { Intent } from "@blueprintjs/core";
 import SpinnerComponent from "../editorComponents/SpinnerComponent";
 
-class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, IWidgetState> {
-
+class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SpinnerComponent
@@ -24,7 +23,7 @@ class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, IWidgetState> {
   }
 }
 
-export interface SpinnerWidgetProps extends IWidgetProps {
+export interface SpinnerWidgetProps extends WidgetProps {
   size?: number;
   value?: number;
   ellipsize?: boolean;

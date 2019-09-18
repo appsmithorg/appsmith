@@ -1,20 +1,23 @@
-import * as React from "react"
-import { Button, MaybeElement } from "@blueprintjs/core"
-import { ITextComponentProps } from "./TextComponent"
-import { Container } from "./ContainerComponent"
+import * as React from "react";
+import { Button, MaybeElement } from "@blueprintjs/core";
+import { TextComponentProps } from "./TextComponent";
+import { Container } from "./ContainerComponent";
 
-class ButtonComponent extends React.Component<IButtonComponentProps> {
+class ButtonComponent extends React.Component<ButtonComponentProps> {
   render() {
     return (
       <Container {...this.props}>
-        <Button  icon={this.props.icon}>{this.props.text}</Button>
+        <Button icon={this.props.icon} onClick={this.props.onClick}>
+          {this.props.text}
+        </Button>
       </Container>
-    )
+    );
   }
 }
 
-interface IButtonComponentProps extends ITextComponentProps {
-  icon?: MaybeElement
+interface ButtonComponentProps extends TextComponentProps {
+  icon?: MaybeElement;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
-export default ButtonComponent
+export default ButtonComponent;

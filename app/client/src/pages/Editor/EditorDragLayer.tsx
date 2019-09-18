@@ -1,9 +1,10 @@
-import React from 'react'
-import styled from 'styled-components'
-import { XYCoord, useDragLayer } from 'react-dnd'
-import snapToGrid from './snapToGrid'
-import WidgetFactory from '../../utils/WidgetFactory';
-import { RenderModes,  WidgetType } from '../../constants/WidgetConstants';
+import React from "react";
+import styled from "styled-components";
+import { XYCoord, useDragLayer } from "react-dnd";
+import snapToGrid from "./snapToGrid";
+import WidgetFactory from "../../utils/WidgetFactory";
+import { RenderModes, WidgetType } from "../../constants/WidgetConstants";
+import { ActionPayload } from "../../constants/ActionConstants";
 
 const WrappedDragLayer = styled.div`
   position: absolute;
@@ -16,32 +17,30 @@ const WrappedDragLayer = styled.div`
   border: 10px solid #000;
 `;
 
-
 function getItemStyles(
   initialOffset: XYCoord | null,
-  currentOffset: XYCoord | null
+  currentOffset: XYCoord | null,
 ) {
   if (!initialOffset || !currentOffset) {
     return {
-      display: 'none',
-    }
+      display: "none",
+    };
   }
 
-  let { x, y } = currentOffset
+  let { x, y } = currentOffset;
 
-    x -= initialOffset.x
-    y -= initialOffset.y
-    ;[x, y] = snapToGrid(64, x, y)
-    x += initialOffset.x
-    y += initialOffset.y
-  
-  const transform = `translate(${x}px, ${y}px)`
+  x -= initialOffset.x;
+  y -= initialOffset.y;
+  [x, y] = snapToGrid(64, x, y);
+  x += initialOffset.x;
+  y += initialOffset.y;
+
+  const transform = `translate(${x}px, ${y}px)`;
   return {
     transform,
     WebkitTransform: transform,
-  }
+  };
 }
-
 
 const EditorDragLayer: React.FC = () => {
   const {
@@ -56,11 +55,13 @@ const EditorDragLayer: React.FC = () => {
     initialOffset: monitor.getInitialSourceClientOffset(),
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
-  }))
+  }));
 
   function renderItem() {
-      return WidgetFactory.createWidget({
+    return WidgetFactory.createWidget(
+      {
         widgetType: itemType as WidgetType,
+        widgetName: "",
         widgetId: item.key,
         topRow: 10,
         leftColumn: 10,
@@ -68,21 +69,21 @@ const EditorDragLayer: React.FC = () => {
         rightColumn: 20,
         parentColumnSpace: 1,
         parentRowSpace: 1,
-        renderMode: RenderModes.CANVAS
-      })
+      },
+      { executeAction: (actionPayload?: ActionPayload[]) => {} },
+      RenderModes.CANVAS,
+    );
   }
 
   if (!isDragging) {
-    return null
+    return null;
   }
   return (
     <WrappedDragLayer>
-      <div
-        style={getItemStyles(initialOffset, currentOffset)}
-      >
+      <div style={getItemStyles(initialOffset, currentOffset)}>
         {renderItem()}
       </div>
     </WrappedDragLayer>
-  )
-}
-export default EditorDragLayer
+  );
+};
+export default EditorDragLayer;

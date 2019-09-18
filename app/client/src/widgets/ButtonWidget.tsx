@@ -1,9 +1,13 @@
-import * as React from "react"
-import BaseWidget, { IWidgetProps, IWidgetState } from "./BaseWidget"
-import { WidgetType } from "../constants/WidgetConstants"
-import ButtonComponent from "../editorComponents/ButtonComponent"
+import * as React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
+import ButtonComponent from "../editorComponents/ButtonComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
-class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
+class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
+  onButtonClick() {
+    this.props.executeAction(this.props.onClick);
+  }
 
   getPageView() {
     return (
@@ -11,19 +15,29 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, IWidgetState> {
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
-        text={this.props.text || "Button"}
+        text={this.props.text}
+        onClick={() => {
+          this.onButtonClick();
+        }}
       />
-    )
+    );
   }
 
   getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET"
+    return "BUTTON_WIDGET";
   }
 }
 
-export interface ButtonWidgetProps extends IWidgetProps {
+export type ButtonStyle =
+  | "PRIMARY_BUTTON"
+  | "SECONDARY_BUTTON"
+  | "SUCCESS_BUTTON"
+  | "DANGER_BUTTON";
+
+export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
-  ellipsize?: boolean;
+  buttonStyle?: ButtonStyle;
+  onClick?: ActionPayload[];
 }
 
-export default ButtonWidget
+export default ButtonWidget;

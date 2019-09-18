@@ -1,35 +1,35 @@
-import { createReducer } from "../../utils/AppsmithUtils"
+import { createReducer } from "../../utils/AppsmithUtils";
 import {
-  ActionTypes,
+  ReduxActionTypes,
   ReduxAction,
-  LoadCanvasPayload,
-  LoadWidgetCardsPanePayload
-} from "../../constants/ActionConstants"
-import { WidgetCardProps, IWidgetProps } from "../../widgets/BaseWidget"
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget"
+  LoadCanvasWidgetsPayload,
+  LoadWidgetCardsPanePayload,
+} from "../../constants/ReduxActionConstants";
+import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
+import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 
-const initialState: EditorReduxState = {}
+const initialState: EditorReduxState = {};
 
 const editorReducer = createReducer(initialState, {
-  [ActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
+  [ReduxActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
     state: EditorReduxState,
-    action: ReduxAction<LoadWidgetCardsPanePayload>
+    action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { ...state.pageWidget, ...action.payload }
+    return { ...state.pageWidget, ...action.payload };
   },
-  [ActionTypes.ADD_PAGE_WIDGET]: (
+  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
     state: EditorReduxState,
-    action: ReduxAction<{pageId: string, widget: IWidgetProps}>
+    action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
   ) => {
-    return state
+    return state;
   },
-  [ActionTypes.UPDATE_CANVAS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: EditorReduxState,
-    action: ReduxAction<LoadCanvasPayload>
+    action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
-    return { pageWidgetId: action.payload.pageWidgetId }
-  }
-})
+    return { pageWidgetId: action.payload.pageWidgetId };
+  },
+});
 
 export interface EditorReduxState {
   pageWidget?: ContainerWidgetProps<any>;
@@ -38,4 +38,4 @@ export interface EditorReduxState {
   };
 }
 
-export default editorReducer
+export default editorReducer;
