@@ -10,7 +10,6 @@ import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
 import appReducer from "./reducers";
-import WidgetBuilderRegistry from "./utils/WidgetRegistry";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "./sagas";
@@ -18,11 +17,14 @@ import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
+import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 
 appInitializer();
-WidgetBuilderRegistry.registerWidgetBuilders();
 const sagaMiddleware = createSagaMiddleware();
-const store = createStore(appReducer, applyMiddleware(sagaMiddleware));
+const store = createStore(
+  appReducer,
+  composeWithDevTools(applyMiddleware(sagaMiddleware)),
+);
 sagaMiddleware.run(rootSaga);
 ReactDOM.render(
   <DndProvider backend={HTML5Backend}>

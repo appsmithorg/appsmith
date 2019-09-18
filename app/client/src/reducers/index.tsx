@@ -8,6 +8,8 @@ import { EditorReduxState } from "./uiReducers/editorReducer";
 import { APIDataState } from "./entityReducers/apiDataReducer";
 import { QueryDataState } from "./entityReducers/queryDataReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
+import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
+import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -22,11 +24,13 @@ export interface AppState {
     widgetCardsPane: WidgetCardsPaneReduxState;
     // editorHeader: EditorHeaderReduxState;
     editor: EditorReduxState;
+    propertyPane: PropertyPaneReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
     apiData: APIDataState;
     queryData: QueryDataState;
     actions: ActionDataState;
+    propertyConfig: PropertyPaneConfigState;
   };
 }

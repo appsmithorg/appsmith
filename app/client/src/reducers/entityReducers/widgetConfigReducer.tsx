@@ -2,7 +2,6 @@ import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadWidgetConfigPayload,
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import WidgetConfigResponse from "../../mockResponses/WidgetConfigResponse";
@@ -28,26 +27,29 @@ export interface WidgetConfigProps {
 }
 
 export interface WidgetConfigReducerState {
-  BUTTON_WIDGET: Partial<ButtonWidgetProps> & WidgetConfigProps;
-  TEXT_WIDGET: Partial<TextWidgetProps> & WidgetConfigProps;
-  IMAGE_WIDGET: Partial<ImageWidgetProps> & WidgetConfigProps;
-  INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
-  SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
-  CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
-    WidgetConfigProps;
-  SPINNER_WIDGET: Partial<SpinnerWidgetProps> & WidgetConfigProps;
-  DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
-  TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
-  DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
-  CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
-  RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
-  ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
+  config: {
+    BUTTON_WIDGET: Partial<ButtonWidgetProps> & WidgetConfigProps;
+    TEXT_WIDGET: Partial<TextWidgetProps> & WidgetConfigProps;
+    IMAGE_WIDGET: Partial<ImageWidgetProps> & WidgetConfigProps;
+    INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
+    SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
+    CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
+      WidgetConfigProps;
+    SPINNER_WIDGET: Partial<SpinnerWidgetProps> & WidgetConfigProps;
+    DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
+    TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
+    DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
+    CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
+    RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
+    ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
+  };
+  configVersion: number;
 }
 
 const widgetConfigReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_WIDGET_CONFIG]: (
     state: WidgetConfigReducerState,
-    action: ReduxAction<LoadWidgetConfigPayload>,
+    action: ReduxAction<WidgetConfigReducerState>,
   ) => {
     return { ...action.payload };
   },

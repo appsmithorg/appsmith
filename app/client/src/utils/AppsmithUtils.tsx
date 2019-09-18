@@ -9,6 +9,8 @@ import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import netlifyIdentity from "netlify-identity-widget";
 import FontFaceObserver from "fontfaceobserver";
+import PropertyControlRegistry from "./PropertyControlRegistry";
+import WidgetBuilderRegistry from "./WidgetRegistry";
 
 export const createReducer = (
   initialState: any,
@@ -24,6 +26,8 @@ export const createReducer = (
 };
 
 export const appInitializer = () => {
+  WidgetBuilderRegistry.registerWidgetBuilders();
+  PropertyControlRegistry.registerPropertyControlBuilders();
   netlifyIdentity.init();
   switch (process.env.REACT_APP_ENVIRONMENT) {
     case "PRODUCTION":
