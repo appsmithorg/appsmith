@@ -1,4 +1,5 @@
 import { FetchPageRequest } from "../api/PageApi";
+import { ResponseMeta } from "../api/ApiResponses";
 import { RenderMode } from "../constants/WidgetConstants";
 import {
   WidgetProps,
@@ -13,6 +14,7 @@ import {
   SavePageErrorPayload,
   SavePageSuccessPayload,
 } from "../constants/ReduxActionConstants";
+import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 
 export const fetchPage = (
   pageId: string,
@@ -24,6 +26,13 @@ export const fetchPage = (
       pageId: pageId,
       renderMode: renderMode,
     },
+  };
+};
+
+export const fetchPageError = (payload: ResponseMeta) => {
+  console.log("FETCH PAGE ERROR", payload);
+  return {
+    type: ReduxActionTypes.FETCH_PAGE_ERROR,
   };
 };
 
@@ -62,10 +71,14 @@ export const loadCanvasWidgets = (
   };
 };
 
-export const savePage = (payload: SavePagePayload) => {
+export const savePage = (
+  pageId: string,
+  layoutId: string,
+  dsl: ContainerWidgetProps<WidgetProps>,
+): ReduxAction<SavePagePayload> => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
-    payload,
+    payload: { pageId, layoutId, dsl },
   };
 };
 

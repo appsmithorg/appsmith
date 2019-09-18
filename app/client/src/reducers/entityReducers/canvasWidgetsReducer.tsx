@@ -5,7 +5,6 @@ import {
   ReduxAction,
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
-import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -24,18 +23,20 @@ const canvasWidgetsReducer = createReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
   ) => {
-    const widget = action.payload.widget;
-    const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
-      canvasWidgets: state,
-    });
-    const children = widgetTree.children || [];
-    children.push(widget);
-    widgetTree.children = children;
-    const newState = CanvasWidgetsNormalizer.normalize({
-      responseMeta: { responseCode: "SUCCESS" },
-      layout: { dsl: widgetTree, actions: [] },
-    }).entities;
-    return newState.canvasWidgets;
+    // const widget = action.payload.widget;
+    // const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
+    //   canvasWidgets: state,
+    // });
+    // const children = widgetTree.children || [];
+    // children.push(widget);
+    // widgetTree.children = children;
+    // const newState = CanvasWidgetsNormalizer.normalize({
+    //   responseMeta: { responseCode: "SUCCESS" },
+    //   layout: { dsl: widgetTree, actions: [] },
+    // }).entities;
+    // return newState.canvasWidgets;
+    console.log(action.payload.widget);
+    return state;
   },
 });
 

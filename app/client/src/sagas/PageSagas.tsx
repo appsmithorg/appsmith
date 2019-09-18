@@ -8,6 +8,7 @@ import {
   loadCanvasWidgets,
   savePageError,
   savePageSuccess,
+  fetchPageError,
 } from "../actions/pageActions";
 import PageApi, {
   FetchPageResponse,
@@ -16,64 +17,62 @@ import PageApi, {
   SavePageRequest,
 } from "../api/PageApi";
 import { call, put, takeLatest, all } from "redux-saga/effects";
-import { RenderModes } from "../constants/WidgetConstants";
+import { extractCurrentDSL } from "./utils";
 
 export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
   const pageRequest = pageRequestAction.payload;
   try {
-    // const pageResponse: PageResponse = yield call(
-    //   PageApi.fetchPage,
-    //   pageRequest,
-    // );
-    if (pageRequest.renderMode === RenderModes.CANVAS) {
-      const pageResponse = JSON.parse(`{
-        "responseMeta": {},
-        "layout": {
-          "dsl": {
-            "widgetId": "0",
-            "type": "CONTAINER_WIDGET",
-            "snapColumns": 16,
-            "snapRows": 100,
-            "topRow": 0,
-            "bottomRow": 2000,
-            "leftColumn": 0,
-            "rightColumn": 1000,
-            "parentColumnSpace": 1,
-            "parentRowSpace": 1,
-            "backgroundColor": "#ffffff",
-            "renderMode": "CANVAS",
-            "children": [
-              {
-                "widgetId": "1",
-                "type": "CONTAINER_WIDGET",
-                "snapColumns": 10,
-                "snapRows": 10,
-                "topRow": 1,
-                "bottomRow": 20,
-                "leftColumn": 1,
-                "rightColumn": 16,
-                "backgroundColor": "#000000",
-                "renderMode": "CANVAS",
-                "children": []
-              }
-            ]
-          }
-        }
-      }`);
+    const fetchPageResponse: FetchPageResponse = yield call(
+      PageApi.fetchPage,
+      pageRequest,
+    );
+    if (fetchPageResponse.responseMeta.success) {
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-        pageResponse,
+        extractCurrentDSL(fetchPageResponse),
       );
       const canvasWidgetsPayload: LoadCanvasWidgetsPayload = {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets,
+        layoutId: fetchPageResponse.data.layouts[0].id,
       };
-
       yield put(loadCanvasWidgets(canvasWidgetsPayload));
       yield put({
         type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-        payload: pageResponse.layout.actions,
+        payload: fetchPageResponse.data.layouts[0].actions, // TODO: Refactor
       });
+    } else {
+      yield put(fetchPageError(fetchPageResponse.responseMeta));
     }
+    // const fetchPageResponse = JSON.parse(`{
+    //   "responseMeta": {
+    //     "success": true,
+    //     "code": 200
+    //   },
+    //   "data": {
+    //     "id": "5d807e76795dc6000482bc76",
+    //     "applicationId": "5d807e45795dc6000482bc74",
+    //     "layouts": [
+    //       {
+    //         "id": "5d807e76795dc6000482bc75",
+    //         "dsl": {
+    //           "widgetId": "0",
+    //           "type": "CONTAINER_WIDGET",
+    //           "snapColumns": 16,
+    //           "snapRows": 100,
+    //           "topRow": 0,
+    //           "bottomRow": 2000,
+    //           "leftColumn": 0,
+    //           "rightColumn": 1000,
+    //           "parentColumnSpace": 1,
+    //           "parentRowSpace": 1,
+    //           "backgroundColor": "#ffffff",
+    //           "renderMode": "CANVAS",
+    //           "children": []
+    //         }
+    //       }
+    //     ]
+    //   }
+    // }`);
   } catch (err) {
     console.log(err);
     //TODO(abhinav): REFACTOR THIS
@@ -82,7 +81,6 @@ export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
 
 export function* savePage(savePageAction: ReduxAction<SavePageRequest>) {
   const savePageRequest = savePageAction.payload;
-
   try {
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,

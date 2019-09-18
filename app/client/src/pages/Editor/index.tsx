@@ -13,7 +13,7 @@ import WidgetCardsPane from "./WidgetCardsPane";
 import EditorHeader from "./EditorHeader";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { fetchPage, updateWidget } from "../../actions/pageActions";
+import { fetchPage, updateWidget, savePage } from "../../actions/pageActions";
 import { RenderModes } from "../../constants/WidgetConstants";
 import EditorDragLayer from "./EditorDragLayer";
 
@@ -51,12 +51,15 @@ type EditorProps = {
   fetchCanvasWidgets: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
   updateWidgetProperty: Function;
+  savePageLayout: Function;
   page: string;
+  currentPageId: string;
+  currentLayoutId: string;
 };
 
 class Editor extends Component<EditorProps> {
   componentDidMount() {
-    this.props.fetchCanvasWidgets("1");
+    this.props.fetchCanvasWidgets(this.props.currentPageId);
   }
 
   public render() {
@@ -89,6 +92,8 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     cards: state.ui.widgetCardsPane.cards,
     layout,
     pageWidgetId: state.ui.editor.pageWidgetId,
+    currentPageId: state.ui.editor.currentPageId,
+    currentLayoutId: state.ui.editor.currentLayoutId,
   };
 };
 
@@ -101,6 +106,11 @@ const mapDispatchToProps = (dispatch: any) => {
       widgetProps: WidgetProps,
       payload: any,
     ) => dispatch(updateWidget(propertyType, widgetProps, payload)),
+    savePageLayout: (
+      pageId: string,
+      layoutId: string,
+      dsl: ContainerWidgetProps<WidgetProps>,
+    ) => dispatch(savePage(pageId, layoutId, dsl)),
   };
 };
 

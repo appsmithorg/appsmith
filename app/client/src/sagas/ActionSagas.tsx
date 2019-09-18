@@ -15,6 +15,7 @@ import ActionAPI, { ActionCreatedResponse } from "../api/ActionAPI";
 import { AppState } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
 import _ from "lodash";
+import { extractCurrentDSL } from "./utils";
 
 const getDataTree = (state: AppState) => {
   return state.entities;
@@ -82,7 +83,7 @@ export function* executeAction(
     );
     if (pageRequest.renderMode === RenderModes.CANVAS) {
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-        pageResponse,
+        extractCurrentDSL(pageResponse),
       );
       const payload = {
         pageWidgetId: normalizedResponse.result,

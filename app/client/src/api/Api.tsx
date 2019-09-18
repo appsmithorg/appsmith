@@ -12,6 +12,12 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: REQUEST_TIMEOUT_MS,
   headers: REQUEST_HEADERS,
+  withCredentials: true,
+  //TODO(abhinav): remove this.
+  auth: {
+    username: "api_user",
+    password: "8uA@;&mB:cnvN~{#",
+  },
 });
 
 axiosInstance.interceptors.response.use(
@@ -49,6 +55,13 @@ class Api {
 
   static post(url: string, queryParams?: any, body?: any) {
     return axiosInstance.post(
+      url + this.convertObjectToQueryParams(queryParams),
+      body,
+    );
+  }
+
+  static put(url: string, queryParams?: any, body?: any) {
+    return axiosInstance.put(
       url + this.convertObjectToQueryParams(queryParams),
       body,
     );

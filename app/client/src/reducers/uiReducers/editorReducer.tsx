@@ -10,6 +10,8 @@ import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 
 const initialState: EditorReduxState = {
   pageWidgetId: "0",
+  currentPageId: "5d807e76795dc6000482bc76",
+  currentLayoutId: "5d807e76795dc6000482bc75",
 };
 
 const editorReducer = createReducer(initialState, {
@@ -36,6 +38,8 @@ export interface EditorReduxState {
     [id: string]: WidgetCardProps[];
   };
   pageWidgetId: string;
+  currentPageId: string;
+  currentLayoutId: string;
 }
 
 export default editorReducer;

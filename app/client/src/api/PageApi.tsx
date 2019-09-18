@@ -11,31 +11,50 @@ export interface FetchPageRequest {
 }
 
 export interface SavePageRequest {
-  pageWidget: ContainerWidgetProps<WidgetProps>;
+  dsl: ContainerWidgetProps<WidgetProps>;
+  layoutId: string;
+  pageId: string;
 }
 
 export interface PageLayout {
+  id: string;
   dsl: ContainerWidgetProps<any>;
-  actions: PageAction[];
+  actions?: PageAction[];
 }
 
-export interface FetchPageResponse extends ApiResponse {
-  layout: PageLayout;
-}
+export type FetchPageResponse = ApiResponse & {
+  data: {
+    id: string;
+    name: string;
+    applicationId: string;
+    layouts: Array<PageLayout>;
+  };
+};
 
 export interface SavePageResponse {
   pageId: string;
 }
 
 class PageApi extends Api {
-  static url = "/page";
+  static url = "/pages";
+  static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
+    return `/layouts/${layoutId}/pages/${pageId}`;
+  };
 
   static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {
-    return Api.get(PageApi.url + "/" + pageRequest.pageId, pageRequest);
+    return Api.get(PageApi.url + "/" + pageRequest.pageId);
   }
 
   static savePage(savePageRequest: SavePageRequest): Promise<SavePageResponse> {
-    return Api.post(PageApi.url, undefined, savePageRequest);
+    const body = { dsl: savePageRequest.dsl };
+    return Api.put(
+      PageApi.getLayoutUpdateURL(
+        savePageRequest.pageId,
+        savePageRequest.layoutId,
+      ),
+      undefined,
+      body,
+    );
   }
 }
 

@@ -26,6 +26,7 @@ export const ReduxActionTypes = {
   SAVE_PAGE_INIT: "SAVE_PAGE_INIT",
   SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
   SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
+  FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
@@ -38,6 +39,7 @@ export interface ReduxAction<T> {
 export interface LoadCanvasWidgetsPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: WidgetProps };
+  layoutId: string;
 }
 
 export interface LoadWidgetConfigPayload {
