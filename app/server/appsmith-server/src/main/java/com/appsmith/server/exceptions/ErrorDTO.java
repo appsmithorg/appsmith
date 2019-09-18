@@ -13,7 +13,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ErrorDTO implements Serializable {
 
-    private int errorCode;
+    private int code;
 
-    private String errorMessage;
+    private String message;
 }
