@@ -43,36 +43,6 @@ export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
     } else {
       yield put(fetchPageError(fetchPageResponse.responseMeta));
     }
-    // const fetchPageResponse = JSON.parse(`{
-    //   "responseMeta": {
-    //     "success": true,
-    //     "code": 200
-    //   },
-    //   "data": {
-    //     "id": "5d807e76795dc6000482bc76",
-    //     "applicationId": "5d807e45795dc6000482bc74",
-    //     "layouts": [
-    //       {
-    //         "id": "5d807e76795dc6000482bc75",
-    //         "dsl": {
-    //           "widgetId": "0",
-    //           "type": "CONTAINER_WIDGET",
-    //           "snapColumns": 16,
-    //           "snapRows": 100,
-    //           "topRow": 0,
-    //           "bottomRow": 2000,
-    //           "leftColumn": 0,
-    //           "rightColumn": 1000,
-    //           "parentColumnSpace": 1,
-    //           "parentRowSpace": 1,
-    //           "backgroundColor": "#ffffff",
-    //           "renderMode": "CANVAS",
-    //           "children": []
-    //         }
-    //       }
-    //     ]
-    //   }
-    // }`);
   } catch (err) {
     console.log(err);
     //TODO(abhinav): REFACTOR THIS
