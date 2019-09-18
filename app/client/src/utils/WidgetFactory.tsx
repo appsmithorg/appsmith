@@ -1,5 +1,10 @@
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetBuilder, WidgetProps } from "../widgets/BaseWidget";
+import { WidgetType, RenderMode } from "../constants/WidgetConstants";
+import {
+  WidgetBuilder,
+  WidgetProps,
+  WidgetFunctions,
+  WidgetDataProps,
+} from "../widgets/BaseWidget";
 
 class WidgetFactory {
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();
@@ -11,12 +16,22 @@ class WidgetFactory {
     this.widgetMap.set(widgetType, widgetBuilder);
   }
 
-  static createWidget(widgetData: WidgetProps): JSX.Element {
-    widgetData.key = widgetData.widgetId;
+  static createWidget(
+    widgetData: WidgetDataProps,
+    widgetFunctions: WidgetFunctions,
+    renderMode: RenderMode,
+  ): JSX.Element {
+    const widgetProps: WidgetProps = {
+      key: widgetData.widgetId,
+      renderMode: renderMode,
+      ...widgetData,
+      ...widgetFunctions,
+    };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
-
-    if (widgetBuilder) return widgetBuilder.buildWidget(widgetData);
-    else {
+    if (widgetBuilder) {
+      const widget = widgetBuilder.buildWidget(widgetProps);
+      return widget;
+    } else {
       const ex: WidgetCreationException = {
         message:
           "Widget Builder not registered for widget type" + widgetData.type,

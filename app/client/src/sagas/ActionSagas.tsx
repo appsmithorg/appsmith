@@ -1,21 +1,18 @@
-import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
 import {
   ReduxActionTypes,
   ReduxAction,
 } from "../constants/ReduxActionConstants";
-import PageApi, { FetchPageResponse, FetchPageRequest } from "../api/PageApi";
-import { call, put, takeEvery, select, all } from "redux-saga/effects";
-import { RenderModes } from "../constants/WidgetConstants";
+import { call, takeEvery, select, all } from "redux-saga/effects";
 import {
   APIActionPayload,
   QueryActionPayload,
   PageAction,
+  ActionPayload,
 } from "../constants/ActionConstants";
-import ActionAPI, { ActionCreatedResponse } from "../api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse } from "../api/ActionAPI";
 import { AppState } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
 import _ from "lodash";
-import { extractCurrentDSL } from "./utils";
 
 const getDataTree = (state: AppState) => {
   return state.entities;
@@ -24,21 +21,21 @@ const getDataTree = (state: AppState) => {
 const getAction = (
   state: AppState,
   actionId: string,
-): ActionCreatedResponse => {
+): ActionCreateUpdateResponse => {
   return state.entities.actions[actionId];
 };
 
-export function* evaluateJSONPath(jsonPath: string): any {
+export function* evaluateJSONPathSaga(jsonPath: string): any {
   const dataTree = yield select(getDataTree);
   const result = JSONPath({ path: jsonPath, json: dataTree });
   return result;
 }
 
-export function* executeAPIAction(apiAction: APIActionPayload) {
+export function* executeAPIActionSaga(apiAction: APIActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.apiId);
   const responses: any = yield all(
     api.dynamicBindings.map((jsonPath: string) => {
-      return call(evaluateJSONPath, jsonPath);
+      return call(evaluateJSONPathSaga, jsonPath);
     }),
   );
   const dynamicBindingMap: Record<string, any> = _.keyBy(
@@ -53,11 +50,11 @@ export function* executeAPIAction(apiAction: APIActionPayload) {
   });
 }
 
-export function* executeQueryAction(queryAction: QueryActionPayload) {
+export function* executeQueryActionSaga(queryAction: QueryActionPayload) {
   const query: PageAction = yield select(getAction, queryAction.queryId);
   const responses: any = yield all(
     query.dynamicBindings.map((jsonPath: string) => {
-      return call(evaluateJSONPath, jsonPath);
+      return call(evaluateJSONPathSaga, jsonPath);
     }),
   );
   const dynamicBindingMap: Record<string, any> = _.keyBy(
@@ -72,31 +69,21 @@ export function* executeQueryAction(queryAction: QueryActionPayload) {
   });
 }
 
-export function* executeAction(
-  pageRequestAction: ReduxAction<FetchPageRequest>,
-) {
-  const pageRequest = pageRequestAction.payload;
-  try {
-    const pageResponse: FetchPageResponse = yield call(
-      PageApi.fetchPage,
-      pageRequest,
+export function* executeActionSaga(action: ReduxAction<ActionPayload[]>) {
+  if (!_.isNil(action.payload)) {
+    yield all(
+      action.payload.map((actionPayload: ActionPayload) => {
+        switch (actionPayload.actionType) {
+          case "API":
+            const apiActionPaylod: APIActionPayload = actionPayload as APIActionPayload;
+            return call(executeAPIActionSaga, apiActionPaylod);
+        }
+        return undefined;
+      }),
     );
-    if (pageRequest.renderMode === RenderModes.CANVAS) {
-      const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-        extractCurrentDSL(pageResponse),
-      );
-      const payload = {
-        pageWidgetId: normalizedResponse.result,
-        widgets: normalizedResponse.entities.canvasWidgets,
-      };
-      yield put({ type: ReduxActionTypes.LOAD_CANVAS_WIDGETS, payload });
-    }
-  } catch (err) {
-    console.log(err);
-    //TODO(abhinav): REFACTOR THIS
   }
 }
 
-export function* watchExecuteAction() {
-  yield takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAction);
+export function* watchExecuteActionSaga() {
+  yield takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga);
 }

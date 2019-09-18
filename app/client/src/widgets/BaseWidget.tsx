@@ -14,9 +14,10 @@ import { BaseStyle } from "../editorComponents/BaseComponent";
 import _ from "lodash";
 import React from "react";
 import DraggableComponent from "../editorComponents/DraggableComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
 abstract class BaseWidget<
-  T extends WidgetProps,
+  T extends WidgetProps & WidgetFunctions,
   K extends WidgetState
 > extends Component<T, K> {
   constructor(props: T) {
@@ -147,22 +148,29 @@ export interface DraggableWidget {
 }
 
 export interface WidgetBuilder<T extends WidgetProps> {
-  buildWidget(data: T): JSX.Element;
+  buildWidget(widgetProps: T): JSX.Element;
 }
 
-export interface WidgetProps {
+export interface WidgetProps extends WidgetFunctions, WidgetDataProps {
+  key?: string;
+  renderMode: RenderMode;
+}
+
+export interface WidgetDataProps {
   widgetId: string;
   type: WidgetType;
   widgetName: string;
-  key?: string;
   topRow: number;
   leftColumn: number;
   bottomRow: number;
   rightColumn: number;
   parentColumnSpace: number;
   parentRowSpace: number;
-  renderMode: RenderMode;
   isVisible?: boolean;
+}
+
+export interface WidgetFunctions {
+  executeAction: (actionPayloads?: ActionPayload[]) => void;
 }
 
 export interface WidgetCardProps {
