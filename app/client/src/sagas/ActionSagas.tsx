@@ -3,16 +3,15 @@ import {
   ReduxAction,
 } from "../constants/ReduxActionConstants";
 import { call, takeEvery, select, all } from "redux-saga/effects";
-import {
-  APIActionPayload,
-  QueryActionPayload,
-  PageAction,
-  ActionPayload,
-} from "../constants/ActionConstants";
-import ActionAPI, { ActionCreateUpdateResponse } from "../api/ActionAPI";
+import { PageAction, ActionPayload } from "../constants/ActionConstants";
+import ActionAPI, {
+  ActionCreateUpdateResponse,
+  ExecuteActionRequest,
+} from "../api/ActionAPI";
 import { AppState } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
 import _ from "lodash";
+import { mapToPropList } from "../utils/AppsmithUtils";
 
 const getDataTree = (state: AppState) => {
   return state.entities;
@@ -31,52 +30,37 @@ export function* evaluateJSONPathSaga(jsonPath: string): any {
   return result;
 }
 
-export function* executeAPIActionSaga(apiAction: APIActionPayload) {
-  const api: PageAction = yield select(getAction, apiAction.apiId);
-  const responses: any = yield all(
-    api.dynamicBindings.map((jsonPath: string) => {
-      return call(evaluateJSONPathSaga, jsonPath);
-    }),
-  );
-  const dynamicBindingMap: Record<string, any> = _.keyBy(
-    responses,
-    (response: string, index: number) => {
-      return api.dynamicBindings[index];
-    },
-  );
-  yield ActionAPI.executeAction({
-    actionId: apiAction.apiId,
-    dynamicBindingMap: dynamicBindingMap,
-  });
-}
-
-export function* executeQueryActionSaga(queryAction: QueryActionPayload) {
-  const query: PageAction = yield select(getAction, queryAction.queryId);
-  const responses: any = yield all(
-    query.dynamicBindings.map((jsonPath: string) => {
-      return call(evaluateJSONPathSaga, jsonPath);
-    }),
-  );
-  const dynamicBindingMap: Record<string, any> = _.keyBy(
-    responses,
-    (response: string, index: number) => {
-      return query.dynamicBindings[index];
-    },
-  );
-  yield ActionAPI.executeAction({
-    actionId: query.actionId,
-    dynamicBindingMap: dynamicBindingMap,
-  });
+export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
+  const api: PageAction = yield select(getAction, apiAction.actionId);
+  const executeActionRequest: ExecuteActionRequest = {
+    actionId: apiAction.actionId,
+  };
+  if (!_.isNil(api.dynamicBindings)) {
+    const responses: any = yield all(
+      api.dynamicBindings.map((jsonPath: string) => {
+        return call(evaluateJSONPathSaga, jsonPath);
+      }),
+    );
+    const dynamicBindingMap: Record<string, any> = _.keyBy(
+      responses,
+      (response: string, index: number) => {
+        return api.dynamicBindings ? api.dynamicBindings[index] : undefined;
+      },
+    );
+    executeActionRequest.dynamicBindingList = mapToPropList(dynamicBindingMap);
+  }
+  yield ActionAPI.executeAction(executeActionRequest);
 }
 
 export function* executeActionSaga(action: ReduxAction<ActionPayload[]>) {
   if (!_.isNil(action.payload)) {
     yield all(
-      action.payload.map((actionPayload: ActionPayload) => {
+      _.map(action.payload, (actionPayload: ActionPayload) => {
         switch (actionPayload.actionType) {
           case "API":
-            const apiActionPaylod: APIActionPayload = actionPayload as APIActionPayload;
-            return call(executeAPIActionSaga, apiActionPaylod);
+            return call(executeAPIQueryActionSaga, actionPayload);
+          case "QUERY":
+            return call(executeAPIQueryActionSaga, actionPayload);
         }
         return undefined;
       }),

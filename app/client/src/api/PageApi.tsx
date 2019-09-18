@@ -14,7 +14,7 @@ export interface SavePageRequest {
 }
 
 export interface PageLayout {
-  dsl: ContainerWidgetProps<any>;
+  dsl: Partial<ContainerWidgetProps<any>>;
   actions: PageAction[];
 }
 

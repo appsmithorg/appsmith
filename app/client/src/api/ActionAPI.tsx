@@ -1,7 +1,7 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse } from "./ApiResponses";
 import { APIRequest } from "./ApiRequests";
-import _ from "lodash";
+import { mapToPropList } from "../utils/AppsmithUtils";
 
 export interface CreateActionRequest<T> extends APIRequest {
   resourceId: string;
@@ -48,7 +48,7 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 
 export interface ExecuteActionRequest extends APIRequest {
   actionId: string;
-  dynamicBindingMap: Record<string, any>;
+  dynamicBindingList?: Property[];
 }
 
 export interface ExecuteActionResponse extends ApiResponse {
@@ -67,12 +67,8 @@ class ActionAPI extends API {
         httpMethod: apiConfig.method,
         path: apiConfig.path,
         body: apiConfig.body,
-        headers: _.map(apiConfig.requestHeaders, (value, key) => {
-          return { key: key, value: value };
-        }),
-        queryParameters: _.map(apiConfig.queryParams, (value, key) => {
-          return { key: key, value: value };
-        }),
+        headers: mapToPropList(apiConfig.requestHeaders),
+        queryParameters: mapToPropList(apiConfig.queryParams),
       },
     };
     return API.post(ActionAPI.url, createAPI);
@@ -87,12 +83,8 @@ class ActionAPI extends API {
         httpMethod: apiConfig.method,
         path: apiConfig.path,
         body: apiConfig.body,
-        headers: _.map(apiConfig.requestHeaders, (value, key) => {
-          return { key: key, value: value };
-        }),
-        queryParameters: _.map(apiConfig.queryParams, (value, key) => {
-          return { key: key, value: value };
-        }),
+        headers: mapToPropList(apiConfig.requestHeaders),
+        queryParameters: mapToPropList(apiConfig.queryParams),
       },
     };
     return API.post(ActionAPI.url, updateAPI);
@@ -113,7 +105,7 @@ class ActionAPI extends API {
   static executeAction(
     executeAction: ExecuteActionRequest,
   ): Promise<ActionCreateUpdateResponse> {
-    return API.post(ActionAPI.url, executeAction);
+    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 }
 

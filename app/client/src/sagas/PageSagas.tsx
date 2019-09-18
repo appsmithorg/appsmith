@@ -24,7 +24,10 @@ export function* fetchPageSaga(pageRequestAction: ReduxAction<PageRequest>) {
         widgets: normalizedResponse.entities.canvasWidgets,
       };
       yield all([
-        put({ type: ReduxActionTypes.UPDATE_CANVAS, canvasWidgetsPayload }),
+        put({
+          type: ReduxActionTypes.UPDATE_CANVAS,
+          payload: canvasWidgetsPayload,
+        }),
         put({
           type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
           payload: pageResponse.layout.actions,

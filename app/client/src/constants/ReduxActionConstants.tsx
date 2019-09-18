@@ -2,7 +2,7 @@
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
 export type ReduxActionType =
-  | "LOAD_CANVAS_WIDGETS"
+  | "UPDATE_CANVAS"
   | "FETCH_CANVAS"
   | "CLEAR_CANVAS"
   | "DROP_WIDGET_CANVAS"
@@ -29,7 +29,7 @@ export type ReduxActionType =
   | "SHOW_PROPERTY_PANE";
 
 export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
-  LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
+  UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
   FETCH_PAGE: "FETCH_PAGE",
