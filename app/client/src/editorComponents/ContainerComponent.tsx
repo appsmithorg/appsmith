@@ -31,7 +31,6 @@ const ContainerComponent = (props: ContainerProps) => {
 export interface ContainerProps extends ComponentProps {
   children?: JSX.Element[] | JSX.Element;
   orientation?: ContainerOrientation;
-  addWidget?: Function;
 }
 
 export default ContainerComponent;

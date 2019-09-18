@@ -13,6 +13,7 @@ import { fetchPage, addWidget } from "../../actions/pageActions";
 import { executeAction } from "../../actions/widgetActions";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ActionPayload } from "../../constants/ActionConstants";
+import PropertyPane from "./PropertyPane";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -72,6 +73,7 @@ class Editor extends Component<EditorProps> {
               widgetFunctions={{ executeAction: this.props.executeAction }}
             />
           </CanvasContainer>
+          <PropertyPane />
         </EditorWrapper>
       </React.Fragment>
     );

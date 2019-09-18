@@ -6,6 +6,7 @@ import {
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
+import { UpdateWidgetPropertyPayload } from "../../actions/controlActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -19,6 +20,19 @@ const canvasWidgetsReducer = createReducer(initialState, {
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
     return { ...action.payload.widgets };
+  },
+  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<UpdateWidgetPropertyPayload>,
+  ) => {
+    const widget = state[action.payload.widgetId];
+    return {
+      state,
+      [action.payload.widgetId]: {
+        ...widget,
+        [action.payload.propertyName]: action.payload.propertyValue,
+      },
+    };
   },
   [ReduxActionTypes.ADD_PAGE_WIDGET]: (
     state: CanvasWidgetsReduxState,
