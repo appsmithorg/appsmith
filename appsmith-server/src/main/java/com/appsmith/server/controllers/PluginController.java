@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.PluginOrgDTO;
-import com.appsmith.server.dtos.ResponseDto;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.PluginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,16 +29,16 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
 
     @PostMapping("/install")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDto<Organization>> install(@Valid @RequestBody PluginOrgDTO plugin) {
+    public Mono<ResponseDTO<Organization>> install(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.installPlugin(plugin)
-                .map(organization -> new ResponseDto<>(HttpStatus.CREATED.value(), organization, null));
+                .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
     }
 
     @PostMapping("/uninstall")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDto<Organization>> uninstall(@Valid @RequestBody PluginOrgDTO plugin) {
+    public Mono<ResponseDTO<Organization>> uninstall(@Valid @RequestBody PluginOrgDTO plugin) {
         return service.uninstallPlugin(plugin)
-                .map(organization -> new ResponseDto<>(HttpStatus.CREATED.value(), organization, null));
+                .map(organization -> new ResponseDTO<>(HttpStatus.CREATED.value(), organization, null));
     }
 
 }

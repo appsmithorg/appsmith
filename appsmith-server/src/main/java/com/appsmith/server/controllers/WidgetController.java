@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Widget;
-import com.appsmith.server.dtos.ResponseDto;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.WidgetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +22,8 @@ public class WidgetController extends BaseController<WidgetService, Widget, Stri
     }
 
     @GetMapping("/name/{name}")
-    public Mono<ResponseDto<Widget>> getByName(@PathVariable String name) {
+    public Mono<ResponseDTO<Widget>> getByName(@PathVariable String name) {
         return service.getByName(name)
-                .map(widget -> new ResponseDto<>(HttpStatus.OK.value(), widget, null));
+                .map(widget -> new ResponseDTO<>(HttpStatus.OK.value(), widget, null));
     }
 }
