@@ -1,11 +1,8 @@
 import { FetchPageRequest } from "../api/PageApi";
 import { ResponseMeta } from "../api/ApiResponses";
 import { RenderMode } from "../constants/WidgetConstants";
-import {
-  WidgetProps,
-  WidgetDynamicProperty,
-  WidgetDynamicProperties,
-} from "../widgets/BaseWidget";
+import { WidgetProps, WidgetOperation } from "../widgets/BaseWidget";
+import { WidgetType } from "../constants/WidgetConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -96,19 +93,50 @@ export const savePageError = (payload: SavePageErrorPayload) => {
   };
 };
 
+export type WidgetAddChild = {
+  widgetId: string;
+  type: WidgetType;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+export type WidgetMove = {
+  widgetId: string;
+  left: number;
+  top: number;
+  /*
+    If parentWidgetId is different from what we have in redux store, 
+    then we got to delete this,
+    as it has been dropped in another container somewhere.
+    
+    TODO(abhinav): Make sure to handle the scenario where they drop outside the canvas.
+  */
+  parentWidgetId?: string;
+};
+
+export type WidgetRemoveChild = {
+  widgetId: string;
+  childWidgetId: string;
+};
+
+export type WidgetResize = {
+  widgetId: string;
+  width: number;
+  height: number;
+};
+
 export const updateWidget = (
-  property: WidgetDynamicProperty,
-  widget: WidgetProps,
+  operation: WidgetOperation,
+  widgetId: string,
   payload: any,
-) => {
-  switch (property) {
-    case WidgetDynamicProperties.CHILDREN:
-      return;
-    case WidgetDynamicProperties.EXISTENCE:
-      return;
-    case WidgetDynamicProperties.POSITION:
-      return;
-    case WidgetDynamicProperties.SIZE:
-      return;
-  }
+): ReduxAction<
+  WidgetAddChild | WidgetMove | WidgetRemoveChild | WidgetResize
+> => {
+  console.log(operation, widgetId, payload);
+  return {
+    type: ReduxActionTypes["WIDGET_" + operation],
+    payload: { widgetId, ...payload },
+  };
 };

@@ -14,7 +14,7 @@ const ArtBoard = styled.div`
 `;
 
 interface CanvasProps {
-  layout: ContainerWidgetProps<WidgetProps>;
+  dsl: ContainerWidgetProps<WidgetProps>;
   widgetFunctions: WidgetFunctions;
 }
 
@@ -22,9 +22,9 @@ const Canvas = (props: CanvasProps) => {
   return (
     <React.Fragment>
       <ArtBoard>
-        {props.layout.widgetId &&
+        {props.dsl.widgetId &&
           WidgetFactory.createWidget(
-            props.layout,
+            props.dsl,
             props.widgetFunctions,
             RenderModes.CANVAS,
           )}

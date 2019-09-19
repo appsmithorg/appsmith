@@ -5,12 +5,13 @@ import {
   ReduxAction,
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
+import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 
 const initialState: CanvasWidgetsReduxState = {};
 
-export interface FlattenedWidgetProps extends WidgetProps {
+export type FlattenedWidgetProps = ContainerWidgetProps<WidgetProps> & {
   children?: string[];
-}
+};
 
 const canvasWidgetsReducer = createReducer(initialState, {
   [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
@@ -19,24 +20,11 @@ const canvasWidgetsReducer = createReducer(initialState, {
   ) => {
     return { ...action.payload.widgets };
   },
-  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
+  [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
+    action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
-    // const widget = action.payload.widget;
-    // const widgetTree = CanvasWidgetsNormalizer.denormalize("0", {
-    //   canvasWidgets: state,
-    // });
-    // const children = widgetTree.children || [];
-    // children.push(widget);
-    // widgetTree.children = children;
-    // const newState = CanvasWidgetsNormalizer.normalize({
-    //   responseMeta: { responseCode: "SUCCESS" },
-    //   layout: { dsl: widgetTree, actions: [] },
-    // }).entities;
-    // return newState.canvasWidgets;
-    console.log(action.payload.widget);
-    return state;
+    return { ...action.payload.widgets };
   },
 });
 

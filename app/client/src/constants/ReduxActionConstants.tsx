@@ -1,6 +1,6 @@
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
-export const ReduxActionTypes = {
+export const ReduxActionTypes: { [key: string]: string } = {
   LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
@@ -27,6 +27,11 @@ export const ReduxActionTypes = {
   SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
   SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
   FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
+  UPDATE_LAYOUT: "UPDATE_LAYOUT",
+  WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
+  WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
+  WIDGET_MOVE: "WIDGET_MOVE",
+  WIDGET_RESIZE: "WIDGET_RESIZE",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];

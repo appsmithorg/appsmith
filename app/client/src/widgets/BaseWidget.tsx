@@ -29,6 +29,7 @@ abstract class BaseWidget<
     initialState.height = 0;
     initialState.width = 0;
     this.state = initialState as K;
+    console.log(this.props);
   }
 
   componentDidMount(): void {
@@ -129,8 +130,8 @@ abstract class BaseWidget<
   }
 
   static defaultProps: Partial<WidgetProps> = {
-    parentRowSpace: 64,
-    parentColumnSpace: 64,
+    parentRowSpace: 1,
+    parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
   };
@@ -171,6 +172,7 @@ export interface WidgetDataProps {
 
 export interface WidgetFunctions {
   executeAction: (actionPayloads?: ActionPayload[]) => void;
+  updateWidget?: Function;
 }
 
 export interface WidgetCardProps {
@@ -180,13 +182,16 @@ export interface WidgetCardProps {
   icon: string;
 }
 
-export const WidgetDynamicProperties = {
-  POSITION: "POSITION",
-  SIZE: "SIZE",
-  CHILDREN: "CHILDREN",
-  EXISTENCE: "EXISTENCE",
+export const WidgetOperations = {
+  // WidgetActivities?
+  MOVE: "MOVE",
+  RESIZE: "RESIZE",
+  ADD_CHILD: "ADD_CHILD",
+  REMOVE_CHILD: "REMOVE_CHILD",
+  UPDATE_PROPERTY: "UPDATE_PROPERTY",
+  DELETE: "DELETE",
 };
 
-export type WidgetDynamicProperty = (typeof WidgetDynamicProperties)[keyof typeof WidgetDynamicProperties];
+export type WidgetOperation = (typeof WidgetOperations)[keyof typeof WidgetOperations];
 
 export default BaseWidget;

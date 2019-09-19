@@ -5,7 +5,7 @@ import Canvas from "./Canvas";
 import {
   WidgetCardProps,
   WidgetProps,
-  WidgetDynamicProperty,
+  WidgetOperation,
 } from "../../widgets/BaseWidget";
 import { AppState } from "../../reducers";
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
@@ -49,9 +49,10 @@ const EditorWrapper = styled.div`
 `;
 
 type EditorProps = {
-  layout: ContainerWidgetProps<WidgetProps> | any;
+  dsl: ContainerWidgetProps<WidgetProps> | any;
   fetchCanvasWidgets: Function;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
+  updateWidget: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
   updateWidgetProperty: Function;
   savePageLayout: Function;
@@ -74,11 +75,13 @@ class Editor extends Component<EditorProps> {
           <EditorDragLayer />
           <CanvasContainer>
             <Canvas
-              layout={{
-                ...this.props.layout,
-                onPropertyChange: this.props.updateWidgetProperty,
+              dsl={{
+                ...this.props.dsl,
               }}
-              widgetFunctions={{ executeAction: this.props.executeAction }}
+              widgetFunctions={{
+                executeAction: this.props.executeAction,
+                updateWidget: this.props.updateWidget,
+              }}
             />
           </CanvasContainer>
         </EditorWrapper>
@@ -88,13 +91,13 @@ class Editor extends Component<EditorProps> {
 }
 
 const mapStateToProps = (state: AppState): EditorReduxState => {
-  const layout = CanvasWidgetsNormalizer.denormalize(
+  const dsl = CanvasWidgetsNormalizer.denormalize(
     state.ui.editor.pageWidgetId,
     state.entities,
   );
   return {
     cards: state.ui.widgetCardsPane.cards,
-    layout,
+    dsl,
     pageWidgetId: state.ui.editor.pageWidgetId,
     currentPageId: state.ui.editor.currentPageId,
     currentLayoutId: state.ui.editor.currentLayoutId,
@@ -107,11 +110,11 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(executeAction(actionPayloads)),
     fetchCanvasWidgets: (pageId: string) =>
       dispatch(fetchPage(pageId, RenderModes.CANVAS)),
-    updateWidgetProperty: (
-      propertyType: WidgetDynamicProperty,
-      widgetProps: WidgetProps,
+    updateWidget: (
+      operation: WidgetOperation,
+      widgetId: string,
       payload: any,
-    ) => dispatch(updateWidget(propertyType, widgetProps, payload)),
+    ) => dispatch(updateWidget(operation, widgetId, payload)),
     savePageLayout: (
       pageId: string,
       layoutId: string,

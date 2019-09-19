@@ -27,6 +27,7 @@ class WidgetFactory {
       ...widgetData,
       ...widgetFunctions,
     };
+    console.log("=====", widgetData);
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       const widget = widgetBuilder.buildWidget(widgetProps);

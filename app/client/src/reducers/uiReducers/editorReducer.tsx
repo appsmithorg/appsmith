@@ -19,7 +19,7 @@ const editorReducer = createReducer(initialState, {
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { ...state.layout, ...action.payload };
+    return { ...state.dsl, ...action.payload };
   },
   [ReduxActionTypes.ADD_PAGE_WIDGET]: (state: EditorReduxState) => {
     return state;
@@ -33,7 +33,7 @@ const editorReducer = createReducer(initialState, {
 });
 
 export interface EditorReduxState {
-  layout?: ContainerWidgetProps<WidgetProps>;
+  dsl?: ContainerWidgetProps<WidgetProps>;
   cards?: {
     [id: string]: WidgetCardProps[];
   };

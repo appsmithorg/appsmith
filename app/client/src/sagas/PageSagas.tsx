@@ -16,10 +16,13 @@ import PageApi, {
   FetchPageRequest,
   SavePageRequest,
 } from "../api/PageApi";
-import { call, put, takeLatest, all } from "redux-saga/effects";
+import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { call, put, takeLatest, takeEvery, all } from "redux-saga/effects";
 import { extractCurrentDSL } from "./utils";
 
-export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
+export function* fetchPageSaga(
+  pageRequestAction: ReduxAction<FetchPageRequest>,
+) {
   const pageRequest = pageRequestAction.payload;
   try {
     const fetchPageResponse: FetchPageResponse = yield call(
@@ -49,7 +52,7 @@ export function* fetchPage(pageRequestAction: ReduxAction<FetchPageRequest>) {
   }
 }
 
-export function* savePage(savePageAction: ReduxAction<SavePageRequest>) {
+export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   const savePageRequest = savePageAction.payload;
   try {
     const savePageResponse: SavePageResponse = yield call(
@@ -63,9 +66,27 @@ export function* savePage(savePageAction: ReduxAction<SavePageRequest>) {
   }
 }
 
+export function* updateLayoutSaga(
+  updateLayoutAction: ReduxAction<{
+    widgets: { [widgetId: string]: FlattenedWidgetProps };
+  }>,
+) {
+  try {
+    const { widgets } = updateLayoutAction.payload;
+    const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
+      Object.keys(widgets)[0],
+      { canvasWidgets: widgets },
+    );
+    console.log(denormalizedDSL);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export default function* pageSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPage),
-    takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePage),
+    takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
+    takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
+    takeEvery(ReduxActionTypes.UPDATE_LAYOUT, updateLayoutSaga),
   ]);
 }
