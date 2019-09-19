@@ -10,8 +10,7 @@ export type WidgetType =
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
   | "INPUT_WIDGET"
-  | "SWITCH_WIDGET"
-  | "ALERT_WIDGET";
+  | "SWITCH_WIDGET";
 
 export const WidgetTypes: { [id: string]: WidgetType } = {
   BUTTON_WIDGET: "BUTTON_WIDGET",
@@ -26,7 +25,6 @@ export const WidgetTypes: { [id: string]: WidgetType } = {
   DROP_DOWN_WIDGET: "DROP_DOWN_WIDGET",
   CHECKBOX_WIDGET: "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET: "RADIO_GROUP_WIDGET",
-  ALERT_WIDGET: "ALERT_WIDGET",
 };
 
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";

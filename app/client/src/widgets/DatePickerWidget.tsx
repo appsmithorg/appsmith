@@ -19,7 +19,7 @@ export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
 export interface DatePickerWidgetProps extends WidgetProps {
   defaultDate?: Date;
-  timezone?: TimeZone;
+  defaultTimezone?: TimeZone;
   enableTime: boolean;
   label: string;
   datePickerType: DatePickerType;

@@ -11,7 +11,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         text={this.props.text}
-        tagName={this.props.tagName}
       />
     );
   }
@@ -26,7 +25,6 @@ export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
 export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle?: TextStyle;
-  tagName?: keyof JSX.IntrinsicElements;
 }
 
 export default TextWidget;
