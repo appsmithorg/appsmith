@@ -22,13 +22,19 @@ export type InputType =
   | "CURRENCY"
   | "SEARCH";
 
+export interface InputValidator {
+  validationRegex: string;
+  errorMessage: string;
+}
 export interface InputWidgetProps extends WidgetProps {
-  errorMessage?: string;
   inputType: InputType;
   defaultText?: string;
-  placeholder?: string;
+  placeholderText?: string;
+  maxChars?: number;
   label: string;
+  inputValidators: InputValidator[];
   focusIndex?: number;
+  isAutoFocusEnabled?: boolean;
 }
 
 export default InputWidget;

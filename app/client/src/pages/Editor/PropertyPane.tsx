@@ -37,11 +37,7 @@ class PropertyPane extends Component<
     }
   }
 
-  renderPropertySection(
-    propertySection: PropertySection,
-    key: string,
-    isHorizontal?: boolean,
-  ) {
+  renderPropertySection(propertySection: PropertySection, key: string) {
     return (
       <div key={key}>
         {!_.isNil(propertySection) ? (
@@ -51,7 +47,7 @@ class PropertyPane extends Component<
         )}
         <div
           style={
-            isHorizontal
+            propertySection.orientation === "HORIZONTAL"
               ? { flexDirection: "row" }
               : { flexDirection: "column" }
           }
@@ -63,7 +59,6 @@ class PropertyPane extends Component<
                 return this.renderPropertySection(
                   propertyControlOrSection,
                   propertyControlOrSection.id,
-                  true,
                 );
               } else {
                 return PropertyControlFactory.createControl(

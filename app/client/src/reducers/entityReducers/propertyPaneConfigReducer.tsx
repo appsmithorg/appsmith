@@ -6,17 +6,22 @@ import {
 import PropertyPaneConfigResponse from "../../mockResponses/PropertyPaneConfigResponse";
 import { InputControlProps } from "../../pages/propertyControls/InputTextControl";
 import { DropDownControlProps } from "../../pages/propertyControls/DropDownControl";
+import { ControlProps } from "../../pages/propertyControls/BaseControl";
 
 const initialState: PropertyPaneConfigState = PropertyPaneConfigResponse;
 
 export type ControlConfig =
   | InputControlProps
   | DropDownControlProps
-  | InputControlProps;
+  | InputControlProps
+  | ControlProps;
+
+export type SectionOrientation = "HORIZONTAL" | "VERTICAL";
 
 export interface PropertySection {
   id: string;
-  sectionName: string;
+  sectionName?: string;
+  orientation?: SectionOrientation;
   children: (ControlConfig | PropertySection)[];
 }
 
@@ -34,7 +39,6 @@ export interface PropertyPaneConfigState {
     DROP_DOWN_WIDGET: PropertySection[];
     CHECKBOX_WIDGET: PropertySection[];
     RADIO_GROUP_WIDGET: PropertySection[];
-    ALERT_WIDGET: PropertySection[];
   };
   configVersion: number;
 }

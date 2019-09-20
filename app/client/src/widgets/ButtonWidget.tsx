@@ -38,6 +38,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
   buttonStyle?: ButtonStyle;
   onClick?: ActionPayload[];
+  isDisabled?: boolean;
 }
 
 export default ButtonWidget;
