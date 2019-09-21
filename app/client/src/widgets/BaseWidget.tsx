@@ -29,7 +29,6 @@ abstract class BaseWidget<
     initialState.height = 0;
     initialState.width = 0;
     this.state = initialState as K;
-    console.log(this.props);
   }
 
   componentDidMount(): void {
@@ -116,10 +115,7 @@ abstract class BaseWidget<
 
   getPositionStyle(): BaseStyle {
     return {
-      positionType:
-        this.props.renderMode !== RenderModes.PAGE
-          ? "CONTAINER_DIRECTION"
-          : "ABSOLUTE",
+      positionType: "ABSOLUTE",
       height: this.state.height,
       width: this.state.width,
       yPosition: this.props.topRow * this.props.parentRowSpace,

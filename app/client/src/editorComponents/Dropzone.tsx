@@ -9,18 +9,13 @@ type DropZoneWrapperProps = {
   height: number;
   top: number;
 };
-const DropZoneWrapper = styled.div<DropZoneWrapperProps>`
+
+const DropZoneWrapper = styled.div`
   position: absolute;
   z-index: 100;
-  display: ${props => (props.visible ? "block" : "none")};
-  left: ${props => props.left}px;
-  width: ${props => props.width}px;
-  top: ${props => props.top}px;
-  height: ${props => props.height}px;
   background: ${props => props.theme.colors.hover};
   border: 1px dashed ${props => props.theme.colors.textAnchor};
   opacity: 0.7;
-  transition: all 0.2s ease-in-out 0s;
 `;
 
 type DropZoneProps = {
@@ -30,8 +25,8 @@ type DropZoneProps = {
   visible: boolean;
   parentOffset: XYCoord;
   cellSize: number;
-  dummyState: XYCoord;
 };
+
 /* eslint-disable react/display-name */
 export const DropZone = (props: DropZoneProps) => {
   let wrapperProps = {
@@ -59,7 +54,18 @@ export const DropZone = (props: DropZoneProps) => {
     }
   }
 
-  return <DropZoneWrapper {...wrapperProps} />;
+  return (
+    <DropZoneWrapper
+      style={{
+        display: wrapperProps.visible ? "block" : "none",
+        left: wrapperProps.left + "px",
+        width: wrapperProps.width + "px",
+        top: wrapperProps.top + "px",
+        height: wrapperProps.height + "px",
+      }}
+      {...wrapperProps}
+    />
+  );
 };
 
 export default DropZone;

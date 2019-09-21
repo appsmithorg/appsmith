@@ -17,7 +17,6 @@ class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {
       buildWidget(widgetData: ContainerWidgetProps<WidgetProps>): JSX.Element {
-        console.log("Registry container", widgetData);
         return <ContainerWidget {...widgetData} />;
       },
     });
@@ -30,7 +29,6 @@ class WidgetBuilderRegistry {
 
     WidgetFactory.registerWidgetBuilder("BUTTON_WIDGET", {
       buildWidget(widgetData: ButtonWidgetProps): JSX.Element {
-        console.log("Register button", widgetData);
         return <ButtonWidget {...widgetData} />;
       },
     });

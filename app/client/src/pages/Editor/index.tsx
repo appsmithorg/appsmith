@@ -15,7 +15,6 @@ import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { fetchPage, updateWidget, savePage } from "../../actions/pageActions";
 import { RenderModes } from "../../constants/WidgetConstants";
-import EditorDragLayer from "./EditorDragLayer";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
 
@@ -72,7 +71,6 @@ class Editor extends Component<EditorProps> {
         <EditorHeader></EditorHeader>
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
-          <EditorDragLayer />
           <CanvasContainer>
             <Canvas
               dsl={{

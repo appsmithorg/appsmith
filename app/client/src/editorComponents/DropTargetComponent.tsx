@@ -1,11 +1,11 @@
 import React, { useState, useLayoutEffect, MutableRefObject } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
-import { useDrop, XYCoord } from "react-dnd";
+import { useDrop } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
-import DropZone from "./Dropzone";
 import { snapToGrid } from "../utils/helpers";
+import DragLayerComponent from "./DragLayerComponent";
 
 const DEFAULT_CELL_SIZE = 1;
 const DEFAULT_WIDGET_WIDTH = 200;
@@ -26,7 +26,6 @@ const DropTargetMask = styled.div`
 `;
 
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
-  const [dummyState, setDummyState] = useState({ x: 0, y: 0 });
   const [dropTargetTopLeft, setDropTargetTopLeft] = useState({ x: 0, y: 0 });
   const dropTargetMask: MutableRefObject<HTMLDivElement | null> = React.useRef(
     null,
@@ -42,11 +41,12 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     }
   }, [setDropTargetTopLeft]);
 
-  const [{ isOver, clientOffset }, drop] = useDrop({
+  const [{ isOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(item: WidgetProps, monitor) {
       if (monitor.isOver({ shallow: true })) {
         const item = monitor.getItem();
+        const clientOffset = monitor.getClientOffset();
         if (clientOffset) {
           const [x, y] = snapToGrid(
             DEFAULT_CELL_SIZE,
@@ -67,21 +67,16 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             });
         }
       }
-
       return undefined;
     },
-    hover: (item, monitor) => {
-      setDummyState(monitor.getDifferenceFromInitialOffset() as XYCoord);
-    },
     collect: monitor => ({
-      hovered: !!monitor.isOver(),
       isOver: !!monitor.isOver({ shallow: true }),
-      clientOffset: monitor.getClientOffset(),
     }),
     canDrop: (item, monitor) => {
       return monitor.isOver({ shallow: true });
     },
   });
+
   return (
     <WrappedDropTarget
       ref={drop}
@@ -95,14 +90,12 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       }}
     >
       <DropTargetMask ref={dropTargetMask} />
-      <DropZone
+      <DragLayerComponent
         parentOffset={dropTargetTopLeft}
         width={DEFAULT_WIDGET_WIDTH}
         height={DEFAULT_WIDGET_HEIGHT}
         cellSize={DEFAULT_CELL_SIZE}
         visible={isOver}
-        currentOffset={clientOffset as XYCoord}
-        dummyState={dummyState}
       />
       {props.children}
     </WrappedDropTarget>

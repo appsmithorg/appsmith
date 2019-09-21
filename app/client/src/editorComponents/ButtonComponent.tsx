@@ -5,7 +5,6 @@ import { Container } from "./ContainerComponent";
 
 class ButtonComponent extends React.Component<ButtonComponentProps> {
   render() {
-    console.log("button props", this.props);
     return (
       <Container {...this.props}>
         <Button icon={this.props.icon} onClick={this.props.onClick}>
