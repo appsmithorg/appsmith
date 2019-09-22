@@ -32,6 +32,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
   WIDGET_MOVE: "WIDGET_MOVE",
   WIDGET_RESIZE: "WIDGET_RESIZE",
+  WIDGET_DELETE: "WIDGET_DELETE",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];

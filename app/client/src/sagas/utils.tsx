@@ -3,11 +3,59 @@ import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { WidgetType, RenderModes } from "../constants/WidgetConstants";
 import { generateReactKey } from "../utils/generators";
+import { Colors } from "../constants/Colors";
+import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
+
+const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
   return fetchPageResponse.data.layouts[0].dsl;
+};
+
+export const updateWidgetPosition = (
+  widget: WidgetProps,
+  left: number,
+  top: number,
+  parent?: WidgetProps,
+) => {
+  const newPositions = {
+    leftColumn: Math.floor(left / widget.parentColumnSpace),
+    topRow: Math.floor(top / widget.parentRowSpace),
+    rightColumn:
+      Math.floor(left / widget.parentColumnSpace) +
+      (widget.rightColumn - widget.leftColumn),
+    bottomRow:
+      Math.floor(top / widget.parentRowSpace) +
+      (widget.bottomRow - widget.topRow),
+  };
+  if (parent) {
+    //TODO(abhinav): Calculate newPositions based on new parent spacing
+  }
+  return {
+    ...widget,
+    ...newPositions,
+  };
+};
+
+export const updateWidgetSize = (
+  widget: WidgetProps,
+  deltaHeight: number,
+  deltaWidth: number,
+): WidgetProps => {
+  const origHeight = (widget.bottomRow - widget.topRow) * widget.parentRowSpace;
+  const origWidth =
+    (widget.rightColumn - widget.leftColumn) * widget.parentColumnSpace;
+  return {
+    ...widget,
+    rightColumn:
+      widget.leftColumn +
+      Math.floor((origWidth + deltaWidth) / widget.parentColumnSpace),
+    bottomRow:
+      widget.topRow +
+      Math.floor((origHeight + deltaHeight) / widget.parentRowSpace),
+  };
 };
 
 export const generateWidgetProps = (
@@ -17,7 +65,7 @@ export const generateWidgetProps = (
   top: number,
   width: number,
   height: number,
-): WidgetProps => {
+): ContainerWidgetProps<WidgetProps> => {
   if (parent && parent.snapColumns && parent.snapRows) {
     const parentColumnWidth = Math.floor(
       ((parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace) /
@@ -27,19 +75,33 @@ export const generateWidgetProps = (
       ((parent.bottomRow - parent.topRow) * parent.parentRowSpace) /
         parent.snapRows,
     );
-    return {
-      type,
+    const sizes = {
       leftColumn: Math.floor(left / parentColumnWidth),
       rightColumn: Math.floor((left + width) / parentColumnWidth),
       topRow: Math.floor(top / parentRowHeight),
       bottomRow: Math.floor((top + height) / parentRowHeight),
+    };
+    let others = {};
+    if (type === WidgetTypes.CONTAINER_WIDGET) {
+      others = {
+        snapColumns: DEFAULT_GRID_COLUMNS,
+        snapRows: DEFAULT_GRID_ROWS,
+        orientation: "VERTICAL",
+        children: [],
+        background: Colors.WHITE,
+      };
+    }
+    return {
+      type,
+      executeAction: () => {},
       widgetId: generateReactKey(),
       widgetName: generateReactKey(), //TODO: figure out what this is to populate appropriately
       isVisible: true,
       parentColumnSpace: parentColumnWidth,
       parentRowSpace: parentRowHeight,
-      executeAction: () => {},
       renderMode: RenderModes.CANVAS, //Is this required?
+      ...sizes,
+      ...others,
     };
   } else {
     if (parent)

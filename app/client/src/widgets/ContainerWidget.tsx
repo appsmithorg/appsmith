@@ -8,11 +8,11 @@ import ContainerComponent from "../editorComponents/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
 import WidgetFactory from "../utils/WidgetFactory";
 import _ from "lodash";
-import { Color } from "../constants/DefaultTheme";
+import { Color } from "../constants/Colors";
 import DropTargetComponent from "../editorComponents/DropTargetComponent";
+import { GridDefaults } from "../constants/WidgetConstants";
 
-const DEFAULT_NUM_COLS = 16;
-const DEFAULT_NUM_ROWS = 16;
+const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -24,8 +24,8 @@ class ContainerWidget extends BaseWidget<
     this.state = {
       width: 0,
       height: 0,
-      snapColumnSpace: DEFAULT_NUM_COLS,
-      snapRowSpace: DEFAULT_NUM_ROWS,
+      snapColumnSpace: DEFAULT_GRID_COLUMNS,
+      snapRowSpace: DEFAULT_GRID_ROWS,
     };
   }
 
@@ -35,10 +35,10 @@ class ContainerWidget extends BaseWidget<
     let snapRowSpace = this.state.snapRowSpace;
     if (this.state.width)
       snapColumnSpace =
-        this.state.width / (this.props.snapColumns || DEFAULT_NUM_COLS);
+        this.state.width / (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
     if (this.state.height)
       snapRowSpace =
-        this.state.height / (this.props.snapRows || DEFAULT_NUM_ROWS);
+        this.state.height / (this.props.snapRows || DEFAULT_GRID_ROWS);
     if (
       this.state.snapColumnSpace !== snapColumnSpace ||
       this.state.snapRowSpace !== snapRowSpace

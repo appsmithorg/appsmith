@@ -2,6 +2,8 @@ import { ComponentProps } from "./BaseComponent";
 import { ContainerOrientation } from "../constants/WidgetConstants";
 import styled from "../constants/DefaultTheme";
 import React from "react";
+// TODO(abhinav): position absolute may not be required.
+// Basically, Container comes up in all views, while DraggableCompnent comes only in Canvas mode.
 
 export const Container = styled("div")<ContainerProps>`
   display: flex;

@@ -11,3 +11,13 @@ export const getWidgets = (
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
 };
+
+export const getEditorConfigs = (
+  state: AppState,
+): { pageId: string; layoutId: string } => {
+  const { currentLayoutId, currentPageId } = state.ui.editor;
+  return {
+    pageId: currentPageId,
+    layoutId: currentLayoutId,
+  };
+};

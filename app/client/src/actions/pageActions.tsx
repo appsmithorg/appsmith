@@ -121,10 +121,14 @@ export type WidgetRemoveChild = {
   childWidgetId: string;
 };
 
+export type WidgetDelete = {
+  widgetId: string;
+};
+
 export type WidgetResize = {
   widgetId: string;
-  width: number;
-  height: number;
+  width: number; // delta/diff
+  height: number; // delta/diff
 };
 
 export const updateWidget = (

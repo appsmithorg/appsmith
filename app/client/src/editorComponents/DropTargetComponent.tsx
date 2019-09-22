@@ -7,9 +7,13 @@ import WidgetFactory from "../utils/WidgetFactory";
 import { snapToGrid } from "../utils/helpers";
 import DragLayerComponent from "./DragLayerComponent";
 
-const DEFAULT_CELL_SIZE = 1;
-const DEFAULT_WIDGET_WIDTH = 200;
-const DEFAULT_WIDGET_HEIGHT = 50;
+import { GridDefaults } from "../constants/WidgetConstants";
+
+const {
+  DEFAULT_CELL_SIZE,
+  DEFAULT_WIDGET_HEIGHT,
+  DEFAULT_WIDGET_WIDTH,
+} = GridDefaults;
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
@@ -53,18 +57,26 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             clientOffset.x - dropTargetTopLeft.x,
             clientOffset.y - dropTargetTopLeft.y,
           );
-          props.updateWidget &&
-            props.updateWidget(WidgetOperations.ADD_CHILD, props.widgetId, {
-              type: item.type,
-              left: x,
-              top: y,
-              width:
-                Math.round(DEFAULT_WIDGET_WIDTH / DEFAULT_CELL_SIZE) *
-                DEFAULT_CELL_SIZE,
-              height:
-                Math.round(DEFAULT_WIDGET_HEIGHT / DEFAULT_CELL_SIZE) *
-                DEFAULT_CELL_SIZE,
-            });
+          if (item.widgetId) {
+            props.updateWidget &&
+              props.updateWidget(WidgetOperations.MOVE, item.widgetId, {
+                left: x,
+                top: y,
+              });
+          } else {
+            props.updateWidget &&
+              props.updateWidget(WidgetOperations.ADD_CHILD, props.widgetId, {
+                type: item.type,
+                left: x,
+                top: y,
+                width:
+                  Math.round(DEFAULT_WIDGET_WIDTH / DEFAULT_CELL_SIZE) *
+                  DEFAULT_CELL_SIZE,
+                height:
+                  Math.round(DEFAULT_WIDGET_HEIGHT / DEFAULT_CELL_SIZE) *
+                  DEFAULT_CELL_SIZE,
+              });
+          }
         }
       }
       return undefined;
@@ -76,16 +88,13 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       return monitor.isOver({ shallow: true });
     },
   });
-
   return (
     <WrappedDropTarget
       ref={drop}
       style={{
-        position: "absolute",
         left: props.style.xPosition + props.style.xPositionUnit,
-        height: props.style.height,
-        width: props.style.width,
-        background: isOver ? "#f4f4f4" : undefined,
+        height: props.style.defaultHeight,
+        width: props.style.defaultWidth,
         top: props.style.yPosition + props.style.yPositionUnit,
       }}
     >

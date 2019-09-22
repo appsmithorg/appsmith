@@ -17,8 +17,16 @@ import PageApi, {
   SavePageRequest,
 } from "../api/PageApi";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { call, put, takeLatest, takeEvery, all } from "redux-saga/effects";
+import {
+  call,
+  select,
+  put,
+  takeLatest,
+  takeEvery,
+  all,
+} from "redux-saga/effects";
 import { extractCurrentDSL } from "./utils";
+import { getEditorConfigs } from "./selectors";
 
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
@@ -73,11 +81,19 @@ export function* updateLayoutSaga(
 ) {
   try {
     const { widgets } = updateLayoutAction.payload;
+
     const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
       Object.keys(widgets)[0],
       { canvasWidgets: widgets },
     );
-    console.log(denormalizedDSL);
+    const editorConfigs = yield select(getEditorConfigs) as any;
+    yield put({
+      type: ReduxActionTypes.SAVE_PAGE_INIT,
+      payload: {
+        ...editorConfigs,
+        dsl: denormalizedDSL,
+      },
+    });
   } catch (err) {
     console.log(err);
   }

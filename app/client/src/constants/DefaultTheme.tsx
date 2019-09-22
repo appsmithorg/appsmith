@@ -1,8 +1,7 @@
 import * as styledComponents from "styled-components";
-import * as Colors from "./Colors";
+import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 
-export type Color = (typeof Colors)[keyof typeof Colors];
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 const {
@@ -21,6 +20,7 @@ export type Theme = {
   colors: Record<string, Color>;
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
+  borders: { thickness: string; style: "dashed" | "solid"; color: Color }[];
 };
 
 export const theme: Theme = {
@@ -41,6 +41,13 @@ export const theme: Theme = {
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
+  borders: [
+    {
+      thickness: "2px",
+      style: "dashed",
+      color: Colors.POLAR,
+    },
+  ],
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };

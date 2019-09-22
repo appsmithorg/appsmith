@@ -19,16 +19,13 @@ const editorReducer = createReducer(initialState, {
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { ...state.dsl, ...action.payload };
-  },
-  [ReduxActionTypes.ADD_PAGE_WIDGET]: (state: EditorReduxState) => {
-    return state;
+    return { ...state, ...action.payload };
   },
   [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
-    return { pageWidgetId: action.payload.pageWidgetId };
+    return { ...state, pageWidgetId: action.payload.pageWidgetId };
   },
 });
 

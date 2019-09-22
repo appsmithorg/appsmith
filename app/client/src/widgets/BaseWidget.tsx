@@ -14,6 +14,7 @@ import { BaseStyle } from "../editorComponents/BaseComponent";
 import _ from "lodash";
 import React from "react";
 import DraggableComponent from "../editorComponents/DraggableComponent";
+import ResizableComponent from "../editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 abstract class BaseWidget<
@@ -82,8 +83,6 @@ abstract class BaseWidget<
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         return this.getCanvasView();
-      case RenderModes.COMPONENT_PANE:
-        return this.getComponentPaneView();
       case RenderModes.PAGE:
         return this.getPageView();
       default:
@@ -94,19 +93,16 @@ abstract class BaseWidget<
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    return this.getPageView();
-  }
-
-  getComponentPaneView(): JSX.Element {
+    const style = this.getPositionStyle();
     return (
       <DraggableComponent
         {...this.props}
-        style={{
-          ...this.getPositionStyle(),
-        }}
+        style={{ ...style }}
         orientation={"VERTICAL"}
       >
-        {this.getPageView()}
+        <ResizableComponent style={{ ...style }} {...this.props}>
+          {this.getPageView()}
+        </ResizableComponent>
       </DraggableComponent>
     );
   }
@@ -115,9 +111,9 @@ abstract class BaseWidget<
 
   getPositionStyle(): BaseStyle {
     return {
-      positionType: "ABSOLUTE",
-      height: this.state.height,
-      width: this.state.width,
+      positionType: "CONTAINER_DIRECTION",
+      defaultHeight: this.state.height,
+      defaultWidth: this.state.width,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
