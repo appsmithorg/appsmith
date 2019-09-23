@@ -13,7 +13,6 @@ export const BASE_URL = STAGE_BASE_URL;
 export const REQUEST_TIMEOUT_MS = 2000;
 export const REQUEST_HEADERS: APIHeaders = {
   "Content-Type": "application/json",
-  "Accept-Encoding": "gzip",
 };
 
 export interface APIException {

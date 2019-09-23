@@ -56,9 +56,10 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     const { widgetId } = deleteAction.payload;
     const widgets = yield select(getWidgets) as any;
-    widgets[widgetId] = undefined;
+    delete widgets[widgetId];
     const parent = Object.values(widgets).find(
       (widget: any) =>
+        widget &&
         widget.children &&
         widget.children.length > 0 &&
         widget.children.indexOf(widgetId) > -1,
@@ -72,6 +73,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       payload: { widgets },
     });
   } catch (err) {
+    console.log(err);
     yield put({
       type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
       action: ReduxActionTypes.WIDGET_DELETE,
