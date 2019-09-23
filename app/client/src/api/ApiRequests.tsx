@@ -1,10 +1,8 @@
-import { ContentType, DataType } from "../constants/ApiConstants";
+import { ContentType, EncodingType } from "../constants/ApiConstants";
 
 export interface APIHeaders {
-  Accept?: ContentType;
-  "Content-Type"?: ContentType;
-  dataType?: DataType;
-  Origin?: string;
+  "Content-Type": ContentType;
+  "Accept-Encoding": EncodingType;
 }
 
 export interface APIRequest {

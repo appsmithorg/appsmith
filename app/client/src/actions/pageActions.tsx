@@ -27,9 +27,9 @@ export const fetchPage = (
 };
 
 export const fetchPageError = (payload: ResponseMeta) => {
-  console.log("FETCH PAGE ERROR", payload);
   return {
     type: ReduxActionTypes.FETCH_PAGE_ERROR,
+    payload,
   };
 };
 

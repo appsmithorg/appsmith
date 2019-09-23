@@ -1,6 +1,5 @@
 import { APIHeaders } from "../api/ApiRequests";
 
-export type DataType = "json" | "xml";
 export type ContentType =
   | "application/json"
   | "application/x-www-form-urlencoded";
@@ -13,8 +12,8 @@ export const STAGE_BASE_URL = "https://appsmith-test.herokuapp.com";
 export const BASE_URL = STAGE_BASE_URL;
 export const REQUEST_TIMEOUT_MS = 2000;
 export const REQUEST_HEADERS: APIHeaders = {
-  Accept: "application/json",
   "Content-Type": "application/json",
+  "Accept-Encoding": "gzip",
 };
 
 export interface APIException {
