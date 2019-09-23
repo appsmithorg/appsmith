@@ -35,8 +35,6 @@ const editorReducer = createReducer(initialState, {
     return { ...state, isSaving: false };
   },
   [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
-    // TODO(abhinav): It will be painful to handle all errors like this
-    // make this generic and global toasts to show messages on error.
     return { ...state, isSaving: false };
   },
 });

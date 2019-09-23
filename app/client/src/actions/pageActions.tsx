@@ -108,10 +108,8 @@ export type WidgetMove = {
   top: number;
   /*
     If parentWidgetId is different from what we have in redux store, 
-    then we got to delete this,
-    as it has been dropped in another container somewhere.
-    
-    TODO(abhinav): Make sure to handle the scenario where they drop outside the canvas.
+    then we have to delete this,
+    as it has been dropped in another container somewhere.    
   */
   parentWidgetId?: string;
 };

@@ -67,7 +67,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       (child: string) => child !== widgetId,
     );
     widgets[parent.widgetId] = parent;
-    // TODO(abhinav): Find and remove from parent's children entry
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },

@@ -31,7 +31,6 @@ export const updateWidgetPosition = (
       (widget.bottomRow - widget.topRow),
   };
   if (parent) {
-    //TODO(abhinav): Calculate newPositions based on new parent spacing
   }
   return {
     ...widget,
