@@ -18,8 +18,8 @@ export interface SavePageRequest {
 
 export interface PageLayout {
   id: string;
-  dsl: ContainerWidgetProps<any>;
-  actions?: PageAction[];
+  dsl: Partial<ContainerWidgetProps<any>>;
+  actions: PageAction[];
 }
 
 export type FetchPageResponse = ApiResponse & {
@@ -36,9 +36,9 @@ export interface SavePageResponse {
 }
 
 class PageApi extends Api {
-  static url = "/pages";
+  static url = "api/v1/pages";
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
-    return `/layouts/${layoutId}/pages/${pageId}`;
+    return `api/v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
   static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {

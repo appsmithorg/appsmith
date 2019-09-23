@@ -6,6 +6,7 @@ import {
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { UpdateWidgetPropertyPayload } from "../../actions/controlActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -14,7 +15,7 @@ export type FlattenedWidgetProps = ContainerWidgetProps<WidgetProps> & {
 };
 
 const canvasWidgetsReducer = createReducer(initialState, {
-  [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
+  [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
@@ -25,6 +26,19 @@ const canvasWidgetsReducer = createReducer(initialState, {
     action: ReduxAction<LoadCanvasWidgetsPayload>,
   ) => {
     return { ...action.payload.widgets };
+  },
+  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<UpdateWidgetPropertyPayload>,
+  ) => {
+    const widget = state[action.payload.widgetId];
+    return {
+      state,
+      [action.payload.widgetId]: {
+        ...widget,
+        [action.payload.propertyName]: action.payload.propertyValue,
+      },
+    };
   },
 });
 

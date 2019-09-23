@@ -10,6 +10,7 @@
     "@blueprintjs/core": "^3.11.0",
     "@blueprintjs/datetime": "^3.6.0",
     "@blueprintjs/icons": "^3.5.0",
+    "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/table": "^3.4.0",
     "@sentry/browser": "^5.6.3",
     "@types/axios": "^0.14.0",
@@ -52,7 +53,7 @@
     "redux-saga": "^1.0.0",
     "styled-components": "^4.1.3",
     "ts-loader": "^6.0.4",
-    "typescript": "^3.2.4"
+    "typescript": "^3.6.3"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -84,7 +85,8 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
     "icon-font-generator": "^2.1.10",
-    "redux-devtools": "^3.5.0"
+    "redux-devtools": "^3.5.0",
+    "redux-devtools-extension": "^2.13.8"
   },
   "husky": {
     "hooks": {

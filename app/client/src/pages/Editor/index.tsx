@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Position, Toaster } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
@@ -17,6 +18,11 @@ import { fetchPage, updateWidget, savePage } from "../../actions/pageActions";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
+import PropertyPane from "./PropertyPane";
+
+const SaveToast = Toaster.create({
+  position: Position.TOP,
+});
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -58,11 +64,25 @@ type EditorProps = {
   page: string;
   currentPageId: string;
   currentLayoutId: string;
+  isSaving: boolean;
 };
 
 class Editor extends Component<EditorProps> {
   componentDidMount() {
     this.props.fetchCanvasWidgets(this.props.currentPageId);
+  }
+
+  componentDidUpdate(prevProps: EditorProps) {
+    if (this.props.isSaving && prevProps.isSaving !== this.props.isSaving) {
+      SaveToast.clear();
+      SaveToast.show({ message: "Saving Page..." });
+    } else if (
+      !this.props.isSaving &&
+      prevProps.isSaving !== this.props.isSaving
+    ) {
+      SaveToast.clear();
+      SaveToast.show({ message: "Page Saved" });
+    }
   }
 
   public render() {
@@ -82,6 +102,7 @@ class Editor extends Component<EditorProps> {
               }}
             />
           </CanvasContainer>
+          <PropertyPane />
         </EditorWrapper>
       </React.Fragment>
     );
@@ -99,6 +120,7 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     pageWidgetId: state.ui.editor.pageWidgetId,
     currentPageId: state.ui.editor.currentPageId,
     currentLayoutId: state.ui.editor.currentLayoutId,
+    isSaving: state.ui.editor.isSaving,
   };
 };
 

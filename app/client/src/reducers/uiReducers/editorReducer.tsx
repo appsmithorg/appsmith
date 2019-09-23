@@ -12,6 +12,7 @@ const initialState: EditorReduxState = {
   pageWidgetId: "0",
   currentPageId: "5d807e76795dc6000482bc76",
   currentLayoutId: "5d807e76795dc6000482bc75",
+  isSaving: false,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -27,6 +28,17 @@ const editorReducer = createReducer(initialState, {
   ) => {
     return { ...state, pageWidgetId: action.payload.pageWidgetId };
   },
+  [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
+    return { ...state, isSaving: true };
+  },
+  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    return { ...state, isSaving: false };
+  },
+  [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
+    // TODO(abhinav): It will be painful to handle all errors like this
+    // make this generic and global toasts to show messages on error.
+    return { ...state, isSaving: false };
+  },
 });
 
 export interface EditorReduxState {
@@ -37,6 +49,7 @@ export interface EditorReduxState {
   pageWidgetId: string;
   currentPageId: string;
   currentLayoutId: string;
+  isSaving: boolean;
 }
 
 export default editorReducer;

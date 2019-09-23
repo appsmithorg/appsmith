@@ -20,7 +20,7 @@ export interface DropdownOption {
 }
 
 export interface DropdownWidgetProps extends WidgetProps {
-  placeholder?: string;
+  placeholderText?: string;
   label?: string;
   selectionType: SelectionType;
   options?: DropdownOption[];

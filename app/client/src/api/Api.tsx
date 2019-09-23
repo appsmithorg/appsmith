@@ -53,7 +53,7 @@ class Api {
     );
   }
 
-  static post(url: string, queryParams?: any, body?: any) {
+  static post(url: string, body?: any, queryParams?: any) {
     return axiosInstance.post(
       url + this.convertObjectToQueryParams(queryParams),
       body,

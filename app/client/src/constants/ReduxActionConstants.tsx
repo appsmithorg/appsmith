@@ -1,7 +1,7 @@
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
 export const ReduxActionTypes: { [key: string]: string } = {
-  LOAD_CANVAS_WIDGETS: "LOAD_CANVAS_WIDGETS",
+  UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
   FETCH_PAGE: "FETCH_PAGE",
@@ -13,6 +13,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UNDO_CANVAS_ACTION: "UNDO_CANVAS_ACTION",
   REDO_CANVAS_ACTION: "REDO_CANVAS_ACTION",
   LOAD_WIDGET_CONFIG: "LOAD_WIDGET_CONFIG",
+  LOAD_PROPERTY_CONFIG: "LOAD_PROPERTY_CONFIG",
   PUBLISH: "PUBLISH",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
   SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
@@ -33,6 +34,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_MOVE: "WIDGET_MOVE",
   WIDGET_RESIZE: "WIDGET_RESIZE",
   WIDGET_DELETE: "WIDGET_DELETE",
+  SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
+  UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
@@ -48,8 +51,8 @@ export interface LoadCanvasWidgetsPayload {
   layoutId: string;
 }
 
-export interface LoadWidgetConfigPayload {
-  [widgetId: string]: WidgetProps;
+export interface ShowPropertyPanePayload {
+  widgetId: string;
 }
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}

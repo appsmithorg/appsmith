@@ -5,7 +5,7 @@ import {
   LoadCanvasWidgetsPayload,
 } from "../constants/ReduxActionConstants";
 import {
-  loadCanvasWidgets,
+  updateCanvas,
   savePageError,
   savePageSuccess,
   fetchPageError,
@@ -44,19 +44,19 @@ export function* fetchPageSaga(
       const canvasWidgetsPayload: LoadCanvasWidgetsPayload = {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets,
-        layoutId: fetchPageResponse.data.layouts[0].id,
+        layoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
       };
-      yield put(loadCanvasWidgets(canvasWidgetsPayload));
-      yield put({
-        type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-        payload: fetchPageResponse.data.layouts[0].actions, // TODO: Refactor
-      });
-    } else {
-      yield put(fetchPageError(fetchPageResponse.responseMeta));
+      yield all([
+        put(updateCanvas(canvasWidgetsPayload)),
+        put({
+          type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
+          payload: fetchPageResponse.data.layouts[0].actions, // TODO(abhinav): Handle for multiple layouts
+        }),
+      ]);
     }
-  } catch (err) {
-    console.log(err);
-    //TODO(abhinav): REFACTOR THIS
+  } catch (error) {
+    console.log(error);
+    yield put(fetchPageError(error));
   }
 }
 

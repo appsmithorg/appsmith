@@ -59,11 +59,11 @@ export const removeWidget = (
   };
 };
 
-export const loadCanvasWidgets = (
+export const updateCanvas = (
   payload: LoadCanvasWidgetsPayload,
 ): ReduxAction<LoadCanvasWidgetsPayload> => {
   return {
-    type: ReduxActionTypes.LOAD_CANVAS_WIDGETS,
+    type: ReduxActionTypes.UPDATE_CANVAS,
     payload,
   };
 };
