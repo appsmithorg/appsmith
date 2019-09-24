@@ -14,4 +14,5 @@ public interface Url {
     String USER_URL = BASE_URL + VERSION + "/users";
     String APPLICATION_URL = BASE_URL + VERSION + "/applications";
     String PAGE_URL = BASE_URL + VERSION + "/pages";
+    String PROPERTY_URL = BASE_URL + VERSION + "/properties";
 }
