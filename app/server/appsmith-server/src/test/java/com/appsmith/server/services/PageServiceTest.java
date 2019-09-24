@@ -63,7 +63,7 @@ public class PageServiceTest {
         StepVerifier
                 .create(pageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATIONID)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATIONID)))
                 .verify();
     }
 
@@ -85,7 +85,7 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest TestApp".equals(page.getName()));
+                    assertThat("PageServiceTest TestApp" .equals(page.getName()));
 
                 })
                 .verifyComplete();

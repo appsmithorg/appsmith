@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.dtos.CommandQueryParams;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import reactor.core.publisher.Flux;
 
