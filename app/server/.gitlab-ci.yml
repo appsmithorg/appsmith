@@ -6,7 +6,6 @@
 image: docker:latest
 services:
   - docker:dind
-  - mongo:latest
 
 cache:
   paths:
@@ -28,7 +27,8 @@ stages:
 maven-build:
   image: maven:3-jdk-11-slim
   stage: build
-  script: "mvn package -DskipTests -B"
+  script:
+    - mvn package -B -Dspring.profiles.active=local
   artifacts:
     paths:
       - appsmith-server/target/*.jar
@@ -44,7 +44,6 @@ docker-package:
     - docker push $DOCKER_IMAGE_NAME
   only:
     - master
-
 
 heroku-deploy:
   stage: deploy

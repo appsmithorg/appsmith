@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -22,6 +23,7 @@ import reactor.test.StepVerifier;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -41,15 +43,8 @@ public class LayoutServiceTest {
     Mono<Application> applicationMono;
 
     @Before
-    @WithMockUser(username = "api_user")
     public void setup() {
-
-        Application testApplication = new Application();
-        testApplication.setName("LayoutServiceTest TestApplications");
-        applicationMono =
-                applicationService.findByName(testApplication.getName())
-                        .switchIfEmpty(applicationService.create(testApplication));
-
+        applicationMono = applicationService.findByName("LayoutServiceTest TestApplications");
     }
 
     @Test
@@ -157,15 +152,9 @@ public class LayoutServiceTest {
         testLayout.setDsl(obj);
 
         Page testPage = new Page();
-        testPage.setName("LayoutServiceTest updateLayoutValidPage");
+        testPage.setName("validPageName");
         Page page = pageService
                 .findByName(testPage.getName())
-                .switchIfEmpty(applicationMono
-                        .map(application -> {
-                            testPage.setApplicationId(application.getId());
-                            return testPage;
-                        })
-                        .flatMap(pageService::save))
                 .block();
 
         Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();

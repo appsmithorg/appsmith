@@ -10,7 +10,7 @@
 
 	<groupId>com.appsmith</groupId>
 	<artifactId>server</artifactId>
-	<version>${project.version}</version>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>server</name>
@@ -95,6 +95,11 @@
 			<groupId>com.github.spullara.mustache.java</groupId>
 			<artifactId>compiler</artifactId>
 			<version>0.9.6</version>
+		</dependency>
+		<dependency>
+			<groupId>de.flapdoodle.embed</groupId>
+			<artifactId>de.flapdoodle.embed.mongo</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<!-- Plugin dependencies -->
