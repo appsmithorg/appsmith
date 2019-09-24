@@ -17,6 +17,15 @@ services:
     networks:
       - appsmith
 
+  mongo_seed:
+    image: appsmith-mongo
+    links:
+      - mongo
+    volumes:
+      - ./mongo-seed:/mongo-seed
+    networks:
+      - appsmith
+
 networks:
   appsmith:
     driver: bridge
