@@ -8,8 +8,8 @@ import { Color } from "../constants/Colors";
 abstract class BaseComponent<T extends ComponentProps> extends Component<T> {}
 
 export interface BaseStyle {
-  defaultHeight?: number;
-  defaultWidth?: number;
+  componentHeight?: number;
+  componentWidth?: number;
   positionType: PositionType;
   xPosition: number;
   yPosition: number;

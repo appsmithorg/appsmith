@@ -45,7 +45,7 @@ export interface ReduxAction<T> {
   payload: T;
 }
 
-export interface LoadCanvasWidgetsPayload {
+export interface UpdateCanvasPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: WidgetProps };
   layoutId: string;

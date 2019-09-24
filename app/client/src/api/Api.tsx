@@ -4,6 +4,7 @@ import {
   BASE_URL,
   REQUEST_TIMEOUT_MS,
   REQUEST_HEADERS,
+  AUTH_CREDENTIALS,
 } from "../constants/ApiConstants";
 
 const axios = require("axios"); //eslint-disable-line @typescript-eslint/no-var-requires
@@ -13,11 +14,7 @@ const axiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT_MS,
   headers: REQUEST_HEADERS,
   withCredentials: true,
-  //TODO(abhinav): remove this.
-  auth: {
-    username: "api_user",
-    password: "8uA@;&mB:cnvN~{#",
-  },
+  auth: AUTH_CREDENTIALS,
 });
 
 axiosInstance.interceptors.response.use(

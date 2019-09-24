@@ -6,7 +6,7 @@ import { WidgetType } from "../constants/WidgetConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadCanvasWidgetsPayload,
+  UpdateCanvasPayload,
   SavePagePayload,
   SavePageErrorPayload,
   SavePageSuccessPayload,
@@ -60,8 +60,8 @@ export const removeWidget = (
 };
 
 export const updateCanvas = (
-  payload: LoadCanvasWidgetsPayload,
-): ReduxAction<LoadCanvasWidgetsPayload> => {
+  payload: UpdateCanvasPayload,
+): ReduxAction<UpdateCanvasPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_CANVAS,
     payload,
@@ -134,7 +134,7 @@ export const updateWidget = (
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetRemoveChild | WidgetResize
+  WidgetAddChild | WidgetMove | WidgetRemoveChild | WidgetResize | WidgetDelete
 > => {
   console.log(operation, widgetId, payload);
   return {

@@ -36,9 +36,9 @@ export interface SavePageResponse {
 }
 
 class PageApi extends Api {
-  static url = "api/v1/pages";
+  static url = "v1/pages";
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
-    return `api/v1/layouts/${layoutId}/pages/${pageId}`;
+    return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
   static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {

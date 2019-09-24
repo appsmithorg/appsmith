@@ -14,17 +14,14 @@ import {
   generateWidgetProps,
   updateWidgetSize,
   updateWidgetPosition,
-} from "./utils";
+} from "../utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const { widgetId, type, left, top, width, height } = addChildAction.payload;
-    const widget = yield (select(
-      getWidget,
-      widgetId,
-    ) as any) as FlattenedWidgetProps;
-    const widgets = yield select(getWidgets) as any;
+    const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const widgets = yield select(getWidgets);
 
     const childWidget = generateWidgetProps(
       widget,
@@ -55,7 +52,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     const { widgetId } = deleteAction.payload;
-    const widgets = yield select(getWidgets) as any;
+    const widgets = yield select(getWidgets);
     delete widgets[widgetId];
     const parent = Object.values(widgets).find(
       (widget: any) =>
@@ -85,17 +82,11 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
     const { widgetId, left, top, parentWidgetId } = moveAction.payload;
-    let widget = yield (select(
-      getWidget,
-      widgetId,
-    ) as any) as FlattenedWidgetProps;
+    let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets) as any;
     let parentWidget = null;
     if (parentWidgetId) {
-      parentWidget = yield (select(
-        getWidget,
-        parentWidgetId,
-      ) as any) as FlattenedWidgetProps;
+      parentWidget = yield select(getWidget, parentWidgetId);
     }
     widget = updateWidgetPosition(widget, left, top, parentWidget);
     widgets[widgetId] = widget;
@@ -121,11 +112,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     const { widgetId, height, width } = resizeAction.payload;
 
-    let widget = yield (select(
-      getWidget,
-      widgetId,
-    ) as any) as FlattenedWidgetProps;
-    const widgets = yield select(getWidgets) as any;
+    let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const widgets = yield select(getWidgets);
 
     widget = updateWidgetSize(widget, height, width);
     widgets[widgetId] = widget;

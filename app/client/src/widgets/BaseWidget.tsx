@@ -112,8 +112,8 @@ abstract class BaseWidget<
   getPositionStyle(): BaseStyle {
     return {
       positionType: "CONTAINER_DIRECTION",
-      defaultHeight: this.state.height,
-      defaultWidth: this.state.width,
+      componentHeight: this.state.height,
+      componentWidth: this.state.width,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,

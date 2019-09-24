@@ -2,7 +2,7 @@ import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadCanvasWidgetsPayload,
+  UpdateCanvasPayload,
 } from "../constants/ReduxActionConstants";
 import {
   updateCanvas,
@@ -25,7 +25,7 @@ import {
   takeEvery,
   all,
 } from "redux-saga/effects";
-import { extractCurrentDSL } from "./utils";
+import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs } from "./selectors";
 
 export function* fetchPageSaga(
@@ -41,7 +41,7 @@ export function* fetchPageSaga(
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
         extractCurrentDSL(fetchPageResponse),
       );
-      const canvasWidgetsPayload: LoadCanvasWidgetsPayload = {
+      const canvasWidgetsPayload: UpdateCanvasPayload = {
         pageWidgetId: normalizedResponse.result,
         widgets: normalizedResponse.entities.canvasWidgets,
         layoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
@@ -74,7 +74,7 @@ export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   }
 }
 
-export function* updateLayoutSaga(
+export function* saveLayoutSaga(
   updateLayoutAction: ReduxAction<{
     widgets: { [widgetId: string]: FlattenedWidgetProps };
   }>,
@@ -103,6 +103,6 @@ export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
     takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
-    takeEvery(ReduxActionTypes.UPDATE_LAYOUT, updateLayoutSaga),
+    takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
   ]);
 }

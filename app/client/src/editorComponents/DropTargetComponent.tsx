@@ -47,9 +47,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
   const [{ isOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
-    drop(item: WidgetProps, monitor) {
+    drop(widget: WidgetProps, monitor) {
       if (monitor.isOver({ shallow: true })) {
-        const item = monitor.getItem();
         const clientOffset = monitor.getClientOffset();
         if (clientOffset) {
           const [x, y] = snapToGrid(
@@ -57,16 +56,16 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             clientOffset.x - dropTargetTopLeft.x,
             clientOffset.y - dropTargetTopLeft.y,
           );
-          if (item.widgetId) {
+          if (widget.widgetId) {
             props.updateWidget &&
-              props.updateWidget(WidgetOperations.MOVE, item.widgetId, {
+              props.updateWidget(WidgetOperations.MOVE, widget.widgetId, {
                 left: x,
                 top: y,
               });
           } else {
             props.updateWidget &&
               props.updateWidget(WidgetOperations.ADD_CHILD, props.widgetId, {
-                type: item.type,
+                type: widget.type,
                 left: x,
                 top: y,
                 width:
@@ -84,7 +83,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     collect: monitor => ({
       isOver: !!monitor.isOver({ shallow: true }),
     }),
-    canDrop: (item, monitor) => {
+    canDrop: (widget, monitor) => {
       return monitor.isOver({ shallow: true });
     },
   });
@@ -93,8 +92,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       ref={drop}
       style={{
         left: props.style.xPosition + props.style.xPositionUnit,
-        height: props.style.defaultHeight,
-        width: props.style.defaultWidth,
+        height: props.style.componentHeight,
+        width: props.style.componentWidth,
         top: props.style.yPosition + props.style.yPositionUnit,
       }}
     >

@@ -59,7 +59,6 @@ type EditorProps = {
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidget: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
-  updateWidgetProperty: Function;
   savePageLayout: Function;
   page: string;
   currentPageId: string;

@@ -1,7 +1,7 @@
 import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
-  LoadCanvasWidgetsPayload,
+  UpdateCanvasPayload,
   ReduxAction,
 } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
@@ -17,13 +17,13 @@ export type FlattenedWidgetProps = ContainerWidgetProps<WidgetProps> & {
 const canvasWidgetsReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<LoadCanvasWidgetsPayload>,
+    action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return { ...action.payload.widgets };
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
-    action: ReduxAction<LoadCanvasWidgetsPayload>,
+    action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return { ...action.payload.widgets };
   },

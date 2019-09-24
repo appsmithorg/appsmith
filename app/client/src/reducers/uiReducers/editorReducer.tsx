@@ -2,7 +2,6 @@ import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadCanvasWidgetsPayload,
   LoadWidgetCardsPanePayload,
 } from "../../constants/ReduxActionConstants";
 import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
@@ -21,12 +20,6 @@ const editorReducer = createReducer(initialState, {
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
     return { ...state, ...action.payload };
-  },
-  [ReduxActionTypes.LOAD_CANVAS_WIDGETS]: (
-    state: EditorReduxState,
-    action: ReduxAction<LoadCanvasWidgetsPayload>,
-  ) => {
-    return { ...state, pageWidgetId: action.payload.pageWidgetId };
   },
   [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
     return { ...state, isSaving: true };

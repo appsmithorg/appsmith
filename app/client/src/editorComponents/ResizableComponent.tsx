@@ -33,8 +33,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   return (
     <ResizableContainer
       size={{
-        width: props.style.defaultWidth as number,
-        height: props.style.defaultHeight as number,
+        width: props.style.componentWidth as number,
+        height: props.style.componentHeight as number,
       }}
       style={{ ...props.style }}
       handleComponent={{ bottomRight: <BottomRightHandle /> }}
