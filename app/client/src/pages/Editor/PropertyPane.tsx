@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { AppState } from "../../reducers";
 import PropertyControlFactory from "../../utils/PropertyControlFactory";
 import _ from "lodash";
-import { ControlProps } from "../propertyControls/BaseControl";
+import { ControlProps } from "../../propertyControls/BaseControl";
 import { PropertySection } from "../../reducers/entityReducers/propertyPaneConfigReducer";
 import { updateWidgetProperty } from "../../actions/controlActions";
 

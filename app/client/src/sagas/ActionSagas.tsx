@@ -32,6 +32,7 @@ export function* evaluateJSONPathSaga(jsonPath: string): any {
 
 export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
+
   const executeActionRequest: ExecuteActionRequest = {
     actionId: apiAction.actionId,
   };

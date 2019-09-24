@@ -1,6 +1,6 @@
 import React, { SyntheticEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "../constants/PropertyControlConstants";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 

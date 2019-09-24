@@ -4,9 +4,9 @@ import {
   ReduxAction,
 } from "../../constants/ReduxActionConstants";
 import PropertyPaneConfigResponse from "../../mockResponses/PropertyPaneConfigResponse";
-import { InputControlProps } from "../../pages/propertyControls/InputTextControl";
-import { DropDownControlProps } from "../../pages/propertyControls/DropDownControl";
-import { ControlProps } from "../../pages/propertyControls/BaseControl";
+import { InputControlProps } from "../../propertyControls/InputTextControl";
+import { DropDownControlProps } from "../../propertyControls/DropDownControl";
+import { ControlProps } from "../../propertyControls/BaseControl";
 
 const initialState: PropertyPaneConfigState = PropertyPaneConfigResponse;
 

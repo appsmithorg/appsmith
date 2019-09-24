@@ -4,7 +4,7 @@ import {
   ControlProps,
   ControlData,
   ControlFunctions,
-} from "../pages/propertyControls/BaseControl";
+} from "../propertyControls/BaseControl";
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
