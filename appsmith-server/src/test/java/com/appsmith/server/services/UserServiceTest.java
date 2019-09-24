@@ -10,11 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -31,22 +34,9 @@ public class UserServiceTest {
 
     @Before
     public void setup() {
-        //User init
-        User user = new User();
-        user.setName("user test");
-        user.setEmail("usertest@usertest.com");
-        user.setState(UserState.ACTIVATED);
-        //Store the user in case its not present in the database.
-        userMono = userService.findByEmail("usertest@usertest.com").switchIfEmpty(Mono.defer(() -> userService.save(user)));
 
-        //Organization init
-        Organization organization = new Organization();
-        organization.setName("Spring Test Organization");
-        organization.setDomain("appsmith-spring-test.com");
-        organization.setWebsite("appsmith.com");
-
-        //Store the organization in case its not present in the database.
-        organizationMono = organizationService.getByName("Spring Test Organization").switchIfEmpty(Mono.defer(() -> organizationService.save(organization)));
+        userMono = userService.findByEmail("usertest@usertest.com");
+        organizationMono = organizationService.getByName("Spring Test Organization");
     }
 
     //Test the update organization flow.
