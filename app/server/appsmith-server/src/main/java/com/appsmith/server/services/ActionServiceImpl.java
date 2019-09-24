@@ -127,11 +127,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         // 3. Execute the query
         return actionMono.flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) ->
-                {
-                    log.debug("*** About to invoke the plugin**");
-                    // TODO: The CommandParams is being passed as null here. Move it to interfaces.CommandParams
-                    return pluginExecutor.execute(resource.getResourceConfiguration(), action.getActionConfiguration(), executeActionDTO.getParams());
-                }))
+        {
+            log.debug("*** About to invoke the plugin**");
+            // TODO: The CommandParams is being passed as null here. Move it to interfaces.CommandParams
+            return pluginExecutor.execute(resource.getResourceConfiguration(), action.getActionConfiguration(), executeActionDTO.getParams());
+        }))
                 .flatMapIterable(Flux::toIterable);
     }
 }

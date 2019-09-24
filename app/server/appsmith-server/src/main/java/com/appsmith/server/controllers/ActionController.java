@@ -2,10 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.dtos.CommandQueryParams;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.services.ActionService;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
