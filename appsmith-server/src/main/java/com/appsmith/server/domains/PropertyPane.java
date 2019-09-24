@@ -1,26 +1,22 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.ActionConfiguration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+import java.util.Map;
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
-public class Action extends BaseDomain {
+public class PropertyPane extends BaseDomain {
 
-    String name;
+    Map<String, List<WidgetSectionProperty>> config;
 
-    String resourceId;
-
-    String pluginId;
-
-    String pageId;
-
-    ActionConfiguration actionConfiguration;
+    String configVersion;
 }
