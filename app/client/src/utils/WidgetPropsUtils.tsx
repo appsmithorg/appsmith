@@ -8,13 +8,95 @@ import { generateReactKey } from "../utils/generators";
 import { Colors } from "../constants/Colors";
 import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
+import { OccupiedSpace } from "../widgets/ContainerWidget";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
+type Rect = {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+};
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
   return fetchPageResponse.data.layouts[0].dsl;
+};
+
+export const getDropZoneOffsets = (
+  colWidth: number,
+  rowHeight: number,
+  dragOffset: XYCoord,
+  parentOffset: XYCoord,
+) => {
+  // Calculate actual drop position by snapping based on x, y and grid cell size
+  return snapToGrid(
+    colWidth,
+    rowHeight,
+    dragOffset.x - parentOffset.x,
+    dragOffset.y - parentOffset.y,
+  );
+};
+
+const areIntersecting = (r1: Rect, r2: Rect) => {
+  return !(
+    r2.left > r1.right ||
+    r2.right < r1.left ||
+    r2.top > r1.bottom ||
+    r2.bottom < r1.top
+  );
+};
+
+export const isDropZoneOccupied = (
+  offset: Rect,
+  widget: WidgetProps,
+  occupied: OccupiedSpace[] | null,
+) => {
+  if (occupied) {
+    occupied = occupied.filter(widgetDetails => {
+      return widgetDetails.id !== widget.widgetId;
+    });
+    for (let i = 0; i < occupied.length; i++) {
+      if (areIntersecting(occupied[i], offset)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  return false;
+};
+
+export const noCollision = (
+  clientOffset: XYCoord,
+  colWidth: number,
+  rowHeight: number,
+  widget: WidgetProps & Partial<WidgetConfigProps>,
+  dropTargetOffset: XYCoord,
+  occupiedSpaces: OccupiedSpace[] | null,
+): boolean => {
+  if (clientOffset && dropTargetOffset && widget) {
+    const [left, top] = getDropZoneOffsets(
+      colWidth,
+      rowHeight,
+      clientOffset as XYCoord,
+      dropTargetOffset,
+    );
+    const widgetWidth = widget.columns
+      ? widget.columns
+      : widget.rightColumn - widget.leftColumn;
+    const widgetHeight = widget.rows
+      ? widget.rows
+      : widget.bottomRow - widget.topRow;
+    const currentOffset = {
+      left,
+      right: left + widgetWidth,
+      top,
+      bottom: top + widgetHeight,
+    };
+    return !isDropZoneOccupied(currentOffset, widget, occupiedSpaces);
+  }
+  return false;
 };
 
 export const widgetOperationParams = (
@@ -26,12 +108,11 @@ export const widgetOperationParams = (
   widgetId?: string,
 ) => {
   if (widgetOffset) {
-    // Calculate actual drop position by snapping based on x, y and grid cell size
-    const [leftColumn, topRow] = snapToGrid(
+    const [leftColumn, topRow] = getDropZoneOffsets(
       parentColumnSpace,
       parentRowSpace,
-      widgetOffset.x - parentOffset.x,
-      widgetOffset.y - parentOffset.y,
+      widgetOffset,
+      parentOffset,
     );
     // If this is an existing widget, we'll have the widgetId
     // Therefore, this is a move operation on drop of the widget

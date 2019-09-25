@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { WidgetProps } from "../widgets/BaseWidget";
+import { OccupiedSpace } from "../widgets/ContainerWidget";
 import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
 import { useDrop, XYCoord } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
 
-import { widgetOperationParams } from "../utils/WidgetPropsUtils";
+import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import DropTargetMask from "./DropTargetMask";
 
@@ -29,6 +30,7 @@ type DropTargetComponentProps = ContainerProps & {
   snapRows?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
+  occupiedSpaces: OccupiedSpace[] | null;
 };
 
 type DropTargetBounds = {
@@ -39,7 +41,7 @@ type DropTargetBounds = {
 };
 
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
-  // Hook to keep the bounds of the drop target container in state
+  // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
 
   // Make this component a drop target
@@ -47,7 +49,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
-      if (isOver) {
+      if (isOver && monitor.canDrop()) {
         props.updateWidget &&
           props.updateWidget(
             ...widgetOperationParams(
@@ -66,13 +68,21 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     collect: monitor => ({
       isOver: !!monitor.isOver({ shallow: true }),
     }),
-    hover: (widget, monitor) => {
-      console.log(props.widgetId, monitor.isOver({ shallow: true }));
-    },
     // Only allow drop if the drag object is directly over this component
     // As opposed to the drag object being over a child component, or outside the component bounds
+    // Also only if the dropzone does not overlap any existing children
     canDrop: (widget, monitor) => {
-      return monitor.isOver({ shallow: true });
+      if (monitor.isOver({ shallow: true })) {
+        return noCollision(
+          monitor.getClientOffset() as XYCoord,
+          props.snapColumnSpace,
+          props.snapRowSpace,
+          widget,
+          dropTargetOffset,
+          props.occupiedSpaces,
+        );
+      }
+      return false;
     },
   });
 
@@ -106,6 +116,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         parentRowHeight={props.snapRowSpace}
         parentColumnWidth={props.snapColumnSpace}
         visible={isOver}
+        dropTargetOffset={dropTargetOffset}
+        occupiedSpaces={props.occupiedSpaces}
       />
       {props.children}
     </div>

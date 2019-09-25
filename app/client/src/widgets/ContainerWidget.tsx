@@ -83,10 +83,20 @@ class ContainerWidget extends BaseWidget<
 
   getCanvasView() {
     const style = this.getPositionStyle();
+    const occupiedSpaces: OccupiedSpace[] | null = this.props.children
+      ? this.props.children.map(child => ({
+          id: child.widgetId,
+          left: child.leftColumn,
+          top: child.topRow,
+          bottom: child.bottomRow,
+          right: child.rightColumn,
+        }))
+      : null;
     return (
       <DropTargetComponent
         {...this.props}
         {...this.state}
+        occupiedSpaces={occupiedSpaces}
         style={{
           ...style,
         }}
@@ -122,5 +132,13 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   orientation?: ContainerOrientation;
   backgroundColor?: Color;
 }
+
+export type OccupiedSpace = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  id: string;
+};
 
 export default ContainerWidget;

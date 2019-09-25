@@ -2,13 +2,6 @@ import React from "react";
 import { XYCoord } from "react-dnd";
 import styled from "styled-components";
 import { snapToGrid } from "../utils/helpers";
-type DropZoneWrapperProps = {
-  visible: boolean;
-  left: number;
-  width: number;
-  height: number;
-  top: number;
-};
 
 const DropZoneWrapper = styled.div`
   position: absolute;
@@ -26,6 +19,7 @@ type DropZoneProps = {
   parentOffset: XYCoord;
   parentRowHeight: number;
   parentColumnWidth: number;
+  canDrop: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -37,7 +31,6 @@ export const DropZone = (props: DropZoneProps) => {
     height: 0,
     width: 0,
   };
-
   if (props.visible) {
     if (props.currentOffset && props.currentOffset.x >= props.parentOffset.x) {
       const [leftColumn, topRow] = snapToGrid(
@@ -64,8 +57,8 @@ export const DropZone = (props: DropZoneProps) => {
         width: wrapperProps.width + "px",
         top: wrapperProps.top + "px",
         height: wrapperProps.height + "px",
+        background: props.canDrop ? "blue" : "red",
       }}
-      {...wrapperProps}
     />
   );
 };
