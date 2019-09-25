@@ -9,6 +9,4 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
 
-    Mono<User> save(User newUser);
-
 }
