@@ -39,6 +39,17 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       style={{ ...props.style }}
       handleComponent={{ bottomRight: <BottomRightHandle /> }}
       onResizeStop={updateSize}
+      grid={[props.parentColumnSpace, props.parentRowSpace]}
+      enable={{
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+        topRight: false,
+        topLeft: false,
+        bottomRight: true,
+        bottomLeft: true,
+      }}
     >
       {props.children}
     </ResizableContainer>

@@ -10,20 +10,6 @@ import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import DropTargetMask from "./DropTargetMask";
 
-/*TODO:
-  - Try to keep only component props, state and drop hook here - DONE
-  - Move all child components to their own file - DONE
-  - Provide Draglayer with the actual component size if exists
-    - else pull it from widgetConfig - DONE
-  - Provide Draglayer with rows, columns, rowHeight, columnWidth instead of width height  pixels - DONE
-  - Return rows and columns to the drop handler (updateWidget) - DONE
-  - Update WidgetOperations to handle rows and columns - DONE
-  - Increase default canvas rowHeight
-  - Fix child container positioning
-  - Fix dropping into another component issue
-  
-*/
-
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
   snapColumns?: number;
