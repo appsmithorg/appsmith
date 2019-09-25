@@ -28,7 +28,7 @@ const CanvasContainer = styled.section`
   height: 100%;
   width: 100%;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
   margin: 0px 10px;
   &:before {
@@ -109,12 +109,29 @@ class Editor extends Component<EditorProps> {
 }
 
 const mapStateToProps = (state: AppState): EditorReduxState => {
+  // TODO(abhinav) : Benchmark this, see how many times this is called in the application
+  // lifecycle. Move to using flattend redux state for widgets if necessary.
+
+  // Also, try to merge the widgetCards and widgetConfigs in the fetch Saga.
+  // No point in storing widgetCards, without widgetConfig
+  // Alternatively, try to see if we can continue to use only WidgetConfig and eliminate WidgetCards
+
   const dsl = CanvasWidgetsNormalizer.denormalize(
     state.ui.editor.pageWidgetId,
     state.entities,
   );
+  const configs = state.entities.widgetConfig.config;
+
+  const cards = state.ui.widgetCardsPane.cards;
+  Object.keys(cards).forEach((group: string) => {
+    cards[group] = cards[group].map((widget: WidgetCardProps) => ({
+      ...widget,
+      ...configs[widget.type],
+    }));
+  });
+
   return {
-    cards: state.ui.widgetCardsPane.cards,
+    cards,
     dsl,
     pageWidgetId: state.ui.editor.pageWidgetId,
     currentPageId: state.ui.editor.currentPageId,

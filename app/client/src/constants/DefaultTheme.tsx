@@ -38,6 +38,7 @@ export const theme: Theme = {
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
     paneBG: Colors.OUTER_SPACE,
+    grid: Colors.POLAR,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],

@@ -1,112 +1,109 @@
-import React, { useState, useLayoutEffect, MutableRefObject } from "react";
-import styled from "styled-components";
-import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
-import { useDrop } from "react-dnd";
+import React, { useState } from "react";
+import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
+import { useDrop, XYCoord } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
-import { snapToGrid } from "../utils/helpers";
+
+import { widgetOperationParams } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
+import DropTargetMask from "./DropTargetMask";
 
-import { GridDefaults } from "../constants/WidgetConstants";
-
-const {
-  DEFAULT_CELL_SIZE,
-  DEFAULT_WIDGET_HEIGHT,
-  DEFAULT_WIDGET_WIDTH,
-} = GridDefaults;
+/*TODO:
+  - Try to keep only component props, state and drop hook here - DONE
+  - Move all child components to their own file - DONE
+  - Provide Draglayer with the actual component size if exists
+    - else pull it from widgetConfig - DONE
+  - Provide Draglayer with rows, columns, rowHeight, columnWidth instead of width height  pixels - DONE
+  - Return rows and columns to the drop handler (updateWidget) - DONE
+  - Update WidgetOperations to handle rows and columns
+  - Increase default canvas rowHeight
+  - Fix child container positioning
+*/
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
+  snapColumns?: number;
+  snapRows?: number;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 };
 
-const WrappedDropTarget = styled.div`
-  background: white;
-`;
-const DropTargetMask = styled.div`
-  position: absolute;
-  z-index: -10;
-  left: 0;
-  right: 0;
-`;
+type DropTargetBounds = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
-  const [dropTargetTopLeft, setDropTargetTopLeft] = useState({ x: 0, y: 0 });
-  const dropTargetMask: MutableRefObject<HTMLDivElement | null> = React.useRef(
-    null,
-  );
-  useLayoutEffect(() => {
-    const el = dropTargetMask.current;
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setDropTargetTopLeft({
-        x: rect.left,
-        y: rect.top,
-      });
-    }
-  }, [setDropTargetTopLeft]);
+  // Hook to keep the bounds of the drop target container in state
+  const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
 
+  // Make this component a drop target
   const [{ isOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
-    drop(widget: WidgetProps, monitor) {
-      if (monitor.isOver({ shallow: true })) {
-        const clientOffset = monitor.getClientOffset();
-        if (clientOffset) {
-          const [x, y] = snapToGrid(
-            DEFAULT_CELL_SIZE,
-            clientOffset.x - dropTargetTopLeft.x,
-            clientOffset.y - dropTargetTopLeft.y,
+    drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
+      // Make sure we're dropping in this container.
+      if (isOver) {
+        props.updateWidget &&
+          props.updateWidget(
+            ...widgetOperationParams(
+              widget,
+              monitor.getClientOffset() as XYCoord,
+              dropTargetOffset,
+              props.snapColumnSpace,
+              props.snapRowSpace,
+              props.widgetId,
+            ),
           );
-          if (widget.widgetId) {
-            props.updateWidget &&
-              props.updateWidget(WidgetOperations.MOVE, widget.widgetId, {
-                left: x,
-                top: y,
-              });
-          } else {
-            props.updateWidget &&
-              props.updateWidget(WidgetOperations.ADD_CHILD, props.widgetId, {
-                type: widget.type,
-                left: x,
-                top: y,
-                width:
-                  Math.round(DEFAULT_WIDGET_WIDTH / DEFAULT_CELL_SIZE) *
-                  DEFAULT_CELL_SIZE,
-                height:
-                  Math.round(DEFAULT_WIDGET_HEIGHT / DEFAULT_CELL_SIZE) *
-                  DEFAULT_CELL_SIZE,
-              });
-          }
-        }
       }
       return undefined;
     },
+    // Collect isOver for ui transforms when hovering over this component
     collect: monitor => ({
       isOver: !!monitor.isOver({ shallow: true }),
     }),
+    // Only allow drop if the drag object is directly over this component
+    // As opposed to the drag object being over a child component, or outside the component bounds
     canDrop: (widget, monitor) => {
       return monitor.isOver({ shallow: true });
     },
   });
+
+  const handleBoundsUpdate = (rect: DOMRect) => {
+    if (rect.x !== dropTargetOffset.x || rect.y !== dropTargetOffset.y) {
+      setDropTargetOffset({
+        x: rect.x,
+        y: rect.y,
+      });
+    }
+  };
+
   return (
-    <WrappedDropTarget
+    <div
       ref={drop}
       style={{
+        position: "relative",
         left: props.style.xPosition + props.style.xPositionUnit,
         height: props.style.componentHeight,
         width: props.style.componentWidth,
         top: props.style.yPosition + props.style.yPositionUnit,
       }}
     >
-      <DropTargetMask ref={dropTargetMask} />
+      <DropTargetMask
+        rowHeight={props.snapRowSpace}
+        columnWidth={props.snapColumnSpace}
+        setBounds={handleBoundsUpdate}
+      />
       <DragLayerComponent
-        parentOffset={dropTargetTopLeft}
-        width={DEFAULT_WIDGET_WIDTH}
-        height={DEFAULT_WIDGET_HEIGHT}
-        cellSize={DEFAULT_CELL_SIZE}
+        parentOffset={dropTargetOffset}
+        parentRowHeight={props.snapRowSpace}
+        parentColumnWidth={props.snapColumnSpace}
         visible={isOver}
       />
       {props.children}
-    </WrappedDropTarget>
+    </div>
   );
 };
 

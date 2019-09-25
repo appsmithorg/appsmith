@@ -1,10 +1,13 @@
 import { FetchPageResponse } from "../api/PageApi";
+import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
+import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { WidgetType, RenderModes } from "../constants/WidgetConstants";
 import { generateReactKey } from "../utils/generators";
 import { Colors } from "../constants/Colors";
 import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
+import { snapToGrid } from "./helpers";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
 
@@ -14,21 +17,67 @@ export const extractCurrentDSL = (
   return fetchPageResponse.data.layouts[0].dsl;
 };
 
+export const widgetOperationParams = (
+  widget: WidgetProps & Partial<WidgetConfigProps>,
+  widgetOffset: XYCoord,
+  parentOffset: XYCoord,
+  parentColumnSpace: number,
+  parentRowSpace: number,
+  widgetId?: string,
+) => {
+  if (widgetOffset) {
+    // Calculate actual drop position by snapping based on x, y and grid cell size
+    const [leftColumn, topRow] = snapToGrid(
+      parentColumnSpace,
+      parentRowSpace,
+      widgetOffset.x - parentOffset.x,
+      widgetOffset.y - parentOffset.y,
+    );
+    // If this is an existing widget, we'll have the widgetId
+    // Therefore, this is a move operation on drop of the widget
+    if (widget.widgetId) {
+      return [
+        WidgetOperations.MOVE,
+        widget.widgetId,
+        {
+          leftColumn,
+          topRow,
+        },
+      ];
+      // If this is not an existing widget, we'll not have the widgetId
+      // Therefore, this is an operation to add child to this container
+    } else {
+      const widgetDimensions = {
+        columns: widget.columns,
+        rows: widget.rows,
+      };
+      return [
+        WidgetOperations.ADD_CHILD,
+        widgetId,
+        {
+          type: widget.type,
+          leftColumn,
+          topRow,
+          ...widgetDimensions,
+          parentRowSpace,
+          parentColumnSpace,
+        },
+      ];
+    }
+  }
+};
+
 export const updateWidgetPosition = (
   widget: WidgetProps,
-  left: number,
-  top: number,
+  leftColumn: number,
+  topRow: number,
   parent?: WidgetProps,
 ) => {
   const newPositions = {
-    leftColumn: Math.floor(left / widget.parentColumnSpace),
-    topRow: Math.floor(top / widget.parentRowSpace),
-    rightColumn:
-      Math.floor(left / widget.parentColumnSpace) +
-      (widget.rightColumn - widget.leftColumn),
-    bottomRow:
-      Math.floor(top / widget.parentRowSpace) +
-      (widget.bottomRow - widget.topRow),
+    leftColumn,
+    topRow,
+    rightColumn: leftColumn + (widget.rightColumn - widget.leftColumn),
+    bottomRow: topRow + (widget.bottomRow - widget.topRow),
   };
   if (parent) {
   }
@@ -60,25 +109,19 @@ export const updateWidgetSize = (
 export const generateWidgetProps = (
   parent: ContainerWidgetProps<WidgetProps>,
   type: WidgetType,
-  left: number,
-  top: number,
-  width: number,
-  height: number,
+  leftColumn: number,
+  topRow: number,
+  columns: number,
+  rows: number,
+  parentRowSpace: number,
+  parentColumnSpace: number,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent && parent.snapColumns && parent.snapRows) {
-    const parentColumnWidth = Math.floor(
-      ((parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace) /
-        parent.snapColumns,
-    );
-    const parentRowHeight = Math.floor(
-      ((parent.bottomRow - parent.topRow) * parent.parentRowSpace) /
-        parent.snapRows,
-    );
     const sizes = {
-      leftColumn: Math.floor(left / parentColumnWidth),
-      rightColumn: Math.floor((left + width) / parentColumnWidth),
-      topRow: Math.floor(top / parentRowHeight),
-      bottomRow: Math.floor((top + height) / parentRowHeight),
+      leftColumn,
+      rightColumn: leftColumn + columns,
+      topRow,
+      bottomRow: topRow + rows,
     };
     let others = {};
     if (type === WidgetTypes.CONTAINER_WIDGET) {
@@ -96,8 +139,8 @@ export const generateWidgetProps = (
       widgetId: generateReactKey(),
       widgetName: generateReactKey(), //TODO: figure out what this is to populate appropriately
       isVisible: true,
-      parentColumnSpace: parentColumnWidth,
-      parentRowSpace: parentRowHeight,
+      parentColumnSpace,
+      parentRowSpace,
       renderMode: RenderModes.CANVAS, //Is this required?
       ...sizes,
       ...others,

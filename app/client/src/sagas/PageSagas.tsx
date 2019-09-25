@@ -81,7 +81,6 @@ export function* saveLayoutSaga(
 ) {
   try {
     const { widgets } = updateLayoutAction.payload;
-
     const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
       Object.keys(widgets)[0],
       { canvasWidgets: widgets },

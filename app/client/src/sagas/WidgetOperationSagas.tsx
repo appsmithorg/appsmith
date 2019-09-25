@@ -19,17 +19,28 @@ import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
-    const { widgetId, type, left, top, width, height } = addChildAction.payload;
+    const {
+      widgetId,
+      type,
+      leftColumn,
+      topRow,
+      columns,
+      rows,
+      parentRowSpace,
+      parentColumnSpace,
+    } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
     const childWidget = generateWidgetProps(
       widget,
       type,
-      left,
-      top,
-      width,
-      height,
+      leftColumn,
+      topRow,
+      columns,
+      rows,
+      parentRowSpace,
+      parentColumnSpace,
     );
     widgets[childWidget.widgetId] = childWidget;
     if (widget && widget.children) {
@@ -81,14 +92,14 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
-    const { widgetId, left, top, parentWidgetId } = moveAction.payload;
+    const { widgetId, leftColumn, topRow, parentWidgetId } = moveAction.payload;
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets) as any;
     let parentWidget = null;
     if (parentWidgetId) {
       parentWidget = yield select(getWidget, parentWidgetId);
     }
-    widget = updateWidgetPosition(widget, left, top, parentWidget);
+    widget = updateWidgetPosition(widget, leftColumn, topRow, parentWidget);
     widgets[widgetId] = widget;
     if (parentWidgetId) {
       widgets[parentWidgetId].children.push(widgetId);

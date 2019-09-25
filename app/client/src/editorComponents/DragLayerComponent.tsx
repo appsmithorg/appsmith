@@ -15,25 +15,38 @@ const WrappedDragLayer = styled.div`
 `;
 
 type DragLayerProps = {
-  height: number;
-  width: number;
   parentOffset: XYCoord;
-  cellSize: number;
+  parentRowHeight: number;
+  parentColumnWidth: number;
   visible: boolean;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
-  const { isDragging, currentOffset } = useDragLayer(monitor => ({
+  const { isDragging, currentOffset, widget } = useDragLayer(monitor => ({
     isDragging: monitor.isDragging(),
     currentOffset: monitor.getClientOffset(),
+    widget: monitor.getItem(),
   }));
+  let widgetWidth = 0;
+  let widgetHeight = 0;
+  if (widget) {
+    widgetWidth = widget.columns
+      ? widget.columns
+      : widget.rightColumn - widget.leftColumn;
+    widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
+  }
 
-  if (!isDragging) {
+  if (!isDragging || !props.visible) {
     return null;
   }
   return (
     <WrappedDragLayer>
-      <DropZone {...props} currentOffset={currentOffset as XYCoord} />
+      <DropZone
+        {...props}
+        width={widgetWidth}
+        height={widgetHeight}
+        currentOffset={currentOffset as XYCoord}
+      />
     </WrappedDragLayer>
   );
 };

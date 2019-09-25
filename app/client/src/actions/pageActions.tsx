@@ -96,16 +96,18 @@ export const savePageError = (payload: SavePageErrorPayload) => {
 export type WidgetAddChild = {
   widgetId: string;
   type: WidgetType;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
+  leftColumn: number;
+  topRow: number;
+  columns: number;
+  rows: number;
+  parentRowSpace: number;
+  parentColumnSpace: number;
 };
 
 export type WidgetMove = {
   widgetId: string;
-  left: number;
-  top: number;
+  leftColumn: number;
+  topRow: number;
   /*
     If parentWidgetId is different from what we have in redux store, 
     then we have to delete this,

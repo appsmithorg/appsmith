@@ -4,13 +4,13 @@ import WidgetCardsPaneApi, {
   WidgetCardsPaneResponse,
 } from "../api/WidgetCardsPaneApi";
 import { successFetchingWidgetCards } from "../actions/widgetCardsPaneActions";
-import { call, put, takeLatest } from "redux-saga/effects";
+import { call, put, takeLatest, all } from "redux-saga/effects";
 
 export function* fetchWidgetCards() {
   try {
-    const widgetCards: WidgetCardsPaneResponse = yield call(
-      WidgetCardsPaneApi.fetchWidgetCards,
-    );
+    const widgetCards: WidgetCardsPaneResponse = yield all([
+      call(WidgetCardsPaneApi.fetchWidgetCards),
+    ]);
     yield put(successFetchingWidgetCards(widgetCards.cards));
   } catch (err) {
     yield put({ type: ReduxActionTypes.ERROR_FETCHING_WIDGET_CARDS, err });

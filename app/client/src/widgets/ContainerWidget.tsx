@@ -22,10 +22,10 @@ class ContainerWidget extends BaseWidget<
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
     this.state = {
-      width: 0,
-      height: 0,
-      snapColumnSpace: DEFAULT_GRID_COLUMNS,
-      snapRowSpace: DEFAULT_GRID_ROWS,
+      componentWidth: 0,
+      componentHeight: 0,
+      snapColumnSpace: 0,
+      snapRowSpace: 0,
     };
   }
 
@@ -33,19 +33,22 @@ class ContainerWidget extends BaseWidget<
     super.componentDidUpdate(previousProps);
     let snapColumnSpace = this.state.snapColumnSpace;
     let snapRowSpace = this.state.snapRowSpace;
-    if (this.state.width)
-      snapColumnSpace =
-        this.state.width / (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
-    if (this.state.height)
-      snapRowSpace =
-        this.state.height / (this.props.snapRows || DEFAULT_GRID_ROWS);
+    if (this.state.componentWidth)
+      snapColumnSpace = Math.floor(
+        this.state.componentWidth /
+          (this.props.snapColumns || DEFAULT_GRID_COLUMNS),
+      );
+    if (this.state.componentHeight)
+      snapRowSpace = Math.floor(
+        this.state.componentHeight / (this.props.snapRows || DEFAULT_GRID_ROWS),
+      );
     if (
       this.state.snapColumnSpace !== snapColumnSpace ||
       this.state.snapRowSpace !== snapRowSpace
     ) {
       this.setState({
-        snapColumnSpace: snapColumnSpace,
-        snapRowSpace: snapRowSpace,
+        snapColumnSpace,
+        snapRowSpace,
       });
     }
   }
@@ -79,6 +82,7 @@ class ContainerWidget extends BaseWidget<
     return (
       <DropTargetComponent
         {...this.props}
+        {...this.state}
         style={{
           ...this.getPositionStyle(),
         }}

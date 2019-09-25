@@ -24,11 +24,11 @@ abstract class BaseWidget<
   constructor(props: T) {
     super(props);
     const initialState: WidgetState = {
-      height: 0,
-      width: 0,
+      componentHeight: 0,
+      componentWidth: 0,
     };
-    initialState.height = 0;
-    initialState.width = 0;
+    initialState.componentHeight = 0;
+    initialState.componentWidth = 0;
     this.state = initialState as K;
   }
 
@@ -63,13 +63,13 @@ abstract class BaseWidget<
     parentRowSpace: number,
   ) {
     const widgetState: WidgetState = {
-      width: (rightColumn - leftColumn) * parentColumnSpace,
-      height: (bottomRow - topRow) * parentRowSpace,
+      componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
+      componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
     if (
       _.isNil(this.state) ||
-      widgetState.height !== this.state.height ||
-      widgetState.width !== this.state.width
+      widgetState.componentHeight !== this.state.componentHeight ||
+      widgetState.componentWidth !== this.state.componentWidth
     ) {
       this.setState(widgetState);
     }
@@ -112,8 +112,8 @@ abstract class BaseWidget<
   getPositionStyle(): BaseStyle {
     return {
       positionType: "CONTAINER_DIRECTION",
-      componentHeight: this.state.height,
-      componentWidth: this.state.width,
+      componentHeight: this.state.componentHeight,
+      componentWidth: this.state.componentWidth,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
@@ -130,8 +130,8 @@ abstract class BaseWidget<
 }
 
 export interface WidgetState {
-  height: number;
-  width: number;
+  componentHeight: number;
+  componentWidth: number;
 }
 
 export interface DraggableWidget {
@@ -160,6 +160,7 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
+  isRoot?: boolean;
 }
 
 export interface WidgetFunctions {

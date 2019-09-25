@@ -24,7 +24,8 @@ type DropZoneProps = {
   width: number;
   visible: boolean;
   parentOffset: XYCoord;
-  cellSize: number;
+  parentRowHeight: number;
+  parentColumnWidth: number;
 };
 
 /* eslint-disable react/display-name */
@@ -39,17 +40,18 @@ export const DropZone = (props: DropZoneProps) => {
 
   if (props.visible) {
     if (props.currentOffset && props.currentOffset.x >= props.parentOffset.x) {
-      const [x, y] = snapToGrid(
-        props.cellSize,
+      const [leftColumn, topRow] = snapToGrid(
+        props.parentColumnWidth,
+        props.parentRowHeight,
         props.currentOffset.x - props.parentOffset.x,
         props.currentOffset.y - props.parentOffset.y,
       );
       wrapperProps = {
         visible: true,
-        left: x,
-        top: y,
-        height: props.height,
-        width: props.width,
+        left: leftColumn * props.parentColumnWidth,
+        top: topRow * props.parentRowHeight,
+        height: props.height * props.parentRowHeight,
+        width: props.width * props.parentColumnWidth,
       };
     }
   }
