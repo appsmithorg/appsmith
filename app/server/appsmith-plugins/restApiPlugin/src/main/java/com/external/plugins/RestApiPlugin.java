@@ -37,16 +37,17 @@ public class RestApiPlugin extends BasePlugin {
                                     ActionConfiguration actionConfiguration,
                                     List<Param> params) {
             JSONObject requestBody = actionConfiguration.getBody();
-            if(requestBody == null) {
+            if (requestBody == null) {
                 requestBody = new JSONObject();
             }
+            //TODO: Substitue variables from params in all parts (actionConfig, resourceConfig etc) via JsonPath: https://github.com/json-path/JsonPath
             Map<String, Param> propertyMap = params.stream()
                     .collect(Collectors.toMap(Param::getKey, param -> param));
 
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = resourceConfiguration.getUrl() + path;
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
-            if(httpMethod == null) {
+            if (httpMethod == null) {
                 return Flux.error(new Exception("HttpMethod must not be null"));
             }
 
@@ -54,6 +55,7 @@ public class RestApiPlugin extends BasePlugin {
 
             WebClient webClient = WebClient.builder()
                     .baseUrl(url)
+                    // TODO: Ideally this should come from action / resource config
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .build();
 
@@ -63,6 +65,7 @@ public class RestApiPlugin extends BasePlugin {
             Mono<ClientResponse> responseMono = request.exchange();
             return responseMono.flatMapMany(response -> {
                 log.debug("Got response: {}", response);
+                // TODO: Refactor for better switch case
                 List<String> contentTypes = response.headers().header(HttpHeaders.CONTENT_TYPE);
                 Class clazz = String.class;
                 if (contentTypes != null && contentTypes.size() > 0) {
