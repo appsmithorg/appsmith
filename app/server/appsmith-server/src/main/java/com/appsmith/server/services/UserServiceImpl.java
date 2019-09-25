@@ -56,7 +56,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     @Override
-    public Mono<User> save(User user) {
+    public Mono<User> create(User user) {
 
         Mono<User> savedUserMono = repository.save(user);
         return savedUserMono
