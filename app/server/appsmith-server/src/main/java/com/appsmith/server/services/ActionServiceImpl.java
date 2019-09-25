@@ -6,10 +6,12 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +46,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              ResourceService resourceService,
                              PluginService pluginService,
                              PageService pageService,
-                             PluginManager pluginManager) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+                             PluginManager pluginManager,
+                             Analytics analytics,
+                             SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.resourceService = resourceService;
         this.pluginService = pluginService;
@@ -63,6 +67,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Mono.error(new AppsmithException(AppsmithError.PAGE_ID_NOT_GIVEN));
         }
 
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
         Mono<Resource> resourceMono = resourceService.findById(action.getResourceId());
         Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId()));
         Mono<Page> pageMono = pageService.findById(action.getPageId());
@@ -96,7 +101,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 return page;
                             })
                             .flatMap(pageService::save)
-                            .then(Mono.just(action1));
+                            .then(Mono.just(action1))
+                            //Now publish this event
+                            .flatMap(this::segmentTrackCreate);
                 });
     }
 
@@ -129,7 +136,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return actionMono.flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) ->
         {
             log.debug("*** About to invoke the plugin**");
-            // TODO: The CommandParams is being passed as null here. Move it to interfaces.CommandParams
+            // TODO: The CommandParams is being passed as null here. Move it to interfaces.CommandParams - N/A
             return pluginExecutor.execute(resource.getResourceConfiguration(), action.getActionConfiguration(), executeActionDTO.getParams());
         }))
                 .flatMapIterable(Flux::toIterable);

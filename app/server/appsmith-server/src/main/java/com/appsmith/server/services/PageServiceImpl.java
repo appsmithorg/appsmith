@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PageRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +25,12 @@ import java.util.List;
 @Slf4j
 public class PageServiceImpl extends BaseService<PageRepository, Page, String> implements PageService {
 
-    private final UserService userService;
     private final ApplicationService applicationService;
 
     @Autowired
-    public PageServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, PageRepository repository, UserService userService, ApplicationService applicationService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
-        this.userService = userService;
+    public PageServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, PageRepository repository, ApplicationService applicationService,
+                           Analytics analytics, SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.applicationService = applicationService;
     }
 
@@ -43,6 +43,9 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
         } else if (page.getApplicationId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATIONID));
         }
+
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+
         List<Layout> layoutList = page.getLayouts();
         if (layoutList == null) {
             layoutList = new ArrayList<>();
@@ -51,7 +54,9 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
             layoutList.add(createDefaultLayout());
             page.setLayouts(layoutList);
         }
-        return repository.save(page);
+        return repository
+                .save(page)
+                .flatMap(this::segmentTrackCreate);
     }
 
 
@@ -72,7 +77,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     @Override
     public Mono<Page> doesPageIdBelongToCurrentUserOrganization(Page page) {
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
         final String[] username = {null};
 
         return userMono

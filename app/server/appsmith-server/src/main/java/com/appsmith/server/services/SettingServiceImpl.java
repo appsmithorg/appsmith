@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.repositories.SettingRepository;
+import com.segment.analytics.Analytics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -21,8 +22,10 @@ public class SettingServiceImpl extends BaseService<SettingRepository, Setting, 
                               Validator validator,
                               MongoConverter mongoConverter,
                               ReactiveMongoTemplate reactiveMongoTemplate,
-                              SettingRepository repository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+                              SettingRepository repository,
+                              Analytics analytics,
+                              SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
     }
 

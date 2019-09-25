@@ -5,22 +5,22 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.segment.analytics.Analytics;
+import com.segment.analytics.messages.IdentifyMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -28,16 +28,21 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     private UserRepository repository;
     private final OrganizationService organizationService;
+    private final Analytics analytics;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
-                           UserRepository repository, OrganizationService organizationService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+                           UserRepository repository,
+                           OrganizationService organizationService,
+                           Analytics analytics,
+                           SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.organizationService = organizationService;
+        this.analytics = analytics;
     }
 
     @Override
@@ -52,31 +57,25 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> save(User user) {
-        return repository.save(user);
+
+        Mono<User> savedUserMono = repository.save(user);
+        return savedUserMono
+                .map(savedUser -> {
+                    Map<String, String> traitsMap = new HashMap<>();
+                    traitsMap.put("name", savedUser.getName());
+                    traitsMap.put("email", savedUser.getEmail());
+                    analytics.enqueue(IdentifyMessage.builder()
+                            .userId(savedUser.getId())
+                            .traits(traitsMap)
+                    );
+                    analytics.flush();
+                    return savedUser;
+                });
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return repository.findByName(username).block();
-    }
-
-    @Override
-    public Mono<User> getCurrentUser() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .flatMap(principal -> {
-                    String email;
-                    if (principal instanceof org.springframework.security.core.userdetails.User) {
-                        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) principal;
-                        //Assumption that the user has inputted an email as username during user creation and not english passport name
-                        email = user.getUsername();
-                    } else {
-                        DefaultOidcUser defaultOidcUser = (DefaultOidcUser) principal;
-                        email = defaultOidcUser.getEmail();
-                    }
-                    return repository.findByEmail(email);
-                });
     }
 
     @Override

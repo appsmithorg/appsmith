@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ResourceRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -23,14 +24,13 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
 
     private final ResourceRepository repository;
     private final OrganizationService organizationService;
-    private final UserService userService;
 
     @Autowired
-    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, OrganizationService organizationService, PluginService pluginService, UserService userService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+    public ResourceServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ResourceRepository repository, OrganizationService organizationService, PluginService pluginService, Analytics analytics,
+                               SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.organizationService = organizationService;
-        this.userService = userService;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
 
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
 
         Mono<Organization> organizationMono = userMono.flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), resource.getPluginId()));
 
@@ -55,7 +55,8 @@ public class ResourceServiceImpl extends BaseService<ResourceRepository, Resourc
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, resource.getPluginId())))
                 .then(updatedResourceMono)
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .flatMap(this::segmentTrackCreate);
     }
 
     @Override

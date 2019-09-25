@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.CommandParams;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
@@ -13,7 +12,6 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 
-import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -26,14 +24,14 @@ import java.util.List;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
-    static String JDBC_DRIVER="org.postgresql.Driver";
+    static String JDBC_DRIVER = "org.postgresql.Driver";
 
-    static String DB_URL="jdbc:postgresql://localhost/mobtools";
+    static String DB_URL = "jdbc:postgresql://localhost/mobtools";
 
     //  Database credentials
-    static String DB_USER="root";
+    static String DB_USER = "root";
 
-    static String DB_PASS="root";
+    static String DB_PASS = "root";
 
     static Connection conn = null;
 
@@ -61,7 +59,7 @@ public class PostgresPlugin extends BasePlugin {
     public void stop() throws PluginException {
         log.debug("PostgresPlugin.stop()");
         try {
-            if(conn != null) {
+            if (conn != null) {
                 conn.close();
             }
         } catch (SQLException e) {
