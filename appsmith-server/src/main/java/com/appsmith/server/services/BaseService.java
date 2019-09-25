@@ -127,7 +127,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                     analyticsProperties.put("id", ((BaseDomain) savedObject).getId());
                     analyticsProperties.put("organizationId", user.getOrganizationId());
                     analytics.enqueue(
-                            TrackMessage.builder("MONGO_DB_CREATE_" + savedObject.getClass())
+                            TrackMessage.builder("MONGO_DB_CREATE_" + savedObject.getClass().getSimpleName().toUpperCase())
                                     .userId(user.getId())
                                     .properties(analyticsProperties)
                     );
