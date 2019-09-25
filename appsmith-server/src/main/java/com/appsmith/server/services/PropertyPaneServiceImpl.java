@@ -6,6 +6,7 @@ import com.appsmith.server.domains.WidgetSectionProperty;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PropertyPaneRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -15,19 +16,18 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Service
 public class PropertyPaneServiceImpl extends BaseService<PropertyPaneRepository, PropertyPane, String> implements PropertyPaneService {
-    public PropertyPaneServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, PropertyPaneRepository repository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+    public PropertyPaneServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, PropertyPaneRepository repository, Analytics analytics, SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
     }
 
     @Override
-    public Mono<PropertyPane> create (PropertyPane propertyPane) {
+    public Mono<PropertyPane> create(PropertyPane propertyPane) {
         if (propertyPane.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
@@ -49,9 +49,6 @@ public class PropertyPaneServiceImpl extends BaseService<PropertyPaneRepository,
         }
         return repository
                 .save(propertyPane)
-                .flatMap(savedPropertyPane -> {
-                    savedPropertyPane.setConfigVersion(savedPropertyPane.getId());
-                    return repository.save(savedPropertyPane);
-                });
+                .flatMap(this::segmentTrackCreate);
     }
 }

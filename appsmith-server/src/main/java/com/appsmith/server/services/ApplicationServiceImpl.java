@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -22,12 +23,12 @@ import javax.validation.Validator;
 @Service
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
-    private final UserService userService;
+    private final Analytics analytics;
 
     @Autowired
-    public ApplicationServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ApplicationRepository repository, UserService userService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
-        this.userService = userService;
+    public ApplicationServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ApplicationRepository repository, SessionUserService sessionUserService, Analytics analytics) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+        this.analytics = analytics;
     }
 
     @Override
@@ -36,7 +37,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())
@@ -44,12 +45,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setOrganizationId(orgId);
                     return application;
                 })
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                //Log the event to Segment
+                .flatMap(this::segmentTrackCreate);
     }
 
     @Override
     public Flux<Application> get() {
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())
@@ -62,7 +65,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())

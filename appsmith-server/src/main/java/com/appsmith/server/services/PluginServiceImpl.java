@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -30,7 +31,6 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final PluginRepository pluginRepository;
     private final ApplicationContext applicationContext;
     private final OrganizationService organizationService;
-    private final UserService userService;
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -39,12 +39,13 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              ApplicationContext applicationContext,
-                             OrganizationService organizationService, UserService userService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+                             OrganizationService organizationService,
+                             Analytics analytics,
+                             SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.applicationContext = applicationContext;
         pluginRepository = repository;
         this.organizationService = organizationService;
-        this.userService = userService;
     }
 
     public OldPluginExecutor getPluginExecutor(PluginType pluginType, String className) {
@@ -64,8 +65,12 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
 
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+
         plugin.setDeleted(false);
-        return pluginRepository.save(plugin);
+        return pluginRepository
+                .save(plugin)
+                .flatMap(this::segmentTrackCreate);
     }
 
     @Override
@@ -86,7 +91,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
         Mono<Organization> organizationMono = userMono.flatMap(user ->
                 organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 
@@ -107,7 +112,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
 
         //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
-        Mono<User> userMono = userService.getCurrentUser();
+        Mono<User> userMono = super.sessionUserService.getCurrentUser();
         Mono<Organization> organizationMono = userMono.flatMap(user ->
                 organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 

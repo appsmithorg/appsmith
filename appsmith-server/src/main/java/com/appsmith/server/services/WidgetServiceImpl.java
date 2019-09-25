@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Widget;
 import com.appsmith.server.repositories.WidgetRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -23,8 +24,10 @@ public class WidgetServiceImpl extends BaseService<WidgetRepository, Widget, Str
                              Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate mongoTemplate,
-                             WidgetRepository widgetRepository) {
-        super(scheduler, validator, mongoConverter, mongoTemplate, widgetRepository);
+                             WidgetRepository widgetRepository,
+                             Analytics analytics,
+                             SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, mongoTemplate, widgetRepository, analytics, sessionUserService);
         this.widgetRepository = widgetRepository;
     }
 

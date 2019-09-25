@@ -4,9 +4,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -33,8 +35,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    MongoConverter mongoConverter,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    OrganizationRepository repository,
-                                   SettingService settingService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository);
+                                   SettingService settingService,
+                                   Analytics analytics,
+                                   SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.settingService = settingService;
     }
@@ -55,13 +59,13 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
-
         return Mono.just(organization)
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)
                 //Call the library function to save the updated organization
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .flatMap(this::segmentTrackCreate);
     }
 
     private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {

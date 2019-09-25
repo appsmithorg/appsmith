@@ -2,11 +2,14 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.BaseDomain;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.segment.analytics.Analytics;
+import com.segment.analytics.messages.TrackMessage;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseService<R extends BaseRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
@@ -31,16 +35,22 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     protected final Validator validator;
 
+    protected final Analytics analytics;
+
+    protected final SessionUserService sessionUserService;
+
     public BaseService(Scheduler scheduler,
                        Validator validator,
                        MongoConverter mongoConverter,
                        ReactiveMongoTemplate reactiveMongoTemplate,
-                       R repository) {
+                       R repository, Analytics analytics, SessionUserService sessionUserService) {
         this.scheduler = scheduler;
         this.validator = validator;
         this.mongoConverter = mongoConverter;
         this.mongoTemplate = reactiveMongoTemplate;
         this.repository = repository;
+        this.analytics = analytics;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -78,9 +88,11 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     @Override
     public Mono<T> create(T object) {
+        Mono<User> userMono = sessionUserService.getCurrentUser();
         return Mono.just(object)
                 .flatMap(this::validateObject)
-                .flatMap(repository::save);
+                .flatMap(repository::save)
+                .flatMap(this::segmentTrackCreate);
     }
 
     private DBObject getDbObject(Object o) {
@@ -105,5 +117,22 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                     }
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
                 });
+    }
+
+    protected Mono<T> segmentTrackCreate(Object savedObject) {
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+        return userMono
+                .map(user -> {
+                    HashMap<String, String> analyticsProperties = new HashMap<>();
+                    analyticsProperties.put("id", ((BaseDomain) savedObject).getId());
+                    analyticsProperties.put("organizationId", user.getOrganizationId());
+                    analytics.enqueue(
+                            TrackMessage.builder("MONGO_DB_CREATE_" + savedObject.getClass())
+                                    .userId(user.getId())
+                                    .properties(analyticsProperties)
+                    );
+                    return (T) savedObject;
+                })
+                .switchIfEmpty(Mono.just((T) savedObject));
     }
 }

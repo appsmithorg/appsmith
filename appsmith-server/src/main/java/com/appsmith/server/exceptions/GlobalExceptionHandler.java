@@ -1,7 +1,10 @@
 package com.appsmith.server.exceptions;
 
 import com.appsmith.server.dtos.ResponseDTO;
+import com.rollbar.notifier.Rollbar;
+import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +19,14 @@ import reactor.core.publisher.Mono;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    private final Analytics analytics;
+    private final Rollbar rollbar;
+
+    @Autowired
+    public GlobalExceptionHandler(Analytics analytics, Rollbar rollbar) {
+        this.analytics = analytics;
+        this.rollbar = rollbar;
+    }
 
     /**
      * This function only catches the AppsmithException type and formats it into ResponseEntity<ErrorDTO> object
@@ -31,6 +42,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchAppsmithException(AppsmithException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(e.getHttpStatus()));
         log.error("", e);
+        rollbar.log(e);
         return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage())));
     }
 
@@ -47,6 +59,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchException(Exception e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         log.error("", e);
+        rollbar.log(e);
         return Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDTO(AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode(),
                 AppsmithError.INTERNAL_SERVER_ERROR.getMessage())));
     }

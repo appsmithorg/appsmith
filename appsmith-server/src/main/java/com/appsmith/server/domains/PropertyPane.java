@@ -18,5 +18,4 @@ public class PropertyPane extends BaseDomain {
 
     Map<String, List<WidgetSectionProperty>> config;
 
-    String configVersion;
 }

@@ -11,5 +11,4 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> save(User newUser);
 
-    Mono<User> getCurrentUser();
 }
