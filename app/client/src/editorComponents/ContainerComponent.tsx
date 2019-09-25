@@ -13,16 +13,6 @@ export const Container = styled("div")<ContainerProps>`
   position: ${props => {
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative";
   }};
-  left: ${props => {
-    return props.style.positionType !== "ABSOLUTE"
-      ? undefined
-      : props.style.xPosition + props.style.xPositionUnit;
-  }};
-  top: ${props => {
-    return props.style.positionType !== "ABSOLUTE"
-      ? undefined
-      : props.style.yPosition + props.style.yPositionUnit;
-  }};
 `;
 
 const ContainerComponent = (props: ContainerProps) => {

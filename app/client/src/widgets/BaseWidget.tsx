@@ -160,7 +160,7 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
-  isRoot?: boolean;
+  parentId?: string;
 }
 
 export interface WidgetFunctions {

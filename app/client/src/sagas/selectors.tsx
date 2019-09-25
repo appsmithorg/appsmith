@@ -21,3 +21,17 @@ export const getEditorConfigs = (
     layoutId: currentLayoutId,
   };
 };
+
+export const getWidgetParent = (
+  state: AppState,
+  widgetId: string,
+): FlattenedWidgetProps | undefined => {
+  const widgets = state.entities.canvasWidgets;
+  return Object.values(widgets).find(
+    (widget: FlattenedWidgetProps) =>
+      widget &&
+      widget.children &&
+      widget.children.length > 0 &&
+      widget.children.indexOf(widgetId) > -1,
+  );
+};

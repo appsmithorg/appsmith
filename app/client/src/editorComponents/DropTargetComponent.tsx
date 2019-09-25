@@ -16,9 +16,11 @@ import DropTargetMask from "./DropTargetMask";
     - else pull it from widgetConfig - DONE
   - Provide Draglayer with rows, columns, rowHeight, columnWidth instead of width height  pixels - DONE
   - Return rows and columns to the drop handler (updateWidget) - DONE
-  - Update WidgetOperations to handle rows and columns
+  - Update WidgetOperations to handle rows and columns - DONE
   - Increase default canvas rowHeight
   - Fix child container positioning
+  - Fix dropping into another component issue
+  
 */
 
 type DropTargetComponentProps = ContainerProps & {
@@ -64,6 +66,9 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     collect: monitor => ({
       isOver: !!monitor.isOver({ shallow: true }),
     }),
+    hover: (widget, monitor) => {
+      console.log(props.widgetId, monitor.isOver({ shallow: true }));
+    },
     // Only allow drop if the drag object is directly over this component
     // As opposed to the drag object being over a child component, or outside the component bounds
     canDrop: (widget, monitor) => {

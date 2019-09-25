@@ -113,7 +113,7 @@ export type WidgetMove = {
     then we have to delete this,
     as it has been dropped in another container somewhere.    
   */
-  parentWidgetId?: string;
+  parentWidgetId: string;
 };
 
 export type WidgetRemoveChild = {

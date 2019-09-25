@@ -11,6 +11,8 @@ import _ from "lodash";
 import { Color } from "../constants/Colors";
 import DropTargetComponent from "../editorComponents/DropTargetComponent";
 import { GridDefaults } from "../constants/WidgetConstants";
+import DraggableComponent from "../editorComponents/DraggableComponent";
+import ResizableComponent from "../editorComponents/ResizableComponent";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
 
@@ -56,6 +58,7 @@ class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps) {
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
+    childWidgetData.parentId = this.props.widgetId;
     const widgetFunctions: WidgetFunctions = this.props as WidgetFunctions;
     return WidgetFactory.createWidget(
       childWidgetData,
@@ -79,15 +82,24 @@ class ContainerWidget extends BaseWidget<
   }
 
   getCanvasView() {
+    const style = this.getPositionStyle();
     return (
       <DropTargetComponent
         {...this.props}
         {...this.state}
         style={{
-          ...this.getPositionStyle(),
+          ...style,
         }}
       >
-        {super.getCanvasView()}
+        <DraggableComponent
+          style={{ ...style, xPosition: 0, yPosition: 0 }}
+          {...this.props}
+          orientation={"VERTICAL"}
+        >
+          <ResizableComponent style={{ ...style }} {...this.props}>
+            {this.getPageView()}
+          </ResizableComponent>
+        </DraggableComponent>
       </DropTargetComponent>
     );
   }

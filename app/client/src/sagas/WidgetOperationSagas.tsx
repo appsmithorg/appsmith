@@ -9,7 +9,7 @@ import {
   WidgetDelete,
 } from "../actions/pageActions";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget } from "./selectors";
+import { getWidgets, getWidget, getWidgetParent } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetSize,
@@ -65,13 +65,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { widgetId } = deleteAction.payload;
     const widgets = yield select(getWidgets);
     delete widgets[widgetId];
-    const parent = Object.values(widgets).find(
-      (widget: any) =>
-        widget &&
-        widget.children &&
-        widget.children.length > 0 &&
-        widget.children.indexOf(widgetId) > -1,
-    ) as any;
+    const parent = yield select(getWidgetParent, widgetId);
     parent.children = parent.children.filter(
       (child: string) => child !== widgetId,
     );
@@ -94,18 +88,24 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
     const { widgetId, leftColumn, topRow, parentWidgetId } = moveAction.payload;
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    // Get all widgets from DSL/Redux Store
     const widgets = yield select(getWidgets) as any;
-    let parentWidget = null;
-    if (parentWidgetId) {
-      parentWidget = yield select(getWidget, parentWidgetId);
-    }
-    widget = updateWidgetPosition(widget, leftColumn, topRow, parentWidget);
+    // Get parent from DSL/Redux Store
+    const parent = yield select(getWidgetParent, widgetId);
+    // Update position of widget
+    widget = updateWidgetPosition(widget, leftColumn, topRow, parent);
+    // Replace widget with update widget props
     widgets[widgetId] = widget;
-    if (parentWidgetId) {
+    // If the parent has changed i.e parentWidgetId is not parent.widgetId
+    if (parent.widgetId !== parentWidgetId) {
+      // Remove from the previous parent
+      parent.children = parent.children.filter(
+        (child: string) => child !== widgetId,
+      );
+      widgets[parent.widgetId] = parent;
+      // Add to new parent
       widgets[parentWidgetId].children.push(widgetId);
-      // TODO(abhinav): Find and remove entry from previous parent.
     }
-
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
