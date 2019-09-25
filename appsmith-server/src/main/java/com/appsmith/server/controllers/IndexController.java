@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +16,10 @@ import java.security.Principal;
 @RequestMapping("")
 public class IndexController {
 
-    private final UserService service;
+    private final SessionUserService service;
 
     @Autowired
-    public IndexController(UserService service) {
+    public IndexController(SessionUserService service) {
         this.service = service;
     }
 

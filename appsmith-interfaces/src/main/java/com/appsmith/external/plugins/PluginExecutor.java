@@ -1,7 +1,6 @@
 package com.appsmith.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.CommandParams;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import org.pf4j.ExtensionPoint;

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -37,6 +38,7 @@ public class OrganizationServiceTest {
     /* Tests for the Create Organization Flow */
 
     @Test
+    @WithMockUser(username = "api_user")
     public void nullCreateOrganization() {
         Mono<Organization> organizationResponse = organizationService.create(null);
         StepVerifier.create(organizationResponse)
@@ -46,6 +48,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "api_user")
     public void nullName() {
         organization.setName(null);
         Mono<Organization> organizationResponse = organizationService.create(organization);
@@ -56,8 +59,10 @@ public class OrganizationServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "api_user")
     public void validCreateOrganizationTest() {
-        Mono<Organization> organizationResponse = organizationService.create(organization);
+        Mono<Organization> organizationResponse = organizationService.create(organization)
+                .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
@@ -68,6 +73,7 @@ public class OrganizationServiceTest {
     /* Tests for Get Organization Flow */
 
     @Test
+    @WithMockUser(username = "api_user")
     public void getOrganizationInvalidId() {
         Mono<Organization> organizationMono = organizationService.getById("random-id");
         StepVerifier.create(organizationMono)
@@ -77,6 +83,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "api_user")
     public void getOrganizationNullId() {
         Mono<Organization> organizationMono = organizationService.getById(null);
         StepVerifier.create(organizationMono)
@@ -86,6 +93,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "api_user")
     public void validGetOrganizationByName() {
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
@@ -100,6 +108,7 @@ public class OrganizationServiceTest {
 
     /* Tests for Update Organization Flow */
     @Test
+    @WithMockUser(username = "api_user")
     public void validUpdateOrganization() {
         Organization organization = new Organization();
         organization.setName("Test Name");
