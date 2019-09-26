@@ -1,34 +1,6 @@
-// import ContainerWidget from "../widgets/ContainerWidget"
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
-export type ReduxActionType =
-  | "UPDATE_CANVAS"
-  | "FETCH_CANVAS"
-  | "CLEAR_CANVAS"
-  | "DROP_WIDGET_CANVAS"
-  | "REMOVE_WIDGET_CANVAS"
-  | "LOAD_WIDGET_PANE"
-  | "FETCH_PAGE"
-  | "ZOOM_IN_CANVAS"
-  | "ZOOM_OUT_CANVAS"
-  | "PUBLISH"
-  | "UNDO_CANVAS_ACTION"
-  | "REDO_CANVAS_ACTION"
-  | "FETCH_WIDGET_CARDS"
-  | "SUCCESS_FETCHING_WIDGET_CARDS"
-  | "ERROR_FETCHING_WIDGET_CARDS"
-  | "ADD_PAGE_WIDGET"
-  | "REMOVE_PAGE_WIDGET"
-  | "LOAD_WIDGET_CONFIG"
-  | "LOAD_API_RESPONSE"
-  | "LOAD_QUERY_RESPONSE"
-  | "EXECUTE_ACTION"
-  | "LOAD_CANVAS_ACTIONS"
-  | "LOAD_PROPERTY_CONFIG"
-  | "UPDATE_WIDGET_PROPERTY"
-  | "SHOW_PROPERTY_PANE";
-
-export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
+export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
@@ -52,18 +24,31 @@ export const ReduxActionTypes: { [id: string]: ReduxActionType } = {
   LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE",
   EXECUTE_ACTION: "EXECUTE_ACTION",
   LOAD_CANVAS_ACTIONS: "LOAD_CANVAS_ACTIONS",
+  SAVE_PAGE_INIT: "SAVE_PAGE_INIT",
+  SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
+  SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
+  FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
+  UPDATE_LAYOUT: "UPDATE_LAYOUT",
+  WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
+  WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
+  WIDGET_MOVE: "WIDGET_MOVE",
+  WIDGET_RESIZE: "WIDGET_RESIZE",
+  WIDGET_DELETE: "WIDGET_DELETE",
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
   UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
 };
+
+export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType;
   payload: T;
 }
 
-export interface LoadCanvasWidgetsPayload {
+export interface UpdateCanvasPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: WidgetProps };
+  layoutId: string;
 }
 
 export interface ShowPropertyPanePayload {
@@ -81,3 +66,7 @@ export interface LoadWidgetPanePayload {
 export interface LoadWidgetCardsPanePayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
+
+export type SavePagePayload = {};
+export type SavePageErrorPayload = {};
+export type SavePageSuccessPayload = {};

@@ -7,11 +7,11 @@
     "npm": "6.9.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.11.0",
-    "@blueprintjs/datetime": "^3.6.0",
-    "@blueprintjs/icons": "^3.5.0",
+    "@blueprintjs/core": "^3.18.1",
+    "@blueprintjs/datetime": "^3.13.0",
+    "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/select": "^3.10.0",
-    "@blueprintjs/table": "^3.4.0",
+    "@blueprintjs/table": "^3.7.1",
     "@sentry/browser": "^5.6.3",
     "@types/axios": "^0.14.0",
     "@types/fontfaceobserver": "^0.0.6",
@@ -39,6 +39,7 @@
     "node-sass": "^4.11.0",
     "normalizr": "^3.3.0",
     "prettier": "^1.18.2",
+    "re-resizable": "^6.0.0",
     "react": "^16.7.0",
     "react-dnd": "^9.3.4",
     "react-dnd-html5-backend": "^9.3.4",

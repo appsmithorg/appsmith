@@ -64,3 +64,11 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%",
 };
+
+export const GridDefaults = {
+  DEFAULT_CELL_SIZE: 1,
+  DEFAULT_WIDGET_WIDTH: 200,
+  DEFAULT_WIDGET_HEIGHT: 100,
+  DEFAULT_GRID_COLUMNS: 16,
+  DEFAULT_GRID_ROWS: 32,
+};

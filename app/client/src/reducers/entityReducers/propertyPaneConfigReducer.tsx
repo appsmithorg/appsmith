@@ -25,21 +25,23 @@ export interface PropertySection {
   children: (ControlConfig | PropertySection)[];
 }
 
+export interface PropertyConfig {
+  BUTTON_WIDGET: PropertySection[];
+  TEXT_WIDGET: PropertySection[];
+  IMAGE_WIDGET: PropertySection[];
+  INPUT_WIDGET: PropertySection[];
+  SWITCH_WIDGET: PropertySection[];
+  CONTAINER_WIDGET: PropertySection[];
+  SPINNER_WIDGET: PropertySection[];
+  DATE_PICKER_WIDGET: PropertySection[];
+  TABLE_WIDGET: PropertySection[];
+  DROP_DOWN_WIDGET: PropertySection[];
+  CHECKBOX_WIDGET: PropertySection[];
+  RADIO_GROUP_WIDGET: PropertySection[];
+}
+
 export interface PropertyPaneConfigState {
-  config: {
-    BUTTON_WIDGET: PropertySection[];
-    TEXT_WIDGET: PropertySection[];
-    IMAGE_WIDGET: PropertySection[];
-    INPUT_WIDGET: PropertySection[];
-    SWITCH_WIDGET: PropertySection[];
-    CONTAINER_WIDGET: PropertySection[];
-    SPINNER_WIDGET: PropertySection[];
-    DATE_PICKER_WIDGET: PropertySection[];
-    TABLE_WIDGET: PropertySection[];
-    DROP_DOWN_WIDGET: PropertySection[];
-    CHECKBOX_WIDGET: PropertySection[];
-    RADIO_GROUP_WIDGET: PropertySection[];
-  };
+  config: PropertyConfig;
   configVersion: number;
 }
 

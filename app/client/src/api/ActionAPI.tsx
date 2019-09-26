@@ -1,6 +1,6 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse } from "./ApiResponses";
-import { APIRequest } from "./ApiRequests";
+import { APIRequest } from "../constants/ApiConstants";
 import { mapToPropList } from "../utils/AppsmithUtils";
 
 export interface CreateActionRequest<T> extends APIRequest {

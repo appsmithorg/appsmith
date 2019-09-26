@@ -86,7 +86,7 @@ const mapStateToProps = (state: AppState): PropertyPaneProps => {
   let propertyConfig = undefined;
   if (!_.isNil(state.ui.propertyPane.widgetId)) {
     const widget = state.entities.canvasWidgets[state.ui.propertyPane.widgetId];
-    propertyConfig = state.entities.propertyConfig.config[widget.widgetType];
+    propertyConfig = state.entities.propertyConfig.config[widget.type];
   }
   return {
     propertySections: propertyConfig,

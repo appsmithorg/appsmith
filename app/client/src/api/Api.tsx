@@ -4,6 +4,7 @@ import {
   BASE_URL,
   REQUEST_TIMEOUT_MS,
   REQUEST_HEADERS,
+  AUTH_CREDENTIALS,
 } from "../constants/ApiConstants";
 
 const axios = require("axios"); //eslint-disable-line @typescript-eslint/no-var-requires
@@ -12,6 +13,8 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: REQUEST_TIMEOUT_MS,
   headers: REQUEST_HEADERS,
+  withCredentials: true,
+  auth: AUTH_CREDENTIALS,
 });
 
 axiosInstance.interceptors.response.use(
@@ -49,6 +52,13 @@ class Api {
 
   static post(url: string, body?: any, queryParams?: any) {
     return axiosInstance.post(
+      url + this.convertObjectToQueryParams(queryParams),
+      body,
+    );
+  }
+
+  static put(url: string, queryParams?: any, body?: any) {
+    return axiosInstance.put(
       url + this.convertObjectToQueryParams(queryParams),
       body,
     );

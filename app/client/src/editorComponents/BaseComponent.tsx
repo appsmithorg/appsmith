@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { PositionType, CSSUnit } from "../constants/WidgetConstants";
-import { Color } from "../constants/DefaultTheme";
+import { Color } from "../constants/Colors";
 
 /***
  * Components are responsible for binding render inputs to corresponding UI SDKs
@@ -8,8 +8,8 @@ import { Color } from "../constants/DefaultTheme";
 abstract class BaseComponent<T extends ComponentProps> extends Component<T> {}
 
 export interface BaseStyle {
-  height?: number;
-  width?: number;
+  componentHeight: number;
+  componentWidth: number;
   positionType: PositionType;
   xPosition: number;
   yPosition: number;

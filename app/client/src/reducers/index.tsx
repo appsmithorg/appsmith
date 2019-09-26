@@ -1,7 +1,6 @@
 import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
-import { CanvasReduxState } from "./uiReducers/canvasReducer";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { WidgetCardsPaneReduxState } from "./uiReducers/widgetCardsPaneReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
@@ -10,6 +9,7 @@ import { QueryDataState } from "./entityReducers/queryDataReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
+import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -20,9 +20,7 @@ export default appReducer;
 
 export interface AppState {
   ui: {
-    canvas: CanvasReduxState;
     widgetCardsPane: WidgetCardsPaneReduxState;
-    // editorHeader: EditorHeaderReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
   };
@@ -32,5 +30,6 @@ export interface AppState {
     queryData: QueryDataState;
     actions: ActionDataState;
     propertyConfig: PropertyPaneConfigState;
+    widgetConfig: WidgetConfigReducerState;
   };
 }

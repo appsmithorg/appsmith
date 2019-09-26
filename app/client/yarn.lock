@@ -894,7 +894,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.11.0", "@blueprintjs/core@^3.18.0", "@blueprintjs/core@^3.18.1":
+"@blueprintjs/core@^3.18.0", "@blueprintjs/core@^3.18.1":
   version "3.18.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.18.1.tgz#cf180d470710a0e9123fb2449113be06cf0d81ce"
   integrity sha512-G+IhJsN006Mb32NLOrne5TLScxyyd3Id9g2MvfYFq9zuyBcBA5+V/uQy3pTO9vkmuKEz0GLLy8ZbrQ7Us/+zTw==
@@ -910,7 +910,7 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.9.0"
 
-"@blueprintjs/datetime@^3.6.0":
+"@blueprintjs/datetime@^3.13.0":
   version "3.13.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.13.0.tgz#ba511a32870b1af82f49d06f8631cfb5995cdcc3"
   integrity sha512-0MShc0IJo4rSdhzKkVS+tKGIV9d4ZS/hh4jAtxCsAC7/fBFJ++rUZ+1QpWeRzG9yXi52pNLBXZyx+xxN/Vptsw==
@@ -920,7 +920,7 @@
     react-day-picker "^7.3.2"
     tslib "~1.9.0"
 
-"@blueprintjs/icons@^3.10.0", "@blueprintjs/icons@^3.5.0":
+"@blueprintjs/icons@^3.10.0":
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.10.0.tgz#45cdb3ca62110e74bcf9e741237a6b4e2cf2c3a4"
   integrity sha512-lyAUpkr3qEStPcJpMnxRKuVAPvaRNSce1ySPbkE58zPmD4WBya2gNrWex41xoqRYM0GsiBSwH9CnpY8t6fZKUA==
@@ -937,7 +937,7 @@
     classnames "^2.2"
     tslib "~1.9.0"
 
-"@blueprintjs/table@^3.4.0":
+"@blueprintjs/table@^3.7.1":
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/table/-/table-3.7.1.tgz#3e3e876a2f0b8bebfc26d4bf8350a120614c88aa"
   integrity sha512-NSdwjBhhsSTq1lgdRWwsDGavhAbG3j/CH86kmtBaH3msHz3ENjowjeuw1JBryJZLl0raGDV0Ln3kbQ93AKuPXw==
@@ -4787,6 +4787,11 @@ fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
+
+fast-memoize@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/fast-memoize/-/fast-memoize-2.5.1.tgz#c3519241e80552ce395e1a32dcdde8d1fd680f5d"
+  integrity sha512-xdmw296PCL01tMOXx9mdJSmWY29jQgxyuZdq0rEHMu+Tpe1eOEtCycoG6chzlcrWsNgpZP7oL8RiQr7+G6Bl6g==
 
 fastq@^1.6.0:
   version "1.6.0"
@@ -9570,6 +9575,13 @@ rc@^1.2.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+re-resizable@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.0.0.tgz#84258f098b0dde214a39ca6d9ca9959aeefbc26d"
+  integrity sha512-RTrnhbGgYyZ4hTc6db4JeMnRfmloEPWtuYaXZEa2PRaEC4mreWNFnZtMVsHil3z3iX+WchD+da8BLlTJBcstMA==
+  dependencies:
+    fast-memoize "^2.5.1"
 
 react-app-polyfill@^1.0.2:
   version "1.0.2"

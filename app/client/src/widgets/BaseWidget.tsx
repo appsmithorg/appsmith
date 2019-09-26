@@ -14,6 +14,7 @@ import { BaseStyle } from "../editorComponents/BaseComponent";
 import _ from "lodash";
 import React from "react";
 import DraggableComponent from "../editorComponents/DraggableComponent";
+import ResizableComponent from "../editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 abstract class BaseWidget<
@@ -23,11 +24,11 @@ abstract class BaseWidget<
   constructor(props: T) {
     super(props);
     const initialState: WidgetState = {
-      height: 0,
-      width: 0,
+      componentHeight: 0,
+      componentWidth: 0,
     };
-    initialState.height = 0;
-    initialState.width = 0;
+    initialState.componentHeight = 0;
+    initialState.componentWidth = 0;
     this.state = initialState as K;
   }
 
@@ -62,13 +63,13 @@ abstract class BaseWidget<
     parentRowSpace: number,
   ) {
     const widgetState: WidgetState = {
-      width: (rightColumn - leftColumn) * parentColumnSpace,
-      height: (bottomRow - topRow) * parentRowSpace,
+      componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
+      componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
     if (
       _.isNil(this.state) ||
-      widgetState.height !== this.state.height ||
-      widgetState.width !== this.state.width
+      widgetState.componentHeight !== this.state.componentHeight ||
+      widgetState.componentWidth !== this.state.componentWidth
     ) {
       this.setState(widgetState);
     }
@@ -82,8 +83,6 @@ abstract class BaseWidget<
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         return this.getCanvasView();
-      case RenderModes.COMPONENT_PANE:
-        return this.getComponentPaneView();
       case RenderModes.PAGE:
         return this.getPageView();
       default:
@@ -94,19 +93,16 @@ abstract class BaseWidget<
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    return this.getPageView();
-  }
-
-  getComponentPaneView(): JSX.Element {
+    const style = this.getPositionStyle();
     return (
       <DraggableComponent
         {...this.props}
-        style={{
-          ...this.getPositionStyle(),
-        }}
+        style={{ ...style }}
         orientation={"VERTICAL"}
       >
-        {this.getPageView()}
+        <ResizableComponent style={{ ...style }} {...this.props}>
+          {this.getPageView()}
+        </ResizableComponent>
       </DraggableComponent>
     );
   }
@@ -115,12 +111,9 @@ abstract class BaseWidget<
 
   getPositionStyle(): BaseStyle {
     return {
-      positionType:
-        this.props.renderMode !== RenderModes.PAGE
-          ? "CONTAINER_DIRECTION"
-          : "ABSOLUTE",
-      height: this.state.height,
-      width: this.state.width,
+      positionType: "CONTAINER_DIRECTION",
+      componentHeight: this.state.componentHeight,
+      componentWidth: this.state.componentWidth,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
@@ -129,16 +122,16 @@ abstract class BaseWidget<
   }
 
   static defaultProps: Partial<WidgetProps> = {
-    parentRowSpace: 64,
-    parentColumnSpace: 64,
+    parentRowSpace: 1,
+    parentColumnSpace: 1,
     topRow: 0,
     leftColumn: 0,
   };
 }
 
 export interface WidgetState {
-  height: number;
-  width: number;
+  componentHeight: number;
+  componentWidth: number;
 }
 
 export interface DraggableWidget {
@@ -158,7 +151,7 @@ export interface WidgetProps extends WidgetFunctions, WidgetDataProps {
 
 export interface WidgetDataProps {
   widgetId: string;
-  widgetType: WidgetType;
+  type: WidgetType;
   widgetName: string;
   topRow: number;
   leftColumn: number;
@@ -167,17 +160,31 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
+  parentId?: string;
 }
 
 export interface WidgetFunctions {
   executeAction: (actionPayloads?: ActionPayload[]) => void;
+  updateWidget?: Function;
 }
 
 export interface WidgetCardProps {
-  widgetType: WidgetType;
+  type: WidgetType;
   key?: string;
   label: string;
   icon: string;
 }
+
+export const WidgetOperations = {
+  // WidgetActivities?
+  MOVE: "MOVE",
+  RESIZE: "RESIZE",
+  ADD_CHILD: "ADD_CHILD",
+  REMOVE_CHILD: "REMOVE_CHILD",
+  UPDATE_PROPERTY: "UPDATE_PROPERTY",
+  DELETE: "DELETE",
+};
+
+export type WidgetOperation = (typeof WidgetOperations)[keyof typeof WidgetOperations];
 
 export default BaseWidget;
