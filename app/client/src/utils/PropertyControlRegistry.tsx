@@ -2,10 +2,10 @@ import React from "react";
 import PropertyControlFactory from "./PropertyControlFactory";
 import InputTextControl, {
   InputControlProps,
-} from "../pages/propertyControls/InputTextControl";
+} from "../propertyControls/InputTextControl";
 import DropDownControl, {
   DropDownControlProps,
-} from "../pages/propertyControls/DropDownControl";
+} from "../propertyControls/DropDownControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {

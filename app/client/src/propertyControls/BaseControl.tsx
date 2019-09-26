@@ -3,7 +3,7 @@
  * Controls are higher order components that update a widgets property
  */
 import { Component } from "react";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "../constants/PropertyControlConstants";
 import _ from "lodash";
 
 abstract class BaseControl<T extends ControlProps> extends Component<T> {
