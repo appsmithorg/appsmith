@@ -1,0 +1,18 @@
+import styled from "styled-components";
+import { Color } from "../constants/Colors";
+
+export type IconProps = {
+  width: number;
+  height: number;
+  color: Color;
+};
+
+export const IconWrapper = styled.div<IconProps>`
+  svg {
+    width: ${props => props.width || props.theme.fontSizes[7]}px;
+    height: ${props => props.height || props.theme.fontSizes[7]}px;
+    path {
+      fill: ${props => props.color || props.theme.colors.textOnDarkBG};
+    }
+  }
+`;

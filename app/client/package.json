@@ -60,8 +60,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "flow": "flow",
-    "postinstall": "./src/assets/icons/build.sh"
+    "flow": "flow"
   },
   "resolutions": {
     "jest": "24.8.0"

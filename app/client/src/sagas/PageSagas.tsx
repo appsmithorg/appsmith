@@ -37,6 +37,7 @@ export function* fetchPageSaga(
       PageApi.fetchPage,
       pageRequest,
     );
+
     if (fetchPageResponse.responseMeta.success) {
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
         extractCurrentDSL(fetchPageResponse),
@@ -50,7 +51,7 @@ export function* fetchPageSaga(
         put(updateCanvas(canvasWidgetsPayload)),
         put({
           type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-          payload: fetchPageResponse.data.layouts[0].actions, // TODO(abhinav): Handle for multiple layouts
+          payload: fetchPageResponse.data.actions,
         }),
       ]);
     }
@@ -86,6 +87,7 @@ export function* saveLayoutSaga(
       { canvasWidgets: widgets },
     );
     const editorConfigs = yield select(getEditorConfigs) as any;
+    console.log(editorConfigs);
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
       payload: {

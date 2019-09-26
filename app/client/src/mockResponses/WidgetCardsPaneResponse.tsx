@@ -11,12 +11,6 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         key: generateReactKey(),
       },
       {
-        type: "IMAGE_WIDGET",
-        icon: "icon-image",
-        label: "Image",
-        key: generateReactKey(),
-      },
-      {
         type: "BUTTON_WIDGET",
         icon: "icon-button",
         label: "Button",
@@ -78,12 +72,6 @@ const WidgetCardsPaneResponse: WidgetCardsPaneReduxState = {
         type: "TEXT_WIDGET",
         icon: "icon-text",
         label: "Text",
-        key: generateReactKey(),
-      },
-      {
-        type: "IMAGE_WIDGET",
-        icon: "icon-image",
-        label: "Image",
         key: generateReactKey(),
       },
       {

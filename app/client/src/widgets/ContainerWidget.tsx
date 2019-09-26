@@ -36,14 +36,12 @@ class ContainerWidget extends BaseWidget<
     let snapColumnSpace = this.state.snapColumnSpace;
     let snapRowSpace = this.state.snapRowSpace;
     if (this.state.componentWidth)
-      snapColumnSpace = Math.floor(
+      snapColumnSpace =
         this.state.componentWidth /
-          (this.props.snapColumns || DEFAULT_GRID_COLUMNS),
-      );
+        (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
     if (this.state.componentHeight)
-      snapRowSpace = Math.floor(
-        this.state.componentHeight / (this.props.snapRows || DEFAULT_GRID_ROWS),
-      );
+      snapRowSpace =
+        this.state.componentHeight / (this.props.snapRows || DEFAULT_GRID_ROWS);
     if (
       this.state.snapColumnSpace !== snapColumnSpace ||
       this.state.snapRowSpace !== snapRowSpace

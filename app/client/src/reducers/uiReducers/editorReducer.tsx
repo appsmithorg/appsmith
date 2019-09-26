@@ -1,4 +1,5 @@
 import { createReducer } from "../../utils/AppsmithUtils";
+import { getEditorConfigs } from "../../constants/ApiConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -6,11 +7,10 @@ import {
 } from "../../constants/ReduxActionConstants";
 import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-
+const editorConfigs = getEditorConfigs();
 const initialState: EditorReduxState = {
   pageWidgetId: "0",
-  currentPageId: "5d807e76795dc6000482bc76",
-  currentLayoutId: "5d807e76795dc6000482bc75",
+  ...editorConfigs,
   isSaving: false,
 };
 
