@@ -22,16 +22,9 @@ export type ActionType =
   | "DOWNLOAD";
 
 export interface ActionPayload {
+  actionId: string;
   actionType: ActionType;
   contextParams: Record<string, string>;
-}
-
-export interface APIActionPayload extends ActionPayload {
-  apiId: string;
-}
-
-export interface QueryActionPayload extends ActionPayload {
-  queryId: string;
 }
 
 export type NavigationType = "NEW_TAB" | "INLINE";
@@ -71,5 +64,5 @@ export interface PageAction {
   actionId: string;
   actionType: ActionType;
   actionName: string;
-  dynamicBindings: string[];
+  dynamicBindings?: string[];
 }

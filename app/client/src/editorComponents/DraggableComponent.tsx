@@ -1,54 +1,64 @@
-import * as React from "react";
-import { WidgetProps, WidgetState } from "../widgets/BaseWidget";
-import { DragSource, DragSourceConnector, DragSourceMonitor } from "react-dnd";
+import React from "react";
+import { Icon } from "@blueprintjs/core";
+import styled from "styled-components";
+import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
+import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
+import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
 
-export interface DraggableProps extends ContainerProps {
-  connectDragSource: Function;
-  isDragging?: boolean;
-}
+const DragHandle = styled.div`
+  position: absolute;
+  left: ${props => props.theme.spaces[2]}px;
+  top: -${props => props.theme.spaces[8]}px;
+  cursor: move;
+`;
 
-class DraggableComponent extends React.Component<DraggableProps, WidgetState> {
-  render() {
-    return this.props.connectDragSource(
+const DeleteControl = styled.div`
+  position: absolute;
+  right: ${props => props.theme.spaces[2]}px;
+  top: -${props => props.theme.spaces[8]}px;
+`;
+
+type DraggableComponentProps = WidgetProps & ContainerProps;
+
+const DraggableComponent = (props: DraggableComponentProps) => {
+  const deleteWidget = () => {
+    props.updateWidget &&
+      props.updateWidget(WidgetOperations.DELETE, props.widgetId);
+  };
+  const [{ isDragging }, drag, preview] = useDrag({
+    item: props,
+    collect: (monitor: DragSourceMonitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  return (
+    <React.Fragment>
+      <DragPreviewImage src={blankImage} connect={preview} />
       <div
+        ref={preview}
         style={{
-          display: "flex",
+          display: isDragging ? "none" : "flex",
           flexDirection: "column",
-          left: this.props.style
-            ? this.props.style.xPosition + this.props.style.xPositionUnit
+          position: "absolute",
+          left: props.style
+            ? props.style.xPosition + props.style.xPositionUnit
             : 0,
-          top: this.props.style
-            ? this.props.style.yPosition + this.props.style.yPositionUnit
+          top: props.style
+            ? props.style.yPosition + props.style.yPositionUnit
             : 0,
         }}
       >
-        {this.props.children}
-      </div>,
-    );
-  }
-}
-
-const widgetSource = {
-  beginDrag(props: WidgetProps) {
-    return {
-      widgetId: props.widgetId,
-      widgetType: props.widgetType,
-    };
-  },
+        <DragHandle ref={drag}>
+          <Icon icon="drag-handle-horizontal" iconSize={20} />
+        </DragHandle>
+        <DeleteControl onClick={deleteWidget}>
+          <Icon icon="trash" iconSize={20} />
+        </DeleteControl>
+        {props.children}
+      </div>
+    </React.Fragment>
+  );
 };
 
-const widgetType = (props: WidgetProps) => {
-  return props.widgetType;
-};
-
-function collect(connect: DragSourceConnector, monitor: DragSourceMonitor) {
-  return {
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging(),
-  };
-}
-
-export default DragSource(widgetType, widgetSource, collect)(
-  DraggableComponent,
-);
+export default DraggableComponent;

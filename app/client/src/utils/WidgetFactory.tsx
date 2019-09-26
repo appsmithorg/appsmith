@@ -24,18 +24,17 @@ class WidgetFactory {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       renderMode: renderMode,
-      ...widgetData,
       ...widgetFunctions,
+      ...widgetData,
     };
-    const widgetBuilder = this.widgetMap.get(widgetData.widgetType);
+    const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
       const ex: WidgetCreationException = {
         message:
-          "Widget Builder not registered for widget type" +
-          widgetData.widgetType,
+          "Widget Builder not registered for widget type" + widgetData.type,
       };
       throw ex;
     }

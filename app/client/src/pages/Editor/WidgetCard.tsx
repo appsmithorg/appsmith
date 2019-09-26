@@ -1,9 +1,9 @@
-import React, { useState, useLayoutEffect, MutableRefObject } from "react";
+import React from "react";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import blankImage from "../../assets/images/blank.png";
 import { WidgetCardProps } from "../../widgets/BaseWidget";
 import styled from "styled-components";
-import { generateReactKey } from "../../utils/generators";
+import { WidgetIcons } from "../../icons/WidgetIcons";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -25,6 +25,11 @@ export const Wrapper = styled.div`
     background: #fff;
     cursor: grab;
     color: ${props => props.theme.colors.textDefault};
+    svg {
+      path {
+        fill: ${props => props.theme.colors.textDefault};
+      }
+    }
   }
   & i {
     font-family: ${props => props.theme.fonts[2]};
@@ -44,37 +49,23 @@ export const IconLabel = styled.h5`
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
-  const [initialOffset, setInitialOffset] = useState({ x: 0, y: 0 });
-
-  const [{ isDragging }, drag, preview] = useDrag({
-    item: {
-      type: props.details.widgetType,
-      widget: props.details,
-      key: generateReactKey(),
-      initialOffset,
-    },
+  const [, drag, preview] = useDrag({
+    item: props.details,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
-  const card: MutableRefObject<HTMLDivElement | null> = React.useRef(null);
-  useLayoutEffect(() => {
-    const el = card.current;
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setInitialOffset({
-        x: Math.ceil(rect.left),
-        y: Math.ceil(rect.top),
-      });
-    }
-  }, [setInitialOffset]);
+
+  const iconType: string = props.details.type;
+  const Icon = WidgetIcons[iconType]();
+
   return (
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
       <Wrapper ref={drag}>
-        <div ref={card}>
-          <i className={props.details.icon} />
-          <IconLabel>{props.details.label}</IconLabel>
+        <div>
+          {Icon}
+          <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>
     </React.Fragment>

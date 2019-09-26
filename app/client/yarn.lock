@@ -894,7 +894,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.11.0", "@blueprintjs/core@^3.18.1":
+"@blueprintjs/core@^3.18.0", "@blueprintjs/core@^3.18.1":
   version "3.18.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.18.1.tgz#cf180d470710a0e9123fb2449113be06cf0d81ce"
   integrity sha512-G+IhJsN006Mb32NLOrne5TLScxyyd3Id9g2MvfYFq9zuyBcBA5+V/uQy3pTO9vkmuKEz0GLLy8ZbrQ7Us/+zTw==
@@ -910,7 +910,7 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.9.0"
 
-"@blueprintjs/datetime@^3.6.0":
+"@blueprintjs/datetime@^3.13.0":
   version "3.13.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.13.0.tgz#ba511a32870b1af82f49d06f8631cfb5995cdcc3"
   integrity sha512-0MShc0IJo4rSdhzKkVS+tKGIV9d4ZS/hh4jAtxCsAC7/fBFJ++rUZ+1QpWeRzG9yXi52pNLBXZyx+xxN/Vptsw==
@@ -920,7 +920,7 @@
     react-day-picker "^7.3.2"
     tslib "~1.9.0"
 
-"@blueprintjs/icons@^3.10.0", "@blueprintjs/icons@^3.5.0":
+"@blueprintjs/icons@^3.10.0":
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-3.10.0.tgz#45cdb3ca62110e74bcf9e741237a6b4e2cf2c3a4"
   integrity sha512-lyAUpkr3qEStPcJpMnxRKuVAPvaRNSce1ySPbkE58zPmD4WBya2gNrWex41xoqRYM0GsiBSwH9CnpY8t6fZKUA==
@@ -928,7 +928,16 @@
     classnames "^2.2"
     tslib "~1.9.0"
 
-"@blueprintjs/table@^3.4.0":
+"@blueprintjs/select@^3.10.0":
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-3.10.0.tgz#e5711a25416e62d236afb8a3062af45b3b4206ef"
+  integrity sha512-Akm/L5tndrOUuf05od9IJ0WSQgHdbJ4/i2RRoLLH5ZiI8s1OZiCbKJYDSCbCOTviCdZSuL0qkJsBcYhOI/Czeg==
+  dependencies:
+    "@blueprintjs/core" "^3.18.0"
+    classnames "^2.2"
+    tslib "~1.9.0"
+
+"@blueprintjs/table@^3.7.1":
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/table/-/table-3.7.1.tgz#3e3e876a2f0b8bebfc26d4bf8350a120614c88aa"
   integrity sha512-NSdwjBhhsSTq1lgdRWwsDGavhAbG3j/CH86kmtBaH3msHz3ENjowjeuw1JBryJZLl0raGDV0Ln3kbQ93AKuPXw==
@@ -4505,49 +4514,6 @@ eslint@^6.1.0, eslint@^6.4.0:
     text-table "^0.2.0"
     v8-compile-cache "^2.0.3"
 
-eslint@^6.4.0:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-6.4.0.tgz#5aa9227c3fbe921982b2eda94ba0d7fae858611a"
-  integrity sha512-WTVEzK3lSFoXUovDHEbkJqCVPEPwbhCq4trDktNI6ygs7aO41d4cDT0JFAT5MivzZeVLWlg7vHL+bgrQv/t3vA==
-  dependencies:
-    "@babel/code-frame" "^7.0.0"
-    ajv "^6.10.0"
-    chalk "^2.1.0"
-    cross-spawn "^6.0.5"
-    debug "^4.0.1"
-    doctrine "^3.0.0"
-    eslint-scope "^5.0.0"
-    eslint-utils "^1.4.2"
-    eslint-visitor-keys "^1.1.0"
-    espree "^6.1.1"
-    esquery "^1.0.1"
-    esutils "^2.0.2"
-    file-entry-cache "^5.0.1"
-    functional-red-black-tree "^1.0.1"
-    glob-parent "^5.0.0"
-    globals "^11.7.0"
-    ignore "^4.0.6"
-    import-fresh "^3.0.0"
-    imurmurhash "^0.1.4"
-    inquirer "^6.4.1"
-    is-glob "^4.0.0"
-    js-yaml "^3.13.1"
-    json-stable-stringify-without-jsonify "^1.0.1"
-    levn "^0.3.0"
-    lodash "^4.17.14"
-    minimatch "^3.0.4"
-    mkdirp "^0.5.1"
-    natural-compare "^1.4.0"
-    optionator "^0.8.2"
-    progress "^2.0.0"
-    regexpp "^2.0.1"
-    semver "^6.1.2"
-    strip-ansi "^5.2.0"
-    strip-json-comments "^3.0.1"
-    table "^5.2.3"
-    text-table "^0.2.0"
-    v8-compile-cache "^2.0.3"
-
 espree@^6.1.1:
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/espree/-/espree-6.1.1.tgz#7f80e5f7257fc47db450022d723e356daeb1e5de"
@@ -4821,6 +4787,11 @@ fast-levenshtein@~2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
+
+fast-memoize@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/fast-memoize/-/fast-memoize-2.5.1.tgz#c3519241e80552ce395e1a32dcdde8d1fd680f5d"
+  integrity sha512-xdmw296PCL01tMOXx9mdJSmWY29jQgxyuZdq0rEHMu+Tpe1eOEtCycoG6chzlcrWsNgpZP7oL8RiQr7+G6Bl6g==
 
 fastq@^1.6.0:
   version "1.6.0"
@@ -9605,6 +9576,13 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+re-resizable@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.0.0.tgz#84258f098b0dde214a39ca6d9ca9959aeefbc26d"
+  integrity sha512-RTrnhbGgYyZ4hTc6db4JeMnRfmloEPWtuYaXZEa2PRaEC4mreWNFnZtMVsHil3z3iX+WchD+da8BLlTJBcstMA==
+  dependencies:
+    fast-memoize "^2.5.1"
+
 react-app-polyfill@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-1.0.2.tgz#2a51175885c88245a2a356dc46df29f38ec9f060"
@@ -9974,6 +9952,11 @@ redent@^1.0.0:
   dependencies:
     indent-string "^2.1.0"
     strip-indent "^1.0.1"
+
+redux-devtools-extension@^2.13.8:
+  version "2.13.8"
+  resolved "https://registry.yarnpkg.com/redux-devtools-extension/-/redux-devtools-extension-2.13.8.tgz#37b982688626e5e4993ff87220c9bbb7cd2d96e1"
+  integrity sha512-8qlpooP2QqPtZHQZRhx3x3OP5skEV1py/zUdMY28WNAocbafxdG2tRD1MWE7sp8obGMNYuLWanhhQ7EQvT1FBg==
 
 redux-devtools-instrument@^1.9.0:
   version "1.9.6"
@@ -11782,7 +11765,7 @@ typescript-tuple@^2.1.0:
   dependencies:
     typescript-compare "^0.0.2"
 
-typescript@^3.2.4, typescript@^3.4.5:
+typescript@^3.4.5, typescript@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.6.3.tgz#fea942fabb20f7e1ca7164ff626f1a9f3f70b4da"
   integrity sha512-N7bceJL1CtRQ2RiG0AQME13ksR7DiuQh/QehubYcghzv20tnh+MQnQIuJddTmsbqYj+dztchykemz0zFzlvdQw==

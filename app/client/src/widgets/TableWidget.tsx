@@ -15,13 +15,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
 export type PaginationType = "PAGES" | "INFINITE_SCROLL";
 
+export interface TableAction extends ActionPayload {
+  actionName: string;
+}
+
 export interface TableWidgetProps extends WidgetProps {
-  pageKey?: string;
+  nextPageKey?: string;
+  prevPageKey?: string;
   label: string;
   tableData?: object[];
+  recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  onColumnActionClick?: Record<string, ActionPayload[]>;
 }
 
 export default TableWidget;

@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import WidgetFactory from "../../utils/WidgetFactory";
-import { WidgetTypes, RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "../../constants/WidgetConstants";
 import { WidgetFunctions } from "../../widgets/BaseWidget";
-import { useDrop } from "react-dnd";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { WidgetProps } from "../../widgets/BaseWidget";
 
 const ArtBoard = styled.div`
   width: 100%;
@@ -14,22 +14,17 @@ const ArtBoard = styled.div`
 `;
 
 interface CanvasProps {
-  pageWidget: ContainerWidgetProps<any>;
-  addWidget: Function;
+  dsl: ContainerWidgetProps<WidgetProps>;
   widgetFunctions: WidgetFunctions;
 }
 
 const Canvas = (props: CanvasProps) => {
-  const [, drop] = useDrop({
-    accept: Object.values(WidgetTypes),
-  });
-
   return (
     <React.Fragment>
-      <ArtBoard ref={drop}>
-        {props.pageWidget &&
+      <ArtBoard>
+        {props.dsl.widgetId &&
           WidgetFactory.createWidget(
-            props.pageWidget,
+            props.dsl,
             props.widgetFunctions,
             RenderModes.CANVAS,
           )}

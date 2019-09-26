@@ -13,16 +13,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
 }
 
-export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT>";
+export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
 }
 
 export interface DropdownWidgetProps extends WidgetProps {
-  placeholder?: string;
+  placeholderText?: string;
   label?: string;
-  type: SelectionType;
+  selectionType: SelectionType;
   options?: DropdownOption[];
   onOptionSelected?: ActionPayload[];
 }

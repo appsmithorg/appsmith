@@ -1,41 +1,46 @@
 import { createReducer } from "../../utils/AppsmithUtils";
+import { getEditorConfigs } from "../../constants/ApiConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
-  LoadCanvasWidgetsPayload,
   LoadWidgetCardsPanePayload,
 } from "../../constants/ReduxActionConstants";
 import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-
-const initialState: EditorReduxState = {};
+const editorConfigs = getEditorConfigs();
+const initialState: EditorReduxState = {
+  pageWidgetId: "0",
+  ...editorConfigs,
+  isSaving: false,
+};
 
 const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
-    return { ...state.pageWidget, ...action.payload };
+    return { ...state, ...action.payload };
   },
-  [ReduxActionTypes.ADD_PAGE_WIDGET]: (
-    state: EditorReduxState,
-    action: ReduxAction<{ pageId: string; widget: WidgetProps }>,
-  ) => {
-    return state;
+  [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
+    return { ...state, isSaving: true };
   },
-  [ReduxActionTypes.UPDATE_CANVAS]: (
-    state: EditorReduxState,
-    action: ReduxAction<LoadCanvasWidgetsPayload>,
-  ) => {
-    return { pageWidgetId: action.payload.pageWidgetId };
+  [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    return { ...state, isSaving: false };
+  },
+  [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
+    return { ...state, isSaving: false };
   },
 });
 
 export interface EditorReduxState {
-  pageWidget?: ContainerWidgetProps<any>;
+  dsl?: ContainerWidgetProps<WidgetProps>;
   cards?: {
     [id: string]: WidgetCardProps[];
   };
+  pageWidgetId: string;
+  currentPageId: string;
+  currentLayoutId: string;
+  isSaving: boolean;
 }
 
 export default editorReducer;

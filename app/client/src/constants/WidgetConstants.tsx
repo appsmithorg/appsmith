@@ -10,8 +10,7 @@ export type WidgetType =
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
   | "INPUT_WIDGET"
-  | "SWITCH_WIDGET"
-  | "ALERT_WIDGET";
+  | "SWITCH_WIDGET";
 
 export const WidgetTypes: { [id: string]: WidgetType } = {
   BUTTON_WIDGET: "BUTTON_WIDGET",
@@ -26,7 +25,6 @@ export const WidgetTypes: { [id: string]: WidgetType } = {
   DROP_DOWN_WIDGET: "DROP_DOWN_WIDGET",
   CHECKBOX_WIDGET: "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET: "RADIO_GROUP_WIDGET",
-  ALERT_WIDGET: "ALERT_WIDGET",
 };
 
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
@@ -65,4 +63,12 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   PIXEL: "px",
   RELATIVE_FONTSIZE: "rem",
   RELATIVE_PARENT: "%",
+};
+
+export const GridDefaults = {
+  DEFAULT_CELL_SIZE: 1,
+  DEFAULT_WIDGET_WIDTH: 200,
+  DEFAULT_WIDGET_HEIGHT: 100,
+  DEFAULT_GRID_COLUMNS: 16,
+  DEFAULT_GRID_ROWS: 32,
 };

@@ -10,4 +10,5 @@ do
 done;
 
 # using relative path for now
-mv fonts ../../../public/
+cp -rf fonts ../../../public/
+rm -r fonts
