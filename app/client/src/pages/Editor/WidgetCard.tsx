@@ -65,7 +65,7 @@ const WidgetCard = (props: CardProps) => {
       <Wrapper ref={drag}>
         <div>
           {Icon}
-          <IconLabel>{props.details.label}</IconLabel>
+          <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>
     </React.Fragment>

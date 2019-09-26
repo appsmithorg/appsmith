@@ -171,7 +171,7 @@ export interface WidgetFunctions {
 export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
-  label: string;
+  widgetCardName: string;
   icon: string;
 }
 
