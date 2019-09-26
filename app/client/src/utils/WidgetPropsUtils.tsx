@@ -18,10 +18,26 @@ type Rect = {
   bottom: number;
 };
 
+const defaultDSL = {
+  backgroundColor: "#ffffff",
+  bottomRow: 1024,
+  children: [],
+  leftColumn: 0,
+  parentColumnSpace: 1,
+  parentRowSpace: 1,
+  renderMode: "CANVAS",
+  rightColumn: 1024,
+  snapColumns: 16,
+  snapRows: 32,
+  topRow: 0,
+  type: "CONTAINER_WIDGET",
+  widgetId: "0",
+};
+
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
-  return fetchPageResponse.data.layouts[0].dsl;
+  return fetchPageResponse.data.layouts[0].dsl || defaultDSL;
 };
 
 export const getDropZoneOffsets = (
@@ -180,11 +196,9 @@ export const updateWidgetSize = (
   return {
     ...widget,
     rightColumn:
-      widget.leftColumn +
-      Math.floor((origWidth + deltaWidth) / widget.parentColumnSpace),
+      widget.leftColumn + (origWidth + deltaWidth) / widget.parentColumnSpace,
     bottomRow:
-      widget.topRow +
-      Math.floor((origHeight + deltaHeight) / widget.parentRowSpace),
+      widget.topRow + (origHeight + deltaHeight) / widget.parentRowSpace,
   };
 };
 

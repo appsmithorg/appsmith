@@ -16,7 +16,7 @@ export const getRowColSizes = (
   height: number,
 ): { rowHeight: number; columnWidth: number } => {
   return {
-    columnWidth: Math.floor(width / columnCount),
-    rowHeight: Math.floor(height / rowCount),
+    columnWidth: width / columnCount,
+    rowHeight: height / rowCount,
   };
 };

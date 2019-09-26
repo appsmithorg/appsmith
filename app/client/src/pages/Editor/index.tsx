@@ -91,15 +91,15 @@ class Editor extends Component<EditorProps> {
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
           <CanvasContainer>
-            <Canvas
-              dsl={{
-                ...this.props.dsl,
-              }}
-              widgetFunctions={{
-                executeAction: this.props.executeAction,
-                updateWidget: this.props.updateWidget,
-              }}
-            />
+            {this.props.dsl && (
+              <Canvas
+                dsl={this.props.dsl}
+                widgetFunctions={{
+                  executeAction: this.props.executeAction,
+                  updateWidget: this.props.updateWidget,
+                }}
+              />
+            )}
           </CanvasContainer>
           <PropertyPane />
         </EditorWrapper>

@@ -3,6 +3,7 @@ import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import blankImage from "../../assets/images/blank.png";
 import { WidgetCardProps } from "../../widgets/BaseWidget";
 import styled from "styled-components";
+import { WidgetIcons } from "../../icons/WidgetIcons";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -24,6 +25,11 @@ export const Wrapper = styled.div`
     background: #fff;
     cursor: grab;
     color: ${props => props.theme.colors.textDefault};
+    svg {
+      path {
+        fill: ${props => props.theme.colors.textDefault};
+      }
+    }
   }
   & i {
     font-family: ${props => props.theme.fonts[2]};
@@ -49,13 +55,17 @@ const WidgetCard = (props: CardProps) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
+  const iconType: string = props.details.type;
+  const Icon = WidgetIcons[iconType]();
+
   return (
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
       <Wrapper ref={drag}>
         <div>
-          <i className={props.details.icon} />
-          <IconLabel>{props.details.label}</IconLabel>
+          {Icon}
+          <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>
     </React.Fragment>

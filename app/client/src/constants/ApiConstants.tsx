@@ -29,3 +29,19 @@ export interface APIHeaders {
 export interface APIRequest {
   requestId?: string;
 }
+
+export const getEditorConfigs = () => {
+  if (process.env.NODE_ENV === "development") {
+    return {
+      currentPageId: "5d807e7f795dc6000482bc78",
+      currentLayoutId: "5d807e7f795dc6000482bc77",
+    };
+  } else {
+    return {
+      currentPageId: "5d807e76795dc6000482bc76",
+      currentLayoutId: "5d807e76795dc6000482bc75",
+    };
+  }
+};
+
+console.log("here", process.env.NODE_ENV);
