@@ -1,6 +1,8 @@
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  REPORT_ERROR: "REPORT_ERROR",
+  FLUSH_ERRORS: "FLUSH_ERRORS",
   UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
@@ -16,8 +18,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   LOAD_PROPERTY_CONFIG: "LOAD_PROPERTY_CONFIG",
   PUBLISH: "PUBLISH",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
-  SUCCESS_FETCHING_WIDGET_CARDS: "SUCCESS_FETCHING_WIDGET_CARDS",
-  ERROR_FETCHING_WIDGET_CARDS: "ERROR_FETCHING_WIDGET_CARDS",
+  FETCH_WIDGET_CARDS_SUCCESS: "FETCH_WIDGET_CARDS_SUCCESS",
   ADD_PAGE_WIDGET: "ADD_PAGE_WIDGET",
   REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
   LOAD_API_RESPONSE: "LOAD_API_RESPONSE",
@@ -26,8 +27,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   LOAD_CANVAS_ACTIONS: "LOAD_CANVAS_ACTIONS",
   SAVE_PAGE_INIT: "SAVE_PAGE_INIT",
   SAVE_PAGE_SUCCESS: "SAVE_PAGE_SUCCESS",
-  SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
-  FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
   UPDATE_LAYOUT: "UPDATE_LAYOUT",
   WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
   WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
@@ -37,12 +36,29 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
   UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
 };
-
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
+export const ReduxActionErrorTypes: { [key: string]: string } = {
+  API_ERROR: "API_ERROR",
+  WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
+  WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
+  WIDGET_RESIZE_ERROR: "WIDGET_RESIZE_ERROR",
+  WIDGET_REMOVE_CHILD_ERROR: "WIDGET_REMOVE_CHILD_ERROR",
+  WIDGET_ADD_CHILD_ERROR: "WIDGET_ADD_CHILD_ERROR",
+  FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
+  SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
+  FETCH_WIDGET_CARDS_ERROR: "FETCH_WIDGET_CARDS_ERROR",
+};
+export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
+
 export interface ReduxAction<T> {
-  type: ReduxActionType;
+  type: ReduxActionType | ReduxActionErrorType;
   payload: T;
+}
+
+export interface ReduxActionErrorPayload {
+  message: string;
+  source?: string;
 }
 
 export interface UpdateCanvasPayload {

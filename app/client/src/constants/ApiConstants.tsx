@@ -45,5 +45,3 @@ export const getEditorConfigs = () => {
     };
   }
 };
-
-console.log("here", process.env.NODE_ENV);

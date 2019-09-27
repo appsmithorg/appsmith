@@ -107,8 +107,9 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
   );
   const configs = state.entities.widgetConfig.config;
 
-  const cards = state.ui.widgetCardsPane.cards;
-  Object.keys(cards).forEach((group: string) => {
+  const cards = state.ui.editor.cards;
+  const groups: string[] = Object.keys(cards);
+  groups.forEach((group: string) => {
     cards[group] = cards[group].map((widget: WidgetCardProps) => ({
       ...widget,
       ...configs[widget.type],
