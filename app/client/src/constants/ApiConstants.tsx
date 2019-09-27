@@ -35,11 +35,13 @@ export const getEditorConfigs = () => {
     return {
       currentPageId: "5d807e7f795dc6000482bc78",
       currentLayoutId: "5d807e7f795dc6000482bc77",
+      currentPageName: "page1",
     };
   } else {
     return {
       currentPageId: "5d807e76795dc6000482bc76",
       currentLayoutId: "5d807e76795dc6000482bc75",
+      currentPageName: "page1",
     };
   }
 };

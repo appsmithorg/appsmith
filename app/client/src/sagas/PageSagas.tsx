@@ -44,8 +44,10 @@ export function* fetchPageSaga(
       );
       const canvasWidgetsPayload: UpdateCanvasPayload = {
         pageWidgetId: normalizedResponse.result,
+        currentPageName: fetchPageResponse.data.name,
+        currentPageId: fetchPageResponse.data.id,
         widgets: normalizedResponse.entities.canvasWidgets,
-        layoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
+        currentLayoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
       };
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),

@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Position, Toaster } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
@@ -19,10 +18,6 @@ import { RenderModes } from "../../constants/WidgetConstants";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
 import PropertyPane from "./PropertyPane";
-
-const SaveToast = Toaster.create({
-  position: Position.TOP,
-});
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -60,7 +55,7 @@ type EditorProps = {
   updateWidget: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
   savePageLayout: Function;
-  page: string;
+  currentPageName: string;
   currentPageId: string;
   currentLayoutId: string;
   isSaving: boolean;
@@ -71,23 +66,13 @@ class Editor extends Component<EditorProps> {
     this.props.fetchCanvasWidgets(this.props.currentPageId);
   }
 
-  componentDidUpdate(prevProps: EditorProps) {
-    if (this.props.isSaving && prevProps.isSaving !== this.props.isSaving) {
-      SaveToast.clear();
-      SaveToast.show({ message: "Saving Page..." });
-    } else if (
-      !this.props.isSaving &&
-      prevProps.isSaving !== this.props.isSaving
-    ) {
-      SaveToast.clear();
-      SaveToast.show({ message: "Page Saved" });
-    }
-  }
-
   public render() {
     return (
       <React.Fragment>
-        <EditorHeader></EditorHeader>
+        <EditorHeader
+          notificationText={this.props.isSaving ? "Saving page..." : undefined}
+          pageName={this.props.currentPageName}
+        />
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
           <CanvasContainer>
@@ -136,6 +121,7 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     pageWidgetId: state.ui.editor.pageWidgetId,
     currentPageId: state.ui.editor.currentPageId,
     currentLayoutId: state.ui.editor.currentLayoutId,
+    currentPageName: state.ui.editor.currentPageName,
     isSaving: state.ui.editor.isSaving,
   };
 };

@@ -40,6 +40,7 @@ export interface EditorReduxState {
   pageWidgetId: string;
   currentPageId: string;
   currentLayoutId: string;
+  currentPageName: string;
   isSaving: boolean;
 }
 

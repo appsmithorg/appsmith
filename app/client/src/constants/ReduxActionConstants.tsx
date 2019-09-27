@@ -48,7 +48,9 @@ export interface ReduxAction<T> {
 export interface UpdateCanvasPayload {
   pageWidgetId: string;
   widgets: { [widgetId: string]: WidgetProps };
-  layoutId: string;
+  currentLayoutId: string;
+  currentPageId: string;
+  currentPageName: string;
 }
 
 export interface ShowPropertyPanePayload {
