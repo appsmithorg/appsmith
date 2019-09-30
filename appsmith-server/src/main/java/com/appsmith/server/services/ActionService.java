@@ -1,10 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.dtos.ExecuteActionDTO;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ActionService extends CrudService<Action, String> {
 
-    Flux<Object> executeAction(ExecuteActionDTO executeActionDTO);
+    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 }

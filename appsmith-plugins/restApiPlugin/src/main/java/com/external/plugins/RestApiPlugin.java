@@ -1,31 +1,37 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RestApiPlugin extends BasePlugin {
 
+    private static ObjectMapper objectMapper;
+
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
+        this.objectMapper = new ObjectMapper();
     }
 
     @Slf4j
@@ -33,14 +39,14 @@ public class RestApiPlugin extends BasePlugin {
     public static class RestApiPluginExecutor implements PluginExecutor {
 
         @Override
-        public Flux<Object> execute(ResourceConfiguration resourceConfiguration,
-                                    ActionConfiguration actionConfiguration,
-                                    List<Param> params) {
-            JSONObject requestBody = actionConfiguration.getBody();
+        public Mono<ActionExecutionResult> execute(ResourceConfiguration resourceConfiguration,
+                                                   ActionConfiguration actionConfiguration,
+                                                   List<Param> params) {
+            Map<String, Object> requestBody = actionConfiguration.getBody();
             if (requestBody == null) {
-                requestBody = new JSONObject();
+                requestBody = (Map<String, Object>) new HashMap<String, Object>();
             }
-            //TODO: Substitue variables from params in all parts (actionConfig, resourceConfig etc) via JsonPath: https://github.com/json-path/JsonPath
+
             Map<String, Param> propertyMap = params.stream()
                     .collect(Collectors.toMap(Param::getKey, param -> param));
 
@@ -48,39 +54,51 @@ public class RestApiPlugin extends BasePlugin {
             String url = resourceConfiguration.getUrl() + path;
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                return Flux.error(new Exception("HttpMethod must not be null"));
+                return Mono.error(new Exception("HttpMethod must not be null"));
             }
 
-            log.debug("Going to make a RestApi call to url: {}, httpMethod: {}", url, httpMethod);
+            WebClient.Builder webClientBuilder = WebClient.builder().baseUrl(url);
 
-            WebClient webClient = WebClient.builder()
-                    .baseUrl(url)
-                    // TODO: Ideally this should come from action / resource config
-                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .build();
-
-            WebClient.RequestHeadersSpec<?> request = webClient.method(httpMethod)
-                    .body(BodyInserters.fromObject(requestBody));
-
-            Mono<ClientResponse> responseMono = request.exchange();
-            return responseMono.flatMapMany(response -> {
-                log.debug("Got response: {}", response);
-                // TODO: Refactor for better switch case
-                List<String> contentTypes = response.headers().header(HttpHeaders.CONTENT_TYPE);
-                Class clazz = String.class;
-                if (contentTypes != null && contentTypes.size() > 0) {
-                    String contentType = contentTypes.get(0);
-                    boolean isJson = MediaType.APPLICATION_JSON_UTF8_VALUE.toLowerCase()
-                            .equals(contentType.toLowerCase()
-                                    .replaceAll("\\s", ""))
-                            || MediaType.APPLICATION_JSON_VALUE.equals(contentType.toLowerCase());
-
-                    if (isJson) {
-                        clazz = JSONObject.class;
-                    }
+            if (resourceConfiguration.getHeaders() != null) {
+                List<Property> headers = resourceConfiguration.getHeaders();
+                for (Property header : headers) {
+                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
                 }
-                return response.bodyToFlux(clazz);
-            });
+            }
+
+            if (actionConfiguration.getHeaders() != null) {
+                List<Property> headers = actionConfiguration.getHeaders();
+                for (Property header : headers) {
+                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
+                }
+            }
+
+            return webClientBuilder
+                    .build()
+                    .method(httpMethod)
+                    .body(BodyInserters.fromObject(requestBody))
+                    .exchange()
+                    .flatMap(clientResponse -> clientResponse.toEntity(String.class))
+                    .map(stringResponseEntity -> {
+                        /**TODO
+                         * Handle XML response. Currently we only handle JSON responses.
+                         */
+                        HttpHeaders headers = stringResponseEntity.getHeaders();
+                        String body = stringResponseEntity.getBody();
+                        HttpStatus statusCode = stringResponseEntity.getStatusCode();
+
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setStatusCode(statusCode.toString());
+                        try {
+                            result.setBody(objectMapper.readTree(body));
+                            String headerInJsonString = objectMapper.writeValueAsString(headers);
+                            result.setHeaders(objectMapper.readTree(headerInJsonString));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        return result;
+                    });
         }
     }
 }

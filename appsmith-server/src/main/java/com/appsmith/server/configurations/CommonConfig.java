@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,5 +31,10 @@ public class CommonConfig {
     @Bean
     public Validator validator() {
         return Validation.buildDefaultValidatorFactory().getValidator();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
