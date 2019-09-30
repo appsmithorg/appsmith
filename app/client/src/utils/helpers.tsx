@@ -8,15 +8,3 @@ export const snapToGrid = (
   const snappedY = Math.floor(y / rowHeight);
   return [snappedX, snappedY];
 };
-
-export const getRowColSizes = (
-  rowCount: number,
-  columnCount: number,
-  width: number,
-  height: number,
-): { rowHeight: number; columnWidth: number } => {
-  return {
-    columnWidth: width / columnCount,
-    rowHeight: height / rowCount,
-  };
-};

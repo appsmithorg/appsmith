@@ -94,17 +94,21 @@ abstract class BaseWidget<
 
   getCanvasView(): JSX.Element {
     const style = this.getPositionStyle();
-    return (
-      <DraggableComponent
-        {...this.props}
-        style={{ ...style }}
-        orientation={"VERTICAL"}
-      >
-        <ResizableComponent style={{ ...style }} {...this.props}>
-          {this.getPageView()}
-        </ResizableComponent>
-      </DraggableComponent>
-    );
+    if (!this.props.parentId) {
+      return this.getPageView();
+    } else {
+      return (
+        <DraggableComponent
+          {...this.props}
+          style={{ ...style }}
+          orientation={"VERTICAL"}
+        >
+          <ResizableComponent style={{ ...style }} {...this.props}>
+            {this.getPageView()}
+          </ResizableComponent>
+        </DraggableComponent>
+      );
+    }
   }
 
   abstract getWidgetType(): WidgetType;

@@ -12,7 +12,6 @@ const errorReducer = createReducer(initialState, {
     state: ErrorReduxState,
     action: ReduxAction<ReduxActionErrorPayload>,
   ) => {
-    console.log(action.payload);
     return {
       sourceAction: action.payload.source,
       message: action.payload.message,

@@ -13,7 +13,13 @@ const ResizableContainer = styled(Resizable)`
   }};
 `;
 
-const CustomHandle = (props: any) => <div {...props} />;
+const DisplayHandleWrapper = styled.div`
+  display: none;
+  ${ResizableContainer}:hover & {
+    display: block;
+  }
+`;
+const CustomHandle = (props: any) => <DisplayHandleWrapper {...props} />;
 const BottomRightHandle = () => (
   <CustomHandle>
     <Icon iconSize={15} icon="arrow-bottom-right" />
