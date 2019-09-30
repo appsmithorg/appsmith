@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
@@ -10,7 +11,7 @@ import org.pf4j.Extension;
 import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -73,9 +74,9 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Flux<Object> execute(ResourceConfiguration resourceConfiguration,
-                                    ActionConfiguration actionConfiguration,
-                                    List<Param> params) {
+        public Mono<ActionExecutionResult> execute(ResourceConfiguration resourceConfiguration,
+                                                   ActionConfiguration actionConfiguration,
+                                                   List<Param> params) {
 
             log.debug("In the PostgresPlugin execute with resourceConfiguration: {}, ActionConfig: {}",
                     resourceConfiguration, actionConfiguration);
@@ -98,9 +99,11 @@ public class PostgresPlugin extends BasePlugin {
             } catch (SQLException e) {
                 log.error("", e);
             }
+            //Return list because list is the actual result. ActionExecutionResult is just a stop gap measure
             list.forEach(System.out::println);
 
-            return Flux.fromIterable(list);
+            ActionExecutionResult result = new ActionExecutionResult();
+            return Mono.just(result);
         }
 
     }
