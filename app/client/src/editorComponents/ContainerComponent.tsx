@@ -13,6 +13,7 @@ export const Container = styled("div")<ContainerProps>`
   position: ${props => {
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative";
   }};
+  align-items: stretch;
 `;
 
 const ContainerComponent = (props: ContainerProps) => {

@@ -32,7 +32,7 @@ const CanvasContainer = styled.section`
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 11;
     pointer-events: none;
   }
 `;

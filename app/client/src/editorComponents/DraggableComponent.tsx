@@ -1,10 +1,11 @@
 import React from "react";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
+import { ControlIcons } from "../icons/ControlIcons";
+import { theme } from "../constants/DefaultTheme";
 
 const DraggableWrapper = styled.div`
   &:hover > div {
@@ -14,18 +15,32 @@ const DraggableWrapper = styled.div`
 
 const DragHandle = styled.div`
   position: absolute;
-  left: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  left: -${props => props.theme.spaces[4]}px;
+  top: -${props => props.theme.spaces[4]}px;
   cursor: move;
   display: none;
+  cursor: pointer;
+  z-index: 11;
 `;
 
 const DeleteControl = styled.div`
   position: absolute;
-  right: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  right: -${props => props.theme.spaces[4]}px;
+  top: -${props => props.theme.spaces[4]}px;
   display: none;
+  cursor: pointer;
+  z-index: 11;
 `;
+
+const moveControlIcon = ControlIcons.MOVE_CONTROL({
+  width: theme.fontSizes[6],
+  height: theme.fontSizes[6],
+});
+
+const deleteControlIcon = ControlIcons.DELETE_CONTROL({
+  width: theme.fontSizes[6],
+  height: theme.fontSizes[6],
+});
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
@@ -57,11 +72,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             : 0,
         }}
       >
-        <DragHandle ref={drag}>
-          <Icon icon="drag-handle-horizontal" iconSize={20} />
-        </DragHandle>
+        <DragHandle ref={drag}>{moveControlIcon}</DragHandle>
         <DeleteControl onClick={deleteWidget}>
-          <Icon icon="trash" iconSize={20} />
+          {deleteControlIcon}
         </DeleteControl>
         {props.children}
       </DraggableWrapper>
