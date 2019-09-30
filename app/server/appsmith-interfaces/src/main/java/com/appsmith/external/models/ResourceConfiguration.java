@@ -21,4 +21,6 @@ public class ResourceConfiguration {
 
     List<Property> properties;
 
+    //For REST API
+    List<Property> headers;
 }

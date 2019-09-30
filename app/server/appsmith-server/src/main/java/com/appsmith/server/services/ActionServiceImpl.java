@@ -1,5 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Param;
+import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Page;
@@ -11,6 +15,10 @@ import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
@@ -18,14 +26,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,6 +48,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PluginService pluginService;
     private final PageService pageService;
     private final PluginManager pluginManager;
+    private final ObjectMapper objectMapper;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -48,13 +61,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              PageService pageService,
                              PluginManager pluginManager,
                              Analytics analytics,
-                             SessionUserService sessionUserService) {
+                             SessionUserService sessionUserService,
+                             ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.resourceService = resourceService;
         this.pluginService = pluginService;
         this.pageService = pageService;
         this.pluginManager = pluginManager;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -108,7 +123,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Object> executeAction(ExecuteActionDTO executeActionDTO) {
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         String actionId = executeActionDTO.getActionId();
         log.debug("Going to execute action with id: {}", actionId);
 
@@ -133,12 +148,62 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         );
 
         // 3. Execute the query
-        return actionMono.flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) ->
-        {
-            log.debug("*** About to invoke the plugin**");
-            // TODO: The CommandParams is being passed as null here. Move it to interfaces.CommandParams - N/A
-            return pluginExecutor.execute(resource.getResourceConfiguration(), action.getActionConfiguration(), executeActionDTO.getParams());
-        }))
-                .flatMapIterable(Flux::toIterable);
+        return actionMono
+                    .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
+                        log.debug("Variable substitutions before invoking the plugin");
+
+                        //Do variable substitution before invoking the plugin
+                        Map<String, String> replaceParamsMap = executeActionDTO
+                                .getParams()
+                                .stream()
+                                .collect(Collectors.toMap(Param::getKey, Param::getValue,
+                                                            // Incase there's a conflict, we pick the older value
+                                                            (oldValue, newValue) -> oldValue)
+                                        );
+                        ResourceConfiguration resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
+                        ActionConfiguration actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+
+                        log.debug("About to invoke the plugin");
+                        long start = System.currentTimeMillis();
+                        Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.execute(resourceConfiguration, actionConfiguration, executeActionDTO.getParams());
+                        long end = System.currentTimeMillis();
+                        log.debug("Time taken by plugin executor is : {} ms",(end-start));
+                        return actionExecutionResultMono;
+                    }))
+                    .flatMap(obj -> obj);
+    }
+
+
+    /**
+     * This function replaces the variables in the Object with the actual params
+     */
+    public Object variableSubstitution(Object configuration,
+                                       Map<String, String> replaceParamsMap) {
+
+        try {
+            // Convert the object to String as a preparation to send it to mustacheReplacement
+            String objectInJsonString = objectMapper.writeValueAsString(configuration);
+            objectInJsonString = mustacheReplacement(objectInJsonString, configuration.getClass().getSimpleName(), replaceParamsMap);
+            return objectMapper.readValue(objectInJsonString, configuration.getClass());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return configuration;
+    }
+
+    /**
+     *
+     * @param template : This is the string which contains {{key}} which would be replaced with value
+     * @param name : This is the class name of the object from which template string was created
+     * @param keyValueMap : This is the map of keys with values.
+     * @return It finally returns the string in which all the keys in template have been replaced with values.
+     */
+    private String mustacheReplacement(String template, String name, Map<String, String> keyValueMap) {
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mustache = mf.compile(new StringReader(template), name);
+        Writer writer = new StringWriter();
+        mustache.execute(writer, keyValueMap);
+
+        return writer.toString();
     }
 }
