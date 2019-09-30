@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -29,7 +31,7 @@ public class ActionConfiguration {
     String path;
     List<Property> headers;
     List<Property> queryParameters;
-    JSONObject body;
+    Map<String, Object> body;
     HttpMethod httpMethod;
 
     // DB action fields
