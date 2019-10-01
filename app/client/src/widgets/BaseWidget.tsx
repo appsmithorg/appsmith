@@ -115,7 +115,7 @@ abstract class BaseWidget<
 
   getPositionStyle(): BaseStyle {
     return {
-      positionType: "CONTAINER_DIRECTION",
+      positionType: "ABSOLUTE",
       componentHeight: this.state.componentHeight,
       componentWidth: this.state.componentWidth,
       yPosition: this.props.topRow * this.props.parentRowSpace,
@@ -136,12 +136,6 @@ abstract class BaseWidget<
 export interface WidgetState {
   componentHeight: number;
   componentWidth: number;
-}
-
-export interface DraggableWidget {
-  type: string;
-  widget: WidgetProps;
-  key: string;
 }
 
 export interface WidgetBuilder<T extends WidgetProps> {

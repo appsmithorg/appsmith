@@ -65,6 +65,7 @@ class ContainerWidget extends BaseWidget<
         style={{
           ...this.getPositionStyle(),
         }}
+        isRoot={!this.props.parentId}
         orientation={this.props.orientation || "VERTICAL"}
       >
         {_.map(this.props.children, this.renderChildWidget)}
