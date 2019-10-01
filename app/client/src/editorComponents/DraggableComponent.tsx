@@ -7,6 +7,10 @@ import { ContainerProps, FocusContext } from "./ContainerComponent";
 import { ControlIcons } from "../icons/ControlIcons";
 import { theme } from "../constants/DefaultTheme";
 
+// FontSizes array in DefaultTheme.tsx
+// Change this to toggle the size of delete and move handles.
+const CONTROL_THEME_FONTSIZE_INDEX = 6;
+
 const DraggableWrapper = styled.div<{ show: boolean }>`
   & > div.control {
     display: ${props => (props.show ? "block" : "none")};
@@ -18,8 +22,8 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
 
 const DragHandle = styled.div`
   position: absolute;
-  left: -${props => props.theme.spaces[4]}px;
-  top: -${props => props.theme.spaces[4]}px;
+  left: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   cursor: move;
   display: none;
   cursor: grab;
@@ -28,21 +32,21 @@ const DragHandle = styled.div`
 
 const DeleteControl = styled.div`
   position: absolute;
-  right: -${props => props.theme.spaces[4]}px;
-  top: -${props => props.theme.spaces[4]}px;
+  right: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   display: none;
   cursor: pointer;
   z-index: 11;
 `;
 
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
-  width: theme.fontSizes[6],
-  height: theme.fontSizes[6],
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
 });
 
 const deleteControlIcon = ControlIcons.DELETE_CONTROL({
-  width: theme.fontSizes[6],
-  height: theme.fontSizes[6],
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
 });
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
