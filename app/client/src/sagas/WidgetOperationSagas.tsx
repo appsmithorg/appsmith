@@ -1,5 +1,6 @@
 import {
   ReduxActionTypes,
+  ReduxActionErrorTypes,
   ReduxAction,
 } from "../constants/ReduxActionConstants";
 import {
@@ -9,13 +10,19 @@ import {
   WidgetDelete,
 } from "../actions/pageActions";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget, getWidgetParent } from "./selectors";
+import {
+  getWidgets,
+  getWidget,
+  getWidgetParent,
+  getDefaultWidgetConfig,
+} from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetSize,
   updateWidgetPosition,
 } from "../utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
+import { getNextWidgetName } from "../utils/AppsmithUtils";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -31,7 +38,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
-
+    const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
     const childWidget = generateWidgetProps(
       widget,
       type,
@@ -41,6 +48,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       rows,
       parentRowSpace,
       parentColumnSpace,
+      getNextWidgetName(type, widgets),
+      defaultWidgetConfig,
     );
     widgets[childWidget.widgetId] = childWidget;
     if (widget && widget.children) {
@@ -51,11 +60,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_ADD_CHILD,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_ADD_CHILD,
+        error,
+      },
     });
   }
 }
@@ -74,12 +85,13 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_DELETE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_DELETE,
+        error,
+      },
     });
   }
 }
@@ -110,11 +122,13 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_MOVE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_MOVE,
+        error,
+      },
     });
   }
 }
@@ -133,11 +147,13 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_RESIZE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_RESIZE,
+        error,
+      },
     });
   }
 }

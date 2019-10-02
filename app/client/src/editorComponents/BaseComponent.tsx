@@ -22,6 +22,7 @@ export interface BaseStyle {
 
 export interface ComponentProps {
   widgetId: string;
+  widgetName?: string;
   style: BaseStyle;
 }
 

@@ -211,6 +211,8 @@ export const generateWidgetProps = (
   rows: number,
   parentRowSpace: number,
   parentColumnSpace: number,
+  widgetName: string,
+  widgetConfig: Partial<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent && parent.snapColumns && parent.snapRows) {
     const sizes = {
@@ -229,11 +231,13 @@ export const generateWidgetProps = (
         background: Colors.WHITE,
       };
     }
+    console.log(widgetConfig);
     return {
+      ...widgetConfig,
       type,
       executeAction: () => {},
       widgetId: generateReactKey(),
-      widgetName: generateReactKey(), //TODO: figure out what this is to populate appropriately
+      widgetName: widgetName || generateReactKey(), //TODO: figure out what this is to populate appropriately
       isVisible: true,
       parentColumnSpace,
       parentRowSpace,

@@ -35,9 +35,10 @@ class ContainerWidget extends BaseWidget<
     super.componentDidUpdate(previousProps);
     let snapColumnSpace = this.state.snapColumnSpace;
     if (this.state.componentWidth)
-      snapColumnSpace =
+      snapColumnSpace = Math.floor(
         this.state.componentWidth /
-        (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
+          (this.props.snapColumns || DEFAULT_GRID_COLUMNS),
+      );
     if (this.state.snapColumnSpace !== snapColumnSpace) {
       this.setState({
         snapColumnSpace,
@@ -67,6 +68,7 @@ class ContainerWidget extends BaseWidget<
         }}
         isRoot={!this.props.parentId}
         orientation={this.props.orientation || "VERTICAL"}
+        widgetName={this.props.widgetName}
       >
         {_.map(this.props.children, this.renderChildWidget)}
       </ContainerComponent>

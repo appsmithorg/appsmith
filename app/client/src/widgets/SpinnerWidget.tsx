@@ -10,6 +10,7 @@ class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
       <SpinnerComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         key={this.props.widgetId}
         size={this.props.size}
         value={this.props.value}

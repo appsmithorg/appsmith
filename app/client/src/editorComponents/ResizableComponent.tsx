@@ -16,20 +16,20 @@ const ResizableContainer = styled(Resizable)`
   &:before {
     content: "";
     position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: ${props => props.theme.spaces[2]}px;
+    height: ${props => props.theme.spaces[2]}px;
+    border-radius: ${props => props.theme.radii[5]}%;
     z-index: 9;
     background: ${props => props.theme.colors.containerBorder};
   }
   &:after {
-    right: -4px;
-    top: 50%;
+    right: -${props => props.theme.spaces[1]}px;
+    top: calc(50% - ${props => props.theme.spaces[1]}px);
   }
 
   &:before {
-    left: calc(50%);
-    top: calc(100% - 4px);
+    left: calc(50% - ${props => props.theme.spaces[1]}px);
+    bottom: -${props => props.theme.spaces[1]}px;
   }
 `;
 
@@ -50,6 +50,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         width: props.style.componentWidth as number,
         height: props.style.componentHeight as number,
       }}
+      minWidth={props.parentColumnSpace}
+      minHeight={props.parentRowSpace}
       style={{ ...props.style }}
       onResizeStop={updateSize}
       grid={[props.parentColumnSpace, props.parentRowSpace]}

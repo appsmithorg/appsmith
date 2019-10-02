@@ -24,6 +24,17 @@ export const Container = styled("div")<ContainerProps>`
   left: 0;
   top: 0;
   width: 100%;
+  padding: ${props => props.theme.spaces[8]}px ${props =>
+  props.theme.spaces[1]}px ${props => props.theme.spaces[1]}px;
+  &:after {
+    content: "${props => props.widgetName}";
+    position: absolute;
+    left: ${props => props.theme.spaces[1]}px;
+    top: ${props => props.theme.spaces[1]}px;
+    font-size: ${props => props.theme.fontSizes[2]}px;
+    text-align: left;
+    width: 100%;
+  }
 `;
 
 export const FocusContext: Context<{

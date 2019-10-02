@@ -105,15 +105,14 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     state.ui.editor.pageWidgetId,
     state.entities,
   );
-  const configs = state.entities.widgetConfig.config;
 
   const cards = state.ui.editor.cards;
   const groups: string[] = Object.keys(cards);
   groups.forEach((group: string) => {
-    cards[group] = cards[group].map((widget: WidgetCardProps) => ({
-      ...widget,
-      ...configs[widget.type],
-    }));
+    cards[group] = cards[group].map((widget: WidgetCardProps) => {
+      const { rows, columns } = state.entities.widgetConfig.config[widget.type];
+      return { ...widget, rows, columns };
+    });
   });
 
   return {
