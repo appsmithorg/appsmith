@@ -27,7 +27,7 @@ export const Container = styled("div")<ContainerProps>`
   padding: ${props => props.theme.spaces[8]}px ${props =>
   props.theme.spaces[1]}px ${props => props.theme.spaces[1]}px;
   &:after {
-    content: "${props => props.widgetId}";
+    content: "${props => props.widgetName}";
     position: absolute;
     left: ${props => props.theme.spaces[1]}px;
     top: ${props => props.theme.spaces[1]}px;
