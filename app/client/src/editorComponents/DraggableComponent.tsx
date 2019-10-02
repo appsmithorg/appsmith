@@ -69,7 +69,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     <React.Fragment>
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
-        ref={drag}
+        ref={preview}
         onClick={(e: any) => {
           if (setFocus) {
             setFocus(props.widgetId);
