@@ -85,7 +85,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     <div
       ref={drop}
       style={{
-        position: "relative",
+        position: "absolute",
         left: props.style.xPosition + props.style.xPositionUnit,
         height: props.style.componentHeight,
         width: props.style.componentWidth,
