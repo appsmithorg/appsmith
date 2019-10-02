@@ -32,6 +32,7 @@ export const Container = styled("div")<ContainerProps>`
     left: ${props => props.theme.spaces[1]}px;
     top: ${props => props.theme.spaces[1]}px;
     font-size: ${props => props.theme.fontSizes[2]}px;
+    color: ${props => props.theme.colors.containerBorder};
     text-align: left;
     width: 100%;
   }

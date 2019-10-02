@@ -18,6 +18,7 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
   &:hover > div {
     display: block;
   }
+  display: block;
 `;
 
 const DragHandle = styled.div`
@@ -86,6 +87,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           top: props.style
             ? props.style.yPosition + props.style.yPositionUnit
             : 0,
+          minWidth:
+            props.style.componentWidth + (props.style.widthUnit || "px"),
+          minHeight:
+            props.style.componentHeight + (props.style.heightUnit || "px"),
         }}
       >
         <DragHandle className="control" ref={drag}>

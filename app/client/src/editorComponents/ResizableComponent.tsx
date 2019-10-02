@@ -1,12 +1,13 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import { Resizable, ResizeDirection } from "re-resizable";
+import { Rnd } from "react-rnd";
+import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
-const ResizableContainer = styled(Resizable)`
+const ResizableContainer = styled(Rnd)`
   position: relative;
   z-index: 10;
   border: ${props => {
@@ -35,35 +36,58 @@ const ResizableContainer = styled(Resizable)`
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
   const { boundingParent } = useContext(ParentBoundsContext);
+  let bounds = "body";
+  if (boundingParent && boundingParent.current) {
+    bounds = "." + boundingParent.current.className.split(" ")[1];
+  }
   const updateSize = (
     e: Event,
-    dir: ResizeDirection,
+    dir: any,
     ref: any,
     delta: { width: number; height: number },
+    position: XYCoord,
   ) => {
+    const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
+    const topRow = props.topRow + position.y / props.parentRowSpace;
+
+    const rightColumn =
+      props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
+    const bottomRow =
+      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
+
     props.updateWidget &&
-      props.updateWidget(WidgetOperations.RESIZE, props.widgetId, delta);
+      props.updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+        leftColumn,
+        rightColumn,
+        topRow,
+        bottomRow,
+      });
   };
   return (
     <ResizableContainer
+      position={{
+        x: 0,
+        y: 0,
+      }}
       size={{
         width: props.style.componentWidth as number,
         height: props.style.componentHeight as number,
       }}
+      disableDragging
       minWidth={props.parentColumnSpace}
       minHeight={props.parentRowSpace}
       style={{ ...props.style }}
       onResizeStop={updateSize}
-      grid={[props.parentColumnSpace, props.parentRowSpace]}
-      bounds={boundingParent ? boundingParent.current || undefined : "window"}
-      enable={{
-        top: false,
+      resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
+      bounds={bounds}
+      enableResizing={{
+        top: true,
         right: true,
         bottom: true,
-        left: false,
+        left: true,
         topRight: false,
         topLeft: false,
-        bottomRight: false,
+        bottomRight: true,
         bottomLeft: false,
       }}
     >

@@ -18,7 +18,6 @@ import {
 } from "./selectors";
 import {
   generateWidgetProps,
-  updateWidgetSize,
   updateWidgetPosition,
 } from "../utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
@@ -135,12 +134,18 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
-    const { widgetId, height, width } = resizeAction.payload;
+    const {
+      widgetId,
+      leftColumn,
+      rightColumn,
+      topRow,
+      bottomRow,
+    } = resizeAction.payload;
 
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
-    widget = updateWidgetSize(widget, height, width);
+    widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
 
     yield put({
