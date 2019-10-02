@@ -108,7 +108,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     // Replace widget with update widget props
     widgets[widgetId] = widget;
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
-    if (parent.widgetId !== parentWidgetId) {
+    if (parent.widgetId !== parentWidgetId && widgetId !== parentWidgetId) {
       // Remove from the previous parent
       parent.children = parent.children.filter(
         (child: string) => child !== widgetId,

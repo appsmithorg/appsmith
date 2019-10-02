@@ -71,7 +71,10 @@ export const isDropZoneOccupied = (
 ) => {
   if (occupied) {
     occupied = occupied.filter(widgetDetails => {
-      return widgetDetails.id !== widget.widgetId;
+      return (
+        widgetDetails.id !== widget.widgetId &&
+        widgetDetails.parentId !== widget.widgetId
+      );
     });
     for (let i = 0; i < occupied.length; i++) {
       if (areIntersecting(occupied[i], offset)) {
@@ -231,7 +234,6 @@ export const generateWidgetProps = (
         background: Colors.WHITE,
       };
     }
-    console.log(widgetConfig);
     return {
       ...widgetConfig,
       type,

@@ -35,7 +35,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
-      if (isOver && monitor.canDrop()) {
+      if (isOver) {
         props.updateWidget &&
           props.updateWidget(
             ...widgetOperationParams(
@@ -52,13 +52,17 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     },
     // Collect isOver for ui transforms when hovering over this component
     collect: monitor => ({
-      isOver: !!monitor.isOver({ shallow: true }),
+      isOver:
+        (monitor.isOver({ shallow: true }) &&
+          props.widgetId !== monitor.getItem().widgetId) ||
+        (monitor.isOver() && props.widgetId !== monitor.getItem().widgetId),
     }),
     // Only allow drop if the drag object is directly over this component
     // As opposed to the drag object being over a child component, or outside the component bounds
     // Also only if the dropzone does not overlap any existing children
     canDrop: (widget, monitor) => {
-      if (monitor.isOver({ shallow: true })) {
+      // Check if the draggable is the same as the dropTarget
+      if (isOver) {
         return noCollision(
           monitor.getClientOffset() as XYCoord,
           props.snapColumnSpace,

@@ -79,6 +79,7 @@ class ContainerWidget extends BaseWidget<
     return this.props.children
       ? this.props.children.map(child => ({
           id: child.widgetId,
+          parentId: this.props.widgetId,
           left: child.leftColumn,
           top: child.topRow,
           bottom: child.bottomRow,
@@ -89,7 +90,6 @@ class ContainerWidget extends BaseWidget<
   getCanvasView() {
     const style = this.getPositionStyle();
     const occupiedSpaces = this.getOccupiedSpaces();
-
     const renderDraggableComponent = (
       <DraggableComponent
         style={{ ...style, xPosition: 0, yPosition: 0 }}
@@ -141,6 +141,7 @@ export type OccupiedSpace = {
   top: number;
   bottom: number;
   id: string;
+  parentId?: string;
 };
 
 export default ContainerWidget;
