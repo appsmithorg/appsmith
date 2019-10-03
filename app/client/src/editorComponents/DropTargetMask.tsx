@@ -22,7 +22,8 @@ export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
     transparent 0
   );
   background-size: ${props => props.columnWidth}px ${props => props.rowHeight}px;
-  background-position: -50% -50%;
+  background-position: -${props => props.columnWidth / 2}px -${props =>
+      props.rowHeight / 2}px;
 `;
 /* eslint-disable react/display-name */
 export const DropTargetMask = (props: DropTargetMaskProps) => {

@@ -1,32 +1,40 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
 import { Resizable, ResizeDirection } from "re-resizable";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
-import { ContainerProps } from "./ContainerComponent";
+import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
 const ResizableContainer = styled(Resizable)`
+  position: relative;
+  z-index: 10;
   border: ${props => {
     return Object.values(props.theme.borders[0]).join(" ");
   }};
-`;
+  &:after,
+  &:before {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 9;
+    background: ${props => props.theme.colors.containerBorder};
+  }
+  &:after {
+    right: -4px;
+    top: 50%;
+  }
 
-const DisplayHandleWrapper = styled.div`
-  display: none;
-  ${ResizableContainer}:hover & {
-    display: block;
+  &:before {
+    left: calc(50%);
+    top: calc(100% - 4px);
   }
 `;
-const CustomHandle = (props: any) => <DisplayHandleWrapper {...props} />;
-const BottomRightHandle = () => (
-  <CustomHandle>
-    <Icon iconSize={15} icon="arrow-bottom-right" />
-  </CustomHandle>
-);
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
+  const { boundingParent } = useContext(ParentBoundsContext);
   const updateSize = (
     e: Event,
     dir: ResizeDirection,
@@ -43,18 +51,18 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         height: props.style.componentHeight as number,
       }}
       style={{ ...props.style }}
-      handleComponent={{ bottomRight: <BottomRightHandle /> }}
       onResizeStop={updateSize}
       grid={[props.parentColumnSpace, props.parentRowSpace]}
+      bounds={boundingParent ? boundingParent.current || undefined : "window"}
       enable={{
-        top: true,
+        top: false,
         right: true,
         bottom: true,
-        left: true,
+        left: false,
         topRight: false,
         topLeft: false,
-        bottomRight: true,
-        bottomLeft: true,
+        bottomRight: false,
+        bottomLeft: false,
       }}
     >
       {props.children}

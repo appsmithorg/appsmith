@@ -1,7 +1,14 @@
 import { ComponentProps } from "./BaseComponent";
 import { ContainerOrientation } from "../constants/WidgetConstants";
 import styled from "../constants/DefaultTheme";
-import React from "react";
+import React, {
+  createContext,
+  useState,
+  Dispatch,
+  SetStateAction,
+  Context,
+  useRef,
+} from "react";
 
 export const Container = styled("div")<ContainerProps>`
   display: flex;
@@ -13,15 +20,45 @@ export const Container = styled("div")<ContainerProps>`
   position: ${props => {
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative";
   }};
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
 `;
 
+export const FocusContext: Context<{
+  isFocused?: string;
+  setFocus?: Dispatch<SetStateAction<string>>;
+}> = createContext({});
+
+export const ParentBoundsContext: Context<{
+  boundingParent?: React.RefObject<HTMLDivElement>;
+}> = createContext({});
+
 const ContainerComponent = (props: ContainerProps) => {
-  return <Container {...props}>{props.children}</Container>;
+  const [isFocused, setFocus] = useState("");
+  const container = useRef(null);
+  const ContainerWithoutFocusContextProvider = (
+    <ParentBoundsContext.Provider value={{ boundingParent: container }}>
+      <Container ref={container} {...props}>
+        {props.children}
+      </Container>
+    </ParentBoundsContext.Provider>
+  );
+  const ContainerWithFocusContextProvider = (
+    <FocusContext.Provider value={{ isFocused, setFocus }}>
+      {ContainerWithoutFocusContextProvider}
+    </FocusContext.Provider>
+  );
+  return props.isRoot
+    ? ContainerWithFocusContextProvider
+    : ContainerWithoutFocusContextProvider;
 };
 
 export interface ContainerProps extends ComponentProps {
   children?: JSX.Element[] | JSX.Element;
   orientation?: ContainerOrientation;
+  isRoot?: boolean;
 }
 
 export default ContainerComponent;

@@ -1,12 +1,20 @@
-import React from "react";
-import { Icon } from "@blueprintjs/core";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
-import { ContainerProps } from "./ContainerComponent";
+import { ContainerProps, FocusContext } from "./ContainerComponent";
+import { ControlIcons } from "../icons/ControlIcons";
+import { theme } from "../constants/DefaultTheme";
 
-const DraggableWrapper = styled.div`
+// FontSizes array in DefaultTheme.tsx
+// Change this to toggle the size of delete and move handles.
+const CONTROL_THEME_FONTSIZE_INDEX = 6;
+
+const DraggableWrapper = styled.div<{ show: boolean }>`
+  & > div.control {
+    display: ${props => (props.show ? "block" : "none")};
+  }
   &:hover > div {
     display: block;
   }
@@ -14,22 +22,37 @@ const DraggableWrapper = styled.div`
 
 const DragHandle = styled.div`
   position: absolute;
-  left: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  left: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   cursor: move;
   display: none;
+  cursor: grab;
+  z-index: 11;
 `;
 
 const DeleteControl = styled.div`
   position: absolute;
-  right: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  right: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   display: none;
+  cursor: pointer;
+  z-index: 11;
 `;
+
+const moveControlIcon = ControlIcons.MOVE_CONTROL({
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+});
+
+const deleteControlIcon = ControlIcons.DELETE_CONTROL({
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+});
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
 const DraggableComponent = (props: DraggableComponentProps) => {
+  const { isFocused, setFocus } = useContext(FocusContext);
   const deleteWidget = () => {
     props.updateWidget &&
       props.updateWidget(WidgetOperations.DELETE, props.widgetId);
@@ -40,11 +63,19 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
   return (
     <React.Fragment>
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
         ref={preview}
+        onClick={(e: any) => {
+          if (setFocus) {
+            setFocus(props.widgetId);
+            e.stopPropagation();
+          }
+        }}
+        show={props.widgetId === isFocused}
         style={{
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
@@ -57,11 +88,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             : 0,
         }}
       >
-        <DragHandle ref={drag}>
-          <Icon icon="drag-handle-horizontal" iconSize={20} />
+        <DragHandle className="control" ref={drag}>
+          {moveControlIcon}
         </DragHandle>
-        <DeleteControl onClick={deleteWidget}>
-          <Icon icon="trash" iconSize={20} />
+        <DeleteControl className="control" onClick={deleteWidget}>
+          {deleteControlIcon}
         </DeleteControl>
         {props.children}
       </DraggableWrapper>
