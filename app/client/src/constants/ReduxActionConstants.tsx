@@ -48,6 +48,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_PAGE_ERROR: "FETCH_PAGE_ERROR",
   SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
   FETCH_WIDGET_CARDS_ERROR: "FETCH_WIDGET_CARDS_ERROR",
+  WIDGET_OPERATION_ERROR: "WIDGET_OPERATION_ERROR",
 };
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 

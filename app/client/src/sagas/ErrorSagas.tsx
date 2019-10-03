@@ -24,6 +24,7 @@ export function* validateResponse(response: ApiResponse) {
 export function* errorSaga(errorAction: ReduxAction<{ error: any }>) {
   // Just a pass through for now.
   // Add procedures to customize errors here
+  console.log(errorAction.payload.error);
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {

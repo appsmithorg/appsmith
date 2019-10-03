@@ -2,6 +2,7 @@ import React from "react";
 import { XYCoord } from "react-dnd";
 import styled from "styled-components";
 import { snapToGrid } from "../utils/helpers";
+import { theme } from "../constants/DefaultTheme";
 
 const DropZoneWrapper = styled.div`
   position: absolute;
@@ -57,7 +58,7 @@ export const DropZone = (props: DropZoneProps) => {
         width: wrapperProps.width + "px",
         top: wrapperProps.top + "px",
         height: wrapperProps.height + "px",
-        background: props.canDrop ? "blue" : "red",
+        background: props.canDrop ? theme.colors.hover : theme.colors.error,
       }}
     />
   );

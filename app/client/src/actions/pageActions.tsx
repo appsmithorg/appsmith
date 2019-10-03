@@ -111,8 +111,10 @@ export type WidgetDelete = {
 
 export type WidgetResize = {
   widgetId: string;
-  width: number; // delta/diff
-  height: number; // delta/diff
+  leftColumn: number;
+  rightColumn: number;
+  topRow: number;
+  bottomRow: number;
 };
 
 export const updateWidget = (

@@ -46,6 +46,7 @@
     "react-dom": "^16.7.0",
     "react-netlify-identity": "^0.1.9",
     "react-redux": "^6.0.0",
+    "react-rnd": "^10.1.1",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "^3.1.1",

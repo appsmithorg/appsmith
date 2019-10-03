@@ -14,6 +14,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
       <ButtonComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         key={this.props.widgetId}
         text={this.props.text}
         onClick={() => {

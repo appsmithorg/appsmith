@@ -3031,7 +3031,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2:
+classnames@^2.2, classnames@^2.2.5:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
   integrity sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==
@@ -9576,6 +9576,13 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+re-resizable@6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.1.0.tgz#ba4ece505b48f05691446d57837151349d7575e8"
+  integrity sha512-Jj9zdYW6SnUto8pmH4b/3Kms/PKPv9CuWE70W1IuUIR1HlrEibgsqhbUe8BYDRBTuagH1gav09806k7TieUeSA==
+  dependencies:
+    fast-memoize "^2.5.1"
+
 re-resizable@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.0.0.tgz#84258f098b0dde214a39ca6d9ca9959aeefbc26d"
@@ -9661,6 +9668,14 @@ react-dom@^16.7.0:
     prop-types "^15.6.2"
     scheduler "^0.15.0"
 
+react-draggable@4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-draggable/-/react-draggable-4.0.3.tgz#6b9f76f66431c47b9070e9b805bbc520df8ca481"
+  integrity sha512-4vD6zms+9QGeZ2RQXzlUBw8PBYUXy+dzYX5r22idjp9YwQKIIvD/EojL0rbjS1GK4C3P0rAJnmKa8gDQYWUDyA==
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.6.0"
+
 react-error-overlay@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.1.tgz#b8d3cf9bb991c02883225c48044cb3ee20413e0f"
@@ -9707,6 +9722,15 @@ react-redux@^6.0.0:
     loose-envify "^1.4.0"
     prop-types "^15.7.2"
     react-is "^16.8.2"
+
+react-rnd@^10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/react-rnd/-/react-rnd-10.1.1.tgz#4f4d9d28c46a6060acb64600df7a88490862a324"
+  integrity sha512-KwNUbNd4Kg2DTLdw/Eb8dSC3T5nMRQIRfyyVjdoLT85hKXpeCkMRb2zo4BHCzkgdgCbFGgYLDmj1qRH5DUkTGA==
+  dependencies:
+    re-resizable "6.1.0"
+    react-draggable "4.0.3"
+    tslib "1.10.0"
 
 react-router-dom@^5.0.1:
   version "5.0.1"
@@ -11650,15 +11674,15 @@ tsdx@^0.6.0:
     tslib "^1.9.3"
     typescript "^3.4.5"
 
+tslib@1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.10.0.tgz#c3c19f95973fb0a62973fb09d90d961ee43e5c8a"
+  integrity sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
+
 tslib@1.9.3, tslib@~1.9.0:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.9.3.tgz#d7e4dd79245d85428c4d7e4822a79917954ca286"
   integrity sha512-4krF8scpejhaOgqzBEcGM7yDIEfi0/8+8zDRZhNZZ2kjmHJ4hv3zCbQWxoJGz1iw5U0Jl0nma13xzHXcncMavQ==
-
-tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.10.0.tgz#c3c19f95973fb0a62973fb09d90d961ee43e5c8a"
-  integrity sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
 
 tsutils@^3.17.1, tsutils@^3.7.0:
   version "3.17.1"

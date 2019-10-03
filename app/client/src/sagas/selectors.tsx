@@ -1,7 +1,7 @@
 import { AppState } from "../reducers";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "../widgets/BaseWidget";
-
+import { WidgetType } from "../constants/WidgetConstants";
 export const getWidgets = (
   state: AppState,
 ): { [widgetId: string]: FlattenedWidgetProps } => {
@@ -34,4 +34,15 @@ export const getWidgetParent = (
       widget.children.length > 0 &&
       widget.children.indexOf(widgetId) > -1,
   );
+};
+
+export const getDefaultWidgetConfig = (
+  state: AppState,
+  type: WidgetType,
+): Partial<WidgetProps> => {
+  const configs = state.entities.widgetConfig.config;
+  const widgetConfig = { ...configs[type] };
+  delete widgetConfig.rows;
+  delete widgetConfig.columns;
+  return widgetConfig;
 };
