@@ -90,19 +90,7 @@ class ContainerWidget extends BaseWidget<
   getCanvasView() {
     const style = this.getPositionStyle();
     const occupiedSpaces = this.getOccupiedSpaces();
-    const renderDraggableComponent = (
-      <DraggableComponent
-        style={{ ...style, xPosition: 0, yPosition: 0 }}
-        {...this.props}
-        orientation={"VERTICAL"}
-      >
-        <ResizableComponent style={{ ...style }} {...this.props}>
-          {this.getPageView()}
-        </ResizableComponent>
-      </DraggableComponent>
-    );
-
-    return (
+    const renderComponent = (
       <DropTargetComponent
         {...this.props}
         {...this.state}
@@ -110,10 +98,24 @@ class ContainerWidget extends BaseWidget<
         style={{
           ...style,
         }}
+        isRoot={!this.props.parentId}
       >
-        {this.props.parentId ? renderDraggableComponent : this.getPageView()}
+        {this.getPageView()}
       </DropTargetComponent>
     );
+    const renderDraggableComponent = (
+      <DraggableComponent
+        style={{ ...style }}
+        {...this.props}
+        orientation={"VERTICAL"}
+      >
+        <ResizableComponent style={{ ...style }} {...this.props}>
+          {renderComponent}
+        </ResizableComponent>
+      </DraggableComponent>
+    );
+
+    return this.props.parentId ? renderDraggableComponent : renderComponent;
   }
 
   getWidgetType(): WidgetType {

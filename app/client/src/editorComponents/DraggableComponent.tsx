@@ -16,9 +16,6 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
   & > div.control {
     display: ${props => (props.show ? "block" : "none")};
   }
-  &:hover > div {
-    display: block;
-  }
   display: block;
 `;
 

@@ -7,7 +7,6 @@ import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
-import DropTargetMask from "./DropTargetMask";
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
@@ -29,7 +28,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   // Make this component a drop target
-  const [{ isOver }, drop] = useDrop({
+  const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
@@ -54,6 +53,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         (monitor.isOver({ shallow: true }) &&
           props.widgetId !== monitor.getItem().widgetId) ||
         (monitor.isOver() && props.widgetId !== monitor.getItem().widgetId),
+      isExactlyOver: monitor.isOver({ shallow: true }),
     }),
     // Only allow drop if the drag object is directly over this component
     // As opposed to the drag object being over a child component, or outside the component bounds
@@ -86,27 +86,31 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   return (
     <div
       ref={drop}
+      className="dropTarget"
       style={{
-        position: "absolute",
-        left: props.style.xPosition + props.style.xPositionUnit,
-        height: props.style.componentHeight,
-        width: props.style.componentWidth,
-        top: props.style.yPosition + props.style.yPositionUnit,
+        position: "relative",
+        left: 0,
+        height: props.isRoot
+          ? props.style.componentHeight + (props.style.heightUnit || "px")
+          : "100%",
+        width: props.isRoot
+          ? props.style.componentWidth + (props.style.widthUnit || "px")
+          : "100%",
+        top: 0,
+        background: "white",
       }}
     >
-      <DropTargetMask
-        rowHeight={props.snapRowSpace}
-        columnWidth={props.snapColumnSpace}
-        setBounds={handleBoundsUpdate}
-      />
       <DragLayerComponent
         parentOffset={dropTargetOffset}
         parentRowHeight={props.snapRowSpace}
         parentColumnWidth={props.snapColumnSpace}
         visible={isOver}
+        isOver={isExactlyOver}
         dropTargetOffset={dropTargetOffset}
         occupiedSpaces={props.occupiedSpaces}
+        onBoundsUpdate={handleBoundsUpdate}
       />
+
       {props.children}
     </div>
   );
