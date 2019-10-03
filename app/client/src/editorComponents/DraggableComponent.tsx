@@ -6,17 +6,25 @@ import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
 
+const DraggableWrapper = styled.div`
+  &:hover > div {
+    display: block;
+  }
+`;
+
 const DragHandle = styled.div`
   position: absolute;
   left: ${props => props.theme.spaces[2]}px;
   top: -${props => props.theme.spaces[8]}px;
   cursor: move;
+  display: none;
 `;
 
 const DeleteControl = styled.div`
   position: absolute;
   right: ${props => props.theme.spaces[2]}px;
   top: -${props => props.theme.spaces[8]}px;
+  display: none;
 `;
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
@@ -35,7 +43,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   return (
     <React.Fragment>
       <DragPreviewImage src={blankImage} connect={preview} />
-      <div
+      <DraggableWrapper
         ref={preview}
         style={{
           display: isDragging ? "none" : "flex",
@@ -56,7 +64,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           <Icon icon="trash" iconSize={20} />
         </DeleteControl>
         {props.children}
-      </div>
+      </DraggableWrapper>
     </React.Fragment>
   );
 };

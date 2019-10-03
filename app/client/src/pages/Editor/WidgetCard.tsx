@@ -29,6 +29,9 @@ export const Wrapper = styled.div`
       path {
         fill: ${props => props.theme.colors.textDefault};
       }
+      rect {
+        stroke: ${props => props.theme.colors.textDefault};
+      }
     }
   }
   & i {

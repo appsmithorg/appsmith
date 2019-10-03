@@ -3,6 +3,7 @@ import pageSagas from "../sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetCardsPaneSagas";
 import { watchExecuteActionSaga } from "./ActionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
+import errorSagas from "./ErrorSagas";
 
 export function* rootSaga() {
   yield all([
@@ -10,5 +11,6 @@ export function* rootSaga() {
     spawn(fetchWidgetCardsSaga),
     spawn(watchExecuteActionSaga),
     spawn(widgetOperationSagas),
+    spawn(errorSagas),
   ]);
 }

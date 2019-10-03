@@ -1,5 +1,4 @@
 import { FetchPageRequest } from "../api/PageApi";
-import { ResponseMeta } from "../api/ApiResponses";
 import { RenderMode } from "../constants/WidgetConstants";
 import { WidgetProps, WidgetOperation } from "../widgets/BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
@@ -8,7 +7,6 @@ import {
   ReduxAction,
   UpdateCanvasPayload,
   SavePagePayload,
-  SavePageErrorPayload,
   SavePageSuccessPayload,
 } from "../constants/ReduxActionConstants";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
@@ -23,13 +21,6 @@ export const fetchPage = (
       pageId: pageId,
       renderMode: renderMode,
     },
-  };
-};
-
-export const fetchPageError = (payload: ResponseMeta) => {
-  return {
-    type: ReduxActionTypes.FETCH_PAGE_ERROR,
-    payload,
   };
 };
 
@@ -82,13 +73,6 @@ export const savePage = (
 export const savePageSuccess = (payload: SavePageSuccessPayload) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_SUCCESS,
-    payload,
-  };
-};
-
-export const savePageError = (payload: SavePageErrorPayload) => {
-  return {
-    type: ReduxActionTypes.SAVE_PAGE_ERROR,
     payload,
   };
 };

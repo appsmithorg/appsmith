@@ -14,7 +14,7 @@ import { GridDefaults } from "../constants/WidgetConstants";
 import DraggableComponent from "../editorComponents/DraggableComponent";
 import ResizableComponent from "../editorComponents/ResizableComponent";
 
-const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
+const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -34,21 +34,14 @@ class ContainerWidget extends BaseWidget<
   componentDidUpdate(previousProps: ContainerWidgetProps<WidgetProps>) {
     super.componentDidUpdate(previousProps);
     let snapColumnSpace = this.state.snapColumnSpace;
-    let snapRowSpace = this.state.snapRowSpace;
     if (this.state.componentWidth)
       snapColumnSpace =
         this.state.componentWidth /
         (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
-    if (this.state.componentHeight)
-      snapRowSpace =
-        this.state.componentHeight / (this.props.snapRows || DEFAULT_GRID_ROWS);
-    if (
-      this.state.snapColumnSpace !== snapColumnSpace ||
-      this.state.snapRowSpace !== snapRowSpace
-    ) {
+    if (this.state.snapColumnSpace !== snapColumnSpace) {
       this.setState({
         snapColumnSpace,
-        snapRowSpace,
+        snapRowSpace: DEFAULT_GRID_ROW_HEIGHT,
       });
     }
   }
@@ -79,9 +72,8 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  getCanvasView() {
-    const style = this.getPositionStyle();
-    const occupiedSpaces: OccupiedSpace[] | null = this.props.children
+  getOccupiedSpaces(): OccupiedSpace[] | null {
+    return this.props.children
       ? this.props.children.map(child => ({
           id: child.widgetId,
           left: child.leftColumn,
@@ -90,6 +82,23 @@ class ContainerWidget extends BaseWidget<
           right: child.rightColumn,
         }))
       : null;
+  }
+  getCanvasView() {
+    const style = this.getPositionStyle();
+    const occupiedSpaces = this.getOccupiedSpaces();
+
+    const renderDraggableComponent = (
+      <DraggableComponent
+        style={{ ...style, xPosition: 0, yPosition: 0 }}
+        {...this.props}
+        orientation={"VERTICAL"}
+      >
+        <ResizableComponent style={{ ...style }} {...this.props}>
+          {this.getPageView()}
+        </ResizableComponent>
+      </DraggableComponent>
+    );
+
     return (
       <DropTargetComponent
         {...this.props}
@@ -99,15 +108,7 @@ class ContainerWidget extends BaseWidget<
           ...style,
         }}
       >
-        <DraggableComponent
-          style={{ ...style, xPosition: 0, yPosition: 0 }}
-          {...this.props}
-          orientation={"VERTICAL"}
-        >
-          <ResizableComponent style={{ ...style }} {...this.props}>
-            {this.getPageView()}
-          </ResizableComponent>
-        </DraggableComponent>
+        {this.props.parentId ? renderDraggableComponent : this.getPageView()}
       </DropTargetComponent>
     );
   }
