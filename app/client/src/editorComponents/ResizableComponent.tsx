@@ -5,6 +5,7 @@ import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 import { ResizingContext } from "./DraggableComponent";
+import { WidgetFunctionsContext } from "../pages/Editor";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
@@ -38,6 +39,7 @@ const ResizableContainer = styled(Rnd)`
 export const ResizableComponent = (props: ResizableComponentProps) => {
   const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
+  const { updateWidget } = useContext(WidgetFunctionsContext);
   let bounds = "body";
   if (boundingParent && boundingParent.current) {
     bounds = "." + boundingParent.current.className.split(" ")[1];
@@ -58,8 +60,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     const bottomRow =
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
 
-    props.updateWidget &&
-      props.updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+    updateWidget &&
+      updateWidget(WidgetOperations.RESIZE, props.widgetId, {
         leftColumn,
         rightColumn,
         topRow,

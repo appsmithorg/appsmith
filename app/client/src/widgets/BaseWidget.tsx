@@ -9,16 +9,16 @@ import {
   RenderModes,
   CSSUnits,
 } from "../constants/WidgetConstants";
-import { Component } from "react";
+import React, { Component } from "react";
 import { BaseStyle } from "../editorComponents/BaseComponent";
 import _ from "lodash";
-import React from "react";
 import DraggableComponent from "../editorComponents/DraggableComponent";
 import ResizableComponent from "../editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetFunctionsContext } from "../pages/Editor";
 
 abstract class BaseWidget<
-  T extends WidgetProps & WidgetFunctions,
+  T extends WidgetProps,
   K extends WidgetState
 > extends Component<T, K> {
   constructor(props: T) {
@@ -30,6 +30,13 @@ abstract class BaseWidget<
     initialState.componentHeight = 0;
     initialState.componentWidth = 0;
     this.state = initialState as K;
+  }
+
+  static contextType = WidgetFunctionsContext;
+
+  executeAction(actionPayloads?: ActionPayload[]): void {
+    const { executeAction } = this.context;
+    executeAction && executeAction(actionPayloads);
   }
 
   componentDidMount(): void {
@@ -142,7 +149,7 @@ export interface WidgetBuilder<T extends WidgetProps> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
-export interface WidgetProps extends WidgetFunctions, WidgetDataProps {
+export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
 }
@@ -162,7 +169,7 @@ export interface WidgetDataProps {
 }
 
 export interface WidgetFunctions {
-  executeAction: (actionPayloads?: ActionPayload[]) => void;
+  executeAction?: (actionPayloads?: ActionPayload[]) => void;
   updateWidget?: Function;
 }
 

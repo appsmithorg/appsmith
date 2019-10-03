@@ -2,7 +2,6 @@ import { WidgetType, RenderMode } from "../constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
-  WidgetFunctions,
   WidgetDataProps,
 } from "../widgets/BaseWidget";
 
@@ -18,13 +17,11 @@ class WidgetFactory {
 
   static createWidget(
     widgetData: WidgetDataProps,
-    widgetFunctions: WidgetFunctions,
     renderMode: RenderMode,
   ): JSX.Element {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       renderMode: renderMode,
-      ...widgetFunctions,
       ...widgetData,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);

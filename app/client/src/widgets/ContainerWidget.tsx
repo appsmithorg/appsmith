@@ -1,9 +1,5 @@
 import React from "react";
-import BaseWidget, {
-  WidgetProps,
-  WidgetState,
-  WidgetFunctions,
-} from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import ContainerComponent from "../editorComponents/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
 import WidgetFactory from "../utils/WidgetFactory";
@@ -51,12 +47,7 @@ class ContainerWidget extends BaseWidget<
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
     childWidgetData.parentId = this.props.widgetId;
-    const widgetFunctions: WidgetFunctions = this.props as WidgetFunctions;
-    return WidgetFactory.createWidget(
-      childWidgetData,
-      widgetFunctions,
-      this.props.renderMode,
-    );
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
   getPageView() {

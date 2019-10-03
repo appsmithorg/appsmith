@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Context, createContext } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
@@ -6,6 +6,7 @@ import {
   WidgetCardProps,
   WidgetProps,
   WidgetOperation,
+  WidgetFunctions,
 } from "../../widgets/BaseWidget";
 import { AppState } from "../../reducers";
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
@@ -61,6 +62,10 @@ type EditorProps = {
   isSaving: boolean;
 };
 
+export const WidgetFunctionsContext: Context<WidgetFunctions> = createContext(
+  {},
+);
+
 class Editor extends Component<EditorProps> {
   componentDidMount() {
     this.props.fetchCanvasWidgets(this.props.currentPageId);
@@ -68,7 +73,12 @@ class Editor extends Component<EditorProps> {
 
   public render() {
     return (
-      <React.Fragment>
+      <WidgetFunctionsContext.Provider
+        value={{
+          executeAction: this.props.executeAction,
+          updateWidget: this.props.updateWidget,
+        }}
+      >
         <EditorHeader
           notificationText={this.props.isSaving ? "Saving page..." : undefined}
           pageName={this.props.currentPageName}
@@ -76,19 +86,11 @@ class Editor extends Component<EditorProps> {
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
           <CanvasContainer>
-            {this.props.dsl && (
-              <Canvas
-                dsl={this.props.dsl}
-                widgetFunctions={{
-                  executeAction: this.props.executeAction,
-                  updateWidget: this.props.updateWidget,
-                }}
-              />
-            )}
+            {this.props.dsl && <Canvas dsl={this.props.dsl} />}
           </CanvasContainer>
           <PropertyPane />
         </EditorWrapper>
-      </React.Fragment>
+      </WidgetFunctionsContext.Provider>
     );
   }
 }

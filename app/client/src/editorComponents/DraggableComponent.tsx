@@ -5,6 +5,7 @@ import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
 import { FocusContext } from "../pages/Editor/Canvas";
+import { WidgetFunctionsContext } from "../pages/Editor";
 import { ControlIcons } from "../icons/ControlIcons";
 import { theme } from "../constants/DefaultTheme";
 
@@ -56,10 +57,10 @@ export const ResizingContext: Context<{
 
 const DraggableComponent = (props: DraggableComponentProps) => {
   const { isFocused, setFocus } = useContext(FocusContext);
+  const { updateWidget } = useContext(WidgetFunctionsContext);
   const [isResizing, setIsResizing] = useState(false);
   const deleteWidget = () => {
-    props.updateWidget &&
-      props.updateWidget(WidgetOperations.DELETE, props.widgetId);
+    updateWidget && updateWidget(WidgetOperations.DELETE, props.widgetId);
   };
   const [{ isDragging }, drag, preview] = useDrag({
     item: props,

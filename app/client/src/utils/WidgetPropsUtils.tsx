@@ -237,7 +237,6 @@ export const generateWidgetProps = (
     return {
       ...widgetConfig,
       type,
-      executeAction: () => {},
       widgetId: generateReactKey(),
       widgetName: widgetName || generateReactKey(), //TODO: figure out what this is to populate appropriately
       isVisible: true,
