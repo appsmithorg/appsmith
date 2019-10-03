@@ -5,7 +5,6 @@ import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReduce
 import { useDrop, XYCoord } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
-
 import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import DropTargetMask from "./DropTargetMask";
@@ -29,7 +28,6 @@ type DropTargetBounds = {
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
-
   // Make this component a drop target
   const [{ isOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
