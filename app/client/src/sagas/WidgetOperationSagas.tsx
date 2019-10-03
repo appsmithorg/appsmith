@@ -47,7 +47,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       rows,
       parentRowSpace,
       parentColumnSpace,
-      getNextWidgetName(type, widgets),
+      getNextWidgetName(defaultWidgetConfig.widgetName, widgets),
       defaultWidgetConfig,
     );
     widgets[childWidget.widgetId] = childWidget;
