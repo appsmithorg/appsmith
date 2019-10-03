@@ -142,7 +142,8 @@ export const widgetOperationParams = (
         {
           leftColumn,
           topRow,
-          parentWidgetId: widgetId,
+          parentId: widget.parentId,
+          newParentId: widgetId,
         },
       ];
       // If this is not an existing widget, we'll not have the widgetId

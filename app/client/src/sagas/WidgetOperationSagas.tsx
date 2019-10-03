@@ -10,12 +10,7 @@ import {
   WidgetDelete,
 } from "../actions/pageActions";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import {
-  getWidgets,
-  getWidget,
-  getWidgetParent,
-  getDefaultWidgetConfig,
-} from "./selectors";
+import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
@@ -72,14 +67,14 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    const { widgetId } = deleteAction.payload;
+    const { widgetId, parentId } = deleteAction.payload;
     const widgets = yield select(getWidgets);
-    delete widgets[widgetId];
-    const parent = yield select(getWidgetParent, widgetId);
+    const parent = yield select(getWidget, parentId);
     parent.children = parent.children.filter(
       (child: string) => child !== widgetId,
     );
-    widgets[parent.widgetId] = parent;
+    delete widgets[widgetId];
+    widgets[parentId] = parent;
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
@@ -97,25 +92,31 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
-    const { widgetId, leftColumn, topRow, parentWidgetId } = moveAction.payload;
+    const {
+      widgetId,
+      leftColumn,
+      topRow,
+      parentId,
+      newParentId,
+    } = moveAction.payload;
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // Get all widgets from DSL/Redux Store
     const widgets = yield select(getWidgets) as any;
     // Get parent from DSL/Redux Store
-    const parent = yield select(getWidgetParent, widgetId);
+    const parent = yield select(getWidget, parentId);
     // Update position of widget
     widget = updateWidgetPosition(widget, leftColumn, topRow, parent);
     // Replace widget with update widget props
     widgets[widgetId] = widget;
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
-    if (parent.widgetId !== parentWidgetId && widgetId !== parentWidgetId) {
+    if (parent.widgetId !== newParentId && widgetId !== newParentId) {
       // Remove from the previous parent
       parent.children = parent.children.filter(
         (child: string) => child !== widgetId,
       );
       widgets[parent.widgetId] = parent;
       // Add to new parent
-      widgets[parentWidgetId].children.push(widgetId);
+      widgets[newParentId].children.push(widgetId);
     }
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
