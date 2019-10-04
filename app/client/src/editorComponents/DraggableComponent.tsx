@@ -60,7 +60,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const [isResizing, setIsResizing] = useState(false);
   const deleteWidget = () => {
-    updateWidget && updateWidget(WidgetOperations.DELETE, props.widgetId);
+    updateWidget &&
+      updateWidget(WidgetOperations.DELETE, props.widgetId, {
+        parentId: props.parentId,
+      });
   };
   const [{ isDragging }, drag, preview] = useDrag({
     item: props,

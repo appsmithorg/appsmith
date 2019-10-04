@@ -92,12 +92,13 @@ export type WidgetMove = {
   widgetId: string;
   leftColumn: number;
   topRow: number;
+  parentId: string;
   /*
-    If parentWidgetId is different from what we have in redux store, 
+    If newParentId is different from what we have in redux store, 
     then we have to delete this,
     as it has been dropped in another container somewhere.    
   */
-  parentWidgetId: string;
+  newParentId: string;
 };
 
 export type WidgetRemoveChild = {
@@ -107,6 +108,7 @@ export type WidgetRemoveChild = {
 
 export type WidgetDelete = {
   widgetId: string;
+  parentId: string;
 };
 
 export type WidgetResize = {

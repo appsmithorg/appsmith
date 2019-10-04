@@ -12,7 +12,6 @@ import FontFaceObserver from "fontfaceobserver";
 import PropertyControlRegistry from "./PropertyControlRegistry";
 import WidgetBuilderRegistry from "./WidgetRegistry";
 import { Property } from "../api/ActionAPI";
-import { WidgetType } from "../constants/WidgetConstants";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import _ from "lodash";
 
@@ -64,21 +63,18 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
 };
 
 export const getNextWidgetName = (
-  type: WidgetType,
+  prefix: string,
   widgets: {
     [id: string]: FlattenedWidgetProps;
   },
 ) => {
-  const prefix = type
-    .split("_")
-    .filter(token => token !== "WIDGET")
-    .join("")
-    .toLowerCase();
+  const regex = new RegExp(`^${prefix}(\\d+)$`);
   const usedIndices: number[] = Object.values(widgets).map(widget => {
-    if (widget.type === type) {
-      const ind = widget.widgetName
-        ? parseInt(widget.widgetName.split(prefix)[1], 10)
-        : 0;
+    if (widget && widget.widgetName && regex.test(widget.widgetName)) {
+      const name = widget.widgetName || "";
+      const matches = name.match(regex);
+      const ind =
+        matches && Array.isArray(matches) ? parseInt(matches[1], 10) : 0;
       return Number.isNaN(ind) ? 0 : ind;
     }
     return 0;
