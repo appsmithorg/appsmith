@@ -4,6 +4,7 @@ import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
 import { noCollision } from "../utils/WidgetPropsUtils";
 import { OccupiedSpace } from "../widgets/ContainerWidget";
+import DropTargetMask from "./DropTargetMask";
 
 const WrappedDragLayer = styled.div`
   position: absolute;
@@ -23,6 +24,8 @@ type DragLayerProps = {
   visible: boolean;
   dropTargetOffset: XYCoord;
   occupiedSpaces: OccupiedSpace[] | null;
+  onBoundsUpdate: Function;
+  isOver: boolean;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
@@ -54,8 +57,15 @@ const DragLayerComponent = (props: DragLayerProps) => {
   }
   return (
     <WrappedDragLayer>
+      <DropTargetMask
+        rowHeight={props.parentRowHeight}
+        columnWidth={props.parentColumnWidth}
+        setBounds={props.onBoundsUpdate}
+        showGrid={isDragging && props.isOver}
+      />
       <DropZone
         {...props}
+        visible={props.visible && props.isOver}
         width={widgetWidth}
         height={widgetHeight}
         currentOffset={currentOffset as XYCoord}
