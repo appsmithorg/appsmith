@@ -1,8 +1,13 @@
-import React from "react";
+import React, {
+  createContext,
+  useState,
+  Context,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import styled from "styled-components";
 import WidgetFactory from "../../utils/WidgetFactory";
 import { RenderModes } from "../../constants/WidgetConstants";
-import { WidgetFunctions } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { WidgetProps } from "../../widgets/BaseWidget";
 
@@ -15,21 +20,22 @@ const ArtBoard = styled.div`
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
-  widgetFunctions: WidgetFunctions;
 }
 
+export const FocusContext: Context<{
+  isFocused?: string;
+  setFocus?: Dispatch<SetStateAction<string>>;
+}> = createContext({});
+
 const Canvas = (props: CanvasProps) => {
+  const [isFocused, setFocus] = useState("");
   return (
-    <React.Fragment>
+    <FocusContext.Provider value={{ isFocused, setFocus }}>
       <ArtBoard>
         {props.dsl.widgetId &&
-          WidgetFactory.createWidget(
-            props.dsl,
-            props.widgetFunctions,
-            RenderModes.CANVAS,
-          )}
+          WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
       </ArtBoard>
-    </React.Fragment>
+    </FocusContext.Provider>
   );
 };
 

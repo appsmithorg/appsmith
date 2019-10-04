@@ -1,10 +1,11 @@
 import React, { useLayoutEffect, MutableRefObject } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 type DropTargetMaskProps = {
   rowHeight: number;
   columnWidth: number;
   setBounds: Function;
+  showGrid: boolean;
 };
 
 export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
@@ -16,13 +17,19 @@ export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
   width: 100%;
   height: 100%;
   background: white;
-  background-image: radial-gradient(
-    circle,
-    ${props => props.theme.colors.grid} 2px,
-    transparent 0
-  );
-  background-size: ${props => props.columnWidth}px ${props => props.rowHeight}px;
-  background-position: -50% -50%;
+  ${props =>
+    props.showGrid &&
+    css`
+      background-image: radial-gradient(
+        circle,
+        ${props => props.theme.colors.grid} 2px,
+        transparent 0
+      );
+      background-size: ${props => props.columnWidth}px
+        ${props => props.rowHeight}px;
+      background-position: -${props => props.columnWidth / 2}px -${props =>
+          props.rowHeight / 2}px;
+    `}
 `;
 /* eslint-disable react/display-name */
 export const DropTargetMask = (props: DropTargetMaskProps) => {
@@ -38,7 +45,6 @@ export const DropTargetMask = (props: DropTargetMaskProps) => {
       props.setBounds(rect);
     }
   });
-
   return <DropTargetMaskWrapper {...props} ref={dropTargetMask} />;
 };
 

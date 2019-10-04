@@ -19,7 +19,7 @@ const CardsPaneWrapper = styled.div`
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: ${props => props.theme.spaces[2]}px;
+  grid-gap: ${props => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
 `;

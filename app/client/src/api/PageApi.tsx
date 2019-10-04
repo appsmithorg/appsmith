@@ -31,7 +31,7 @@ export type FetchPageResponse = ApiResponse & {
   };
 };
 
-export interface SavePageResponse {
+export interface SavePageResponse extends ApiResponse {
   pageId: string;
 }
 

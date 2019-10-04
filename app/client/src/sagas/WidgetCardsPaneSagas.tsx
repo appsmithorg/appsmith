@@ -1,5 +1,7 @@
-// import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer"
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "../constants/ReduxActionConstants";
 import WidgetCardsPaneApi, {
   WidgetCardsPaneResponse,
 } from "../api/WidgetCardsPaneApi";
@@ -13,7 +15,7 @@ export function* fetchWidgetCards() {
     ]);
     yield put(successFetchingWidgetCards(widgetCards.cards));
   } catch (err) {
-    yield put({ type: ReduxActionTypes.ERROR_FETCHING_WIDGET_CARDS, err });
+    yield put({ type: ReduxActionErrorTypes.FETCH_WIDGET_CARDS_ERROR, err });
   }
 }
 

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Button, MaybeElement } from "@blueprintjs/core";
 import { TextComponentProps } from "./TextComponent";
 import { Container } from "./ContainerComponent";

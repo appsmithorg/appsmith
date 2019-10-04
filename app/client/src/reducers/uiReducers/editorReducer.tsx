@@ -7,15 +7,18 @@ import {
 } from "../../constants/ReduxActionConstants";
 import { WidgetCardProps, WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import WidgetCardsPaneResponse from "../../mockResponses/WidgetCardsPaneResponse";
+
 const editorConfigs = getEditorConfigs();
 const initialState: EditorReduxState = {
   pageWidgetId: "0",
   ...editorConfigs,
   isSaving: false,
+  cards: WidgetCardsPaneResponse,
 };
 
 const editorReducer = createReducer(initialState, {
-  [ReduxActionTypes.SUCCESS_FETCHING_WIDGET_CARDS]: (
+  [ReduxActionTypes.FETCH_WIDGET_CARDS_SUCCESS]: (
     state: EditorReduxState,
     action: ReduxAction<LoadWidgetCardsPanePayload>,
   ) => {
@@ -27,19 +30,17 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, isSaving: false };
   },
-  [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
-    return { ...state, isSaving: false };
-  },
 });
 
 export interface EditorReduxState {
   dsl?: ContainerWidgetProps<WidgetProps>;
-  cards?: {
+  cards: {
     [id: string]: WidgetCardProps[];
   };
   pageWidgetId: string;
   currentPageId: string;
   currentLayoutId: string;
+  currentPageName: string;
   isSaving: boolean;
 }
 

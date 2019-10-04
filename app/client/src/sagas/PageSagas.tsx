@@ -1,15 +1,11 @@
 import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
 import {
   ReduxActionTypes,
+  ReduxActionErrorTypes,
   ReduxAction,
   UpdateCanvasPayload,
 } from "../constants/ReduxActionConstants";
-import {
-  updateCanvas,
-  savePageError,
-  savePageSuccess,
-  fetchPageError,
-} from "../actions/pageActions";
+import { updateCanvas, savePageSuccess } from "../actions/pageActions";
 import PageApi, {
   FetchPageResponse,
   SavePageResponse,
@@ -25,27 +21,31 @@ import {
   takeEvery,
   all,
 } from "redux-saga/effects";
+
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs } from "./selectors";
+import { validateResponse } from "./ErrorSagas";
 
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
-  const pageRequest = pageRequestAction.payload;
   try {
+    const pageRequest = pageRequestAction.payload;
     const fetchPageResponse: FetchPageResponse = yield call(
       PageApi.fetchPage,
       pageRequest,
     );
-
-    if (fetchPageResponse.responseMeta.success) {
+    const isValidResponse = yield validateResponse(fetchPageResponse);
+    if (isValidResponse) {
       const normalizedResponse = CanvasWidgetsNormalizer.normalize(
         extractCurrentDSL(fetchPageResponse),
       );
       const canvasWidgetsPayload: UpdateCanvasPayload = {
         pageWidgetId: normalizedResponse.result,
+        currentPageName: fetchPageResponse.data.name,
+        currentPageId: fetchPageResponse.data.id,
         widgets: normalizedResponse.entities.canvasWidgets,
-        layoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
+        currentLayoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
       };
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),
@@ -56,8 +56,12 @@ export function* fetchPageSaga(
       ]);
     }
   } catch (error) {
-    console.log(error);
-    yield put(fetchPageError(error));
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -68,10 +72,17 @@ export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
       PageApi.savePage,
       savePageRequest,
     );
-    yield put(savePageSuccess(savePageResponse));
-  } catch (err) {
-    console.log(err);
-    yield put(savePageError(err));
+    const isValidResponse = validateResponse(savePageResponse);
+    if (isValidResponse) {
+      yield put(savePageSuccess(savePageResponse));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -87,7 +98,6 @@ export function* saveLayoutSaga(
       { canvasWidgets: widgets },
     );
     const editorConfigs = yield select(getEditorConfigs) as any;
-    console.log(editorConfigs);
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
       payload: {

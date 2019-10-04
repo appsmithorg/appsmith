@@ -1,30 +1,69 @@
-import React from "react";
-import { Icon } from "@blueprintjs/core";
+import React, { useContext, createContext, useState, Context } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
+import { FocusContext } from "../pages/Editor/Canvas";
+import { WidgetFunctionsContext } from "../pages/Editor";
+import { ControlIcons } from "../icons/ControlIcons";
+import { theme } from "../constants/DefaultTheme";
+
+// FontSizes array in DefaultTheme.tsx
+// Change this to toggle the size of delete and move handles.
+const CONTROL_THEME_FONTSIZE_INDEX = 6;
+
+const DraggableWrapper = styled.div<{ show: boolean }>`
+  & > div.control {
+    display: ${props => (props.show ? "block" : "none")};
+  }
+  display: block;
+`;
 
 const DragHandle = styled.div`
   position: absolute;
-  left: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  left: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   cursor: move;
+  display: none;
+  cursor: grab;
+  z-index: 11;
 `;
 
 const DeleteControl = styled.div`
   position: absolute;
-  right: ${props => props.theme.spaces[2]}px;
-  top: -${props => props.theme.spaces[8]}px;
+  right: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  display: none;
+  cursor: pointer;
+  z-index: 11;
 `;
+
+const moveControlIcon = ControlIcons.MOVE_CONTROL({
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+});
+
+const deleteControlIcon = ControlIcons.DELETE_CONTROL({
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+});
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
+export const ResizingContext: Context<{
+  setIsResizing?: Function;
+}> = createContext({});
+
 const DraggableComponent = (props: DraggableComponentProps) => {
+  const { isFocused, setFocus } = useContext(FocusContext);
+  const { updateWidget } = useContext(WidgetFunctionsContext);
+  const [isResizing, setIsResizing] = useState(false);
   const deleteWidget = () => {
-    props.updateWidget &&
-      props.updateWidget(WidgetOperations.DELETE, props.widgetId);
+    updateWidget &&
+      updateWidget(WidgetOperations.DELETE, props.widgetId, {
+        parentId: props.parentId,
+      });
   };
   const [{ isDragging }, drag, preview] = useDrag({
     item: props,
@@ -32,11 +71,19 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
   return (
-    <React.Fragment>
+    <ResizingContext.Provider value={{ setIsResizing }}>
       <DragPreviewImage src={blankImage} connect={preview} />
-      <div
+      <DraggableWrapper
         ref={preview}
+        onClick={(e: any) => {
+          if (setFocus) {
+            setFocus(props.widgetId);
+            e.stopPropagation();
+          }
+        }}
+        show={props.widgetId === isFocused && !isResizing}
         style={{
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
@@ -47,17 +94,21 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           top: props.style
             ? props.style.yPosition + props.style.yPositionUnit
             : 0,
+          minWidth:
+            props.style.componentWidth + (props.style.widthUnit || "px"),
+          minHeight:
+            props.style.componentHeight + (props.style.heightUnit || "px"),
         }}
       >
-        <DragHandle ref={drag}>
-          <Icon icon="drag-handle-horizontal" iconSize={20} />
+        <DragHandle className="control" ref={drag}>
+          {moveControlIcon}
         </DragHandle>
-        <DeleteControl onClick={deleteWidget}>
-          <Icon icon="trash" iconSize={20} />
+        <DeleteControl className="control" onClick={deleteWidget}>
+          {deleteControlIcon}
         </DeleteControl>
         {props.children}
-      </div>
-    </React.Fragment>
+      </DraggableWrapper>
+    </ResizingContext.Provider>
   );
 };
 

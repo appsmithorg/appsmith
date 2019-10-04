@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-import { Position, Toaster } from "@blueprintjs/core";
+import React, { Component, Context, createContext } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
@@ -7,6 +6,7 @@ import {
   WidgetCardProps,
   WidgetProps,
   WidgetOperation,
+  WidgetFunctions,
 } from "../../widgets/BaseWidget";
 import { AppState } from "../../reducers";
 import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
@@ -19,10 +19,6 @@ import { RenderModes } from "../../constants/WidgetConstants";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
 import PropertyPane from "./PropertyPane";
-
-const SaveToast = Toaster.create({
-  position: Position.TOP,
-});
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -37,7 +33,7 @@ const CanvasContainer = styled.section`
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 11;
     pointer-events: none;
   }
 `;
@@ -60,50 +56,41 @@ type EditorProps = {
   updateWidget: Function;
   cards: { [id: string]: WidgetCardProps[] } | any;
   savePageLayout: Function;
-  page: string;
+  currentPageName: string;
   currentPageId: string;
   currentLayoutId: string;
   isSaving: boolean;
 };
+
+export const WidgetFunctionsContext: Context<WidgetFunctions> = createContext(
+  {},
+);
 
 class Editor extends Component<EditorProps> {
   componentDidMount() {
     this.props.fetchCanvasWidgets(this.props.currentPageId);
   }
 
-  componentDidUpdate(prevProps: EditorProps) {
-    if (this.props.isSaving && prevProps.isSaving !== this.props.isSaving) {
-      SaveToast.clear();
-      SaveToast.show({ message: "Saving Page..." });
-    } else if (
-      !this.props.isSaving &&
-      prevProps.isSaving !== this.props.isSaving
-    ) {
-      SaveToast.clear();
-      SaveToast.show({ message: "Page Saved" });
-    }
-  }
-
   public render() {
     return (
-      <React.Fragment>
-        <EditorHeader></EditorHeader>
+      <WidgetFunctionsContext.Provider
+        value={{
+          executeAction: this.props.executeAction,
+          updateWidget: this.props.updateWidget,
+        }}
+      >
+        <EditorHeader
+          notificationText={this.props.isSaving ? "Saving page..." : undefined}
+          pageName={this.props.currentPageName}
+        />
         <EditorWrapper>
           <WidgetCardsPane cards={this.props.cards} />
           <CanvasContainer>
-            {this.props.dsl && (
-              <Canvas
-                dsl={this.props.dsl}
-                widgetFunctions={{
-                  executeAction: this.props.executeAction,
-                  updateWidget: this.props.updateWidget,
-                }}
-              />
-            )}
+            {this.props.dsl && <Canvas dsl={this.props.dsl} />}
           </CanvasContainer>
           <PropertyPane />
         </EditorWrapper>
-      </React.Fragment>
+      </WidgetFunctionsContext.Provider>
     );
   }
 }
@@ -120,14 +107,14 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     state.ui.editor.pageWidgetId,
     state.entities,
   );
-  const configs = state.entities.widgetConfig.config;
 
-  const cards = state.ui.widgetCardsPane.cards;
-  Object.keys(cards).forEach((group: string) => {
-    cards[group] = cards[group].map((widget: WidgetCardProps) => ({
-      ...widget,
-      ...configs[widget.type],
-    }));
+  const cards = state.ui.editor.cards;
+  const groups: string[] = Object.keys(cards);
+  groups.forEach((group: string) => {
+    cards[group] = cards[group].map((widget: WidgetCardProps) => {
+      const { rows, columns } = state.entities.widgetConfig.config[widget.type];
+      return { ...widget, rows, columns };
+    });
   });
 
   return {
@@ -136,6 +123,7 @@ const mapStateToProps = (state: AppState): EditorReduxState => {
     pageWidgetId: state.ui.editor.pageWidgetId,
     currentPageId: state.ui.editor.currentPageId,
     currentLayoutId: state.ui.editor.currentLayoutId,
+    currentPageName: state.ui.editor.currentPageName,
     isSaving: state.ui.editor.isSaving,
   };
 };

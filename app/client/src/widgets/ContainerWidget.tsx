@@ -1,9 +1,5 @@
 import React from "react";
-import BaseWidget, {
-  WidgetProps,
-  WidgetState,
-  WidgetFunctions,
-} from "./BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import ContainerComponent from "../editorComponents/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
 import WidgetFactory from "../utils/WidgetFactory";
@@ -14,7 +10,7 @@ import { GridDefaults } from "../constants/WidgetConstants";
 import DraggableComponent from "../editorComponents/DraggableComponent";
 import ResizableComponent from "../editorComponents/ResizableComponent";
 
-const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
+const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -34,21 +30,15 @@ class ContainerWidget extends BaseWidget<
   componentDidUpdate(previousProps: ContainerWidgetProps<WidgetProps>) {
     super.componentDidUpdate(previousProps);
     let snapColumnSpace = this.state.snapColumnSpace;
-    let snapRowSpace = this.state.snapRowSpace;
     if (this.state.componentWidth)
-      snapColumnSpace =
+      snapColumnSpace = Math.floor(
         this.state.componentWidth /
-        (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
-    if (this.state.componentHeight)
-      snapRowSpace =
-        this.state.componentHeight / (this.props.snapRows || DEFAULT_GRID_ROWS);
-    if (
-      this.state.snapColumnSpace !== snapColumnSpace ||
-      this.state.snapRowSpace !== snapRowSpace
-    ) {
+          (this.props.snapColumns || DEFAULT_GRID_COLUMNS),
+      );
+    if (this.state.snapColumnSpace !== snapColumnSpace) {
       this.setState({
         snapColumnSpace,
-        snapRowSpace,
+        snapRowSpace: DEFAULT_GRID_ROW_HEIGHT,
       });
     }
   }
@@ -57,12 +47,7 @@ class ContainerWidget extends BaseWidget<
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
     childWidgetData.parentId = this.props.widgetId;
-    const widgetFunctions: WidgetFunctions = this.props as WidgetFunctions;
-    return WidgetFactory.createWidget(
-      childWidgetData,
-      widgetFunctions,
-      this.props.renderMode,
-    );
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
   getPageView() {
@@ -72,25 +57,31 @@ class ContainerWidget extends BaseWidget<
         style={{
           ...this.getPositionStyle(),
         }}
+        isRoot={!this.props.parentId}
         orientation={this.props.orientation || "VERTICAL"}
+        widgetName={this.props.widgetName}
       >
         {_.map(this.props.children, this.renderChildWidget)}
       </ContainerComponent>
     );
   }
 
-  getCanvasView() {
-    const style = this.getPositionStyle();
-    const occupiedSpaces: OccupiedSpace[] | null = this.props.children
+  getOccupiedSpaces(): OccupiedSpace[] | null {
+    return this.props.children
       ? this.props.children.map(child => ({
           id: child.widgetId,
+          parentId: this.props.widgetId,
           left: child.leftColumn,
           top: child.topRow,
           bottom: child.bottomRow,
           right: child.rightColumn,
         }))
       : null;
-    return (
+  }
+  getCanvasView() {
+    const style = this.getPositionStyle();
+    const occupiedSpaces = this.getOccupiedSpaces();
+    const renderComponent = (
       <DropTargetComponent
         {...this.props}
         {...this.state}
@@ -98,18 +89,24 @@ class ContainerWidget extends BaseWidget<
         style={{
           ...style,
         }}
+        isRoot={!this.props.parentId}
       >
-        <DraggableComponent
-          style={{ ...style, xPosition: 0, yPosition: 0 }}
-          {...this.props}
-          orientation={"VERTICAL"}
-        >
-          <ResizableComponent style={{ ...style }} {...this.props}>
-            {this.getPageView()}
-          </ResizableComponent>
-        </DraggableComponent>
+        {this.getPageView()}
       </DropTargetComponent>
     );
+    const renderDraggableComponent = (
+      <DraggableComponent
+        style={{ ...style }}
+        {...this.props}
+        orientation={"VERTICAL"}
+      >
+        <ResizableComponent style={{ ...style }} {...this.props}>
+          {renderComponent}
+        </ResizableComponent>
+      </DraggableComponent>
+    );
+
+    return this.props.parentId ? renderDraggableComponent : renderComponent;
   }
 
   getWidgetType(): WidgetType {
@@ -137,6 +134,7 @@ export type OccupiedSpace = {
   top: number;
   bottom: number;
   id: string;
+  parentId?: string;
 };
 
 export default ContainerWidget;

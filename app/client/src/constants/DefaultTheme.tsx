@@ -24,9 +24,9 @@ export type Theme = {
 };
 
 export const theme: Theme = {
-  radii: [0, 4, 8, 10, 20],
+  radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
-  spaces: [0, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
+  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24],
   fontWeights: [0, 400, 500, 700],
   colors: {
     primary: Colors.GREEN,
@@ -38,15 +38,16 @@ export const theme: Theme = {
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
     paneBG: Colors.OUTER_SPACE,
-    grid: Colors.POLAR,
+    grid: Colors.GEYSER,
+    containerBorder: Colors.FRENCH_PASS,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
   borders: [
     {
-      thickness: "2px",
-      style: "dashed",
-      color: Colors.POLAR,
+      thickness: "1px",
+      style: "solid",
+      color: Colors.FRENCH_PASS,
     },
   ],
 };

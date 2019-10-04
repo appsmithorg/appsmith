@@ -57,10 +57,10 @@ export const getDropZoneOffsets = (
 
 const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(
-    r2.left > r1.right ||
-    r2.right < r1.left ||
-    r2.top > r1.bottom ||
-    r2.bottom < r1.top
+    r2.left >= r1.right ||
+    r2.right <= r1.left ||
+    r2.top >= r1.bottom ||
+    r2.bottom <= r1.top
   );
 };
 
@@ -71,7 +71,10 @@ export const isDropZoneOccupied = (
 ) => {
   if (occupied) {
     occupied = occupied.filter(widgetDetails => {
-      return widgetDetails.id !== widget.widgetId;
+      return (
+        widgetDetails.id !== widget.widgetId &&
+        widgetDetails.parentId !== widget.widgetId
+      );
     });
     for (let i = 0; i < occupied.length; i++) {
       if (areIntersecting(occupied[i], offset)) {
@@ -139,7 +142,8 @@ export const widgetOperationParams = (
         {
           leftColumn,
           topRow,
-          parentWidgetId: widgetId,
+          parentId: widget.parentId,
+          newParentId: widgetId,
         },
       ];
       // If this is not an existing widget, we'll not have the widgetId
@@ -211,6 +215,8 @@ export const generateWidgetProps = (
   rows: number,
   parentRowSpace: number,
   parentColumnSpace: number,
+  widgetName: string,
+  widgetConfig: Partial<WidgetProps>,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent && parent.snapColumns && parent.snapRows) {
     const sizes = {
@@ -230,10 +236,10 @@ export const generateWidgetProps = (
       };
     }
     return {
+      ...widgetConfig,
       type,
-      executeAction: () => {},
       widgetId: generateReactKey(),
-      widgetName: generateReactKey(), //TODO: figure out what this is to populate appropriately
+      widgetName: widgetName || generateReactKey(), //TODO: figure out what this is to populate appropriately
       isVisible: true,
       parentColumnSpace,
       parentRowSpace,

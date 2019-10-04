@@ -1,5 +1,6 @@
 import {
   ReduxActionTypes,
+  ReduxActionErrorTypes,
   ReduxAction,
 } from "../constants/ReduxActionConstants";
 import {
@@ -9,13 +10,13 @@ import {
   WidgetDelete,
 } from "../actions/pageActions";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgets, getWidget, getWidgetParent } from "./selectors";
+import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
 import {
   generateWidgetProps,
-  updateWidgetSize,
   updateWidgetPosition,
 } from "../utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
+import { getNextWidgetName } from "../utils/AppsmithUtils";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -31,7 +32,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
-
+    const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
     const childWidget = generateWidgetProps(
       widget,
       type,
@@ -41,6 +42,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       rows,
       parentRowSpace,
       parentColumnSpace,
+      getNextWidgetName(defaultWidgetConfig.widgetName, widgets),
+      defaultWidgetConfig,
     );
     widgets[childWidget.widgetId] = childWidget;
     if (widget && widget.children) {
@@ -51,93 +54,112 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_ADD_CHILD,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_ADD_CHILD,
+        error,
+      },
     });
   }
 }
 
 export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    const { widgetId } = deleteAction.payload;
+    const { widgetId, parentId } = deleteAction.payload;
     const widgets = yield select(getWidgets);
-    delete widgets[widgetId];
-    const parent = yield select(getWidgetParent, widgetId);
+    const parent = yield select(getWidget, parentId);
     parent.children = parent.children.filter(
       (child: string) => child !== widgetId,
     );
-    widgets[parent.widgetId] = parent;
+    delete widgets[widgetId];
+    widgets[parentId] = parent;
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_DELETE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_DELETE,
+        error,
+      },
     });
   }
 }
 
 export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
   try {
-    const { widgetId, leftColumn, topRow, parentWidgetId } = moveAction.payload;
+    const {
+      widgetId,
+      leftColumn,
+      topRow,
+      parentId,
+      newParentId,
+    } = moveAction.payload;
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     // Get all widgets from DSL/Redux Store
     const widgets = yield select(getWidgets) as any;
     // Get parent from DSL/Redux Store
-    const parent = yield select(getWidgetParent, widgetId);
+    const parent = yield select(getWidget, parentId);
     // Update position of widget
     widget = updateWidgetPosition(widget, leftColumn, topRow, parent);
     // Replace widget with update widget props
     widgets[widgetId] = widget;
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
-    if (parent.widgetId !== parentWidgetId) {
+    if (parent.widgetId !== newParentId && widgetId !== newParentId) {
       // Remove from the previous parent
       parent.children = parent.children.filter(
         (child: string) => child !== widgetId,
       );
       widgets[parent.widgetId] = parent;
       // Add to new parent
-      widgets[parentWidgetId].children.push(widgetId);
+      widgets[newParentId].children.push(widgetId);
     }
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_MOVE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_MOVE,
+        error,
+      },
     });
   }
 }
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
-    const { widgetId, height, width } = resizeAction.payload;
+    const {
+      widgetId,
+      leftColumn,
+      rightColumn,
+      topRow,
+      bottomRow,
+    } = resizeAction.payload;
 
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
-    widget = updateWidgetSize(widget, height, width);
+    widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
 
     yield put({
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-  } catch (err) {
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.WIDGET_OPERATION_ERROR,
-      action: ReduxActionTypes.WIDGET_RESIZE,
-      ...err,
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.WIDGET_RESIZE,
+        error,
+      },
     });
   }
 }

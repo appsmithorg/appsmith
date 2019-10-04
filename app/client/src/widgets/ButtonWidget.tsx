@@ -6,7 +6,7 @@ import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   onButtonClick() {
-    this.props.executeAction(this.props.onClick);
+    super.executeAction(this.props.onClick);
   }
 
   getPageView() {
@@ -14,6 +14,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
       <ButtonComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         key={this.props.widgetId}
         text={this.props.text}
         onClick={() => {
