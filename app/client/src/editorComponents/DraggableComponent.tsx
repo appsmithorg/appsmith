@@ -51,8 +51,9 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
-export const ResizingContext: Context<{
+export const RnDContext: Context<{
   setIsResizing?: Function;
+  isDragging?: boolean;
 }> = createContext({});
 
 const DraggableComponent = (props: DraggableComponentProps) => {
@@ -70,13 +71,16 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    canDrag: () => {
+      return !isResizing && !!isFocused && isFocused === props.widgetId;
+    },
   });
 
   return (
-    <ResizingContext.Provider value={{ setIsResizing }}>
+    <RnDContext.Provider value={{ setIsResizing, isDragging }}>
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
-        ref={preview}
+        ref={drag}
         onClick={(e: any) => {
           if (setFocus) {
             setFocus(props.widgetId);
@@ -108,7 +112,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         </DeleteControl>
         {props.children}
       </DraggableWrapper>
-    </ResizingContext.Provider>
+    </RnDContext.Provider>
   );
 };
 
