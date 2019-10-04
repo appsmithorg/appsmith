@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, createContext, useState, Context } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "../assets/images/blank.png";
 import { ContainerProps } from "./ContainerComponent";
 import { FocusContext } from "../pages/Editor/Canvas";
+import { WidgetFunctionsContext } from "../pages/Editor";
 import { ControlIcons } from "../icons/ControlIcons";
 import { theme } from "../constants/DefaultTheme";
 
@@ -50,11 +51,16 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
+export const ResizingContext: Context<{
+  setIsResizing?: Function;
+}> = createContext({});
+
 const DraggableComponent = (props: DraggableComponentProps) => {
   const { isFocused, setFocus } = useContext(FocusContext);
+  const { updateWidget } = useContext(WidgetFunctionsContext);
+  const [isResizing, setIsResizing] = useState(false);
   const deleteWidget = () => {
-    props.updateWidget &&
-      props.updateWidget(WidgetOperations.DELETE, props.widgetId);
+    updateWidget && updateWidget(WidgetOperations.DELETE, props.widgetId);
   };
   const [{ isDragging }, drag, preview] = useDrag({
     item: props,
@@ -64,7 +70,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   });
 
   return (
-    <React.Fragment>
+    <ResizingContext.Provider value={{ setIsResizing }}>
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
         ref={preview}
@@ -74,7 +80,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             e.stopPropagation();
           }
         }}
-        show={props.widgetId === isFocused}
+        show={props.widgetId === isFocused && !isResizing}
         style={{
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
@@ -99,7 +105,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         </DeleteControl>
         {props.children}
       </DraggableWrapper>
-    </React.Fragment>
+    </ResizingContext.Provider>
   );
 };
 

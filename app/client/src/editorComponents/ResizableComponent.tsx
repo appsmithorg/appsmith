@@ -4,6 +4,8 @@ import { Rnd } from "react-rnd";
 import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
+import { ResizingContext } from "./DraggableComponent";
+import { WidgetFunctionsContext } from "../pages/Editor";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
@@ -35,7 +37,9 @@ const ResizableContainer = styled(Rnd)`
 `;
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
+  const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
+  const { updateWidget } = useContext(WidgetFunctionsContext);
   let bounds = "body";
   if (boundingParent && boundingParent.current) {
     bounds = "." + boundingParent.current.className.split(" ")[1];
@@ -47,6 +51,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     delta: { width: number; height: number },
     position: XYCoord,
   ) => {
+    setIsResizing && setIsResizing(false);
     const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
     const topRow = props.topRow + position.y / props.parentRowSpace;
 
@@ -55,8 +60,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     const bottomRow =
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
 
-    props.updateWidget &&
-      props.updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+    updateWidget &&
+      updateWidget(WidgetOperations.RESIZE, props.widgetId, {
         leftColumn,
         rightColumn,
         topRow,
@@ -78,6 +83,9 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       minHeight={props.parentRowSpace}
       style={{ ...props.style }}
       onResizeStop={updateSize}
+      onResizeStart={() => {
+        setIsResizing && setIsResizing(true);
+      }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
       enableResizing={{

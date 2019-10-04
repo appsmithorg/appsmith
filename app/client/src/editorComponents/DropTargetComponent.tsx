@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { OccupiedSpace } from "../widgets/ContainerWidget";
 import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
@@ -7,6 +7,7 @@ import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
+import { WidgetFunctionsContext } from "../pages/Editor";
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
@@ -27,14 +28,15 @@ type DropTargetBounds = {
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
+  const { updateWidget } = useContext(WidgetFunctionsContext);
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
       if (isOver) {
-        props.updateWidget &&
-          props.updateWidget(
+        updateWidget &&
+          updateWidget(
             ...widgetOperationParams(
               widget,
               monitor.getClientOffset() as XYCoord,
