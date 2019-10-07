@@ -6,6 +6,7 @@
 image: docker:latest
 services:
   - docker:dind
+  - redis
 
 cache:
   paths:
@@ -28,7 +29,7 @@ maven-build:
   image: maven:3-jdk-11-slim
   stage: build
   script:
-    - mvn package -B -Dspring.profiles.active=local
+    - mvn package -B -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE
   artifacts:
     paths:
       - appsmith-server/target/*.jar
