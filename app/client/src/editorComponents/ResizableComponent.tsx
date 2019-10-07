@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, CSSProperties } from "react";
 import styled from "styled-components";
 import { Rnd } from "react-rnd";
 import { XYCoord } from "react-dnd";
@@ -8,6 +8,34 @@ import { ResizingContext } from "./DraggableComponent";
 import { WidgetFunctionsContext } from "../pages/Editor";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
+
+const handleStyles: {
+  top: CSSProperties;
+  bottom: CSSProperties;
+  right: CSSProperties;
+  left: CSSProperties;
+} = {
+  top: {
+    height: "30px",
+    top: "-15px",
+    zIndex: 11,
+  },
+  bottom: {
+    height: "30px",
+    bottom: "-15px",
+    zIndex: 11,
+  },
+  left: {
+    width: "30px",
+    left: "-15px",
+    zIndex: 11,
+  },
+  right: {
+    width: "30px",
+    right: "-15px",
+    zIndex: 11,
+  },
+};
 
 const ResizableContainer = styled(Rnd)`
   position: relative;
@@ -88,6 +116,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
+      resizeHandleStyles={handleStyles}
       enableResizing={{
         top: true,
         right: true,
