@@ -27,10 +27,10 @@ export function* validateResponse(response: ApiResponse) {
   }
 }
 
-type IError = object | { message: string };
+type ErrorPayloadType = object | { message: string };
 
 const ActionErrorDisplayMap: {
-  [key: string]: (error: IError) => string;
+  [key: string]: (error: ErrorPayloadType) => string;
 } = {
   [ReduxActionErrorTypes.API_ERROR]: error =>
     _.get(error, "message", DEFAULT_ERROR_MESSAGE),
@@ -42,7 +42,9 @@ const ActionErrorDisplayMap: {
   [ReduxActionErrorTypes.WIDGET_OPERATION_ERROR]: () => DEFAULT_ERROR_MESSAGE,
 };
 
-export function* errorSaga(errorAction: ReduxAction<{ error: IError }>) {
+export function* errorSaga(
+  errorAction: ReduxAction<{ error: ErrorPayloadType }>,
+) {
   // Just a pass through for now.
   // Add procedures to customize errors here
   console.log({ error: errorAction });
