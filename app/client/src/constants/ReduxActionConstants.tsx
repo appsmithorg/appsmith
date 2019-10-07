@@ -1,6 +1,4 @@
-import _ from "lodash";
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
-import * as errorConstants from "./errors";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   REPORT_ERROR: "REPORT_ERROR",
@@ -53,35 +51,6 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   WIDGET_OPERATION_ERROR: "WIDGET_OPERATION_ERROR",
 };
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
-
-const apiErrorHandler = (error: object, fallbackMessage: string) => {
-  const apiError = _.get(error, "response.data.responseMeta.error");
-  if (errorConstants.API_ERROR_CODES.indexOf(apiError.code) > -1) {
-    return apiError.message;
-  }
-  return fallbackMessage;
-};
-
-export const ActionErrorDisplayMap: {
-  [key: string]: (error: object) => string;
-} = {
-  [ReduxActionErrorTypes.API_ERROR]: error =>
-    apiErrorHandler(error, errorConstants.DEFAULT_ERROR_MESSAGE),
-  [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: error =>
-    apiErrorHandler(
-      error,
-      errorConstants.DEFAULT_ACTION_ERROR("fetching the page"),
-    ),
-  [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: error =>
-    apiErrorHandler(
-      error,
-      errorConstants.DEFAULT_ACTION_ERROR("saving the page"),
-    ),
-  [ReduxActionErrorTypes.FETCH_WIDGET_CARDS_ERROR]: () =>
-    errorConstants.DEFAULT_ERROR_MESSAGE,
-  [ReduxActionErrorTypes.WIDGET_OPERATION_ERROR]: () =>
-    errorConstants.DEFAULT_ERROR_MESSAGE,
-};
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
