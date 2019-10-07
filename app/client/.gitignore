@@ -26,3 +26,4 @@ yarn-error.log*
 /out
 /public/fonts/*
 /src/assets/icons/fonts/*
+.idea
