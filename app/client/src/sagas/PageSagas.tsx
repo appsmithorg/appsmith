@@ -67,6 +67,7 @@ export function* fetchPageSaga(
 
 export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   const savePageRequest = savePageAction.payload;
+  savePageRequest.pageId = "123443";
   try {
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,

@@ -2,7 +2,11 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
+  ActionErrorDisplayMap,
 } from "../constants/ReduxActionConstants";
+
+import AppToaster from "../editorComponents/ToastComponent";
+import { Intent } from "@blueprintjs/core";
 
 import { ApiResponse } from "../api/ApiResponses";
 import { put, takeLatest } from "redux-saga/effects";
@@ -21,10 +25,19 @@ export function* validateResponse(response: ApiResponse) {
   }
 }
 
-export function* errorSaga(errorAction: ReduxAction<{ error: any }>) {
+export function* errorSaga(
+  errorAction: ReduxAction<{ error: { message: string } }>,
+) {
   // Just a pass through for now.
   // Add procedures to customize errors here
-  console.log(errorAction.payload.error);
+  console.log({ error: errorAction });
+  // Show a toast when the error occurs
+  const {
+    type,
+    payload: { error },
+  } = errorAction;
+  const message = ActionErrorDisplayMap[type](error);
+  AppToaster.show({ message, intent: Intent.DANGER });
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {
