@@ -7,8 +7,9 @@ import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
 import { FocusContext } from "../pages/Editor/Canvas";
-import { RnDContext } from "./DraggableComponent";
+import { DraggingContext } from "./DraggableComponent";
 import { WidgetFunctionsContext } from "../pages/Editor";
+import { ResizingContext } from "./DropTargetComponent";
 import {
   theme,
   getColorWithOpacity,
@@ -87,11 +88,13 @@ const ResizableContainer = styled(Rnd)`
 `;
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
-  const { setIsResizing, isDragging } = useContext(RnDContext);
+  const { isDragging } = useContext(DraggingContext);
+  const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const { isFocused, setFocus } = useContext(FocusContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
+
   const [isColliding, setIsColliding] = useState(false);
 
   let bounds = "body";
@@ -142,6 +145,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   ) => {
     setIsResizing && setIsResizing(false);
     setFocus && setFocus(props.widgetId);
+
     const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
     const topRow = props.topRow + position.y / props.parentRowSpace;
 
@@ -161,6 +165,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     }
     setIsColliding(false);
   };
+
+  const canResize = !isDragging && isFocused === props.widgetId;
   return (
     <ResizableContainer
       position={{
@@ -192,16 +198,15 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
       resizeHandleStyles={handleStyles}
-      resizeHandleWrapperClass="top-of-stacking-context"
       enableResizing={{
-        top: true && !isDragging && isFocused === props.widgetId,
-        right: true && !isDragging && isFocused === props.widgetId,
-        bottom: true && !isDragging && isFocused === props.widgetId,
-        left: true && !isDragging && isFocused === props.widgetId,
-        topRight: true && !isDragging && isFocused === props.widgetId,
-        topLeft: true && !isDragging && isFocused === props.widgetId,
-        bottomRight: true && !isDragging && isFocused === props.widgetId,
-        bottomLeft: true && !isDragging && isFocused === props.widgetId,
+        top: canResize,
+        right: canResize,
+        bottom: canResize,
+        left: canResize,
+        topRight: canResize,
+        topLeft: canResize,
+        bottomRight: canResize,
+        bottomLeft: canResize,
       }}
     >
       {props.children}

@@ -27,6 +27,7 @@ type DragLayerProps = {
   isOver: boolean;
   parentRows?: number;
   parentCols?: number;
+  isResizing?: boolean;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
@@ -55,7 +56,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       : widget.rightColumn - widget.leftColumn;
     widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
   }
-  if (!isDragging || !props.visible) {
+  if ((!isDragging || !props.visible) && !props.isResizing) {
     return null;
   }
   return (
@@ -64,7 +65,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
         rowHeight={props.parentRowHeight}
         columnWidth={props.parentColumnWidth}
         setBounds={props.onBoundsUpdate}
-        showGrid={isDragging && props.isOver}
+        showGrid={(isDragging && props.isOver) || props.isResizing}
       />
       <DropZone
         {...props}

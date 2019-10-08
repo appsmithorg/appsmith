@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, createContext, Context } from "react";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
@@ -25,9 +25,15 @@ type DropTargetBounds = {
   height: number;
 };
 
+export const ResizingContext: Context<{
+  isResizing?: boolean;
+  setIsResizing?: Function;
+}> = createContext({});
+
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
+  const [isResizing, setIsResizing] = useState(false);
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
   const { setFocus } = useContext(FocusContext);
@@ -97,35 +103,38 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   return (
-    <div
-      onClick={handleFocus}
-      ref={drop}
-      style={{
-        position: "relative",
-        left: 0,
-        height: props.isRoot
-          ? props.style.componentHeight + (props.style.heightUnit || "px")
-          : "100%",
-        width: props.isRoot
-          ? props.style.componentWidth + (props.style.widthUnit || "px")
-          : "100%",
-        top: 0,
-      }}
-    >
-      {props.children}
-      <DragLayerComponent
-        parentOffset={dropTargetOffset}
-        parentRowHeight={props.snapRowSpace}
-        parentColumnWidth={props.snapColumnSpace}
-        visible={isOver}
-        isOver={isExactlyOver}
-        dropTargetOffset={dropTargetOffset}
-        occupiedSpaces={occupiedSpaces}
-        onBoundsUpdate={handleBoundsUpdate}
-        parentRows={props.snapRows}
-        parentCols={props.snapColumns}
-      />
-    </div>
+    <ResizingContext.Provider value={{ isResizing, setIsResizing }}>
+      <div
+        onClick={handleFocus}
+        ref={drop}
+        style={{
+          position: "relative",
+          left: 0,
+          height: props.isRoot
+            ? props.style.componentHeight + (props.style.heightUnit || "px")
+            : "100%",
+          width: props.isRoot
+            ? props.style.componentWidth + (props.style.widthUnit || "px")
+            : "100%",
+          top: 0,
+        }}
+      >
+        {props.children}
+        <DragLayerComponent
+          parentOffset={dropTargetOffset}
+          parentRowHeight={props.snapRowSpace}
+          parentColumnWidth={props.snapColumnSpace}
+          visible={isOver || isResizing}
+          isOver={isExactlyOver}
+          dropTargetOffset={dropTargetOffset}
+          occupiedSpaces={occupiedSpaces}
+          onBoundsUpdate={handleBoundsUpdate}
+          parentRows={props.snapRows}
+          parentCols={props.snapColumns}
+          isResizing={isResizing}
+        />
+      </div>
+    </ResizingContext.Provider>
   );
 };
 

@@ -5,7 +5,7 @@ type DropTargetMaskProps = {
   rowHeight: number;
   columnWidth: number;
   setBounds?: Function;
-  showGrid: boolean;
+  showGrid?: boolean;
 };
 
 export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
