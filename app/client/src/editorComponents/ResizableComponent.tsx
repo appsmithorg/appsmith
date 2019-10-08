@@ -22,26 +22,42 @@ const handleStyles: {
   bottom: CSSProperties;
   right: CSSProperties;
   left: CSSProperties;
+  bottomRight: CSSProperties;
+  bottomLeft: CSSProperties;
 } = {
   top: {
     height: "30px",
     top: "-15px",
     zIndex: 1,
+    cursor: "ns-resize",
+  },
+  bottomRight: {
+    height: "30px",
+    width: "30px",
+    cursor: "nwse-resize",
+  },
+  bottomLeft: {
+    height: "30px",
+    width: "30px",
+    cursor: "nesw-resize",
   },
   bottom: {
     height: "30px",
     bottom: "-15px",
     zIndex: 1,
+    cursor: "ns-resize",
   },
   left: {
     width: "30px",
     left: "-15px",
     zIndex: 1,
+    cursor: "ew-resize",
   },
   right: {
     width: "30px",
     right: "-15px",
     zIndex: 1,
+    cursor: "ew-resize",
   },
 };
 
@@ -182,10 +198,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         right: true && !isDragging && isFocused === props.widgetId,
         bottom: true && !isDragging && isFocused === props.widgetId,
         left: true && !isDragging && isFocused === props.widgetId,
-        topRight: false,
-        topLeft: false,
+        topRight: true && !isDragging && isFocused === props.widgetId,
+        topLeft: true && !isDragging && isFocused === props.widgetId,
         bottomRight: true && !isDragging && isFocused === props.widgetId,
-        bottomLeft: false,
+        bottomLeft: true && !isDragging && isFocused === props.widgetId,
       }}
     >
       {props.children}
