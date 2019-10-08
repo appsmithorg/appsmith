@@ -23,6 +23,15 @@ export type Theme = {
   borders: { thickness: string; style: "dashed" | "solid"; color: Color }[];
 };
 
+export const getColorWithOpacity = (color: Color, opacity: number) => {
+  color = color.slice(1);
+  const val = parseInt(color, 16);
+  const r = (val >> 16) & 255;
+  const g = (val >> 8) & 255;
+  const b = val & 255;
+  return `rgba(${r},${g},${b},${opacity})`;
+};
+
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],

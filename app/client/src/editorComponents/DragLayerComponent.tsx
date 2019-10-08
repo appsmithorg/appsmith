@@ -9,7 +9,6 @@ import DropTargetMask from "./DropTargetMask";
 const WrappedDragLayer = styled.div`
   position: absolute;
   pointer-events: none;
-  z-index: 10;
   left: 0;
   top: 0;
   width: 100%;
@@ -26,6 +25,8 @@ type DragLayerProps = {
   occupiedSpaces: OccupiedSpace[] | null;
   onBoundsUpdate: Function;
   isOver: boolean;
+  parentRows?: number;
+  parentCols?: number;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
@@ -41,6 +42,8 @@ const DragLayerComponent = (props: DragLayerProps) => {
         monitor.getItem(),
         props.dropTargetOffset,
         props.occupiedSpaces,
+        props.parentRows,
+        props.parentCols,
       ),
     }),
   );

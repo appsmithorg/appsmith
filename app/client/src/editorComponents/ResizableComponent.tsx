@@ -1,11 +1,15 @@
-import React, { useContext, CSSProperties } from "react";
+import React, { useContext, CSSProperties, useState } from "react";
 import styled from "styled-components";
 import { Rnd } from "react-rnd";
 import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
+import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
+import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
 import { ResizingContext } from "./DraggableComponent";
+import { FocusContext } from "../pages/Editor/Canvas";
 import { WidgetFunctionsContext } from "../pages/Editor";
+import { theme, getColorWithOpacity } from "../constants/DefaultTheme";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
@@ -18,28 +22,23 @@ const handleStyles: {
   top: {
     height: "30px",
     top: "-15px",
-    zIndex: 11,
   },
   bottom: {
     height: "30px",
     bottom: "-15px",
-    zIndex: 11,
   },
   left: {
     width: "30px",
     left: "-15px",
-    zIndex: 11,
   },
   right: {
     width: "30px",
     right: "-15px",
-    zIndex: 11,
   },
 };
 
 const ResizableContainer = styled(Rnd)`
   position: relative;
-  z-index: 10;
   border: ${props => {
     return Object.values(props.theme.borders[0]).join(" ");
   }};
@@ -50,7 +49,6 @@ const ResizableContainer = styled(Rnd)`
     width: ${props => props.theme.spaces[2]}px;
     height: ${props => props.theme.spaces[2]}px;
     border-radius: ${props => props.theme.radii[5]}%;
-    z-index: 9;
     background: ${props => props.theme.colors.containerBorder};
   }
   &:after {
@@ -68,10 +66,49 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
+  const { setFocus } = useContext(FocusContext);
+  const occupiedSpaces = useContext(OccupiedSpaceContext);
+  const [isColliding, setIsColliding] = useState(false);
+
   let bounds = "body";
   if (boundingParent && boundingParent.current) {
     bounds = "." + boundingParent.current.className.split(" ")[1];
   }
+
+  const checkForCollision = (
+    e: Event,
+    dir: any,
+    ref: any,
+    delta: { width: number; height: number },
+    position: XYCoord,
+  ) => {
+    const left = props.leftColumn + position.x / props.parentColumnSpace;
+    const top = props.topRow + position.y / props.parentRowSpace;
+
+    const right =
+      props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
+    const bottom =
+      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
+
+    if (
+      isDropZoneOccupied(
+        {
+          left,
+          top,
+          bottom,
+          right,
+        },
+        props.widgetId,
+        occupiedSpaces,
+      )
+    ) {
+      setIsColliding(true);
+    } else {
+      if (!!isColliding) {
+        setIsColliding(false);
+      }
+    }
+  };
   const updateSize = (
     e: Event,
     dir: any,
@@ -80,6 +117,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     position: XYCoord,
   ) => {
     setIsResizing && setIsResizing(false);
+    setFocus && setFocus(props.widgetId);
     const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
     const topRow = props.topRow + position.y / props.parentRowSpace;
 
@@ -88,13 +126,16 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     const bottomRow =
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
 
-    updateWidget &&
-      updateWidget(WidgetOperations.RESIZE, props.widgetId, {
-        leftColumn,
-        rightColumn,
-        topRow,
-        bottomRow,
-      });
+    if (!isColliding) {
+      updateWidget &&
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+          leftColumn,
+          rightColumn,
+          topRow,
+          bottomRow,
+        });
+    }
+    setIsColliding(false);
   };
   return (
     <ResizableContainer
@@ -109,8 +150,14 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       disableDragging
       minWidth={props.parentColumnSpace}
       minHeight={props.parentRowSpace}
-      style={{ ...props.style }}
+      style={{
+        ...props.style,
+        background: isColliding
+          ? getColorWithOpacity(theme.colors.error, 0.6)
+          : props.style.backgroundColor,
+      }}
       onResizeStop={updateSize}
+      onResize={checkForCollision}
       onResizeStart={() => {
         setIsResizing && setIsResizing(true);
       }}

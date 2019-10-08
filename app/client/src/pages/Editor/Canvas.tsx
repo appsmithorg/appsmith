@@ -16,6 +16,7 @@ const ArtBoard = styled.div`
   height: 100%;
   position: relative;
   overflow: auto;
+  background: white;
 `;
 
 interface CanvasProps {

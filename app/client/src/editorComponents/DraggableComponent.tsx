@@ -18,6 +18,8 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
     display: ${props => (props.show ? "block" : "none")};
   }
   display: block;
+  position: relative;
+  z-index: 1;
 `;
 
 const DragHandle = styled.div`
@@ -27,7 +29,6 @@ const DragHandle = styled.div`
   cursor: move;
   display: none;
   cursor: grab;
-  z-index: 11;
 `;
 
 const DeleteControl = styled.div`
@@ -36,7 +37,6 @@ const DeleteControl = styled.div`
   top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   display: none;
   cursor: pointer;
-  z-index: 11;
 `;
 
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
@@ -100,13 +100,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             props.style.componentHeight + (props.style.heightUnit || "px"),
         }}
       >
+        {props.children}
         <DragHandle className="control" ref={drag}>
           {moveControlIcon}
         </DragHandle>
         <DeleteControl className="control" onClick={deleteWidget}>
           {deleteControlIcon}
         </DeleteControl>
-        {props.children}
       </DraggableWrapper>
     </ResizingContext.Provider>
   );

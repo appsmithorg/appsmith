@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { WidgetProps } from "../widgets/BaseWidget";
-import { OccupiedSpace } from "../widgets/ContainerWidget";
+import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
 import { useDrop, XYCoord } from "react-dnd";
 import { ContainerProps } from "./ContainerComponent";
@@ -15,7 +15,6 @@ type DropTargetComponentProps = ContainerProps & {
   snapRows?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
-  occupiedSpaces: OccupiedSpace[] | null;
 };
 
 type DropTargetBounds = {
@@ -29,6 +28,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const { updateWidget } = useContext(WidgetFunctionsContext);
+  const occupiedSpaces = useContext(OccupiedSpaceContext);
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
@@ -69,7 +69,9 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           props.snapRowSpace,
           widget,
           dropTargetOffset,
-          props.occupiedSpaces,
+          occupiedSpaces,
+          props.snapRows,
+          props.snapColumns,
         );
       }
       return false;
@@ -88,7 +90,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   return (
     <div
       ref={drop}
-      className="dropTarget"
       style={{
         position: "relative",
         left: 0,
@@ -99,7 +100,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           ? props.style.componentWidth + (props.style.widthUnit || "px")
           : "100%",
         top: 0,
-        background: "white",
       }}
     >
       <DragLayerComponent
@@ -109,8 +109,10 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         visible={isOver}
         isOver={isExactlyOver}
         dropTargetOffset={dropTargetOffset}
-        occupiedSpaces={props.occupiedSpaces}
+        occupiedSpaces={occupiedSpaces}
         onBoundsUpdate={handleBoundsUpdate}
+        parentRows={props.snapRows}
+        parentCols={props.snapColumns}
       />
 
       {props.children}
