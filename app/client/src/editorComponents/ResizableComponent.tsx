@@ -26,23 +26,28 @@ const handleStyles: {
   top: {
     height: "30px",
     top: "-15px",
+    zIndex: 1,
   },
   bottom: {
     height: "30px",
     bottom: "-15px",
+    zIndex: 1,
   },
   left: {
     width: "30px",
     left: "-15px",
+    zIndex: 1,
   },
   right: {
     width: "30px",
     right: "-15px",
+    zIndex: 1,
   },
 };
 
 const ResizableContainer = styled(Rnd)`
   position: relative;
+  opacity: 0.99;
   &:after,
   &:before {
     content: "";
@@ -55,11 +60,13 @@ const ResizableContainer = styled(Rnd)`
   &:after {
     right: -${props => props.theme.spaces[1]}px;
     top: calc(50% - ${props => props.theme.spaces[1]}px);
+    z-index: 0;
   }
 
   &:before {
     left: calc(50% - ${props => props.theme.spaces[1]}px);
     bottom: -${props => props.theme.spaces[1]}px;
+    z-index: 1;
   }
 `;
 
@@ -169,6 +176,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
       resizeHandleStyles={handleStyles}
+      resizeHandleWrapperClass="top-of-stacking-context"
       enableResizing={{
         top: true && !isDragging && isFocused === props.widgetId,
         right: true && !isDragging && isFocused === props.widgetId,

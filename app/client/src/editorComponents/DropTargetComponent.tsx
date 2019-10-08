@@ -8,6 +8,7 @@ import WidgetFactory from "../utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { WidgetFunctionsContext } from "../pages/Editor";
+import { FocusContext } from "../pages/Editor/Canvas";
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;
@@ -29,6 +30,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
+  const { setFocus } = useContext(FocusContext);
+
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
@@ -87,8 +90,15 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     }
   };
 
+  const handleFocus = () => {
+    if (props.isRoot) {
+      setFocus && setFocus(props.widgetId);
+    }
+  };
+
   return (
     <div
+      onClick={handleFocus}
       ref={drop}
       style={{
         position: "relative",
