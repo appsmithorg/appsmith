@@ -246,7 +246,6 @@ export const generateWidgetProps = (
         snapRows: DEFAULT_GRID_ROWS,
         orientation: "VERTICAL",
         children: [],
-        background: Colors.WHITE,
       };
     }
     return {
@@ -260,6 +259,7 @@ export const generateWidgetProps = (
       renderMode: RenderModes.CANVAS, //Is this required?
       ...sizes,
       ...others,
+      backgroundColor: Colors.WHITE,
     };
   } else {
     if (parent)

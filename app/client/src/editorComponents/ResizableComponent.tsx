@@ -9,7 +9,11 @@ import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
 import { FocusContext } from "../pages/Editor/Canvas";
 import { RnDContext } from "./DraggableComponent";
 import { WidgetFunctionsContext } from "../pages/Editor";
-import { theme, getColorWithOpacity } from "../constants/DefaultTheme";
+import {
+  theme,
+  getColorWithOpacity,
+  getBorderCSSShorthand,
+} from "../constants/DefaultTheme";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
@@ -39,9 +43,6 @@ const handleStyles: {
 
 const ResizableContainer = styled(Rnd)`
   position: relative;
-  border: ${props => {
-    return Object.values(props.theme.borders[0]).join(" ");
-  }};
   &:after,
   &:before {
     content: "";
@@ -66,7 +67,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const { setIsResizing, isDragging } = useContext(RnDContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
-  const { setFocus } = useContext(FocusContext);
+  const { isFocused, setFocus } = useContext(FocusContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
   const [isColliding, setIsColliding] = useState(false);
 
@@ -155,6 +156,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         background: isColliding
           ? getColorWithOpacity(theme.colors.error, 0.6)
           : props.style.backgroundColor,
+        border:
+          isFocused === props.widgetId
+            ? getBorderCSSShorthand(theme.borders[1])
+            : getBorderCSSShorthand(theme.borders[0]),
       }}
       onResizeStop={updateSize}
       onResize={checkForCollision}
@@ -165,13 +170,13 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       bounds={bounds}
       resizeHandleStyles={handleStyles}
       enableResizing={{
-        top: true && !isDragging,
-        right: true && !isDragging,
-        bottom: true && !isDragging,
-        left: true && !isDragging,
+        top: true && !isDragging && isFocused === props.widgetId,
+        right: true && !isDragging && isFocused === props.widgetId,
+        bottom: true && !isDragging && isFocused === props.widgetId,
+        left: true && !isDragging && isFocused === props.widgetId,
         topRight: false,
         topLeft: false,
-        bottomRight: true && !isDragging,
+        bottomRight: true && !isDragging && isFocused === props.widgetId,
         bottomLeft: false,
       }}
     >

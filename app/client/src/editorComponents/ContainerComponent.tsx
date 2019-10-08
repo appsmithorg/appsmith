@@ -37,7 +37,6 @@ export const ParentBoundsContext: Context<{
 
 const ContainerComponent = (props: ContainerProps) => {
   const container = useRef(null);
-
   return (
     <ParentBoundsContext.Provider value={{ boundingParent: container }}>
       <Container ref={container} {...props}>

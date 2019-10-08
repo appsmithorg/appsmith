@@ -129,6 +129,7 @@ abstract class BaseWidget<
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
+      backgroundColor: this.props.backgroundColor,
     };
   }
 
@@ -166,6 +167,7 @@ export interface WidgetDataProps {
   parentRowSpace: number;
   isVisible?: boolean;
   parentId?: string;
+  backgroundColor?: string;
 }
 
 export interface WidgetFunctions {

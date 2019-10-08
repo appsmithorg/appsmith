@@ -102,6 +102,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         top: 0,
       }}
     >
+      {props.children}
       <DragLayerComponent
         parentOffset={dropTargetOffset}
         parentRowHeight={props.snapRowSpace}
@@ -114,8 +115,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         parentRows={props.snapRows}
         parentCols={props.snapColumns}
       />
-
-      {props.children}
     </div>
   );
 };
