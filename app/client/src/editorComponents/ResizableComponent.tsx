@@ -6,8 +6,8 @@ import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
-import { ResizingContext } from "./DraggableComponent";
 import { FocusContext } from "../pages/Editor/Canvas";
+import { RnDContext } from "./DraggableComponent";
 import { WidgetFunctionsContext } from "../pages/Editor";
 import { theme, getColorWithOpacity } from "../constants/DefaultTheme";
 
@@ -63,7 +63,7 @@ const ResizableContainer = styled(Rnd)`
 `;
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
-  const { setIsResizing } = useContext(ResizingContext);
+  const { setIsResizing, isDragging } = useContext(RnDContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const { setFocus } = useContext(FocusContext);
@@ -165,13 +165,13 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       bounds={bounds}
       resizeHandleStyles={handleStyles}
       enableResizing={{
-        top: true,
-        right: true,
-        bottom: true,
-        left: true,
+        top: true && !isDragging,
+        right: true && !isDragging,
+        bottom: true && !isDragging,
+        left: true && !isDragging,
         topRight: false,
         topLeft: false,
-        bottomRight: true,
+        bottomRight: true && !isDragging,
         bottomLeft: false,
       }}
     >
