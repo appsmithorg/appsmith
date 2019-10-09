@@ -15,6 +15,7 @@ import { ResizingContext } from "./DropTargetComponent";
 const CONTROL_THEME_FONTSIZE_INDEX = 6;
 
 const DraggableWrapper = styled.div<{ show: boolean }>`
+  pointer-events: auto !important;
   & > div.control {
     display: ${props => (props.show ? "block" : "none")};
   }
@@ -103,8 +104,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             props.style.componentWidth + (props.style.widthUnit || "px"),
           minHeight:
             props.style.componentHeight + (props.style.heightUnit || "px"),
-          cursor:
-            isFocused && isFocused === props.widgetId ? "grab" : "default",
         }}
       >
         {props.children}

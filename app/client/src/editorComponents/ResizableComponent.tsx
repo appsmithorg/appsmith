@@ -153,8 +153,13 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
     const bottomRow =
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-
-    if (!isColliding) {
+    if (
+      !isColliding &&
+      (props.leftColumn !== leftColumn ||
+        props.topRow !== topRow ||
+        props.bottomRow !== bottomRow ||
+        props.rightColumn !== rightColumn)
+    ) {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {
           leftColumn,
