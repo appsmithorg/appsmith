@@ -36,7 +36,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [isResizing, setIsResizing] = useState(false);
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
-  const { setFocus } = useContext(FocusContext);
+  const { isFocused, setFocus } = useContext(FocusContext);
 
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
@@ -56,6 +56,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             ),
           );
       }
+      widget.widgetId && !!setFocus && setFocus(widget.widgetId);
       return undefined;
     },
     // Collect isOver for ui transforms when hovering over this component
@@ -102,6 +103,13 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     }
   };
 
+  let cursor = "default";
+  if (isFocused === props.widgetId && isOver) {
+    cursor = "grabbing";
+  } else if (isFocused === props.widgetId) {
+    cursor = "grab";
+  }
+
   return (
     <ResizingContext.Provider value={{ isResizing, setIsResizing }}>
       <div
@@ -117,6 +125,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             ? props.style.componentWidth + (props.style.widthUnit || "px")
             : "100%",
           top: 0,
+          cursor,
         }}
       >
         {props.children}

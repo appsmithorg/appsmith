@@ -103,6 +103,8 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             props.style.componentWidth + (props.style.widthUnit || "px"),
           minHeight:
             props.style.componentHeight + (props.style.heightUnit || "px"),
+          cursor:
+            isFocused && isFocused === props.widgetId ? "grab" : "default",
         }}
       >
         {props.children}
