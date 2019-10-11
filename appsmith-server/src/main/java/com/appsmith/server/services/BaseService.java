@@ -125,7 +125,10 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                 .map(user -> {
                     HashMap<String, String> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", ((BaseDomain) savedObject).getId());
-                    analyticsProperties.put("organizationId", user.getOrganizationId());
+                    if(user.getOrganizationId() != null) {
+                        analyticsProperties.put("organizationId", user.getOrganizationId());
+                    }
+
                     analytics.enqueue(
                             TrackMessage.builder("MONGO_DB_CREATE_" + savedObject.getClass().getSimpleName().toUpperCase())
                                     .userId(user.getId())

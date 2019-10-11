@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.constants.AclConstants;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
@@ -7,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -20,7 +22,9 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -42,6 +46,7 @@ import java.util.Map;
  * saveAuthorizedClient is called on every successful OAuth2 authentication, this solves the problem
  * of plugging a handler for the same purpose.
  */
+@Slf4j
 @Component
 public class ClientUserRepository implements ServerOAuth2AuthorizedClientRepository {
 
@@ -114,9 +119,16 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         newUser.setSource(LoginSource.GOOGLE);
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
+        // TODO: Check if this is a valid permission available in the DB
+        // TODO: Check to see if this user was invited or is it a new sign up
+        Set<String> permissions = new HashSet<>();
+        // Adding the create organization permission because this is a new user and we will have to create an organization
+        // after this for the user.
+        permissions.addAll(AclConstants.PERMISSIONS_CRUD_ORG);
+        newUser.setPermissions(permissions);
 
         return userService.findByEmail(user.getEmail())
-                .switchIfEmpty(userService.create(newUser)); //In case the user doesnt exist, create and save the user.
+                .switchIfEmpty(Mono.defer(() ->userService.create(newUser))); //In case the user doesn't exist, create and save the user.
     }
 
     @Override
