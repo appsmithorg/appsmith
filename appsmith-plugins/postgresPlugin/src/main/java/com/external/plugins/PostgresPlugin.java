@@ -6,7 +6,10 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
@@ -25,48 +28,14 @@ import java.util.List;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
+
+    private static ObjectMapper objectMapper;
+
     static String JDBC_DRIVER = "org.postgresql.Driver";
-
-    static String DB_URL = "jdbc:postgresql://localhost/mobtools";
-
-    //  Database credentials
-    static String DB_USER = "root";
-
-    static String DB_PASS = "root";
-
-    static Connection conn = null;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
-    }
-
-    @Override
-    public void start() throws PluginException {
-        log.debug("Going to initialize the PostgresDBPlugin");
-        try {
-            // Load the class into JVM
-            Class.forName(JDBC_DRIVER);
-            log.debug("Got the jdbc url as {}", DB_URL);
-            // Create the connection
-            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
-        } catch (ClassNotFoundException e) {
-            log.error("", e);
-        } catch (SQLException e) {
-            log.error("", e);
-        }
-    }
-
-    @Override
-    public void stop() throws PluginException {
-        log.debug("PostgresPlugin.stop()");
-        try {
-            if (conn != null) {
-                conn.close();
-            }
-        } catch (SQLException e) {
-            log.error("", e);
-            throw new PluginException(e);
-        }
+        this.objectMapper = new ObjectMapper();
     }
 
     @Slf4j
@@ -74,12 +43,11 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<ActionExecutionResult> execute(ResourceConfiguration resourceConfiguration,
-                                                   ActionConfiguration actionConfiguration,
-                                                   List<Param> params) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   ResourceConfiguration resourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
 
-            log.debug("In the PostgresPlugin execute with resourceConfiguration: {}, ActionConfig: {}",
-                    resourceConfiguration, actionConfiguration);
+            Connection conn = (Connection) connection;
             Assert.notNull(conn);
 
             ArrayList list = new ArrayList(50);
@@ -99,11 +67,47 @@ public class PostgresPlugin extends BasePlugin {
             } catch (SQLException e) {
                 log.error("", e);
             }
-            //Return list because list is the actual result. ActionExecutionResult is just a stop gap measure
-            list.forEach(System.out::println);
 
             ActionExecutionResult result = new ActionExecutionResult();
+            result.setBody(objectMapper.valueToTree(list));
             return Mono.just(result);
+        }
+
+        @Override
+        public Object resourceCreate(ResourceConfiguration resourceConfiguration) {
+            Connection conn = null;
+            try {
+                // Load the class into JVM
+                Class.forName(JDBC_DRIVER);
+
+                // Create the connection
+                conn = DriverManager.getConnection(resourceConfiguration.getUrl(),
+                                                   resourceConfiguration.getAuthentication().getUsername(),
+                                                   resourceConfiguration.getAuthentication().getPassword());
+                return conn;
+            } catch (ClassNotFoundException e) {
+                log.error("", e);
+            } catch (SQLException e) {
+                log.error("", e);
+            }
+            return conn;
+        }
+
+        @Override
+        public void resourceDestroy(Object connection) {
+            Connection conn = (Connection) connection;
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                log.error("", e);
+                try {
+                    throw new PluginException(e);
+                } catch (PluginException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
 
     }
