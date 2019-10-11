@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
+import com.appsmith.server.domains.ResourceContext;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -49,6 +50,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PageService pageService;
     private final PluginManager pluginManager;
     private final ObjectMapper objectMapper;
+    private final ResourceContextService resourceContextService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -62,7 +64,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              PluginManager pluginManager,
                              Analytics analytics,
                              SessionUserService sessionUserService,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper, ResourceContextService resourceContextService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.resourceService = resourceService;
@@ -70,6 +72,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.pageService = pageService;
         this.pluginManager = pluginManager;
         this.objectMapper = objectMapper;
+        this.resourceContextService = resourceContextService;
     }
 
     @Override
@@ -125,7 +128,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         String actionId = executeActionDTO.getActionId();
-        log.debug("Going to execute action with id: {}", actionId);
 
         // 1. Fetch the query from the DB to get the type
         Mono<Action> actionMono = repository.findById(actionId)
@@ -147,28 +149,36 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 }
         );
 
+
         // 3. Execute the query
         return actionMono
                     .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
-                        log.debug("Variable substitutions before invoking the plugin");
-
+                        ResourceConfiguration resourceConfiguration;
+                        ActionConfiguration actionConfiguration;
                         //Do variable substitution before invoking the plugin
-                        Map<String, String> replaceParamsMap = executeActionDTO
-                                .getParams()
-                                .stream()
-                                .collect(Collectors.toMap(Param::getKey, Param::getValue,
-                                                            // Incase there's a conflict, we pick the older value
-                                                            (oldValue, newValue) -> oldValue)
-                                        );
-                        ResourceConfiguration resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
-                        ActionConfiguration actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+                        //Do this only if params have been provided in the execute command
+                        if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
+                            Map<String, String> replaceParamsMap = executeActionDTO
+                                    .getParams()
+                                    .stream()
+                                    .collect(Collectors.toMap(Param::getKey, Param::getValue,
+                                            // Incase there's a conflict, we pick the older value
+                                            (oldValue, newValue) -> oldValue)
+                                    );
+                            resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
+                            actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+                        } else {
+                            resourceConfiguration = resource.getResourceConfiguration();
+                            actionConfiguration = action.getActionConfiguration();
+                        }
 
-                        log.debug("About to invoke the plugin");
-                        long start = System.currentTimeMillis();
-                        Mono<ActionExecutionResult> actionExecutionResultMono = pluginExecutor.execute(resourceConfiguration, actionConfiguration, executeActionDTO.getParams());
-                        long end = System.currentTimeMillis();
-                        log.debug("Time taken by plugin executor is : {} ms",(end-start));
-                        return actionExecutionResultMono;
+                        return resourceContextService
+                                    .getResourceContext(resource.getId())
+                                //Now that we have the context (connection details, execute the action
+                                    .flatMap(resourceContext -> pluginExecutor.execute(
+                                                                                  resourceContext.getConnection(),
+                                                                                  resourceConfiguration,
+                                                                                  actionConfiguration));
                     }))
                     .flatMap(obj -> obj);
     }

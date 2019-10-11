@@ -39,19 +39,17 @@ public class RestApiPlugin extends BasePlugin {
     public static class RestApiPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<ActionExecutionResult> execute(ResourceConfiguration resourceConfiguration,
-                                                   ActionConfiguration actionConfiguration,
-                                                   List<Param> params) {
+        public Mono<ActionExecutionResult> execute(Object connection,
+                                                   ResourceConfiguration resourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
             Map<String, Object> requestBody = actionConfiguration.getBody();
             if (requestBody == null) {
                 requestBody = (Map<String, Object>) new HashMap<String, Object>();
             }
 
-            Map<String, Param> propertyMap = params.stream()
-                    .collect(Collectors.toMap(Param::getKey, param -> param));
-
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = resourceConfiguration.getUrl() + path;
+
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
                 return Mono.error(new Exception("HttpMethod must not be null"));
@@ -62,6 +60,7 @@ public class RestApiPlugin extends BasePlugin {
             if (resourceConfiguration.getHeaders() != null) {
                 List<Property> headers = resourceConfiguration.getHeaders();
                 for (Property header : headers) {
+
                     webClientBuilder.defaultHeader(header.getKey(), header.getValue());
                 }
             }
@@ -90,15 +89,29 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
                         try {
-                            result.setBody(objectMapper.readTree(body));
-                            String headerInJsonString = objectMapper.writeValueAsString(headers);
-                            result.setHeaders(objectMapper.readTree(headerInJsonString));
+                            if (body!=null) {
+                                result.setBody(objectMapper.readTree(body));
+                            }
+                            if (headers != null) {
+                                String headerInJsonString = objectMapper.writeValueAsString(headers);
+                                result.setHeaders(objectMapper.readTree(headerInJsonString));
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
                         return result;
                     });
+        }
+
+        @Override
+        public Object resourceCreate(ResourceConfiguration resourceConfiguration) {
+            return null;
+        }
+
+        @Override
+        public void resourceDestroy(Object connection) {
+
         }
     }
 }
