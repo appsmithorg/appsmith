@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
@@ -19,6 +20,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +29,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     private final OrganizationRepository repository;
     private final SettingService settingService;
+    private final GroupService groupService;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -36,10 +39,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    OrganizationRepository repository,
                                    SettingService settingService,
                                    Analytics analytics,
-                                   SessionUserService sessionUserService) {
+                                   SessionUserService sessionUserService,
+                                   GroupService groupService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
         this.settingService = settingService;
+        this.groupService = groupService;
     }
 
     @Override
@@ -47,14 +52,15 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByName(name);
     }
 
-    /*
-     * Create needs to first fetch and embed Setting in OrganizationSetting
-     * for the settings that have diverged from the default. Once the
-     * settings has been embedded in all the organization settings, the library
-     * function is called to store the enhanced organization object.
+    /**
+     * Create organization needs to first fetch and embed Setting object in OrganizationSetting
+     * for any settings that may have diverged from the default values. Once the
+     * settings have been embedded in all the organization settings, the library
+     * function is called to store the enhanced organization object back in the organization object.
      */
     @Override
     public Mono<Organization> create(Organization organization) {
+        log.debug("Going to create org: {}", organization);
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
@@ -64,6 +70,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .flatMap(this::enhanceOrganizationSettingList)
                 //Call the library function to save the updated organization
                 .flatMap(repository::save)
+                //push the org create to analytics
                 .flatMap(this::segmentTrackCreate);
     }
 
