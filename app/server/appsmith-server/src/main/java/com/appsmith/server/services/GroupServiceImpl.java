@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.Set;
 
 @Service
 public class GroupServiceImpl extends BaseService<GroupRepository, Group, String> implements GroupService  {
@@ -26,5 +28,10 @@ public class GroupServiceImpl extends BaseService<GroupRepository, Group, String
                             SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
         this.repository = repository;
+    }
+
+    @Override
+    public Flux<Group> getAllById(Set<String> ids) {
+        return this.repository.findAllById(ids);
     }
 }
