@@ -34,7 +34,7 @@ public class AclFilter implements WebFilter {
      * The ACL policy filters user access based on the permissions that the user has and the resource they are trying
      * to access
      *
-     * Check @see src/main/resources/acl.policy for details of a sample ACL policy
+     * Check @see src/main/resources/acl.rego for details of a sample ACL policy
      *
      * @param exchange
      * @param chain

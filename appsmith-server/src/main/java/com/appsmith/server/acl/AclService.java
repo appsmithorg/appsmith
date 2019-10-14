@@ -7,13 +7,11 @@ import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -58,11 +56,9 @@ public class AclService {
                     Set<String> globalPermissions = new HashSet<>();
                     Set<String> groupSet = u.getGroupIds();
                     globalPermissions.addAll(u.getPermissions());
-                    return Flux.fromIterable(groupSet)
-                            .flatMap(groupId ->
-                                    groupService.getById(groupId)
-                                            .map(group -> group.getPermissions())
-                            ).map(obj -> globalPermissions.addAll(obj))
+                    return groupService.getAllById(groupSet)
+                            .map(group -> group.getPermissions())
+                            .map(permissions -> globalPermissions.addAll(permissions))
                             .collectList()
                             .thenReturn(globalPermissions);
                 })
