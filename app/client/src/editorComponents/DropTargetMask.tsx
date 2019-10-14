@@ -4,8 +4,8 @@ import styled, { css } from "styled-components";
 type DropTargetMaskProps = {
   rowHeight: number;
   columnWidth: number;
-  setBounds: Function;
-  showGrid: boolean;
+  setBounds?: Function;
+  showGrid?: boolean;
 };
 
 export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
@@ -16,7 +16,6 @@ export const DropTargetMaskWrapper = styled.div<DropTargetMaskProps>`
   right: 0;
   width: 100%;
   height: 100%;
-  background: white;
   ${props =>
     props.showGrid &&
     css`
@@ -42,7 +41,7 @@ export const DropTargetMask = (props: DropTargetMaskProps) => {
     const el = dropTargetMask.current;
     if (el) {
       const rect = el.getBoundingClientRect();
-      props.setBounds(rect);
+      props.setBounds && props.setBounds(rect);
     }
   });
   return <DropTargetMaskWrapper {...props} ref={dropTargetMask} />;

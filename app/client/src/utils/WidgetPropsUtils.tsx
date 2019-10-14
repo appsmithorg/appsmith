@@ -66,14 +66,13 @@ const areIntersecting = (r1: Rect, r2: Rect) => {
 
 export const isDropZoneOccupied = (
   offset: Rect,
-  widget: WidgetProps,
+  widgetId: string,
   occupied: OccupiedSpace[] | null,
 ) => {
   if (occupied) {
     occupied = occupied.filter(widgetDetails => {
       return (
-        widgetDetails.id !== widget.widgetId &&
-        widgetDetails.parentId !== widget.widgetId
+        widgetDetails.id !== widgetId && widgetDetails.parentId !== widgetId
       );
     });
     for (let i = 0; i < occupied.length; i++) {
@@ -86,6 +85,16 @@ export const isDropZoneOccupied = (
   return false;
 };
 
+export const isWidgetOverflowingParentBounds = (
+  parentRowCols: { rows?: number; cols?: number },
+  offset: Rect,
+) => {
+  return (
+    (parentRowCols.cols || GridDefaults.DEFAULT_GRID_COLUMNS) < offset.right ||
+    (parentRowCols.rows || GridDefaults.DEFAULT_GRID_ROWS) < offset.bottom
+  );
+};
+
 export const noCollision = (
   clientOffset: XYCoord,
   colWidth: number,
@@ -93,6 +102,8 @@ export const noCollision = (
   widget: WidgetProps & Partial<WidgetConfigProps>,
   dropTargetOffset: XYCoord,
   occupiedSpaces: OccupiedSpace[] | null,
+  rows?: number,
+  cols?: number,
 ): boolean => {
   if (clientOffset && dropTargetOffset && widget) {
     const [left, top] = getDropZoneOffsets(
@@ -113,7 +124,10 @@ export const noCollision = (
       top,
       bottom: top + widgetHeight,
     };
-    return !isDropZoneOccupied(currentOffset, widget, occupiedSpaces);
+    return (
+      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
+    );
   }
   return false;
 };
@@ -232,7 +246,6 @@ export const generateWidgetProps = (
         snapRows: DEFAULT_GRID_ROWS,
         orientation: "VERTICAL",
         children: [],
-        background: Colors.WHITE,
       };
     }
     return {
@@ -246,6 +259,7 @@ export const generateWidgetProps = (
       renderMode: RenderModes.CANVAS, //Is this required?
       ...sizes,
       ...others,
+      backgroundColor: Colors.WHITE,
     };
   } else {
     if (parent)

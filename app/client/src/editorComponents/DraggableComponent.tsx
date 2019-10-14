@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState, Context } from "react";
+import React, { useContext, createContext, Context } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
@@ -8,16 +8,20 @@ import { FocusContext } from "../pages/Editor/Canvas";
 import { WidgetFunctionsContext } from "../pages/Editor";
 import { ControlIcons } from "../icons/ControlIcons";
 import { theme } from "../constants/DefaultTheme";
+import { ResizingContext } from "./DropTargetComponent";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
 const CONTROL_THEME_FONTSIZE_INDEX = 6;
 
 const DraggableWrapper = styled.div<{ show: boolean }>`
+  pointer-events: auto !important;
   & > div.control {
     display: ${props => (props.show ? "block" : "none")};
   }
   display: block;
+  position: relative;
+  z-index: 1;
 `;
 
 const DragHandle = styled.div`
@@ -27,7 +31,6 @@ const DragHandle = styled.div`
   cursor: move;
   display: none;
   cursor: grab;
-  z-index: 11;
 `;
 
 const DeleteControl = styled.div`
@@ -36,7 +39,6 @@ const DeleteControl = styled.div`
   top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   display: none;
   cursor: pointer;
-  z-index: 11;
 `;
 
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
@@ -51,15 +53,15 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
 
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
-export const RnDContext: Context<{
-  setIsResizing?: Function;
+export const DraggingContext: Context<{
   isDragging?: boolean;
 }> = createContext({});
 
 const DraggableComponent = (props: DraggableComponentProps) => {
   const { isFocused, setFocus } = useContext(FocusContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
-  const [isResizing, setIsResizing] = useState(false);
+  const { isResizing } = useContext(ResizingContext);
+
   const deleteWidget = () => {
     updateWidget &&
       updateWidget(WidgetOperations.DELETE, props.widgetId, {
@@ -77,7 +79,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   });
 
   return (
-    <RnDContext.Provider value={{ setIsResizing, isDragging }}>
+    <DraggingContext.Provider value={{ isDragging }}>
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
         ref={drag}
@@ -104,15 +106,15 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             props.style.componentHeight + (props.style.heightUnit || "px"),
         }}
       >
+        {props.children}
         <DragHandle className="control" ref={drag}>
           {moveControlIcon}
         </DragHandle>
         <DeleteControl className="control" onClick={deleteWidget}>
           {deleteControlIcon}
         </DeleteControl>
-        {props.children}
       </DraggableWrapper>
-    </RnDContext.Provider>
+    </DraggingContext.Provider>
   );
 };
 
