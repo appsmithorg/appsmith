@@ -19,7 +19,14 @@ allowed_operations = [
     {"method": "POST", "resource": "organizations", "permission": "create:organizations"},
     {"method": "GET", "resource": "organizations", "permission": "read:organizations"},
     {"method": "POST", "resource": "signup", "permission": "create:organizations"},
+    {"method": "GET", "resource": "pages", "permission": "read:pages"},
+    {"method": "POST", "resource": "pages", "permission": "create:pages"},
+    {"method": "PUT", "resource": "pages", "permission": "update:pages"},
+    {"method": "GET", "resource": "layouts", "permission": "read:layouts"},
+    {"method": "POST", "resource": "layouts", "permission": "create:layouts"},
+    {"method": "PUT", "resource": "layouts", "permission": "update:layouts"},
 ]
+
 
 # This rule is a WIP to create SQL queries based on the policy. For example, the user may be allowed to see a list
 # of records that only belong to them and NOT all the records. While url_allow rule will allow the user to access
