@@ -6,10 +6,9 @@ import { theme } from "../constants/DefaultTheme";
 
 const DropZoneWrapper = styled.div`
   position: absolute;
-  z-index: 10;
   background: ${props => props.theme.colors.hover};
   border: 1px dashed ${props => props.theme.colors.textAnchor};
-  opacity: 0.7;
+  opacity: 0.6;
 `;
 
 type DropZoneProps = {

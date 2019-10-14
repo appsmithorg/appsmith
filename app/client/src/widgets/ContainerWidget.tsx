@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, Context } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import ContainerComponent from "../editorComponents/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
@@ -11,6 +11,9 @@ import DraggableComponent from "../editorComponents/DraggableComponent";
 import ResizableComponent from "../editorComponents/ResizableComponent";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
+export const OccupiedSpaceContext: Context<
+  OccupiedSpace[] | any
+> = createContext(null);
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -78,6 +81,7 @@ class ContainerWidget extends BaseWidget<
         }))
       : null;
   }
+
   getCanvasView() {
     const style = this.getPositionStyle();
     const occupiedSpaces = this.getOccupiedSpaces();
@@ -85,7 +89,6 @@ class ContainerWidget extends BaseWidget<
       <DropTargetComponent
         {...this.props}
         {...this.state}
-        occupiedSpaces={occupiedSpaces}
         style={{
           ...style,
         }}
@@ -106,7 +109,11 @@ class ContainerWidget extends BaseWidget<
       </DraggableComponent>
     );
 
-    return this.props.parentId ? renderDraggableComponent : renderComponent;
+    return (
+      <OccupiedSpaceContext.Provider value={occupiedSpaces}>
+        {this.props.parentId ? renderDraggableComponent : renderComponent}
+      </OccupiedSpaceContext.Provider>
+    );
   }
 
   getWidgetType(): WidgetType {

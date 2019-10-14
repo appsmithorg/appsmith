@@ -9,12 +9,10 @@ import DropTargetMask from "./DropTargetMask";
 const WrappedDragLayer = styled.div`
   position: absolute;
   pointer-events: none;
-  z-index: 10;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  cursor: grab;
 `;
 
 type DragLayerProps = {
@@ -26,6 +24,9 @@ type DragLayerProps = {
   occupiedSpaces: OccupiedSpace[] | null;
   onBoundsUpdate: Function;
   isOver: boolean;
+  parentRows?: number;
+  parentCols?: number;
+  isResizing?: boolean;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
@@ -41,6 +42,8 @@ const DragLayerComponent = (props: DragLayerProps) => {
         monitor.getItem(),
         props.dropTargetOffset,
         props.occupiedSpaces,
+        props.parentRows,
+        props.parentCols,
       ),
     }),
   );
@@ -52,7 +55,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       : widget.rightColumn - widget.leftColumn;
     widgetHeight = widget.rows ? widget.rows : widget.bottomRow - widget.topRow;
   }
-  if (!isDragging || !props.visible) {
+  if ((!isDragging || !props.visible) && !props.isResizing) {
     return null;
   }
   return (
@@ -61,7 +64,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
         rowHeight={props.parentRowHeight}
         columnWidth={props.parentColumnWidth}
         setBounds={props.onBoundsUpdate}
-        showGrid={isDragging && props.isOver}
+        showGrid={(isDragging && props.isOver) || props.isResizing}
       />
       <DropZone
         {...props}

@@ -14,6 +14,7 @@ import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "./sagas";
 import { DndProvider } from "react-dnd";
+// import TouchBackend from "react-dnd-touch-backend";
 import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";

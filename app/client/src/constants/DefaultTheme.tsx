@@ -12,6 +12,12 @@ const {
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
+export type ThemeBorder = {
+  thickness: string;
+  style: "dashed" | "solid";
+  color: Color;
+};
+
 export type Theme = {
   radii: Array<number>;
   fontSizes: Array<number>;
@@ -20,7 +26,23 @@ export type Theme = {
   colors: Record<string, Color>;
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
-  borders: { thickness: string; style: "dashed" | "solid"; color: Color }[];
+  borders: ThemeBorder[];
+};
+
+export const getColorWithOpacity = (color: Color, opacity: number) => {
+  color = color.slice(1);
+  const val = parseInt(color, 16);
+  const r = (val >> 16) & 255;
+  const g = (val >> 8) & 255;
+  const b = val & 255;
+  return `rgba(${r},${g},${b},${opacity})`;
+};
+
+export const getBorderCSSShorthand = (border?: ThemeBorder) => {
+  if (border) {
+    return Object.values(border).join(" ");
+  }
+  return "";
 };
 
 export const theme: Theme = {
@@ -46,6 +68,11 @@ export const theme: Theme = {
   borders: [
     {
       thickness: "1px",
+      style: "dashed",
+      color: Colors.FRENCH_PASS,
+    },
+    {
+      thickness: "2px",
       style: "solid",
       color: Colors.FRENCH_PASS,
     },
