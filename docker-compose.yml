@@ -1,11 +1,15 @@
-version: "3"
+version: "3.7"
 
 services:
   appsmith-internal-server:
-    image: appsmith-server
+    image: arpitappsmith/appsmith-server:maven
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     ports:
       - "8080:8080"
     links:
+      - mongo
+    depends_on:
       - mongo
     networks:
       - appsmith
@@ -14,15 +18,29 @@ services:
     image: mongo
     ports:
       - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=mobtools
+    volumes:
+      - ./mongo-seed/:/docker-entrypoint-initdb.d/
     networks:
       - appsmith
 
-  mongo_seed:
-    image: appsmith-mongo
-    links:
-      - mongo
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - appsmith
+
+  opa:
+    image: openpolicyagent/opa
+    command: "run --server -c /config/config.yml"
     volumes:
-      - ./mongo-seed:/mongo-seed
+      - ./appsmith-server/src/main/resources/opa/:/config
+    environment:
+      - APPSMITH_SERVER_URL=http://appsmith-internal-server:8080
+    ports:
+      - "8181:8181"
     networks:
       - appsmith
 
