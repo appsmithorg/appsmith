@@ -21,6 +21,8 @@
         <source.disabled>true</source.disabled>
         <project.groupId>com.appsmith</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
+        <!-- By default skip the dockerization step. Only activate if necessary -->
+        <skipDockerBuild>true</skipDockerBuild>
     </properties>
 
     <build>
@@ -36,6 +38,74 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.5</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                This plugin optimizes the docker container for updates by making the incremental
+                layers smaller. Refer: https://phauer.com/2019/no-fat-jar-in-docker-image/
+            -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>1.6.1</version>
+                <configuration>
+                    <from>
+                        <image>adoptopenjdk/openjdk11:alpine-jre</image>
+                    </from>
+                    <to>
+                        <!-- Currently this image is created under Arpit's username. This is because of pricing
+                            structure of Docker hub. Will move it to Appsmith's org account once that is resolved.
+                         -->
+                        <image>docker.io/arpitappsmith/appsmith-server</image>
+                        <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
+                        <tags>
+                            <tag>${git.commit.id}</tag>
+                        </tags>
+                    </to>
+                    <container>
+                        <jvmFlags>
+                            <jvmFlag>-server</jvmFlag>
+                        </jvmFlags>
+                    </container>
+                    <skip>${skipDockerBuild}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-and-push-docker-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
     </build>
 
     <modules>
