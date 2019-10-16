@@ -1,0 +1,19 @@
+services:
+  appsmith:
+    url: http://appsmith-internal-server:8080/public
+    credentials:
+      basic:
+        token: "YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw=="
+
+labels:
+  app: appsmith-docker
+  region: east
+  environment: docker
+
+bundles:
+  authz:
+    service: appsmith
+    resource: bundle.tar.gz
+    polling:
+      min_delay_seconds: 60
+      max_delay_seconds: 120
