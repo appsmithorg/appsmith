@@ -18,7 +18,6 @@ variables:
   MAVEN_OPTS: "-Djava.awt.headless=true -Dmaven.repo.local=./.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
-  HEROKU_API_KEY: "467e709c-8489-4e26-be07-050030251f3d"
 
 stages:
   - build
