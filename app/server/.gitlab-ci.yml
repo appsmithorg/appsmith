@@ -39,7 +39,6 @@ maven-build:
     - merge_requests
 
 docker-package:
-  image: maven:3-jdk-11-slim
   stage: package
   script:
     - docker login -u arpitappsmith -p $DOCKER_HUB_ACCESS_TOKEN
