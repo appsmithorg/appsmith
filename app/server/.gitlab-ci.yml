@@ -41,9 +41,8 @@ maven-build:
 docker-package:
   stage: package
   script:
-    - docker build -t $DOCKER_IMAGE_NAME .
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
-    - docker push $DOCKER_IMAGE_NAME
+    - mvn package -DskipTests -DskipDockerBuild=false
   only:
     - master
 
