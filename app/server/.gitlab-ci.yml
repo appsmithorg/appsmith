@@ -17,7 +17,6 @@ variables:
   SPRING_PROFILES_ACTIVE: test
   MAVEN_OPTS: "-Djava.awt.headless=true -Dmaven.repo.local=./.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  DOCKER_HUB_ACCESS_TOKEN: "8f5085ea-3b04-42bd-8a67-22bca42443c8"
   DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
   HEROKU_API_KEY: "467e709c-8489-4e26-be07-050030251f3d"
 
@@ -39,9 +38,9 @@ maven-build:
     - merge_requests
 
 docker-package:
+  image: maven:3-jdk-11-slim
   stage: package
   script:
-    - docker login -u arpitappsmith -p $DOCKER_HUB_ACCESS_TOKEN
     - mvn package -DskipTests -DskipDockerBuild=false
   only:
     - master

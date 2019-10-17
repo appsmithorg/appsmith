@@ -57,6 +57,13 @@
                             structure of Docker hub. Will move it to Appsmith's org account once that is resolved.
                          -->
                         <image>docker.io/arpitappsmith/appsmith-server</image>
+                        <!-- Please define the Docker Hub credentials as environment variables.
+                            In Gitlab, this will be defined under VARIABLES section of CI/CD Settings
+                        -->
+                        <auth>
+                            <username>${env.DOCKER_HUB_USERNAME}</username>
+                            <password>${env.DOCKER_HUB_ACCESS_TOKEN}</password>
+                        </auth>
                     </to>
                     <container>
                         <jvmFlags>
