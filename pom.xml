@@ -40,30 +40,6 @@
         </resources>
 
         <plugins>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.5</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
-                        <phase>initialize</phase>
-                    </execution>
-                    <execution>
-                        <id>validate-the-git-infos</id>
-                        <goals>
-                            <goal>validateRevision</goal>
-                        </goals>
-                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!--
                 This plugin optimizes the docker container for updates by making the incremental
                 layers smaller. Refer: https://phauer.com/2019/no-fat-jar-in-docker-image/
@@ -81,10 +57,6 @@
                             structure of Docker hub. Will move it to Appsmith's org account once that is resolved.
                          -->
                         <image>docker.io/arpitappsmith/appsmith-server</image>
-                        <!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
-                        <tags>
-                            <tag>${git.commit.id}</tag>
-                        </tags>
                     </to>
                     <container>
                         <jvmFlags>
