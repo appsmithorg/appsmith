@@ -10,7 +10,6 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
-import com.appsmith.server.domains.ResourceContext;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -171,15 +170,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             resourceConfiguration = resource.getResourceConfiguration();
                             actionConfiguration = action.getActionConfiguration();
                         }
-
                         return resourceContextService
                                     .getResourceContext(resource.getId())
-                                //Now that we have the context (connection details, execute the action
+                                    //Now that we have the context (connection details, execute the action
                                     .flatMap(resourceContext -> pluginExecutor.execute(
                                                                                   resourceContext.getConnection(),
                                                                                   resourceConfiguration,
                                                                                   actionConfiguration));
                     }))
+                    .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))
                     .flatMap(obj -> obj);
     }
 

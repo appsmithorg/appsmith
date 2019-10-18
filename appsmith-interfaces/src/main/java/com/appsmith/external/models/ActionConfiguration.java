@@ -35,7 +35,16 @@ public class ActionConfiguration {
     HttpMethod httpMethod;
 
     // DB action fields
-    String query;
+
+    /*
+     * For SQL plugins, the query field would be of the following format :
+     * {
+     *     "cmd" : "select * from users;"
+     * }
+     * For noSQL plugins, the query json would be constructed according to
+     * the requirements of the plugin.
+     */
+    Map<String, Object> query;
 
     /*
      * Future plugins could require more fields that are not covered above.
