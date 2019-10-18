@@ -28,8 +28,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     private UserRepository repository;
     private final OrganizationService organizationService;
-    private final Analytics analytics;
-
+    private final AnalyticsService analyticsService;
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -37,12 +36,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
                            OrganizationService organizationService,
-                           Analytics analytics,
-                           SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                           AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
-        this.analytics = analytics;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -58,19 +56,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
 
-        Mono<User> savedUserMono = repository.save(user);
+        Mono<User> savedUserMono = super.create(user);
         return savedUserMono
-                .map(savedUser -> {
-                    Map<String, String> traitsMap = new HashMap<>();
-                    traitsMap.put("name", savedUser.getName());
-                    traitsMap.put("email", savedUser.getEmail());
-                    analytics.enqueue(IdentifyMessage.builder()
-                            .userId(savedUser.getId())
-                            .traits(traitsMap)
-                    );
-                    analytics.flush();
-                    return savedUser;
-                });
+                .flatMap(analyticsService::trackNewUser);
     }
 
     @Override

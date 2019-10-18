@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -23,12 +23,18 @@ import javax.validation.Validator;
 @Service
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
-    private final Analytics analytics;
+    private final SessionUserService sessionUserService;
 
     @Autowired
-    public ApplicationServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, ApplicationRepository repository, SessionUserService sessionUserService, Analytics analytics) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
-        this.analytics = analytics;
+    public ApplicationServiceImpl(Scheduler scheduler,
+                                  Validator validator,
+                                  MongoConverter mongoConverter,
+                                  ReactiveMongoTemplate reactiveMongoTemplate,
+                                  ApplicationRepository repository,
+                                  AnalyticsService analyticsService,
+                                  SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -37,7 +43,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+        Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())
@@ -45,14 +51,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setOrganizationId(orgId);
                     return application;
                 })
-                .flatMap(repository::save)
-                //Log the event to Segment
-                .flatMap(this::segmentTrackCreate);
+                .flatMap(super::create);
     }
 
     @Override
     public Flux<Application> get() {
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+        Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())
@@ -65,7 +69,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+        Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getOrganizationId())
