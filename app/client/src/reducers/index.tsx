@@ -10,6 +10,7 @@ import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
+import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -20,6 +21,7 @@ export default appReducer;
 
 export interface AppState {
   ui: {
+    widgetSidebar: WidgetSidebarReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     errors: ErrorReduxState;

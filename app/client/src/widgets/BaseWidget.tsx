@@ -15,7 +15,7 @@ import _ from "lodash";
 import DraggableComponent from "../editorComponents/DraggableComponent";
 import ResizableComponent from "../editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
-import { WidgetFunctionsContext } from "../pages/Editor";
+import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 
 abstract class BaseWidget<
   T extends WidgetProps,

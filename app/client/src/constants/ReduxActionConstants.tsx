@@ -78,11 +78,11 @@ export interface ShowPropertyPanePayload {
 
 // export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
 
-export interface LoadWidgetPanePayload {
+export interface LoadWidgetEditorPayload {
   widgets: WidgetProps[];
 }
 
-export interface LoadWidgetCardsPanePayload {
+export interface LoadWidgetSidebarPayload {
   cards: { [id: string]: WidgetCardProps[] };
 }
 

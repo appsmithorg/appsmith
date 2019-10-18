@@ -6,7 +6,7 @@ const Header = styled.header`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 50px;
+  height: ${props => props.theme.headerHeight};
   padding: 0px 30px;
   box-shadow: 0px 0px 3px #ccc;
   background: #fff;
