@@ -1,7 +1,7 @@
 import { WidgetCardProps } from "../widgets/BaseWidget";
 import { generateReactKey } from "../utils/generators";
 
-const WidgetCardsPaneResponse: {
+const WidgetSidebarResponse: {
   [id: string]: WidgetCardProps[];
 } = {
   common: [
@@ -96,4 +96,4 @@ const WidgetCardsPaneResponse: {
   ],
 };
 
-export default WidgetCardsPaneResponse;
+export default WidgetSidebarResponse;

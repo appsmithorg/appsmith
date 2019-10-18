@@ -8,7 +8,7 @@ import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
 import { FocusContext } from "../pages/Editor/Canvas";
 import { DraggingContext } from "./DraggableComponent";
-import { WidgetFunctionsContext } from "../pages/Editor";
+import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 import { ResizingContext } from "./DropTargetComponent";
 import {
   theme,

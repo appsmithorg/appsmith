@@ -27,6 +27,8 @@ export type Theme = {
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
   borders: ThemeBorder[];
+  headerHeight: string;
+  sidebarWidth: string;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -60,8 +62,11 @@ export const theme: Theme = {
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
     paneBG: Colors.OUTER_SPACE,
+    navBG: Colors.DEEP_SPACE,
     grid: Colors.GEYSER,
     containerBorder: Colors.FRENCH_PASS,
+    menuButtonBGInactive: Colors.JUNGLE_MIST,
+    menuIconColorInactive: Colors.OXFORD_BLUE,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
@@ -77,6 +82,8 @@ export const theme: Theme = {
       color: Colors.FRENCH_PASS,
     },
   ],
+  sidebarWidth: "350px",
+  headerHeight: "50px",
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
