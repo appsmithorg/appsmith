@@ -23,9 +23,8 @@ public class SettingServiceImpl extends BaseService<SettingRepository, Setting, 
                               MongoConverter mongoConverter,
                               ReactiveMongoTemplate reactiveMongoTemplate,
                               SettingRepository repository,
-                              Analytics analytics,
-                              SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                              AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
     }
 

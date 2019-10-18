@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
@@ -61,10 +62,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              PluginService pluginService,
                              PageService pageService,
                              PluginManager pluginManager,
-                             Analytics analytics,
-                             SessionUserService sessionUserService,
-                             ObjectMapper objectMapper, ResourceContextService resourceContextService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                             AnalyticsService analyticsService,
+                             ObjectMapper objectMapper,
+                             ResourceContextService resourceContextService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.resourceService = resourceService;
         this.pluginService = pluginService;
@@ -84,7 +85,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Mono.error(new AppsmithException(AppsmithError.PAGE_ID_NOT_GIVEN));
         }
 
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
         Mono<Resource> resourceMono = resourceService.findById(action.getResourceId());
         Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId()));
         Mono<Page> pageMono = pageService.findById(action.getPageId());
@@ -94,34 +94,32 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     action.setPluginId(plugin.getId());
                     return action;
                 })
-                .flatMap(repository::save)
+                .flatMap(super::create)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)));
 
         return savedActionMono
                 //Now that the action has been stored, add it to the page
-                .flatMap(action1 -> {
-                    return pageMono
-                            .map(page -> {
-                                PageAction pageAction = new PageAction();
-                                pageAction.setId(action1.getId());
-                                pageAction.setName(action1.getName());
-                                pageAction.setJsonPathKeys(new ArrayList<>());
+                .flatMap(action1 -> pageMono
+                                        .map(page -> {
+                                            PageAction pageAction = new PageAction();
+                                            pageAction.setId(action1.getId());
+                                            pageAction.setName(action1.getName());
+                                            pageAction.setJsonPathKeys(new ArrayList<>());
 
-                                List<PageAction> actions = page.getActions();
+                                            List<PageAction> actions = page.getActions();
 
-                                if (actions == null) {
-                                    actions = new ArrayList<>();
-                                }
+                                            if (actions == null) {
+                                                actions = new ArrayList<>();
+                                            }
 
-                                actions.add(pageAction);
-                                page.setActions(actions);
-                                return page;
-                            })
-                            .flatMap(pageService::save)
-                            .then(Mono.just(action1))
-                            //Now publish this event
-                            .flatMap(this::segmentTrackCreate);
-                });
+                                            actions.add(pageAction);
+                                            page.setActions(actions);
+                                            return page;
+                                        })
+                                        .flatMap(pageService::save)
+                                        //Finally return the saved action
+                                        .then(Mono.just(action1))
+                );
     }
 
     @Override

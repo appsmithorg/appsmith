@@ -24,9 +24,8 @@ public class GroupServiceImpl extends BaseService<GroupRepository, Group, String
                             MongoConverter mongoConverter,
                             ReactiveMongoTemplate reactiveMongoTemplate,
                             GroupRepository repository,
-                            Analytics analytics,
-                            SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                            AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
     }
 
