@@ -1,4 +1,10 @@
-import React, { useContext, createContext, Context } from "react";
+import React, {
+  useContext,
+  createContext,
+  useState,
+  Context,
+  useCallback,
+} from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
@@ -35,10 +41,27 @@ const DragHandle = styled.div`
 
 const DeleteControl = styled.div`
   position: absolute;
+  right: ${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  display: none;
+  cursor: pointer;
+`;
+
+const EditControl = styled.div`
+  position: absolute;
   right: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
   display: none;
   cursor: pointer;
+`;
+
+const DraggableMask = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
 `;
 
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
@@ -51,41 +74,84 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
   height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
 });
 
+const editControlIcon = ControlIcons.EDIT_CONTROL({
+  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+});
+
 type DraggableComponentProps = WidgetProps & ContainerProps;
 
-export const DraggingContext: Context<{
+export const DraggableComponentContext: Context<{
   isDragging?: boolean;
+  widgetNode?: HTMLDivElement;
 }> = createContext({});
+/* eslint-disable react/display-name */
+
+//TODO(abhinav): the contexts and states are getting out of hand.
+// Refactor here and in ResizableComponent
 
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const { isFocused, setFocus } = useContext(FocusContext);
+  const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
+  const [currentNode, setCurrentNode] = useState<HTMLDivElement>();
+  const referenceRef = useCallback(
+    node => {
+      if (node !== null && node !== currentNode) {
+        setCurrentNode(node);
+      }
+    },
+    [setCurrentNode, currentNode],
+  );
   const { isResizing } = useContext(ResizingContext);
 
   const deleteWidget = () => {
+    showPropertyPane && showPropertyPane();
     updateWidget &&
       updateWidget(WidgetOperations.DELETE, props.widgetId, {
         parentId: props.parentId,
       });
   };
+
+  const togglePropertyEditor = (e: any) => {
+    if (showPropertyPane && props.widgetId && currentNode) {
+      showPropertyPane(props.widgetId, currentNode, true);
+    }
+    e.stopPropagation();
+  };
+
   const [{ isDragging }, drag, preview] = useDrag({
     item: props,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    end: (widget, monitor) => {
+      if (monitor.didDrop()) {
+        if (isFocused === props.widgetId && showPropertyPane && currentNode) {
+          showPropertyPane(props.widgetId, currentNode, true);
+        }
+      }
+    },
+    begin: () => {
+      if (isFocused === props.widgetId && showPropertyPane && currentNode) {
+        showPropertyPane(props.widgetId, undefined);
+      }
+    },
     canDrag: () => {
       return !isResizing && !!isFocused && isFocused === props.widgetId;
     },
   });
 
   return (
-    <DraggingContext.Provider value={{ isDragging }}>
+    <DraggableComponentContext.Provider
+      value={{ isDragging, widgetNode: currentNode }}
+    >
       <DragPreviewImage src={blankImage} connect={preview} />
       <DraggableWrapper
         ref={drag}
         onClick={(e: any) => {
-          if (setFocus) {
+          if (setFocus && showPropertyPane) {
             setFocus(props.widgetId);
+            showPropertyPane(props.widgetId, currentNode);
             e.stopPropagation();
           }
         }}
@@ -106,6 +172,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             props.style.componentHeight + (props.style.heightUnit || "px"),
         }}
       >
+        <DraggableMask ref={referenceRef} />
         {props.children}
         <DragHandle className="control" ref={drag}>
           {moveControlIcon}
@@ -113,8 +180,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         <DeleteControl className="control" onClick={deleteWidget}>
           {deleteControlIcon}
         </DeleteControl>
+        <EditControl className="control" onClick={togglePropertyEditor}>
+          {editControlIcon}
+        </EditControl>
       </DraggableWrapper>
-    </DraggingContext.Provider>
+    </DraggableComponentContext.Provider>
   );
 };
 

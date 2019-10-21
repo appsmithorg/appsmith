@@ -45,8 +45,8 @@ export interface PropertyPaneConfigState {
   configVersion: number;
 }
 
-const widgetConfigReducer = createReducer(initialState, {
-  [ReduxActionTypes.LOAD_PROPERTY_CONFIG]: (
+const propertyPaneConfigReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_PROPERTY_PANE_CONFIGS_SUCCESS]: (
     state: PropertyPaneConfigState,
     action: ReduxAction<PropertyPaneConfigState>,
   ) => {
@@ -54,4 +54,4 @@ const widgetConfigReducer = createReducer(initialState, {
   },
 });
 
-export default widgetConfigReducer;
+export default propertyPaneConfigReducer;

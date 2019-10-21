@@ -18,12 +18,6 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
-      type: "SPINNER_WIDGET",
-      icon: "icon-switch",
-      widgetCardName: "Spinner",
-      key: generateReactKey(),
-    },
-    {
       type: "CONTAINER_WIDGET",
       icon: "icon-container",
       widgetCardName: "Container",
@@ -31,12 +25,6 @@ const WidgetSidebarResponse: {
     },
   ],
   form: [
-    {
-      type: "BUTTON_WIDGET",
-      icon: "icon-button",
-      widgetCardName: "Button",
-      key: generateReactKey(),
-    },
     {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
@@ -64,7 +52,7 @@ const WidgetSidebarResponse: {
     {
       type: "SWITCH_WIDGET",
       icon: "icon-switch",
-      widgetCardName: "Toggle",
+      widgetCardName: "Switch",
       key: generateReactKey(),
     },
   ],
@@ -79,12 +67,6 @@ const WidgetSidebarResponse: {
       type: "CONTAINER_WIDGET",
       icon: "icon-container",
       widgetCardName: "Container",
-      key: generateReactKey(),
-    },
-    {
-      type: "SPINNER_WIDGET",
-      icon: "icon-spinner",
-      widgetCardName: "Spinner",
       key: generateReactKey(),
     },
     {

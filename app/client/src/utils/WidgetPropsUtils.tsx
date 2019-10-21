@@ -252,11 +252,11 @@ export const generateWidgetProps = (
       ...widgetConfig,
       type,
       widgetId: generateReactKey(),
-      widgetName: widgetName || generateReactKey(), //TODO: figure out what this is to populate appropriately
+      widgetName: widgetName,
       isVisible: true,
       parentColumnSpace,
       parentRowSpace,
-      renderMode: RenderModes.CANVAS, //Is this required?
+      renderMode: RenderModes.CANVAS,
       ...sizes,
       ...others,
       backgroundColor: Colors.WHITE,

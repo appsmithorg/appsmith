@@ -4,8 +4,6 @@ import styled from "styled-components";
 import Canvas from "./Canvas";
 import PropertyPane from "./PropertyPane";
 import { AppState } from "../../reducers";
-import { EditorReduxState } from "../../reducers/uiReducers/editorReducer";
-import CanvasWidgetsNormalizer from "../../normalizers/CanvasWidgetsNormalizer";
 import {
   WidgetFunctions,
   WidgetOperation,
@@ -14,8 +12,21 @@ import {
 import { ActionPayload } from "../../constants/ActionConstants";
 import { executeAction } from "../../actions/widgetActions";
 import { fetchPage, savePage, updateWidget } from "../../actions/pageActions";
+import {
+  getPropertyPaneConfigsId,
+  getCurrentLayoutId,
+  getCurrentPageId,
+  getDenormalizedDSL,
+  getCurrentPageName,
+  getPageWidgetId,
+} from "../../selectors/editorSelectors";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import {
+  EditorConfigIdsType,
+  fetchEditorConfigs,
+} from "../../actions/configsActions";
+import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -52,7 +63,13 @@ type EditorProps = {
   currentPageName: string;
   currentPageId: string;
   currentLayoutId: string;
-  isSaving: boolean;
+  showPropertyPane: (
+    widgetId?: string,
+    node?: HTMLDivElement,
+    toggle?: boolean,
+  ) => void;
+  fetchConfigs: Function;
+  propertyPaneConfigsId: string;
 };
 
 export const WidgetFunctionsContext: Context<WidgetFunctions> = createContext(
@@ -61,6 +78,11 @@ export const WidgetFunctionsContext: Context<WidgetFunctions> = createContext(
 
 class WidgetsEditor extends React.Component<EditorProps> {
   componentDidMount() {
+    this.props.fetchConfigs({
+      propertyPaneConfigsId: this.props.propertyPaneConfigsId,
+      // widgetCardsPaneId: this.props.widgetCardsPaneId,
+      // widgetConfigsId: this.props.widgetConfigsId,
+    });
     this.props.fetchCanvasWidgets(this.props.currentPageId);
   }
 
@@ -74,7 +96,12 @@ class WidgetsEditor extends React.Component<EditorProps> {
       >
         <EditorWrapper>
           <CanvasContainer>
-            {this.props.dsl && <Canvas dsl={this.props.dsl} />}
+            {this.props.dsl && (
+              <Canvas
+                dsl={this.props.dsl}
+                showPropertyPane={this.props.showPropertyPane}
+              />
+            )}
           </CanvasContainer>
           <PropertyPane />
         </EditorWrapper>
@@ -83,26 +110,14 @@ class WidgetsEditor extends React.Component<EditorProps> {
   }
 }
 
-const mapStateToProps = (state: AppState): EditorReduxState => {
-  // TODO(abhinav) : Benchmark this, see how many times this is called in the application
-  // lifecycle. Move to using flattend redux state for widgets if necessary.
-
-  // Also, try to merge the widgetCards and widgetConfigs in the fetch Saga.
-  // No point in storing widgetCards, without widgetConfig
-  // Alternatively, try to see if we can continue to use only WidgetConfig and eliminate WidgetCards
-
-  const dsl = CanvasWidgetsNormalizer.denormalize(
-    state.ui.editor.pageWidgetId,
-    state.entities,
-  );
-
+const mapStateToProps = (state: AppState) => {
   return {
-    dsl,
-    pageWidgetId: state.ui.editor.pageWidgetId,
-    currentPageId: state.ui.editor.currentPageId,
-    currentLayoutId: state.ui.editor.currentLayoutId,
-    currentPageName: state.ui.editor.currentPageName,
-    isSaving: state.ui.editor.isSaving,
+    dsl: getDenormalizedDSL(state),
+    pageWidgetId: getPageWidgetId(state),
+    currentPageId: getCurrentPageId(state),
+    currentLayoutId: getCurrentLayoutId(state),
+    currentPageName: getCurrentPageName(state),
+    propertyPaneConfigsId: getPropertyPaneConfigsId(state),
   };
 };
 
@@ -122,6 +137,18 @@ const mapDispatchToProps = (dispatch: any) => {
       layoutId: string,
       dsl: ContainerWidgetProps<WidgetProps>,
     ) => dispatch(savePage(pageId, layoutId, dsl)),
+    fetchConfigs: (configsIds: EditorConfigIdsType) =>
+      dispatch(fetchEditorConfigs(configsIds)),
+    showPropertyPane: (
+      widgetId?: string,
+      node?: HTMLDivElement,
+      toggle = false,
+    ) => {
+      dispatch({
+        type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+        payload: { widgetId, node, toggle },
+      });
+    },
   };
 };
 

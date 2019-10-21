@@ -18,6 +18,11 @@ export type ThemeBorder = {
   color: Color;
 };
 
+type PropertyPaneTheme = {
+  width: number;
+  height: number;
+};
+
 export type Theme = {
   radii: Array<number>;
   fontSizes: Array<number>;
@@ -27,6 +32,7 @@ export type Theme = {
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
   borders: ThemeBorder[];
+  propertyPane: PropertyPaneTheme;
   headerHeight: string;
   sidebarWidth: string;
 };
@@ -52,6 +58,10 @@ export const theme: Theme = {
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30],
   fontWeights: [0, 400, 500, 700],
+  propertyPane: {
+    width: 250,
+    height: 600,
+  },
   colors: {
     primary: Colors.GREEN,
     error: Colors.RED,

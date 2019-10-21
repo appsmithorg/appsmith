@@ -4,6 +4,7 @@ import apiDataReducer from "./apiDataReducer";
 import queryDataReducer from "./queryDataReducer";
 import widgetConfigReducer from "./widgetConfigReducer";
 import actionsReducer from "./actionsReducer";
+import propertyPaneConfigReducer from "./propertyPaneConfigReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
@@ -11,5 +12,6 @@ const entityReducer = combineReducers({
   queryData: queryDataReducer,
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
+  propertyConfig: propertyPaneConfigReducer,
 });
 export default entityReducer;
