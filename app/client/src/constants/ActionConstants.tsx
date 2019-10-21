@@ -61,8 +61,8 @@ export interface DownloadDataActionPayload extends ActionPayload {
 }
 
 export interface PageAction {
-  actionId: string;
+  id: string;
   actionType: ActionType;
-  actionName: string;
-  dynamicBindings?: string[];
+  name: string;
+  jsonPathKeys?: string[];
 }

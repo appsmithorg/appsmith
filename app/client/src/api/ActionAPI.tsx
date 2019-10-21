@@ -1,11 +1,11 @@
 import API, { HttpMethod } from "./Api";
-import { ApiResponse } from "./ApiResponses";
+import { ApiResponse, GenericApiResponse } from "./ApiResponses";
 import { APIRequest } from "../constants/ApiConstants";
-import { mapToPropList } from "../utils/AppsmithUtils";
 
 export interface CreateActionRequest<T> extends APIRequest {
   resourceId: string;
-  actionName: string;
+  pageId: string;
+  name: string;
   actionConfiguration: T;
 }
 
@@ -15,9 +15,10 @@ export interface UpdateActionRequest<T> extends CreateActionRequest<T> {
 
 export interface APIConfig {
   resourceId: string;
-  actionName: string;
+  pageId: string;
+  name: string;
   requestHeaders: Record<string, string>;
-  method: HttpMethod;
+  httpMethod: HttpMethod;
   path: string;
   body: JSON;
   queryParams: Record<string, string>;
@@ -31,9 +32,9 @@ export interface Property {
 
 export interface APIConfigRequest {
   headers: Property[];
-  httpMethod: HttpMethod;
+  httpMethod: string;
   path: string;
-  body: JSON;
+  body: JSON | string;
   queryParameters: Property[];
 }
 
@@ -42,8 +43,17 @@ export interface QueryConfig {
 }
 
 export interface ActionCreateUpdateResponse extends ApiResponse {
-  actionId: string;
-  dynamicBindingMap: Record<string, string>;
+  id: string;
+  jsonPathKeys: Record<string, string>;
+}
+
+export interface RestAction {
+  id: string;
+  name: string;
+  resourceId: string;
+  pluginId: string;
+  pageId: string;
+  actionConfiguration: APIConfigRequest;
 }
 
 export interface ExecuteActionRequest extends APIRequest {
@@ -59,35 +69,26 @@ export interface ExecuteActionResponse extends ApiResponse {
 class ActionAPI extends API {
   static url = "v1/actions";
 
-  static createAPI(apiConfig: APIConfig): Promise<ActionCreateUpdateResponse> {
-    const createAPI: CreateActionRequest<APIConfigRequest> = {
-      resourceId: apiConfig.resourceId,
-      actionName: apiConfig.actionName,
-      actionConfiguration: {
-        httpMethod: apiConfig.method,
-        path: apiConfig.path,
-        body: apiConfig.body,
-        headers: mapToPropList(apiConfig.requestHeaders),
-        queryParameters: mapToPropList(apiConfig.queryParams),
-      },
-    };
-    return API.post(ActionAPI.url, createAPI);
+  static fetchAPI(id: string): Promise<GenericApiResponse<RestAction>> {
+    return API.get(`${ActionAPI.url}/${id}`);
   }
 
-  static updateAPI(apiConfig: APIConfig): Promise<ActionCreateUpdateResponse> {
-    const updateAPI: UpdateActionRequest<APIConfigRequest> = {
-      resourceId: apiConfig.resourceId,
-      actionName: apiConfig.actionName,
-      actionId: apiConfig.actionId,
-      actionConfiguration: {
-        httpMethod: apiConfig.method,
-        path: apiConfig.path,
-        body: apiConfig.body,
-        headers: mapToPropList(apiConfig.requestHeaders),
-        queryParameters: mapToPropList(apiConfig.queryParams),
-      },
-    };
-    return API.post(ActionAPI.url, updateAPI);
+  static createAPI(apiConfig: RestAction): Promise<ActionCreateUpdateResponse> {
+    return API.post(ActionAPI.url, apiConfig);
+  }
+
+  static fetchActions(): Promise<GenericApiResponse<RestAction[]>> {
+    return API.get(ActionAPI.url);
+  }
+
+  static updateAPI(
+    apiConfig: Partial<RestAction>,
+  ): Promise<ActionCreateUpdateResponse> {
+    return API.put(`${ActionAPI.url}/${apiConfig.id}`, null, apiConfig);
+  }
+
+  static deleteAction(id: string) {
+    return API.delete(`${ActionAPI.url}/${id}`);
   }
 
   static createQuery(

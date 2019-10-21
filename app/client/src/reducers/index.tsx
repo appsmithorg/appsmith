@@ -1,6 +1,7 @@
 import { combineReducers } from "redux";
 import entityReducer from "./entityReducers";
 import uiReducer from "./uiReducers";
+import { reducer as formReducer } from "redux-form";
 import { CanvasWidgetsReduxState } from "./entityReducers/canvasWidgetsReducer";
 import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
@@ -15,6 +16,7 @@ import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
+  form: formReducer,
 });
 
 export default appReducer;

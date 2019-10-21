@@ -1,7 +1,7 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent from "../editorComponents/ButtonComponent";
+import ButtonComponent from "../components/canvas/Button";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {

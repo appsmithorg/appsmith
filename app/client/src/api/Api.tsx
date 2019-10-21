@@ -64,6 +64,12 @@ class Api {
     );
   }
 
+  static delete(url: string, queryParams?: any) {
+    return axiosInstance.delete(
+      url + this.convertObjectToQueryParams(queryParams),
+    );
+  }
+
   static convertObjectToQueryParams(object: any): string {
     if (!_.isNil(object)) {
       const paramArray: string[] = _.map(_.keys(object), key => {

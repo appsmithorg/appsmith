@@ -14,6 +14,11 @@ export type ApiResponse = {
   data: any;
 };
 
+export type GenericApiResponse<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
 // NO_RESOURCE_FOUND, 1000, "Unable to find {0} with id {1}"
 // INVALID_PARAMTER, 4000, "Invalid parameter {0} provided in the input"
 // PLUGIN_NOT_INSTALLED, 4001, "Plugin {0} not installed"
