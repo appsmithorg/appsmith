@@ -7,7 +7,7 @@ import { ContainerProps } from "./ContainerComponent";
 import WidgetFactory from "../utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
-import { WidgetFunctionsContext } from "../pages/Editor";
+import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 import { FocusContext } from "../pages/Editor/Canvas";
 
 type DropTargetComponentProps = ContainerProps & {

@@ -8,10 +8,12 @@ export const Colors: Record<string, string> = {
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
   SHARK: "#21282C",
-  OUTER_SPACE: "#272E32",
+  DEEP_SPACE: "#272E32",
+  OUTER_SPACE: "#363E44",
   SLATE_GRAY: "#768896",
   PORCELAIN: "#EBEEF0",
   HIT_GRAY: "#A1ACB3",
+  JUNGLE_MIST: "#BCCCD9",
 
   GREEN: "#29CCA3",
   RED: "#CE4257",

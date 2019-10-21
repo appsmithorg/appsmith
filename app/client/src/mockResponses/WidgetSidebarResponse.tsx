@@ -1,7 +1,7 @@
 import { WidgetCardProps } from "../widgets/BaseWidget";
 import { generateReactKey } from "../utils/generators";
 
-const WidgetCardsPaneResponse: {
+const WidgetSidebarResponse: {
   [id: string]: WidgetCardProps[];
 } = {
   common: [
@@ -18,12 +18,6 @@ const WidgetCardsPaneResponse: {
       key: generateReactKey(),
     },
     {
-      type: "SPINNER_WIDGET",
-      icon: "icon-switch",
-      widgetCardName: "Spinner",
-      key: generateReactKey(),
-    },
-    {
       type: "CONTAINER_WIDGET",
       icon: "icon-container",
       widgetCardName: "Container",
@@ -31,12 +25,6 @@ const WidgetCardsPaneResponse: {
     },
   ],
   form: [
-    {
-      type: "BUTTON_WIDGET",
-      icon: "icon-button",
-      widgetCardName: "Button",
-      key: generateReactKey(),
-    },
     {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
@@ -64,7 +52,7 @@ const WidgetCardsPaneResponse: {
     {
       type: "SWITCH_WIDGET",
       icon: "icon-switch",
-      widgetCardName: "Toggle",
+      widgetCardName: "Switch",
       key: generateReactKey(),
     },
   ],
@@ -82,12 +70,6 @@ const WidgetCardsPaneResponse: {
       key: generateReactKey(),
     },
     {
-      type: "SPINNER_WIDGET",
-      icon: "icon-spinner",
-      widgetCardName: "Spinner",
-      key: generateReactKey(),
-    },
-    {
       type: "TABLE_WIDGET",
       icon: "icon-table",
       widgetCardName: "Table",
@@ -96,4 +78,4 @@ const WidgetCardsPaneResponse: {
   ],
 };
 
-export default WidgetCardsPaneResponse;
+export default WidgetSidebarResponse;

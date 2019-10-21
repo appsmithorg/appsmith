@@ -2,16 +2,16 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "../constants/ReduxActionConstants";
-import WidgetCardsPaneApi, {
-  WidgetCardsPaneResponse,
-} from "../api/WidgetCardsPaneApi";
-import { successFetchingWidgetCards } from "../actions/widgetCardsPaneActions";
+import WidgetSidebarApi, {
+  WidgetSidebarResponse,
+} from "../api/WidgetSidebarApi";
+import { successFetchingWidgetCards } from "../actions/widgetSidebarActions";
 import { call, put, takeLatest, all } from "redux-saga/effects";
 
 export function* fetchWidgetCards() {
   try {
-    const widgetCards: WidgetCardsPaneResponse = yield all([
-      call(WidgetCardsPaneApi.fetchWidgetCards),
+    const widgetCards: WidgetSidebarResponse = yield all([
+      call(WidgetSidebarApi.fetchWidgetCards),
     ]);
     yield put(successFetchingWidgetCards(widgetCards.cards));
   } catch (err) {

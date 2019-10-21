@@ -19,6 +19,7 @@ import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
+import { BASE_URL, BUILDER_URL, LOGIN_URL } from "./constants/routes";
 
 appInitializer();
 const sagaMiddleware = createSagaMiddleware();
@@ -33,9 +34,9 @@ ReactDOM.render(
       <ThemeProvider theme={theme}>
         <BrowserRouter>
           <Switch>
-            <Route exact path="/" component={App} />
-            <ProtectedRoute path="/builder" component={Editor} />
-            <Route exact path="/login" component={LoginPage} />
+            <Route exact path={BASE_URL} component={App} />
+            <ProtectedRoute path={BUILDER_URL} component={Editor} />
+            <Route exact path={LOGIN_URL} component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>
         </BrowserRouter>

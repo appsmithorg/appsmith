@@ -1,10 +1,10 @@
 import { all, spawn } from "redux-saga/effects";
 import pageSagas from "../sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetCardsPaneSagas";
+import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchExecuteActionSaga } from "./ActionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
-
+import configsSagas from "./ConfigsSagas";
 export function* rootSaga() {
   yield all([
     spawn(pageSagas),
@@ -12,5 +12,6 @@ export function* rootSaga() {
     spawn(watchExecuteActionSaga),
     spawn(widgetOperationSagas),
     spawn(errorSagas),
+    spawn(configsSagas),
   ]);
 }

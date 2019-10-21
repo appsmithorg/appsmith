@@ -7,8 +7,8 @@ import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
 import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
 import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
 import { FocusContext } from "../pages/Editor/Canvas";
-import { DraggingContext } from "./DraggableComponent";
-import { WidgetFunctionsContext } from "../pages/Editor";
+import { DraggableComponentContext } from "./DraggableComponent";
+import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 import { ResizingContext } from "./DropTargetComponent";
 import {
   theme,
@@ -88,11 +88,11 @@ const ResizableContainer = styled(Rnd)`
 `;
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
-  const { isDragging } = useContext(DraggingContext);
+  const { isDragging } = useContext(DraggableComponentContext);
   const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
-  const { isFocused, setFocus } = useContext(FocusContext);
+  const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
 
   const [isColliding, setIsColliding] = useState(false);
@@ -199,6 +199,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       onResize={checkForCollision}
       onResizeStart={() => {
         setIsResizing && setIsResizing(true);
+        showPropertyPane && showPropertyPane(props.widgetId, undefined);
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
