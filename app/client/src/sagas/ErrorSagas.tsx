@@ -28,18 +28,23 @@ export function* validateResponse(response: ApiResponse) {
 }
 
 type ErrorPayloadType = object | { message: string };
-
-const ActionErrorDisplayMap: {
+let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
-} = {
+} = {};
+
+Object.keys(ReduxActionErrorTypes).forEach((type: string) => {
+  ActionErrorDisplayMap[type] = () =>
+    DEFAULT_ERROR_MESSAGE + " action: " + type;
+});
+
+ActionErrorDisplayMap = {
+  ...ActionErrorDisplayMap,
   [ReduxActionErrorTypes.API_ERROR]: error =>
     _.get(error, "message", DEFAULT_ERROR_MESSAGE),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
     DEFAULT_ACTION_ERROR("fetching the page"),
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: () =>
     DEFAULT_ACTION_ERROR("saving the page"),
-  [ReduxActionErrorTypes.FETCH_WIDGET_CARDS_ERROR]: () => DEFAULT_ERROR_MESSAGE,
-  [ReduxActionErrorTypes.WIDGET_OPERATION_ERROR]: () => DEFAULT_ERROR_MESSAGE,
 };
 
 export function* errorSaga(

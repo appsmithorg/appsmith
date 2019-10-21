@@ -4,7 +4,7 @@ import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import { WidgetCardProps } from "../../widgets/BaseWidget";
 import { AppState } from "../../reducers";
-import { WidgetSidebarReduxState } from "../../reducers/uiReducers/widgetSidebarReducer";
+import { getWidgetCards } from "../../selectors/editorSelectors";
 
 type WidgetSidebarProps = {
   cards: { [id: string]: WidgetCardProps[] };
@@ -22,39 +22,33 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-const WidgetSidebar: React.FC<WidgetSidebarProps> = (
-  props: WidgetSidebarProps,
-) => {
-  const groups = Object.keys(props.cards);
-  return (
-    <MainWrapper>
-      {groups.map((group: string) => (
-        <React.Fragment key={group}>
-          <h5>{group}</h5>
-          <CardsWrapper>
-            {props.cards[group].map((card: WidgetCardProps) => (
-              <WidgetCard details={card} key={card.key} />
-            ))}
-          </CardsWrapper>
-        </React.Fragment>
-      ))}
-    </MainWrapper>
-  );
+class WidgetSidebar extends React.Component<WidgetSidebarProps> {
+  render(): React.ReactNode {
+    const groups = Object.keys(this.props.cards);
+    return (
+      <MainWrapper>
+        {groups.map((group: string) => (
+          <React.Fragment key={group}>
+            <h5>{group}</h5>
+            <CardsWrapper>
+              {this.props.cards[group].map((card: WidgetCardProps) => (
+                <WidgetCard details={card} key={card.key} />
+              ))}
+            </CardsWrapper>
+          </React.Fragment>
+        ))}
+      </MainWrapper>
+    );
+  }
+}
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    cards: getWidgetCards(state),
+  };
 };
 
 export default connect(
-  (state: AppState): WidgetSidebarReduxState => {
-    // TODO(hetu) Should utilise reselect instead
-    const cards = state.ui.widgetSidebar.cards;
-    const groups: string[] = Object.keys(cards);
-    groups.forEach((group: string) => {
-      cards[group] = cards[group].map((widget: WidgetCardProps) => {
-        const { rows, columns } = state.entities.widgetConfig.config[
-          widget.type
-        ];
-        return { ...widget, rows, columns };
-      });
-    });
-    return { cards };
-  },
+  mapStateToProps,
+  null,
 )(WidgetSidebar);

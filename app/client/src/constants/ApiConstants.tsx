@@ -36,12 +36,14 @@ export const getEditorConfigs = () => {
       currentPageId: "5d807e7f795dc6000482bc78",
       currentLayoutId: "5d807e7f795dc6000482bc77",
       currentPageName: "page1",
+      propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
     };
   } else {
     return {
       currentPageId: "5d807e76795dc6000482bc76",
       currentLayoutId: "5d807e76795dc6000482bc75",
       currentPageName: "page1",
+      propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
     };
   }
 };

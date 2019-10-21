@@ -6,6 +6,14 @@ import _ from "lodash";
 import { ControlProps } from "../../propertyControls/BaseControl";
 import { PropertySection } from "../../reducers/entityReducers/propertyPaneConfigReducer";
 import { updateWidgetProperty } from "../../actions/controlActions";
+import {
+  getCurrentWidgetId,
+  getCurrentReferenceNode,
+  getPropertyConfig,
+  getIsPropertyPaneVisible,
+} from "../../selectors/propertyPaneSelectors";
+
+import Popper from "./Popper";
 
 class PropertyPane extends Component<
   PropertyPaneProps & PropertyPaneFunctions
@@ -16,25 +24,36 @@ class PropertyPane extends Component<
   }
 
   render() {
-    if (this.props.isVisible) {
+    if (
+      this.props.isVisible &&
+      this.props.widgetId &&
+      this.props.targetNode &&
+      this.props.propertySections
+    ) {
+      const content = this.renderPropertyPane(this.props.propertySections);
       return (
-        <div>
-          {!_.isNil(this.props.propertySections)
-            ? _.map(
-                this.props.propertySections,
-                (propertySection: PropertySection) => {
-                  return this.renderPropertySection(
-                    propertySection,
-                    propertySection.id,
-                  );
-                },
-              )
-            : undefined}
-        </div>
+        <Popper isOpen={true} targetRefNode={this.props.targetNode}>
+          {content}
+        </Popper>
       );
     } else {
       return null;
     }
+  }
+
+  renderPropertyPane(propertySections?: PropertySection[]) {
+    return (
+      <div>
+        {!_.isNil(propertySections)
+          ? _.map(propertySections, (propertySection: PropertySection) => {
+              return this.renderPropertySection(
+                propertySection,
+                propertySection.id,
+              );
+            })
+          : undefined}
+      </div>
+    );
   }
 
   renderPropertySection(propertySection: PropertySection, key: string) {
@@ -61,10 +80,14 @@ class PropertyPane extends Component<
                   propertyControlOrSection.id,
                 );
               } else {
-                return PropertyControlFactory.createControl(
-                  propertyControlOrSection,
-                  { onPropertyChange: this.onPropertyChange },
-                );
+                try {
+                  return PropertyControlFactory.createControl(
+                    propertyControlOrSection,
+                    { onPropertyChange: this.onPropertyChange },
+                  );
+                } catch (e) {
+                  console.log(e);
+                }
               }
             },
           )}
@@ -74,24 +97,20 @@ class PropertyPane extends Component<
   }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
-    this.props.updateWidgetProperty(
-      this.props.widgetId,
-      propertyName,
-      propertyValue,
-    );
+    // this.props.updateWidgetProperty(
+    //   this.props.widgetId,
+    //   propertyName,
+    //   propertyValue,
+    // );
   }
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
-  let propertyConfig = undefined;
-  if (!_.isNil(state.ui.propertyPane.widgetId)) {
-    const widget = state.entities.canvasWidgets[state.ui.propertyPane.widgetId];
-    propertyConfig = state.entities.propertyConfig.config[widget.type];
-  }
   return {
-    propertySections: propertyConfig,
-    widgetId: state.ui.propertyPane.widgetId,
-    isVisible: state.ui.propertyPane.isVisible,
+    propertySections: getPropertyConfig(state),
+    widgetId: getCurrentWidgetId(state),
+    isVisible: getIsPropertyPaneVisible(state),
+    targetNode: getCurrentReferenceNode(state),
   };
 };
 
@@ -109,6 +128,7 @@ export interface PropertyPaneProps {
   propertySections?: PropertySection[];
   widgetId?: string;
   isVisible: boolean;
+  targetNode?: HTMLDivElement;
 }
 
 export interface PropertyPaneFunctions {

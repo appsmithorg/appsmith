@@ -32,7 +32,7 @@ class PropertyControlFactory {
     } else {
       const ex: ControlCreationException = {
         message:
-          "Control Builder not registered for control type" +
+          "Control Builder not registered for control type " +
           controlData.controlType,
       };
       throw ex;

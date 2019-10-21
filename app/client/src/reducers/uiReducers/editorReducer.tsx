@@ -26,6 +26,7 @@ export interface EditorReduxState {
   currentPageId: string;
   currentLayoutId: string;
   currentPageName: string;
+  propertyPaneConfigsId: string;
   isSaving: boolean;
 }
 

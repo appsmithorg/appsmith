@@ -1,4 +1,5 @@
 import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
+import { RefObject } from "react";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   REPORT_ERROR: "REPORT_ERROR",
@@ -35,6 +36,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_DELETE: "WIDGET_DELETE",
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
   UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
+  FETCH_PROPERTY_PANE_CONFIGS_INIT: "FETCH_PROPERTY_PANE_CONFIGS_INIT",
+  FETCH_PROPERTY_PANE_CONFIGS_SUCCESS: "FETCH_PROPERTY_PANE_CONFIGS_SUCCESS",
+  FETCH_CONFIGS_INIT: "FETCH_CONFIGS_INIT",
+  ADD_WIDGET_REF: "ADD_WIDGET_REF",
 };
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
@@ -49,6 +54,9 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SAVE_PAGE_ERROR: "SAVE_PAGE_ERROR",
   FETCH_WIDGET_CARDS_ERROR: "FETCH_WIDGET_CARDS_ERROR",
   WIDGET_OPERATION_ERROR: "WIDGET_OPERATION_ERROR",
+  FETCH_PROPERTY_PANE_CONFIGS_ERROR: "FETCH_PROPERTY_PANE_CONFIGS_ERROR",
+  FETCH_CONFIGS_ERROR: "FETCH_CONFIGS_ERROR",
+  PROPERTY_PANE_ERROR: "PROPERTY_PANE_ERROR",
 };
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
@@ -72,6 +80,8 @@ export interface UpdateCanvasPayload {
 
 export interface ShowPropertyPanePayload {
   widgetId: string;
+  node: RefObject<HTMLDivElement>;
+  toggle: boolean;
 }
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
