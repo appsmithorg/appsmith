@@ -40,6 +40,7 @@ allowed_operations = [
     {"method": "GET", "resource": "actions", "permission": "read:actions"},
     {"method": "POST", "resource": "actions", "permission": "create:actions"},
     {"method": "PUT", "resource": "actions", "permission": "update:actions"},
+    {"method": "DELETE", "resource": "actions", "permission": "delete:actions"},
 
     {"method": "GET", "resource": "resources", "permission": "read:resources"},
     {"method": "POST", "resource": "resources", "permission": "create:resources"},
@@ -48,6 +49,14 @@ allowed_operations = [
     {"method": "GET", "resource": "plugins", "permission": "read:plugins"},
     {"method": "POST", "resource": "plugins", "permission": "create:plugins"},
     {"method": "PUT", "resource": "plugins", "permission": "update:plugins"},
+
+    {"method": "GET", "resource": "plugins", "permission": "read:applications"},
+    {"method": "POST", "resource": "plugins", "permission": "create:applications"},
+    {"method": "PUT", "resource": "plugins", "permission": "update:applications"},
+
+    {"method": "GET", "resource": "plugins", "permission": "read:groups"},
+    {"method": "POST", "resource": "plugins", "permission": "create:groups"},
+    {"method": "PUT", "resource": "plugins", "permission": "update:groups"},
 
 ]
 
