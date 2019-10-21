@@ -42,10 +42,10 @@ const PageMockResponse: FetchPageResponse = {
         },
         actions: [
           {
-            actionId: "5d8082e2795dc6000482bc84",
+            id: "5d8082e2795dc6000482bc84",
             actionType: "API" as ActionType,
-            actionName: "getUsers",
-            dynamicBindings: ["$.apiData.0.name"],
+            name: "getUsers",
+            jsonPathKeys: ["$.apiData.0.name"],
           },
         ],
       },

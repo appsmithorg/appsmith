@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import NavBarItem from "./NavBarItem";
-import { MenuIcons } from "../icons/MenuIcons";
-import { BUILDER_URL, API_EDITOR_URL } from "../constants/routes";
+import { MenuIcons } from "../../icons/MenuIcons";
+import { BUILDER_URL, API_EDITOR_URL } from "../../constants/routes";
 import Sidebar from "./Sidebar";
 
 const Container = styled.div`

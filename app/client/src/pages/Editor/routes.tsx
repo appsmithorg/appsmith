@@ -6,9 +6,14 @@ import {
   RouteComponentProps,
 } from "react-router-dom";
 import ApiEditor from "./ApiEditor";
-import { API_EDITOR_URL, BUILDER_URL } from "../../constants/routes";
+import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  BUILDER_URL,
+} from "../../constants/routes";
 import { Drawer, Position } from "@blueprintjs/core";
 import styled from "styled-components";
+import { theme } from "../../constants/DefaultTheme";
 
 const MainWrapper = styled.div`
   position: absolute;
@@ -44,10 +49,12 @@ class EditorsRouter extends React.Component<RouteComponentProps, RouterState> {
           isOpen={drawerOpen}
           position={Position.LEFT}
           usePortal={false}
-          size="75%"
+          size={theme.drawerWidth}
+          canOutsideClickClose={true}
         >
           <Switch>
             <Route exact path={API_EDITOR_URL} component={ApiEditor} />
+            <Route exact path={API_EDITOR_ID_URL()} component={ApiEditor} />
           </Switch>
         </Drawer>
       </MainWrapper>

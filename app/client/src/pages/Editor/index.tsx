@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { AppState } from "../../reducers";
 import EditorHeader from "./EditorHeader";
 import EditorsRouter from "./routes";
-import NavBar from "../../editorComponents/NavBar";
+import NavBar from "../../components/editor/NavBar";
 import WidgetsEditor from "./WidgetsEditor";
 
 const MainContainer = styled.div`
