@@ -18,7 +18,8 @@ public enum AppsmithError {
     UNAUTHORIZED_ACCESS(401, 4002, "Unauthorized access"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed."),
-    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again.");
+    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again."),
+    PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}");
 
 
     private Integer httpErrorCode;

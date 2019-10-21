@@ -2,14 +2,11 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
@@ -24,7 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -37,6 +34,13 @@ public class PostgresPlugin extends BasePlugin {
         super(wrapper);
         this.objectMapper = new ObjectMapper();
     }
+
+    /**
+     * Postgres plugin receives the query as json of the following format :
+     * {
+     *     "cmd" : "select * from users;"
+     * }
+     */
 
     @Slf4j
     @Extension
@@ -53,8 +57,9 @@ public class PostgresPlugin extends BasePlugin {
             ArrayList list = new ArrayList(50);
             try {
                 Statement statement = conn.createStatement();
-
-                ResultSet resultSet = statement.executeQuery(actionConfiguration.getQuery());
+                Map<String, Object> queryJson = actionConfiguration.getQuery();
+                String query = (String) queryJson.get("cmd");
+                ResultSet resultSet = statement.executeQuery(query);
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 Integer colCount = metaData.getColumnCount();
                 while (resultSet.next()) {
@@ -90,7 +95,8 @@ public class PostgresPlugin extends BasePlugin {
             } catch (SQLException e) {
                 log.error("", e);
             }
-            return conn;
+            // Connection wasn't created. Return null
+            return null;
         }
 
         @Override

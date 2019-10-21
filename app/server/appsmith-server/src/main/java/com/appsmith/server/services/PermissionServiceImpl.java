@@ -22,9 +22,8 @@ public class PermissionServiceImpl extends BaseService<PermissionRepository, Per
                                  MongoConverter mongoConverter,
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  PermissionRepository repository,
-                                 Analytics analytics,
-                                 SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                                 AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
     }
 }
