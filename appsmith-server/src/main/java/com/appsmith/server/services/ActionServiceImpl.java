@@ -11,7 +11,6 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Resource;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,14 +79,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         } else if (action.getResourceId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.RESOURCE_ID_NOT_GIVEN));
-        } else if (action.getPageId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.PAGE_ID_NOT_GIVEN));
         }
 
-        Mono<Resource> resourceMono = resourceService.findById(action.getResourceId());
-        Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId()));
-        Mono<Page> pageMono = pageService.findById(action.getPageId());
-        Mono<Action> savedActionMono = pluginMono
+        Mono<Resource> resourceMono = resourceService.findById(action.getResourceId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", action.getResourceId())));
+        Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", resource.getPluginId()))));
+
+        return pluginMono
                 //Set plugin in the action before saving.
                 .map(plugin -> {
                     action.setPluginId(plugin.getId());
@@ -96,29 +94,32 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 })
                 .flatMap(super::create)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)));
+    }
 
-        return savedActionMono
-                //Now that the action has been stored, add it to the page
+    public Mono<Page> bindPageToAction(Action action, String pageId) {
+        Mono<Page> pageMono = pageService.findById(pageId);
+        action.setPageId(pageId);
+        return pageMono
+                //If page exists, then continue forward
+                .then(repository.save(action))
                 .flatMap(action1 -> pageMono
-                                        .map(page -> {
-                                            PageAction pageAction = new PageAction();
-                                            pageAction.setId(action1.getId());
-                                            pageAction.setName(action1.getName());
-                                            pageAction.setJsonPathKeys(new ArrayList<>());
+                        .map(page -> {
+                            PageAction pageAction = new PageAction();
+                            pageAction.setId(action1.getId());
+                            pageAction.setName(action1.getName());
+                            pageAction.setJsonPathKeys(new ArrayList<>());
 
-                                            List<PageAction> actions = page.getActions();
+                            List<PageAction> actions = page.getActions();
 
-                                            if (actions == null) {
-                                                actions = new ArrayList<>();
-                                            }
+                            if (actions == null) {
+                                actions = new ArrayList<>();
+                            }
 
-                                            actions.add(pageAction);
-                                            page.setActions(actions);
-                                            return page;
-                                        })
-                                        .flatMap(pageService::save)
-                                        //Finally return the saved action
-                                        .then(Mono.just(action1))
+                            actions.add(pageAction);
+                            page.setActions(actions);
+                            return page;
+                        })
+                        .flatMap(pageService::save)
                 );
     }
 
@@ -149,35 +150,35 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         // 3. Execute the query
         return actionMono
-                    .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
-                        ResourceConfiguration resourceConfiguration;
-                        ActionConfiguration actionConfiguration;
-                        //Do variable substitution before invoking the plugin
-                        //Do this only if params have been provided in the execute command
-                        if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
-                            Map<String, String> replaceParamsMap = executeActionDTO
-                                    .getParams()
-                                    .stream()
-                                    .collect(Collectors.toMap(Param::getKey, Param::getValue,
-                                            // Incase there's a conflict, we pick the older value
-                                            (oldValue, newValue) -> oldValue)
-                                    );
-                            resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
-                            actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
-                        } else {
-                            resourceConfiguration = resource.getResourceConfiguration();
-                            actionConfiguration = action.getActionConfiguration();
-                        }
-                        return resourceContextService
-                                    .getResourceContext(resource.getId())
-                                    //Now that we have the context (connection details, execute the action
-                                    .flatMap(resourceContext -> pluginExecutor.execute(
-                                                                                  resourceContext.getConnection(),
-                                                                                  resourceConfiguration,
-                                                                                  actionConfiguration));
-                    }))
-                    .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))
-                    .flatMap(obj -> obj);
+                .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
+                    ResourceConfiguration resourceConfiguration;
+                    ActionConfiguration actionConfiguration;
+                    //Do variable substitution before invoking the plugin
+                    //Do this only if params have been provided in the execute command
+                    if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
+                        Map<String, String> replaceParamsMap = executeActionDTO
+                                .getParams()
+                                .stream()
+                                .collect(Collectors.toMap(Param::getKey, Param::getValue,
+                                        // Incase there's a conflict, we pick the older value
+                                        (oldValue, newValue) -> oldValue)
+                                );
+                        resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
+                        actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+                    } else {
+                        resourceConfiguration = resource.getResourceConfiguration();
+                        actionConfiguration = action.getActionConfiguration();
+                    }
+                    return resourceContextService
+                            .getResourceContext(resource.getId())
+                            //Now that we have the context (connection details, execute the action
+                            .flatMap(resourceContext -> pluginExecutor.execute(
+                                    resourceContext.getConnection(),
+                                    resourceConfiguration,
+                                    actionConfiguration));
+                }))
+                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))
+                .flatMap(obj -> obj);
     }
 
 
@@ -199,9 +200,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     /**
-     *
-     * @param template : This is the string which contains {{key}} which would be replaced with value
-     * @param name : This is the class name of the object from which template string was created
+     * @param template    : This is the string which contains {{key}} which would be replaced with value
+     * @param name        : This is the class name of the object from which template string was created
      * @param keyValueMap : This is the map of keys with values.
      * @return It finally returns the string in which all the keys in template have been replaced with values.
      */
@@ -212,5 +212,35 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         mustache.execute(writer, keyValueMap);
 
         return writer.toString();
+    }
+
+    @Override
+    public Mono<Action> delete(String id) {
+        Mono<Action> actionMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
+        return actionMono
+                .map(action -> {
+                    if (action.getPageId() == null) {
+                        //No page id implies that the action is not bound to a page yet. Safe to delete it
+                        return action;
+                    }
+                    Mono<Page> pageMono = pageService.findById(action.getPageId());
+                    return pageMono
+                            .map(page -> {
+                                List<PageAction> actions = page.getActions();
+                                actions = actions.stream().filter(a -> a.getId() != action.getId()).collect(Collectors.toList());
+                                page.setActions(actions);
+                                return page;
+                            })
+                            .flatMap(pageService::save)
+                            .thenReturn(action);
+                })
+                .flatMap(toDelete ->
+                        repository.delete((Action) toDelete)
+                                .thenReturn(toDelete))
+                .map(deletedObj -> {
+                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Action) deletedObj);
+                    return (Action) deletedObj;
+                });
     }
 }
