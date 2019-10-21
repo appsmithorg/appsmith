@@ -13,7 +13,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
@@ -44,6 +43,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
+    private final SessionUserService sessionUserService;
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
@@ -54,19 +54,22 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
+                             AnalyticsService analyticsService,
                              ApplicationContext applicationContext,
                              OrganizationService organizationService,
-                             Analytics analytics,
-                             SessionUserService sessionUserService, PluginManager pluginManager,
+                             PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
-                             ChannelTopic topic, ObjectMapper objectMapper) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+                             ChannelTopic topic,
+                             ObjectMapper objectMapper,
+                             SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationContext = applicationContext;
         this.organizationService = organizationService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
+        this.sessionUserService = sessionUserService;
     }
 
     public OldPluginExecutor getPluginExecutor(PluginType pluginType, String className) {
@@ -86,12 +89,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
 
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
-
         plugin.setDeleted(false);
-        return repository
-                .save(plugin)
-                .flatMap(this::segmentTrackCreate);
+        return super.create(plugin);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+        Mono<User> userMono = sessionUserService.getCurrentUser();
         Mono<Organization> organizationMono = userMono.flatMap(user ->
                 organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 
@@ -133,7 +132,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
 
         //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
-        Mono<User> userMono = super.sessionUserService.getCurrentUser();
+        Mono<User> userMono = sessionUserService.getCurrentUser();
         Mono<Organization> pluginInOrganizationMono = userMono.flatMap(user ->
                 organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
 

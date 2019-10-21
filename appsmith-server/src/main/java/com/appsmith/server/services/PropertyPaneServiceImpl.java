@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.PropertyPaneRepository;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,15 @@ import java.util.Map;
 @Slf4j
 @Service
 public class PropertyPaneServiceImpl extends BaseService<PropertyPaneRepository, PropertyPane, String> implements PropertyPaneService {
-    public PropertyPaneServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter, ReactiveMongoTemplate reactiveMongoTemplate, PropertyPaneRepository repository, Analytics analytics, SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+
+    @Autowired
+    public PropertyPaneServiceImpl(Scheduler scheduler,
+                                   Validator validator,
+                                   MongoConverter mongoConverter,
+                                   ReactiveMongoTemplate reactiveMongoTemplate,
+                                   PropertyPaneRepository repository,
+                                   AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
     @Override
@@ -47,8 +55,6 @@ public class PropertyPaneServiceImpl extends BaseService<PropertyPaneRepository,
             });
             propertyPane.setConfig(configMap);
         }
-        return repository
-                .save(propertyPane)
-                .flatMap(this::segmentTrackCreate);
+        return super.create(propertyPane);
     }
 }

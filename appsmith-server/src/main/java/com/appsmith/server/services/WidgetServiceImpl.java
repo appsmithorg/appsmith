@@ -25,9 +25,8 @@ public class WidgetServiceImpl extends BaseService<WidgetRepository, Widget, Str
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate mongoTemplate,
                              WidgetRepository widgetRepository,
-                             Analytics analytics,
-                             SessionUserService sessionUserService) {
-        super(scheduler, validator, mongoConverter, mongoTemplate, widgetRepository, analytics, sessionUserService);
+                             AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, mongoTemplate, widgetRepository, analyticsService);
         this.widgetRepository = widgetRepository;
     }
 

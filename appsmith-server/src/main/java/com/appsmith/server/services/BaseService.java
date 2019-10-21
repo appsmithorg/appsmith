@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.BaseDomain;
 import com.appsmith.server.domains.User;
@@ -35,22 +36,19 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     protected final Validator validator;
 
-    protected final Analytics analytics;
-
-    protected final SessionUserService sessionUserService;
+    protected final AnalyticsService analyticsService;
 
     public BaseService(Scheduler scheduler,
                        Validator validator,
                        MongoConverter mongoConverter,
                        ReactiveMongoTemplate reactiveMongoTemplate,
-                       R repository, Analytics analytics, SessionUserService sessionUserService) {
+                       R repository, AnalyticsService analyticsService) {
         this.scheduler = scheduler;
         this.validator = validator;
         this.mongoConverter = mongoConverter;
         this.mongoTemplate = reactiveMongoTemplate;
         this.repository = repository;
-        this.analytics = analytics;
-        this.sessionUserService = sessionUserService;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -68,7 +66,8 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
         updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
-                .flatMap(obj -> repository.findById(id));
+                .flatMap(obj -> repository.findById(id))
+                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE+"_"+updatedObj.getClass().getSimpleName().toUpperCase(), (T) updatedObj));
     }
 
     @Override
@@ -88,11 +87,10 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
     @Override
     public Mono<T> create(T object) {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(this::segmentTrackCreate);
+                .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE+"_"+savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj));
     }
 
     private DBObject getDbObject(Object o) {
@@ -117,25 +115,5 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                     }
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
                 });
-    }
-
-    protected Mono<T> segmentTrackCreate(Object savedObject) {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        return userMono
-                .map(user -> {
-                    HashMap<String, String> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", ((BaseDomain) savedObject).getId());
-                    if(user.getOrganizationId() != null) {
-                        analyticsProperties.put("organizationId", user.getOrganizationId());
-                    }
-
-                    analytics.enqueue(
-                            TrackMessage.builder("MONGO_DB_CREATE_" + savedObject.getClass().getSimpleName().toUpperCase())
-                                    .userId(user.getId())
-                                    .properties(analyticsProperties)
-                    );
-                    return (T) savedObject;
-                })
-                .switchIfEmpty(Mono.just((T) savedObject));
     }
 }

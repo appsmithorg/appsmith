@@ -13,6 +13,9 @@ url_allow = true {
     p = op.permission
 }
 
+# This is a global list of all the routes for all controllers. Any new controller that is written must
+# carry an entry in this array. OPA performs ACL based on an intersection of these entries and permissions
+# for a user + permissions inherited via the groups that the user is a part of.
 allowed_operations = [
     {"method": "POST", "resource": "users", "permission": "create:users"},
     {"method": "GET", "resource": "users", "permission": "read:users"},

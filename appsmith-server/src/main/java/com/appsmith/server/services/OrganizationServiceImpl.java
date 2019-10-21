@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
@@ -20,7 +20,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -38,10 +37,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    ReactiveMongoTemplate reactiveMongoTemplate,
                                    OrganizationRepository repository,
                                    SettingService settingService,
-                                   Analytics analytics,
-                                   SessionUserService sessionUserService,
+                                   AnalyticsService analyticsService,
                                    GroupService groupService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analytics, sessionUserService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
         this.groupService = groupService;
@@ -68,10 +66,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)
-                //Call the library function to save the updated organization
-                .flatMap(repository::save)
-                //push the org create to analytics
-                .flatMap(this::segmentTrackCreate);
+                //Call the BaseService function to save the updated organization
+                .flatMap(super::create);
     }
 
     private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {
