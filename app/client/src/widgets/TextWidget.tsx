@@ -1,12 +1,12 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import TextComponent from "../editorComponents/TextComponent";
+import TextViewComponent from "../components/canvas/TextViewComponent";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
-      <TextComponent
+      <TextViewComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}

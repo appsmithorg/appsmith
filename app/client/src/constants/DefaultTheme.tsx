@@ -26,6 +26,7 @@ type PropertyPaneTheme = {
 export type Theme = {
   radii: Array<number>;
   fontSizes: Array<number>;
+  drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
   colors: Record<string, Color>;
@@ -62,10 +63,19 @@ export const theme: Theme = {
     width: 250,
     height: 600,
   },
+  drawerWidth: "80%",
   colors: {
     primary: Colors.GREEN,
+    primaryDarker: Colors.JUNGLE_GREEN,
+    primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
+    secondary: Colors.GEYSER_LIGHT,
+    secondaryDarker: Colors.CONCRETE,
+    secondaryDarkest: Colors.MERCURY,
     error: Colors.RED,
+    info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
+    inputInactiveBorders: Colors.MYSTIC,
+    inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
     textAnchor: Colors.PURPLE,
@@ -92,7 +102,7 @@ export const theme: Theme = {
       color: Colors.FRENCH_PASS,
     },
   ],
-  sidebarWidth: "350px",
+  sidebarWidth: "300px",
   headerHeight: "50px",
 };
 
