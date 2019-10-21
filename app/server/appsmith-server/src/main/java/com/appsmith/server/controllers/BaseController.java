@@ -7,6 +7,7 @@ import com.appsmith.server.services.CrudService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,6 +51,13 @@ public abstract class BaseController<S extends CrudService, T extends BaseDomain
         log.debug("Going to update resource with id: {}", id);
         return service.update(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<T>> delete(@PathVariable ID id) {
+        log.debug("Going to delete resource with id: {}", id);
+        return service.delete(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
 }

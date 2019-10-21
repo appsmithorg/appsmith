@@ -13,12 +13,13 @@ public enum AppsmithError {
     PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please input correct plugin id"),
     RESOURCE_ID_NOT_GIVEN(400, 4003, "Missing resource id. Please input correct resource id"),
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Pleaes input correct page id"),
-    PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization."),
+    PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization"),
+    UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation"),
     UNAUTHORIZED_DOMAIN(401, 4001, "Invalid email domain provided. Please sign in with a valid work email ID"),
     UNAUTHORIZED_ACCESS(401, 4002, "Unauthorized access"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
-    REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed."),
-    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again."),
+    REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed"),
+    PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again"),
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}");
 
 

@@ -3,14 +3,11 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.BaseDomain;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.segment.analytics.Analytics;
-import com.segment.analytics.messages.TrackMessage;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -21,7 +18,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseService<R extends BaseRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
@@ -67,7 +63,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE+"_"+updatedObj.getClass().getSimpleName().toUpperCase(), (T) updatedObj));
+                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), (T) updatedObj));
     }
 
     @Override
@@ -90,13 +86,21 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE+"_"+savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj));
+                .map(savedObj -> {
+                    analyticsService.sendEvent(AnalyticsEvents.CREATE + "_" + savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj);
+                    return savedObj;
+                });
     }
 
     private DBObject getDbObject(Object o) {
         BasicDBObject basicDBObject = new BasicDBObject();
         mongoConverter.write(o, basicDBObject);
         return basicDBObject;
+    }
+
+    @Override
+    public Mono<T> delete(ID id) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     /**

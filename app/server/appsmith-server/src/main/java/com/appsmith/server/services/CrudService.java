@@ -13,4 +13,6 @@ public interface CrudService<T extends BaseDomain, ID> {
     Mono<T> update(ID id, T resource);
 
     Mono<T> getById(ID id);
+
+    Mono<T> delete(ID id);
 }
