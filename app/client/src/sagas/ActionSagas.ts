@@ -19,6 +19,7 @@ import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editor/ToastComponent";
 import { GenericApiResponse } from "../api/ApiResponses";
 import { fetchActions } from "../actions/actionActions";
+import { API_EDITOR_FORM_NAME } from "../constants/forms";
 
 const getDataTree = (state: AppState) => {
   return state.entities;
@@ -107,7 +108,7 @@ export function* fetchActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     actionPayload.payload.id,
   );
   const data = response.data;
-  yield put(initialize("ApiEditorForm", data));
+  yield put(initialize(API_EDITOR_FORM_NAME, data));
 }
 
 export function* runActionSaga(actionPayload: ReduxAction<{ id: string }>) {

@@ -18,6 +18,7 @@ import JSONEditorField from "../fields/JSONEditorField";
 import DropdownField from "../fields/DropdownField";
 import { RestAction } from "../../api/ActionAPI";
 import JSONViewer from "../../components/editor/JSONViewer";
+import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 
 const Form = styled(FormContainer)`
   height: 100%;
@@ -173,7 +174,7 @@ class ApiEditorForm extends React.Component<Props> {
 }
 
 export default reduxForm<RestAction, APIFormProps>({
-  form: "ApiEditorForm",
+  form: API_EDITOR_FORM_NAME,
   enableReinitialize: true,
   initialValues: FORM_INITIAL_VALUES,
 })(ApiEditorForm);

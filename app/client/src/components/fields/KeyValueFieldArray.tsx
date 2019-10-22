@@ -20,22 +20,6 @@ const FormRowWithLabel = styled(FormRow)`
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   return (
     <React.Fragment>
-      {props.fields.length === 0 && (
-        <FormRowWithLabel>
-          <FormLabel>{props.label}</FormLabel>
-          <TextField name={`${props.name}[0].key`} placeholderMessage="Key" />
-          <TextField
-            name={`${props.name}[0].value`}
-            placeholderMessage="Value"
-          />
-          <Icon
-            icon="plus"
-            iconSize={20}
-            onClick={() => props.fields.push({ key: "", value: "" })}
-            color={"#A3B3BF"}
-          />
-        </FormRowWithLabel>
-      )}
       {props.fields.map((field: any, index: number) => (
         <FormRowWithLabel key={index}>
           {index === 0 && <FormLabel>{props.label}</FormLabel>}
