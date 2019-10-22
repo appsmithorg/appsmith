@@ -48,6 +48,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   RUN_ACTION_SUCCESS: "RUN_ACTION_SUCCESS",
   UPDATE_ACTION: "UPDATE_ACTION",
   DELETE_ACTION: "DELETE_ACTION",
+  FETCH_RESOURCES_INIT: "FETCH_RESOURCES_INIT",
+  FETCH_RESOURCES_SUCCESS: "FETCH_RESOURCES_SUCCESS",
+  CREATE_RESOURCE_INIT: "CREATE_RESOURCE_INIT",
+  CREATE_RESOURCE_SUCCESS: "CREATE_RESOURCE_SUCCESS",
 };
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
@@ -66,6 +70,8 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_CONFIGS_ERROR: "FETCH_CONFIGS_ERROR",
   PROPERTY_PANE_ERROR: "PROPERTY_PANE_ERROR",
   FETCH_ACTIONS_ERROR: "FETCH_ACTIONS_ERROR",
+  FETCH_RESOURCES_ERROR: "FETCH_RESOURCES_ERROR",
+  CREATE_RESOURCE_ERROR: "CREATE_RESOURCE_ERROR",
 };
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 

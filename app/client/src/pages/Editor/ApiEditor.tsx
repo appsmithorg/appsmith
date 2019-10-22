@@ -13,11 +13,14 @@ import { AppState } from "../../reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
+import { ResourceDataState } from "../../reducers/entityReducers/resourcesReducer";
+import { fetchResources } from "../../actions/resourcesActions";
 
 interface ReduxStateProps {
   actions: RestAction[];
   response: any;
   formData: any;
+  resources: ResourceDataState;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -26,6 +29,7 @@ interface ReduxActionProps {
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
+  fetchResources: () => void;
 }
 
 type Props = ReduxActionProps &
@@ -34,6 +38,9 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount(): void {
+    if (!this.props.resources.list.length) {
+      this.props.fetchResources();
+    }
     const currentId = this.props.match.params.id;
     if (!currentId) return;
     if (!this.props.actions.length) {
@@ -103,6 +110,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions.data,
   response: state.entities.actions.response,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
+  resources: state.entities.resources,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
@@ -113,6 +121,7 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>
     dispatch(initialize(formName, data)),
+  fetchResources: () => dispatch(fetchResources()),
 });
 
 export default connect(
