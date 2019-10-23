@@ -54,7 +54,7 @@ public class LayoutServiceImpl implements LayoutService {
     }
 
     @Override
-    public Mono<Layout> getLayout(String pageId, String layoutId) {
+    public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
                 .flatMap(pageService::doesPageIdBelongToCurrentUserOrganization)
@@ -62,7 +62,9 @@ public class LayoutServiceImpl implements LayoutService {
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
-                    return layoutList.stream().filter(layout -> layout.getId().equals(layoutId)).findFirst().get();
+                    Layout matchedLayout = layoutList.stream().filter(layout -> layout.getId().equals(layoutId)).findFirst().get();
+                    matchedLayout.setViewMode(viewMode);
+                    return matchedLayout;
                 });
     }
 

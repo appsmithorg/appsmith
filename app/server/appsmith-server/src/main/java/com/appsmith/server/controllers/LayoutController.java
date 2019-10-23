@@ -36,14 +36,20 @@ public class LayoutController {
 
     @GetMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<Layout>> getLayout(@PathVariable String pageId, @PathVariable String layoutId) {
-        return service.getLayout(pageId, layoutId)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+        return service.getLayout(pageId, layoutId, false)
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<Layout>> updateLayout(@PathVariable String pageId, @PathVariable String layoutId, @RequestBody Layout layout) {
         return service.updateLayout(pageId, layoutId, layout)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
+    }
+
+    @GetMapping("/{layoutId}/pages/{pageId}/view")
+    public Mono<ResponseDTO<Layout>> getLayoutView(@PathVariable String pageId, @PathVariable String layoutId) {
+        return service.getLayout(pageId, layoutId, true)
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
 }

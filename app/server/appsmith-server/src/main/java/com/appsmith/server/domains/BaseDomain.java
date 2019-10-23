@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -36,6 +37,7 @@ public abstract class BaseDomain implements Persistable<String> {
 
     protected Boolean deleted = false;
 
+    @JsonIgnore
     @Override
     public boolean isNew() {
         return this.getId() == null;

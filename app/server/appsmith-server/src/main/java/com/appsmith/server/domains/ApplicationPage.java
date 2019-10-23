@@ -13,7 +13,5 @@ public class ApplicationPage {
 
     String id;
 
-    String name;
-
     Boolean isDefault;
 }
