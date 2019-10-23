@@ -54,6 +54,11 @@ public class RedisListenerConfig {
                 })
                 // Actual processing of the message.
                 .map(redisPluginObj -> pluginService.redisInstallPlugin((InstallPluginRedisDTO) redisPluginObj))
+                // Handle this error because it prevents the Redis connection from shutting down when the server is shut down
+                // TODO: Verify if this is invoked in normal redis pubsub execution as well
+                .doOnError(throwable -> {
+                    log.error("Error occurred in the RedisListenerConfig: ", throwable);
+                })
                 // Required to subscribe else this chain is never invoked
                 .subscribe();
         return container;
