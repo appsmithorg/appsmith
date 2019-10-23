@@ -7,4 +7,20 @@ export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
 
 export const FORM_INITIAL_VALUES = {
   resourceId: "5d808014795dc6000482bc83",
+  actionConfiguration: {
+    headers: [
+      {
+        key: "",
+        value: "",
+      },
+    ],
+    queryParameters: [
+      {
+        key: "",
+        value: "",
+      },
+    ],
+  },
 };
+
+export const REST_PLUGIN_ID = "5ca385dc81b37f0004b4db85";

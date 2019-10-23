@@ -6,7 +6,6 @@ import {
   FORM_INITIAL_VALUES,
   HTTP_METHOD_OPTIONS,
 } from "../../constants/ApiEditorConstants";
-import CreatableDropdown from "../canvas/CreatableDropdown";
 import FormLabel from "../editor/FormLabel";
 import { BaseText } from "../canvas/TextViewComponent";
 import { BaseTabbedView } from "../canvas/TabbedView";
@@ -18,6 +17,8 @@ import JSONEditorField from "../fields/JSONEditorField";
 import DropdownField from "../fields/DropdownField";
 import { RestAction } from "../../api/ActionAPI";
 import JSONViewer from "../../components/editor/JSONViewer";
+import { API_EDITOR_FORM_NAME } from "../../constants/forms";
+import ResourcesField from "../fields/ResourcesField";
 
 const Form = styled(FormContainer)`
   height: 100%;
@@ -113,7 +114,7 @@ class ApiEditorForm extends React.Component<Props> {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <CreatableDropdown options={[]} placeholder="Resource" />
+          <ResourcesField name="resourceId" />
           <ForwardSlash />
           <TextField
             placeholderMessage="API Path"
@@ -173,7 +174,7 @@ class ApiEditorForm extends React.Component<Props> {
 }
 
 export default reduxForm<RestAction, APIFormProps>({
-  form: "ApiEditorForm",
+  form: API_EDITOR_FORM_NAME,
   enableReinitialize: true,
   initialValues: FORM_INITIAL_VALUES,
 })(ApiEditorForm);

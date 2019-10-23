@@ -53,7 +53,7 @@ export interface RestAction {
   resourceId: string;
   pluginId: string;
   pageId: string;
-  actionConfiguration: APIConfigRequest;
+  actionConfiguration: Partial<APIConfigRequest>;
 }
 
 export interface ExecuteActionRequest extends APIRequest {

@@ -12,6 +12,7 @@ import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigRedu
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
+import { ResourceDataState } from "./entityReducers/resourcesReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -35,5 +36,6 @@ export interface AppState {
     actions: ActionDataState;
     propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
+    resources: ResourceDataState;
   };
 }

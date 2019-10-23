@@ -21,7 +21,7 @@ const ApiItem = styled.div<{ isSelected: boolean }>`
   }
 `;
 
-const HTTPMethod = styled.span<{ method: string }>`
+const HTTPMethod = styled.span<{ method: string | undefined }>`
   flex: 1;
   color: ${props => {
     switch (props.method) {

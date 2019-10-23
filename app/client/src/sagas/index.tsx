@@ -5,6 +5,7 @@ import { watchActionSagas } from "./ActionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import configsSagas from "./ConfigsSagas";
+import { watchResourcesSagas } from "./ResourcesSagas";
 export function* rootSaga() {
   yield all([
     spawn(pageSagas),
@@ -13,5 +14,6 @@ export function* rootSaga() {
     spawn(widgetOperationSagas),
     spawn(errorSagas),
     spawn(configsSagas),
+    spawn(watchResourcesSagas),
   ]);
 }
