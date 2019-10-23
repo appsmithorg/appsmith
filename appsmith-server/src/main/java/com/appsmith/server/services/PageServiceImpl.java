@@ -59,7 +59,12 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
             layoutList.add(createDefaultLayout());
             page.setLayouts(layoutList);
         }
-        return super.create(page);
+
+        return super.create(page)
+                //After the page has been saved, update the application (save the page id inside the application)
+                .flatMap(savedPage ->
+                        applicationService.addPageToApplication(savedPage.getApplicationId(), savedPage)
+                            .thenReturn(savedPage));
     }
 
 
