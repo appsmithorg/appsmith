@@ -33,7 +33,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
   ) => {
     const widget = state[action.payload.widgetId];
     return {
-      state,
+      ...state,
       [action.payload.widgetId]: {
         ...widget,
         [action.payload.propertyName]: action.payload.propertyValue,

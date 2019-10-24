@@ -15,6 +15,7 @@ import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 import { ControlIcons } from "../icons/ControlIcons";
 import { theme } from "../constants/DefaultTheme";
 import { ResizingContext } from "./DropTargetComponent";
+import { Tooltip } from "@blueprintjs/core";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -124,16 +125,16 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    end: (widget, monitor) => {
-      if (monitor.didDrop()) {
-        if (isFocused === props.widgetId && showPropertyPane && currentNode) {
-          showPropertyPane(props.widgetId, currentNode, true);
-        }
-      }
-    },
     begin: () => {
       if (isFocused === props.widgetId && showPropertyPane && currentNode) {
         showPropertyPane(props.widgetId, undefined);
+      }
+    },
+    end: (widget, monitor) => {
+      if (monitor.didDrop()) {
+        if (isFocused === props.widgetId && showPropertyPane && currentNode) {
+          showPropertyPane(props.widgetId, currentNode);
+        }
       }
     },
     canDrag: () => {
@@ -175,13 +176,19 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         <DraggableMask ref={referenceRef} />
         {props.children}
         <DragHandle className="control" ref={drag}>
-          {moveControlIcon}
+          <Tooltip content="Move" hoverOpenDelay={500}>
+            {moveControlIcon}
+          </Tooltip>
         </DragHandle>
         <DeleteControl className="control" onClick={deleteWidget}>
-          {deleteControlIcon}
+          <Tooltip content="Delete" hoverOpenDelay={500}>
+            {deleteControlIcon}
+          </Tooltip>
         </DeleteControl>
         <EditControl className="control" onClick={togglePropertyEditor}>
-          {editControlIcon}
+          <Tooltip content="Toggle properties pane" hoverOpenDelay={500}>
+            {editControlIcon}
+          </Tooltip>
         </EditControl>
       </DraggableWrapper>
     </DraggableComponentContext.Provider>

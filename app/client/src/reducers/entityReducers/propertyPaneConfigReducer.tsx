@@ -13,7 +13,6 @@ const initialState: PropertyPaneConfigState = PropertyPaneConfigResponse;
 export type ControlConfig =
   | InputControlProps
   | DropDownControlProps
-  | InputControlProps
   | ControlProps;
 
 export type SectionOrientation = "HORIZONTAL" | "VERTICAL";

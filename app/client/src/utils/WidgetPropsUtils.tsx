@@ -5,7 +5,6 @@ import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReduce
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
 import { WidgetType, RenderModes } from "../constants/WidgetConstants";
 import { generateReactKey } from "../utils/generators";
-import { Colors } from "../constants/Colors";
 import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "../widgets/ContainerWidget";
@@ -26,7 +25,7 @@ const defaultDSL = {
   parentColumnSpace: 1,
   parentRowSpace: 1,
   renderMode: "CANVAS",
-  rightColumn: 1024,
+  rightColumn: 1300,
   snapColumns: 16,
   snapRows: 32,
   topRow: 0,
@@ -37,7 +36,10 @@ const defaultDSL = {
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
-  return fetchPageResponse.data.layouts[0].dsl || defaultDSL;
+  const currentDSL = fetchPageResponse.data.layouts[0].dsl;
+  currentDSL.rightColumn = 1200;
+  currentDSL.snapColumns = 24;
+  return currentDSL || defaultDSL;
 };
 
 export const getDropZoneOffsets = (
@@ -259,7 +261,6 @@ export const generateWidgetProps = (
       renderMode: RenderModes.CANVAS,
       ...sizes,
       ...others,
-      backgroundColor: Colors.WHITE,
     };
   } else {
     if (parent)

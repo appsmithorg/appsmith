@@ -13,7 +13,7 @@ type PopperProps = {
 const PopperWrapper = styled(PaneWrapper)`
   position: absolute;
   z-index: 1;
-  height: ${props => props.theme.propertyPane.height}px;
+  max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
   margin: ${props => props.theme.spaces[6]}px;
 `;
@@ -23,27 +23,27 @@ export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
     //TODO(abhinav): optimize this, remove previous Popper instance.
-    new PopperJS(
-      props.targetRefNode,
-      (contentRef.current as unknown) as Element,
-      {
-        placement: "right",
-        modifiers: {
-          flip: {
-            behavior: ["right", "left", "bottom", "top"],
-          },
-          keepTogether: {
-            enabled: false,
-          },
-          arrow: {
-            enabled: false,
-          },
-          preventOverflow: {
-            boundariesElement: "viewport",
+    const parentElement = props.targetRefNode.parentElement;
+    if (parentElement && parentElement.parentElement) {
+      new PopperJS(
+        props.targetRefNode,
+        (contentRef.current as unknown) as Element,
+        {
+          placement: "right-start",
+          modifiers: {
+            flip: {
+              behavior: ["right", "left", "bottom", "top"],
+            },
+            keepTogether: {
+              enabled: false,
+            },
+            arrow: {
+              enabled: false,
+            },
           },
         },
-      },
-    );
+      );
+    }
   }, [props.targetRefNode]);
   return createPortal(
     <PopperWrapper ref={contentRef}>{props.children}</PopperWrapper>,

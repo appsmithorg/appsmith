@@ -1,7 +1,7 @@
-import * as React from "react";
+import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent from "../components/canvas/Button";
+import ButtonComponent, { ButtonStyleName } from "../components/canvas/Button";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
@@ -10,13 +10,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   }
 
   getPageView() {
+    // TODO(abhinav): This is a hack. Need to standardize the style names
+    const translatedButtonStyleName: ButtonStyleName | undefined =
+      this.props.buttonStyle &&
+      (this.props.buttonStyle.split("_")[0].toLowerCase() as ButtonStyleName);
     return (
       <ButtonComponent
         style={this.getPositionStyle()}
+        styleName={translatedButtonStyleName}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         key={this.props.widgetId}
         text={this.props.text}
+        disabled={this.props.isDisabled}
         onClick={() => {
           this.onButtonClick();
         }}
@@ -40,6 +46,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   buttonStyle?: ButtonStyle;
   onClick?: ActionPayload[];
   isDisabled?: boolean;
+  isVisible?: boolean;
 }
 
 export default ButtonWidget;
