@@ -18,6 +18,7 @@ export interface BaseStyle {
   heightUnit?: CSSUnit;
   widthUnit?: CSSUnit;
   backgroundColor?: Color;
+  border?: string;
 }
 
 export interface ComponentProps {

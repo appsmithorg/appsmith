@@ -18,6 +18,14 @@ export const getCurrentWidgetId = createSelector(
   (propertyPane: PropertyPaneReduxState) => propertyPane.widgetId,
 );
 
+export const getCurrentWidgetProperties = createSelector(
+  getCanvasWidgets,
+  getPropertyPaneState,
+  (widgets: CanvasWidgetsReduxState, pane: PropertyPaneReduxState) => {
+    return pane.widgetId && widgets ? widgets[pane.widgetId] : undefined;
+  },
+);
+
 export const getCurrentReferenceNode = createSelector(
   getPropertyPaneState,
   (pane: PropertyPaneReduxState) => {

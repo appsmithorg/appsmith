@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, IButtonProps, MaybeElement } from "@blueprintjs/core";
+import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { Container } from "../../editorComponents/ContainerComponent";
 import { TextComponentProps } from "./TextViewComponent";
@@ -15,7 +15,7 @@ const ButtonColorStyles = css<ButtonStyleProps>`
   }};
 `;
 
-const ButtonWrapper = styled(Button)<ButtonStyleProps>`
+const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
   && {
     ${ButtonColorStyles};
     width: 100%;
@@ -64,9 +64,10 @@ const ButtonWrapper = styled(Button)<ButtonStyleProps>`
     }
   }
 `;
+export type ButtonStyleName = "primary" | "secondary" | "error";
 
 type ButtonStyleProps = {
-  styleName?: "primary" | "secondary" | "error";
+  styleName?: ButtonStyleName;
   filled?: boolean;
 };
 
@@ -77,6 +78,7 @@ export const BaseButton = (props: IButtonProps & ButtonStyleProps) => {
 
 BaseButton.defaultProps = {
   styleName: "secondary",
+  disabled: false,
   text: "Button Text",
   minimal: true,
 };
@@ -84,13 +86,20 @@ BaseButton.defaultProps = {
 interface ButtonContainerProps extends TextComponentProps {
   icon?: MaybeElement;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  disabled?: boolean;
 }
 
 // To be used with the canvas
-const ButtonContainer = (props: ButtonContainerProps) => {
+const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
     <Container {...props}>
-      <BaseButton icon={props.icon} text={props.text} onClick={props.onClick} />
+      <BaseButton
+        styleName={props.styleName}
+        icon={props.icon}
+        text={props.text}
+        onClick={props.onClick}
+        disabled={props.disabled}
+      />
     </Container>
   );
 };

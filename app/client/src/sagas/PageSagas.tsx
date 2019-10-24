@@ -23,7 +23,7 @@ import {
 } from "redux-saga/effects";
 
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
-import { getEditorConfigs } from "./selectors";
+import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 
 export function* fetchPageSaga(
@@ -86,6 +86,22 @@ export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   }
 }
 
+function getLayoutSavePayload(
+  widgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  },
+  editorConfigs: any,
+) {
+  const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
+    Object.keys(widgets)[0],
+    { canvasWidgets: widgets },
+  );
+  return {
+    ...editorConfigs,
+    dsl: denormalizedDSL,
+  };
+}
+
 export function* saveLayoutSaga(
   updateLayoutAction: ReduxAction<{
     widgets: { [widgetId: string]: FlattenedWidgetProps };
@@ -93,20 +109,44 @@ export function* saveLayoutSaga(
 ) {
   try {
     const { widgets } = updateLayoutAction.payload;
-    const denormalizedDSL = CanvasWidgetsNormalizer.denormalize(
-      Object.keys(widgets)[0],
-      { canvasWidgets: widgets },
-    );
     const editorConfigs = yield select(getEditorConfigs) as any;
+
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
-      payload: {
-        ...editorConfigs,
-        dsl: denormalizedDSL,
-      },
+      payload: getLayoutSavePayload(widgets, editorConfigs),
     });
   } catch (err) {
     console.log(err);
+  }
+}
+
+// TODO(abhinav): This has redundant code. The only thing different here is the lack of state update.
+// For now this is fire and forget.
+export function* asyncSaveLayout() {
+  try {
+    const widgets = yield select(getWidgets);
+    const editorConfigs = yield select(getEditorConfigs) as any;
+
+    const request: SavePageRequest = getLayoutSavePayload(
+      widgets,
+      editorConfigs,
+    );
+
+    const savePageResponse: SavePageResponse = yield call(
+      PageApi.savePage,
+      request,
+    );
+    if (!validateResponse(savePageResponse)) {
+      throw Error("Error when saving layout");
+    }
+  } catch (error) {
+    console.log(error);
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_WIDGET_PROPERTY_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -115,5 +155,8 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
     takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
+    // No need to save layout everytime a property is updated.
+    // We save the latest request to update layout.
+    takeLatest(ReduxActionTypes.UPDATE_WIDGET_PROPERTY, asyncSaveLayout),
   ]);
 }

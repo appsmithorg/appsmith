@@ -13,9 +13,7 @@
     "@blueprintjs/select": "^3.10.0",
     "@blueprintjs/table": "^3.7.1",
     "@sentry/browser": "^5.6.3",
-    "@types/axios": "^0.14.0",
     "@types/fontfaceobserver": "^0.0.6",
-    "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.120",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
@@ -71,7 +69,7 @@
     "eject": "react-scripts eject",
     "flow": "flow"
   },
-  "resolutions": {
+  "resolution": {
     "jest": "24.8.0"
   },
   "eslintConfig": {

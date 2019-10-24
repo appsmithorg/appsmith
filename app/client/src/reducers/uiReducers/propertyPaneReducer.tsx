@@ -18,6 +18,9 @@ const propertyPaneReducer = createReducer(initialState, {
   ) => {
     let isVisible = true;
     const { widgetId, node, toggle } = action.payload;
+    if (state.widgetId === action.payload.widgetId) {
+      isVisible = state.isVisible;
+    }
     if (toggle) {
       isVisible = !state.isVisible;
     }

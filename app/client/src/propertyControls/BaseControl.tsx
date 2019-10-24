@@ -28,6 +28,7 @@ export interface ControlData {
   label: string;
   propertyName: string;
   controlType: ControlType;
+  propertyValue?: any;
 }
 
 export interface ControlFunctions {

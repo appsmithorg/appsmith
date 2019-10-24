@@ -2,7 +2,8 @@ import React, { SyntheticEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "../constants/PropertyControlConstants";
 import { Button, MenuItem } from "@blueprintjs/core";
-import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { IItemRendererProps } from "@blueprintjs/select";
+import { ControlWrapper, StyledDropDown } from "./StyledControls";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   constructor(props: DropDownControlProps) {
@@ -11,20 +12,25 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 
   render() {
-    const DropDown = Select.ofType<DropdownOption>();
+    const selected: DropdownOption | undefined = this.props.options.find(
+      option => option.value === this.props.propertyValue,
+    );
     return (
-      <DropDown
-        items={this.props.options}
-        itemPredicate={this.filterOption}
-        itemRenderer={this.renderItem}
-        onItemSelect={this.onItemSelect}
-        noResults={<MenuItem disabled={true} text="No results." />}
-      >
-        <Button
-          text={this.props.options[0].label}
-          rightIcon="double-caret-vertical"
-        />
-      </DropDown>
+      <ControlWrapper>
+        <label>{this.props.label}</label>
+        <StyledDropDown
+          items={this.props.options}
+          itemPredicate={this.filterOption}
+          itemRenderer={this.renderItem}
+          onItemSelect={this.onItemSelect}
+          noResults={<MenuItem disabled={true} text="No results." />}
+        >
+          <Button
+            text={selected ? selected.label : ""}
+            rightIcon="chevron-down"
+          />
+        </StyledDropDown>
+      </ControlWrapper>
     );
   }
 

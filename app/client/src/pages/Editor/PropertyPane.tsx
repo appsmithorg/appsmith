@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "../../reducers";
 import PropertyControlFactory from "../../utils/PropertyControlFactory";
@@ -11,9 +12,20 @@ import {
   getCurrentReferenceNode,
   getPropertyConfig,
   getIsPropertyPaneVisible,
+  getCurrentWidgetProperties,
 } from "../../selectors/propertyPaneSelectors";
 
 import Popper from "./Popper";
+
+const PropertySectionLabel = styled.div`
+  text-transform: uppercase;
+  color: ${props => props.theme.colors.paneSectionLabel};
+  padding: ${props => props.theme.spaces[5]}px 0;
+  font-size: ${props => props.theme.fontSizes[2]}px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+`;
 
 class PropertyPane extends Component<
   PropertyPaneProps & PropertyPaneFunctions
@@ -24,12 +36,7 @@ class PropertyPane extends Component<
   }
 
   render() {
-    if (
-      this.props.isVisible &&
-      this.props.widgetId &&
-      this.props.targetNode &&
-      this.props.propertySections
-    ) {
+    if (this.props.isVisible && this.props.widgetId && this.props.targetNode) {
       const content = this.renderPropertyPane(this.props.propertySections);
       return (
         <Popper isOpen={true} targetRefNode={this.props.targetNode}>
@@ -48,7 +55,7 @@ class PropertyPane extends Component<
           ? _.map(propertySections, (propertySection: PropertySection) => {
               return this.renderPropertySection(
                 propertySection,
-                propertySection.id,
+                this.props.widgetId + propertySection.id,
               );
             })
           : undefined}
@@ -60,7 +67,9 @@ class PropertyPane extends Component<
     return (
       <div key={key}>
         {!_.isNil(propertySection) ? (
-          <div>{propertySection.sectionName}</div>
+          <PropertySectionLabel>
+            {propertySection.sectionName}
+          </PropertySectionLabel>
         ) : (
           undefined
         )}
@@ -81,6 +90,9 @@ class PropertyPane extends Component<
                 );
               } else {
                 try {
+                  propertyControlOrSection.propertyValue = this.props.widgetProperties[
+                    propertyControlOrSection.propertyName
+                  ];
                   return PropertyControlFactory.createControl(
                     propertyControlOrSection,
                     { onPropertyChange: this.onPropertyChange },
@@ -97,11 +109,11 @@ class PropertyPane extends Component<
   }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
-    // this.props.updateWidgetProperty(
-    //   this.props.widgetId,
-    //   propertyName,
-    //   propertyValue,
-    // );
+    this.props.updateWidgetProperty(
+      this.props.widgetId,
+      propertyName,
+      propertyValue,
+    );
   }
 }
 
@@ -109,6 +121,7 @@ const mapStateToProps = (state: AppState): PropertyPaneProps => {
   return {
     propertySections: getPropertyConfig(state),
     widgetId: getCurrentWidgetId(state),
+    widgetProperties: getCurrentWidgetProperties(state),
     isVisible: getIsPropertyPaneVisible(state),
     targetNode: getCurrentReferenceNode(state),
   };
@@ -127,6 +140,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
 export interface PropertyPaneProps {
   propertySections?: PropertySection[];
   widgetId?: string;
+  widgetProperties?: any; //TODO(abhinav): Secure type definition
   isVisible: boolean;
   targetNode?: HTMLDivElement;
 }
