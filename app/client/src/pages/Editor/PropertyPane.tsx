@@ -45,7 +45,6 @@ class PropertyPane extends Component<
         </Popper>
       );
     } else {
-      console.log("rendering null");
       return null;
     }
   }

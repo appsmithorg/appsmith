@@ -119,7 +119,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
     const bottom =
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-
     if (
       isDropZoneOccupied(
         {
@@ -192,14 +191,13 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       minHeight={props.parentRowSpace}
       style={{
         ...props.style,
-        background: isColliding
-          ? getColorWithOpacity(theme.colors.error, 0.6)
-          : props.style.backgroundColor,
         border:
           isFocused === props.widgetId
             ? getBorderCSSShorthand(theme.borders[1])
             : "none",
-        boxSizing: "content-box",
+        borderColor: isColliding
+          ? getColorWithOpacity(theme.colors.error, 0.6)
+          : "inherit",
       }}
       onResizeStop={updateSize}
       onResize={checkForCollision}
