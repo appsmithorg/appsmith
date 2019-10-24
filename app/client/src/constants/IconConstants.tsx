@@ -8,6 +8,9 @@ export type IconProps = {
 };
 
 export const IconWrapper = styled.div<IconProps>`
+  &:focus {
+    outline: none;
+  }
   svg {
     width: ${props => props.width || props.theme.fontSizes[7]}px;
     height: ${props => props.height || props.theme.fontSizes[7]}px;

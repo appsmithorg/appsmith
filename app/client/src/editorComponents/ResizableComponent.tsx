@@ -33,13 +33,15 @@ const handleStyles: {
     cursor: "ns-resize",
   },
   bottomRight: {
-    height: "30px",
-    width: "30px",
+    height: "45px",
+    width: "45px",
+    zIndex: 1,
     cursor: "nwse-resize",
   },
   bottomLeft: {
-    height: "30px",
-    width: "30px",
+    height: "45px",
+    width: "45px",
+    zIndex: 1,
     cursor: "nesw-resize",
   },
   bottom: {

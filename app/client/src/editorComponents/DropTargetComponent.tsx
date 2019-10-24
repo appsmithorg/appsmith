@@ -117,6 +117,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
             ? props.style.componentWidth + (props.style.widthUnit || "px")
             : "100%",
           top: 0,
+          userSelect: "none",
         }}
       >
         {props.children}

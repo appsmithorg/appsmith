@@ -36,14 +36,16 @@ class PropertyPane extends Component<
   }
 
   render() {
-    if (this.props.isVisible && this.props.widgetId && this.props.targetNode) {
+    if (this.props.isVisible) {
       const content = this.renderPropertyPane(this.props.propertySections);
+
       return (
         <Popper isOpen={true} targetRefNode={this.props.targetNode}>
           {content}
         </Popper>
       );
     } else {
+      console.log("rendering null");
       return null;
     }
   }
