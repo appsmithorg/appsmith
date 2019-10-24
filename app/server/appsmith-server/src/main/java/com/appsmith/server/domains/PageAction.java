@@ -15,8 +15,4 @@ import java.util.List;
 @Document
 public class PageAction {
     String id;
-
-    String name;
-
-    List<String> jsonPathKeys;
 }

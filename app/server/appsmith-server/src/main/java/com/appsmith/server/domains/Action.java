@@ -7,6 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -23,4 +25,8 @@ public class Action extends BaseDomain {
     String pageId;
 
     ActionConfiguration actionConfiguration;
+
+    // This is a list of keys that the client whose values the client needs to send during action execution.
+    // These are the Mustache keys that the server will replace before invoking the API
+    List<String> jsonPathKeys;
 }

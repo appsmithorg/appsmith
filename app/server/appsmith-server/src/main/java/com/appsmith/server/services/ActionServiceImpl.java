@@ -106,8 +106,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         .map(page -> {
                             PageAction pageAction = new PageAction();
                             pageAction.setId(action1.getId());
-                            pageAction.setName(action1.getName());
-                            pageAction.setJsonPathKeys(new ArrayList<>());
 
                             List<PageAction> actions = page.getActions();
 

@@ -1,6 +1,6 @@
 services:
   appsmith:
-    url: http://appsmith-internal-server:8080/public
+    url: ${APPSMITH_SERVER_URL}
     credentials:
       basic:
         token: "YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw=="
