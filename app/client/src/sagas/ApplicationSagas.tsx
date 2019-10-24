@@ -22,7 +22,9 @@ export function* publishApplicationSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      console.log(response);
+      yield put({
+        type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
+      });
     }
   } catch (error) {
     yield put({
@@ -34,7 +36,7 @@ export function* publishApplicationSaga(
   }
 }
 
-export default function* pageSagas() {
+export default function* applicationSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.PUBLISH_APPLICATION_INIT,

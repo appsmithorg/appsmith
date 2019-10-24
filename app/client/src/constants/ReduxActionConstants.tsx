@@ -102,6 +102,12 @@ export interface UpdateCanvasPayload {
   currentApplicationId: string;
 }
 
+export interface LayoutPayload {
+  layoutId: string;
+  pageId: string;
+  widgets: { [widgetId: string]: WidgetProps };
+}
+
 export interface ShowPropertyPanePayload {
   widgetId: string;
   node: RefObject<HTMLDivElement>;

@@ -126,7 +126,6 @@ export const updateWidget = (
 ): ReduxAction<
   WidgetAddChild | WidgetMove | WidgetRemoveChild | WidgetResize | WidgetDelete
 > => {
-  console.log(operation, widgetId, payload);
   return {
     type: ReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },

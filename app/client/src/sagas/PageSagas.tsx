@@ -4,6 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
   UpdateCanvasPayload,
+  LayoutPayload,
 } from "../constants/ReduxActionConstants";
 import { updateCanvas, savePageSuccess } from "../actions/pageActions";
 import PageApi, {
@@ -72,14 +73,26 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<FetchPublishedPageRequest>,
 ) {
   try {
-    const pageRequest = pageRequestAction.payload;
-    const fetchPublishedPageResponse: FetchPublishedPageResponse = yield call(
+    const request: FetchPublishedPageRequest = pageRequestAction.payload;
+    const response: FetchPublishedPageResponse = yield call(
       PageApi.fetchPublishedPage,
-      pageRequest,
+      request,
     );
-    const isValidResponse = yield validateResponse(fetchPublishedPageResponse);
+    const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      console.log(fetchPublishedPageResponse);
+      const normalizedResponse = CanvasWidgetsNormalizer.normalize(
+        response.data.dsl,
+      );
+      const layoutPayload: LayoutPayload = {
+        widgets: normalizedResponse,
+        layoutId: response.data.id,
+        pageId: request.pageId,
+      };
+
+      yield put({
+        type: ReduxActionTypes.FETCH_PUBLISED_PAGE_SUCCESS,
+        payload: layoutPayload,
+      });
     }
   } catch (error) {
     yield put({

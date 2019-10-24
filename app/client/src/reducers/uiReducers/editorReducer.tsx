@@ -26,7 +26,6 @@ const editorReducer = createReducer(initialState, {
     state: EditorReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    console.log(action.payload);
     const {
       currentPageId,
       currentPageName,

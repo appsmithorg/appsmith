@@ -37,7 +37,10 @@ export type FetchPageResponse = ApiResponse & {
 };
 
 export type FetchPublishedPageResponse = ApiResponse & {
-  data: {};
+  data: {
+    id: string;
+    dsl: Partial<ContainerWidgetProps<any>>;
+  };
 };
 
 export interface SavePageResponse extends ApiResponse {

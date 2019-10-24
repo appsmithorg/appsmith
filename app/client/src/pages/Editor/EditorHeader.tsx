@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
+import { BaseButton } from "../../components/canvas/Button";
 
 const Header = styled.header`
   display: flex;
@@ -14,6 +15,13 @@ const Header = styled.header`
 `;
 
 const NotificationText = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-grow: 1;
+`;
+
+const PreviewPublishSection = styled.div`
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -34,6 +42,8 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 type EditorHeaderProps = {
   notificationText?: string;
   pageName: string;
+  onPublish: React.FormEventHandler;
+  onPreview: React.FormEventHandler;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -50,6 +60,20 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         {props.notificationText && <Spinner size={Spinner.SIZE_SMALL} />}
         <span>{props.notificationText}</span>
       </NotificationText>
+      <PreviewPublishSection>
+        <BaseButton
+          onClick={props.onPreview}
+          text="Preview"
+          styleName="secondary"
+          filled
+        />
+        <BaseButton
+          onClick={props.onPublish}
+          text="Publish"
+          styleName="primary"
+          filled
+        />
+      </PreviewPublishSection>
     </Header>
   );
 };
