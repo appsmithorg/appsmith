@@ -8,6 +8,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1,
       columns: 2,
       widgetName: "Button",
+      isDisabled: false,
+      isVisible: true,
     },
     TEXT_WIDGET: {
       text: "Not all labels are bad!",

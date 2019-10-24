@@ -72,7 +72,8 @@ const ResizableContainer = styled(Rnd)`
     width: ${props => props.theme.spaces[2]}px;
     height: ${props => props.theme.spaces[2]}px;
     border-radius: ${props => props.theme.radii[5]}%;
-    background: ${props => props.theme.colors.containerBorder};
+    background: ${props =>
+      props.isfocused && props.theme.colors.containerBorder};
   }
   &:after {
     right: -${props => props.theme.spaces[1]}px;
@@ -88,11 +89,11 @@ const ResizableContainer = styled(Rnd)`
 `;
 
 export const ResizableComponent = (props: ResizableComponentProps) => {
-  const { isDragging } = useContext(DraggableComponentContext);
+  const { isDragging, widgetNode } = useContext(DraggableComponentContext);
   const { setIsResizing } = useContext(ResizingContext);
   const { boundingParent } = useContext(ParentBoundsContext);
   const { updateWidget } = useContext(WidgetFunctionsContext);
-  const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
+  const { showPropertyPane, isFocused, setFocus } = useContext(FocusContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
 
   const [isColliding, setIsColliding] = useState(false);
@@ -145,6 +146,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   ) => {
     setIsResizing && setIsResizing(false);
     setFocus && setFocus(props.widgetId);
+    showPropertyPane && showPropertyPane(props.widgetId, widgetNode);
 
     const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
     const topRow = props.topRow + position.y / props.parentRowSpace;
@@ -174,6 +176,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const canResize = !isDragging && isFocused === props.widgetId;
   return (
     <ResizableContainer
+      isfocused={isFocused === props.widgetId ? "true" : undefined}
       position={{
         x: 0,
         y: 0,
@@ -193,13 +196,14 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         border:
           isFocused === props.widgetId
             ? getBorderCSSShorthand(theme.borders[1])
-            : getBorderCSSShorthand(theme.borders[0]),
+            : "none",
+        boxSizing: "content-box",
       }}
       onResizeStop={updateSize}
       onResize={checkForCollision}
       onResizeStart={() => {
         setIsResizing && setIsResizing(true);
-        showPropertyPane && showPropertyPane(props.widgetId, undefined);
+        showPropertyPane && showPropertyPane(props.widgetId);
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}

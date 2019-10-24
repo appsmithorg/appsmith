@@ -26,7 +26,7 @@ type DropTargetBounds = {
 };
 
 export const ResizingContext: Context<{
-  isResizing?: boolean;
+  isResizing?: boolean | string;
   setIsResizing?: Function;
 }> = createContext({});
 
@@ -36,8 +36,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [isResizing, setIsResizing] = useState(false);
   const { updateWidget } = useContext(WidgetFunctionsContext);
   const occupiedSpaces = useContext(OccupiedSpaceContext);
-  const { setFocus } = useContext(FocusContext);
-
+  const { setFocus, showPropertyPane } = useContext(FocusContext);
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
@@ -99,6 +98,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const handleFocus = () => {
     if (props.isRoot) {
       setFocus && setFocus(props.widgetId);
+      showPropertyPane && showPropertyPane();
     }
   };
 

@@ -6,6 +6,9 @@ import InputTextControl, {
 import DropDownControl, {
   DropDownControlProps,
 } from "../propertyControls/DropDownControl";
+import SwitchControl, {
+  SwitchControlProps,
+} from "../propertyControls/SwitchControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
@@ -17,6 +20,11 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("DROP_DOWN", {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return <DropDownControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("SWITCH", {
+      buildPropertyControl(controlProps: SwitchControlProps): JSX.Element {
+        return <SwitchControl {...controlProps} />;
       },
     });
   }
