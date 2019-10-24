@@ -10,6 +10,11 @@ export interface FetchPageRequest {
   renderMode: RenderMode;
 }
 
+export interface FetchPublishedPageRequest {
+  pageId: string;
+  layoutId: string;
+}
+
 export interface SavePageRequest {
   dsl: ContainerWidgetProps<WidgetProps>;
   layoutId: string;
@@ -31,6 +36,10 @@ export type FetchPageResponse = ApiResponse & {
   };
 };
 
+export type FetchPublishedPageResponse = ApiResponse & {
+  data: {};
+};
+
 export interface SavePageResponse extends ApiResponse {
   pageId: string;
 }
@@ -39,6 +48,10 @@ class PageApi extends Api {
   static url = "v1/pages";
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
+  };
+
+  static getPublishedPageURL = (pageId: string, layoutId: string) => {
+    return `v1/layouts/${layoutId}/pages/${pageId}/view`;
   };
 
   static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {
@@ -54,6 +67,14 @@ class PageApi extends Api {
       ),
       undefined,
       body,
+    );
+  }
+
+  static fetchPublishedPage(
+    pageRequest: FetchPublishedPageRequest,
+  ): Promise<FetchPublishedPageResponse> {
+    return Api.get(
+      PageApi.getPublishedPageURL(pageRequest.pageId, pageRequest.layoutId),
     );
   }
 }

@@ -3,6 +3,10 @@ import { getEditorConfigs } from "../../constants/ApiConstants";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import {
+  ReduxAction,
+  UpdateCanvasPayload,
+} from "../../constants/ReduxActionConstants";
 
 const editorConfigs = getEditorConfigs();
 const initialState: EditorReduxState = {
@@ -18,6 +22,27 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, isSaving: false };
   },
+  [ReduxActionTypes.UPDATE_CANVAS]: (
+    state: EditorReduxState,
+    action: ReduxAction<UpdateCanvasPayload>,
+  ) => {
+    console.log(action.payload);
+    const {
+      currentPageId,
+      currentPageName,
+      currentLayoutId,
+      pageWidgetId,
+      currentApplicationId,
+    } = action.payload;
+    return {
+      ...state,
+      currentPageId,
+      currentPageName,
+      currentLayoutId,
+      pageWidgetId,
+      currentApplicationId,
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -27,6 +52,7 @@ export interface EditorReduxState {
   currentLayoutId: string;
   currentPageName: string;
   propertyPaneConfigsId: string;
+  currentApplicationId?: string;
   isSaving: boolean;
 }
 
