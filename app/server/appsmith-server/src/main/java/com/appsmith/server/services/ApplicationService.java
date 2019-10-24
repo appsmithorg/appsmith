@@ -11,7 +11,7 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> findByName(String name);
 
-    Mono<Application> publish(String applicationId);
+    Mono<Boolean> publish(String applicationId);
 
     Mono<Application> addPageToApplication(String applicationId, Page page);
 

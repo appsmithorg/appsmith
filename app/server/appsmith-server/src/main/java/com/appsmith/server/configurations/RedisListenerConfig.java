@@ -12,6 +12,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.ReactiveRedisMessageListenerContainer;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.CancellationException;
+
 @Configuration
 @Slf4j
 public class RedisListenerConfig {
@@ -57,7 +59,11 @@ public class RedisListenerConfig {
                 // Handle this error because it prevents the Redis connection from shutting down when the server is shut down
                 // TODO: Verify if this is invoked in normal redis pubsub execution as well
                 .doOnError(throwable -> {
-                    log.error("Error occurred in the RedisListenerConfig: ", throwable);
+                    if(!(throwable instanceof CancellationException)) {
+                        // The Reactive RedisListener doesn't shut down properly. Hence, only printing errors for
+                        // ones that are not of type CancellationException
+                        log.error("Error occurred in RedisListenerConfig: ", throwable);
+                    }
                 })
                 // Required to subscribe else this chain is never invoked
                 .subscribe();

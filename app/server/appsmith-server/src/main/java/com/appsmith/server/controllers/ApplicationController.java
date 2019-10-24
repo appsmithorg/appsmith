@@ -21,7 +21,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PostMapping("/publish/{applicationId}")
-    public Mono<ResponseDTO<Application>> publish(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
         return service.publish(applicationId)
                 .map(published -> new ResponseDTO<>(HttpStatus.OK.value(), published, null));
     }

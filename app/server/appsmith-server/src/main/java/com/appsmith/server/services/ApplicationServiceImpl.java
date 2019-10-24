@@ -106,6 +106,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     /**
      * This function is called during page create in Page Service. It adds the newly created
      * page to its ApplicationPages list.
+     *
      * @param applicationId
      * @param page
      * @return Updated application
@@ -133,12 +134,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
      * the publishedDsl.
+     *
      * @param applicationId
      * @return Application
      */
 
     @Override
-    public Mono<Application> publish(String applicationId) {
+    public Mono<Boolean> publish(String applicationId) {
         Mono<Application> applicationMono = findById(applicationId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)));
 
@@ -147,33 +149,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(application -> application.getPages())
                 .flatMapMany(Flux::fromIterable)
                 //In each page, copy each layout's dsl to publishedDsl field
-                .flatMap(applicationPage -> {
-                    return pageRepository
-                            .findById(applicationPage.getId())
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
-                            .map(page -> {
-                                List<Layout> layoutList = page.getLayouts();
-                                for (Layout layout : layoutList) {
-                                    layout.setPublishedDsl(layout.getDsl());
-                                }
-                                return page;
-                            })
-                            .flatMap(pageRepository::save);
-                })
+                .flatMap(applicationPage -> pageRepository
+                        .findById(applicationPage.getId())
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", applicationPage.getId())))
+                        .map(page -> {
+                            List<Layout> layoutList = page.getLayouts();
+                            for (Layout layout : layoutList) {
+                                layout.setPublishedDsl(layout.getDsl());
+                            }
+                            return page;
+                        })
+                        .flatMap(pageRepository::save))
                 .collectList()
-                //The only reason the following has been added to ensure that the DAG completes. If the following is missing,
-                //the previous flatMap responsible for editing the layouts doesn't execute.
-                .flatMap(pages -> {
-                    List<ApplicationPage> pageIds = new ArrayList<>();
-                    for (Page page : pages) {
-                        ApplicationPage applicationPage = new ApplicationPage();
-                        applicationPage.setId(page.getId());
-                        pageIds.add(applicationPage);
-                    }
-                    return applicationMono.map(application -> {
-                        application.setPages(pageIds);
-                        return application;
-                    });
-                });
+                .map(pages -> true);
     }
 }
