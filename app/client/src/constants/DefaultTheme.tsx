@@ -110,7 +110,7 @@ export const theme: Theme = {
       color: Colors.GEYSER_LIGHT,
     },
   ],
-  sidebarWidth: "300px",
+  sidebarWidth: "350px",
   headerHeight: "50px",
 };
 

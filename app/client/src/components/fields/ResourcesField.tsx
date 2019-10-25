@@ -32,6 +32,7 @@ const ResourcesField = (
       component={CreatableDropdown}
       isLoading={props.resources.loading}
       options={options}
+      placeholder="Resource"
       onCreateOption={props.createResource}
       format={(value: string) => _.find(options, { value })}
       normalize={(option: { value: string }) => option.value}

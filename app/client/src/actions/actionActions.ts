@@ -3,7 +3,14 @@ import { RestAction } from "../api/ActionAPI";
 
 export const createAction = (payload: RestAction) => {
   return {
-    type: ReduxActionTypes.CREATE_ACTION,
+    type: ReduxActionTypes.CREATE_ACTION_INIT,
+    payload,
+  };
+};
+
+export const createActionSuccess = (payload: RestAction) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACTION_SUCCESS,
     payload,
   };
 };
@@ -11,13 +18,6 @@ export const createAction = (payload: RestAction) => {
 export const fetchActions = () => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-  };
-};
-
-export const selectAction = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.SELECT_ACTION,
-    payload,
   };
 };
 
@@ -30,21 +30,35 @@ export const fetchApiConfig = (payload: { id: string }) => {
 
 export const runAction = (payload: { id: string }) => {
   return {
-    type: ReduxActionTypes.RUN_ACTION,
-    payload,
-  };
-};
-
-export const deleteAction = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.DELETE_ACTION,
+    type: ReduxActionTypes.RUN_ACTION_INIT,
     payload,
   };
 };
 
 export const updateAction = (payload: { data: RestAction }) => {
   return {
-    type: ReduxActionTypes.UPDATE_ACTION,
+    type: ReduxActionTypes.UPDATE_ACTION_INIT,
+    payload,
+  };
+};
+
+export const updateActionSuccess = (payload: { data: RestAction }) => {
+  return {
+    type: ReduxActionTypes.UPDATE_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const deleteAction = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.DELETE_ACTION_INIT,
+    payload,
+  };
+};
+
+export const deleteActionSuccess = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.DELETE_ACTION_SUCCESS,
     payload,
   };
 };
@@ -55,4 +69,7 @@ export default {
   fetchApiConfig,
   runAction,
   deleteAction,
+  deleteActionSuccess,
+  updateAction,
+  updateActionSuccess,
 };
