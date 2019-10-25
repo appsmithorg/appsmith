@@ -38,6 +38,11 @@ export const getCurrentPageName = createSelector(
   (editor: EditorReduxState) => editor.currentPageName,
 );
 
+export const getCurrentApplicationId = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.currentApplicationId,
+);
+
 export const getIsPageSaving = createSelector(
   getEditorState,
   (editor: EditorReduxState) => editor.isSaving,

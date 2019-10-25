@@ -5,10 +5,15 @@ import { Switch, InputGroup } from "@blueprintjs/core";
 export const ControlWrapper = styled.div`
   margin: ${props => props.theme.spaces[3]}px 0;
   & > label {
-    display: block;
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
     font-size: ${props => props.theme.fontSizes[3]}px;
+  }
+  &&& > label:first-of-type {
+    display: block;
+  }
+  &&& > label {
+    display: inline-block;
   }
 `;
 

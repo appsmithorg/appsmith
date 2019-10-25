@@ -57,6 +57,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_RESOURCES_SUCCESS: "FETCH_RESOURCES_SUCCESS",
   CREATE_RESOURCE_INIT: "CREATE_RESOURCE_INIT",
   CREATE_RESOURCE_SUCCESS: "CREATE_RESOURCE_SUCCESS",
+  FETCH_PUBLISHED_PAGE_INIT: "FETCH_PUBLISHED_PAGE_INIT",
+  FETCH_PUBLISHED_PAGE_SUCCESS: "FETCH_PUBLISHED_PAGE_SUCCESS",
+  PUBLISH_APPLICATION_INIT: "PUBLISH_APPLICATION_INIT",
+  PUBLISH_APPLICATION_SUCCESS: "PUBLISH_APPLICATION_SUCCESS",
 };
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
@@ -80,7 +84,10 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   DELETE_ACTION_ERROR: "DELETE_ACTION_ERROR",
   FETCH_RESOURCES_ERROR: "FETCH_RESOURCES_ERROR",
   CREATE_RESOURCE_ERROR: "CREATE_RESOURCE_ERROR",
+  FETCH_PUBLISHED_PAGE_ERROR: "FETCH_PUBLISHED_PAGE_ERROR",
+  PUBLISH_APPLICATION_ERROR: "PUBLISH_APPLICATION_ERROR",
 };
+
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
@@ -99,6 +106,13 @@ export interface UpdateCanvasPayload {
   currentLayoutId: string;
   currentPageId: string;
   currentPageName: string;
+  currentApplicationId: string;
+}
+
+export interface LayoutPayload {
+  layoutId: string;
+  pageId: string;
+  widgets: { [widgetId: string]: WidgetProps };
 }
 
 export interface ShowPropertyPanePayload {

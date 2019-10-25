@@ -3,6 +3,7 @@ import { AppState } from "../reducers";
 import { PropertyPaneReduxState } from "../reducers/uiReducers/propertyPaneReducer";
 import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { PropertySection } from "../reducers/entityReducers/propertyPaneConfigReducer";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -51,5 +52,7 @@ export const getPropertyConfig = createSelector(
 
 export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
-  (pane: PropertyPaneReduxState) => pane.isVisible,
+  getPropertyConfig,
+  (pane: PropertyPaneReduxState, content?: PropertySection[]) =>
+    !!(pane.isVisible && pane.widgetId && pane.node && content),
 );

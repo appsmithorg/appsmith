@@ -94,7 +94,9 @@ class ContainerWidget extends BaseWidget<
         }}
         isRoot={!this.props.parentId}
       >
-        {this.getPageView()}
+        <OccupiedSpaceContext.Provider value={occupiedSpaces}>
+          {this.getPageView()}
+        </OccupiedSpaceContext.Provider>
       </DropTargetComponent>
     );
     const renderDraggableComponent = (
@@ -104,16 +106,13 @@ class ContainerWidget extends BaseWidget<
         orientation={"VERTICAL"}
       >
         <ResizableComponent style={{ ...style }} {...this.props}>
-          {renderComponent}
+          <OccupiedSpaceContext.Provider value={occupiedSpaces}>
+            {renderComponent}
+          </OccupiedSpaceContext.Provider>
         </ResizableComponent>
       </DraggableComponent>
     );
-
-    return (
-      <OccupiedSpaceContext.Provider value={occupiedSpaces}>
-        {this.props.parentId ? renderDraggableComponent : renderComponent}
-      </OccupiedSpaceContext.Provider>
-    );
+    return this.props.parentId ? renderDraggableComponent : renderComponent;
   }
 
   getWidgetType(): WidgetType {
