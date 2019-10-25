@@ -15,10 +15,11 @@ import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 import { ResourceDataState } from "../../reducers/entityReducers/resourcesReducer";
 import { fetchResources } from "../../actions/resourcesActions";
+import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
+import { normalizeApiFormData } from "../../normalizers/ApiFormNormalizer";
 
 interface ReduxStateProps {
   actions: RestAction[];
-  response: any;
   formData: any;
   resources: ResourceDataState;
 }
@@ -55,6 +56,9 @@ class ApiEditor extends React.Component<Props> {
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const currentId = this.props.match.params.id;
+    if (!currentId && prevProps.match.params.id) {
+      this.props.initialize(API_EDITOR_FORM_NAME, FORM_INITIAL_VALUES);
+    }
     if (currentId && currentId !== prevProps.match.params.id) {
       const data = this.props.actions.filter(
         action => action.id === currentId,
@@ -65,17 +69,7 @@ class ApiEditor extends React.Component<Props> {
 
   handleSubmit = (values: RestAction) => {
     const { formData } = this.props;
-    const data: RestAction = {
-      ...formData,
-      actionConfiguration: {
-        ...formData.actionConfiguration,
-        body: formData.actionConfiguration.body
-          ? typeof formData.actionConfiguration.body === "string"
-            ? JSON.parse(formData.actionConfiguration.body)
-            : formData.actionConfiguration.body
-          : null,
-      },
-    };
+    const data = normalizeApiFormData(formData);
     if (data.id) {
       this.props.updateAction(data);
     } else {
@@ -100,7 +94,7 @@ class ApiEditor extends React.Component<Props> {
         onSaveClick={this.handleSaveClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
-        response={this.props.response}
+        isEdit={!!this.props.match.params.id}
       />
     );
   }
@@ -108,7 +102,6 @@ class ApiEditor extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions.data,
-  response: state.entities.actions.response,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
   resources: state.entities.resources,
 });

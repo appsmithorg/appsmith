@@ -10,6 +10,7 @@ import ResourcesApi, {
   CreateResourceConfig,
   Resource,
 } from "../api/ResourcesApi";
+import { API_EDITOR_FORM_NAME } from "../constants/forms";
 
 function* fetchResourcesSaga() {
   const response: GenericApiResponse<
@@ -37,7 +38,7 @@ function* createResourceSaga(actionPayload: ReduxAction<CreateResourceConfig>) {
       type: ReduxActionTypes.CREATE_RESOURCE_SUCCESS,
       payload: response.data,
     });
-    yield put(change("ApiEditorForm", "resourceId", response.data.id));
+    yield put(change(API_EDITOR_FORM_NAME, "resourceId", response.data.id));
   } else {
     yield put({
       type: ReduxActionTypes.CREATE_RESOURCE_ERROR,

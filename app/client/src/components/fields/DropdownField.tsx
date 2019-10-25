@@ -9,6 +9,7 @@ interface DropdownFieldProps {
     label: string;
     value: string;
   }>;
+  placeholder: string;
 }
 
 const DropdownField = (props: DropdownFieldProps) => {
@@ -17,6 +18,7 @@ const DropdownField = (props: DropdownFieldProps) => {
       name={props.name}
       component={BaseDropdown}
       options={props.options}
+      placeholder={props.placeholder}
       format={(value: string) => _.find(props.options, { value })}
       normalize={(option: { value: string }) => option.value}
     />

@@ -38,7 +38,6 @@ class CreatableDropdown extends React.Component<DropdownProps> {
         onCreateOption={onCreateOption}
         {...input}
         onChange={value => input.onChange(value)}
-        onBlur={() => input.onBlur(input.value)}
       />
     );
   }

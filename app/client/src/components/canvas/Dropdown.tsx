@@ -8,12 +8,13 @@ type DropdownProps = {
     label: string;
   }>;
   input: WrappedFieldInputProps;
+  placeholder: string;
 };
 
 const selectStyles = {
   control: (styles: any) => ({
     ...styles,
-    width: 100,
+    width: 120,
   }),
 };
 
@@ -21,12 +22,11 @@ export const BaseDropdown = (props: DropdownProps) => {
   const { input, options } = props;
   return (
     <Select
-      defaultValue={options[0]}
+      placeholder={props.placeholder}
       options={options}
       styles={selectStyles}
       {...input}
       onChange={value => input.onChange(value)}
-      onBlur={() => input.onBlur(input.value)}
     />
   );
 };
