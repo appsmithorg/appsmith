@@ -4,7 +4,14 @@ import {
   ReduxActionTypes,
 } from "../constants/ReduxActionConstants";
 import { Intent } from "@blueprintjs/core";
-import { all, call, select, put, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  select,
+  put,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import { initialize } from "redux-form";
 import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
@@ -18,8 +25,14 @@ import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editor/ToastComponent";
 import { GenericApiResponse } from "../api/ApiResponses";
-import { fetchActions } from "../actions/actionActions";
 import { API_EDITOR_FORM_NAME } from "../constants/forms";
+import {
+  createActionSuccess,
+  deleteActionSuccess,
+  updateActionSuccess,
+} from "../actions/actionActions";
+import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
+import history from "../utils/history";
 
 const getDataTree = (state: AppState) => {
   return state.entities;
@@ -82,7 +95,8 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
       message: `${actionPayload.payload.name} Action created`,
       intent: Intent.SUCCESS,
     });
-    yield put(fetchActions());
+    yield put(createActionSuccess(response.data));
+    history.push(API_EDITOR_ID_URL(response.data.id));
   }
 }
 
@@ -116,7 +130,7 @@ export function* runActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   const response: any = yield ActionAPI.executeAction({ actionId: id });
   yield put({
     type: ReduxActionTypes.RUN_ACTION_SUCCESS,
-    payload: response,
+    payload: { [id]: response },
   });
 }
 
@@ -135,7 +149,7 @@ export function* updateActionSaga(
       message: `${actionPayload.payload.data.name} Action updated`,
       intent: Intent.SUCCESS,
     });
-    yield put(fetchActions());
+    yield put(updateActionSuccess({ data: response.data }));
   } else {
     AppToaster.show({
       message: "Error occurred when updating action",
@@ -154,7 +168,8 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       message: `${response.data.name} Action deleted`,
       intent: Intent.SUCCESS,
     });
-    yield put(fetchActions());
+    yield put(deleteActionSuccess({ id }));
+    history.push(API_EDITOR_URL);
   } else {
     AppToaster.show({
       message: "Error occurred when deleting action",
@@ -166,11 +181,11 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga),
-    takeEvery(ReduxActionTypes.CREATE_ACTION, createActionSaga),
+    takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga),
+    takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeEvery(ReduxActionTypes.FETCH_ACTION, fetchActionSaga),
-    takeEvery(ReduxActionTypes.RUN_ACTION, runActionSaga),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION, updateActionSaga),
-    takeEvery(ReduxActionTypes.DELETE_ACTION, deleteActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionSaga),
+    takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
+    takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
   ]);
 }

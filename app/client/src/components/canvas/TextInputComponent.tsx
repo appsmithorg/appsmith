@@ -10,7 +10,7 @@ const InputStyles = css`
   border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
   border-radius: 4px;
   height: 32px;
-  background-color: ${props => props.theme.colors.inputInactiveBG};
+  background-color: ${props => props.theme.colors.textOnDarkBG};
   &:focus {
     border-color: ${props => props.theme.colors.secondary};
     background-color: ${props => props.theme.colors.textOnDarkBG};

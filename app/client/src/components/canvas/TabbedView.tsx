@@ -1,18 +1,21 @@
 import React from "react";
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.scss";
+import { Tab, Tabs } from "@blueprintjs/core";
 import styled from "styled-components";
 
-const TabsWrapper = styled(Tabs)`
-  ul {
-    border-bottom-color: #d0d7dd;
-    li {
-      &.react-tabs__tab--selected {
-        border-color: #d0d7dd;
-        left: -1px;
-        border-radius: 0;
-        border-top: 5px solid ${props => props.theme.colors.primary};
-      }
+const TabsWrapper = styled.div`
+  padding: 0 5px;
+  .bp3-tab-indicator {
+    background-color: ${props => props.theme.colors.primary};
+  }
+  .bp3-tab {
+    &[aria-selected="true"] {
+      color: ${props => props.theme.colors.primary};
+    }
+    :hover {
+      color: ${props => props.theme.colors.primary};
+    }
+    :focus {
+      outline: none;
     }
   }
 `;
@@ -21,21 +24,23 @@ type TabbedViewComponentType = {
   tabs: Array<{
     key: string;
     title: string;
-    panelComponent: () => React.ReactNode;
+    panelComponent: JSX.Element;
   }>;
 };
 
 export const BaseTabbedView = (props: TabbedViewComponentType) => {
   return (
     <TabsWrapper>
-      <TabList>
+      <Tabs>
         {props.tabs.map(tab => (
-          <Tab key={tab.key}>{tab.title}</Tab>
+          <Tab
+            key={tab.key}
+            id={tab.key}
+            title={tab.title}
+            panel={tab.panelComponent}
+          />
         ))}
-      </TabList>
-      {props.tabs.map(tab => (
-        <TabPanel key={tab.key}>{tab.panelComponent()}</TabPanel>
-      ))}
+      </Tabs>
     </TabsWrapper>
   );
 };

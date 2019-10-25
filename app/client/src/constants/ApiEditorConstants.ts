@@ -6,15 +6,22 @@ export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
 }));
 
 export const FORM_INITIAL_VALUES = {
-  resourceId: "5d808014795dc6000482bc83",
   actionConfiguration: {
     headers: [
       {
         key: "",
         value: "",
       },
+      {
+        key: "",
+        value: "",
+      },
     ],
     queryParameters: [
+      {
+        key: "",
+        value: "",
+      },
       {
         key: "",
         value: "",

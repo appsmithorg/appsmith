@@ -19,11 +19,12 @@ const JSONEditor = (props: any) => {
       highlightActiveLine={true}
       width="100%"
       setOptions={{
-        enableBasicAutocompletion: true,
+        enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,
         enableSnippets: false,
         showLineNumbers: true,
         tabSize: 2,
+        useWorker: false,
       }}
       name={input.name}
       onBlur={aceOnBlur(input.onBlur)}

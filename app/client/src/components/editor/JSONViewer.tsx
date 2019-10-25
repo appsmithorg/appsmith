@@ -5,10 +5,13 @@ import styled from "styled-components";
 const JSONViewWrapper = styled.div`
   max-height: 600px;
   overflow-y: auto;
+  & > div {
+    font-size: ${props => props.theme.fontSizes[2]}px;
+  }
 `;
 
 const JSONViewer = (props: { data: JSON }) => {
-  if (!props.data) return null;
+  if (!props.data) return <div />;
   return (
     <JSONViewWrapper>
       <ReactJson
@@ -17,9 +20,6 @@ const JSONViewer = (props: { data: JSON }) => {
         displayDataTypes={false}
         indentWidth={2}
         enableClipboard={false}
-        style={{
-          fontSize: "10px",
-        }}
       />
     </JSONViewWrapper>
   );

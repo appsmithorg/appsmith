@@ -6,7 +6,7 @@ import PaneWrapper from "../common/PaneWrapper";
 
 type PopperProps = {
   isOpen: boolean;
-  targetRefNode: HTMLDivElement;
+  targetRefNode?: HTMLDivElement;
   children: JSX.Element;
 };
 
@@ -23,8 +23,9 @@ export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
     //TODO(abhinav): optimize this, remove previous Popper instance.
-    const parentElement = props.targetRefNode.parentElement;
-    if (parentElement && parentElement.parentElement) {
+    const parentElement =
+      props.targetRefNode && props.targetRefNode.parentElement;
+    if (parentElement && parentElement.parentElement && props.targetRefNode) {
       new PopperJS(
         props.targetRefNode,
         (contentRef.current as unknown) as Element,

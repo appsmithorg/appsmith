@@ -7,8 +7,9 @@ import Editor from "./pages/Editor";
 import PageNotFound from "./pages/common/PageNotFound";
 import LoginPage from "./pages/common/LoginPage";
 import * as serviceWorker from "./serviceWorker";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
+import history from "./utils/history";
 import appReducer from "./reducers";
 import { ThemeProvider, theme } from "./constants/DefaultTheme";
 import createSagaMiddleware from "redux-saga";
@@ -32,14 +33,14 @@ ReactDOM.render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <BrowserRouter>
+        <Router history={history}>
           <Switch>
             <Route exact path={BASE_URL} component={App} />
             <ProtectedRoute path={BUILDER_URL} component={Editor} />
             <Route exact path={LOGIN_URL} component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>
-        </BrowserRouter>
+        </Router>
       </ThemeProvider>
     </Provider>
   </DndProvider>,

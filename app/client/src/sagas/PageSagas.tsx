@@ -4,6 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
   UpdateCanvasPayload,
+  LayoutPayload,
 } from "../constants/ReduxActionConstants";
 import { updateCanvas, savePageSuccess } from "../actions/pageActions";
 import PageApi, {
@@ -11,6 +12,8 @@ import PageApi, {
   SavePageResponse,
   FetchPageRequest,
   SavePageRequest,
+  FetchPublishedPageRequest,
+  FetchPublishedPageResponse,
 } from "../api/PageApi";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -46,6 +49,7 @@ export function* fetchPageSaga(
         currentPageId: fetchPageResponse.data.id,
         widgets: normalizedResponse.entities.canvasWidgets,
         currentLayoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
+        currentApplicationId: fetchPageResponse.data.applicationId,
       };
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),
@@ -58,6 +62,41 @@ export function* fetchPageSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchPublishedPageSaga(
+  pageRequestAction: ReduxAction<FetchPublishedPageRequest>,
+) {
+  try {
+    const request: FetchPublishedPageRequest = pageRequestAction.payload;
+    const response: FetchPublishedPageResponse = yield call(
+      PageApi.fetchPublishedPage,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const normalizedResponse = CanvasWidgetsNormalizer.normalize(
+        response.data.dsl,
+      );
+      const layoutPayload: LayoutPayload = {
+        widgets: normalizedResponse,
+        layoutId: response.data.id,
+        pageId: request.pageId,
+      };
+
+      yield put({
+        type: ReduxActionTypes.FETCH_PUBLISED_PAGE_SUCCESS,
+        payload: layoutPayload,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
       payload: {
         error,
       },
@@ -153,6 +192,10 @@ export function* asyncSaveLayout() {
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+      fetchPublishedPageSaga,
+    ),
     takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     // No need to save layout everytime a property is updated.

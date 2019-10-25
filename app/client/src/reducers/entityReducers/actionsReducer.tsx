@@ -11,23 +11,25 @@ import { RestAction } from "../../api/ActionAPI";
 const initialState: ActionDataState = {
   list: {},
   data: [],
-  response: {
-    body: null,
-    headers: null,
-    statusCode: "",
-  },
+  responses: {},
   loading: false,
 };
+
+export interface ActionApiResponse {
+  body: JSON;
+  headers: any;
+  statusCode: string;
+  timeTaken: number;
+  size: number;
+}
 
 export interface ActionDataState {
   list: {
     [name: string]: PageAction;
   };
   data: RestAction[];
-  response: {
-    body: any;
-    headers: any;
-    statusCode: string;
+  responses: {
+    [id: string]: ActionApiResponse;
   };
   loading: boolean;
 }
@@ -42,24 +44,51 @@ const actionsReducer = createReducer(initialState, {
     });
     return { ...state, list: { ...actionMap } };
   },
-  [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ActionDataState) => {
-    return { ...state, loading: true };
-  },
+  [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ActionDataState) => ({
+    ...state,
+    loading: true,
+  }),
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
-  ) => {
-    return { ...state, data: action.payload, loading: false };
-  },
-  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state: ActionDataState) => {
-    return { ...state, data: [], loading: false };
-  },
+  ) => ({
+    ...state,
+    data: action.payload,
+    loading: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state: ActionDataState) => ({
+    ...state,
+    data: [],
+    loading: false,
+  }),
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<any>,
-  ) => {
-    return { ...state, response: action.payload };
-  },
+    action: ReduxAction<{ [id: string]: ActionApiResponse }>,
+  ) => ({ ...state, responses: { ...state.responses, ...action.payload } }),
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.concat([action.payload]),
+  }),
+  [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ data: RestAction }>,
+  ) => ({
+    ...state,
+    data: state.data.map(d => {
+      if (d.id === action.payload.data.id) return action.payload.data;
+      return d;
+    }),
+  }),
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    data: state.data.filter(d => d.id !== action.payload.id),
+  }),
 });
 
 export default actionsReducer;
