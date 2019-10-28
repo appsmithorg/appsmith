@@ -1,4 +1,15 @@
 
+## Dev Dependencies
+- `yarn`
+- `nvm`
+
+## Dev Setup
+- `cd internal-tools-client` Change directory to the project directory
+- `nvm install` Install the version of `node` and `npm` required by the project using `nvm`
+- `yarn` Install packages and run setup scripts
+- `yarn start` Deploy locally
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
