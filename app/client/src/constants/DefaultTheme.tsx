@@ -13,7 +13,7 @@ const {
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
 export type ThemeBorder = {
-  thickness: string;
+  thickness: number;
   style: "dashed" | "solid";
   color: Color;
 };
@@ -49,7 +49,11 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
 
 export const getBorderCSSShorthand = (border?: ThemeBorder) => {
   if (border) {
-    return Object.values(border).join(" ");
+    let keys = Object.keys(border)
+    let values = keys.map((key: string) => {
+      return key === 'thickness' ? border[key] + "px" : (border as any)[key]
+    })
+    return values.join(" ");
   }
   return "";
 };
@@ -95,17 +99,17 @@ export const theme: Theme = {
   fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
   borders: [
     {
-      thickness: "1px",
+      thickness: 1,
       style: "dashed",
       color: Colors.FRENCH_PASS,
     },
     {
-      thickness: "2px",
+      thickness: 2,
       style: "solid",
       color: Colors.FRENCH_PASS,
     },
     {
-      thickness: "1px",
+      thickness: 1,
       style: "solid",
       color: Colors.GEYSER_LIGHT,
     },

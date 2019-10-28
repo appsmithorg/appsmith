@@ -18,51 +18,63 @@ import {
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
-const handleStyles: {
+const BORDER_INDEX = 1
+
+const HOVER_AREA_WIDTH = 12
+
+function getHandleSyles() : {
   top: CSSProperties;
   bottom: CSSProperties;
   right: CSSProperties;
   left: CSSProperties;
   bottomRight: CSSProperties;
   bottomLeft: CSSProperties;
-} = {
-  top: {
-    height: "30px",
-    top: "-15px",
-    zIndex: 1,
-    cursor: "ns-resize",
-  },
-  bottomRight: {
-    height: "45px",
-    width: "45px",
-    zIndex: 1,
-    cursor: "nwse-resize",
-  },
-  bottomLeft: {
-    height: "45px",
-    width: "45px",
-    zIndex: 1,
-    cursor: "nesw-resize",
-  },
-  bottom: {
-    height: "30px",
-    bottom: "-15px",
-    zIndex: 1,
-    cursor: "ns-resize",
-  },
-  left: {
-    width: "30px",
-    left: "-15px",
-    zIndex: 1,
-    cursor: "ew-resize",
-  },
-  right: {
-    width: "30px",
-    right: "-15px",
-    zIndex: 1,
-    cursor: "ew-resize",
-  },
-};
+} {
+  const hoverWidth = HOVER_AREA_WIDTH
+  const hoverWidthHalf = hoverWidth / 2
+  const halfBorder = theme.borders[BORDER_INDEX].thickness / 2 
+  const shiftedHoverWidthHalf = hoverWidthHalf + halfBorder
+  const hoverCornerWidth = hoverWidth + hoverWidth / 4
+
+  return {
+    top: {
+      height: hoverWidth + "px",
+      top: "-" + shiftedHoverWidthHalf + "px",
+      zIndex: 1,
+      cursor: "ns-resize",
+    },
+    bottomRight: {
+      height: hoverCornerWidth + "px",
+      width: hoverCornerWidth + "px",
+      zIndex: 1,
+      cursor: "nwse-resize",
+    },
+    bottomLeft: {
+      height: hoverCornerWidth + "px",
+      width: hoverCornerWidth + "px",
+      zIndex: 1,
+      cursor: "nesw-resize",
+    },
+    bottom: {
+      height: hoverWidth + "px",
+      bottom: "-" + shiftedHoverWidthHalf + "px",
+      zIndex: 1,
+      cursor: "ns-resize",
+    },
+    left: {
+      width: hoverWidth + "px",
+      left: "-" + shiftedHoverWidthHalf + "px",
+      zIndex: 1,
+      cursor: "ew-resize",
+    },
+    right: {
+      width: hoverWidth + "px",
+      right: "-" + shiftedHoverWidthHalf + "px",
+      zIndex: 1,
+      cursor: "ew-resize",
+    },
+  }
+}
 
 const ResizableContainer = styled(Rnd)`
   position: relative;
@@ -193,7 +205,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         ...props.style,
         border:
           isFocused === props.widgetId
-            ? getBorderCSSShorthand(theme.borders[1])
+            ? getBorderCSSShorthand(theme.borders[BORDER_INDEX])
             : "none",
         borderColor: isColliding
           ? getColorWithOpacity(theme.colors.error, 0.6)
@@ -207,7 +219,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}
-      resizeHandleStyles={handleStyles}
+      resizeHandleStyles={getHandleSyles()}
       enableResizing={{
         top: canResize,
         right: canResize,
