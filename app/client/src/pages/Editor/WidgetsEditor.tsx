@@ -28,6 +28,15 @@ import {
 } from "../../actions/configsActions";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
 
+const EditorWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: hidden;
+  height: calc(100vh - ${props => props.theme.headerHeight});
+`;
+
 const CanvasContainer = styled.section`
   height: 100%;
   width: 100%;
@@ -43,15 +52,6 @@ const CanvasContainer = styled.section`
     left: 0;
     pointer-events: none;
   }
-`;
-
-const EditorWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
 `;
 
 type EditorProps = {

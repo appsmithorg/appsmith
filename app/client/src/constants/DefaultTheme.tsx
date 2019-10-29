@@ -94,7 +94,11 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
+  fonts: [
+    FontFamilies.DMSans,
+    FontFamilies.AppsmithWidget,
+    FontFamilies.FiraCode,
+  ],
   borders: [
     {
       thickness: 1,

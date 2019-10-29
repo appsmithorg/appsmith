@@ -8,10 +8,11 @@ import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../../constants/routes";
 import { BaseButton } from "../../components/canvas/Button";
 import { FormIcons } from "../../icons/FormIcons";
+import { Spinner } from "@blueprintjs/core";
 
 const ApiSidebarWrapper = styled.div`
-  display: flex;
   height: 100%;
+  width: 100%;
   flex-direction: column;
 `;
 const ApiItemsWrapper = styled.div`
@@ -111,13 +112,13 @@ class ApiSidebar extends React.Component<Props> {
     const activeActionId = match.params.id;
     return (
       <ApiSidebarWrapper>
+        {actions.isFetching && <Spinner size={30} />}
         <ApiItemsWrapper>
           {actions.data.map(action => (
             <ApiItem
               key={action.id}
               onClick={() => history.push(API_EDITOR_ID_URL(action.id))}
               isSelected={activeActionId === action.id}
-              className={actions.loading ? "bp3-skeleton" : ""}
             >
               <HTTPMethod method={action.actionConfiguration.httpMethod}>
                 {action.actionConfiguration.httpMethod}
@@ -125,6 +126,12 @@ class ApiSidebar extends React.Component<Props> {
               <ActionName>{action.name}</ActionName>
             </ApiItem>
           ))}
+          {!activeActionId && !actions.isFetching && (
+            <ApiItem isSelected>
+              <HTTPMethod method="" />
+              <ActionName>New Api</ActionName>
+            </ApiItem>
+          )}
         </ApiItemsWrapper>
         <CreateNewButton
           text="Create new API"

@@ -1,9 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import { submit, initialize, getFormValues } from "redux-form";
+import { submit, initialize, getFormValues, destroy } from "redux-form";
 import ApiEditorForm from "../../components/forms/ApiEditorForm";
 import {
-  createAction,
+  createActionRequest,
   runAction,
   deleteAction,
   updateAction,
@@ -17,9 +17,10 @@ import { ResourceDataState } from "../../reducers/entityReducers/resourcesReduce
 import { fetchResources } from "../../actions/resourcesActions";
 import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 import { normalizeApiFormData } from "../../normalizers/ApiFormNormalizer";
+import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 
 interface ReduxStateProps {
-  actions: RestAction[];
+  actions: ActionDataState;
   formData: any;
   resources: ResourceDataState;
 }
@@ -30,6 +31,7 @@ interface ReduxActionProps {
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
+  destroy: (formName: string) => void;
   fetchResources: () => void;
 }
 
@@ -44,11 +46,11 @@ class ApiEditor extends React.Component<Props> {
     }
     const currentId = this.props.match.params.id;
     if (!currentId) return;
-    if (!this.props.actions.length) {
+    if (!this.props.actions.data.length) {
       this.props.history.push(API_EDITOR_URL);
       return;
     }
-    const data = this.props.actions.filter(
+    const data = this.props.actions.data.filter(
       action => action.id === currentId,
     )[0];
     this.props.initialize(API_EDITOR_FORM_NAME, data);
@@ -60,9 +62,10 @@ class ApiEditor extends React.Component<Props> {
       this.props.initialize(API_EDITOR_FORM_NAME, FORM_INITIAL_VALUES);
     }
     if (currentId && currentId !== prevProps.match.params.id) {
-      const data = this.props.actions.filter(
+      const data = this.props.actions.data.filter(
         action => action.id === currentId,
       )[0];
+      this.props.destroy(API_EDITOR_FORM_NAME);
       this.props.initialize(API_EDITOR_FORM_NAME, data);
     }
   }
@@ -88,32 +91,38 @@ class ApiEditor extends React.Component<Props> {
   };
 
   render() {
+    const {
+      actions: { isSaving, isRunning, isDeleting },
+    } = this.props;
     return (
       <ApiEditorForm
+        isSaving={isSaving}
+        isRunning={isRunning}
+        isDeleting={isDeleting}
         onSubmit={this.handleSubmit}
         onSaveClick={this.handleSaveClick}
         onDeleteClick={this.handleDeleteClick}
         onRunClick={this.handleRunClick}
-        isEdit={!!this.props.match.params.id}
       />
     );
   }
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  actions: state.entities.actions.data,
+  actions: state.entities.actions,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
   resources: state.entities.resources,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
-  createAction: (action: RestAction) => dispatch(createAction(action)),
+  createAction: (action: RestAction) => dispatch(createActionRequest(action)),
   runAction: (id: string) => dispatch(runAction({ id })),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>
     dispatch(initialize(formName, data)),
+  destroy: (formName: string) => dispatch(destroy(formName)),
   fetchResources: () => dispatch(fetchResources()),
 });
 

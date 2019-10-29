@@ -1,21 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import styled from "styled-components";
 import { AppState } from "../../reducers";
 import EditorHeader from "./EditorHeader";
-import EditorsRouter from "./routes";
-import NavBar from "../../components/editor/NavBar";
-import WidgetsEditor from "./WidgetsEditor";
+import MainContainer from "./MainContainer";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
 } from "../../selectors/editorSelectors";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
-
-const MainContainer = styled.div`
-  display: flex;
-`;
 
 type EditorProps = {
   currentPageName: string;
@@ -48,11 +41,7 @@ class Editor extends Component<EditorProps> {
           onPublish={this.handlePublish}
           onPreview={this.handlePreview}
         />
-        <MainContainer>
-          <NavBar />
-          <EditorsRouter />
-          <WidgetsEditor />
-        </MainContainer>
+        <MainContainer />
       </div>
     );
   }

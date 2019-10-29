@@ -1,15 +1,16 @@
 import React from "react";
 import { Field } from "redux-form";
-import JSONEditor from "../editor/JSONEditor";
+import CodeEditor from "../editor/CodeEditor";
 
 const JSONEditorField = (props: { name: string }) => {
   return (
     <Field
       name={props.name}
-      component={JSONEditor}
+      component={CodeEditor}
       format={(value: string | object) =>
-        typeof value === "string" ? value : JSON.stringify(value)
+        typeof value === "string" ? value : JSON.stringify(value, null, 2)
       }
+      placeholder="Input post body here"
     />
   );
 };
