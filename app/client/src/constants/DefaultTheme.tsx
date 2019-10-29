@@ -1,6 +1,7 @@
 import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
+import _ from "lodash";
 
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
@@ -47,15 +48,12 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
-export const getBorderCSSShorthand = (border?: ThemeBorder) => {
-  if (border) {
-    let keys = Object.keys(border)
-    let values = keys.map((key: string) => {
-      return key === 'thickness' ? border[key] + "px" : (border as any)[key]
-    })
-    return values.join(" ");
-  }
-  return "";
+export const getBorderCSSShorthand = (border?: ThemeBorder) : string => {
+  let values : string[] = []
+  _.forIn(border, (value, key) => {
+    values.push(key === 'thickness' ? value + "px" : value)
+  })
+  return values.join(" ")
 };
 
 export const theme: Theme = {
