@@ -4,6 +4,7 @@ import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "../widgets/BaseWidget";
 import { RenderMode } from "../constants/WidgetConstants";
 import { PageAction } from "../constants/ActionConstants";
+import { AxiosPromise } from "axios";
 
 export interface FetchPageRequest {
   pageId: string;
@@ -57,11 +58,15 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}/view`;
   };
 
-  static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {
+  static fetchPage(
+    pageRequest: FetchPageRequest,
+  ): AxiosPromise<FetchPageResponse> {
     return Api.get(PageApi.url + "/" + pageRequest.pageId);
   }
 
-  static savePage(savePageRequest: SavePageRequest): Promise<SavePageResponse> {
+  static savePage(
+    savePageRequest: SavePageRequest,
+  ): AxiosPromise<SavePageResponse> {
     const body = { dsl: savePageRequest.dsl };
     return Api.put(
       PageApi.getLayoutUpdateURL(
@@ -75,7 +80,7 @@ class PageApi extends Api {
 
   static fetchPublishedPage(
     pageRequest: FetchPublishedPageRequest,
-  ): Promise<FetchPublishedPageResponse> {
+  ): AxiosPromise<FetchPublishedPageResponse> {
     return Api.get(
       PageApi.getPublishedPageURL(pageRequest.pageId, pageRequest.layoutId),
     );

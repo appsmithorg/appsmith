@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 import { RestAction } from "../api/ActionAPI";
 
-export const createAction = (payload: RestAction) => {
+export const createActionRequest = (payload: RestAction) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -64,7 +64,7 @@ export const deleteActionSuccess = (payload: { id: string }) => {
 };
 
 export default {
-  createAction,
+  createAction: createActionRequest,
   fetchActions,
   fetchApiConfig,
   runAction,

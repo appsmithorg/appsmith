@@ -1,5 +1,6 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
+import { AxiosPromise } from "axios";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -14,7 +15,7 @@ class ApplicationApi extends Api {
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
   static publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
-  ): Promise<PublishApplicationResponse> {
+  ): AxiosPromise<PublishApplicationResponse> {
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.publishURLPath(publishApplicationRequest.applicationId),

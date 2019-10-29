@@ -10,7 +10,6 @@ import WidgetSidebar from "../../pages/Editor/WidgetSidebar";
 import ApiSidebar from "../../pages/Editor/ApiSidebar";
 
 const SidebarWrapper = styled.div`
-  flex: 9;
   background-color: ${props => props.theme.colors.paneBG};
   padding: 5px 10px;
   color: ${props => props.theme.colors.textOnDarkBG};

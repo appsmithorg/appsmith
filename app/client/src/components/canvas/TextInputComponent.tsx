@@ -5,7 +5,7 @@ import { ComponentProps } from "../../editorComponents/BaseComponent";
 import { Container } from "../../editorComponents/ContainerComponent";
 
 const InputStyles = css`
-  padding: 5px;
+  padding: ${props => `${props.theme.spaces[3]}px ${props.theme.spaces[1]}px`};
   flex: 1;
   border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
   border-radius: 4px;
@@ -22,6 +22,17 @@ const Input = styled.input`
   ${InputStyles}
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+`;
+
+const Error = styled.span`
+  color: ${props => props.theme.colors.error};
+  fontsize: ${props => props.theme.fontSizes[1]};
+`;
+
 const TextArea = styled.textarea`
   ${InputStyles}
   height: 100px;
@@ -35,11 +46,16 @@ export interface TextInputProps {
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholderMessage, multiline, input } = props;
+  const { placeholderMessage, multiline, input, meta } = props;
   if (multiline) {
     return <TextArea placeholder={placeholderMessage} {...input} />;
   }
-  return <Input placeholder={placeholderMessage} {...input} />;
+  return (
+    <InputContainer>
+      <Input placeholder={placeholderMessage} {...input} />
+      {meta && meta.touched && meta.error && <Error>{meta.error}</Error>}
+    </InputContainer>
+  );
 };
 
 const TextInputComponent = (props: TextInputProps & ComponentProps) => {

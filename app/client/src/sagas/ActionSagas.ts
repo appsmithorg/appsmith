@@ -15,6 +15,7 @@ import {
 import { initialize } from "redux-form";
 import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
+  ActionApiResponse,
   ActionCreateUpdateResponse,
   ExecuteActionRequest,
   RestAction,
@@ -127,10 +128,21 @@ export function* fetchActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 
 export function* runActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   const id = actionPayload.payload.id;
-  const response: any = yield ActionAPI.executeAction({ actionId: id });
+  const response: ActionApiResponse = yield ActionAPI.executeAction({
+    actionId: id,
+  });
+
+  let payload = response;
+  if (response.responseMeta && response.responseMeta.error) {
+    payload = {
+      body: response.responseMeta.error,
+      statusCode: response.responseMeta.error.code,
+      ...response,
+    };
+  }
   yield put({
     type: ReduxActionTypes.RUN_ACTION_SUCCESS,
-    payload: { [id]: response },
+    payload: { [id]: payload },
   });
 }
 

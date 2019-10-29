@@ -1,5 +1,6 @@
 import API from "./Api";
 import { GenericApiResponse } from "./ApiResponses";
+import { AxiosPromise } from "axios";
 
 interface ResourceAuthentication {
   authType: string;
@@ -30,7 +31,7 @@ export interface CreateResourceConfig {
 class ResourcesApi extends API {
   static url = "v1/resources";
 
-  static fetchResources(): Promise<GenericApiResponse<Resource[]>> {
+  static fetchResources(): AxiosPromise<GenericApiResponse<Resource[]>> {
     return API.get(ResourcesApi.url);
   }
 

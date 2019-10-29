@@ -8,7 +8,6 @@ import {
 } from "../../constants/ApiEditorConstants";
 import FormLabel from "../editor/FormLabel";
 import styled from "styled-components";
-import FormContainer from "../editor/FormContainer";
 import { BaseButton } from "../canvas/Button";
 import KeyValueFieldArray from "../fields/KeyValueFieldArray";
 import JSONEditorField from "../fields/JSONEditorField";
@@ -17,10 +16,15 @@ import { RestAction } from "../../api/ActionAPI";
 import ApiResponseView from "../editor/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 import ResourcesField from "../fields/ResourcesField";
+import { required } from "../../utils/validation/common";
+import { apiPathValidation } from "../../utils/validation/ApiForm";
 
-const Form = styled(FormContainer)`
-  height: 100%;
+const Form = styled.form`
+  height: calc(100vh - ${props => props.theme.headerHeight});
   width: 100%;
+  ${FormLabel} {
+    padding: ${props => props.theme.spaces[3]}px;
+  }
   ${FormRow} {
     flex-wrap: wrap;
     padding: ${props => props.theme.spaces[3]}px;
@@ -28,6 +32,7 @@ const Form = styled(FormContainer)`
       margin-right: 5px;
     }
     ${FormLabel} {
+      padding: 0;
       width: 100%;
     }
   }
@@ -36,22 +41,23 @@ const Form = styled(FormContainer)`
 const SecondaryWrapper = styled.div`
   display: flex;
   border-top: 1px solid #d0d7dd;
-  height: 100%;
 `;
 
 const ForwardSlash = styled.div`
   && {
     margin: 0 10px;
-    height: 22px;
+    height: 27px;
     width: 1px;
     background-color: #d0d7dd;
     transform: rotate(27deg);
+    align-self: center;
   }
 `;
 
 const RequestParamsWrapper = styled.div`
   flex: 5;
   border-right: 1px solid #d0d7dd;
+  height: 100%;
   overflow-y: scroll;
 `;
 
@@ -65,7 +71,7 @@ const ActionButton = styled(BaseButton)`
 `;
 
 const JSONEditorFieldWrapper = styled.div`
-  flex: 1;
+  margin: 5px;
   border: 1px solid #d0d7dd;
   border-radius: 4px;
 `;
@@ -75,73 +81,87 @@ interface APIFormProps {
   onSaveClick: () => void;
   onRunClick: () => void;
   onDeleteClick: () => void;
-  isEdit: boolean;
+  isSaving: boolean;
+  isRunning: boolean;
+  isDeleting: boolean;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 
-class ApiEditorForm extends React.Component<Props> {
-  render() {
-    const { onSaveClick, onDeleteClick, onRunClick, isEdit } = this.props;
-    return (
-      <Form>
-        <FormRow>
-          <TextField name="name" placeholderMessage="API Name" />
-          <ActionButtons>
-            <ActionButton
-              text="Delete"
-              styleName="error"
-              onClick={onDeleteClick}
-            />
-            <ActionButton
-              text="Run"
-              styleName="secondary"
-              onClick={onRunClick}
-            />
-            <ActionButton
-              text={isEdit ? "Update" : "Save"}
-              styleName="primary"
-              filled
-              onClick={onSaveClick}
-            />
-          </ActionButtons>
-        </FormRow>
-        <FormRow>
-          <DropdownField
-            placeholder="Method"
-            name="actionConfiguration.httpMethod"
-            options={HTTP_METHOD_OPTIONS}
+const ApiEditorForm: React.FC<Props> = (props: Props) => {
+  const {
+    onSaveClick,
+    onDeleteClick,
+    onRunClick,
+    handleSubmit,
+    isDeleting,
+    isRunning,
+    isSaving,
+  } = props;
+  return (
+    <Form onSubmit={handleSubmit}>
+      <FormRow>
+        <TextField
+          name="name"
+          placeholderMessage="API Name"
+          validate={required}
+        />
+        <ActionButtons>
+          <ActionButton
+            text="Delete"
+            styleName="error"
+            onClick={onDeleteClick}
+            loading={isDeleting}
           />
-          <ResourcesField name="resourceId" />
-          <ForwardSlash />
-          <TextField
-            placeholderMessage="API Path"
-            name="actionConfiguration.path"
+          <ActionButton
+            text="Run"
+            styleName="secondary"
+            onClick={onRunClick}
+            loading={isRunning}
           />
-        </FormRow>
-        <SecondaryWrapper>
-          <RequestParamsWrapper>
-            <KeyValueFieldArray
-              name="actionConfiguration.headers"
-              label="Headers"
-            />
-            <KeyValueFieldArray
-              name="actionConfiguration.queryParameters"
-              label="Params"
-            />
-            <FormRow>
-              <FormLabel>Post Body</FormLabel>
-              <JSONEditorFieldWrapper>
-                <JSONEditorField name="actionConfiguration.body" />
-              </JSONEditorFieldWrapper>
-            </FormRow>
-          </RequestParamsWrapper>
-          <ApiResponseView />
-        </SecondaryWrapper>
-      </Form>
-    );
-  }
-}
+          <ActionButton
+            text="Save"
+            styleName="primary"
+            filled
+            onClick={onSaveClick}
+            loading={isSaving}
+          />
+        </ActionButtons>
+      </FormRow>
+      <FormRow>
+        <DropdownField
+          placeholder="Method"
+          name="actionConfiguration.httpMethod"
+          options={HTTP_METHOD_OPTIONS}
+        />
+        <ResourcesField name="resourceId" />
+        <ForwardSlash />
+        <TextField
+          placeholderMessage="API Path"
+          name="actionConfiguration.path"
+          validate={[required, apiPathValidation]}
+        />
+      </FormRow>
+      <SecondaryWrapper>
+        <RequestParamsWrapper>
+          <KeyValueFieldArray
+            name="actionConfiguration.headers"
+            label="Headers"
+          />
+          <KeyValueFieldArray
+            name="actionConfiguration.queryParameters"
+            label="Params"
+          />
+          <FormLabel>Post Body</FormLabel>
+          <JSONEditorFieldWrapper>
+            <JSONEditorField name="actionConfiguration.body" />
+          </JSONEditorFieldWrapper>
+        </RequestParamsWrapper>
+        <ApiResponseView />
+      </SecondaryWrapper>
+    </Form>
+  );
+};
 
 export default reduxForm<RestAction, APIFormProps>({
   form: API_EDITOR_FORM_NAME,

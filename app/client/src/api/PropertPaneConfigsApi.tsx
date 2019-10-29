@@ -1,6 +1,7 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
 import { PropertyConfig } from "../reducers/entityReducers/propertyPaneConfigReducer";
+import { AxiosPromise } from "axios";
 
 export interface PropertyPaneConfigsResponse extends ApiResponse {
   data: {
@@ -16,7 +17,7 @@ class PropertyPaneConfigsApi extends Api {
   static url = "v1/properties";
   static fetch(
     request: PropertyPaneConfigsRequest,
-  ): Promise<PropertyPaneConfigsResponse> {
+  ): AxiosPromise<PropertyPaneConfigsResponse> {
     return Api.get(
       PropertyPaneConfigsApi.url + "/" + request.propertyPaneConfigsId,
     );

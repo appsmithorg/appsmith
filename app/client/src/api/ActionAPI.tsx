@@ -1,6 +1,7 @@
 import API, { HttpMethod } from "./Api";
-import { ApiResponse, GenericApiResponse } from "./ApiResponses";
+import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import { APIRequest } from "../constants/ApiConstants";
+import { AxiosPromise } from "axios";
 
 export interface CreateActionRequest<T> extends APIRequest {
   resourceId: string;
@@ -34,7 +35,7 @@ export interface APIConfigRequest {
   headers: Property[];
   httpMethod: string;
   path: string;
-  body: JSON | string;
+  body: JSON | string | Record<string, any> | null;
   queryParameters: Property[];
 }
 
@@ -52,7 +53,7 @@ export interface RestAction {
   name: string;
   resourceId: string;
   pluginId: string;
-  pageId: string;
+  pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;
 }
 
@@ -66,24 +67,35 @@ export interface ExecuteActionResponse extends ApiResponse {
   data: any;
 }
 
+export interface ActionApiResponse {
+  responseMeta?: ResponseMeta;
+  body: JSON;
+  headers: Record<string, string[]>;
+  statusCode: string;
+  duration: string;
+  size: string;
+}
+
 class ActionAPI extends API {
   static url = "v1/actions";
 
-  static fetchAPI(id: string): Promise<GenericApiResponse<RestAction>> {
+  static fetchAPI(id: string): AxiosPromise<GenericApiResponse<RestAction>> {
     return API.get(`${ActionAPI.url}/${id}`);
   }
 
-  static createAPI(apiConfig: RestAction): Promise<ActionCreateUpdateResponse> {
+  static createAPI(
+    apiConfig: RestAction,
+  ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static fetchActions(): Promise<GenericApiResponse<RestAction[]>> {
+  static fetchActions(): AxiosPromise<GenericApiResponse<RestAction[]>> {
     return API.get(ActionAPI.url);
   }
 
   static updateAPI(
     apiConfig: Partial<RestAction>,
-  ): Promise<ActionCreateUpdateResponse> {
+  ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.put(`${ActionAPI.url}/${apiConfig.id}`, null, apiConfig);
   }
 
@@ -93,19 +105,19 @@ class ActionAPI extends API {
 
   static createQuery(
     createQuery: CreateActionRequest<QueryConfig>,
-  ): Promise<ActionCreateUpdateResponse> {
+  ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, createQuery);
   }
 
   static updateQuery(
     updateQuery: UpdateActionRequest<QueryConfig>,
-  ): Promise<ActionCreateUpdateResponse> {
+  ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, updateQuery);
   }
 
   static executeAction(
     executeAction: ExecuteActionRequest,
-  ): Promise<ActionCreateUpdateResponse> {
+  ): AxiosPromise<ActionApiResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction);
   }
 }
