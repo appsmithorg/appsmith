@@ -1,5 +1,5 @@
 import React, { useContext, CSSProperties, useState } from "react";
-import styled from "styled-components";
+import styled, {css}   from "styled-components";
 import { Rnd } from "react-rnd";
 import { XYCoord } from "react-dnd";
 import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
@@ -76,8 +76,13 @@ function getHandleSyles() : {
   }
 }
 
-const ResizableContainer = styled(Rnd)`
+interface ResizeBorderDotDivProps {
+  isfocused: boolean
+}
+
+const borderCSS = css<ResizeBorderDotDivProps>`
   position: relative;
+  height: 100%;
   opacity: 0.99;
   &:after,
   &:before {
@@ -89,6 +94,24 @@ const ResizableContainer = styled(Rnd)`
     background: ${props =>
       props.isfocused && props.theme.colors.containerBorder};
   }
+`;
+
+const ResizeBorderDotDiv = styled.div<ResizeBorderDotDivProps>`
+  ${borderCSS}
+  &:after {
+    left: -${props => props.theme.spaces[1]}px;
+    top: calc(50% - ${props => props.theme.spaces[1]}px);
+    z-index: 0;
+  }
+  &:before {
+    left: calc(50% - ${props => props.theme.spaces[1]}px);
+    top: -${props => props.theme.spaces[1]}px;
+    z-index: 1;
+  }
+`;
+
+const ResizableContainer = styled(Rnd)`
+  ${borderCSS}
   &:after {
     right: -${props => props.theme.spaces[1]}px;
     top: calc(50% - ${props => props.theme.spaces[1]}px);
@@ -111,6 +134,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const occupiedSpaces = useContext(OccupiedSpaceContext);
 
   const [isColliding, setIsColliding] = useState(false);
+  const isWidgetFocused = isFocused === props.widgetId
 
   let bounds = "body";
   if (boundingParent && boundingParent.current) {
@@ -186,10 +210,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     setIsColliding(false);
   };
 
-  const canResize = !isDragging && isFocused === props.widgetId;
+  const canResize = !isDragging && isWidgetFocused;
   return (
     <ResizableContainer
-      isfocused={isFocused === props.widgetId ? "true" : undefined}
+      isfocused={isWidgetFocused ? "true" : undefined}
       position={{
         x: 0,
         y: 0,
@@ -231,7 +255,9 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         bottomLeft: canResize,
       }}
     >
-      {props.children}
+      <ResizeBorderDotDiv isfocused={isWidgetFocused}>
+        {props.children}
+      </ResizeBorderDotDiv>
     </ResizableContainer>
   );
 };
