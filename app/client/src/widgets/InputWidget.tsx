@@ -1,10 +1,23 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
+import InputComponent from "../components/blueprint/InputComponent";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   getPageView() {
-    return <div />;
+    return (
+      <InputComponent
+        style={this.getPositionStyle()}
+        widgetId={this.props.widgetId}
+        inputType={this.props.inputType}
+        disabled={this.props.isDisabled}
+        defaultValue={this.props.defaultText}
+        maxNum={this.props.maxNum}
+        minNum={this.props.minNum}
+        placeholder={this.props.placeholderText}
+        stepSize={1}
+      />
+    );
   }
 
   getWidgetType(): WidgetType {
@@ -29,8 +42,11 @@ export interface InputValidator {
 export interface InputWidgetProps extends WidgetProps {
   inputType: InputType;
   defaultText?: string;
+  isDisabled?: boolean;
   placeholderText?: string;
   maxChars?: number;
+  minNum?: number;
+  maxNum?: number;
   label: string;
   inputValidators: InputValidator[];
   focusIndex?: number;

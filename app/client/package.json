@@ -11,7 +11,6 @@
     "@blueprintjs/datetime": "^3.13.0",
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/select": "^3.10.0",
-    "@blueprintjs/table": "^3.7.1",
     "@craco/craco": "^5.6.1",
     "@sentry/browser": "^5.6.3",
     "@types/fontfaceobserver": "^0.0.6",

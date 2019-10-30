@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ComponentProps } from "./BaseComponent";
+import { ComponentProps } from "../appsmith/BaseComponent";
 import { Intent, ITagProps, TagInput, HTMLInputProps } from "@blueprintjs/core";
-import { Container } from "./ContainerComponent";
+import { Container } from "../appsmith/ContainerComponent";
 class TagInputComponent extends React.Component<TagInputComponentProps> {
   render() {
     return (

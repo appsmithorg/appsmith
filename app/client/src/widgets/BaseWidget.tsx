@@ -10,10 +10,10 @@ import {
   CSSUnits,
 } from "../constants/WidgetConstants";
 import React, { Component } from "react";
-import { BaseStyle } from "../editorComponents/BaseComponent";
+import { BaseStyle } from "../components/appsmith/BaseComponent";
 import _ from "lodash";
-import DraggableComponent from "../editorComponents/DraggableComponent";
-import ResizableComponent from "../editorComponents/ResizableComponent";
+import DraggableComponent from "../components/editor/DraggableComponent";
+import ResizableComponent from "../components/editor/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
 

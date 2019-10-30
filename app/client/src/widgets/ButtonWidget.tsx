@@ -1,10 +1,19 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent, { ButtonStyleName } from "../components/canvas/Button";
+import ButtonComponent, {
+  ButtonStyleName,
+} from "../components/blueprint/ButtonComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
+  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
+
+  constructor(props: ButtonWidgetProps) {
+    super(props);
+    this.onButtonClickBound = this.onButtonClick.bind(this);
+  }
+
   onButtonClick() {
     super.executeAction(this.props.onClick);
   }
@@ -23,9 +32,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
         key={this.props.widgetId}
         text={this.props.text}
         disabled={this.props.isDisabled}
-        onClick={() => {
-          this.onButtonClick();
-        }}
+        onClick={this.onButtonClickBound}
       />
     );
   }

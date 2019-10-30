@@ -1,5 +1,5 @@
 import React from "react";
-import CreatableDropdown from "../canvas/CreatableDropdown";
+import CreatableDropdown from "../appsmith/CreatableDropdown";
 import { connect } from "react-redux";
 import { Field } from "redux-form";
 import { AppState } from "../../reducers";

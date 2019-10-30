@@ -1,6 +1,6 @@
 import { ComponentProps } from "./BaseComponent";
-import { ContainerOrientation } from "../constants/WidgetConstants";
-import styled from "../constants/DefaultTheme";
+import { ContainerOrientation } from "../../constants/WidgetConstants";
+import styled from "../../constants/DefaultTheme";
 import React, {
   createContext,
   Context,
@@ -8,8 +8,8 @@ import React, {
   useContext,
   forwardRef,
 } from "react";
-import { FocusContext } from "../pages/Editor/Canvas";
-import { getBorderCSSShorthand } from "../constants/DefaultTheme";
+import { FocusContext } from "../../pages/Editor/Canvas";
+import { getBorderCSSShorthand } from "../../constants/DefaultTheme";
 
 type StyledContainerProps = ContainerProps & {
   focus?: boolean;

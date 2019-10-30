@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
-import { BaseButton } from "../../components/canvas/Button";
+import { BaseButton } from "../../components/blueprint/ButtonComponent";
 
 const Header = styled.header`
   display: flex;

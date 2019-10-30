@@ -8,7 +8,7 @@ import {
 } from "../../constants/ApiEditorConstants";
 import FormLabel from "../editor/FormLabel";
 import styled from "styled-components";
-import { BaseButton } from "../canvas/Button";
+import { BaseButton } from "../blueprint/ButtonComponent";
 import KeyValueFieldArray from "../fields/KeyValueFieldArray";
 import JSONEditorField from "../fields/JSONEditorField";
 import DropdownField from "../fields/DropdownField";

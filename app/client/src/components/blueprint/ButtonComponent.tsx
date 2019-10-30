@@ -1,8 +1,8 @@
 import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
-import { Container } from "../../editorComponents/ContainerComponent";
-import { TextComponentProps } from "./TextViewComponent";
+import { Container } from "../appsmith/ContainerComponent";
+import { TextComponentProps } from "../appsmith/TextViewComponent";
 
 const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${props => {
@@ -94,9 +94,9 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
     <Container {...props}>
       <BaseButton
-        styleName={props.styleName}
         icon={props.icon}
         text={props.text}
+        styleName={props.styleName}
         onClick={props.onClick}
         disabled={props.disabled}
       />
