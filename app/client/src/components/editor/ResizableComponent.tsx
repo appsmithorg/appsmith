@@ -1,28 +1,31 @@
 import React, { useContext, CSSProperties, useState } from "react";
-import styled, {css}   from "styled-components";
+import styled, { css } from "styled-components";
 import { Rnd } from "react-rnd";
 import { XYCoord } from "react-dnd";
-import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
-import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
-import { ContainerProps, ParentBoundsContext } from "./ContainerComponent";
-import { isDropZoneOccupied } from "../utils/WidgetPropsUtils";
-import { FocusContext } from "../pages/Editor/Canvas";
+import { WidgetProps, WidgetOperations } from "../../widgets/BaseWidget";
+import { OccupiedSpaceContext } from "../../widgets/ContainerWidget";
+import {
+  ContainerProps,
+  ParentBoundsContext,
+} from "../appsmith/ContainerComponent";
+import { isDropZoneOccupied } from "../../utils/WidgetPropsUtils";
+import { FocusContext } from "../../pages/Editor/Canvas";
 import { DraggableComponentContext } from "./DraggableComponent";
-import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
+import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
 import { ResizingContext } from "./DropTargetComponent";
 import {
   theme,
   getColorWithOpacity,
   getBorderCSSShorthand,
-} from "../constants/DefaultTheme";
+} from "../../constants/DefaultTheme";
 
 export type ResizableComponentProps = WidgetProps & ContainerProps;
 
-const BORDER_INDEX = 1
+const BORDER_INDEX = 1;
 
-const HOVER_AREA_WIDTH = 12
+const HOVER_AREA_WIDTH = 12;
 
-function getHandleSyles() : {
+function getHandleSyles(): {
   top: CSSProperties;
   bottom: CSSProperties;
   right: CSSProperties;
@@ -30,11 +33,11 @@ function getHandleSyles() : {
   bottomRight: CSSProperties;
   bottomLeft: CSSProperties;
 } {
-  const hoverWidth = HOVER_AREA_WIDTH
-  const hoverWidthHalf = hoverWidth / 2
-  const halfBorder = theme.borders[BORDER_INDEX].thickness / 2 
-  const shiftedHoverWidthHalf = hoverWidthHalf + halfBorder
-  const hoverCornerWidth = hoverWidth + hoverWidth / 4
+  const hoverWidth = HOVER_AREA_WIDTH;
+  const hoverWidthHalf = hoverWidth / 2;
+  const halfBorder = theme.borders[BORDER_INDEX].thickness / 2;
+  const shiftedHoverWidthHalf = hoverWidthHalf + halfBorder;
+  const hoverCornerWidth = hoverWidth + hoverWidth / 4;
 
   return {
     top: {
@@ -73,11 +76,11 @@ function getHandleSyles() : {
       zIndex: 1,
       cursor: "ew-resize",
     },
-  }
+  };
 }
 
 interface ResizeBorderDotDivProps {
-  isfocused: boolean
+  isfocused: boolean;
 }
 
 const borderCSS = css<ResizeBorderDotDivProps>`
@@ -134,7 +137,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const occupiedSpaces = useContext(OccupiedSpaceContext);
 
   const [isColliding, setIsColliding] = useState(false);
-  const isWidgetFocused = isFocused === props.widgetId
+  const isWidgetFocused = isFocused === props.widgetId;
 
   let bounds = "body";
   if (boundingParent && boundingParent.current) {

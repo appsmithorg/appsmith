@@ -137,11 +137,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             options: [
               { label: "Text", value: "TEXT" },
               { label: "Number", value: "NUMBER" },
-              { label: "Integer", value: "INTEGER" },
+              { label: "Password", value: "PASSWORD" },
               { label: "Phone Number", value: "PHONE_NUMBER" },
               { label: "Email", value: "EMAIL" },
-              { label: "Passwork", value: "PASSWORD" },
-              { label: "Currency", value: "CURRENCY" },
               { label: "Search", value: "SEARCH" },
             ],
           },

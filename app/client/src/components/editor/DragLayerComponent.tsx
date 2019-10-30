@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
-import { noCollision } from "../utils/WidgetPropsUtils";
-import { OccupiedSpace } from "../widgets/ContainerWidget";
+import { noCollision } from "../../utils/WidgetPropsUtils";
+import { OccupiedSpace } from "../../widgets/ContainerWidget";
 import DropTargetMask from "./DropTargetMask";
 
 const WrappedDragLayer = styled.div`

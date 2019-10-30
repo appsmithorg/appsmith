@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import TextViewComponent from "../components/canvas/TextViewComponent";
+import TextViewComponent from "../components/appsmith/TextViewComponent";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {

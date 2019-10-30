@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ComponentProps } from "./BaseComponent";
+import { ComponentProps } from "../appsmith/BaseComponent";
 import { Checkbox } from "@blueprintjs/core";
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {

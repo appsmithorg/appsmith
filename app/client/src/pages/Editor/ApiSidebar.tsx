@@ -6,7 +6,7 @@ import { AppState } from "../../reducers";
 import { fetchActions } from "../../actions/actionActions";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../../constants/routes";
-import { BaseButton } from "../../components/canvas/Button";
+import { BaseButton } from "../../components/blueprint/ButtonComponent";
 import { FormIcons } from "../../icons/FormIcons";
 import { Spinner } from "@blueprintjs/core";
 

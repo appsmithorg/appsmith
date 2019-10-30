@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import { Intent } from "@blueprintjs/core";
-import SpinnerComponent from "../editorComponents/SpinnerComponent";
+import SpinnerComponent from "../components/blueprint/SpinnerComponent";
 
 class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
   getPageView() {

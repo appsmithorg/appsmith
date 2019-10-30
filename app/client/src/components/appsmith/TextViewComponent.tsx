@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Text } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ComponentProps } from "../../editorComponents/BaseComponent";
-import { Container } from "../../editorComponents/ContainerComponent";
+import { ComponentProps } from "./BaseComponent";
+import { Container } from "./ContainerComponent";
 
 type TextStyleProps = {
   styleName: "primary" | "secondary" | "error";
