@@ -141,6 +141,8 @@ const ApiResponseView = (props: Props) => {
               <ResponseBodyWrapper>
                 {response.body && (
                   <CodeEditor
+                    height={500}
+                    language={"json"}
                     input={{
                       value: JSON.stringify(response.body, null, 2),
                     }}

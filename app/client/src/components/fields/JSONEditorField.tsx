@@ -7,6 +7,8 @@ const JSONEditorField = (props: { name: string }) => {
     <Field
       name={props.name}
       component={CodeEditor}
+      height={500}
+      language={"json"}
       format={(value: string | object) =>
         typeof value === "string" ? value : JSON.stringify(value, null, 2)
       }
