@@ -8,7 +8,6 @@ import { ControlWrapper, StyledDropDown } from "./StyledControls";
 class DropDownControl extends BaseControl<DropDownControlProps> {
   constructor(props: DropDownControlProps) {
     super(props);
-    this.onItemSelect = this.onItemSelect.bind(this);
   }
 
   render() {
@@ -21,6 +20,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <StyledDropDown
           items={this.props.options}
           itemPredicate={this.filterOption}
+          filterable={false}
           itemRenderer={this.renderItem}
           onItemSelect={this.onItemSelect}
           noResults={<MenuItem disabled={true} text="No results." />}
@@ -34,14 +34,14 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  onItemSelect(
+  onItemSelect = (
     item: DropdownOption,
     event?: SyntheticEvent<HTMLElement>,
-  ): void {
+  ): void => {
     this.updateProperty(this.props.propertyName, item.value);
-  }
+  };
 
-  renderItem(option: DropdownOption, itemProps: IItemRendererProps) {
+  renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
@@ -49,12 +49,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <MenuItem
         active={itemProps.modifiers.active}
         key={option.value}
-        label={option.label}
         onClick={itemProps.handleClick}
         text={option.label}
       />
     );
-  }
+  };
 
   filterOption(query: string, option: DropdownOption): boolean {
     return (

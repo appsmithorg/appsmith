@@ -12,6 +12,7 @@ import RadioGroupWidget, {
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
 import ButtonWidget, { ButtonWidgetProps } from "../widgets/ButtonWidget";
+import DropdownWidget, { DropdownWidgetProps } from "../widgets/DropdownWidget";
 
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -48,6 +49,12 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("CHECKBOX_WIDGET", {
       buildWidget(widgetData: CheckboxWidgetProps): JSX.Element {
         return <CheckboxWidget {...widgetData} />;
+      },
+    });
+
+    WidgetFactory.registerWidgetBuilder("DROP_DOWN_WIDGET", {
+      buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
+        return <DropdownWidget {...widgetData} />;
       },
     });
 

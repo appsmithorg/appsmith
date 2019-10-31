@@ -1,15 +1,16 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import TextViewComponent from "../components/appsmith/TextViewComponent";
+import TextComponent from "../components/blueprint/TextComponent";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
-      <TextViewComponent
+      <TextComponent
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
+        textStyle={this.props.textStyle}
         text={this.props.text}
       />
     );
@@ -24,7 +25,7 @@ export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
 
 export interface TextWidgetProps extends WidgetProps {
   text?: string;
-  textStyle?: TextStyle;
+  textStyle: TextStyle;
 }
 
 export default TextWidget;

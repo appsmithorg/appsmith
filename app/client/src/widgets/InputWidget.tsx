@@ -4,13 +4,55 @@ import { WidgetType } from "../constants/WidgetConstants";
 import InputComponent from "../components/blueprint/InputComponent";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  regex = new RegExp("");
+
+  constructor(props: InputWidgetProps) {
+    super(props);
+  }
+
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.regex) {
+      try {
+        this.regex = new RegExp(this.props.regex);
+      } catch (e) {
+        console.log("invalid regex");
+      }
+    }
+  }
+
+  componentDidUpdate(prevProps: InputWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.props.regex !== prevProps.regex && this.props.regex) {
+      try {
+        this.regex = new RegExp(this.props.regex);
+      } catch (e) {
+        console.log("invalid regex");
+      }
+    }
+  }
+
+  onValueChange = (value: string) => {
+    this.context.updateWidgetProperty(this.props.widgetId, "text", value);
+  };
+
   getPageView() {
     return (
       <InputComponent
+        onValueChange={this.onValueChange}
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
+        errorMessage={
+          this.props.regex &&
+          this.props.text &&
+          !this.regex.test(this.props.text)
+            ? this.props.errorMessage
+            : undefined
+        }
         inputType={this.props.inputType}
         disabled={this.props.isDisabled}
+        maxChars={this.props.maxChars}
+        label={this.props.label}
         defaultValue={this.props.defaultText}
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
@@ -43,6 +85,9 @@ export interface InputWidgetProps extends WidgetProps {
   inputType: InputType;
   defaultText?: string;
   isDisabled?: boolean;
+  text?: string;
+  regex?: string;
+  errorMessage?: string;
   placeholderText?: string;
   maxChars?: number;
   minNum?: number;

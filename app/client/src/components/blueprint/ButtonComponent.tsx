@@ -2,7 +2,8 @@ import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { Container } from "../appsmith/ContainerComponent";
-import { TextComponentProps } from "../appsmith/TextViewComponent";
+import { TextComponentProps } from "./TextComponent";
+import { ButtonStyle } from "../../widgets/ButtonWidget";
 
 const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${props => {
@@ -87,7 +88,21 @@ interface ButtonContainerProps extends TextComponentProps {
   icon?: MaybeElement;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
+  buttonStyle?: ButtonStyle;
 }
+
+const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
+  switch (buttonStyle) {
+    case "PRIMARY_BUTTON":
+      return "primary";
+    case "SECONDARY_BUTTON":
+      return "secondary";
+    case "DANGER_BUTTON":
+      return "error";
+    default:
+      return undefined;
+  }
+};
 
 // To be used with the canvas
 const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
@@ -96,7 +111,8 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       <BaseButton
         icon={props.icon}
         text={props.text}
-        styleName={props.styleName}
+        filled={props.buttonStyle === "PRIMARY_BUTTON"}
+        styleName={mapButtonStyleToStyleName(props.buttonStyle)}
         onClick={props.onClick}
         disabled={props.disabled}
       />

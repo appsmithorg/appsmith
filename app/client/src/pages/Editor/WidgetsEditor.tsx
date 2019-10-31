@@ -27,6 +27,7 @@ import {
   fetchEditorConfigs,
 } from "../../actions/configsActions";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
+import { updateWidgetProperty } from "../../actions/controlActions";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -59,6 +60,11 @@ type EditorProps = {
   fetchCanvasWidgets: Function;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidget: Function;
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
   savePageLayout: Function;
   currentPageName: string;
   currentPageId: string;
@@ -92,6 +98,7 @@ class WidgetsEditor extends React.Component<EditorProps> {
         value={{
           executeAction: this.props.executeAction,
           updateWidget: this.props.updateWidget,
+          updateWidgetProperty: this.props.updateWidgetProperty,
         }}
       >
         <EditorWrapper>
@@ -123,6 +130,11 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    updateWidgetProperty: (
+      widgetId: string,
+      propertyName: string,
+      propertyValue: any,
+    ) => dispatch(updateWidgetProperty(widgetId, propertyName, propertyValue)),
     executeAction: (actionPayloads?: ActionPayload[]) =>
       dispatch(executeAction(actionPayloads)),
     fetchCanvasWidgets: (pageId: string) =>

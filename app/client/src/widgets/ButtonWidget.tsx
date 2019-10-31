@@ -1,9 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent, {
-  ButtonStyleName,
-} from "../components/blueprint/ButtonComponent";
+import ButtonComponent from "../components/blueprint/ButtonComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
@@ -19,14 +17,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    // TODO(abhinav): This is a hack. Need to standardize the style names
-    const translatedButtonStyleName: ButtonStyleName | undefined =
-      this.props.buttonStyle &&
-      (this.props.buttonStyle.split("_")[0].toLowerCase() as ButtonStyleName);
     return (
       <ButtonComponent
         style={this.getPositionStyle()}
-        styleName={translatedButtonStyleName}
+        buttonStyle={this.props.buttonStyle}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         key={this.props.widgetId}

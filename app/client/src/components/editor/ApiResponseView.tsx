@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import FormRow from "./FormRow";
-import { BaseText } from "../appsmith/TextViewComponent";
+import { BaseText } from "../blueprint/TextComponent";
 import { BaseTabbedView } from "../appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "../../reducers";

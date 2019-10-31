@@ -43,12 +43,16 @@ export interface PropertyPaneConfigState {
   config: PropertyConfig;
   configVersion: number;
 }
+/**
+ * Todo: Remove hardcoding of config response
+ */
 
 const propertyPaneConfigReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PROPERTY_PANE_CONFIGS_SUCCESS]: (
     state: PropertyPaneConfigState,
     action: ReduxAction<PropertyPaneConfigState>,
   ) => {
+    return { ...PropertyPaneConfigResponse };
     return { ...action.payload };
   },
 });

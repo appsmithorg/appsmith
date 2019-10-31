@@ -173,6 +173,11 @@ export interface WidgetDataProps {
 export interface WidgetFunctions {
   executeAction?: (actionPayloads?: ActionPayload[]) => void;
   updateWidget?: Function;
+  updateWidgetProperty?: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
 }
 
 export interface WidgetCardProps {
