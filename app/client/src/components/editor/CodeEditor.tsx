@@ -1,17 +1,10 @@
 import React from "react";
-// import Editor from "react-simple-code-editor";
-// import { highlight, languages } from "prismjs/components/prism-core";
-// import "prismjs/components/prism-clike";
-// import "prismjs/components/prism-json";
-// import "prismjs/components/prism-markup";
-// import "prismjs/themes/prism.css";
-// import { theme } from "../../constants/DefaultTheme";
 import MonacoEditor from "react-monaco-editor";
 
 import styled from "styled-components";
 
-const Wrapper = styled.div`
-  height: 500px;
+const Wrapper = styled.div<{ height: number }>`
+  height: ${props => props.height}px;
   overflow: auto;
 `;
 
@@ -20,6 +13,8 @@ interface Props {
     value: string;
     onChange?: (value: string) => void;
   };
+  language: string;
+  height: number;
   placeholder?: string;
 }
 
@@ -29,10 +24,11 @@ const CodeEditor = (props: Props) => {
     minimap: { enabled: false },
     readOnly: !props.input.onChange,
   };
+  debugger;
   return (
-    <Wrapper>
+    <Wrapper height={props.height}>
       <MonacoEditor
-        language="json"
+        language={props.language}
         theme="vs-light"
         value={props.input.value}
         options={options}
