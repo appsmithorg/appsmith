@@ -12,6 +12,7 @@ import RadioGroupWidget, {
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
 import ButtonWidget, { ButtonWidgetProps } from "../widgets/ButtonWidget";
+import DropdownWidget, { DropdownWidgetProps } from "../widgets/DropdownWidget";
 
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -51,9 +52,21 @@ class WidgetBuilderRegistry {
       },
     });
 
+    WidgetFactory.registerWidgetBuilder("DROP_DOWN_WIDGET", {
+      buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
+        return <DropdownWidget {...widgetData} />;
+      },
+    });
+
     WidgetFactory.registerWidgetBuilder("RADIO_GROUP_WIDGET", {
       buildWidget(widgetData: RadioGroupWidgetProps): JSX.Element {
         return <RadioGroupWidget {...widgetData} />;
+      },
+    });
+
+    WidgetFactory.registerWidgetBuilder("DROP_DOWN_WIDGET", {
+      buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
+        return <DropdownWidget {...widgetData} />;
       },
     });
   }

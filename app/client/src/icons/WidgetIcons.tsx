@@ -12,6 +12,7 @@ import { ReactComponent as RadioGroupIcon } from "../assets/icons/widget/radio.s
 import { ReactComponent as InputIcon } from "../assets/icons/widget/input.svg";
 import { ReactComponent as SwitchIcon } from "../assets/icons/widget/switch.svg";
 import { ReactComponent as TextIcon } from "../assets/icons/widget/text.svg";
+import { ReactComponent as ImageIcon } from "../assets/icons/widget/image.svg";
 
 /* eslint-disable react/display-name */
 
@@ -76,6 +77,11 @@ export const WidgetIcons: {
   TEXT_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <TextIcon />
+    </IconWrapper>
+  ),
+  IMAGE_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ImageIcon />
     </IconWrapper>
   ),
 };

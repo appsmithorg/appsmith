@@ -18,7 +18,6 @@ import {
   getCurrentPageId,
   getDenormalizedDSL,
   getCurrentPageName,
-  getPageWidgetId,
 } from "../../selectors/editorSelectors";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
@@ -27,6 +26,16 @@ import {
   fetchEditorConfigs,
 } from "../../actions/configsActions";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
+import { updateWidgetProperty } from "../../actions/controlActions";
+
+const EditorWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: hidden;
+  height: calc(100vh - ${props => props.theme.headerHeight});
+`;
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -45,20 +54,16 @@ const CanvasContainer = styled.section`
   }
 `;
 
-const EditorWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow: hidden;
-  height: calc(100vh - ${props => props.theme.headerHeight});
-`;
-
 type EditorProps = {
   dsl: ContainerWidgetProps<WidgetProps> | any;
   fetchCanvasWidgets: Function;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidget: Function;
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
   savePageLayout: Function;
   currentPageName: string;
   currentPageId: string;
@@ -92,6 +97,7 @@ class WidgetsEditor extends React.Component<EditorProps> {
         value={{
           executeAction: this.props.executeAction,
           updateWidget: this.props.updateWidget,
+          updateWidgetProperty: this.props.updateWidgetProperty,
         }}
       >
         <EditorWrapper>
@@ -113,7 +119,6 @@ class WidgetsEditor extends React.Component<EditorProps> {
 const mapStateToProps = (state: AppState) => {
   return {
     dsl: getDenormalizedDSL(state),
-    pageWidgetId: getPageWidgetId(state),
     currentPageId: getCurrentPageId(state),
     currentLayoutId: getCurrentLayoutId(state),
     currentPageName: getCurrentPageName(state),
@@ -123,6 +128,11 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    updateWidgetProperty: (
+      widgetId: string,
+      propertyName: string,
+      propertyValue: any,
+    ) => dispatch(updateWidgetProperty(widgetId, propertyName, propertyValue)),
     executeAction: (actionPayloads?: ActionPayload[]) =>
       dispatch(executeAction(actionPayloads)),
     fetchCanvasWidgets: (pageId: string) =>

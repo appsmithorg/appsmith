@@ -51,8 +51,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
-  UPDATE_ACTION: "UPDATE_ACTION",
-  DELETE_ACTION: "DELETE_ACTION",
   FETCH_RESOURCES_INIT: "FETCH_RESOURCES_INIT",
   FETCH_RESOURCES_SUCCESS: "FETCH_RESOURCES_SUCCESS",
   CREATE_RESOURCE_INIT: "CREATE_RESOURCE_INIT",
@@ -61,7 +59,13 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PUBLISHED_PAGE_SUCCESS: "FETCH_PUBLISHED_PAGE_SUCCESS",
   PUBLISH_APPLICATION_INIT: "PUBLISH_APPLICATION_INIT",
   PUBLISH_APPLICATION_SUCCESS: "PUBLISH_APPLICATION_SUCCESS",
+  CREATE_PAGE_INIT: "CREATE_PAGE_INIT",
+  CREATE_PAGE_SUCCESS: "CREATE_PAGE_SUCCESS",
+  FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
+  FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
+  INITIALIZE_PAGE_VIEWER: "INITIALIZE_PAGE_VIEWER",
 };
+
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
@@ -86,6 +90,8 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_RESOURCE_ERROR: "CREATE_RESOURCE_ERROR",
   FETCH_PUBLISHED_PAGE_ERROR: "FETCH_PUBLISHED_PAGE_ERROR",
   PUBLISH_APPLICATION_ERROR: "PUBLISH_APPLICATION_ERROR",
+  CREATE_PAGE_ERROR: "CREATE_PAGE_ERROR",
+  FETCH_PAGE_LIST_ERROR: "FETCH_PAGE_LIST_ERROR",
 };
 
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
@@ -109,17 +115,17 @@ export interface UpdateCanvasPayload {
   currentApplicationId: string;
 }
 
-export interface LayoutPayload {
-  layoutId: string;
-  pageId: string;
-  widgets: { [widgetId: string]: WidgetProps };
-}
-
 export interface ShowPropertyPanePayload {
   widgetId: string;
   node: RefObject<HTMLDivElement>;
   toggle: boolean;
 }
+
+export type PageListPayload = Array<{
+  pageName: string;
+  pageId: string;
+  layoutId: string;
+}>;
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
 

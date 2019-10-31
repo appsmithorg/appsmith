@@ -6,14 +6,14 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
+import { WidgetProps, WidgetOperations } from "../../widgets/BaseWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
-import blankImage from "../assets/images/blank.png";
-import { ContainerProps } from "./ContainerComponent";
-import { FocusContext } from "../pages/Editor/Canvas";
-import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
-import { ControlIcons } from "../icons/ControlIcons";
-import { theme } from "../constants/DefaultTheme";
+import blankImage from "../../assets/images/blank.png";
+import { ContainerProps } from "../appsmith/ContainerComponent";
+import { FocusContext } from "../../pages/Editor/Canvas";
+import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
+import { ControlIcons } from "../../icons/ControlIcons";
+import { theme } from "../../constants/DefaultTheme";
 import { ResizingContext } from "./DropTargetComponent";
 import { Tooltip } from "@blueprintjs/core";
 
@@ -187,7 +187,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           </Tooltip>
         </DeleteControl>
         <EditControl className="control" onClick={togglePropertyEditor}>
-          <Tooltip content="Toggle properties pane" hoverOpenDelay={500}>
+          <Tooltip content="Toggle props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
         </EditControl>

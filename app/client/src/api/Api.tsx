@@ -1,13 +1,11 @@
 import _ from "lodash";
-// import axios from "axios";
+import axios from "axios";
 import {
   BASE_URL,
   REQUEST_TIMEOUT_MS,
   REQUEST_HEADERS,
   AUTH_CREDENTIALS,
 } from "../constants/ApiConstants";
-
-const axios = require("axios"); //eslint-disable-line @typescript-eslint/no-var-requires
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -17,12 +15,29 @@ const axiosInstance = axios.create({
   auth: AUTH_CREDENTIALS,
 });
 
+const executeActionRegex = /actions\/execute/;
+axiosInstance.interceptors.request.use((config: any) => {
+  return { ...config, timer: performance.now() };
+});
+
+const makeExecuteActionResponse = (response: any) => ({
+  ...response.data,
+  size: response.headers["content-length"],
+  duration: Number(performance.now() - response.config.timer).toFixed(),
+});
+
 axiosInstance.interceptors.response.use(
-  function(response: any) {
+  (response: any): any => {
+    if (response.config.url.match(executeActionRegex)) {
+      return makeExecuteActionResponse(response);
+    }
     // Do something with response data
     return response.data;
   },
   function(error: any) {
+    if (error.config.url.match(executeActionRegex)) {
+      return makeExecuteActionResponse(error.response);
+    }
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
@@ -36,7 +51,7 @@ axiosInstance.interceptors.response.use(
       console.log(error.request);
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log("Error", error.message);
+      console.error("Error", error.message);
     }
     console.log(error.config);
     return Promise.reject(error);

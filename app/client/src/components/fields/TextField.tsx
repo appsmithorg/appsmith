@@ -1,15 +1,10 @@
 import React from "react";
-import { Field } from "redux-form";
-import { BaseTextInput, TextInputProps } from "../canvas/TextInputComponent";
+import { Field, BaseFieldProps } from "redux-form";
+import { BaseTextInput, TextInputProps } from "../appsmith/TextInputComponent";
 
-interface TextFieldProps {
-  name: string;
-}
-
-class TextField extends React.Component<TextFieldProps & TextInputProps> {
+class TextField extends React.Component<BaseFieldProps & TextInputProps> {
   render() {
-    const { name } = this.props;
-    return <Field name={name} component={BaseTextInput} {...this.props} />;
+    return <Field component={BaseTextInput} {...this.props} />;
   }
 }
 

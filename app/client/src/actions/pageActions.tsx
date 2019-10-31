@@ -19,7 +19,6 @@ export const fetchPage = (
     type: ReduxActionTypes.FETCH_PAGE,
     payload: {
       pageId: pageId,
-      renderMode: renderMode,
     },
   };
 };

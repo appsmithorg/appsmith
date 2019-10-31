@@ -1,17 +1,10 @@
 import React, { createContext, useState, Context } from "react";
-import styled from "styled-components";
 import WidgetFactory from "../../utils/WidgetFactory";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
-
-const ArtBoard = styled.div`
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: auto;
-`;
+import ArtBoard from "../common/ArtBoard";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;

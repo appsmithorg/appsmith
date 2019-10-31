@@ -2,12 +2,11 @@ import Api from "./Api";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "../widgets/BaseWidget";
-import { RenderMode } from "../constants/WidgetConstants";
 import { PageAction } from "../constants/ActionConstants";
+import { AxiosPromise } from "axios";
 
 export interface FetchPageRequest {
   pageId: string;
-  renderMode: RenderMode;
 }
 
 export interface FetchPublishedPageRequest {
@@ -40,11 +39,29 @@ export type FetchPublishedPageResponse = ApiResponse & {
   data: {
     id: string;
     dsl: Partial<ContainerWidgetProps<any>>;
+    pageId: string;
   };
 };
 
 export interface SavePageResponse extends ApiResponse {
   pageId: string;
+}
+
+export interface CreatePageRequest {
+  applicationId: string;
+  name: string;
+}
+
+export interface CreatePageResponse extends ApiResponse {
+  data: {};
+}
+
+export interface FetchPageListResponse extends ApiResponse {
+  data: Array<{
+    id: string;
+    name: string;
+    layouts: Array<PageLayout>;
+  }>;
 }
 
 class PageApi extends Api {
@@ -57,11 +74,15 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}/view`;
   };
 
-  static fetchPage(pageRequest: FetchPageRequest): Promise<FetchPageResponse> {
+  static fetchPage(
+    pageRequest: FetchPageRequest,
+  ): AxiosPromise<FetchPageResponse> {
     return Api.get(PageApi.url + "/" + pageRequest.pageId);
   }
 
-  static savePage(savePageRequest: SavePageRequest): Promise<SavePageResponse> {
+  static savePage(
+    savePageRequest: SavePageRequest,
+  ): AxiosPromise<SavePageResponse> {
     const body = { dsl: savePageRequest.dsl };
     return Api.put(
       PageApi.getLayoutUpdateURL(
@@ -75,10 +96,20 @@ class PageApi extends Api {
 
   static fetchPublishedPage(
     pageRequest: FetchPublishedPageRequest,
-  ): Promise<FetchPublishedPageResponse> {
+  ): AxiosPromise<FetchPublishedPageResponse> {
     return Api.get(
       PageApi.getPublishedPageURL(pageRequest.pageId, pageRequest.layoutId),
     );
+  }
+
+  static createPage(
+    createPageRequest: CreatePageRequest,
+  ): AxiosPromise<FetchPageResponse> {
+    return Api.post(PageApi.url, createPageRequest);
+  }
+
+  static fetchPageList(): AxiosPromise<FetchPageListResponse> {
+    return Api.get(PageApi.url);
   }
 }
 

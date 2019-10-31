@@ -2,15 +2,19 @@ import React from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import FormRow from "./FormRow";
-import { BaseText } from "../canvas/TextViewComponent";
-import { BaseTabbedView } from "../canvas/TabbedView";
-import JSONViewer from "./JSONViewer";
+import { BaseText } from "../blueprint/TextComponent";
+import { BaseTabbedView } from "../appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "../../reducers";
-import { ActionApiResponse } from "../../reducers/entityReducers/actionsReducer";
+import CodeEditor from "./CodeEditor";
+import { ActionApiResponse } from "../../api/ActionAPI";
+import { formatBytes } from "../../utils/helpers";
 
 const ResponseWrapper = styled.div`
+  position: relative;
   flex: 4;
+  height: 100%;
+  overflow-y: scroll;
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -20,11 +24,20 @@ const ResponseMetaInfo = styled.div`
   }
 `;
 
-interface ReduxStateProps {
-  responses: {
-    [id: string]: ActionApiResponse;
-  };
-}
+const ResponseBodyWrapper = styled.span`
+  max-height: 100%;
+  &&& {
+    textarea,
+    pre {
+      height: 100%;
+      overflow: auto;
+    }
+  }
+`;
+const StatusCodeText = styled(BaseText)<{ code: string }>`
+  color: ${props =>
+    props.code.match(/2\d\d/) ? props.theme.colors.primary : "red"};
+`;
 
 const TableWrapper = styled.div`
   &&& {
@@ -42,9 +55,29 @@ const TableWrapper = styled.div`
   }
 `;
 
-const ResponseHeadersView = (props: {
-  data: { [name: string]: Array<string> };
-}) => {
+const LoadingScreen = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+interface ReduxStateProps {
+  responses: {
+    [id: string]: ActionApiResponse;
+  };
+  isRunning: boolean;
+}
+
+const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
   if (!props.data) return <div />;
   return (
     <TableWrapper>
@@ -74,19 +107,47 @@ const ApiResponseView = (props: Props) => {
   const response = props.responses[props.match.params.id] || {};
   return (
     <ResponseWrapper>
+      {props.isRunning && <LoadingScreen>Sending Request</LoadingScreen>}
       <FormRow>
-        <BaseText styleName="secondary">{response.statusCode}</BaseText>
-        <ResponseMetaInfo>
-          <BaseText styleName="secondary">300ms</BaseText>
-          <BaseText styleName="secondary">203 kb</BaseText>
-        </ResponseMetaInfo>
+        <React.Fragment>
+          {response.statusCode && (
+            <StatusCodeText
+              styleName="secondary"
+              code={response.statusCode.toString()}
+            >
+              Status: {response.statusCode}
+            </StatusCodeText>
+          )}
+          <ResponseMetaInfo>
+            {response.duration && (
+              <BaseText styleName="secondary">
+                Time: {response.duration} ms
+              </BaseText>
+            )}
+            {response.size && (
+              <BaseText styleName="secondary">
+                Size: {formatBytes(parseInt(response.size))}
+              </BaseText>
+            )}
+          </ResponseMetaInfo>
+        </React.Fragment>
       </FormRow>
       <BaseTabbedView
         tabs={[
           {
             key: "body",
             title: "Response Body",
-            panelComponent: <JSONViewer data={response.body} />,
+            panelComponent: (
+              <ResponseBodyWrapper>
+                {response.body && (
+                  <CodeEditor
+                    input={{
+                      value: JSON.stringify(response.body, null, 2),
+                    }}
+                  />
+                )}
+              </ResponseBodyWrapper>
+            ),
           },
           {
             key: "headers",
@@ -100,7 +161,8 @@ const ApiResponseView = (props: Props) => {
 };
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  responses: state.entities.actions.responses,
+  responses: state.entities.apiData,
+  isRunning: state.entities.actions.isRunning,
 });
 
 export default connect(mapStateToProps)(withRouter(ApiResponseView));

@@ -3,21 +3,20 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "../../constants/ReduxActionConstants";
-import { ExecuteActionResponse } from "../../api/ActionAPI";
+import { ActionApiResponse } from "../../api/ActionAPI";
+import { ActionDataState } from "./actionsReducer";
 
 const initialState: APIDataState = {};
 
 export interface APIDataState {
-  [name: string]: ExecuteActionResponse;
+  [id: string]: ActionApiResponse;
 }
 
 const apiDataReducer = createReducer(initialState, {
-  [ReduxActionTypes.LOAD_API_RESPONSE]: (
-    state: APIDataState,
-    action: ReduxAction<ExecuteActionResponse>,
-  ) => {
-    return { ...state, [action.payload.actionId]: action.payload };
-  },
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ [id: string]: ActionApiResponse }>,
+  ) => ({ ...state, ...action.payload }),
 });
 
 export default apiDataReducer;

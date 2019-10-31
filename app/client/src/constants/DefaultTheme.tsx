@@ -1,6 +1,7 @@
 import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
+import _ from "lodash";
 
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
@@ -36,6 +37,12 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   sidebarWidth: string;
+  sideNav: {
+    minWidth: number;
+    maxWidth: number;
+    bgColor: Color;
+    fontColor: Color;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -47,15 +54,12 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
-export const getBorderCSSShorthand = (border?: ThemeBorder) => {
-  if (border) {
-    let keys = Object.keys(border)
-    let values = keys.map((key: string) => {
-      return key === 'thickness' ? border[key] + "px" : (border as any)[key]
-    })
-    return values.join(" ");
-  }
-  return "";
+export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
+  const values: string[] = [];
+  _.forIn(border, (value, key) => {
+    values.push(key === "thickness" ? value + "px" : value);
+  });
+  return values.join(" ");
 };
 
 export const theme: Theme = {
@@ -96,7 +100,11 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [FontFamilies.DMSans, FontFamilies.AppsmithWidget],
+  fonts: [
+    FontFamilies.DMSans,
+    FontFamilies.AppsmithWidget,
+    FontFamilies.FiraCode,
+  ],
   borders: [
     {
       thickness: 1,
@@ -116,6 +124,12 @@ export const theme: Theme = {
   ],
   sidebarWidth: "350px",
   headerHeight: "50px",
+  sideNav: {
+    maxWidth: 250,
+    minWidth: 50,
+    bgColor: Colors.OXFORD_BLUE,
+    fontColor: Colors.WHITE,
+  },
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };

@@ -1,14 +1,17 @@
 import React, { useState, useContext, createContext, Context } from "react";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { OccupiedSpaceContext } from "../widgets/ContainerWidget";
-import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
+import { WidgetProps } from "../../widgets/BaseWidget";
+import { OccupiedSpaceContext } from "../../widgets/ContainerWidget";
+import { WidgetConfigProps } from "../../reducers/entityReducers/widgetConfigReducer";
 import { useDrop, XYCoord } from "react-dnd";
-import { ContainerProps } from "./ContainerComponent";
-import WidgetFactory from "../utils/WidgetFactory";
-import { widgetOperationParams, noCollision } from "../utils/WidgetPropsUtils";
+import { ContainerProps } from "../appsmith/ContainerComponent";
+import WidgetFactory from "../../utils/WidgetFactory";
+import {
+  widgetOperationParams,
+  noCollision,
+} from "../../utils/WidgetPropsUtils";
 import DragLayerComponent from "./DragLayerComponent";
-import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
-import { FocusContext } from "../pages/Editor/Canvas";
+import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
+import { FocusContext } from "../../pages/Editor/Canvas";
 
 type DropTargetComponentProps = ContainerProps & {
   updateWidget?: Function;

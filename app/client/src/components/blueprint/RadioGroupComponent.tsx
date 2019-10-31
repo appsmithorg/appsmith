@@ -1,7 +1,7 @@
 import React from "react";
-import { ComponentProps } from "./BaseComponent";
-import { Container } from "./ContainerComponent";
-import { RadioOption } from "../widgets/RadioGroupWidget";
+import { ComponentProps } from "../appsmith/BaseComponent";
+import { Container } from "../appsmith/ContainerComponent";
+import { RadioOption } from "../../widgets/RadioGroupWidget";
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (

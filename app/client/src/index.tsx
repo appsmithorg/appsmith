@@ -6,6 +6,7 @@ import App from "./App";
 import Editor from "./pages/Editor";
 import PageNotFound from "./pages/common/PageNotFound";
 import LoginPage from "./pages/common/LoginPage";
+import AppViewer from "./pages/AppViewer";
 import * as serviceWorker from "./serviceWorker";
 import { Router, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
@@ -20,7 +21,12 @@ import HTML5Backend from "react-dnd-html5-backend";
 import { appInitializer } from "./utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
-import { BASE_URL, BUILDER_URL, LOGIN_URL } from "./constants/routes";
+import {
+  BASE_URL,
+  BUILDER_URL,
+  LOGIN_URL,
+  APP_VIEW_URL,
+} from "./constants/routes";
 
 appInitializer();
 const sagaMiddleware = createSagaMiddleware();
@@ -37,6 +43,7 @@ ReactDOM.render(
           <Switch>
             <Route exact path={BASE_URL} component={App} />
             <ProtectedRoute path={BUILDER_URL} component={Editor} />
+            <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
             <Route exact path={LOGIN_URL} component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>
