@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Select } from "@blueprintjs/select";
 import { Switch, InputGroup } from "@blueprintjs/core";
 import { ContainerOrientation } from "../constants/WidgetConstants";
+import DropdownOption from "../common/DropdownOption";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -25,7 +26,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
 `;
 
-const DropDown = Select.ofType<{ label: string; value: string }>();
+const DropDown = Select.ofType<DropdownOption>();
 export const StyledDropDown = styled(DropDown)`
   &&& button {
     background: ${props => props.theme.colors.paneInputBG};

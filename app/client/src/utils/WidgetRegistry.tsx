@@ -63,6 +63,12 @@ class WidgetBuilderRegistry {
         return <RadioGroupWidget {...widgetData} />;
       },
     });
+
+    WidgetFactory.registerWidgetBuilder("DROP_DOWN_WIDGET", {
+      buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
+        return <DropdownWidget {...widgetData} />;
+      },
+    });
   }
 }
 

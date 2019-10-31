@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
   UpdateCanvasPayload,
-  LayoutPayload,
+  PageListPayload,
 } from "../constants/ReduxActionConstants";
 import { updateCanvas, savePageSuccess } from "../actions/pageActions";
 import PageApi, {
@@ -14,6 +14,8 @@ import PageApi, {
   SavePageRequest,
   FetchPublishedPageRequest,
   FetchPublishedPageResponse,
+  CreatePageRequest,
+  FetchPageListResponse,
 } from "../api/PageApi";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -24,10 +26,62 @@ import {
   takeEvery,
   all,
 } from "redux-saga/effects";
+import { getPageLayoutId } from "./selectors";
 
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
+
+export function* fetchPageListSaga() {
+  try {
+    const response: FetchPageListResponse = yield call(PageApi.fetchPageList);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const pageList: PageListPayload = response.data.map(page => ({
+        pageName: page.name,
+        pageId: page.id,
+        layoutId: page.layouts[0].id,
+      }));
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: pageList,
+      });
+      return;
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+//TODO(abhinav): Probably not the best place for this particular saga
+export function* initializeAppViewerSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  yield* fetchPageListSaga();
+  yield put({
+    type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+    payload: action.payload,
+  });
+}
+const getCanvasWidgetsPayload = (
+  pageResponse: FetchPageResponse,
+): UpdateCanvasPayload => {
+  const normalizedResponse = CanvasWidgetsNormalizer.normalize(
+    extractCurrentDSL(pageResponse),
+  );
+  return {
+    pageWidgetId: normalizedResponse.result,
+    currentPageName: pageResponse.data.name,
+    currentPageId: pageResponse.data.id,
+    widgets: normalizedResponse.entities.canvasWidgets,
+    currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
+    currentApplicationId: pageResponse.data.applicationId,
+  };
+};
 
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
@@ -40,17 +94,7 @@ export function* fetchPageSaga(
     );
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
-      const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-        extractCurrentDSL(fetchPageResponse),
-      );
-      const canvasWidgetsPayload: UpdateCanvasPayload = {
-        pageWidgetId: normalizedResponse.result,
-        currentPageName: fetchPageResponse.data.name,
-        currentPageId: fetchPageResponse.data.id,
-        widgets: normalizedResponse.entities.canvasWidgets,
-        currentLayoutId: fetchPageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
-        currentApplicationId: fetchPageResponse.data.applicationId,
-      };
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),
         put({
@@ -70,28 +114,28 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<FetchPublishedPageRequest>,
+  pageRequestAction: ReduxAction<{ pageId: string }>,
 ) {
   try {
-    const request: FetchPublishedPageRequest = pageRequestAction.payload;
+    const { pageId } = pageRequestAction.payload;
+    const layoutId: string = yield select(getPageLayoutId, pageId);
+    const request: FetchPublishedPageRequest = {
+      pageId,
+      layoutId,
+    };
     const response: FetchPublishedPageResponse = yield call(
       PageApi.fetchPublishedPage,
       request,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-        response.data.dsl,
-      );
-      const layoutPayload: LayoutPayload = {
-        widgets: normalizedResponse,
-        layoutId: response.data.id,
-        pageId: request.pageId,
-      };
-
       yield put({
-        type: ReduxActionTypes.FETCH_PUBLISED_PAGE_SUCCESS,
-        payload: layoutPayload,
+        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+        payload: {
+          dsl: response.data.dsl,
+          layoutId: response.data.id,
+          pageId: request.pageId,
+        },
       });
     }
   } catch (error) {
@@ -160,7 +204,7 @@ export function* saveLayoutSaga(
 }
 
 // TODO(abhinav): This has redundant code. The only thing different here is the lack of state update.
-// For now this is fire and forget.
+// For now, this is fire and forget.
 export function* asyncSaveLayout() {
   try {
     const widgets = yield select(getWidgets);
@@ -189,6 +233,35 @@ export function* asyncSaveLayout() {
   }
 }
 
+export function* createPageSaga(
+  createPageAction: ReduxAction<CreatePageRequest>,
+) {
+  try {
+    const request: CreatePageRequest = createPageAction.payload;
+    const response: FetchPageResponse = yield call(PageApi.createPage, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const canvasPayload = getCanvasWidgetsPayload(response);
+      yield put({
+        type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
+        payload: {
+          pageId: response.data.id,
+          pageName: response.data.name,
+          layoutId: response.data.layouts[0].id,
+        },
+      });
+      yield put(updateCanvas(canvasPayload));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
@@ -201,5 +274,11 @@ export default function* pageSagas() {
     // No need to save layout everytime a property is updated.
     // We save the latest request to update layout.
     takeLatest(ReduxActionTypes.UPDATE_WIDGET_PROPERTY, asyncSaveLayout),
+    takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
+    takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
+    takeLatest(
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      initializeAppViewerSaga,
+    ),
   ]);
 }
