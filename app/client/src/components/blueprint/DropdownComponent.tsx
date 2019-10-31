@@ -3,22 +3,13 @@ import { ComponentProps } from "../appsmith/BaseComponent";
 import { MenuItem, Button } from "@blueprintjs/core";
 import { Container } from "../appsmith/ContainerComponent";
 import { SelectionType, DropdownOption } from "../../widgets/DropdownWidget";
-import {
-  Select,
-  MultiSelect,
-  IItemRendererProps,
-  ItemRenderer,
-} from "@blueprintjs/select";
+import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
-  constructor(props: DropDownComponentProps) {
-    super(props);
-  }
-
   render() {
     const selectedItems = this.props.selectedIndexArr
       ? _.map(this.props.selectedIndexArr, index => {
@@ -37,6 +28,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <Container {...this.props}>
               <Button
                 intent={"primary"}
+                rightIcon="chevron-down"
                 text={
                   !_.isEmpty(this.props.options)
                     ? this.props.options[this.props.selectedIndex].label
@@ -62,10 +54,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     );
   }
 
-  onItemSelect = (
-    item: DropdownOption,
-    event?: React.SyntheticEvent<HTMLElement>,
-  ): void => {
+  onItemSelect = (item: DropdownOption): void => {
     this.props.onOptionSelected(item);
   };
 

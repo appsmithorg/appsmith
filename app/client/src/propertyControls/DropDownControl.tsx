@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "../constants/PropertyControlConstants";
 import { Button, MenuItem } from "@blueprintjs/core";
@@ -6,10 +6,6 @@ import { IItemRendererProps } from "@blueprintjs/select";
 import { ControlWrapper, StyledDropDown } from "./StyledControls";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
-  constructor(props: DropDownControlProps) {
-    super(props);
-  }
-
   render() {
     const selected: DropdownOption | undefined = this.props.options.find(
       option => option.value === this.props.propertyValue,
@@ -19,7 +15,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <label>{this.props.label}</label>
         <StyledDropDown
           items={this.props.options}
-          itemPredicate={this.filterOption}
           filterable={false}
           itemRenderer={this.renderItem}
           onItemSelect={this.onItemSelect}
@@ -34,10 +29,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  onItemSelect = (
-    item: DropdownOption,
-    event?: SyntheticEvent<HTMLElement>,
-  ): void => {
+  onItemSelect = (item: DropdownOption): void => {
     this.updateProperty(this.props.propertyName, item.value);
   };
 
@@ -54,13 +46,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       />
     );
   };
-
-  filterOption(query: string, option: DropdownOption): boolean {
-    return (
-      option.label.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
-      option.value.toLowerCase().indexOf(query.toLowerCase()) >= 0
-    );
-  }
 
   getControlType(): ControlType {
     return "DROP_DOWN";

@@ -6,10 +6,6 @@ import InputComponent from "../components/blueprint/InputComponent";
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   regex = new RegExp("");
 
-  constructor(props: InputWidgetProps) {
-    super(props);
-  }
-
   componentDidMount() {
     super.componentDidMount();
     if (this.props.regex) {
@@ -37,18 +33,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const errorMessage =
+      this.props.regex &&
+      this.props.text &&
+      this.props.text.length > 0 &&
+      !this.regex.test(this.props.text)
+        ? this.props.errorMessage
+        : undefined;
     return (
       <InputComponent
         onValueChange={this.onValueChange}
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
-        errorMessage={
-          this.props.regex &&
-          this.props.text &&
-          !this.regex.test(this.props.text)
-            ? this.props.errorMessage
-            : undefined
-        }
+        errorMessage={errorMessage}
         inputType={this.props.inputType}
         disabled={this.props.isDisabled}
         maxChars={this.props.maxChars}

@@ -409,7 +409,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             id: "13.4",
             propertyName: "options",
             label: "Options",
-            controlType: "INPUT_TEXT",
+            controlType: "OPTION_INPUT",
           },
           {
             id: "13.2",
@@ -417,13 +417,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Label",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter the label",
-          },
-          {
-            id: "13.3",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter the placeholder",
           },
           {
             id: "13.5",

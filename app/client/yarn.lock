@@ -905,7 +905,7 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@blueprintjs/core@^3.18.1", "@blueprintjs/core@^3.19.0", "@blueprintjs/core@^3.19.1":
+"@blueprintjs/core@^3.18.1", "@blueprintjs/core@^3.19.0":
   version "3.19.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-3.19.1.tgz#22e929e15147a90ca9ad6285b4627c2e8ed1ba33"
   integrity sha512-O+p/Jbu9kyrTE4Yy5phd7Xp9NJoiHCQ9ycO+QSR2fiuhwnVMO1xjY269QXxylzEswgPyjhST1euqHpyQQ7qnUw==
@@ -947,17 +947,6 @@
   dependencies:
     "@blueprintjs/core" "^3.19.0"
     classnames "^2.2"
-    tslib "~1.9.0"
-
-"@blueprintjs/table@^3.7.1":
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/table/-/table-3.8.1.tgz#90a68d8acb8aec3af29aee6e7ce117c1aa05dd67"
-  integrity sha512-sf1XdGsVsBhrfTm7bHQMV25HMQuYrZ/23hv6GczgU9SnQNyXDQWXcGetUwzieEVWjlCEb5e/S9ve3AMYeB3zTw==
-  dependencies:
-    "@blueprintjs/core" "^3.19.1"
-    classnames "^2.2"
-    prop-types "^15.6.0"
-    react-lifecycles-compat "^3.0.4"
     tslib "~1.9.0"
 
 "@cnakazawa/watch@^1.0.3":

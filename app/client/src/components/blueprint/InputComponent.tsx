@@ -7,7 +7,6 @@ import {
   InputGroup,
   Button,
   Label,
-  Classes,
   Text,
 } from "@blueprintjs/core";
 import { Container } from "../appsmith/ContainerComponent";
@@ -38,10 +37,10 @@ class InputComponent extends React.Component<
 
   isNumberInputType(inputType: InputType) {
     return (
-      this.props.inputType === "INTEGER" ||
-      this.props.inputType === "PHONE_NUMBER" ||
-      this.props.inputType === "NUMBER" ||
-      this.props.inputType === "CURRENCY"
+      inputType === "INTEGER" ||
+      inputType === "PHONE_NUMBER" ||
+      inputType === "NUMBER" ||
+      inputType === "CURRENCY"
     );
   }
 
@@ -74,7 +73,7 @@ class InputComponent extends React.Component<
   render() {
     return (
       <Container {...this.props}>
-        <Label>
+        <Label className={"bp3-inline"}>
           {this.props.label}
           {this.isNumberInputType(this.props.inputType) ? (
             <NumericInput
