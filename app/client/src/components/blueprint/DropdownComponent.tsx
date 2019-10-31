@@ -3,22 +3,13 @@ import { ComponentProps } from "../appsmith/BaseComponent";
 import { MenuItem, Button } from "@blueprintjs/core";
 import { Container } from "../appsmith/ContainerComponent";
 import { SelectionType, DropdownOption } from "../../widgets/DropdownWidget";
-import {
-  Select,
-  MultiSelect,
-  IItemRendererProps,
-  ItemRenderer,
-} from "@blueprintjs/select";
+import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
-  constructor(props: DropDownComponentProps) {
-    super(props);
-  }
-
   render() {
     const selectedItems = this.props.selectedIndexArr
       ? _.map(this.props.selectedIndexArr, index => {

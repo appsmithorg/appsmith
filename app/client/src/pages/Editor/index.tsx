@@ -7,8 +7,16 @@ import {
   getCurrentApplicationId,
   getCurrentLayoutId,
   getCurrentPageId,
+  getPageList,
+  getIsPublishingApplication,
+  getPublishingError,
+  getIsPageSaving,
 } from "../../selectors/editorSelectors";
-import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  PageListPayload,
+} from "../../constants/ReduxActionConstants";
+import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 
 type EditorProps = {
   currentPageName: string;
@@ -18,19 +26,46 @@ type EditorProps = {
   currentPageId: string;
   publishApplication: Function;
   previewPage: Function;
+  createPage: Function;
+  fetchPageList: Function;
+  pages: PageListPayload;
+  switchPage: (pageId: string) => void;
+  isPublishing: boolean;
+  errorPublishing: boolean;
 };
 
 class Editor extends Component<EditorProps> {
-  handlePublish = () => {
-    if (this.props.currentApplicationId)
-      this.props.publishApplication(this.props.currentApplicationId);
+  public state = {
+    isDialogOpen: false,
   };
-  handlePreview = () => {
-    this.props.previewPage(
-      this.props.currentPageId,
-      this.props.currentLayoutId,
-    );
-    //TODO(abhinav): Add logic to open in a different tab.
+
+  componentDidMount() {
+    this.props.fetchPageList();
+  }
+  componentDidUpdate(currently: EditorProps) {
+    const previously = this.props;
+    if (
+      !currently.isPublishing &&
+      previously.isPublishing &&
+      !currently.errorPublishing
+    ) {
+      this.setState({
+        isDialogOpen: true,
+      });
+    }
+  }
+  handleDialogClose = () => {
+    this.setState({
+      isDialogOpen: false,
+    });
+  };
+  handlePublish = () => {
+    if (this.props.currentApplicationId) {
+      this.props.publishApplication(this.props.currentApplicationId);
+    }
+  };
+  handleCreatePage = (pageName: string) => {
+    this.props.createPage(this.props.currentApplicationId, pageName);
   };
   public render() {
     return (
@@ -39,9 +74,37 @@ class Editor extends Component<EditorProps> {
           notificationText={this.props.isSaving ? "Saving page..." : undefined}
           pageName={this.props.currentPageName}
           onPublish={this.handlePublish}
-          onPreview={this.handlePreview}
+          onCreatePage={this.handleCreatePage}
+          pages={this.props.pages}
+          currentPageId={this.props.currentPageId}
+          switchToPage={this.props.switchPage}
+          isPublishing={this.props.isPublishing}
         />
         <MainContainer />
+        <Dialog
+          isOpen={this.state.isDialogOpen}
+          canOutsideClickClose={true}
+          canEscapeKeyClose={true}
+          title="Application Published"
+          onClose={this.handleDialogClose}
+          icon="tick-circle"
+        >
+          <div className={Classes.DIALOG_BODY}>
+            <p>
+              Your awesome application is now published with the current
+              changes!
+            </p>
+          </div>
+          <div className={Classes.DIALOG_FOOTER}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <AnchorButton
+                target="_blank"
+                href={`/view/pages/${this.props.currentPageId}`}
+                text="View Application"
+              />
+            </div>
+          </div>
+        </Dialog>
       </div>
     );
   }
@@ -49,10 +112,13 @@ class Editor extends Component<EditorProps> {
 
 const mapStateToProps = (state: AppState) => ({
   currentPageName: state.ui.editor.currentPageName,
-  isSaving: state.ui.editor.isSaving,
+  isSaving: getIsPageSaving(state),
   currentApplicationId: getCurrentApplicationId(state),
   currentPageId: getCurrentPageId(state),
   currentLayoutId: getCurrentLayoutId(state),
+  pages: getPageList(state),
+  errorPublishing: getPublishingError(state),
+  isPublishing: getIsPublishingApplication(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -71,6 +137,28 @@ const mapDispatchToProps = (dispatch: any) => {
         payload: {
           pageId,
           layoutId,
+        },
+      });
+    },
+    createPage: (applicationId: string, name: string) => {
+      dispatch({
+        type: ReduxActionTypes.CREATE_PAGE_INIT,
+        payload: {
+          applicationId,
+          name,
+        },
+      });
+    },
+    fetchPageList: () => {
+      dispatch({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
+      });
+    },
+    switchPage: (pageId: string) => {
+      dispatch({
+        type: ReduxActionTypes.FETCH_PAGE,
+        payload: {
+          pageId,
         },
       });
     },

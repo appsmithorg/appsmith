@@ -13,6 +13,7 @@ import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 import { ResourceDataState } from "./entityReducers/resourcesReducer";
+import { AppViewReduxState } from "./uiReducers/appViewReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -28,6 +29,7 @@ export interface AppState {
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     errors: ErrorReduxState;
+    view: AppViewReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

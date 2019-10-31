@@ -6,10 +6,6 @@ import InputComponent from "../components/blueprint/InputComponent";
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   regex = new RegExp("");
 
-  constructor(props: InputWidgetProps) {
-    super(props);
-  }
-
   componentDidMount() {
     super.componentDidMount();
     if (this.props.regex) {

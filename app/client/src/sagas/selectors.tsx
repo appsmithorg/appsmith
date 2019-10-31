@@ -32,3 +32,12 @@ export const getDefaultWidgetConfig = (
   delete widgetConfig.columns;
   return widgetConfig;
 };
+
+export const getPageLayoutId = (state: AppState, pageId: string): string => {
+  const pages = state.ui.view.pages;
+  const page = pages.find(page => page.pageId === pageId);
+  if (!page) {
+    throw Error("Page not found");
+  }
+  return page.layoutId;
+};
