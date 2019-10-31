@@ -28,6 +28,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <Container {...this.props}>
               <Button
                 intent={"primary"}
+                rightIcon="chevron-down"
                 text={
                   !_.isEmpty(this.props.options)
                     ? this.props.options[this.props.selectedIndex].label
@@ -53,10 +54,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     );
   }
 
-  onItemSelect = (
-    item: DropdownOption,
-    event?: React.SyntheticEvent<HTMLElement>,
-  ): void => {
+  onItemSelect = (item: DropdownOption): void => {
     this.props.onOptionSelected(item);
   };
 

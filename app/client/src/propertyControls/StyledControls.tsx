@@ -1,9 +1,17 @@
 import styled from "styled-components";
 import { Select } from "@blueprintjs/select";
 import { Switch, InputGroup } from "@blueprintjs/core";
+import { ContainerOrientation } from "../constants/WidgetConstants";
 import DropdownOption from "../common/DropdownOption";
 
-export const ControlWrapper = styled.div`
+type ControlWrapperProps = {
+  orientation?: ContainerOrientation;
+};
+
+export const ControlWrapper = styled.div<ControlWrapperProps>`
+  display: ${props => (props.orientation === "HORIZONTAL" ? "flex" : "block")};
+  flexDirection: ${props =>
+    props.orientation === "VERTICAL" ? "row" : "column"}
   margin: ${props => props.theme.spaces[3]}px 0;
   & > label {
     color: ${props => props.theme.colors.paneText};

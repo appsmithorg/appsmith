@@ -9,6 +9,8 @@ import DropDownControl, {
 import SwitchControl, {
   SwitchControlProps,
 } from "../propertyControls/SwitchControl";
+import OptionControl from "../propertyControls/OptionControl";
+import { ControlProps } from "../propertyControls/BaseControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
@@ -25,6 +27,11 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("SWITCH", {
       buildPropertyControl(controlProps: SwitchControlProps): JSX.Element {
         return <SwitchControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("OPTION_INPUT", {
+      buildPropertyControl(controlProps: ControlProps): JSX.Element {
+        return <OptionControl {...controlProps} />;
       },
     });
   }

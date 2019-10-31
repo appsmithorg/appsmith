@@ -15,7 +15,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Label me",
       textStyle: "LABEL",
       rows: 1,
-      columns: 4,
+      columns: 2,
       widgetName: "Text",
     },
     IMAGE_WIDGET: {
@@ -80,7 +80,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     CHECKBOX_WIDGET: {
       rows: 1,
       columns: 3,
-      label: "Label - CHECK!",
+      label: "Label me",
       defaultCheckedState: true,
       widgetName: "Checkbox",
     },
@@ -93,7 +93,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Bravo", value: "2" },
         { label: "Charlie", value: "3" },
       ],
-      defaultOptionValue: "1",
+      selectedOptionValue: "1",
       widgetName: "RadioGroup",
     },
     ALERT_WIDGET: {
