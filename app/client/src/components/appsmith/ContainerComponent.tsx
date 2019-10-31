@@ -11,8 +11,9 @@ import React, {
 import { FocusContext } from "../../pages/Editor/Canvas";
 import { getBorderCSSShorthand } from "../../constants/DefaultTheme";
 
-type StyledContainerProps = ContainerProps & {
+export type StyledContainerProps = ContainerProps & {
   focus?: boolean;
+  imageUrl?: string;
 };
 
 export const StyledContainer = styled("div")<StyledContainerProps>`
@@ -20,6 +21,7 @@ export const StyledContainer = styled("div")<StyledContainerProps>`
   flex-direction: ${props => {
     return props.orientation === "HORIZONTAL" ? "row" : "column";
   }};
+  background: ${props => props.imageUrl}
   background: ${props => props.style.backgroundColor};
   color: ${props => props.theme.colors.primary};
   position: ${props => {

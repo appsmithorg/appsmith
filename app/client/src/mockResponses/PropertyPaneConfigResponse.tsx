@@ -92,14 +92,9 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "4.1",
             propertyName: "image",
-            label: "Image",
-            controlType: "IMAGE_PICKER",
-          },
-          {
-            id: "4.2",
-            propertyName: "defaultImage",
-            label: "Default Image",
-            controlType: "IMAGE_PICKER",
+            label: "Image Url",
+            placeholderText: "Enter URL",
+            controlType: "INPUT_TEXT",
           },
           {
             id: "4.3",

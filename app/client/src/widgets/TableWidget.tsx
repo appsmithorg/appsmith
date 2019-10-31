@@ -14,11 +14,11 @@ interface Column {
 }
 
 function constructColumns(data: object[]): Column[] {
-  let cols: Column[] = [];
-  let listItemWithAllProperties = {}
+  const cols: Column[] = [];
+  const listItemWithAllProperties = {};
   data.forEach(dataItem => {
-    Object.assign(listItemWithAllProperties, dataItem)
-  })
+    Object.assign(listItemWithAllProperties, dataItem);
+  });
   forIn(listItemWithAllProperties, (value, key) => {
     cols.push({
       key: key,
@@ -46,7 +46,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.tableData ? ((this.props.tableData as any) as string) : "",
     );
 
-    let columns = constructColumns(tableData);
+    const columns = constructColumns(tableData);
     return (
       <AutoResizer>
         {({ width, height }: { width: number; height: number }) => (
