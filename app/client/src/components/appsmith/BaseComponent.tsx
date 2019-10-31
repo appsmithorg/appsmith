@@ -25,6 +25,8 @@ export interface ComponentProps {
   widgetId: string;
   widgetName?: string;
   style: BaseStyle;
+  isDisabled?: boolean;
+  isVisibile?: boolean;
 }
 
 export default BaseComponent;

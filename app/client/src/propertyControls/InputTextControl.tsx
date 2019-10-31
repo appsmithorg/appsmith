@@ -10,11 +10,25 @@ class InputTextControl extends BaseControl<InputControlProps> {
       <ControlWrapper>
         <label>{this.props.label}</label>
         <StyledInputGroup
+          type={this.isNumberType(this.props.inputType) ? "number" : "text"}
           onChange={this.onTextChange}
+          placeholder={this.props.placeholderText}
           defaultValue={this.props.propertyValue}
         />
       </ControlWrapper>
     );
+  }
+
+  isNumberType(inputType: InputType): boolean {
+    switch (inputType) {
+      case "CURRENCY":
+      case "INTEGER":
+      case "NUMBER":
+      case "PHONE_NUMBER":
+        return true;
+      default:
+        return false;
+    }
   }
 
   onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {

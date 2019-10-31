@@ -6,6 +6,9 @@ import {
   IconName,
   InputGroup,
   Button,
+  Label,
+  Classes,
+  Text,
 } from "@blueprintjs/core";
 import { Container } from "../appsmith/ContainerComponent";
 import { InputType } from "../../widgets/InputWidget";
@@ -25,70 +28,99 @@ class InputComponent extends React.Component<
     this.state = { showPassword: false };
   }
 
+  onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.onValueChange(event.target.value);
+  };
+
+  onNumberChange = (valueAsNum: number, valueAsString: string) => {
+    this.props.onValueChange(valueAsString);
+  };
+
+  isNumberInputType(inputType: InputType) {
+    return (
+      this.props.inputType === "INTEGER" ||
+      this.props.inputType === "PHONE_NUMBER" ||
+      this.props.inputType === "NUMBER" ||
+      this.props.inputType === "CURRENCY"
+    );
+  }
+
+  getIcon(inputType: InputType) {
+    switch (inputType) {
+      case "PHONE_NUMBER":
+        return "phone";
+      case "SEARCH":
+        return "search";
+      case "EMAIL":
+        return "envelope";
+      default:
+        return undefined;
+    }
+  }
+
+  getType(inputType: InputType) {
+    switch (inputType) {
+      case "PASSWORD":
+        return this.state.showPassword ? "password" : "text";
+      case "EMAIL":
+        return "email";
+      case "SEARCH":
+        return "search";
+      default:
+        return "text";
+    }
+  }
+
   render() {
     return (
       <Container {...this.props}>
-        {this.props.inputType === "INTEGER" ||
-        this.props.inputType === "PHONE_NUMBER" ||
-        this.props.inputType === "NUMBER" ||
-        this.props.inputType === "CURRENCY" ? (
-          <NumericInput
-            placeholder={this.props.placeholder}
-            min={this.props.minNum}
-            max={this.props.maxNum}
-            disabled={this.props.disabled}
-            intent={this.props.intent}
-            defaultValue={this.props.defaultValue}
-            leftIcon={
-              this.props.inputType === "PHONE_NUMBER"
-                ? "phone"
-                : this.props.leftIcon
-            }
-            type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-            allowNumericCharactersOnly={true}
-            stepSize={this.props.stepSize}
-          />
-        ) : this.props.inputType === "TEXT" ||
-          this.props.inputType === "EMAIL" ||
-          this.props.inputType === "PASSWORD" ||
-          this.props.inputType === "SEARCH" ? (
-          <InputGroup
-            placeholder={this.props.placeholder}
-            disabled={this.props.disabled}
-            intent={this.props.intent}
-            defaultValue={this.props.defaultValue}
-            rightElement={
-              this.props.inputType === "PASSWORD" ? (
-                <Button
-                  icon={"lock"}
-                  onClick={() => {
-                    this.setState({ showPassword: !this.state.showPassword });
-                  }}
-                />
-              ) : (
-                undefined
-              )
-            }
-            type={
-              this.props.inputType === "PASSWORD" && !this.state.showPassword
-                ? "password"
-                : this.props.inputType === "EMAIL"
-                ? "email"
-                : this.props.inputType === "SEARCH"
-                ? "search"
-                : "text"
-            }
-            leftIcon={
-              this.props.inputType === "SEARCH"
-                ? "search"
-                : this.props.inputType === "EMAIL"
-                ? "envelope"
-                : this.props.leftIcon
-            }
-          />
-        ) : (
-          undefined
-        )}
+        <Label>
+          {this.props.label}
+          {this.isNumberInputType(this.props.inputType) ? (
+            <NumericInput
+              placeholder={this.props.placeholder}
+              min={this.props.minNum}
+              max={this.props.maxNum}
+              maxLength={this.props.maxChars}
+              disabled={this.props.disabled}
+              intent={this.props.intent}
+              defaultValue={this.props.defaultValue}
+              onValueChange={this.onNumberChange}
+              leftIcon={
+                this.props.inputType === "PHONE_NUMBER"
+                  ? "phone"
+                  : this.props.leftIcon
+              }
+              type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+              allowNumericCharactersOnly={true}
+              stepSize={this.props.stepSize}
+            />
+          ) : (
+            <InputGroup
+              placeholder={this.props.placeholder}
+              disabled={this.props.disabled}
+              maxLength={this.props.maxChars}
+              intent={this.props.intent}
+              onChange={this.onTextChange}
+              defaultValue={this.props.defaultValue}
+              rightElement={
+                this.props.inputType === "PASSWORD" ? (
+                  <Button
+                    icon={"lock"}
+                    onClick={() => {
+                      this.setState({ showPassword: !this.state.showPassword });
+                    }}
+                  />
+                ) : (
+                  undefined
+                )
+              }
+              type={this.getType(this.props.inputType)}
+              leftIcon={this.getIcon(this.props.inputType)}
+            />
+          )}
+        </Label>
+        <Text>{this.props.errorMessage}</Text>
       </Container>
     );
   }
@@ -99,16 +131,19 @@ export interface InputComponentState {
 }
 
 export interface InputComponentProps extends ComponentProps {
-  inputType?: InputType;
+  inputType: InputType;
   disabled?: boolean;
   intent?: Intent;
   defaultValue?: string;
+  label: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
   fill?: boolean;
+  errorMessage?: string;
+  maxChars?: number;
   maxNum?: number;
   minNum?: number;
-  onValueChange?: (valueAsNumber: number, valueAsString: string) => void;
+  onValueChange: (valueAsString: string) => void;
   stepSize?: number;
   placeholder?: string;
 }

@@ -12,7 +12,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "text",
             label: "Button Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter button text here",
+            placeholderText: "Enter button text",
           },
           {
             id: "1.2",
@@ -22,6 +22,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             options: [
               { label: "Primary Button", value: "PRIMARY_BUTTON" },
               { label: "Secondary Button", value: "SECONDARY_BUTTON" },
+              { label: "Danger Button", value: "DANGER_BUTTON" },
             ],
           },
           {
@@ -61,7 +62,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "text",
             label: "Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter your text here",
+            placeholderText: "Enter your text",
           },
           {
             id: "3.2",
@@ -72,7 +73,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
               { label: "Heading", value: "HEADING" },
               { label: "Label", value: "LABEL" },
               { label: "Body", value: "BODY" },
-              { label: "Sub text", value: "SUB_TEXT" },
             ],
           },
           {
@@ -140,7 +140,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
               { label: "Password", value: "PASSWORD" },
               { label: "Phone Number", value: "PHONE_NUMBER" },
               { label: "Email", value: "EMAIL" },
-              { label: "Search", value: "SEARCH" },
             ],
           },
           {
@@ -148,7 +147,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter your text here",
+            placeholderText: "Enter your text",
           },
           {
             id: "5.4",
@@ -156,41 +155,32 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Max Chars",
             controlType: "INPUT_TEXT",
             inputType: "INTEGER",
-            placeholderText: "Maximum character length",
+            placeholderText: "Enter the max length",
           },
           {
             id: "5.5",
-            propertyName: "validators",
-            label: "Validators",
-            controlType: "VALIDATION_INPUT",
+            propertyName: "regex",
+            label: "Regex",
+            controlType: "INPUT_TEXT",
+            inputType: "TEXT",
+            placeholderText: "Enter the regex",
           },
           {
             id: "5.6",
-            children: [
-              {
-                id: "5.6.1",
-                propertyName: "focusIndexx",
-                label: "Focus Index",
-                controlType: "INPUT_TEXT",
-                inputType: "INTEGER",
-                placeholderText: "Enter the order of tab focus",
-              },
-              {
-                id: "5.6.2",
-                propertyName: "autoFocus",
-                label: "Auto Focus",
-                controlType: "SWITCH",
-              },
-            ],
+            propertyName: "errorMessage",
+            label: "Error Message",
+            controlType: "INPUT_TEXT",
+            inputType: "TEXT",
+            placeholderText: "Enter the message",
           },
           {
-            id: "5.7",
+            id: "5.8",
             propertyName: "isVisible",
             label: "Visibile",
             controlType: "SWITCH",
           },
           {
-            id: "5.8",
+            id: "5.9",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
@@ -407,13 +397,19 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
         children: [
           {
             id: "13.1",
-            propertyName: "type",
+            propertyName: "selectionType",
             label: "Selection Type",
             controlType: "DROP_DOWN",
             options: [
               { label: "Single Select", value: "SINGLE_SELECT" },
               { label: "Multi Select", value: "MULTI_SELECT" },
             ],
+          },
+          {
+            id: "13.4",
+            propertyName: "options",
+            label: "Options",
+            controlType: "INPUT_TEXT",
           },
           {
             id: "13.2",
@@ -428,12 +424,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Placeholder",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter the placeholder",
-          },
-          {
-            id: "13.4",
-            propertyName: "options",
-            label: "Options",
-            controlType: "OPTION_INPUT",
           },
           {
             id: "13.5",

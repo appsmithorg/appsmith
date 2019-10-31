@@ -187,7 +187,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           </Tooltip>
         </DeleteControl>
         <EditControl className="control" onClick={togglePropertyEditor}>
-          <Tooltip content="Toggle properties pane" hoverOpenDelay={500}>
+          <Tooltip content="Toggle props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
         </EditControl>

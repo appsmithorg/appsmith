@@ -12,10 +12,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisible: true,
     },
     TEXT_WIDGET: {
-      text: "Not all labels are bad!",
+      text: "Label me",
       textStyle: "LABEL",
       rows: 1,
-      columns: 3,
+      columns: 4,
       widgetName: "Text",
     },
     IMAGE_WIDGET: {
@@ -30,20 +30,20 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       inputType: "TEXT",
       label: "Label me",
       rows: 1,
-      columns: 3,
+      columns: 5,
       widgetName: "Input",
     },
     SWITCH_WIDGET: {
       isOn: false,
-      label: "Turn me on",
+      label: "Switch",
       rows: 1,
       columns: 4,
       widgetName: "Switch",
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
-      rows: 1,
-      columns: 4,
+      rows: 8,
+      columns: 8,
       widgetName: "Container",
     },
     SPINNER_WIDGET: {
@@ -62,14 +62,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     TABLE_WIDGET: {
       rows: 5,
       columns: 7,
-      label: "Don't table me!",
+      label: "Data",
       widgetName: "Table",
     },
     DROP_DOWN_WIDGET: {
       rows: 1,
       columns: 3,
       selectionType: "SINGLE_SELECT",
-      label: "Pick me!",
+      label: "Select",
+      options: [
+        { label: "Option 1", value: "1" },
+        { label: "Option 2", value: "2" },
+        { label: "Option 3", value: "3" },
+      ],
       widgetName: "Dropdown",
     },
     CHECKBOX_WIDGET: {
@@ -82,7 +87,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     RADIO_GROUP_WIDGET: {
       rows: 3,
       columns: 3,
-      label: "Alpha - come in!",
+      label: "Labels",
       options: [
         { label: "Alpha", value: "1" },
         { label: "Bravo", value: "2" },
