@@ -15,7 +15,11 @@ interface Column {
 
 function constructColumns(data: object[]): Column[] {
   let cols: Column[] = [];
-  forIn(data[0], (value, key) => {
+  let listItemWithAllProperties = {}
+  data.forEach(dataItem => {
+    Object.assign(listItemWithAllProperties, dataItem)
+  })
+  forIn(listItemWithAllProperties, (value, key) => {
     cols.push({
       key: key,
       dataKey: key,
