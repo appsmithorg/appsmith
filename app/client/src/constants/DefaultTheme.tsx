@@ -37,6 +37,12 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   sidebarWidth: string;
+  sideNav: {
+    minWidth: number;
+    maxWidth: number;
+    bgColor: Color;
+    fontColor: Color;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -48,12 +54,12 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
-export const getBorderCSSShorthand = (border?: ThemeBorder) : string => {
-  let values : string[] = []
+export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
+  const values: string[] = [];
   _.forIn(border, (value, key) => {
-    values.push(key === 'thickness' ? value + "px" : value)
-  })
-  return values.join(" ")
+    values.push(key === "thickness" ? value + "px" : value);
+  });
+  return values.join(" ");
 };
 
 export const theme: Theme = {
@@ -118,6 +124,12 @@ export const theme: Theme = {
   ],
   sidebarWidth: "350px",
   headerHeight: "50px",
+  sideNav: {
+    maxWidth: 250,
+    minWidth: 50,
+    bgColor: Colors.OXFORD_BLUE,
+    fontColor: Colors.WHITE,
+  },
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };

@@ -6,10 +6,6 @@ import DropDownComponent from "../components/blueprint/DropdownComponent";
 import _ from "lodash";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
-  constructor(props: DropdownWidgetProps) {
-    super(props);
-  }
-
   getPageView() {
     return (
       <DropDownComponent

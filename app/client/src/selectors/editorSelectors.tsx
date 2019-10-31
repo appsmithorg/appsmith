@@ -13,6 +13,11 @@ const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getEntities = (state: AppState) => state.entities;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 
+export const getPageList = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.pages,
+);
+
 export const getPropertyPaneConfigsId = createSelector(
   getEditorState,
   (editor: EditorReduxState) => editor.propertyPaneConfigsId,
@@ -45,7 +50,17 @@ export const getCurrentApplicationId = createSelector(
 
 export const getIsPageSaving = createSelector(
   getEditorState,
-  (editor: EditorReduxState) => editor.isSaving,
+  (editor: EditorReduxState) => editor.loadingStates.saving,
+);
+
+export const getIsPublishingApplication = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.loadingStates.publishing,
+);
+
+export const getPublishingError = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.loadingStates.publishingError,
 );
 
 export const getWidgetCards = createSelector(

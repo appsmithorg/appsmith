@@ -36,10 +36,10 @@ const defaultDSL = {
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
-  const currentDSL = fetchPageResponse.data.layouts[0].dsl;
+  const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   currentDSL.rightColumn = 1200;
   currentDSL.snapColumns = 24;
-  return currentDSL || defaultDSL;
+  return currentDSL;
 };
 
 export const getDropZoneOffsets = (

@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
+import DropdownComponent from "../../components/editor/DropdownComponent";
+import { PageListPayload } from "../../constants/ReduxActionConstants";
+import { DropdownOption } from "../../common/DropdownOption";
 import { BaseButton } from "../../components/blueprint/ButtonComponent";
 
 const Header = styled.header`
@@ -14,6 +17,10 @@ const Header = styled.header`
   font-size: ${props => props.theme.fontSizes[1]}px;
 `;
 
+const PageSelector = styled(DropdownComponent)`
+  flex: 2;
+`;
+
 const NotificationText = styled.div`
   display: flex;
   justify-content: space-evenly;
@@ -25,11 +32,11 @@ const PreviewPublishSection = styled.div`
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  flex-grow: 1;
+  flex-shrink: 1;
 `;
 
 const StretchedBreadCrumb = styled(Breadcrumbs)`
-  flex-grow: 10;
+  flex-shrink: 1;
   * {
     font-family: ${props => props.theme.fonts[0]};
     font-size: ${props => props.theme.fontSizes[2]}px;
@@ -43,33 +50,58 @@ type EditorHeaderProps = {
   notificationText?: string;
   pageName: string;
   onPublish: React.FormEventHandler;
-  onPreview: React.FormEventHandler;
+  onCreatePage: (name: string) => void;
+  pages?: PageListPayload;
+  currentPageId: string;
+  switchToPage: (selectedPage: string) => void;
+  isPublishing: boolean;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
   const navigation: IBreadcrumbProps[] = [
     { href: "#", icon: "folder-close", text: "appsmith-dev" },
     { href: "#", icon: "folder-close", text: "application" },
-    { icon: "page-layout", text: props.pageName, current: true },
+    { icon: "page-layout", text: "", current: true },
   ];
+
+  const pageList:
+    | Array<{
+        label: string;
+        value: string;
+      }>
+    | undefined =
+    props.pages &&
+    props.pages.map((page: { pageName: string; pageId: string }) => ({
+      label: page.pageName,
+      value: page.pageId,
+    }));
+
+  const selectedPage: DropdownOption | undefined =
+    pageList && pageList.find(page => page.value === props.currentPageId);
 
   return (
     <Header>
       <StretchedBreadCrumb items={navigation} />
+      {pageList && (
+        <PageSelector
+          options={pageList}
+          selectHandler={props.switchToPage}
+          selected={selectedPage}
+          addItem={{
+            displayText: "Create Page",
+            addItemHandler: props.onCreatePage,
+          }}
+        />
+      )}
       <NotificationText>
         {props.notificationText && <Spinner size={Spinner.SIZE_SMALL} />}
         <span>{props.notificationText}</span>
       </NotificationText>
       <PreviewPublishSection>
         <BaseButton
-          onClick={props.onPreview}
-          text="Preview"
-          styleName="secondary"
-          filled
-        />
-        <BaseButton
           onClick={props.onPublish}
           text="Publish"
+          loading={props.isPublishing}
           styleName="primary"
           filled
         />

@@ -6,21 +6,59 @@ import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import {
   ReduxAction,
   UpdateCanvasPayload,
+  PageListPayload,
 } from "../../constants/ReduxActionConstants";
 
 const editorConfigs = getEditorConfigs();
 const initialState: EditorReduxState = {
   pageWidgetId: "0",
   ...editorConfigs,
-  isSaving: false,
+  pages: [],
+  loadingStates: {
+    publishing: false,
+    publishingError: false,
+    saving: false,
+    savingError: false,
+  },
 };
 
 const editorReducer = createReducer(initialState, {
+  [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.publishing = true;
+    state.loadingStates.publishingError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.PUBLISH_APPLICATION_ERROR]: (state: EditorReduxState) => {
+    state.loadingStates.publishing = false;
+    state.loadingStates.publishingError = true;
+    return { ...state };
+  },
+  [ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.publishing = false;
+    state.loadingStates.publishingError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<PageListPayload>,
+  ) => {
+    return { ...state, pages: action.payload };
+  },
+  [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ pageName: string; pageId: string; layoutId: string }>,
+  ) => {
+    state.pages.push(action.payload);
+    return { ...state };
+  },
   [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
-    return { ...state, isSaving: true };
+    state.loadingStates.saving = true;
+    state.loadingStates.savingError = false;
+    return { ...state };
   },
   [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
-    return { ...state, isSaving: false };
+    state.loadingStates.saving = false;
+    return { ...state };
   },
   [ReduxActionTypes.UPDATE_CANVAS]: (
     state: EditorReduxState,
@@ -33,6 +71,8 @@ const editorReducer = createReducer(initialState, {
       pageWidgetId,
       currentApplicationId,
     } = action.payload;
+    state.loadingStates.publishing = false;
+    state.loadingStates.publishingError = false;
     return {
       ...state,
       currentPageId,
@@ -52,7 +92,13 @@ export interface EditorReduxState {
   currentPageName: string;
   propertyPaneConfigsId: string;
   currentApplicationId?: string;
-  isSaving: boolean;
+  pages: PageListPayload;
+  loadingStates: {
+    saving: boolean;
+    savingError: boolean;
+    publishing: boolean;
+    publishingError: boolean;
+  };
 }
 
 export default editorReducer;

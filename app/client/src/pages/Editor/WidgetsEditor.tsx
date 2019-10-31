@@ -18,7 +18,6 @@ import {
   getCurrentPageId,
   getDenormalizedDSL,
   getCurrentPageName,
-  getPageWidgetId,
 } from "../../selectors/editorSelectors";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
@@ -120,7 +119,6 @@ class WidgetsEditor extends React.Component<EditorProps> {
 const mapStateToProps = (state: AppState) => {
   return {
     dsl: getDenormalizedDSL(state),
-    pageWidgetId: getPageWidgetId(state),
     currentPageId: getCurrentPageId(state),
     currentLayoutId: getCurrentLayoutId(state),
     currentPageName: getCurrentPageName(state),
