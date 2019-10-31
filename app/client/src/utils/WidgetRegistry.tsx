@@ -13,8 +13,8 @@ import WidgetFactory from "./WidgetFactory";
 import React from "react";
 import ButtonWidget, { ButtonWidgetProps } from "../widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "../widgets/DropdownWidget";
-import TableWidget, { TableWidgetProps } from '../widgets/TableWidget';
-
+import ImageWidget, { ImageWidgetProps } from "../widgets/ImageWidget";
+import TableWidget, { TableWidgetProps } from "../widgets/TableWidget";
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {
@@ -65,9 +65,9 @@ class WidgetBuilderRegistry {
       },
     });
 
-    WidgetFactory.registerWidgetBuilder("DROP_DOWN_WIDGET", {
-      buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
-        return <DropdownWidget {...widgetData} />;
+    WidgetFactory.registerWidgetBuilder("IMAGE_WIDGET", {
+      buildWidget(widgetData: ImageWidgetProps): JSX.Element {
+        return <ImageWidget {...widgetData} />;
       },
     });
     WidgetFactory.registerWidgetBuilder("TABLE_WIDGET", {
