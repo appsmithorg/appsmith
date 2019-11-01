@@ -5,17 +5,7 @@ import DropdownComponent from "../../components/editor/DropdownComponent";
 import { PageListPayload } from "../../constants/ReduxActionConstants";
 import { DropdownOption } from "../../common/DropdownOption";
 import { BaseButton } from "../../components/blueprint/ButtonComponent";
-
-const Header = styled.header`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: ${props => props.theme.headerHeight};
-  padding: 0px 30px;
-  box-shadow: 0px 0px 3px #ccc;
-  background: #fff;
-  font-size: ${props => props.theme.fontSizes[1]}px;
-`;
+import StyledHeader from "../../components/appsmith/StyledHeader";
 
 const PageSelector = styled(DropdownComponent)`
   flex: 2;
@@ -80,7 +70,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     pageList && pageList.find(page => page.value === props.currentPageId);
 
   return (
-    <Header>
+    <StyledHeader>
       <StretchedBreadCrumb items={navigation} />
       {pageList && (
         <PageSelector
@@ -106,7 +96,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           filled
         />
       </PreviewPublishSection>
-    </Header>
+    </StyledHeader>
   );
 };
 

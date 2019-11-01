@@ -29,7 +29,40 @@ const AppViewerBody = styled.section`
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
+  height: calc(100vh - ${props => props.theme.headerHeight});
 `;
+const SideNavWrapper = styled.div`
+  background: ${props => props.theme.colors.paneBG};
+  & button.sidenav-toggle,
+  & button.sidenav-toggle:hover,
+  & button.sidenav-toggle:active {
+    background: ${props => props.theme.colors.paneBG};
+    outline: none;
+    border: none;
+    border-radius: 0;
+  }
+  & ul {
+    background: ${props => props.theme.colors.paneBG};
+    color: ${props => props.theme.colors.textOnDarkBG};
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    & li {
+      padding: 0;
+    }
+    & li div.bp3-menu-item {
+      width: 100%;
+      font-size: ${props => props.theme.fontSizes[3]}px;
+      &.bp3-intent-primary {
+        background: ${props => props.theme.sideNav.activeItemBGColor};
+      }
+      & div {
+        line-height: ${props => props.theme.lineHeights[6]}px;
+      }
+    }
+  }
+`;
+
 export type AppViewerProps = {
   currentPageId?: string;
   currentLayoutId?: string;
@@ -58,6 +91,7 @@ class AppViewer extends Component<AppViewerProps> {
       this.props.pages.map(page => ({
         text: page.pageName,
         id: page.pageId,
+        icon: "page-layout", //TODO: get the icon from page.
       }));
 
     const currentPage =
@@ -68,16 +102,19 @@ class AppViewer extends Component<AppViewerProps> {
         <AppViewerHeader />
         <AppViewerBody>
           {items && (
-            <SideNav
-              items={items}
-              onSelect={this.handlePageSelect}
-              active={
-                currentPage && {
-                  text: currentPage.pageName,
-                  id: currentPage.pageId,
+            <SideNavWrapper>
+              <SideNav
+                items={items}
+                onSelect={this.handlePageSelect}
+                iconSize={24}
+                active={
+                  currentPage && {
+                    text: currentPage.pageName,
+                    id: currentPage.pageId,
+                  }
                 }
-              }
-            />
+              />
+            </SideNavWrapper>
           )}
           {this.props.dsl && <AppPage dsl={this.props.dsl} />}
         </AppViewerBody>

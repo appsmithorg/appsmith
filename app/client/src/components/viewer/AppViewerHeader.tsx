@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import StyledHeader from "../appsmith/StyledHeader";
 
-const HeaderWrapper = styled.header`
-  height: ${props => props.theme.headerHeight};
-  width: 100vw;
+const HeaderWrapper = styled(StyledHeader)`
   position: fixed;
   top: 0;
   left: 0;
