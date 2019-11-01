@@ -9,6 +9,7 @@ const Wrapper = styled.div`
   grid-template-columns: 1fr 4fr;
   width: ${props => props.theme.sidebarWidth};
   box-shadow: 0px 1px 3px ${props => props.theme.colors.paneBG};
+  z-index: 20;
 `;
 
 const NavBar = styled.div`

@@ -11,20 +11,9 @@ import {
 } from "../../widgets/BaseWidget";
 import { ActionPayload } from "../../constants/ActionConstants";
 import { executeAction } from "../../actions/widgetActions";
-import { fetchPage, savePage, updateWidget } from "../../actions/pageActions";
-import {
-  getPropertyPaneConfigsId,
-  getCurrentLayoutId,
-  getCurrentPageId,
-  getDenormalizedDSL,
-  getCurrentPageName,
-} from "../../selectors/editorSelectors";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { savePage, updateWidget } from "../../actions/pageActions";
+import { getDenormalizedDSL } from "../../selectors/editorSelectors";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import {
-  EditorConfigIdsType,
-  fetchEditorConfigs,
-} from "../../actions/configsActions";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
 import { updateWidgetProperty } from "../../actions/controlActions";
 
@@ -56,7 +45,6 @@ const CanvasContainer = styled.section`
 
 type EditorProps = {
   dsl: ContainerWidgetProps<WidgetProps> | any;
-  fetchCanvasWidgets: Function;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidget: Function;
   updateWidgetProperty: (
@@ -65,64 +53,39 @@ type EditorProps = {
     propertyValue: any,
   ) => void;
   savePageLayout: Function;
-  currentPageName: string;
-  currentPageId: string;
-  currentLayoutId: string;
   showPropertyPane: (
     widgetId?: string,
     node?: HTMLDivElement,
     toggle?: boolean,
   ) => void;
-  fetchConfigs: Function;
-  propertyPaneConfigsId: string;
 };
 
 export const WidgetFunctionsContext: Context<WidgetFunctions> = createContext(
   {},
 );
 
-class WidgetsEditor extends React.Component<EditorProps> {
-  componentDidMount() {
-    this.props.fetchConfigs({
-      propertyPaneConfigsId: this.props.propertyPaneConfigsId,
-      // widgetCardsPaneId: this.props.widgetCardsPaneId,
-      // widgetConfigsId: this.props.widgetConfigsId,
-    });
-    this.props.fetchCanvasWidgets(this.props.currentPageId);
-  }
-
-  render(): React.ReactNode {
-    return (
-      <WidgetFunctionsContext.Provider
-        value={{
-          executeAction: this.props.executeAction,
-          updateWidget: this.props.updateWidget,
-          updateWidgetProperty: this.props.updateWidgetProperty,
-        }}
-      >
-        <EditorWrapper>
-          <CanvasContainer>
-            {this.props.dsl && (
-              <Canvas
-                dsl={this.props.dsl}
-                showPropertyPane={this.props.showPropertyPane}
-              />
-            )}
-          </CanvasContainer>
-          <PropertyPane />
-        </EditorWrapper>
-      </WidgetFunctionsContext.Provider>
-    );
-  }
-}
+const WidgetsEditor = (props: EditorProps) => (
+  <WidgetFunctionsContext.Provider
+    value={{
+      executeAction: props.executeAction,
+      updateWidget: props.updateWidget,
+      updateWidgetProperty: props.updateWidgetProperty,
+    }}
+  >
+    <EditorWrapper>
+      <CanvasContainer>
+        {props.dsl && (
+          <Canvas dsl={props.dsl} showPropertyPane={props.showPropertyPane} />
+        )}
+      </CanvasContainer>
+      <PropertyPane />
+    </EditorWrapper>
+  </WidgetFunctionsContext.Provider>
+);
 
 const mapStateToProps = (state: AppState) => {
   return {
     dsl: getDenormalizedDSL(state),
-    currentPageId: getCurrentPageId(state),
-    currentLayoutId: getCurrentLayoutId(state),
-    currentPageName: getCurrentPageName(state),
-    propertyPaneConfigsId: getPropertyPaneConfigsId(state),
   };
 };
 
@@ -135,8 +98,6 @@ const mapDispatchToProps = (dispatch: any) => {
     ) => dispatch(updateWidgetProperty(widgetId, propertyName, propertyValue)),
     executeAction: (actionPayloads?: ActionPayload[]) =>
       dispatch(executeAction(actionPayloads)),
-    fetchCanvasWidgets: (pageId: string) =>
-      dispatch(fetchPage(pageId, RenderModes.CANVAS)),
     updateWidget: (
       operation: WidgetOperation,
       widgetId: string,
@@ -147,8 +108,6 @@ const mapDispatchToProps = (dispatch: any) => {
       layoutId: string,
       dsl: ContainerWidgetProps<WidgetProps>,
     ) => dispatch(savePage(pageId, layoutId, dsl)),
-    fetchConfigs: (configsIds: EditorConfigIdsType) =>
-      dispatch(fetchEditorConfigs(configsIds)),
     showPropertyPane: (
       widgetId?: string,
       node?: HTMLDivElement,
