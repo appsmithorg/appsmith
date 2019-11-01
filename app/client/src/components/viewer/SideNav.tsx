@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Menu, MenuItem, IconName, Button } from "@blueprintjs/core";
+import { Menu, MenuItem, IconName, Button, Icon } from "@blueprintjs/core";
 
 export type SideNavItem = {
   id: string;
@@ -13,62 +13,98 @@ type SideNavProps = {
   active?: SideNavItem;
   onSelect: Function;
   headeroffset?: number;
+  iconSize?: number;
 };
 
 /* eslint-disable no-unexpected-multiline */
 
 const SideNavWrapper = styled.div<{
-  isExpanded: boolean;
+  open: boolean;
   headeroffset?: number;
 }>`
-  height: calc(100vh - ${props => props.headeroffset || 50}px);
-  margin-top: ${props => props.headeroffset || 50}px;
-  width: ${props =>
-    props.isExpanded
-      ? props.theme.sideNav.maxWidth
-      : props.theme.sideNav.minWidth}px;
-  transition: width 0.5s ease-out;
+  &&& {
+    width: ${props =>
+      props.open
+        ? props.theme.sideNav.maxWidth
+        : props.theme.sideNav.minWidth}px;
+    transition: width 0.5s ease-out;
+    height: 100%;
+    & ul {
+      min-width: ${props => props.theme.sideNav.minWidth}px;
+      overflow-y: auto;
+      & li > div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        height: ${props => props.theme.sideNav.navItemHeight}px;
+        text-transform: capitalize;
+        & > div {
+          flex-grow: 0;
+          display: inline;
+          width: ${props => (props.open ? 100 : 0)}px;
+        }
+        & > span {
+          margin-right: ${props => (props.open ? props.theme.spaces[3] : 0)}px;
+        }
+      }
+    }
+  }
 `;
 
-const ToggleButton = styled(Button)<{ headeroffset?: number }>`
+const ToggleButton = styled(Button)<{
+  open: boolean;
+  headeroffset?: number;
+}>`
   position: fixed;
   top: 0;
   left: 0;
-  width: ${props => props.headeroffset || 50}px;
+  width: ${props =>
+    props.open ? props.theme.sideNav.maxWidth : props.theme.sideNav.minWidth}px;
   height: ${props => props.headeroffset || 50}px;
+  justify-content: flex-end;
+  padding-right: ${props => props.theme.sideNav.minWidth / 2}px;
+  transition: width 0.5s ease-out;
 `;
 
 export const SideNav = (props: SideNavProps) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [open, setopen] = useState(true);
   const select = (item: SideNavItem) => () => {
     props.onSelect(item);
   };
   const renderItems = (items: SideNavItem[]) => {
     return items.map(item => {
+      const icon = (
+        <Icon iconSize={props.iconSize} icon={item.icon as IconName} />
+      );
       return (
         <MenuItem
-          icon={item.icon as IconName}
+          icon={icon}
           active={props.active && item.id === props.active.id}
           key={item.id}
           onClick={select(item)}
-          text={item.text}
+          text={open ? item.text : undefined}
+          tagName="div"
         />
       );
     });
   };
   const toggleCollapse = () => {
-    setIsExpanded(!isExpanded);
+    setopen(!open);
   };
 
   return (
-    <SideNavWrapper isExpanded={isExpanded} headeroffset={props.headeroffset}>
+    <SideNavWrapper open={open} headeroffset={props.headeroffset}>
       <ToggleButton
         headeroffset={props.headeroffset}
         onClick={toggleCollapse}
-        icon={isExpanded ? "cross" : "menu"}
+        rightIcon={open ? "cross" : "menu"}
         minimal
+        open={open}
+        className="sidenav-toggle"
       ></ToggleButton>
-      <Menu>{renderItems(props.items)}</Menu>
+      <Menu large>{renderItems(props.items)}</Menu>
     </SideNavWrapper>
   );
 };
