@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "../../reducers";
-import { fetchActions } from "../../actions/actionActions";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../../constants/routes";
 import { BaseButton } from "../../components/blueprint/ButtonComponent";
@@ -86,22 +85,9 @@ interface ReduxStateProps {
   actions: ActionDataState;
 }
 
-interface ReduxActionProps {
-  fetchActions: () => void;
-  selectAction: (id: string) => void;
-}
-
-type Props = ReduxStateProps &
-  ReduxActionProps &
-  RouteComponentProps<{ id: string }>;
+type Props = ReduxStateProps & RouteComponentProps<{ id: string }>;
 
 class ApiSidebar extends React.Component<Props> {
-  componentDidMount(): void {
-    if (!this.props.actions.data.length) {
-      this.props.fetchActions();
-    }
-  }
-
   handleCreateNew = () => {
     const { history } = this.props;
     history.push(API_EDITOR_URL);
@@ -147,11 +133,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  fetchActions: () => dispatch(fetchActions()),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ApiSidebar);
+export default connect(mapStateToProps)(ApiSidebar);

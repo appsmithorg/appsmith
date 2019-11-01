@@ -13,8 +13,6 @@ import { AppState } from "../../reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
-import { ResourceDataState } from "../../reducers/entityReducers/resourcesReducer";
-import { fetchResources } from "../../actions/resourcesActions";
 import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 import { normalizeApiFormData } from "../../normalizers/ApiFormNormalizer";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
@@ -22,7 +20,6 @@ import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 interface ReduxStateProps {
   actions: ActionDataState;
   formData: any;
-  resources: ResourceDataState;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -32,7 +29,6 @@ interface ReduxActionProps {
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
   destroy: (formName: string) => void;
-  fetchResources: () => void;
 }
 
 type Props = ReduxActionProps &
@@ -41,9 +37,6 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount(): void {
-    if (!this.props.resources.list.length) {
-      this.props.fetchResources();
-    }
     const currentId = this.props.match.params.id;
     if (!currentId) return;
     if (!this.props.actions.data.length) {
@@ -111,7 +104,6 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
-  resources: state.entities.resources,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
@@ -123,7 +115,6 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   initialize: (formName: string, data?: Partial<RestAction>) =>
     dispatch(initialize(formName, data)),
   destroy: (formName: string) => dispatch(destroy(formName)),
-  fetchResources: () => dispatch(fetchResources()),
 });
 
 export default connect(

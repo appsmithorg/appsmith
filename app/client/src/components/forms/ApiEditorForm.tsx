@@ -20,6 +20,8 @@ import { required } from "../../utils/validation/common";
 import { apiPathValidation } from "../../utils/validation/ApiForm";
 
 const Form = styled.form`
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - ${props => props.theme.headerHeight});
   width: 100%;
   ${FormLabel} {
@@ -40,6 +42,7 @@ const Form = styled.form`
 
 const SecondaryWrapper = styled.div`
   display: flex;
+  height: 100%;
   border-top: 1px solid #d0d7dd;
 `;
 

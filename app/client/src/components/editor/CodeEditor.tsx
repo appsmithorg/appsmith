@@ -24,7 +24,6 @@ const CodeEditor = (props: Props) => {
     minimap: { enabled: false },
     readOnly: !props.input.onChange,
   };
-  debugger;
   return (
     <Wrapper height={props.height}>
       <MonacoEditor

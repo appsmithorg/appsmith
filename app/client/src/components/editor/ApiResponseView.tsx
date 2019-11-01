@@ -24,16 +24,6 @@ const ResponseMetaInfo = styled.div`
   }
 `;
 
-const ResponseBodyWrapper = styled.span`
-  max-height: 100%;
-  &&& {
-    textarea,
-    pre {
-      height: 100%;
-      overflow: auto;
-    }
-  }
-`;
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${props =>
     props.code.match(/2\d\d/) ? props.theme.colors.primary : "red"};
@@ -61,10 +51,10 @@ const LoadingScreen = styled.div`
   bottom: 0;
   right: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(255, 255, 255, 0.6);
   pointer-events: none;
   z-index: 1;
-  color: white;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,17 +128,13 @@ const ApiResponseView = (props: Props) => {
             key: "body",
             title: "Response Body",
             panelComponent: (
-              <ResponseBodyWrapper>
-                {response.body && (
-                  <CodeEditor
-                    height={500}
-                    language={"json"}
-                    input={{
-                      value: JSON.stringify(response.body, null, 2),
-                    }}
-                  />
-                )}
-              </ResponseBodyWrapper>
+              <CodeEditor
+                height={500}
+                language={"json"}
+                input={{
+                  value: JSON.stringify(response.body, null, 2),
+                }}
+              />
             ),
           },
           {
