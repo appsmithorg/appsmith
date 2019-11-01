@@ -18,6 +18,7 @@ import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
 import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
 import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
 import { AlertWidgetProps } from "../../widgets/AlertWidget";
+import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -42,6 +43,7 @@ export interface WidgetConfigReducerState {
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
+    FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

@@ -524,6 +524,76 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
         ],
       },
     ],
+    FILE_PICKER_WIDGET: [
+      {
+        sectionName: "General",
+        id: "18",
+        children: [
+          {
+            id: "18.1",
+            propertyName: "label",
+            label: "Label",
+            inputType: "INTEGER",
+            placeholderText: "Enter Label",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "18.2",
+            propertyName: "maxNumFiles",
+            label: "No. of files",
+            placeholderText: "Enter No. of files",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "18.3",
+            propertyName: "allowedFileTypes",
+            label: "Allowed File Types",
+            placeholderText: "Enter No. of files",
+            options: [
+              {
+                label: "Any File",
+                value: "*",
+              },
+              {
+                label: "Images",
+                value: "image/*",
+              },
+              {
+                label: "Videos",
+                value: "video/*",
+              },
+              {
+                label: "Audio",
+                value: "audio/*",
+              },
+              {
+                label: "Text",
+                value: "text/*",
+              },
+              {
+                label: "JPEG",
+                value: "image/jpeg",
+              },
+              {
+                label: "PNG",
+                value: "*.png",
+              },
+              {
+                label: "GIF",
+                value: "*.gif",
+              },
+            ],
+            controlType: "MULTI_SELECT",
+          },
+          {
+            id: "18.4",
+            propertyName: "isVisible",
+            label: "Visibile",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+    ],
   },
   configVersion: 1,
 };

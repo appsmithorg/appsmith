@@ -38,14 +38,20 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
+    const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
+        icon={isSelected ? "tick" : "blank"}
         active={itemProps.modifiers.active}
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
       />
     );
+  };
+
+  isOptionSelected = (selectedOption: DropdownOption) => {
+    return selectedOption.value === this.props.propertyValue;
   };
 
   getControlType(): ControlType {
@@ -55,6 +61,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
 export interface DropDownControlProps extends ControlProps {
   options: DropdownOption[];
+  placeholderText: string;
+  propertyValue: string;
 }
 
 export default DropDownControl;

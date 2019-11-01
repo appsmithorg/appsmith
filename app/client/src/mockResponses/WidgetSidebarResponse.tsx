@@ -69,6 +69,12 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
+      type: "FILE_PICKER_WIDGET",
+      icon: "icon-filepicker",
+      widgetCardName: "FilePicker",
+      key: generateReactKey(),
+    },
+    {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
       widgetCardName: "Button",

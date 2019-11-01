@@ -86,7 +86,6 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       return null;
     }
     const isSelected: boolean = this.isOptionSelected(option);
-    console.log("is selected " + isSelected);
     return (
       <MenuItem
         icon={isSelected ? "tick" : "blank"}
