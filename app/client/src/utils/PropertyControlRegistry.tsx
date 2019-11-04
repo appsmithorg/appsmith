@@ -11,12 +11,18 @@ import SwitchControl, {
 } from "../propertyControls/SwitchControl";
 import OptionControl from "../propertyControls/OptionControl";
 import { ControlProps } from "../propertyControls/BaseControl";
+import CodeEditorControl from "../propertyControls/CodeEditorControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
     PropertyControlFactory.registerControlBuilder("INPUT_TEXT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("CODE_EDITOR", {
+      buildPropertyControl(controlProps: InputControlProps): JSX.Element {
+        return <CodeEditorControl {...controlProps} />;
       },
     });
     PropertyControlFactory.registerControlBuilder("DROP_DOWN", {
