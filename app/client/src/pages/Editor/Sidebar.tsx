@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import SidebarComponent from "../../components/editor/Sidebar";
-import NavBarItem from "../../components/editor/NavBarItem";
+import SidebarComponent from "../../components/editorComponents/Sidebar";
+import NavBarItem from "../../components/editorComponents/NavBarItem";
 import { EDITOR_ROUTES } from "../../constants/routes";
 
 const Wrapper = styled.div`

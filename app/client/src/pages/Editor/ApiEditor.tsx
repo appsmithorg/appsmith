@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { submit, initialize, getFormValues, destroy } from "redux-form";
-import ApiEditorForm from "../../components/forms/ApiEditorForm";
+import ApiEditorForm from "./APIEditor/ApiEditorForm";
 import {
   createActionRequest,
   runAction,

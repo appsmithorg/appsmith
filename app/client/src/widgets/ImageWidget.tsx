@@ -1,7 +1,7 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ImageComponent from "../components/appsmith/ImageComponent";
+import ImageComponent from "../components/designSystems/appsmith/ImageComponent";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   getPageView() {
