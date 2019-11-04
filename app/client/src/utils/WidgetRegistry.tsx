@@ -15,6 +15,9 @@ import ButtonWidget, { ButtonWidgetProps } from "../widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "../widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "../widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "../widgets/TableWidget";
+import FilePickerWidget, {
+  FilePickerWidgetProps,
+} from "../widgets/FilepickerWidget";
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {
@@ -73,6 +76,11 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("TABLE_WIDGET", {
       buildWidget(widgetData: TableWidgetProps): JSX.Element {
         return <TableWidget {...widgetData} />;
+      },
+    });
+    WidgetFactory.registerWidgetBuilder("FILE_PICKER_WIDGET", {
+      buildWidget(widgetData: FilePickerWidgetProps): JSX.Element {
+        return <FilePickerWidget {...widgetData} />;
       },
     });
   }

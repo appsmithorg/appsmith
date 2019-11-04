@@ -92,8 +92,9 @@ class Editor extends Component<EditorProps> {
         >
           <div className={Classes.DIALOG_BODY}>
             <p>
-              Your awesome application is now published with the current
-              changes!
+              {
+                "Your awesome application is now published with the current changes!"
+              }
             </p>
           </div>
           <div className={Classes.DIALOG_FOOTER}>

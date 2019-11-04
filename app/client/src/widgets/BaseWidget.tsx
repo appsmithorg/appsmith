@@ -16,6 +16,7 @@ import DraggableComponent from "../components/editorComponents/DraggableComponen
 import ResizableComponent from "../components/editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
+import shallowequal from "shallowequal";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -116,6 +117,13 @@ abstract class BaseWidget<
         </DraggableComponent>
       );
     }
+  }
+
+  shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
+    const isNotEqual =
+      !shallowequal(nextProps, this.props) ||
+      !shallowequal(nextState, this.state);
+    return isNotEqual;
   }
 
   abstract getWidgetType(): WidgetType;

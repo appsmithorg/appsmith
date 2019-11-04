@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Select } from "@blueprintjs/select";
+import { Select, MultiSelect } from "@blueprintjs/select";
 import { Switch, InputGroup } from "@blueprintjs/core";
 import { DropdownOption } from "../../widgets/DropdownWidget";
 import { ContainerOrientation } from "../../constants/WidgetConstants";
@@ -28,6 +28,15 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
 
 const DropDown = Select.ofType<DropdownOption>();
 export const StyledDropDown = styled(DropDown)`
+  &&& button {
+    background: ${props => props.theme.colors.paneInputBG};
+    color: ${props => props.theme.colors.textOnDarkBG};
+    box-shadow: none;
+  }
+`;
+
+const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
+export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
   &&& button {
     background: ${props => props.theme.colors.paneInputBG};
     color: ${props => props.theme.colors.textOnDarkBG};
