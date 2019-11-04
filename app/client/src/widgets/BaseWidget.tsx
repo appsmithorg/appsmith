@@ -118,9 +118,10 @@ abstract class BaseWidget<
     }
   }
 
-  shouldComponentUpdate(nextProps: WidgetProps) {
-    const isEqual = this.props === nextProps;
-    return !isEqual;
+  shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
+    const isNotEqual =
+      !_.isEqual(this.props, nextProps) || !_.isEqual(this.state, nextState);
+    return isNotEqual;
   }
 
   abstract getWidgetType(): WidgetType;

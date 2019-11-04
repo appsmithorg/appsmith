@@ -53,7 +53,6 @@ const propertyPaneConfigReducer = createReducer(initialState, {
     state: PropertyPaneConfigState,
     action: ReduxAction<PropertyPaneConfigState>,
   ) => {
-    return { ...PropertyPaneConfigResponse };
     return { ...action.payload };
   },
 });
