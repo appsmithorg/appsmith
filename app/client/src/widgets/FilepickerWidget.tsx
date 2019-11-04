@@ -1,12 +1,12 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import FilePickerComponent from "../components/appsmith/FilePickerComponent";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
+import FilePickerComponent from "../components/designSystems/appsmith/FilePickerComponent";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
