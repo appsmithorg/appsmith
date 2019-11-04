@@ -2,14 +2,12 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +21,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RestApiPlugin extends BasePlugin {
 
@@ -58,18 +55,11 @@ public class RestApiPlugin extends BasePlugin {
             WebClient.Builder webClientBuilder = WebClient.builder().baseUrl(url);
 
             if (resourceConfiguration.getHeaders() != null) {
-                List<Property> headers = resourceConfiguration.getHeaders();
-                for (Property header : headers) {
-
-                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
-                }
+                addHeadersToRequest(webClientBuilder, resourceConfiguration.getHeaders());
             }
 
             if (actionConfiguration.getHeaders() != null) {
-                List<Property> headers = actionConfiguration.getHeaders();
-                for (Property header : headers) {
-                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
-                }
+                addHeadersToRequest(webClientBuilder, actionConfiguration.getHeaders());
             }
 
             return webClientBuilder
@@ -112,6 +102,14 @@ public class RestApiPlugin extends BasePlugin {
         @Override
         public void resourceDestroy(Object connection) {
 
+        }
+
+        private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {
+            for (Property header : headers) {
+                if (header.getKey() != null && !header.getKey().isEmpty()) {
+                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
+                }
+            }
         }
     }
 }
