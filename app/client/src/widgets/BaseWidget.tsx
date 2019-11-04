@@ -101,7 +101,6 @@ abstract class BaseWidget<
 
   getCanvasView(): JSX.Element {
     const style = this.getPositionStyle();
-    console.log("get canvas " + this.props.widgetName);
     if (!this.props.parentId) {
       return this.getPageView();
     } else {
