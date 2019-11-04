@@ -334,12 +334,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Enter Table Label",
             controlType: "INPUT_TEXT",
           },
-          {
-            id: "11.2",
-            propertyName: "tableData",
-            label: "Enter data array",
-            controlType: "INPUT_TEXT",
-          },
+          // {
+          //   id: "11.2",
+          //   propertyName: "tableData",
+          //   label: "Enter data array",
+          //   controlType: "INPUT_TEXT",
+          // },
           {
             id: "11.3",
             propertyName: "nextPageKey",
@@ -357,6 +357,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "isVisible",
             label: "Visibile",
             controlType: "SWITCH",
+          },
+          {
+            id: "11.6",
+            propertyName: "tableData",
+            label: "Enter data array",
+            controlType: "CODE_EDITOR",
           },
         ],
       },

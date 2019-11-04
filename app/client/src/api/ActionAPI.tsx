@@ -59,7 +59,7 @@ export interface RestAction {
 
 export interface ExecuteActionRequest extends APIRequest {
   actionId: string;
-  dynamicBindingList?: Property[];
+  params?: Property[];
 }
 
 export interface ExecuteActionResponse extends ApiResponse {

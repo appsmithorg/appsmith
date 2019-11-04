@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import TextComponent from "../components/blueprint/TextComponent";
+import TextComponent from "../components/designSystems/blueprint/TextComponent";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {

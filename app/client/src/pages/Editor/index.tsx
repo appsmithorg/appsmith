@@ -17,6 +17,7 @@ import {
   PageListPayload,
 } from "../../constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
+import { initAppData } from "../../actions/initActions";
 
 type EditorProps = {
   currentPageName: string;
@@ -26,8 +27,8 @@ type EditorProps = {
   currentPageId: string;
   publishApplication: Function;
   previewPage: Function;
+  initData: Function;
   createPage: Function;
-  fetchPageList: Function;
   pages: PageListPayload;
   switchPage: (pageId: string) => void;
   isPublishing: boolean;
@@ -40,7 +41,7 @@ class Editor extends Component<EditorProps> {
   };
 
   componentDidMount() {
-    this.props.fetchPageList();
+    this.props.initData();
   }
   componentDidUpdate(currently: EditorProps) {
     const previously = this.props;
@@ -123,6 +124,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    initData: () => dispatch(initAppData()),
     publishApplication: (applicationId: string) => {
       dispatch({
         type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
@@ -147,11 +149,6 @@ const mapDispatchToProps = (dispatch: any) => {
           applicationId,
           name,
         },
-      });
-    },
-    fetchPageList: () => {
-      dispatch({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
       });
     },
     switchPage: (pageId: string) => {

@@ -2,24 +2,30 @@ import React from "react";
 import PropertyControlFactory from "./PropertyControlFactory";
 import InputTextControl, {
   InputControlProps,
-} from "../propertyControls/InputTextControl";
+} from "../components/propertyControls/InputTextControl";
 import DropDownControl, {
   DropDownControlProps,
-} from "../propertyControls/DropDownControl";
+} from "../components/propertyControls/DropDownControl";
 import SwitchControl, {
   SwitchControlProps,
-} from "../propertyControls/SwitchControl";
-import OptionControl from "../propertyControls/OptionControl";
-import { ControlProps } from "../propertyControls/BaseControl";
+} from "../components/propertyControls/SwitchControl";
+import OptionControl from "../components/propertyControls/OptionControl";
+import { ControlProps } from "../components/propertyControls/BaseControl";
+import CodeEditorControl from "../components/propertyControls/CodeEditorControl";
 import MultiSelectControl, {
   MultiSelectControlProps,
-} from "../propertyControls/MultiSelectControl";
+} from "../components/propertyControls/MultiSelectControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
     PropertyControlFactory.registerControlBuilder("INPUT_TEXT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("CODE_EDITOR", {
+      buildPropertyControl(controlProps: InputControlProps): JSX.Element {
+        return <CodeEditorControl {...controlProps} />;
       },
     });
     PropertyControlFactory.registerControlBuilder("DROP_DOWN", {

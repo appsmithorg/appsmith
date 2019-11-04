@@ -1,5 +1,4 @@
 import { FetchPageRequest } from "../api/PageApi";
-import { RenderMode } from "../constants/WidgetConstants";
 import { WidgetProps, WidgetOperation } from "../widgets/BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import {
@@ -11,10 +10,11 @@ import {
 } from "../constants/ReduxActionConstants";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 
-export const fetchPage = (
-  pageId: string,
-  renderMode: RenderMode,
-): ReduxAction<FetchPageRequest> => {
+export const fetchPageList = () => ({
+  type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
+});
+
+export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE,
     payload: {
@@ -93,9 +93,9 @@ export type WidgetMove = {
   topRow: number;
   parentId: string;
   /*
-    If newParentId is different from what we have in redux store, 
+    If newParentId is different from what we have in redux store,
     then we have to delete this,
-    as it has been dropped in another container somewhere.    
+    as it has been dropped in another container somewhere.
   */
   newParentId: string;
 };
