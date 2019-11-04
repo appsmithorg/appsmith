@@ -15,6 +15,7 @@ public enum AppsmithError {
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Pleaes input correct page id"),
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization"),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation"),
+    ACTION_RUN_KEY_VALUE_INVALID(400, 4008, "Invalid template param key value pair: {0}:{1}"),
     UNAUTHORIZED_DOMAIN(401, 4001, "Invalid email domain provided. Please sign in with a valid work email ID"),
     UNAUTHORIZED_ACCESS(401, 4002, "Unauthorized access"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),

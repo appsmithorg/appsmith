@@ -34,6 +34,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -125,11 +126,19 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         String actionId = executeActionDTO.getActionId();
 
-        // 1. Fetch the query from the DB to get the type
+        // 1. Validate input parameters which are required for mustache replacements
+        List<Param> params = executeActionDTO.getParams();
+        for (Param param:params) {
+            if (param.getValue() == null) {
+                return Mono.error(new AppsmithException(AppsmithError.ACTION_RUN_KEY_VALUE_INVALID, param.getKey(), param.getValue()));
+            }
+        }
+
+        // 2. Fetch the query from the DB to get the type
         Mono<Action> actionMono = repository.findById(actionId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", actionId)));
 
-        // 2. Instantiate the implementation class based on the query type
+        // 3. Instantiate the implementation class based on the query type
         Mono<Plugin> pluginMono = actionMono.flatMap(action -> pluginService.findById(action.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin")));
 
@@ -146,7 +155,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         );
 
 
-        // 3. Execute the query
+        // 4. Execute the query
         return actionMono
                 .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
                     ResourceConfiguration resourceConfiguration;
