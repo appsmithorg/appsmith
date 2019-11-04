@@ -9,6 +9,7 @@ export type WidgetType =
   | "DROP_DOWN_WIDGET"
   | "CHECKBOX_WIDGET"
   | "RADIO_GROUP_WIDGET"
+  | "FILE_PICKER_WIDGET"
   | "INPUT_WIDGET"
   | "SWITCH_WIDGET";
 

@@ -12,6 +12,9 @@ import SwitchControl, {
 import OptionControl from "../components/propertyControls/OptionControl";
 import { ControlProps } from "../components/propertyControls/BaseControl";
 import CodeEditorControl from "../components/propertyControls/CodeEditorControl";
+import MultiSelectControl, {
+  MultiSelectControlProps,
+} from "../components/propertyControls/MultiSelectControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
@@ -28,6 +31,11 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("DROP_DOWN", {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return <DropDownControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("MULTI_SELECT", {
+      buildPropertyControl(controlProps: MultiSelectControlProps): JSX.Element {
+        return <MultiSelectControl {...controlProps} />;
       },
     });
     PropertyControlFactory.registerControlBuilder("SWITCH", {
