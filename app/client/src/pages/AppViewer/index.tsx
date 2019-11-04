@@ -17,8 +17,8 @@ import { WidgetProps } from "../../widgets/BaseWidget";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
 import AppPage from "./AppPage";
-import SideNav, { SideNavItem } from "../../components/viewer/SideNav";
-import AppViewerHeader from "../../components/viewer/AppViewerHeader";
+import SideNav, { SideNavItem } from "./viewer/SideNav";
+import AppViewerHeader from "./viewer/AppViewerHeader";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};

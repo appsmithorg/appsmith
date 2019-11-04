@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import CheckboxComponent from "../components/blueprint/CheckboxComponent";
+import CheckboxComponent from "../components/designSystems/blueprint/CheckboxComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {

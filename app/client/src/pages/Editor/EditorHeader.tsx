@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
-import DropdownComponent from "../../components/editor/DropdownComponent";
+import DropdownComponent from "../../components/editorComponents/DropdownComponent";
 import { PageListPayload } from "../../constants/ReduxActionConstants";
-import { DropdownOption } from "../../common/DropdownOption";
-import { BaseButton } from "../../components/blueprint/ButtonComponent";
-import StyledHeader from "../../components/appsmith/StyledHeader";
+import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
+import StyledHeader from "../../components/designSystems/appsmith/StyledHeader";
+import { DropdownOption } from "../../widgets/DropdownWidget";
 
 const PageSelector = styled(DropdownComponent)`
   flex: 2;

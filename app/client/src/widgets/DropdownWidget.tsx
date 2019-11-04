@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import { ActionPayload } from "../constants/ActionConstants";
-import DropDownComponent from "../components/blueprint/DropdownComponent";
+import DropDownComponent from "../components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import RadioGroupComponent from "../components/blueprint/RadioGroupComponent";
+import RadioGroupComponent from "../components/designSystems/blueprint/RadioGroupComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {

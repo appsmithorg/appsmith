@@ -24,7 +24,7 @@ import { AppState } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
 import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
-import AppToaster from "../components/editor/ToastComponent";
+import AppToaster from "../components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "../api/ApiResponses";
 import { API_EDITOR_FORM_NAME } from "../constants/forms";
 import {

@@ -2,16 +2,16 @@ import React from "react";
 import PropertyControlFactory from "./PropertyControlFactory";
 import InputTextControl, {
   InputControlProps,
-} from "../propertyControls/InputTextControl";
+} from "../components/propertyControls/InputTextControl";
 import DropDownControl, {
   DropDownControlProps,
-} from "../propertyControls/DropDownControl";
+} from "../components/propertyControls/DropDownControl";
 import SwitchControl, {
   SwitchControlProps,
-} from "../propertyControls/SwitchControl";
-import OptionControl from "../propertyControls/OptionControl";
-import { ControlProps } from "../propertyControls/BaseControl";
-import CodeEditorControl from "../propertyControls/CodeEditorControl";
+} from "../components/propertyControls/SwitchControl";
+import OptionControl from "../components/propertyControls/OptionControl";
+import { ControlProps } from "../components/propertyControls/BaseControl";
+import CodeEditorControl from "../components/propertyControls/CodeEditorControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
