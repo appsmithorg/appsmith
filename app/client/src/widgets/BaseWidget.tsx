@@ -101,6 +101,7 @@ abstract class BaseWidget<
 
   getCanvasView(): JSX.Element {
     const style = this.getPositionStyle();
+    console.log("get canvas " + this.props.widgetName);
     if (!this.props.parentId) {
       return this.getPageView();
     } else {
@@ -116,6 +117,11 @@ abstract class BaseWidget<
         </DraggableComponent>
       );
     }
+  }
+
+  shouldComponentUpdate(nextProps: WidgetProps) {
+    const isEqual = this.props === nextProps;
+    return !isEqual;
   }
 
   abstract getWidgetType(): WidgetType;

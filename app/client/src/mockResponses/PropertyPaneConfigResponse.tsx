@@ -453,13 +453,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             controlType: "SWITCH",
           },
           {
-            id: "13.5",
+            id: "15.3",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
           },
           {
-            id: "13.5",
+            id: "15.4",
             propertyName: "isVisible",
             label: "Visibile",
             controlType: "SWITCH",
@@ -504,7 +504,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             controlType: "OPTION_INPUT",
           },
           {
-            id: "13.5",
+            id: "16.4",
             propertyName: "isVisible",
             label: "Visibile",
             controlType: "SWITCH",
