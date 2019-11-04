@@ -129,6 +129,7 @@ const ApiResponseView = (props: Props) => {
             title: "Response Body",
             panelComponent: (
               <CodeEditor
+                theme={"LIGHT"}
                 height={500}
                 language={"json"}
                 input={{

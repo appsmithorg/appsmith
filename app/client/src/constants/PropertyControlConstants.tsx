@@ -14,4 +14,5 @@ export type ControlType =
   | "IMAGE_PICKER"
   | "SHAPE_PICKER"
   | "VALIDATION_INPUT"
-  | "ZOOM";
+  | "ZOOM"
+  | "CODE_EDITOR";
