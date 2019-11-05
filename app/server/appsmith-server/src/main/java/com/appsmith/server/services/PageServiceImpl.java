@@ -119,6 +119,6 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     @Override
     public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
-        return repository.findPageNameIdDtoByApplicationId(applicationId);
+        return repository.findByApplicationId(applicationId);
     }
 }
