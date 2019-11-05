@@ -24,6 +24,8 @@ public class Action extends BaseDomain {
 
     String pageId;
 
+    String collectionId;
+
     ActionConfiguration actionConfiguration;
 
     // This is a list of keys that the client whose values the client needs to send during action execution.

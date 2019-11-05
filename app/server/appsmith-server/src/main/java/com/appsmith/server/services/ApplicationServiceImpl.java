@@ -146,7 +146,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return applicationMono
                 //Return all the pages in the Application
-                .map(application -> application.getPages())
+                .map(application -> {
+                    List<ApplicationPage> pages = application.getPages();
+                    if (pages == null) {
+                        pages = new ArrayList<>();
+                    }
+                    return pages;
+                })
                 .flatMapMany(Flux::fromIterable)
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> pageRepository
