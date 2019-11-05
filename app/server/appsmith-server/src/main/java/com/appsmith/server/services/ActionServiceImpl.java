@@ -128,9 +128,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
-        for (Param param:params) {
-            if (param.getValue() == null) {
-                return Mono.error(new AppsmithException(AppsmithError.ACTION_RUN_KEY_VALUE_INVALID, param.getKey(), param.getValue()));
+        if (params != null && !params.isEmpty()) {
+            for (Param param:params) {
+                if (param.getValue() == null) {
+                    return Mono.error(new AppsmithException(AppsmithError.ACTION_RUN_KEY_VALUE_INVALID, param.getKey(), param.getValue()));
+                }
             }
         }
 
