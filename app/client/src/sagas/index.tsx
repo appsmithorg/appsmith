@@ -7,8 +7,12 @@ import errorSagas from "./ErrorSagas";
 import configsSagas from "./ConfigsSagas";
 import applicationSagas from "./ApplicationSagas";
 import { watchResourcesSagas } from "./ResourcesSagas";
+import initSagas from "./InitSagas";
+import bindingsSagas from "./BindingsSagas";
+
 export function* rootSaga() {
   yield all([
+    spawn(initSagas),
     spawn(pageSagas),
     spawn(fetchWidgetCardsSaga),
     spawn(watchActionSagas),
@@ -17,5 +21,6 @@ export function* rootSaga() {
     spawn(configsSagas),
     spawn(watchResourcesSagas),
     spawn(applicationSagas),
+    spawn(bindingsSagas),
   ]);
 }

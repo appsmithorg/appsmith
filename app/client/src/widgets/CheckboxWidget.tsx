@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import CheckboxComponent from "../components/blueprint/CheckboxComponent";
+import CheckboxComponent from "../components/designSystems/blueprint/CheckboxComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
@@ -13,9 +13,19 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
+        isDisabled={this.props.isDisabled}
+        onCheckChange={this.onCheckChange}
       />
     );
   }
+
+  onCheckChange = (isChecked: boolean) => {
+    this.context.updateWidgetProperty(
+      this.props.widgetId,
+      "isChecked",
+      isChecked,
+    );
+  };
 
   getWidgetType(): WidgetType {
     return "CHECKBOX_WIDGET";
@@ -25,6 +35,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 export interface CheckboxWidgetProps extends WidgetProps {
   label: string;
   defaultCheckedState: boolean;
+  isChecked?: boolean;
+  isDisabled?: boolean;
   onCheckChange?: ActionPayload[];
 }
 

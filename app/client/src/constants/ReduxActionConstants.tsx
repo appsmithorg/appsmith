@@ -2,6 +2,7 @@ import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 import { RefObject } from "react";
 
 export const ReduxActionTypes: { [key: string]: string } = {
+  INIT_APP_DATA: "INIT_APP_DATA",
   REPORT_ERROR: "REPORT_ERROR",
   FLUSH_ERRORS: "FLUSH_ERRORS",
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -64,11 +65,14 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
   FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
   INITIALIZE_PAGE_VIEWER: "INITIALIZE_PAGE_VIEWER",
+  CREATE_UPDATE_BINDINGS_MAP_INIT: "CREATE_UPDATE_BINDINGS_MAP_INIT",
+  CREATE_UPDATE_BINDINGS_MAP_SUCCESS: "CREATE_UPDATE_BINDINGS_MAP_SUCCESS",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
+  INIT_APP_DATA_ERROR: "INIT_APP_DATA_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
@@ -100,6 +104,8 @@ export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
 }
+
+export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionErrorPayload {
   message: string;

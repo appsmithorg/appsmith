@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { AppState } from "../../reducers";
 import PropertyControlFactory from "../../utils/PropertyControlFactory";
 import _ from "lodash";
-import { ControlProps } from "../../propertyControls/BaseControl";
 import { PropertySection } from "../../reducers/entityReducers/propertyPaneConfigReducer";
 import { updateWidgetProperty } from "../../actions/controlActions";
 import {
@@ -16,6 +15,7 @@ import {
 } from "../../selectors/propertyPaneSelectors";
 
 import Popper from "./Popper";
+import { ControlProps } from "../../components/propertyControls/BaseControl";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;

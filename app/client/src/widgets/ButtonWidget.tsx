@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent from "../components/blueprint/ButtonComponent";
+import ButtonComponent from "../components/designSystems/blueprint/ButtonComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
@@ -22,8 +22,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
         style={this.getPositionStyle()}
         buttonStyle={this.props.buttonStyle}
         widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
         key={this.props.widgetId}
+        widgetName={this.props.widgetName}
         text={this.props.text}
         disabled={this.props.isDisabled}
         onClick={this.onButtonClickBound}
