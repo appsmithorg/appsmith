@@ -15,6 +15,7 @@ import CodeEditorControl from "../components/propertyControls/CodeEditorControl"
 import MultiSelectControl, {
   MultiSelectControlProps,
 } from "../components/propertyControls/MultiSelectControl";
+import ActionSelectorControl from "../components/propertyControls/ActionSelector";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
@@ -46,6 +47,11 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("OPTION_INPUT", {
       buildPropertyControl(controlProps: ControlProps): JSX.Element {
         return <OptionControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("ACTION_SELECTOR", {
+      buildPropertyControl(controlProps: ControlProps): JSX.Element {
+        return <ActionSelectorControl {...controlProps} />;
       },
     });
   }
