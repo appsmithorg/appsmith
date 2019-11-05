@@ -1,13 +1,14 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -30,5 +31,6 @@ public class Action extends BaseDomain {
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
-    List<String> jsonPathKeys;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Set<String> jsonPathKeys;
 }
