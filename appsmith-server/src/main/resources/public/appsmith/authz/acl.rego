@@ -62,6 +62,9 @@ allowed_operations = [
     {"method": "POST", "resource": "collections", "permission": "create:collections"},
     {"method": "PUT", "resource": "collections", "permission": "update:collections"},
 
+    {"method": "GET", "resource": "datasources", "permission": "read:datasources"},
+    {"method": "POST", "resource": "datasources", "permission": "create:datasources"},
+    {"method": "PUT", "resource": "datasources", "permission": "update:datasources"}
 ]
 
 
