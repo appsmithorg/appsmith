@@ -4,12 +4,9 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "../../constants/ReduxActionConstants";
-import _ from "lodash";
-import { PageAction } from "../../constants/ActionConstants";
 import { RestAction } from "../../api/ActionAPI";
 
 const initialState: ActionDataState = {
-  list: {},
   data: [],
   isFetching: false,
   isRunning: false,
@@ -18,9 +15,6 @@ const initialState: ActionDataState = {
 };
 
 export interface ActionDataState {
-  list: {
-    [name: string]: PageAction;
-  };
   data: RestAction[];
   isFetching: boolean;
   isRunning: boolean;
@@ -29,15 +23,6 @@ export interface ActionDataState {
 }
 
 const actionsReducer = createReducer(initialState, {
-  [ReduxActionTypes.LOAD_CANVAS_ACTIONS]: (
-    state: ActionDataState,
-    action: ReduxAction<PageAction[]>,
-  ) => {
-    const actionMap = _.mapKeys(action.payload, (action: PageAction) => {
-      return action.id;
-    });
-    return { ...state, list: { ...actionMap } };
-  },
   [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ActionDataState) => ({
     ...state,
     isFetching: true,

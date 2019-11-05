@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
-import InputComponent from "../components/blueprint/InputComponent";
+import InputComponent from "../components/designSystems/blueprint/InputComponent";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   regex = new RegExp("");
@@ -33,18 +33,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const errorMessage =
+      this.props.regex &&
+      this.props.text &&
+      this.props.text.length > 0 &&
+      !this.regex.test(this.props.text)
+        ? this.props.errorMessage
+        : undefined;
     return (
       <InputComponent
         onValueChange={this.onValueChange}
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
-        errorMessage={
-          this.props.regex &&
-          this.props.text &&
-          !this.regex.test(this.props.text)
-            ? this.props.errorMessage
-            : undefined
-        }
+        errorMessage={errorMessage}
         inputType={this.props.inputType}
         disabled={this.props.isDisabled}
         maxChars={this.props.maxChars}

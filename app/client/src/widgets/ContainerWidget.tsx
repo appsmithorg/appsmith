@@ -1,14 +1,14 @@
 import React, { createContext, Context } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import ContainerComponent from "../components/appsmith/ContainerComponent";
+import ContainerComponent from "../components/designSystems/appsmith/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
 import WidgetFactory from "../utils/WidgetFactory";
 import _ from "lodash";
 import { Color } from "../constants/Colors";
-import DropTargetComponent from "../components/editor/DropTargetComponent";
+import DropTargetComponent from "../components/editorComponents/DropTargetComponent";
 import { GridDefaults } from "../constants/WidgetConstants";
-import DraggableComponent from "../components/editor/DraggableComponent";
-import ResizableComponent from "../components/editor/ResizableComponent";
+import DraggableComponent from "../components/editorComponents/DraggableComponent";
+import ResizableComponent from "../components/editorComponents/ResizableComponent";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
 export const OccupiedSpaceContext: Context<

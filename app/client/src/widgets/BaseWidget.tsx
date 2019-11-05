@@ -10,12 +10,13 @@ import {
   CSSUnits,
 } from "../constants/WidgetConstants";
 import React, { Component } from "react";
-import { BaseStyle } from "../components/appsmith/BaseComponent";
+import { BaseStyle } from "../components/designSystems/appsmith/BaseComponent";
 import _ from "lodash";
-import DraggableComponent from "../components/editor/DraggableComponent";
-import ResizableComponent from "../components/editor/ResizableComponent";
+import DraggableComponent from "../components/editorComponents/DraggableComponent";
+import ResizableComponent from "../components/editorComponents/ResizableComponent";
 import { ActionPayload } from "../constants/ActionConstants";
 import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
+import shallowequal from "shallowequal";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -116,6 +117,13 @@ abstract class BaseWidget<
         </DraggableComponent>
       );
     }
+  }
+
+  shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
+    const isNotEqual =
+      !shallowequal(nextProps, this.props) ||
+      !shallowequal(nextState, this.state);
+    return isNotEqual;
   }
 
   abstract getWidgetType(): WidgetType;

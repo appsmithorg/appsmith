@@ -1,10 +1,18 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
+import ImageComponent from "../components/designSystems/appsmith/ImageComponent";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   getPageView() {
-    return <div />;
+    return (
+      <ImageComponent
+        widgetId={this.props.widgetId}
+        style={this.getPositionStyle()}
+        imageUrl={this.props.image}
+        defaultImageUrl={this.props.defaultImage}
+      />
+    );
   }
 
   getWidgetType(): WidgetType {

@@ -42,6 +42,8 @@ export type Theme = {
     maxWidth: number;
     bgColor: Color;
     fontColor: Color;
+    activeItemBGColor: Color;
+    navItemHeight: number;
   };
 };
 
@@ -65,7 +67,7 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
-  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30],
+  spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
   fontWeights: [0, 400, 500, 700],
   propertyPane: {
     width: 250,
@@ -129,6 +131,8 @@ export const theme: Theme = {
     minWidth: 50,
     bgColor: Colors.OXFORD_BLUE,
     fontColor: Colors.WHITE,
+    activeItemBGColor: Colors.SHARK,
+    navItemHeight: 42,
   },
 };
 

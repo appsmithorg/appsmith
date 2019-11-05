@@ -23,7 +23,8 @@
     "noEmit": true,
     "jsx": "react",
     "downlevelIteration": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "typeRoots" : ["./typings", "./node_modules/@types"]
   },
   "include": [
     "./src/**/*"

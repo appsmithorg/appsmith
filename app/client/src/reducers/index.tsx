@@ -14,6 +14,7 @@ import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 import { ResourceDataState } from "./entityReducers/resourcesReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
+import { BindingsDataState } from "./entityReducers/bindingsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -39,5 +40,6 @@ export interface AppState {
     propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
     resources: ResourceDataState;
+    nameBindings: BindingsDataState;
   };
 }

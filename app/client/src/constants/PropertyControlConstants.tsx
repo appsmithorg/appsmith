@@ -6,6 +6,7 @@ export type ControlType =
   | "CHECKBOX"
   | "DATE_PICKER"
   | "DROP_DOWN"
+  | "MULTI_SELECT"
   | "COLOR_PICKER"
   | "TIMEZONE_PICKER"
   | "ACTION_SELECTOR"
@@ -14,4 +15,5 @@ export type ControlType =
   | "IMAGE_PICKER"
   | "SHAPE_PICKER"
   | "VALIDATION_INPUT"
-  | "ZOOM";
+  | "ZOOM"
+  | "CODE_EDITOR";
