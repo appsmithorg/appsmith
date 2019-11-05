@@ -18,4 +18,5 @@ public interface Url {
     String GROUP_URL = BASE_URL + VERSION + "/groups";
     String PERMISSION_URL = BASE_URL + VERSION + "/permissions";
     String SIGNUP_URL = BASE_URL + VERSION + "/signup";
+    String COLLECTION_URL = BASE_URL + VERSION + "/collections";
 }

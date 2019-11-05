@@ -190,6 +190,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(obj -> obj);
     }
 
+    @Override
+    public Mono<Action> save(Action action) {
+        return repository.save(action);
+    }
+
 
     /**
      * This function replaces the variables in the Object with the actual params
