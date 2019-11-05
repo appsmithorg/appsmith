@@ -1,4 +1,5 @@
 import { AlertType, MessageIntent } from "../widgets/AlertWidget";
+import { DropdownOption } from "../widgets/DropdownWidget";
 
 export type EventType =
   | "ON_CLICK"
@@ -20,6 +21,21 @@ export type ActionType =
   | "JS_FUNCTION"
   | "SET_VALUE"
   | "DOWNLOAD";
+
+export enum ActionType1 {
+  "API",
+  "QUERY",
+  "NAVIGATION",
+  "ALERT",
+  "JS_FUNCTION",
+  "SET_VALUE",
+  "DOWNLOAD",
+}
+
+export const PropertyPaneActionDropdownOptions: DropdownOption[] = [
+  { label: "Call API", value: "API" },
+  // { label: "Run Query", value: "QUERY" },
+];
 
 export interface ActionPayload {
   actionId: string;
