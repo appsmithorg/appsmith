@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PageRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -113,5 +115,10 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Mono<Void> deleteAll() {
         return repository.deleteAll();
+    }
+
+    @Override
+    public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
+        return repository.findPageNameIdDtoByApplicationId(applicationId);
     }
 }
