@@ -27,7 +27,7 @@ export const FORM_INITIAL_VALUES = {
         value: "",
       },
     ],
-    body: "{}",
+    body: null,
   },
 };
 
