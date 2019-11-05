@@ -14,5 +14,5 @@ public interface PageRepository extends BaseRepository<Page, String> {
 
     Mono<Void> deleteAll();
 
-    Flux<PageNameIdDTO> findPageNameIdDtoByApplicationId(String applicationId);
+    Flux<PageNameIdDTO> findByApplicationId(String applicationId);
 }
