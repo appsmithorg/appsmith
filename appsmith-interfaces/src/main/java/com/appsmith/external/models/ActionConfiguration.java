@@ -31,7 +31,7 @@ public class ActionConfiguration {
     String path;
     List<Property> headers;
     List<Property> queryParameters;
-    Map<String, Object> body;
+    String body;
     HttpMethod httpMethod;
 
     // DB action fields
