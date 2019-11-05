@@ -6,6 +6,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ResourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
@@ -15,6 +16,7 @@ import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -34,10 +36,16 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Slf4j
 @Service
@@ -50,6 +58,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PluginManager pluginManager;
     private final ObjectMapper objectMapper;
     private final ResourceContextService resourceContextService;
+
+    // This regex matches mustache template keys of the form {{somekey}}
+    private final Pattern pattern = Pattern.compile("\\{\\{\\s*([^{}]+)\\s*}}");
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -74,6 +85,40 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.resourceContextService = resourceContextService;
     }
 
+    /**
+     * This function updates an existing action in the DB. We are completely overriding the base update function to
+     * ensure that we can populate the JsonPathKeys field in the ActionConfiguration based on any changes that may
+     * have happened in the action object.
+     * <p>
+     * Calling the base function would make redundant DB calls and slow down this API unnecessarily.
+     *
+     * @param id
+     * @param action
+     * @return
+     */
+    @Override
+    public Mono<Action> update(String id, Action action) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)))
+                .map(dbAction -> {
+                    copyNewFieldValuesIntoOldObject(action, dbAction);
+                    return dbAction;
+                })
+                .map(act -> extractAndSetJsonPathKeys(act))
+                .flatMap(repository::save)
+                .map(act -> {
+                            analyticsService
+                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
+                                            act);
+                            return act;
+                        }
+                );
+    }
+
     @Override
     public Mono<Action> create(@NotNull Action action) {
         if (action.getId() != null) {
@@ -92,9 +137,60 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .map(plugin -> {
                     action.setPluginId(plugin.getId());
                     return action;
-                })
+                }).map(act -> extractAndSetJsonPathKeys(act))
                 .flatMap(super::create)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)));
+    }
+
+    private Set<String> extractMustacheKeys(String template) {
+        if (template == null || template.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        Matcher matcher = pattern.matcher(template);
+
+        if (matcher.groupCount() > 0) {
+            Set<String> collect = matcher.results()
+                    .map(result -> result.group(1))
+                    .collect(Collectors.toSet());
+            return collect;
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * This function extracts all the mustache template keys (as per the regex) and returns them to the calling fxn
+     * This set of keys is stored separately in the field `jsonPathKeys` in the action object. The client
+     * uses the set `jsonPathKeys` to simplify it's value substitution.
+     *
+     * @param action
+     * @return
+     */
+    private Set<String> extractKeysFromAction(Action action) {
+        if(action.getActionConfiguration() == null) {
+            return new HashSet<>();
+        }
+
+        // Convert the object to String as a preparation to send it to mustache extraction
+        try {
+            String actionConfigStr = objectMapper.writeValueAsString(action.getActionConfiguration());
+            return extractMustacheKeys(actionConfigStr);
+        } catch (JsonProcessingException e) {
+            log.error("Exception caught while extracting mustache keys from action configuration. ", e);
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * This function extracts the mustache keys and sets them in the field jsonPathKeys in the action object
+     *
+     * @param action
+     * @return
+     */
+    private Action extractAndSetJsonPathKeys(Action action) {
+        Set<String> keys = extractKeysFromAction(action);
+        action.setJsonPathKeys(keys);
+        return action;
     }
 
     public Mono<Page> bindPageToAction(Action action, String pageId) {
@@ -208,7 +304,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             objectInJsonString = mustacheReplacement(objectInJsonString, configuration.getClass().getSimpleName(), replaceParamsMap);
             return objectMapper.readValue(objectInJsonString, configuration.getClass());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception caught while substituting values in mustache template.", e);
         }
         return configuration;
     }

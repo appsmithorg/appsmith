@@ -39,10 +39,7 @@ public class RestApiPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Object connection,
                                                    ResourceConfiguration resourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
-            Map<String, Object> requestBody = actionConfiguration.getBody();
-            if (requestBody == null) {
-                requestBody = (Map<String, Object>) new HashMap<String, Object>();
-            }
+            String requestBody = actionConfiguration.getBody();
 
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = resourceConfiguration.getUrl() + path;
