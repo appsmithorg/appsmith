@@ -14,7 +14,6 @@ import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
-import { normalizeApiFormData } from "../../normalizers/ApiFormNormalizer";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 
 interface ReduxStateProps {
@@ -65,11 +64,10 @@ class ApiEditor extends React.Component<Props> {
 
   handleSubmit = (values: RestAction) => {
     const { formData } = this.props;
-    const data = normalizeApiFormData(formData);
-    if (data.id) {
-      this.props.updateAction(data);
+    if (formData.id) {
+      this.props.updateAction(formData);
     } else {
-      this.props.createAction(data);
+      this.props.createAction(formData);
     }
   };
 

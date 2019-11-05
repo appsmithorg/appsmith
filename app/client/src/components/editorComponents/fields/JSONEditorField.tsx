@@ -9,9 +9,6 @@ const JSONEditorField = (props: { name: string }) => {
       component={CodeEditor}
       height={500}
       language={"json"}
-      format={(value: string | object) =>
-        typeof value === "string" ? value : JSON.stringify(value, null, 2)
-      }
       placeholder="Input post body here"
     />
   );
