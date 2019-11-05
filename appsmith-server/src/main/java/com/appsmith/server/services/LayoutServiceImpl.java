@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,8 +80,10 @@ public class LayoutServiceImpl implements LayoutService {
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
+                            JSONObject publishedDsl = storedLayout.getPublishedDsl();
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
+                            storedLayout.setPublishedDsl(publishedDsl);
                             break;
                         }
                     }
