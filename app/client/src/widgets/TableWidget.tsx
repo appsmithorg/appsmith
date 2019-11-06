@@ -33,7 +33,11 @@ function constructColumns(data: object[]): Column[] {
 function parseTableArray(parsable: string): object[] {
   let data: object[] = [];
   try {
-    data = JSON.parse(parsable);
+    const parsedData = JSON.parse(parsable);
+    if (!Array.isArray(parsedData)) {
+      throw new Error("Parsed Data is an object");
+    }
+    data = parsedData;
   } catch (ex) {
     console.log(ex);
   }

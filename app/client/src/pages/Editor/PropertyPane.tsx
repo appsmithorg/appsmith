@@ -35,6 +35,15 @@ class PropertyPane extends Component<
     this.onPropertyChange = this.onPropertyChange.bind(this);
   }
 
+  getPropertyValue = (propertyName: string) => {
+    const { widgetProperties } = this.props;
+    const { dynamicBindings } = widgetProperties;
+    if (dynamicBindings && dynamicBindings[propertyName]) {
+      return dynamicBindings[propertyName];
+    }
+    return widgetProperties[propertyName];
+  };
+
   render() {
     if (this.props.isVisible) {
       const content = this.renderPropertyPane(this.props.propertySections);
@@ -91,9 +100,9 @@ class PropertyPane extends Component<
                 );
               } else {
                 try {
-                  propertyControlOrSection.propertyValue = this.props.widgetProperties[
-                    propertyControlOrSection.propertyName
-                  ];
+                  propertyControlOrSection.propertyValue = this.getPropertyValue(
+                    propertyControlOrSection.propertyName,
+                  );
                   return PropertyControlFactory.createControl(
                     propertyControlOrSection,
                     { onPropertyChange: this.onPropertyChange },

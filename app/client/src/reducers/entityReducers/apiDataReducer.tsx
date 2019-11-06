@@ -13,7 +13,7 @@ export interface APIDataState {
 }
 
 const apiDataReducer = createReducer(initialState, {
-  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+  [ReduxActionTypes.EXECUTE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ [id: string]: ActionApiResponse }>,
   ) => ({ ...state, ...action.payload }),

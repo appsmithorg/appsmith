@@ -133,7 +133,9 @@ const ApiResponseView = (props: Props) => {
                 height={500}
                 language={"json"}
                 input={{
-                  value: JSON.stringify(response.body, null, 2),
+                  value: response.body
+                    ? JSON.stringify(response.body, null, 2)
+                    : "",
                 }}
               />
             ),

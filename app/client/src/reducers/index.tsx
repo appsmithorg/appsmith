@@ -43,3 +43,5 @@ export interface AppState {
     nameBindings: BindingsDataState;
   };
 }
+
+export type DataTree = AppState["entities"];

@@ -1,12 +1,13 @@
 import { createSelector } from "reselect";
 import createCachedSelector from "re-reselect";
 
-import { AppState } from "../reducers";
+import { AppState, DataTree } from "../reducers";
 import { EditorReduxState } from "../reducers/uiReducers/editorReducer";
 import { WidgetConfigReducerState } from "../reducers/entityReducers/widgetConfigReducer";
 import { WidgetCardProps } from "../widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "../reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
+import { injectDataTreeIntoDsl } from "../utils/DynamicBindingUtils";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -92,7 +93,8 @@ export const getWidgetCards = createSelector(
 export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
   getEntities,
-  (pageWidgetId: string, entities: any) => {
-    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
+  (pageWidgetId: string, entities: DataTree) => {
+    const injectedEntities = injectDataTreeIntoDsl(entities);
+    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, injectedEntities);
   },
 )((pageWidgetId, entities) => entities || 0);

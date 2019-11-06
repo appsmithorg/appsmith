@@ -52,7 +52,7 @@ export const StyledSwitch = styled(Switch)`
 
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
-    placeholderText: ${props => props.placeholder}
+    placeholder-text: ${props => props.placeholder};
     color: ${props => props.theme.colors.textOnDarkBG};
     background: ${props => props.theme.colors.paneInputBG};
   }

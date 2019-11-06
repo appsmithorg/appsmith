@@ -67,11 +67,11 @@ const actionsReducer = createReducer(initialState, {
     }),
     isSaving: false,
   }),
-  [ReduxActionTypes.RUN_ACTION_INIT]: (state: ActionDataState) => ({
+  [ReduxActionTypes.EXECUTE_ACTION]: (state: ActionDataState) => ({
     ...state,
     isRunning: true,
   }),
-  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (state: ActionDataState) => ({
+  [ReduxActionTypes.EXECUTE_ACTION_SUCCESS]: (state: ActionDataState) => ({
     ...state,
     isRunning: false,
   }),

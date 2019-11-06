@@ -355,14 +355,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "11.5",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
             id: "11.6",
             propertyName: "tableData",
             label: "Enter data array",
-            controlType: "CODE_EDITOR",
+            controlType: "INPUT_TEXT",
           },
         ],
       },
