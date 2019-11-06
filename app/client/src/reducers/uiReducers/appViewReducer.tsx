@@ -20,7 +20,7 @@ const appViewReducer = createReducer(initialState, {
     return { ...state, pages: action.payload };
   },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT]: (state: AppViewReduxState) => {
-    return { ...state, isFetchingPage: true };
+    return { ...state, dsl: undefined, isFetchingPage: true };
   },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_ERROR]: (state: AppViewReduxState) => {
     return { ...state, isFetchingPage: false };
@@ -34,7 +34,7 @@ const appViewReducer = createReducer(initialState, {
     }>,
   ) => {
     return {
-      ...state,
+      pages: state.pages,
       dsl: action.payload.dsl,
       currentPageId: action.payload.pageId,
       currentLayoutId: action.payload.layoutId,
