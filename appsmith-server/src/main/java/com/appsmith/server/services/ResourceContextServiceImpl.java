@@ -59,7 +59,6 @@ public class ResourceContextServiceImpl implements ResourceContextService {
         );
 
         return Mono.zip(resourceMono, pluginExecutorMono, ((resource, pluginExecutor) -> {
-                log.debug("calling plugin create connection.");
                 Object connection = pluginExecutor.resourceCreate(resource.getResourceConfiguration());
                 ResourceContext resourceContext = new ResourceContext();
                 resourceContext.setConnection(connection);
