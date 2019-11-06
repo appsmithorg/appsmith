@@ -8,7 +8,7 @@ public interface Url {
     String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
     String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
     String SETTING_URL = BASE_URL + VERSION + "/settings";
-    String RESOURCE_URL = BASE_URL + VERSION + "/resources";
+    String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
     String USER_URL = BASE_URL + VERSION + "/users";
     String APPLICATION_URL = BASE_URL + VERSION + "/applications";

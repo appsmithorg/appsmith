@@ -140,7 +140,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         //If plugin is already present for the organization, just return the organization, else install and return organization
         return pluginInOrganizationMono
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("Plugin not already installed. Running the switch if empty code block");
+                    log.debug("Plugin {} not already installed. Running the switch if empty code block", pluginDTO.getPluginId());
                     //If the plugin is not found in the organization, its not installed already. Install now.
                     return repository
                             .findById(pluginDTO.getPluginId())

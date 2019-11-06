@@ -13,7 +13,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
-public class ResourceConfiguration {
+public class DatasourceConfiguration {
 
     String url;
 

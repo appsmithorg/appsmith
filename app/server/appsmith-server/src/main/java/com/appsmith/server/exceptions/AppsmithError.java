@@ -11,7 +11,7 @@ public enum AppsmithError {
     INVALID_PARAMETER(400, 4000, "Invalid parameter {0} provided in the input"),
     PLUGIN_NOT_INSTALLED(400, 4001, "Plugin {0} not installed"),
     PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please input correct plugin id"),
-    RESOURCE_ID_NOT_GIVEN(400, 4003, "Missing resource id. Please input correct resource id"),
+    DATASOURCE_ID_NOT_GIVEN(400, 4003, "Missing datasource id. Please input correct datasource id"),
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Pleaes input correct page id"),
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization"),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation"),

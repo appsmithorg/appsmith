@@ -25,7 +25,7 @@ public class Plugin extends BaseDomain {
 
     String jarLocation;
 
-    List<PluginParameterType> resourceParams;
+    List<PluginParameterType> datasourceParams;
 
     List<PluginParameterType> actionParams;
 

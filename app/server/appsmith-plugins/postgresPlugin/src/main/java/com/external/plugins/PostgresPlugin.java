@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ResourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(Object connection,
-                                                   ResourceConfiguration resourceConfiguration,
+                                                   DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
@@ -79,16 +79,16 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Object resourceCreate(ResourceConfiguration resourceConfiguration) {
+        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             Connection conn = null;
             try {
                 // Load the class into JVM
                 Class.forName(JDBC_DRIVER);
 
                 // Create the connection
-                conn = DriverManager.getConnection(resourceConfiguration.getUrl(),
-                                                   resourceConfiguration.getAuthentication().getUsername(),
-                                                   resourceConfiguration.getAuthentication().getPassword());
+                conn = DriverManager.getConnection(datasourceConfiguration.getUrl(),
+                                                   datasourceConfiguration.getAuthentication().getUsername(),
+                                                   datasourceConfiguration.getAuthentication().getPassword());
                 return conn;
             } catch (ClassNotFoundException e) {
                 log.error("", e);
@@ -100,7 +100,7 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public void resourceDestroy(Object connection) {
+        public void datasourceDestroy(Object connection) {
             Connection conn = (Connection) connection;
             try {
                 if (conn != null) {

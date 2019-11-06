@@ -2,12 +2,16 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -15,6 +19,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -24,7 +31,9 @@ public class SeedMongoData {
     ApplicationRunner init(UserRepository userRepository,
                            OrganizationRepository organizationRepository,
                            ApplicationRepository applicationRepository,
-                           PageRepository pageRepository) {
+                           PageRepository pageRepository,
+                           PluginRepository pluginRepository) {
+
         log.info("Seeding the data");
         Object[][] userData = {
                 {"user test", "usertest@usertest.com", UserState.ACTIVATED},
@@ -39,9 +48,26 @@ public class SeedMongoData {
         Object[][] pageData = {
                 {"validPageName"}
         };
+        Object[][] pluginData = {
+                {"Installed Plugin Name", PluginType.REST, "installed-plugin" },
+                {"Not Installed Plugin Name", PluginType.REST, "not-installed-plugin" }
+        };
         return args -> {
             organizationRepository.deleteAll()
                     .thenMany(
+                            // Seed the plugin data into the DB
+                            Flux.just(pluginData)
+                            .map(array -> {
+                                Plugin plugin = new Plugin();
+                                plugin.setName((String) array[0]);
+                                plugin.setType((PluginType) array[1]);
+                                plugin.setExecutorClass((String) array[2]);
+                                return plugin;
+                            }).flatMap(pluginRepository::save)
+                    )
+                    .then(pluginRepository.findByName((String) pluginData[0][0]))
+                    .map(plugin -> plugin.getId())
+                    .flatMapMany(pluginId ->
                             // Seed the organization data into the DB
                             Flux.just(orgData)
                                     .map(array -> {
@@ -49,6 +75,11 @@ public class SeedMongoData {
                                         organization.setName((String) array[0]);
                                         organization.setDomain((String) array[1]);
                                         organization.setWebsite((String) array[2]);
+                                        OrganizationPlugin orgPlugin = new OrganizationPlugin();
+                                        orgPlugin.setPluginId(pluginId);
+                                        List<OrganizationPlugin> orgPlugins = new ArrayList<>();
+                                        orgPlugins.add(orgPlugin);
+                                        organization.setPlugins(orgPlugins);
                                         return organization;
                                     }).flatMap(organizationRepository::save)
                     )
@@ -87,7 +118,8 @@ public class SeedMongoData {
                                 return page;
                             })
                             .flatMap(pageRepository::save)
-                    ).subscribe(obj -> log.info("Last Saved Object: " + obj));
+                    )
+                    .subscribe(obj -> log.info("Last Saved Object: " + obj));
         };
     }
 }
