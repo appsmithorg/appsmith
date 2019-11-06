@@ -5,6 +5,7 @@ import { Container } from "../appsmith/ContainerComponent";
 import { SelectionType, DropdownOption } from "../../../widgets/DropdownWidget";
 import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
+import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();

@@ -18,6 +18,9 @@ import TableWidget, { TableWidgetProps } from "../widgets/TableWidget";
 import FilePickerWidget, {
   FilePickerWidgetProps,
 } from "../widgets/FilepickerWidget";
+import DatePickerWidget, {
+  DatePickerWidgetProps,
+} from "../widgets/DatePickerWidget";
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder("CONTAINER_WIDGET", {
@@ -81,6 +84,11 @@ class WidgetBuilderRegistry {
     WidgetFactory.registerWidgetBuilder("FILE_PICKER_WIDGET", {
       buildWidget(widgetData: FilePickerWidgetProps): JSX.Element {
         return <FilePickerWidget {...widgetData} />;
+      },
+    });
+    WidgetFactory.registerWidgetBuilder("DATE_PICKER_WIDGET", {
+      buildWidget(widgetData: DatePickerWidgetProps): JSX.Element {
+        return <DatePickerWidget {...widgetData} />;
       },
     });
   }

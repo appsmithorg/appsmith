@@ -25,6 +25,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       "selectedOptionValue",
       updatedValue,
     );
+    super.executeAction(this.props.onSelectionChange);
   };
 
   getWidgetType(): WidgetType {
@@ -41,7 +42,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   label: string;
   options: RadioOption[];
   selectedOptionValue: string;
-  onOptionSelected?: ActionPayload[];
+  onSelectionChange?: ActionPayload[];
 }
 
 export default RadioGroupWidget;

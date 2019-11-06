@@ -25,6 +25,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       "isChecked",
       isChecked,
     );
+    super.executeAction(this.props.onCheckChange);
   };
 
   getWidgetType(): WidgetType {
