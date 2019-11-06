@@ -9,7 +9,7 @@ export const updateWidgetProperty = (
   propertyValue: any,
 ): ReduxAction<UpdateWidgetPropertyPayload> => {
   return {
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
     payload: {
       widgetId,
       propertyName,

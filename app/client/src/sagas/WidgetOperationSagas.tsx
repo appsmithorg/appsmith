@@ -17,6 +17,8 @@ import {
 } from "../utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 import { getNextWidgetName } from "../utils/AppsmithUtils";
+import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
+import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -164,11 +166,36 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   }
 }
 
+function* updateWidgetPropertySaga(
+  updateAction: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  const {
+    payload: { propertyValue },
+  } = updateAction;
+
+  const isDynamic = DATA_BIND_REGEX.test(propertyValue);
+  if (isDynamic) {
+    yield put({
+      type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,
+      payload: updateAction.payload,
+    });
+  } else {
+    yield put({
+      type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+      payload: updateAction.payload,
+    });
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(ReduxActionTypes.WIDGET_DELETE, deleteSaga),
     takeLatest(ReduxActionTypes.WIDGET_MOVE, moveSaga),
     takeLatest(ReduxActionTypes.WIDGET_RESIZE, resizeSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
+      updateWidgetPropertySaga,
+    ),
   ]);
 }

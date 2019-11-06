@@ -31,6 +31,7 @@ import { getPageLayoutId } from "./selectors";
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
+import { createUpdateBindingsMap } from "../actions/bindingActions";
 
 export function* fetchPageListSaga() {
   try {
@@ -97,10 +98,7 @@ export function* fetchPageSaga(
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),
-        put({
-          type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-          payload: fetchPageResponse.data.actions,
-        }),
+        put(createUpdateBindingsMap()),
       ]);
     }
   } catch (error) {

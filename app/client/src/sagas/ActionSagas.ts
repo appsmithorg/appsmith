@@ -20,8 +20,7 @@ import ActionAPI, {
   ExecuteActionRequest,
   RestAction,
 } from "../api/ActionAPI";
-import { AppState } from "../reducers";
-import { JSONPath } from "jsonpath-plus";
+import { AppState, DataTree } from "../reducers";
 import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editorComponents/ToastComponent";
@@ -33,9 +32,10 @@ import {
   updateActionSuccess,
 } from "../actions/actionActions";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
+import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 
-const getDataTree = (state: AppState) => {
+const getDataTree = (state: AppState): DataTree => {
   return state.entities;
 };
 
@@ -46,15 +46,12 @@ const getAction = (
   return _.find(state.entities.actions.data, { id: actionId });
 };
 
-export function* evaluateJSONPathSaga(jsonPath: string): any {
+export function* evaluateJSONPathSaga(path: string): any {
   const dataTree = yield select(getDataTree);
-  const splitPath = jsonPath.split(".");
-  const bindingPath = dataTree.nameBindings[splitPath[0]];
-  const fullPath = `${bindingPath}.${splitPath.slice(1).join(".")}`;
-  return JSONPath({ path: fullPath, json: dataTree });
+  return getDynamicBoundValue(dataTree, path);
 }
 
-export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
+export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
@@ -74,7 +71,20 @@ export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
     });
     executeActionRequest.params = mapToPropList(dynamicBindings);
   }
-  return yield ActionAPI.executeAction(executeActionRequest);
+  const response = yield ActionAPI.executeAction(executeActionRequest);
+  let payload = response;
+  if (response.responseMeta && response.responseMeta.error) {
+    payload = {
+      body: response.responseMeta.error,
+      statusCode: response.responseMeta.error.code,
+      ...response,
+    };
+  }
+  yield put({
+    type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
+    payload: { [apiAction.actionId]: payload },
+  });
+  return response;
 }
 
 export function* executeActionSaga(action: ReduxAction<ActionPayload[]>) {
@@ -132,34 +142,11 @@ export function* fetchActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   yield put(initialize(API_EDITOR_FORM_NAME, data));
 }
 
-export function* runActionSaga(actionPayload: ReduxAction<{ id: string }>) {
-  const id = actionPayload.payload.id;
-  const response: ActionApiResponse = yield call(executeAPIQueryActionSaga, {
-    actionId: id,
-  });
-  let payload = response;
-  if (response.responseMeta && response.responseMeta.error) {
-    payload = {
-      body: response.responseMeta.error,
-      statusCode: response.responseMeta.error.code,
-      ...response,
-    };
-  }
-  yield put({
-    type: ReduxActionTypes.RUN_ACTION_SUCCESS,
-    payload: { [id]: payload },
-  });
-}
-
 export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
-  const finalFields: Partial<RestAction> = _.omit(
-    actionPayload.payload.data,
-    "new",
-  );
   const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
-    finalFields,
+    actionPayload.payload.data,
   );
   if (response.responseMeta.success) {
     AppToaster.show({
@@ -201,7 +188,6 @@ export function* watchActionSagas() {
     takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeEvery(ReduxActionTypes.FETCH_ACTION, fetchActionSaga),
-    takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
   ]);

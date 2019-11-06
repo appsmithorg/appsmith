@@ -161,6 +161,8 @@ export interface WidgetBuilder<T extends WidgetProps> {
 export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
+  dynamicBindings?: Record<string, string>;
+  [key: string]: any;
 }
 
 export interface WidgetDataProps {
