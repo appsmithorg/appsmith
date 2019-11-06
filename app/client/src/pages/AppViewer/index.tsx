@@ -8,15 +8,20 @@ import {
   PageListPayload,
 } from "../../constants/ReduxActionConstants";
 import {
-  getCurrentPageId,
+  getCurrentRoutePageId,
   getCurrentPageLayoutDSL,
   getPageList,
+  getIsFetchingPage,
+  getCurrentDSLPageId,
 } from "../../selectors/appViewSelectors";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import { executeAction } from "../../actions/widgetActions";
 import { ActionPayload } from "../../constants/ActionConstants";
 import AppPage from "./AppPage";
+import { Spinner, NonIdealState, Icon } from "@blueprintjs/core";
+import { Link } from "react-router-dom";
+import { theme } from "../../constants/DefaultTheme";
 import SideNav, { SideNavItem } from "./viewer/SideNav";
 import AppViewerHeader from "./viewer/AppViewerHeader";
 
@@ -30,6 +35,13 @@ const AppViewerBody = styled.section`
   align-items: stretch;
   justify-content: flex-start;
   height: calc(100vh - ${props => props.theme.headerHeight});
+`;
+const Centered = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 const SideNavWrapper = styled.div`
   background: ${props => props.theme.colors.paneBG};
@@ -64,13 +76,15 @@ const SideNavWrapper = styled.div`
 `;
 
 export type AppViewerProps = {
-  currentPageId?: string;
+  currentRoutePageId?: string;
+  currentDSLPageId?: string;
   currentLayoutId?: string;
   executeAction: Function;
   fetchPageWidgets: Function;
   pages?: PageListPayload;
   dsl?: ContainerWidgetProps<WidgetProps>;
   initializeAppViewer: Function;
+  isFetching: boolean;
   match: any;
   location: any;
   history: any;
@@ -79,10 +93,20 @@ export type AppViewerProps = {
 class AppViewer extends Component<AppViewerProps> {
   handlePageSelect = (item: SideNavItem) => {
     this.props.fetchPageWidgets(item.id);
+    this.props.history.push(`/view/pages/${item.id}`);
   };
 
   componentDidMount() {
-    this.props.initializeAppViewer(this.props.currentPageId);
+    this.props.initializeAppViewer(this.props.currentRoutePageId);
+  }
+
+  componentDidUpdate(prevProps: AppViewerProps) {
+    if (
+      prevProps.currentRoutePageId !== this.props.currentRoutePageId &&
+      this.props.currentDSLPageId !== this.props.currentRoutePageId
+    ) {
+      this.props.fetchPageWidgets(this.props.currentRoutePageId);
+    }
   }
 
   public render() {
@@ -96,7 +120,9 @@ class AppViewer extends Component<AppViewerProps> {
 
     const currentPage =
       this.props.pages &&
-      this.props.pages.find(page => page.pageId === this.props.currentPageId);
+      this.props.pages.find(
+        page => page.pageId === this.props.currentRoutePageId,
+      );
     return (
       <AppViewWrapper>
         <AppViewerHeader />
@@ -116,6 +142,31 @@ class AppViewer extends Component<AppViewerProps> {
               />
             </SideNavWrapper>
           )}
+          {this.props.isFetching && (
+            <Centered>
+              <Spinner />
+            </Centered>
+          )}
+          {!this.props.isFetching && !this.props.dsl && items && (
+            <Centered>
+              <NonIdealState
+                icon={
+                  <Icon
+                    iconSize={theme.fontSizes[9]}
+                    icon="page-layout"
+                    color={theme.colors.primary}
+                  />
+                }
+                title="This page seems to be blank"
+                description={
+                  <p>
+                    Please add widgets to this page in the
+                    <Link to="/builder"> Appsmith Editor</Link>
+                  </p>
+                }
+              />
+            </Centered>
+          )}
           {this.props.dsl && <AppPage dsl={this.props.dsl} />}
         </AppViewerBody>
       </AppViewWrapper>
@@ -124,21 +175,24 @@ class AppViewer extends Component<AppViewerProps> {
 }
 
 const mapStateToProps = (state: AppState, props: AppViewerProps) => ({
-  currentPageId: getCurrentPageId(state, props),
+  currentRoutePageId: getCurrentRoutePageId(state, props),
+  currentDSLPageId: getCurrentDSLPageId(state),
   dsl: getCurrentPageLayoutDSL(state),
   pages: getPageList(state),
+  isFetching: getIsFetchingPage(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeAction: (actionPayloads?: ActionPayload[]) =>
     dispatch(executeAction(actionPayloads)),
-  fetchPageWidgets: (pageId: string) =>
+  fetchPageWidgets: (pageId: string) => {
     dispatch({
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       payload: {
         pageId,
       },
-    }),
+    });
+  },
   initializeAppViewer: (pageId: string) =>
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
