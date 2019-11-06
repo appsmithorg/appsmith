@@ -52,12 +52,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Spinner",
     },
     DATE_PICKER_WIDGET: {
-      enableTime: false,
+      enableTimePicker: true,
       datePickerType: "DATE_PICKER",
       rows: 1,
+      dateFormat: "DD/MM/YYYY",
       columns: 3,
       label: "Date",
-      widgetName: "Datepicker",
+      widgetName: "DatePicker",
     },
     TABLE_WIDGET: {
       rows: 5,

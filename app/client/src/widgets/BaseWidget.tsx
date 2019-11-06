@@ -92,7 +92,8 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         return this.getCanvasView();
       case RenderModes.PAGE:
-        return this.getPageView();
+        if (this.props.isVisible) return this.getPageView();
+        else return <div />;
       default:
         return this.getPageView();
     }
@@ -111,7 +112,10 @@ abstract class BaseWidget<
           style={{ ...style }}
           orientation={"VERTICAL"}
         >
-          <ResizableComponent style={{ ...style }} {...this.props}>
+          <ResizableComponent
+            style={{ ...style, opacity: this.props.isVisible ? 1 : 0.4 }}
+            {...this.props}
+          >
             {this.getPageView()}
           </ResizableComponent>
         </DraggableComponent>

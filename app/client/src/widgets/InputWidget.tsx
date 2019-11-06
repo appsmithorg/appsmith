@@ -2,6 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import InputComponent from "../components/designSystems/blueprint/InputComponent";
+import { ActionPayload } from "../constants/ActionConstants";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   regex = new RegExp("");
@@ -30,6 +31,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onValueChange = (value: string) => {
     this.context.updateWidgetProperty(this.props.widgetId, "text", value);
+    super.executeAction(this.props.onTextChanged);
   };
 
   getPageView() {
@@ -89,6 +91,7 @@ export interface InputWidgetProps extends WidgetProps {
   maxChars?: number;
   minNum?: number;
   maxNum?: number;
+  onTextChanged: ActionPayload[];
   label: string;
   inputValidators: InputValidator[];
   focusIndex?: number;

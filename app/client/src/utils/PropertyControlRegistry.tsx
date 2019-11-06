@@ -15,6 +15,12 @@ import CodeEditorControl from "../components/propertyControls/CodeEditorControl"
 import MultiSelectControl, {
   MultiSelectControlProps,
 } from "../components/propertyControls/MultiSelectControl";
+import DatePickerControl, {
+  DatePickerControlProps,
+} from "../components/propertyControls/DatePickerControl";
+import TimeZoneControl, {
+  TimeZoneControlProps,
+} from "../components/propertyControls/TimezoneControl";
 import ActionSelectorControl from "../components/propertyControls/ActionSelector";
 
 class PropertyControlRegistry {
@@ -47,6 +53,16 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("OPTION_INPUT", {
       buildPropertyControl(controlProps: ControlProps): JSX.Element {
         return <OptionControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("DATE_PICKER", {
+      buildPropertyControl(controlProps: DatePickerControlProps): JSX.Element {
+        return <DatePickerControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("TIMEZONE_PICKER", {
+      buildPropertyControl(controlProps: TimeZoneControlProps): JSX.Element {
+        return <TimeZoneControl {...controlProps} />;
       },
     });
     PropertyControlFactory.registerControlBuilder("ACTION_SELECTOR", {

@@ -14,6 +14,7 @@ import WidgetBuilderRegistry from "./WidgetRegistry";
 import { Property } from "../api/ActionAPI";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import _ from "lodash";
+import moment from "moment-timezone";
 
 export const createReducer = (
   initialState: any,
@@ -32,6 +33,7 @@ export const appInitializer = () => {
   WidgetBuilderRegistry.registerWidgetBuilders();
   PropertyControlRegistry.registerPropertyControlBuilders();
   netlifyIdentity.init();
+  moment.tz.setDefault(moment.tz.guess());
   switch (process.env.REACT_APP_ENVIRONMENT) {
     case "PRODUCTION":
       Sentry.init(SENTRY_PROD_CONFIG);
