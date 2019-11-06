@@ -3,7 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.ResourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,9 +18,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RestApiPlugin extends BasePlugin {
 
@@ -37,12 +35,12 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(Object connection,
-                                                   ResourceConfiguration resourceConfiguration,
+                                                   DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             String requestBody = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
-            String url = resourceConfiguration.getUrl() + path;
+            String url = datasourceConfiguration.getUrl() + path;
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
@@ -51,8 +49,8 @@ public class RestApiPlugin extends BasePlugin {
 
             WebClient.Builder webClientBuilder = WebClient.builder().baseUrl(url);
 
-            if (resourceConfiguration.getHeaders() != null) {
-                addHeadersToRequest(webClientBuilder, resourceConfiguration.getHeaders());
+            if (datasourceConfiguration.getHeaders() != null) {
+                addHeadersToRequest(webClientBuilder, datasourceConfiguration.getHeaders());
             }
 
             if (actionConfiguration.getHeaders() != null) {
@@ -92,12 +90,12 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Object resourceCreate(ResourceConfiguration resourceConfiguration) {
+        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return null;
         }
 
         @Override
-        public void resourceDestroy(Object connection) {
+        public void datasourceDestroy(Object connection) {
 
         }
 

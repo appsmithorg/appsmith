@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.ResourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class Resource extends BaseDomain {
+public class Datasource extends BaseDomain {
     @Indexed(unique = true)
     String name;
 
@@ -21,6 +21,6 @@ public class Resource extends BaseDomain {
 
     String organizationId;
 
-    ResourceConfiguration resourceConfiguration;
+    DatasourceConfiguration datasourceConfiguration;
 
 }

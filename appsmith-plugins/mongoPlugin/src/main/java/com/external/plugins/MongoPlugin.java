@@ -2,7 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ResourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,14 +39,14 @@ public class MongoPlugin extends BasePlugin {
          * https://docs.huihoo.com/mongodb/3.4/reference/command/index.html
          *
          * @param connection : This is the connection that is established to the data source. This connection is according
-         *                   to the parameters in Resource Configuration
-         * @param resourceConfiguration : These are the configurations which have been used to create a Resource from a Plugin
-         * @param actionConfiguration : These are the configurations which have been used to create an Action from a Resource.
+         *                   to the parameters in Datasource Configuration
+         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
+         * @param actionConfiguration : These are the configurations which have been used to create an Action from a Datasource.
          * @return
          */
         @Override
         public Mono<ActionExecutionResult> execute(Object connection,
-                                                   ResourceConfiguration resourceConfiguration,
+                                                   DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
             ActionExecutionResult result = new ActionExecutionResult();
@@ -55,9 +55,9 @@ public class MongoPlugin extends BasePlugin {
                 return Mono.error(new Exception("Mongo Client is null."));
             }
 
-            MongoClientURI mongoClientURI= new MongoClientURI(resourceConfiguration.getUrl());
+            MongoClientURI mongoClientURI= new MongoClientURI(datasourceConfiguration.getUrl());
 
-            String databaseName = resourceConfiguration.getDatabaseName();
+            String databaseName = datasourceConfiguration.getDatabaseName();
             if (databaseName == null) {
                 databaseName = mongoClientURI.getDatabase();
             }
@@ -111,14 +111,14 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public Object resourceCreate(ResourceConfiguration resourceConfiguration) {
+        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
-            MongoClientURI mongoClientURI= new MongoClientURI(resourceConfiguration.getUrl());
+            MongoClientURI mongoClientURI= new MongoClientURI(datasourceConfiguration.getUrl());
             return new MongoClient(mongoClientURI);
         }
 
         @Override
-        public void resourceDestroy(Object connection) {
+        public void datasourceDestroy(Object connection) {
             MongoClient mongoClient = (MongoClient) connection;
             if (mongoClient != null) {
                 mongoClient.close();

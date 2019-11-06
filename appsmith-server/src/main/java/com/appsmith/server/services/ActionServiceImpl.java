@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Param;
-import com.appsmith.external.models.ResourceConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Resource;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -36,7 +36,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,12 +51,12 @@ import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOl
 public class ActionServiceImpl extends BaseService<ActionRepository, Action, String> implements ActionService {
 
     private final ActionRepository repository;
-    private final ResourceService resourceService;
+    private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PageService pageService;
     private final PluginManager pluginManager;
     private final ObjectMapper objectMapper;
-    private final ResourceContextService resourceContextService;
+    private final DatasourceContextService datasourceContextService;
 
     // This regex matches mustache template keys of the form {{somekey}}
     private final Pattern pattern = Pattern.compile("\\{\\{\\s*([^{}]+)\\s*}}");
@@ -68,21 +67,21 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              ActionRepository repository,
-                             ResourceService resourceService,
+                             DatasourceService datasourceService,
                              PluginService pluginService,
                              PageService pageService,
                              PluginManager pluginManager,
                              AnalyticsService analyticsService,
                              ObjectMapper objectMapper,
-                             ResourceContextService resourceContextService) {
+                             DatasourceContextService datasourceContextService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
-        this.resourceService = resourceService;
+        this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pageService = pageService;
         this.pluginManager = pluginManager;
         this.objectMapper = objectMapper;
-        this.resourceContextService = resourceContextService;
+        this.datasourceContextService = datasourceContextService;
     }
 
     /**
@@ -123,14 +122,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     public Mono<Action> create(@NotNull Action action) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
-        } else if (action.getResourceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.RESOURCE_ID_NOT_GIVEN));
+        } else if (action.getDatasourceId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_ID_NOT_GIVEN));
         }
 
-        Mono<Resource> resourceMono = resourceService.findById(action.getResourceId())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", action.getResourceId())));
-        Mono<Plugin> pluginMono = resourceMono.flatMap(resource -> pluginService.findById(resource.getPluginId())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", resource.getPluginId()))));
+        Mono<Datasource> datasourceMono = datasourceService.findById(action.getDatasourceId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource", action.getDatasourceId())));
+        Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> pluginService.findById(datasource.getPluginId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", datasource.getPluginId()))));
 
         return pluginMono
                 //Set plugin in the action before saving.
@@ -240,7 +239,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Plugin> pluginMono = actionMono.flatMap(action -> pluginService.findById(action.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin")));
 
-        Mono<Resource> resourceMono = actionMono.flatMap(action -> resourceService.findById(action.getResourceId()))
+        Mono<Datasource> datasourceMono = actionMono.flatMap(action -> datasourceService.findById(action.getDatasourceId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource")));
 
         Mono<PluginExecutor> pluginExecutorMono = pluginMono.flatMap(plugin -> {
@@ -255,8 +254,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         // 4. Execute the query
         return actionMono
-                .flatMap(action -> resourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
-                    ResourceConfiguration resourceConfiguration;
+                .flatMap(action -> datasourceMono.zipWith(pluginExecutorMono, (resource, pluginExecutor) -> {
+                    DatasourceConfiguration datasourceConfiguration;
                     ActionConfiguration actionConfiguration;
                     //Do variable substitution before invoking the plugin
                     //Do this only if params have been provided in the execute command
@@ -268,18 +267,18 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         // Incase there's a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
-                        resourceConfiguration = (ResourceConfiguration) variableSubstitution(resource.getResourceConfiguration(), replaceParamsMap);
+                        datasourceConfiguration = (DatasourceConfiguration) variableSubstitution(resource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
                     } else {
-                        resourceConfiguration = resource.getResourceConfiguration();
+                        datasourceConfiguration = resource.getDatasourceConfiguration();
                         actionConfiguration = action.getActionConfiguration();
                     }
-                    return resourceContextService
-                            .getResourceContext(resource.getId())
+                    return datasourceContextService
+                            .getDatasourceContext(resource.getId())
                             //Now that we have the context (connection details, execute the action
                             .flatMap(resourceContext -> pluginExecutor.execute(
                                     resourceContext.getConnection(),
-                                    resourceConfiguration,
+                                    datasourceConfiguration,
                                     actionConfiguration));
                 }))
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))

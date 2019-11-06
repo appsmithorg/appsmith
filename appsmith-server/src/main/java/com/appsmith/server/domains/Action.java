@@ -19,7 +19,7 @@ public class Action extends BaseDomain {
 
     String name;
 
-    String resourceId;
+    String datasourceId;
 
     String pluginId;
 
