@@ -3,6 +3,7 @@ import editorReducer from "./editorReducer";
 import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
+import applicationsReducer from "./applicationsReducer";
 import { widgetSidebarReducer } from "./widgetSidebarReducer";
 
 const uiReducer = combineReducers({
@@ -10,6 +11,7 @@ const uiReducer = combineReducers({
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
-  view: appViewReducer,
+  appView: appViewReducer,
+  applications: applicationsReducer,
 });
 export default uiReducer;

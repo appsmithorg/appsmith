@@ -3,10 +3,12 @@ import { AppState } from "../reducers";
 import { AppViewReduxState } from "../reducers/uiReducers/appViewReducer";
 import { AppViewerProps } from "../pages/AppViewer";
 
-const getAppViewState = (state: AppState) => state.ui.view;
+const getAppViewState = (state: AppState) => state.ui.appView;
 
 export const getCurrentLayoutId = (state: AppState, props: AppViewerProps) =>
-  state.ui.view.currentLayoutId || props.match.params.layoutId;
+  state.ui.appView.currentLayoutId || props.match.params.layoutId;
+export const getCurrentPageId = (state: AppState, props: AppViewerProps) =>
+  state.ui.appView.currentPageId || props.match.params.pageId;
 export const getCurrentRoutePageId = (state: AppState, props: AppViewerProps) =>
   props.match.params.pageId;
 

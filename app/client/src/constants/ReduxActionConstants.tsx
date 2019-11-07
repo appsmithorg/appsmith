@@ -66,6 +66,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
   FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
   INITIALIZE_PAGE_VIEWER: "INITIALIZE_PAGE_VIEWER",
+  FETCH_APPLICATION_LIST_INIT: "FETCH_APPLICATION_LIST_INIT",
+  FETCH_APPLICATION_LIST_SUCCESS: "FETCH_APPLICATION_LIST_SUCCESS",
+  CREATE_APPLICATION_INIT: "CREATE_APPLICATION_INIT",
+  CREATE_APPLICATION_SUCCESS: "CREATE_APPLICATION_SUCCESS",
   CREATE_UPDATE_BINDINGS_MAP_INIT: "CREATE_UPDATE_BINDINGS_MAP_INIT",
   CREATE_UPDATE_BINDINGS_MAP_SUCCESS: "CREATE_UPDATE_BINDINGS_MAP_SUCCESS",
 };
@@ -97,6 +101,8 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   PUBLISH_APPLICATION_ERROR: "PUBLISH_APPLICATION_ERROR",
   CREATE_PAGE_ERROR: "CREATE_PAGE_ERROR",
   FETCH_PAGE_LIST_ERROR: "FETCH_PAGE_LIST_ERROR",
+  FETCH_APPLICATION_LIST_ERROR: "FETCH_APPLICATION_LIST_ERROR",
+  CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
 };
 
 export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
@@ -133,6 +139,14 @@ export type PageListPayload = Array<{
   pageId: string;
   layoutId: string;
 }>;
+
+export type ApplicationPayload = {
+  id: string;
+  name: string;
+  organizationId: string;
+  pageCount: number;
+  defaultPageId?: string;
+};
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
 
