@@ -22,7 +22,7 @@ export const EDITOR_ROUTES = [
     icon: MenuIcons.WIDGETS_ICON,
     path: BUILDER_URL,
     title: "Widgets",
-    exact: false,
+    exact: true,
   },
   {
     icon: MenuIcons.APIS_ICON,

@@ -4,7 +4,7 @@ import { APIRequest } from "../constants/ApiConstants";
 import { AxiosPromise } from "axios";
 
 export interface CreateActionRequest<T> extends APIRequest {
-  resourceId: string;
+  datasourceId: string;
   pageId: string;
   name: string;
   actionConfiguration: T;
@@ -15,7 +15,7 @@ export interface UpdateActionRequest<T> extends CreateActionRequest<T> {
 }
 
 export interface APIConfig {
-  resourceId: string;
+  datasourceId: string;
   pageId: string;
   name: string;
   requestHeaders: Record<string, string>;
@@ -51,7 +51,7 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 export interface RestAction {
   id: string;
   name: string;
-  resourceId: string;
+  datasourceId: string;
   pluginId: string;
   pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;

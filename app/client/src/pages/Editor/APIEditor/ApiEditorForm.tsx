@@ -11,7 +11,7 @@ import { BaseButton } from "../../../components/designSystems/blueprint/ButtonCo
 import { RestAction } from "../../../api/ActionAPI";
 import TextField from "../../../components/editorComponents/fields/TextField";
 import DropdownField from "../../../components/editorComponents/fields/DropdownField";
-import ResourcesField from "../../../components/editorComponents/fields/ResourcesField";
+import DatasourcesField from "../../../components/editorComponents/fields/DatasourcesField";
 import KeyValueFieldArray from "../../../components/editorComponents/fields/KeyValueFieldArray";
 import JSONEditorField from "../../../components/editorComponents/fields/JSONEditorField";
 import { required } from "../../../utils/validation/common";
@@ -137,7 +137,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           name="actionConfiguration.httpMethod"
           options={HTTP_METHOD_OPTIONS}
         />
-        <ResourcesField name="resourceId" />
+        <DatasourcesField name="datasourceId" />
         <ForwardSlash />
         <TextField
           placeholderMessage="API Path"
