@@ -327,7 +327,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "9.7",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -396,7 +396,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             id: "11.6",
             propertyName: "tableData",
             label: "Enter data array",
-            controlType: "CODE_EDITOR",
+            controlType: "INPUT_TEXT",
           },
         ],
       },
