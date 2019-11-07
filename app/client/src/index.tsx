@@ -26,7 +26,9 @@ import {
   BUILDER_URL,
   LOGIN_URL,
   APP_VIEW_URL,
+  APPLICATIONS_URL,
 } from "./constants/routes";
+import Applications from "./pages/Applications";
 
 appInitializer();
 const sagaMiddleware = createSagaMiddleware();
@@ -44,6 +46,7 @@ ReactDOM.render(
             <Route exact path={BASE_URL} component={App} />
             <ProtectedRoute path={BUILDER_URL} component={Editor} />
             <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
+            <ProtectedRoute path={APPLICATIONS_URL} component={Applications} />
             <Route exact path={LOGIN_URL} component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>

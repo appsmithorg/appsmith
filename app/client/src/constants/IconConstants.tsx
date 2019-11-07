@@ -5,6 +5,7 @@ export type IconProps = {
   width: number;
   height: number;
   color: Color;
+  background: Color;
 };
 
 export const IconWrapper = styled.div<IconProps>`
@@ -16,6 +17,9 @@ export const IconWrapper = styled.div<IconProps>`
     height: ${props => props.height || props.theme.fontSizes[7]}px;
     path {
       fill: ${props => props.color || props.theme.colors.textOnDarkBG};
+    }
+    circle {
+      fill: ${props => props.background || props.theme.colors.paneBG};
     }
   }
 `;
