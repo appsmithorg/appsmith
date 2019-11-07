@@ -7,7 +7,7 @@ import {
 import { fetchEditorConfigs } from "../actions/configsActions";
 import { fetchPage, fetchPageList } from "../actions/pageActions";
 import { fetchActions } from "../actions/actionActions";
-import { fetchResources } from "../actions/resourcesActions";
+import { fetchDatasources } from "../actions/datasourcesActions";
 import { createUpdateBindingsMap } from "../actions/bindingActions";
 
 function* fetchAppDataSaga() {
@@ -19,14 +19,14 @@ function* fetchAppDataSaga() {
     put(fetchEditorConfigs(propertyPaneConfigsId)),
     put(fetchPage(currentPageId)),
     put(fetchActions()),
-    put(fetchResources()),
+    put(fetchDatasources()),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
     take(ReduxActionTypes.UPDATE_CANVAS),
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
-    take(ReduxActionTypes.FETCH_RESOURCES_SUCCESS),
+    take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
   // Step 3: Create the bindings map;
   yield put(createUpdateBindingsMap());

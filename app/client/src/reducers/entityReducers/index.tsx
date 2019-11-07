@@ -5,7 +5,7 @@ import queryDataReducer from "./queryDataReducer";
 import widgetConfigReducer from "./widgetConfigReducer";
 import actionsReducer from "./actionsReducer";
 import propertyPaneConfigReducer from "./propertyPaneConfigReducer";
-import resourceReducer from "./resourcesReducer";
+import datasourceReducer from "./datasourceReducer";
 import bindingsReducer from "./bindingsReducer";
 
 const entityReducer = combineReducers({
@@ -15,7 +15,7 @@ const entityReducer = combineReducers({
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   propertyConfig: propertyPaneConfigReducer,
-  resources: resourceReducer,
+  datasources: datasourceReducer,
   nameBindings: bindingsReducer,
 });
 export default entityReducer;

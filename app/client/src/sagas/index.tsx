@@ -6,7 +6,7 @@ import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import configsSagas from "./ConfigsSagas";
 import applicationSagas from "./ApplicationSagas";
-import { watchResourcesSagas } from "./ResourcesSagas";
+import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
 import bindingsSagas from "./BindingsSagas";
 
@@ -19,7 +19,7 @@ export function* rootSaga() {
     spawn(widgetOperationSagas),
     spawn(errorSagas),
     spawn(configsSagas),
-    spawn(watchResourcesSagas),
+    spawn(watchDatasourcesSagas),
     spawn(applicationSagas),
     spawn(bindingsSagas),
   ]);

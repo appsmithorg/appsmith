@@ -3,40 +3,40 @@ import CreatableDropdown from "../../designSystems/appsmith/CreatableDropdown";
 import { connect } from "react-redux";
 import { Field } from "redux-form";
 import { AppState } from "../../../reducers";
-import { ResourceDataState } from "../../../reducers/entityReducers/resourcesReducer";
+import { DatasourceDataState } from "../../../reducers/entityReducers/datasourceReducer";
 import _ from "lodash";
-import { createResource } from "../../../actions/resourcesActions";
+import { createDatasource } from "../../../actions/datasourcesActions";
 import { REST_PLUGIN_ID } from "../../../constants/ApiEditorConstants";
 import { required } from "../../../utils/validation/common";
 
 interface ReduxStateProps {
-  resources: ResourceDataState;
+  datasources: DatasourceDataState;
 }
 interface ReduxActionProps {
-  createResource: (value: string) => void;
+  createDatasource: (value: string) => void;
 }
 
 interface ComponentProps {
   name: string;
 }
 
-const ResourcesField = (
+const DatasourcesField = (
   props: ReduxActionProps & ReduxStateProps & ComponentProps,
 ) => {
-  const options = props.resources.list.map(r => ({
-    label: r.resourceConfiguration.url.endsWith("/")
-      ? r.resourceConfiguration.url.slice(0, -1)
-      : r.resourceConfiguration.url,
+  const options = props.datasources.list.map(r => ({
+    label: r.datasourceConfiguration.url.endsWith("/")
+      ? r.datasourceConfiguration.url.slice(0, -1)
+      : r.datasourceConfiguration.url,
     value: r.id,
   }));
   return (
     <Field
       name={props.name}
       component={CreatableDropdown}
-      isLoading={props.resources.loading}
+      isLoading={props.datasources.loading}
       options={options}
-      placeholder="Resource"
-      onCreateOption={props.createResource}
+      placeholder="Data Source"
+      onCreateOption={props.createDatasource}
       format={(value: string) => _.find(options, { value })}
       parse={(option: { value: string }) => (option ? option.value : null)}
       validate={required}
@@ -45,17 +45,17 @@ const ResourcesField = (
 };
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  resources: state.entities.resources,
+  datasources: state.entities.datasources,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
-  createResource: (value: string) =>
+  createDatasource: (value: string) =>
     dispatch(
-      createResource({
-        // Resource name should not end with /
+      createDatasource({
+        // Datasource name should not end with /
         name: value.endsWith("/") ? value.slice(0, -1) : value,
-        resourceConfiguration: {
-          // Resource url should end with /
+        datasourceConfiguration: {
+          // Datasource url should end with /
           url: value.endsWith("/") ? value : `${value}/`,
         },
         pluginId: REST_PLUGIN_ID,
@@ -66,4 +66,4 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(ResourcesField);
+)(DatasourcesField);
