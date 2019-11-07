@@ -922,7 +922,7 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.9.0"
 
-"@blueprintjs/datetime@^3.13.0":
+"@blueprintjs/datetime@^3.14.0":
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.14.0.tgz#a39a1e639dce801627990626b411e57e262f0e4b"
   integrity sha512-NfCiV19zMPWZ7kcx1A2OympSLy7vp8wFrhMaMAKK6R+ndTUuEDZi3Z5NxoyX2jBJ71F9nhWYFjH1nQVOn/eDaw==
@@ -940,13 +940,25 @@
     classnames "^2.2"
     tslib "~1.9.0"
 
-"@blueprintjs/select@^3.10.0":
+"@blueprintjs/select@^3.10.0", "@blueprintjs/select@^3.11.0":
   version "3.11.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-3.11.1.tgz#6cb5b70c31013752a0ccfa205996ab6311d74ef3"
   integrity sha512-J3IfKq+L9JsKQQbrLdJ9K2621FV2K7iptynklSsCP6owlGDDcsbS6JEu/X2B8n7f5v0bez070+fQTa2JxtKRFg==
   dependencies:
     "@blueprintjs/core" "^3.19.0"
     classnames "^2.2"
+    tslib "~1.9.0"
+
+"@blueprintjs/timezone@^3.6.0":
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/timezone/-/timezone-3.6.0.tgz#73b055c94e656671c85ce61e80d7360ae432cced"
+  integrity sha512-OysaslKuksF1j3zgFGU2nE1nd6uIzwSCPHe7HrmhZ2CVqU4GFr5Qqnxh4OHDAW6iVJT8g9FEk5Jf2RjbUnHE5w==
+  dependencies:
+    "@blueprintjs/core" "^3.19.0"
+    "@blueprintjs/select" "^3.11.0"
+    classnames "^2.2"
+    moment "^2.24.0"
+    moment-timezone "^0.5.26"
     tslib "~1.9.0"
 
 "@cnakazawa/watch@^1.0.3":
@@ -7946,7 +7958,14 @@ mkdirp@0.5.1, mkdirp@0.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp
   dependencies:
     minimist "0.0.8"
 
-moment@>=2.14.0:
+moment-timezone@^0.5.26, moment-timezone@^0.5.27:
+  version "0.5.27"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.27.tgz#73adec8139b6fe30452e78f210f27b1f346b8877"
+  integrity sha512-EIKQs7h5sAsjhPCqN6ggx6cEbs94GK050254TIJySD1bzoM5JTYDwAU1IoVOeTOL6Gm27kYJ51/uuvq1kIlrbw==
+  dependencies:
+    moment ">= 2.9.0"
+
+"moment@>= 2.9.0", moment@>=2.14.0, moment@^2.24.0:
   version "2.24.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
   integrity sha512-bV7f+6l2QigeBBZSM/6yTNq4P2fNpSWj/0e7jQcy87A8e7o2nAfP/34/2ky5Vw4B9S446EtIhodAzkFCcR4dQg==

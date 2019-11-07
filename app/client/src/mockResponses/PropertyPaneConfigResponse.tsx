@@ -92,7 +92,14 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "4.1",
             propertyName: "image",
-            label: "Image Url",
+            label: "Image",
+            placeholderText: "Enter URL",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "4.1",
+            propertyName: "image",
+            label: "Default Image",
             placeholderText: "Enter URL",
             controlType: "INPUT_TEXT",
           },
@@ -182,6 +189,18 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           },
         ],
       },
+      {
+        sectionName: "Actions",
+        id: "5.1.1",
+        children: [
+          {
+            id: "5.1.2",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+          },
+        ],
+      },
     ],
     SWITCH_WIDGET: [
       {
@@ -213,6 +232,18 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        id: "5.1.1",
+        children: [
+          {
+            id: "5.1.2",
+            propertyName: "onToggle",
+            label: "onToggle",
+            controlType: "ACTION_SELECTOR",
           },
         ],
       },
@@ -256,48 +287,51 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
         sectionName: "General",
         id: "9",
         children: [
+          // {
+          //   id: "9.1",
+          //   propertyName: "datePickerType",
+          //   label: "Picker Type",
+          //   controlType: "DROP_DOWN",
+          //   options: [
+          //     { label: "Date Picker", value: "DATE_PICKER" },
+          //     { label: "Date Range Picker", value: "DATE_RANGE_PICKER" },
+          //   ],
+          // },
           {
-            id: "9.1",
-            propertyName: "datePickerType",
-            label: "Picker Type",
-            controlType: "DROP_DOWN",
-            options: [
-              { label: "Single Date", value: "DATE_PICKER" },
-              { label: "Date Range", value: "DATE_RANGE_PICKER" },
-            ],
-          },
-          {
-            id: "9.4",
+            id: "9.2",
             propertyName: "label",
-            label: "Enter Date Label",
+            label: "Label",
+            placeholderText: "Enter Label",
             controlType: "INPUT_TEXT",
           },
           {
-            id: "9.1",
+            id: "9.3",
             propertyName: "defaultDate",
             label: "Default Date",
+            placeholderText: "Enter Default Date",
             controlType: "DATE_PICKER",
           },
           {
-            id: "9.2",
+            id: "9.5",
+            label: "Timezone",
+            placeholderText: "Select Timezone",
             propertyName: "defaultTimezone",
-            label: "Default Timezone",
             controlType: "TIMEZONE_PICKER",
           },
           {
-            id: "9.3",
-            propertyName: "enableTime",
-            label: "Enable Pick Time",
+            id: "9.6",
+            propertyName: "enableTimePicker",
+            label: "Enable Time",
             controlType: "SWITCH",
           },
           {
-            id: "9.5",
+            id: "9.7",
             propertyName: "isVisible",
             label: "Visibile",
             controlType: "SWITCH",
           },
           {
-            id: "9.6",
+            id: "9.8",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
@@ -312,12 +346,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             id: "10.1",
             propertyName: "onDateSelected",
             label: "onDateSelected",
-            controlType: "ACTION_SELECTOR",
-          },
-          {
-            id: "10.2",
-            propertyName: "onDateRangeSelected",
-            label: "onDateRangeSelected",
             controlType: "ACTION_SELECTOR",
           },
         ],
@@ -341,6 +369,12 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           //   controlType: "INPUT_TEXT",
           // },
           {
+            id: "11.2",
+            propertyName: "tableData",
+            label: "Table Data",
+            controlType: "INPUT_TEXT",
+          },
+          {
             id: "11.3",
             propertyName: "nextPageKey",
             label: "Next Pagination Key",
@@ -355,7 +389,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "11.5",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -433,8 +467,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
         children: [
           {
             id: "14.1",
-            propertyName: "onOptionSelected",
-            label: "onOptionSelected",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
           },
         ],
@@ -523,8 +557,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
         children: [
           {
             id: "17.1",
-            propertyName: "onOptionSelected",
-            label: "onOptionSelected",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
           },
         ],

@@ -50,6 +50,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         );
       }
     }
+    super.executeAction(this.props.onOptionChange);
   };
 
   onOptionRemoved = (removedIndex: number) => {
@@ -63,6 +64,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       "selectedIndexArr",
       updateIndexArr,
     );
+    super.executeAction(this.props.onOptionChange);
   };
 
   getWidgetType(): WidgetType {
@@ -83,7 +85,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedIndexArr?: number[];
   selectionType: SelectionType;
   options?: DropdownOption[];
-  onOptionSelected?: ActionPayload[];
+  onOptionChange?: ActionPayload[];
 }
 
 export default DropdownWidget;

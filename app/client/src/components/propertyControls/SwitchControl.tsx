@@ -6,7 +6,7 @@ import { ControlType } from "../../constants/PropertyControlConstants";
 class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
-      <ControlWrapper>
+      <ControlWrapper orientation={"HORIZONTAL"}>
         <label>{this.props.label}</label>
         <StyledSwitch
           onChange={this.onToggle}

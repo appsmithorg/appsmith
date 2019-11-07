@@ -31,6 +31,7 @@ import { getPageLayoutId } from "./selectors";
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
+import { createUpdateBindingsMap } from "../actions/bindingActions";
 
 export function* fetchPageListSaga() {
   try {
@@ -97,10 +98,7 @@ export function* fetchPageSaga(
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       yield all([
         put(updateCanvas(canvasWidgetsPayload)),
-        put({
-          type: ReduxActionTypes.LOAD_CANVAS_ACTIONS,
-          payload: fetchPageResponse.data.actions,
-        }),
+        put(createUpdateBindingsMap()),
       ]);
     }
   } catch (error) {
@@ -198,8 +196,13 @@ export function* saveLayoutSaga(
       type: ReduxActionTypes.SAVE_PAGE_INIT,
       payload: getLayoutSavePayload(widgets, editorConfigs),
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
@@ -223,7 +226,6 @@ export function* asyncSaveLayout() {
       throw Error("Error when saving layout");
     }
   } catch (error) {
-    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_WIDGET_PROPERTY_ERROR,
       payload: {

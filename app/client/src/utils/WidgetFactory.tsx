@@ -21,8 +21,9 @@ class WidgetFactory {
   ): JSX.Element {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
-      renderMode: renderMode,
+      isVisible: true,
       ...widgetData,
+      renderMode: renderMode,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {

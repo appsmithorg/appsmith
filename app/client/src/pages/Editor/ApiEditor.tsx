@@ -4,7 +4,7 @@ import { submit, initialize, getFormValues, destroy } from "redux-form";
 import ApiEditorForm from "./APIEditor/ApiEditorForm";
 import {
   createActionRequest,
-  runAction,
+  executeAction,
   deleteAction,
   updateAction,
 } from "../../actions/actionActions";
@@ -14,7 +14,6 @@ import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
-import { normalizeApiFormData } from "../../normalizers/ApiFormNormalizer";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 
 interface ReduxStateProps {
@@ -65,11 +64,10 @@ class ApiEditor extends React.Component<Props> {
 
   handleSubmit = (values: RestAction) => {
     const { formData } = this.props;
-    const data = normalizeApiFormData(formData);
-    if (data.id) {
-      this.props.updateAction(data);
+    if (formData.id) {
+      this.props.updateAction(formData);
     } else {
-      this.props.createAction(data);
+      this.props.createAction(formData);
     }
   };
 
@@ -109,7 +107,16 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   createAction: (action: RestAction) => dispatch(createActionRequest(action)),
-  runAction: (id: string) => dispatch(runAction({ id })),
+  runAction: (id: string) =>
+    dispatch(
+      executeAction([
+        {
+          actionId: id,
+          actionType: "API",
+          contextParams: {},
+        },
+      ]),
+    ),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>

@@ -16,6 +16,7 @@ const PopperWrapper = styled(PaneWrapper)`
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
   margin: ${props => props.theme.spaces[6]}px;
+  overflow-y: auto;
 `;
 
 /* eslint-disable react/display-name */

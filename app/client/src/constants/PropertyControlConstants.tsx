@@ -16,4 +16,5 @@ export type ControlType =
   | "SHAPE_PICKER"
   | "VALIDATION_INPUT"
   | "ZOOM"
+  | "TIME_ZONE"
   | "CODE_EDITOR";

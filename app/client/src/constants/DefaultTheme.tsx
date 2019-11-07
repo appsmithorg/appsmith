@@ -45,6 +45,10 @@ export type Theme = {
     activeItemBGColor: Color;
     navItemHeight: number;
   };
+  card: {
+    minWidth: number;
+    minHeight: number;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -133,6 +137,10 @@ export const theme: Theme = {
     fontColor: Colors.WHITE,
     activeItemBGColor: Colors.SHARK,
     navItemHeight: 42,
+  },
+  card: {
+    minWidth: 300,
+    minHeight: 300,
   },
 };
 

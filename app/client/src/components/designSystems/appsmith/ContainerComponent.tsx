@@ -23,7 +23,7 @@ export const StyledContainer = styled("div")<StyledContainerProps>`
   }};
   background: ${props => props.imageUrl}
   background: ${props => props.style.backgroundColor};
-  color: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.textDefault};
   position: ${props => {
     return props.style.positionType === "ABSOLUTE" ? "absolute" : "relative";
   }};

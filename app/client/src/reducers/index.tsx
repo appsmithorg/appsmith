@@ -12,8 +12,9 @@ import { PropertyPaneConfigState } from "./entityReducers/propertyPaneConfigRedu
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
-import { ResourceDataState } from "./entityReducers/resourcesReducer";
+import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
+import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { BindingsDataState } from "./entityReducers/bindingsReducer";
 
 const appReducer = combineReducers({
@@ -30,7 +31,8 @@ export interface AppState {
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     errors: ErrorReduxState;
-    view: AppViewReduxState;
+    appView: AppViewReduxState;
+    applications: ApplicationsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -39,7 +41,9 @@ export interface AppState {
     actions: ActionDataState;
     propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
-    resources: ResourceDataState;
+    datasources: DatasourceDataState;
     nameBindings: BindingsDataState;
   };
 }
+
+export type DataTree = AppState["entities"];
