@@ -2,16 +2,12 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import { ActionPayload } from "../constants/ActionConstants";
-import BaseTable, { AutoResizer } from "react-base-table";
+import { AutoResizer } from "react-base-table";
 import "react-base-table/styles.css";
 import { forIn } from "lodash";
-
-interface Column {
-  key: string;
-  dataKey: string;
-  title: string;
-  width: number;
-}
+import SelectableTable, {
+  Column,
+} from "../components/designSystems/appsmith/TableComponent";
 
 function constructColumns(data: object[]): Column[] {
   const cols: Column[] = [];
@@ -54,12 +50,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <AutoResizer>
         {({ width, height }: { width: number; height: number }) => (
-          <BaseTable
+          <SelectableTable
             width={width}
             height={height}
             columns={columns}
             data={tableData}
             maxHeight={height}
+            selectedRowIndex={
+              this.props.selectedRow && this.props.selectedRow.index
+            }
+            onRowClick={(rowData: object, index: number) => {
+              const { widgetId, onRowSelected } = this.props;
+              super.updateWidgetProperty(widgetId, "selectedRow", {
+                data: rowData,
+                index: index,
+              });
+              super.executeAction(onRowSelected);
+            }}
           />
         )}
       </AutoResizer>
@@ -85,6 +92,10 @@ export interface TableWidgetProps extends WidgetProps {
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
+  selectedRow?: {
+    data: object;
+    index: number;
+  };
 }
 
 export default TableWidget;

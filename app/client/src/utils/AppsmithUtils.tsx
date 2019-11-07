@@ -86,3 +86,5 @@ export const getNextWidgetName = (
 
   return prefix + (lastIndex + 1);
 };
+
+export const noop = () => {};

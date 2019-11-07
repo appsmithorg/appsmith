@@ -40,6 +40,16 @@ abstract class BaseWidget<
     executeAction && executeAction(actionPayloads);
   }
 
+  updateWidgetProperty(
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ): void {
+    const { updateWidgetProperty } = this.context;
+    updateWidgetProperty &&
+      updateWidgetProperty(widgetId, propertyName, propertyValue);
+  }
+
   componentDidMount(): void {
     this.calculateWidgetBounds(
       this.props.rightColumn,
