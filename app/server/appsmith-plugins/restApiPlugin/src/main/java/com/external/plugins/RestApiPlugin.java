@@ -15,9 +15,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class RestApiPlugin extends BasePlugin {
@@ -47,7 +50,7 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.error(new Exception("HttpMethod must not be null"));
             }
 
-            WebClient.Builder webClientBuilder = WebClient.builder().baseUrl(url);
+            WebClient.Builder webClientBuilder = WebClient.builder();
 
             if (datasourceConfiguration.getHeaders() != null) {
                 addHeadersToRequest(webClientBuilder, datasourceConfiguration.getHeaders());
@@ -57,9 +60,19 @@ public class RestApiPlugin extends BasePlugin {
                 addHeadersToRequest(webClientBuilder, actionConfiguration.getHeaders());
             }
 
+
+            URI uri = null;
+            try {
+                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                return Mono.error(e);
+            }
+
             return webClientBuilder
                     .build()
                     .method(httpMethod)
+                    .uri(uri)
                     .body(BodyInserters.fromObject(requestBody))
                     .exchange()
                     .flatMap(clientResponse -> clientResponse.toEntity(String.class))
@@ -74,7 +87,7 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
                         try {
-                            if (body!=null) {
+                            if (body != null) {
                                 result.setBody(objectMapper.readTree(body));
                             }
                             if (headers != null) {
@@ -105,6 +118,20 @@ public class RestApiPlugin extends BasePlugin {
                     webClientBuilder.defaultHeader(header.getKey(), header.getValue());
                 }
             }
+        }
+
+        private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
+            uriBuilder.uri(new URI(url));
+
+            if (queryParams != null) {
+                for (Property queryParam : queryParams) {
+                    if (queryParam.getKey() != null && !queryParam.getKey().isEmpty()) {
+                        uriBuilder.queryParam(queryParam.getKey(), queryParam.getValue());
+                    }
+                }
+            }
+            return uriBuilder.build(true).toUri();
         }
     }
 }
