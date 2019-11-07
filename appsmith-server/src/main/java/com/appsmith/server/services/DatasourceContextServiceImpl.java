@@ -58,7 +58,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         );
 
         return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource, pluginExecutor) -> {
-                log.debug("calling plugin create connection.");
                 Object connection = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
                 DatasourceContext datasourceContext = new DatasourceContext();
                 datasourceContext.setConnection(connection);
