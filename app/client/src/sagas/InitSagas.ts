@@ -1,5 +1,8 @@
 import { all, select, put, takeLatest, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "../constants/ReduxActionConstants";
 import {
   getPropertyPaneConfigsId,
   getCurrentPageId,
@@ -10,13 +13,13 @@ import { fetchActions } from "../actions/actionActions";
 import { fetchDatasources } from "../actions/datasourcesActions";
 import { createUpdateBindingsMap } from "../actions/bindingActions";
 
-function* fetchAppDataSaga() {
+function* initializeEditorSaga() {
   // Step 1: Start getting all the data needed by the app
   const propertyPaneConfigsId = yield select(getPropertyPaneConfigsId);
   const currentPageId = yield select(getCurrentPageId);
   yield all([
     put(fetchPageList()),
-    put(fetchEditorConfigs(propertyPaneConfigsId)),
+    put(fetchEditorConfigs({ propertyPaneConfigsId })),
     put(fetchPage(currentPageId)),
     put(fetchActions()),
     put(fetchDatasources()),
@@ -32,6 +35,28 @@ function* fetchAppDataSaga() {
   yield put(createUpdateBindingsMap());
 }
 
+export function* initializeAppViewerSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  yield all([put(fetchPageList()), put(fetchActions())]);
+  yield all([
+    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+  ]);
+  yield put({
+    type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+    payload: action.payload,
+  });
+  yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
+  yield put(createUpdateBindingsMap());
+}
+
 export default function* watchInitSagas() {
-  yield all([takeLatest(ReduxActionTypes.INIT_APP_DATA, fetchAppDataSaga)]);
+  yield all([
+    takeLatest(ReduxActionTypes.INIT_EDITOR, initializeEditorSaga),
+    takeLatest(
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      initializeAppViewerSaga,
+    ),
+  ]);
 }

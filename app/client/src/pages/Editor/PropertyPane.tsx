@@ -16,6 +16,7 @@ import {
 
 import Popper from "./Popper";
 import { ControlProps } from "../../components/propertyControls/BaseControl";
+import { RenderModes } from "../../constants/WidgetConstants";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -143,7 +144,15 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
       widgetId: string,
       propertyName: string,
       propertyValue: any,
-    ) => dispatch(updateWidgetProperty(widgetId, propertyName, propertyValue)),
+    ) =>
+      dispatch(
+        updateWidgetProperty(
+          widgetId,
+          propertyName,
+          propertyValue,
+          RenderModes.CANVAS,
+        ),
+      ),
   };
 };
 

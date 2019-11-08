@@ -43,7 +43,12 @@ export const getPropertyConfig = createSelector(
     pane: PropertyPaneReduxState,
     widgets: CanvasWidgetsReduxState,
   ) => {
-    if (pane.widgetId && configs && widgets[pane.widgetId]) {
+    if (
+      pane.widgetId &&
+      configs &&
+      !!configs.config &&
+      widgets[pane.widgetId]
+    ) {
       return configs.config[widgets[pane.widgetId].type];
     }
     return undefined;

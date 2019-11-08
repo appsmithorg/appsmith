@@ -1,9 +1,11 @@
 import { createSelector } from "reselect";
-import { AppState } from "../reducers";
+import { AppState, DataTree } from "../reducers";
 import { AppViewReduxState } from "../reducers/uiReducers/appViewReducer";
 import { AppViewerProps } from "../pages/AppViewer";
+import { injectDataTreeIntoDsl } from "../utils/DynamicBindingUtils";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
+const getDataTree = (state: AppState): DataTree => state.entities;
 
 export const getCurrentLayoutId = (state: AppState, props: AppViewerProps) =>
   state.ui.appView.currentLayoutId || props.match.params.layoutId;
@@ -15,7 +17,9 @@ export const getCurrentRoutePageId = (state: AppState, props: AppViewerProps) =>
 // For the viewer, this does not need to be wrapped in createCachedSelector, as it will not change in subsequent renders.
 export const getCurrentPageLayoutDSL = createSelector(
   getAppViewState,
-  (view: AppViewReduxState) => view.dsl,
+  getDataTree,
+  (view: AppViewReduxState, dataTree: DataTree) =>
+    injectDataTreeIntoDsl(dataTree, view.dsl),
 );
 
 export const getPageList = createSelector(

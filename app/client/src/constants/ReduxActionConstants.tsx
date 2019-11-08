@@ -2,7 +2,7 @@ import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
 import { RefObject } from "react";
 
 export const ReduxActionTypes: { [key: string]: string } = {
-  INIT_APP_DATA: "INIT_APP_DATA",
+  INIT_EDITOR: "INIT_EDITOR",
   REPORT_ERROR: "REPORT_ERROR",
   FLUSH_ERRORS: "FLUSH_ERRORS",
   UPDATE_CANVAS: "UPDATE_CANVAS",
@@ -48,7 +48,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CREATE_ACTION_SUCCESS: "CREATE_ACTION_SUCCESS",
   FETCH_ACTIONS_INIT: "FETCH_ACTIONS_INIT",
   FETCH_ACTIONS_SUCCESS: "FETCH_ACTIONS_SUCCESS",
-  FETCH_ACTION: "FETCH_ACTION",
   UPDATE_ACTION_INIT: "UPDATE_ACTION_INIT",
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
@@ -77,7 +76,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
-  INIT_APP_DATA_ERROR: "INIT_APP_DATA_ERROR",
+  INIT_EDITOR_ERROR: "INIT_EDITOR_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
