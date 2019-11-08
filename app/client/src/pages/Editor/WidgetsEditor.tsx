@@ -16,6 +16,7 @@ import { getDenormalizedDSL } from "../../selectors/editorSelectors";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
 import { updateWidgetProperty } from "../../actions/controlActions";
+import { RenderModes } from "../../constants/WidgetConstants";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -95,7 +96,15 @@ const mapDispatchToProps = (dispatch: any) => {
       widgetId: string,
       propertyName: string,
       propertyValue: any,
-    ) => dispatch(updateWidgetProperty(widgetId, propertyName, propertyValue)),
+    ) =>
+      dispatch(
+        updateWidgetProperty(
+          widgetId,
+          propertyName,
+          propertyValue,
+          RenderModes.CANVAS,
+        ),
+      ),
     executeAction: (actionPayloads?: ActionPayload[]) =>
       dispatch(executeAction(actionPayloads)),
     updateWidget: (

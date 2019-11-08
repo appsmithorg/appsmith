@@ -3,6 +3,6 @@ import {
   ReduxActionWithoutPayload,
 } from "../constants/ReduxActionConstants";
 
-export const initAppData = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.INIT_APP_DATA,
+export const initEditor = (): ReduxActionWithoutPayload => ({
+  type: ReduxActionTypes.INIT_EDITOR,
 });

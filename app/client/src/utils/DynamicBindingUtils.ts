@@ -1,8 +1,8 @@
 import _ from "lodash";
 import { DataTree } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "../widgets/BaseWidget";
+import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 import {
   DATA_BIND_REGEX,
   DATA_PATH_REGEX,
@@ -23,15 +23,16 @@ export const getDynamicBoundValue = (
   return JSONPath({ path: fullPath, json: dataTree });
 };
 
-export const injectDataTreeIntoDsl = (entities: DataTree) => {
-  const { canvasWidgets } = entities;
-  // Create new widgets object
-  const widgets: CanvasWidgetsReduxState = {};
-  if (_.isEmpty(canvasWidgets)) return entities;
-  Object.keys(canvasWidgets).forEach((key: string) => {
-    // Spread all values in the widget
-    const widget: WidgetProps = { ...canvasWidgets[key] };
-    const { dynamicBindings } = canvasWidgets[key];
+export const injectDataTreeIntoDsl = (
+  entities: DataTree,
+  dsl?: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (!dsl) return dsl;
+  const traverseTree = (
+    tree: ContainerWidgetProps<WidgetProps>,
+  ): ContainerWidgetProps<WidgetProps> => {
+    const { dynamicBindings } = tree;
+    const widget = { ...tree };
     // Check for dynamic bindings
     if (dynamicBindings && !_.isEmpty(dynamicBindings)) {
       Object.keys(dynamicBindings).forEach((dKey: string) => {
@@ -64,7 +65,11 @@ export const injectDataTreeIntoDsl = (entities: DataTree) => {
         }
       });
     }
-    widgets[key] = widget;
-  });
-  return { ...entities, canvasWidgets: widgets };
+    if (tree.children) {
+      const children = tree.children.map(b => traverseTree(b));
+      return { ...widget, children };
+    }
+    return { ...widget };
+  };
+  return traverseTree(dsl);
 };

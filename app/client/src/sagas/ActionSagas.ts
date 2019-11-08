@@ -12,9 +12,9 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { initialize } from "redux-form";
 import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
+  ActionApiResponse,
   ActionCreateUpdateResponse,
   ExecuteActionRequest,
   RestAction,
@@ -24,7 +24,6 @@ import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "../api/ApiResponses";
-import { API_EDITOR_FORM_NAME } from "../constants/forms";
 import {
   createActionSuccess,
   deleteActionSuccess,
@@ -33,6 +32,7 @@ import {
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
 import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
+import { createUpdateBindingsMap } from "../actions/bindingActions";
 
 const getDataTree = (state: AppState): DataTree => {
   return state.entities;
@@ -70,7 +70,9 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
     });
     executeActionRequest.params = mapToPropList(dynamicBindings);
   }
-  const response = yield ActionAPI.executeAction(executeActionRequest);
+  const response: ActionApiResponse = yield ActionAPI.executeAction(
+    executeActionRequest,
+  );
   let payload = response;
   if (response.responseMeta && response.responseMeta.error) {
     payload = {
@@ -112,6 +114,7 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
       intent: Intent.SUCCESS,
     });
     yield put(createActionSuccess(response.data));
+    yield put(createUpdateBindingsMap());
     history.push(API_EDITOR_ID_URL(response.data.id));
   }
 }
@@ -133,14 +136,6 @@ export function* fetchActionsSaga() {
   }
 }
 
-export function* fetchActionSaga(actionPayload: ReduxAction<{ id: string }>) {
-  const response: GenericApiResponse<RestAction> = yield ActionAPI.fetchAPI(
-    actionPayload.payload.id,
-  );
-  const data = response.data;
-  yield put(initialize(API_EDITOR_FORM_NAME, data));
-}
-
 export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
@@ -153,6 +148,7 @@ export function* updateActionSaga(
       intent: Intent.SUCCESS,
     });
     yield put(updateActionSuccess({ data: response.data }));
+    yield put(createUpdateBindingsMap());
   } else {
     AppToaster.show({
       message: "Error occurred when updating action",
@@ -172,6 +168,7 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       intent: Intent.SUCCESS,
     });
     yield put(deleteActionSuccess({ id }));
+    yield put(createUpdateBindingsMap());
     history.push(API_EDITOR_URL);
   } else {
     AppToaster.show({
@@ -186,7 +183,6 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
     takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
-    takeEvery(ReduxActionTypes.FETCH_ACTION, fetchActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
   ]);

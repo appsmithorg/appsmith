@@ -24,6 +24,9 @@ import { Link } from "react-router-dom";
 import { theme } from "../../constants/DefaultTheme";
 import SideNav, { SideNavItem } from "./viewer/SideNav";
 import AppViewerHeader from "./viewer/AppViewerHeader";
+import { updateWidgetProperty } from "../../actions/controlActions";
+import { RenderModes } from "../../constants/WidgetConstants";
+import { WidgetFunctionsContext } from "../Editor/WidgetsEditor";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -79,7 +82,6 @@ export type AppViewerProps = {
   currentRoutePageId?: string;
   currentDSLPageId?: string;
   currentLayoutId?: string;
-  executeAction: Function;
   fetchPageWidgets: Function;
   pages?: PageListPayload;
   dsl?: ContainerWidgetProps<WidgetProps>;
@@ -88,6 +90,12 @@ export type AppViewerProps = {
   match: any;
   location: any;
   history: any;
+  executeAction: (actionPayloads?: ActionPayload[]) => void;
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
 };
 
 class AppViewer extends Component<AppViewerProps> {
@@ -124,52 +132,59 @@ class AppViewer extends Component<AppViewerProps> {
         page => page.pageId === this.props.currentRoutePageId,
       );
     return (
-      <AppViewWrapper>
-        <AppViewerHeader />
-        <AppViewerBody>
-          {items && (
-            <SideNavWrapper>
-              <SideNav
-                items={items}
-                onSelect={this.handlePageSelect}
-                iconSize={24}
-                active={
-                  currentPage && {
-                    text: currentPage.pageName,
-                    id: currentPage.pageId,
+      <WidgetFunctionsContext.Provider
+        value={{
+          executeAction: this.props.executeAction,
+          updateWidgetProperty: this.props.updateWidgetProperty,
+        }}
+      >
+        <AppViewWrapper>
+          <AppViewerHeader />
+          <AppViewerBody>
+            {items && (
+              <SideNavWrapper>
+                <SideNav
+                  items={items}
+                  onSelect={this.handlePageSelect}
+                  iconSize={24}
+                  active={
+                    currentPage && {
+                      text: currentPage.pageName,
+                      id: currentPage.pageId,
+                    }
                   }
-                }
-              />
-            </SideNavWrapper>
-          )}
-          {this.props.isFetching && (
-            <Centered>
-              <Spinner />
-            </Centered>
-          )}
-          {!this.props.isFetching && !this.props.dsl && items && (
-            <Centered>
-              <NonIdealState
-                icon={
-                  <Icon
-                    iconSize={theme.fontSizes[9]}
-                    icon="page-layout"
-                    color={theme.colors.primary}
-                  />
-                }
-                title="This page seems to be blank"
-                description={
-                  <p>
-                    Please add widgets to this page in the
-                    <Link to="/builder"> Appsmith Editor</Link>
-                  </p>
-                }
-              />
-            </Centered>
-          )}
-          {this.props.dsl && <AppPage dsl={this.props.dsl} />}
-        </AppViewerBody>
-      </AppViewWrapper>
+                />
+              </SideNavWrapper>
+            )}
+            {this.props.isFetching && (
+              <Centered>
+                <Spinner />
+              </Centered>
+            )}
+            {!this.props.isFetching && !this.props.dsl && items && (
+              <Centered>
+                <NonIdealState
+                  icon={
+                    <Icon
+                      iconSize={theme.fontSizes[9]}
+                      icon="page-layout"
+                      color={theme.colors.primary}
+                    />
+                  }
+                  title="This page seems to be blank"
+                  description={
+                    <p>
+                      Please add widgets to this page in the
+                      <Link to="/builder"> Appsmith Editor</Link>
+                    </p>
+                  }
+                />
+              </Centered>
+            )}
+            {this.props.dsl && <AppPage dsl={this.props.dsl} />}
+          </AppViewerBody>
+        </AppViewWrapper>
+      </WidgetFunctionsContext.Provider>
     );
   }
 }
@@ -185,6 +200,19 @@ const mapStateToProps = (state: AppState, props: AppViewerProps) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   executeAction: (actionPayloads?: ActionPayload[]) =>
     dispatch(executeAction(actionPayloads)),
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    dispatch(
+      updateWidgetProperty(
+        widgetId,
+        propertyName,
+        propertyValue,
+        RenderModes.PAGE,
+      ),
+    ),
   fetchPageWidgets: (pageId: string) => {
     dispatch({
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
