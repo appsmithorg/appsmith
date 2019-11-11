@@ -50,7 +50,7 @@ export function* evaluateJSONPathSaga(path: string): any {
   return getDynamicBoundValue(dataTree, path);
 }
 
-export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
+export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
