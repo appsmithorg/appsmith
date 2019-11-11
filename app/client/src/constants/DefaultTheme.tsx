@@ -49,6 +49,11 @@ export type Theme = {
     minWidth: number;
     minHeight: number;
   };
+  widgets: {
+    tableWidget: {
+      selectHighlightColor: Color;
+    };
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -141,6 +146,11 @@ export const theme: Theme = {
   card: {
     minWidth: 300,
     minHeight: 300,
+  },
+  widgets: {
+    tableWidget: {
+      selectHighlightColor: Colors.GEYSER_LIGHT,
+    },
   },
 };
 

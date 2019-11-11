@@ -13,6 +13,7 @@ const SidebarWrapper = styled.div`
   background-color: ${props => props.theme.colors.paneBG};
   padding: 5px 10px;
   color: ${props => props.theme.colors.textOnDarkBG};
+  overflow-y: scroll;
 `;
 
 class Sidebar extends React.Component {

@@ -94,7 +94,7 @@ export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
   getEntities,
   (pageWidgetId: string, entities: DataTree) => {
-    const injectedEntities = injectDataTreeIntoDsl(entities);
-    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, injectedEntities);
+    const dsl = CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
+    return injectDataTreeIntoDsl(entities, dsl);
   },
 )((pageWidgetId, entities) => entities || 0);

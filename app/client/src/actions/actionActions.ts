@@ -22,13 +22,6 @@ export const fetchActions = () => {
   };
 };
 
-export const fetchApiConfig = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.FETCH_ACTION,
-    payload,
-  };
-};
-
 export const executeAction = (payload: ActionPayload[]) => {
   return {
     type: ReduxActionTypes.EXECUTE_ACTION,
@@ -67,7 +60,6 @@ export const deleteActionSuccess = (payload: { id: string }) => {
 export default {
   createAction: createActionRequest,
   fetchActions,
-  fetchApiConfig,
   runAction: executeAction,
   deleteAction,
   deleteActionSuccess,
