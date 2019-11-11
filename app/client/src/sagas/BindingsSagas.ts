@@ -7,7 +7,7 @@ function* createUpdateBindingsMapData() {
   const data: AppState = yield select();
   const map: Record<string, string> = {};
   data.entities.actions.data.forEach(action => {
-    map[action.name] = `$.apiData.${action.id}`;
+    map[action.name] = `$.apiData.${action.id}.body`;
   });
   Object.keys(data.entities.canvasWidgets).forEach(widgetId => {
     const name = data.entities.canvasWidgets[widgetId].widgetName;

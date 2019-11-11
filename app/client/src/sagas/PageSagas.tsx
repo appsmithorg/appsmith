@@ -32,6 +32,8 @@ import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { createUpdateBindingsMap } from "../actions/bindingActions";
+import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
+import { RenderModes } from "../constants/WidgetConstants";
 
 export function* fetchPageListSaga() {
   try {
@@ -58,16 +60,7 @@ export function* fetchPageListSaga() {
     });
   }
 }
-//TODO(abhinav): Probably not the best place for this particular saga
-export function* initializeAppViewerSaga(
-  action: ReduxAction<{ pageId: string }>,
-) {
-  yield* fetchPageListSaga();
-  yield put({
-    type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-    payload: action.payload,
-  });
-}
+
 const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
 ): UpdateCanvasPayload => {
@@ -84,6 +77,21 @@ const getCanvasWidgetsPayload = (
   };
 };
 
+// TODO(abhinav): Make this similar for both Render Modes
+const getAppViewWidgetsPayload = (pageResponse: any) => {
+  const normalizedResponse = CanvasWidgetsNormalizer.normalize(
+    pageResponse.data.dsl,
+  );
+  return {
+    pageWidgetId: normalizedResponse.result,
+    currentPageName: pageResponse.data.name,
+    currentPageId: pageResponse.data.id,
+    widgets: normalizedResponse.entities.canvasWidgets,
+    currentLayoutId: pageResponse.data.id,
+    currentApplicationId: pageResponse.data.applicationId,
+  };
+};
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
@@ -96,10 +104,8 @@ export function* fetchPageSaga(
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      yield all([
-        put(updateCanvas(canvasWidgetsPayload)),
-        put(createUpdateBindingsMap()),
-      ]);
+      yield put(updateCanvas(canvasWidgetsPayload));
+      yield put(createUpdateBindingsMap());
     }
   } catch (error) {
     yield put({
@@ -135,6 +141,9 @@ export function* fetchPublishedPageSaga(
           pageId: request.pageId,
         },
       });
+      const canvasWidgetsPayload = getAppViewWidgetsPayload(response);
+      yield put(updateCanvas(canvasWidgetsPayload));
+      yield put(createUpdateBindingsMap());
     }
   } catch (error) {
     yield put({
@@ -196,6 +205,7 @@ export function* saveLayoutSaga(
       type: ReduxActionTypes.SAVE_PAGE_INIT,
       payload: getLayoutSavePayload(widgets, editorConfigs),
     });
+    put(createUpdateBindingsMap());
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
@@ -208,7 +218,10 @@ export function* saveLayoutSaga(
 
 // TODO(abhinav): This has redundant code. The only thing different here is the lack of state update.
 // For now, this is fire and forget.
-export function* asyncSaveLayout() {
+export function* asyncSaveLayout(
+  actionPayload: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  if (actionPayload.payload.renderMode === RenderModes.PAGE) return;
   try {
     const widgets = yield select(getWidgets);
     const editorConfigs = yield select(getEditorConfigs) as any;
@@ -276,11 +289,11 @@ export default function* pageSagas() {
     // No need to save layout everytime a property is updated.
     // We save the latest request to update layout.
     takeLatest(ReduxActionTypes.UPDATE_WIDGET_PROPERTY, asyncSaveLayout),
+    takeLatest(
+      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,
+      asyncSaveLayout,
+    ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
-    takeLatest(
-      ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      initializeAppViewerSaga,
-    ),
   ]);
 }
