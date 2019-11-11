@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import RadioGroupComponent from "../components/designSystems/blueprint/RadioGroupComponent";
