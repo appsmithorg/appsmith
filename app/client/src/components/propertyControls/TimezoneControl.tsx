@@ -21,7 +21,6 @@ class TimeZoneControl extends BaseControl<TimeZoneControlProps> {
   }
 
   onTimeZoneSelected = (timezone: string): void => {
-    console.log(timezone);
     this.updateProperty(this.props.propertyName, timezone);
   };
 
