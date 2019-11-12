@@ -181,13 +181,13 @@ class ActionSelectorControl extends BaseControl<
         break;
     }
 
-    const onActionSelect = this.onActionSelect;
+    let onActionSelect = this.onActionSelect;
     switch (actionResolutionType) {
       case ACTION_RESOLUTION_TYPE.SUCCESS:
-        onTypeSelect = this.onSuccessActionSelect;
+        onActionSelect = this.onSuccessActionSelect;
         break;
       case ACTION_RESOLUTION_TYPE.ERROR:
-        onTypeSelect = this.onErrorActionSelect;
+        onActionSelect = this.onErrorActionSelect;
         break;
     }
     return (
@@ -234,6 +234,7 @@ class ActionSelectorControl extends BaseControl<
       const actionPayload = { actionType: item.value } as ActionPayload;
       actionPayloads.push(actionPayload);
     }
+
     this.updateProperty(this.props.propertyName, actionPayloads);
   };
   onSuccessActionTypeSelect = (item: DropdownOption) => {
