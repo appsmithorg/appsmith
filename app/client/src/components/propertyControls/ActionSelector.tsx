@@ -28,10 +28,10 @@ function getActions(
   onSuccessAction: ActionPayload | undefined;
   onErrorAction: ActionPayload | undefined;
 } {
-  let action: ActionPayload | undefined = actionPayloads && actionPayloads[0];
-  let onSuccessAction: ActionPayload | undefined =
+  const action: ActionPayload | undefined = actionPayloads && actionPayloads[0];
+  const onSuccessAction: ActionPayload | undefined =
     action && action.onSuccess && action.onSuccess[0];
-  let onErrorAction: ActionPayload | undefined =
+  const onErrorAction: ActionPayload | undefined =
     action && action.onError && action.onError[0];
   return {
     action,
@@ -181,7 +181,7 @@ class ActionSelectorControl extends BaseControl<
         break;
     }
 
-    let onActionSelect = this.onActionSelect;
+    const onActionSelect = this.onActionSelect;
     switch (actionResolutionType) {
       case ACTION_RESOLUTION_TYPE.SUCCESS:
         onTypeSelect = this.onSuccessActionSelect;
@@ -223,7 +223,7 @@ class ActionSelectorControl extends BaseControl<
     const actionPayloads: ActionPayload[] = this.props.propertyValue
       ? this.props.propertyValue.slice()
       : [];
-    let actionPayload = actionPayloads[0];
+    const actionPayload = actionPayloads[0];
 
     if (actionPayload && actionPayload.actionType !== item.value) {
       actionPayload.actionId = "";
@@ -240,12 +240,12 @@ class ActionSelectorControl extends BaseControl<
     const actionPayloads: ActionPayload[] = this.props.propertyValue
       ? this.props.propertyValue.slice()
       : [];
-    let actionPayload = actionPayloads[0];
+    const actionPayload = actionPayloads[0];
 
     if (actionPayload) {
       const successActionPayloads: ActionPayload[] =
         actionPayload.onSuccess || [];
-      let successActionPayload = successActionPayloads[0];
+      const successActionPayload = successActionPayloads[0];
       if (successActionPayload) {
         successActionPayload.actionId = "";
         successActionPayload.actionType = item.value as ActionType;
@@ -263,11 +263,11 @@ class ActionSelectorControl extends BaseControl<
     const actionPayloads: ActionPayload[] = this.props.propertyValue
       ? this.props.propertyValue.slice()
       : [];
-    let actionPayload = actionPayloads[0];
+    const actionPayload = actionPayloads[0];
 
     if (actionPayload) {
       const errorActionPayloads: ActionPayload[] = actionPayload.onError || [];
-      let errorActionPayload = errorActionPayloads[0];
+      const errorActionPayload = errorActionPayloads[0];
       if (errorActionPayload) {
         errorActionPayload.actionId = "";
         errorActionPayload.actionType = item.value as ActionType;

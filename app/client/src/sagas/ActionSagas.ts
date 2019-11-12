@@ -14,10 +14,10 @@ import {
 } from "redux-saga/effects";
 import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
-  ActionApiResponse,
   ActionCreateUpdateResponse,
   ExecuteActionRequest,
   RestAction,
+  ActionApiResponse,
 } from "../api/ActionAPI";
 import { AppState, DataTree } from "../reducers";
 import _ from "lodash";
@@ -33,6 +33,7 @@ import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
 import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 import { createUpdateBindingsMap } from "../actions/bindingActions";
+/* eslint-disable no-use-before-define */
 
 const getDataTree = (state: AppState): DataTree => {
   return state.entities;
@@ -81,17 +82,27 @@ export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
       ...response,
     };
     if (apiAction.onError) {
-      yield call(executeActionSaga, apiAction.onError);
+      yield put({
+        type: ReduxActionTypes.EXECUTE_ACTION,
+        payload: apiAction.onError,
+      });
     }
+    yield put({
+      type: ReduxActionTypes.EXECUTE_ACTION_ERROR,
+      payload: { [apiAction.actionId]: payload },
+    });
   } else {
     if (apiAction.onSuccess) {
-      yield call(executeActionSaga, apiAction.onSuccess);
+      yield put({
+        type: ReduxActionTypes.EXECUTE_ACTION,
+        payload: apiAction.onSuccess,
+      });
     }
+    yield put({
+      type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
+      payload: { [apiAction.actionId]: payload },
+    });
   }
-  yield put({
-    type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
-    payload: { [apiAction.actionId]: payload },
-  });
   return response;
 }
 

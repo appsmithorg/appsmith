@@ -12,7 +12,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         dateFormat={this.props.dateFormat}
         style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
-        defaultTimezone={this.props.defaultTimezone}
+        timezone={this.props.timezone}
         enableTimePicker={this.props.enableTimePicker}
         defaultDate={this.props.defaultDate}
         datePickerType={"DATE_PICKER"}
@@ -41,7 +41,7 @@ export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 export interface DatePickerWidgetProps extends WidgetProps {
   defaultDate?: Date;
   selectedDate: Date;
-  defaultTimezone?: string;
+  timezone?: string;
   enableTimePicker: boolean;
   dateFormat: string;
   label: string;

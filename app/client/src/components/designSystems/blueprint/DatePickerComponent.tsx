@@ -46,18 +46,18 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   }
 
   formatDate = (date: Date): string => {
-    if (this.props.defaultTimezone) {
+    if (this.props.timezone) {
       return moment(date)
-        .tz(this.props.defaultTimezone)
+        .tz(this.props.timezone)
         .format(this.props.dateFormat);
     }
     return moment(date).format(this.props.dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    if (this.props.defaultTimezone) {
+    if (this.props.timezone) {
       return moment(dateStr)
-        .tz(this.props.defaultTimezone)
+        .tz(this.props.timezone)
         .toDate();
     }
     return moment(dateStr).toDate();
@@ -76,7 +76,7 @@ export interface DatePickerComponentProps extends ComponentProps {
   selectedDate?: Date;
   minDate?: Date;
   maxDate?: Date;
-  defaultTimezone?: string;
+  timezone?: string;
   datePickerType: DatePickerType;
   onDateSelected: (date: Date) => void;
 }
