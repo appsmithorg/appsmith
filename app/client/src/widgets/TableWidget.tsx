@@ -57,13 +57,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             data={tableData}
             maxHeight={height}
             selectedRowIndex={
-              this.props.selectedRow && this.props.selectedRow.index
+              this.props.selectedRow && this.props.selectedRow.rowIndex
             }
             onRowClick={(rowData: object, index: number) => {
               const { widgetId, onRowSelected } = this.props;
               super.updateWidgetProperty(widgetId, "selectedRow", {
-                data: rowData,
-                index: index,
+                ...rowData,
+                rowIndex: index,
               });
               super.executeAction(onRowSelected);
             }}
@@ -84,6 +84,10 @@ export interface TableAction extends ActionPayload {
   actionName: string;
 }
 
+interface RowData {
+  rowIndex: number;
+}
+
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
@@ -92,10 +96,7 @@ export interface TableWidgetProps extends WidgetProps {
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  selectedRow?: {
-    data: object;
-    index: number;
-  };
+  selectedRow?: object & RowData;
 }
 
 export default TableWidget;
