@@ -137,7 +137,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           name="actionConfiguration.httpMethod"
           options={HTTP_METHOD_OPTIONS}
         />
-        <DatasourcesField name="datasourceId" />
+        <DatasourcesField name="datasource.id" />
         <ForwardSlash />
         <TextField
           placeholderMessage="API Path"

@@ -16,6 +16,7 @@ import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
   ActionApiResponse,
   ActionCreateUpdateResponse,
+  ActionResponse,
   ExecuteActionRequest,
   RestAction,
 } from "../api/ActionAPI";
@@ -45,6 +46,23 @@ const getAction = (
   return _.find(state.entities.actions.data, { id: actionId });
 };
 
+const createActionResponse = (response: ActionApiResponse): ActionResponse => ({
+  ...response.data,
+  ...response.clientMeta,
+});
+
+const createActionErrorResponse = (
+  response: ActionApiResponse,
+): ActionResponse => ({
+  body: response.responseMeta.error || { error: "Error" },
+  statusCode: response.responseMeta.error
+    ? response.responseMeta.error.code
+    : "Error",
+  headers: {},
+  duration: "0",
+  size: "0",
+});
+
 export function* evaluateJSONPathSaga(path: string): any {
   const dataTree = yield select(getDataTree);
   return getDynamicBoundValue(dataTree, path);
@@ -54,7 +72,9 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
-    actionId: apiAction.actionId,
+    action: {
+      id: apiAction.actionId,
+    },
   };
   if (!_.isNil(api.jsonPathKeys)) {
     const values: any = _.flatten(
@@ -73,13 +93,9 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
   );
-  let payload = response;
+  let payload = createActionResponse(response);
   if (response.responseMeta && response.responseMeta.error) {
-    payload = {
-      body: response.responseMeta.error,
-      statusCode: response.responseMeta.error.code,
-      ...response,
-    };
+    payload = createActionErrorResponse(response);
     if (apiAction.onError) {
       yield put({
         type: ReduxActionTypes.EXECUTE_ACTION,
@@ -125,6 +141,26 @@ export function* executeReduxActionSaga(action: ReduxAction<ActionPayload[]>) {
   if (!_.isNil(action.payload)) {
     yield call(executeActionSaga, action.payload);
   }
+}
+
+function* dryRunActionSaga(action: ReduxAction<RestAction>) {
+  const executeActionRequest: ExecuteActionRequest = {
+    action: {
+      ...action.payload,
+    },
+  };
+  // TODO(hetu): No support for dynamic bindings in dry runs yet
+  const response: ActionApiResponse = yield ActionAPI.executeAction(
+    executeActionRequest,
+  );
+  let payload = createActionResponse(response);
+  if (response.responseMeta && response.responseMeta.error) {
+    payload = createActionErrorResponse(response);
+  }
+  yield put({
+    type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
+    payload: { [action.type]: payload },
+  });
 }
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
@@ -208,5 +244,6 @@ export function* watchActionSagas() {
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.DRY_RUN_ACTION, dryRunActionSaga),
   ]);
 }

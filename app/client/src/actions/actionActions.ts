@@ -57,6 +57,13 @@ export const deleteActionSuccess = (payload: { id: string }) => {
   };
 };
 
+export const dryRunAction = (payload: RestAction) => {
+  return {
+    type: ReduxActionTypes.DRY_RUN_ACTION,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,
