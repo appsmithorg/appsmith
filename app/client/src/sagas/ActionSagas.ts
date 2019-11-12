@@ -14,6 +14,7 @@ import {
 } from "redux-saga/effects";
 import { ActionPayload, PageAction } from "../constants/ActionConstants";
 import ActionAPI, {
+  ActionApiResponse,
   ActionCreateUpdateResponse,
   ExecuteActionRequest,
   RestAction,
@@ -33,7 +34,6 @@ import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
 import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 import { createUpdateBindingsMap } from "../actions/bindingActions";
-/* eslint-disable no-use-before-define */
 
 const getDataTree = (state: AppState): DataTree => {
   return state.entities;
