@@ -22,16 +22,6 @@ export type ActionType =
   | "SET_VALUE"
   | "DOWNLOAD";
 
-export enum ActionType1 {
-  "API",
-  "QUERY",
-  "NAVIGATION",
-  "ALERT",
-  "JS_FUNCTION",
-  "SET_VALUE",
-  "DOWNLOAD",
-}
-
 export const PropertyPaneActionDropdownOptions: DropdownOption[] = [
   { label: "Call API", value: "API" },
   // { label: "Run Query", value: "QUERY" },
@@ -41,6 +31,8 @@ export interface ActionPayload {
   actionId: string;
   actionType: ActionType;
   contextParams: Record<string, string>;
+  onSuccess?: ActionPayload[];
+  onError?: ActionPayload[];
 }
 
 export type NavigationType = "NEW_TAB" | "INLINE";
