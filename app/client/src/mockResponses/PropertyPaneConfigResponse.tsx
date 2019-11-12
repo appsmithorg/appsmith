@@ -98,7 +98,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           },
           {
             id: "4.1",
-            propertyName: "image",
+            propertyName: "defaultImage",
             label: "Default Image",
             placeholderText: "Enter URL",
             controlType: "INPUT_TEXT",
@@ -153,6 +153,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           },
           {
             id: "5.4",
+            propertyName: "defaultText",
+            label: "Default Input",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter the default text",
+          },
+          {
+            id: "5.5",
             propertyName: "maxChars",
             label: "Max Chars",
             controlType: "INPUT_TEXT",
@@ -160,7 +167,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             placeholderText: "Enter the max length",
           },
           {
-            id: "5.5",
+            id: "5.6",
             propertyName: "regex",
             label: "Regex",
             controlType: "INPUT_TEXT",
@@ -168,7 +175,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             placeholderText: "Enter the regex",
           },
           {
-            id: "5.6",
+            id: "5.7",
             propertyName: "errorMessage",
             label: "Error Message",
             controlType: "INPUT_TEXT",
