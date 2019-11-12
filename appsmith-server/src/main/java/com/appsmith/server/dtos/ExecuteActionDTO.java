@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Param;
+import com.appsmith.server.domains.Action;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class ExecuteActionDTO {
 
     @NotNull
-    String actionId;
+    Action action;
 
     List<Param> params;
 }
