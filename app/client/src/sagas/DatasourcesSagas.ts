@@ -40,7 +40,7 @@ function* createDatasourceSaga(
       type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
       payload: response.data,
     });
-    yield put(change(API_EDITOR_FORM_NAME, "datasourceId", response.data.id));
+    yield put(change(API_EDITOR_FORM_NAME, "datasource.id", response.data.id));
   } else {
     yield put({
       type: ReduxActionTypes.CREATE_DATASOURCES_ERROR,

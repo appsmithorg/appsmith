@@ -2,6 +2,7 @@ import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import { APIRequest } from "../constants/ApiConstants";
 import { AxiosPromise } from "axios";
+import { Datasource } from "./DatasourcesApi";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -51,14 +52,14 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 export interface RestAction {
   id: string;
   name: string;
-  datasourceId: string;
+  datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
   pluginId: string;
   pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;
 }
 
 export interface ExecuteActionRequest extends APIRequest {
-  actionId: string;
+  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
   params?: Property[];
 }
 
@@ -68,10 +69,22 @@ export interface ExecuteActionResponse extends ApiResponse {
 }
 
 export interface ActionApiResponse {
-  responseMeta?: ResponseMeta;
-  body: JSON;
+  responseMeta: ResponseMeta;
+  data: {
+    body: object;
+    headers: Record<string, string[]>;
+    statusCode: string | number;
+  };
+  clientMeta: {
+    duration: string;
+    size: string;
+  };
+}
+
+export interface ActionResponse {
+  body: object;
   headers: Record<string, string[]>;
-  statusCode: string;
+  statusCode: string | number;
   duration: string;
   size: string;
 }

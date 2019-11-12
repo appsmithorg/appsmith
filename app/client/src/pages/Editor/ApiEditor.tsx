@@ -7,6 +7,7 @@ import {
   executeAction,
   deleteAction,
   updateAction,
+  dryRunAction,
 } from "../../actions/actionActions";
 import { RestAction } from "../../api/ActionAPI";
 import { AppState } from "../../reducers";
@@ -24,6 +25,7 @@ interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
   runAction: (id: string) => void;
+  dryRunAction: (data: RestAction) => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
@@ -78,7 +80,12 @@ class ApiEditor extends React.Component<Props> {
     this.props.deleteAction(this.props.match.params.id);
   };
   handleRunClick = () => {
-    this.props.runAction(this.props.match.params.id);
+    const { formData } = this.props;
+    if (formData.id) {
+      this.props.runAction(this.props.match.params.id);
+    } else {
+      this.props.dryRunAction(formData);
+    }
   };
 
   render() {
@@ -117,6 +124,7 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
         },
       ]),
     ),
+  dryRunAction: (data: RestAction) => dispatch(dryRunAction(data)),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>
