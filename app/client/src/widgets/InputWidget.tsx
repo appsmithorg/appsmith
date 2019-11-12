@@ -91,7 +91,7 @@ export interface InputWidgetProps extends WidgetProps {
   maxChars?: number;
   minNum?: number;
   maxNum?: number;
-  onTextChanged: ActionPayload[];
+  onTextChanged?: ActionPayload[];
   label: string;
   inputValidators: InputValidator[];
   focusIndex?: number;

@@ -315,7 +315,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             id: "9.5",
             label: "Timezone",
             placeholderText: "Select Timezone",
-            propertyName: "defaultTimezone",
+            propertyName: "timezone",
             controlType: "TIMEZONE_PICKER",
           },
           {
@@ -391,12 +391,6 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
-          },
-          {
-            id: "11.6",
-            propertyName: "tableData",
-            label: "Enter data array",
-            controlType: "INPUT_TEXT",
           },
         ],
       },

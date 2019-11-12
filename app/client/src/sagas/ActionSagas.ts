@@ -50,7 +50,7 @@ export function* evaluateJSONPathSaga(path: string): any {
   return getDynamicBoundValue(dataTree, path);
 }
 
-export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
+export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
@@ -80,27 +80,50 @@ export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
       statusCode: response.responseMeta.error.code,
       ...response,
     };
+    if (apiAction.onError) {
+      yield put({
+        type: ReduxActionTypes.EXECUTE_ACTION,
+        payload: apiAction.onError,
+      });
+    }
+    yield put({
+      type: ReduxActionTypes.EXECUTE_ACTION_ERROR,
+      payload: { [apiAction.actionId]: payload },
+    });
+  } else {
+    if (apiAction.onSuccess) {
+      yield put({
+        type: ReduxActionTypes.EXECUTE_ACTION,
+        payload: apiAction.onSuccess,
+      });
+    }
+    yield put({
+      type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
+      payload: { [apiAction.actionId]: payload },
+    });
   }
-  yield put({
-    type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
-    payload: { [apiAction.actionId]: payload },
-  });
   return response;
 }
 
-export function* executeActionSaga(action: ReduxAction<ActionPayload[]>) {
+// TODO(satbir): Refact this to not make this recursive.
+export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
+  yield all(
+    _.map(actionPayloads, (actionPayload: ActionPayload) => {
+      switch (actionPayload.actionType) {
+        case "API":
+          return call(executeAPIQueryActionSaga, actionPayload);
+        case "QUERY":
+          return call(executeAPIQueryActionSaga, actionPayload);
+        default:
+          return undefined;
+      }
+    }),
+  );
+}
+
+export function* executeReduxActionSaga(action: ReduxAction<ActionPayload[]>) {
   if (!_.isNil(action.payload)) {
-    yield all(
-      _.map(action.payload, (actionPayload: ActionPayload) => {
-        switch (actionPayload.actionType) {
-          case "API":
-            return call(executeAPIQueryActionSaga, actionPayload);
-          case "QUERY":
-            return call(executeAPIQueryActionSaga, actionPayload);
-        }
-        return undefined;
-      }),
-    );
+    yield call(executeActionSaga, action.payload);
   }
 }
 
@@ -181,7 +204,7 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
-    takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeActionSaga),
+    takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeReduxActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
