@@ -35,14 +35,23 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     }
 
     @Override
-    public Mono<DatasourceContext> getDatasourceContext(String resourceId) {
-        if (datasourceContextMap.get(resourceId) != null) {
+    public Mono<DatasourceContext> getDatasourceContext(Datasource datasource) {
+        String datasourceId = datasource.getId();
+        if (datasourceId == null) {
+            log.debug("This is a dry run");
+        } else if (datasourceContextMap.get(datasourceId) != null) {
             log.debug("resource context exists. Returning the same.");
-            return Mono.just(datasourceContextMap.get(resourceId));
+            return Mono.just(datasourceContextMap.get(datasourceId));
         }
         log.debug("Datasource context doesn't exist. Creating connection");
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(resourceId);
+        Mono<Datasource> datasourceMono;
+
+        if (datasource.getId() != null) {
+            datasourceMono= datasourceService.findById(datasourceId);
+        } else {
+            datasourceMono = Mono.just(datasource);
+        }
 
         Mono<Plugin> pluginMono = datasourceMono
                                     .flatMap(resource -> pluginService.findById(resource.getPluginId()));
@@ -57,12 +66,13 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 }
         );
 
-        return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource, pluginExecutor) -> {
-                Object connection = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
+        return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource1, pluginExecutor) -> {
+                Object connection = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
                 DatasourceContext datasourceContext = new DatasourceContext();
                 datasourceContext.setConnection(connection);
-
-                datasourceContextMap.put(resourceId, datasourceContext);
+                if (datasource1.getId() != null) {
+                    datasourceContextMap.put(datasourceId, datasourceContext);
+                }
                 return datasourceContext;
         }));
     }

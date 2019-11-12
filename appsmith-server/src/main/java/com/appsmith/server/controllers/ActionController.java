@@ -53,7 +53,8 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     }
 
     @PostMapping("/execute")
-    public Mono<ActionExecutionResult> executeAction(@RequestBody ExecuteActionDTO executeActionDTO) {
-        return service.executeAction(executeActionDTO);
+    public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO) {
+        return service.executeAction(executeActionDTO)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }
