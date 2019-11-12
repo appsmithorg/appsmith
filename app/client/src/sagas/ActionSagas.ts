@@ -18,7 +18,6 @@ import ActionAPI, {
   ActionCreateUpdateResponse,
   ExecuteActionRequest,
   RestAction,
-  ActionApiResponse,
 } from "../api/ActionAPI";
 import { AppState, DataTree } from "../reducers";
 import _ from "lodash";
@@ -51,7 +50,7 @@ export function* evaluateJSONPathSaga(path: string): any {
   return getDynamicBoundValue(dataTree, path);
 }
 
-export function* executeAPIQueryActionSaga(apiAction: { actionId: string }) {
+export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   const api: PageAction = yield select(getAction, apiAction.actionId);
 
   const executeActionRequest: ExecuteActionRequest = {
