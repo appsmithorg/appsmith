@@ -7,4 +7,5 @@ public class FieldName {
     public static String PAGEID = "pageId";
     public static String LAYOUTID = "layoutId";
     public static String APPLICATIONID = "applicationId";
+    public static String CONFIG = "config";
 }
