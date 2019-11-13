@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
 import { noCollision } from "../../utils/WidgetPropsUtils";
-import { OccupiedSpace } from "../../widgets/ContainerWidget";
+import { OccupiedSpace } from "constants/editorConstants";
 import DropTargetMask from "./DropTargetMask";
 
 const WrappedDragLayer = styled.div`
@@ -21,7 +21,7 @@ type DragLayerProps = {
   parentColumnWidth: number;
   visible: boolean;
   dropTargetOffset: XYCoord;
-  occupiedSpaces: OccupiedSpace[] | null;
+  occupiedSpaces?: OccupiedSpace[];
   onBoundsUpdate: Function;
   isOver: boolean;
   parentRows?: number;
@@ -47,6 +47,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       ),
     }),
   );
+
   let widgetWidth = 0;
   let widgetHeight = 0;
   if (widget) {

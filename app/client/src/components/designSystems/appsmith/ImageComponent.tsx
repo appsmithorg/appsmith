@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ComponentProps } from "./BaseComponent";
-import { StyledContainer, StyledContainerProps } from "./ContainerComponent";
+import { StyledContainer, StyledContainerProps } from "./StyledContainer";
 import styled from "styled-components";
 
 export const StyledImage = styled(StyledContainer)<StyledContainerProps>`

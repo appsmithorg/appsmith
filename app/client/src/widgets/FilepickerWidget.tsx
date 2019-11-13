@@ -66,7 +66,6 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     return (
       <FilePickerComponent
         uppy={this.uppy}
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}

@@ -8,7 +8,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getPageView() {
     return (
       <CheckboxComponent
-        style={this.getPositionStyle()}
         defaultCheckedState={this.props.defaultCheckedState}
         label={this.props.label}
         widgetId={this.props.widgetId}

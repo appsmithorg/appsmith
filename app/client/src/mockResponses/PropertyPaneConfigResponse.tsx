@@ -34,7 +34,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "1.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -78,7 +78,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "3.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -112,7 +112,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "4.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -185,7 +185,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "5.8",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -231,7 +231,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "6.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -269,7 +269,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "6.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -283,7 +283,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "8.1",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -457,7 +457,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "13.5",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -502,7 +502,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "15.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -547,7 +547,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "16.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -629,7 +629,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "18.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],

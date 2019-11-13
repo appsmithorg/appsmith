@@ -13,10 +13,12 @@ import {
   getIsPropertyPaneVisible,
   getCurrentWidgetProperties,
 } from "../../selectors/propertyPaneSelectors";
+import { Button, Divider } from "@blueprintjs/core";
 
 import Popper from "./Popper";
 import { ControlProps } from "../../components/propertyControls/BaseControl";
 import { RenderModes } from "../../constants/WidgetConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -26,6 +28,33 @@ const PropertySectionLabel = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+`;
+
+const PropertyPaneTitle = styled.div`
+  text-transform: capitalize;
+  color: ${props => props.theme.colors.textOnDarkBG};
+  font-size: ${props => props.theme.fontSizes[3]}px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: ${props => props.theme.spaces[1]}px 0;
+`;
+
+const PropertyPaneWrapper = styled.div`
+  position: relative;
+`;
+
+const CloseButton = styled(Button)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  justify-content: center;
+  padding: 0;
+  color: ${props => props.theme.colors.paneSectionLabel};
+  & svg {
+    width: 12;
+    height: 12;
+  }
 `;
 
 class PropertyPane extends Component<
@@ -61,7 +90,16 @@ class PropertyPane extends Component<
 
   renderPropertyPane(propertySections?: PropertySection[]) {
     return (
-      <div>
+      <PropertyPaneWrapper>
+        <PropertyPaneTitle>
+          {this.props.widgetProperties.widgetName}
+        </PropertyPaneTitle>
+        <CloseButton
+          onClick={this.props.hidePropertyPane}
+          rightIcon="cross"
+          minimal
+        />
+        <Divider />
         {!_.isNil(propertySections)
           ? _.map(propertySections, (propertySection: PropertySection) => {
               return this.renderPropertySection(
@@ -70,7 +108,7 @@ class PropertyPane extends Component<
               );
             })
           : undefined}
-      </div>
+      </PropertyPaneWrapper>
     );
   }
 
@@ -153,6 +191,10 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           RenderModes.CANVAS,
         ),
       ),
+    hidePropertyPane: () =>
+      dispatch({
+        type: ReduxActionTypes.HIDE_PROPERTY_PANE,
+      }),
   };
 };
 
@@ -166,6 +208,7 @@ export interface PropertyPaneProps {
 
 export interface PropertyPaneFunctions {
   updateWidgetProperty: Function;
+  hidePropertyPane: () => void;
 }
 
 export default connect(

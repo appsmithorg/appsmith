@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
+import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import DropdownComponent from "../../components/editorComponents/DropdownComponent";
 import { PageListPayload } from "../../constants/ReduxActionConstants";
 import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
@@ -84,7 +84,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         />
       )}
       <NotificationText>
-        {props.notificationText && <Spinner size={Spinner.SIZE_SMALL} />}
         <span>{props.notificationText}</span>
       </NotificationText>
       <PreviewPublishSection>

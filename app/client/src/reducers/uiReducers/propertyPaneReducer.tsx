@@ -26,6 +26,9 @@ const propertyPaneReducer = createReducer(initialState, {
     }
     return { widgetId, node, isVisible };
   },
+  [ReduxActionTypes.HIDE_PROPERTY_PANE]: (state: PropertyPaneReduxState) => {
+    return { ...state, isVisible: false };
+  },
 });
 
 export interface PropertyPaneReduxState {

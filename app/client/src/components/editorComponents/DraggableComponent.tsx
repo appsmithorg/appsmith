@@ -6,12 +6,12 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { WidgetProps, WidgetOperations } from "../../widgets/BaseWidget";
+import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
-import blankImage from "../../assets/images/blank.png";
-import { ContainerProps } from "../designSystems/appsmith/ContainerComponent";
+import blankImage from "assets/images/blank.png";
 import { FocusContext } from "../../pages/Editor/Canvas";
-import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "../../icons/ControlIcons";
 import { theme } from "../../constants/DefaultTheme";
 import { ResizingContext } from "./DropTargetComponent";
@@ -80,7 +80,7 @@ const editControlIcon = ControlIcons.EDIT_CONTROL({
   height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
 });
 
-type DraggableComponentProps = WidgetProps & ContainerProps;
+type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 
 export const DraggableComponentContext: Context<{
   isDragging?: boolean;
@@ -93,7 +93,7 @@ export const DraggableComponentContext: Context<{
 
 const DraggableComponent = (props: DraggableComponentProps) => {
   const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
-  const { updateWidget } = useContext(WidgetFunctionsContext);
+  const { updateWidget } = useContext(EditorContext);
   const [currentNode, setCurrentNode] = useState<HTMLDivElement>();
   const referenceRef = useCallback(
     node => {
@@ -121,7 +121,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   };
 
   const [{ isDragging }, drag, preview] = useDrag({
-    item: props,
+    item: props as WidgetProps,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -161,16 +161,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
           position: "absolute",
-          left: props.style
-            ? props.style.xPosition + props.style.xPositionUnit
-            : 0,
-          top: props.style
-            ? props.style.yPosition + props.style.yPositionUnit
-            : 0,
-          minWidth:
-            props.style.componentWidth + (props.style.widthUnit || "px"),
-          minHeight:
-            props.style.componentHeight + (props.style.heightUnit || "px"),
+          left: 0,
+          top: 0,
+          width: "100%",
+          height: "100%",
           userSelect: "none",
         }}
       >

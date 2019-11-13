@@ -3,7 +3,6 @@ import { ComponentProps } from "../appsmith/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { Container } from "./ContainerComponent";
 import { BaseButton } from "../blueprint/ButtonComponent";
 import { DashboardModal } from "@uppy/react";
 
@@ -24,7 +23,7 @@ class FilePickerComponent extends React.Component<
 
   render() {
     return (
-      <Container {...this.props}>
+      <React.Fragment>
         <BaseButton text={"Upload files"} onClick={this.openModal} />
         <DashboardModal
           open={this.state.isOpen}
@@ -34,7 +33,7 @@ class FilePickerComponent extends React.Component<
           onRequestClose={() => this.setState({ isOpen: false })}
           uppy={this.props.uppy}
         />
-      </Container>
+      </React.Fragment>
     );
   }
 }

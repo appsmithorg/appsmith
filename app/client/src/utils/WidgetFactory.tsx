@@ -1,9 +1,9 @@
-import { WidgetType, RenderMode } from "../constants/WidgetConstants";
+import { WidgetType, RenderMode } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
   WidgetProps,
   WidgetDataProps,
-} from "../widgets/BaseWidget";
+} from "widgets/BaseWidget";
 
 class WidgetFactory {
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();

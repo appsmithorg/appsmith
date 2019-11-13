@@ -1,219 +1,133 @@
-import React, { useContext, CSSProperties, useState } from "react";
-import styled, { css } from "styled-components";
-import { Rnd } from "react-rnd";
+import React, { useContext, useState, memo } from "react";
+import { ResizeDirection } from "re-resizable";
 import { XYCoord } from "react-dnd";
-import { WidgetProps, WidgetOperations } from "../../widgets/BaseWidget";
-import { OccupiedSpaceContext } from "../../widgets/ContainerWidget";
-import {
-  ContainerProps,
-  ParentBoundsContext,
-} from "../designSystems/appsmith/ContainerComponent";
-import { isDropZoneOccupied } from "../../utils/WidgetPropsUtils";
-import { FocusContext } from "../../pages/Editor/Canvas";
+import { getAbsolutePixels } from "utils/helpers";
+import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { FocusContext } from "pages/Editor/Canvas";
 import { DraggableComponentContext } from "./DraggableComponent";
-import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
 import { ResizingContext } from "./DropTargetComponent";
+import { generateClassName } from "utils/generators";
+
+import ResizableContainer, {
+  ResizeBorderDotDiv,
+  ResizableComponentProps,
+} from "./ResizableContainer";
 import {
-  theme,
-  getColorWithOpacity,
-  getBorderCSSShorthand,
-} from "../../constants/DefaultTheme";
+  UIElementSize,
+  getHandleSyles,
+  computeUpdatedRowCols,
+  hasCollision,
+  getBorderStyles,
+} from "./ResizableUtils";
 
-export type ResizableComponentProps = WidgetProps & ContainerProps;
-
-const BORDER_INDEX = 1;
-
-const HOVER_AREA_WIDTH = 12;
-
-function getHandleSyles(): {
-  top: CSSProperties;
-  bottom: CSSProperties;
-  right: CSSProperties;
-  left: CSSProperties;
-  bottomRight: CSSProperties;
-  bottomLeft: CSSProperties;
-} {
-  const hoverWidth = HOVER_AREA_WIDTH;
-  const hoverWidthHalf = hoverWidth / 2;
-  const halfBorder = theme.borders[BORDER_INDEX].thickness / 2;
-  const shiftedHoverWidthHalf = hoverWidthHalf + halfBorder;
-  const hoverCornerWidth = hoverWidth + hoverWidth / 4;
-
-  return {
-    top: {
-      height: hoverWidth + "px",
-      top: "-" + shiftedHoverWidthHalf + "px",
-      zIndex: 1,
-      cursor: "ns-resize",
-    },
-    bottomRight: {
-      height: hoverCornerWidth + "px",
-      width: hoverCornerWidth + "px",
-      zIndex: 1,
-      cursor: "nwse-resize",
-    },
-    bottomLeft: {
-      height: hoverCornerWidth + "px",
-      width: hoverCornerWidth + "px",
-      zIndex: 1,
-      cursor: "nesw-resize",
-    },
-    bottom: {
-      height: hoverWidth + "px",
-      bottom: "-" + shiftedHoverWidthHalf + "px",
-      zIndex: 1,
-      cursor: "ns-resize",
-    },
-    left: {
-      width: hoverWidth + "px",
-      left: "-" + shiftedHoverWidthHalf + "px",
-      zIndex: 1,
-      cursor: "ew-resize",
-    },
-    right: {
-      width: hoverWidth + "px",
-      right: "-" + shiftedHoverWidthHalf + "px",
-      zIndex: 1,
-      cursor: "ew-resize",
-    },
-  };
-}
-
-interface ResizeBorderDotDivProps {
-  isfocused: boolean;
-}
-
-const borderCSS = css<ResizeBorderDotDivProps>`
-  position: relative;
-  height: 100%;
-  opacity: 0.99;
-  &:after,
-  &:before {
-    content: "";
-    position: absolute;
-    width: ${props => props.theme.spaces[2]}px;
-    height: ${props => props.theme.spaces[2]}px;
-    border-radius: ${props => props.theme.radii[5]}%;
-    background: ${props =>
-      props.isfocused && props.theme.colors.containerBorder};
-  }
-`;
-
-const ResizeBorderDotDiv = styled.div<ResizeBorderDotDivProps>`
-  ${borderCSS}
-  &:after {
-    left: -${props => props.theme.spaces[1]}px;
-    top: calc(50% - ${props => props.theme.spaces[1]}px);
-    z-index: 0;
-  }
-  &:before {
-    left: calc(50% - ${props => props.theme.spaces[1]}px);
-    top: -${props => props.theme.spaces[1]}px;
-    z-index: 1;
-  }
-`;
-
-const ResizableContainer = styled(Rnd)`
-  ${borderCSS}
-  &:after {
-    right: -${props => props.theme.spaces[1]}px;
-    top: calc(50% - ${props => props.theme.spaces[1]}px);
-    z-index: 0;
-  }
-
-  &:before {
-    left: calc(50% - ${props => props.theme.spaces[1]}px);
-    bottom: -${props => props.theme.spaces[1]}px;
-    z-index: 1;
-  }
-`;
-
-export const ResizableComponent = (props: ResizableComponentProps) => {
+/* eslint-disable react/display-name */
+export const ResizableComponent = memo((props: ResizableComponentProps) => {
+  // Fetch information from the context
   const { isDragging, widgetNode } = useContext(DraggableComponentContext);
   const { setIsResizing } = useContext(ResizingContext);
-  const { boundingParent } = useContext(ParentBoundsContext);
-  const { updateWidget } = useContext(WidgetFunctionsContext);
+  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { showPropertyPane, isFocused, setFocus } = useContext(FocusContext);
-  const occupiedSpaces = useContext(OccupiedSpaceContext);
-
+  const occupiedSpacesBySiblingWidgets =
+    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+      ? occupiedSpaces[props.parentId]
+      : undefined;
+  // Use state flag - isColliding - use to figure out if resize is possible at the current size.
   const [isColliding, setIsColliding] = useState(false);
+
+  // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused = isFocused === props.widgetId;
 
-  let bounds = "body";
-  if (boundingParent && boundingParent.current) {
-    bounds = "." + boundingParent.current.className.split(" ")[1];
-  }
-
-  const checkForCollision = (
-    e: Event,
-    dir: any,
-    ref: any,
-    delta: { width: number; height: number },
-    position: XYCoord,
-  ) => {
-    const left = props.leftColumn + position.x / props.parentColumnSpace;
-    const top = props.topRow + position.y / props.parentRowSpace;
-
-    const right =
-      props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
-    const bottom =
-      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-    if (
-      isDropZoneOccupied(
-        {
-          left,
-          top,
-          bottom,
-          right,
-        },
-        props.widgetId,
-        occupiedSpaces,
-      )
-    ) {
-      setIsColliding(true);
-    } else {
-      if (!!isColliding) {
-        setIsColliding(false);
-      }
-    }
-  };
-  const updateSize = (
-    e: Event,
-    dir: any,
-    ref: any,
-    delta: { width: number; height: number },
-    position: XYCoord,
-  ) => {
-    setIsResizing && setIsResizing(false);
-    setFocus && setFocus(props.widgetId);
-    showPropertyPane && showPropertyPane(props.widgetId, widgetNode);
-
-    const leftColumn = props.leftColumn + position.x / props.parentColumnSpace;
-    const topRow = props.topRow + position.y / props.parentRowSpace;
-
-    const rightColumn =
-      props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
-    const bottomRow =
-      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-    if (
-      !isColliding &&
-      (props.leftColumn !== leftColumn ||
-        props.topRow !== topRow ||
-        props.bottomRow !== bottomRow ||
-        props.rightColumn !== rightColumn)
-    ) {
-      updateWidget &&
-        updateWidget(WidgetOperations.RESIZE, props.widgetId, {
-          leftColumn,
-          rightColumn,
-          topRow,
-          bottomRow,
-        });
-    }
-    setIsColliding(false);
-  };
-
+  // Widget can be resized if
+  // The widget is focused, and
+  // There is no drag event in progress on a widget.
   const canResize = !isDragging && isWidgetFocused;
+
+  // Calculate the dimensions of the widget,
+  // The ResizableContainer's size prop is controlled
+  const dimensions: UIElementSize = {
+    width: (props.rightColumn - props.leftColumn) * props.parentColumnSpace,
+    height: (props.bottomRow - props.topRow) * props.parentRowSpace,
+  };
+
+  // Resize bound's className - defaults to body
+  // ResizableContainer accepts the className of the element,
+  // whose clientRect will act as the bounds for resizing.
+  // Note, if there are many containers with the same className
+  // the bounding container becomes the nearest parent with the className
+  let bounds = "body";
+  bounds = "." + generateClassName(props.parentId);
+
+  // onResize handler
+  // Checks if the current resize position has any collisions
+  // If yes, set isColliding flag to true.
+  // If no, set isColliding flag to false.
+  const checkForCollision = (
+    e: MouseEvent,
+    dir: ResizeDirection,
+    ref: HTMLDivElement,
+    delta: UIElementSize,
+    position: XYCoord,
+  ) => {
+    const isResizePossible = !hasCollision(
+      delta,
+      position,
+      props,
+      occupiedSpacesBySiblingWidgets,
+    );
+    if (isResizePossible === isColliding) {
+      setIsColliding(!isColliding);
+    }
+  };
+
+  // onResizeStop handler
+  // when done resizing, check if;
+  // 1) There is no collision
+  // 2) There is a change in widget size
+  // Update widget, if both of the above are true.
+  const updateSize = (
+    e: MouseEvent,
+    dir: ResizeDirection,
+    ref: HTMLDivElement,
+    d: UIElementSize,
+    position: XYCoord,
+  ) => {
+    // Get the difference in size of the widget, before and after resizing.
+    const delta: UIElementSize = {
+      height: getAbsolutePixels(ref.style.height) - dimensions.height,
+      width: getAbsolutePixels(ref.style.width) - dimensions.width,
+    };
+
+    // Get the updated Widget rows and columns props
+    // False, if there is collision
+    // False, if none of the rows and cols have changed.
+    const newRowCols: WidgetRowCols | false = computeUpdatedRowCols(
+      isColliding,
+      delta,
+      position,
+      props,
+    );
+
+    if (newRowCols) {
+      updateWidget &&
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
+    }
+
+    // Tell the Canvas that we've stopped resizing
+    setIsResizing && setIsResizing(false);
+    // Tell the Canvas to put the focus back to this widget
+    // By setting the focus, we enable the control buttons on the widget
+    setFocus && setFocus(props.widgetId);
+    // Let the propertypane show.
+    // The propertypane decides whether to show itself, based on
+    // whether it was showing when the widget resize started.
+    showPropertyPane && showPropertyPane(props.widgetId, widgetNode);
+  };
+  const style = getBorderStyles(
+    isWidgetFocused,
+    isColliding,
+    props.paddingOffset,
+  );
   return (
     <ResizableContainer
       isfocused={isWidgetFocused ? "true" : undefined}
@@ -221,23 +135,11 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
         x: 0,
         y: 0,
       }}
-      size={{
-        width: props.style.componentWidth as number,
-        height: props.style.componentHeight as number,
-      }}
+      size={dimensions}
       disableDragging
       minWidth={props.parentColumnSpace}
       minHeight={props.parentRowSpace}
-      style={{
-        ...props.style,
-        border:
-          isFocused === props.widgetId
-            ? getBorderCSSShorthand(theme.borders[BORDER_INDEX])
-            : "none",
-        borderColor: isColliding
-          ? getColorWithOpacity(theme.colors.error, 0.6)
-          : "inherit",
-      }}
+      style={style}
       onResizeStop={updateSize}
       onResize={checkForCollision}
       onResizeStart={() => {
@@ -263,6 +165,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       </ResizeBorderDotDiv>
     </ResizableContainer>
   );
-};
+});
 
 export default ResizableComponent;

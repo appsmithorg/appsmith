@@ -7,7 +7,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getPageView() {
     return (
       <TextComponent
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         textStyle={this.props.textStyle}

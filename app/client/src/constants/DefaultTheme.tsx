@@ -22,6 +22,7 @@ export type ThemeBorder = {
 type PropertyPaneTheme = {
   width: number;
   height: number;
+  dividerColor: Color;
 };
 
 export type Theme = {
@@ -49,6 +50,7 @@ export type Theme = {
     minWidth: number;
     minHeight: number;
   };
+  shadows: string[];
   widgets: {
     tableWidget: {
       selectHighlightColor: Color;
@@ -81,6 +83,7 @@ export const theme: Theme = {
   propertyPane: {
     width: 250,
     height: 600,
+    dividerColor: Colors.MAKO,
   },
   drawerWidth: "80%",
   colors: {
@@ -147,6 +150,7 @@ export const theme: Theme = {
     minWidth: 300,
     minHeight: 300,
   },
+  shadows: ["0px 2px 4px rgba(67, 70, 74, 0.14)"],
   widgets: {
     tableWidget: {
       selectHighlightColor: Colors.GEYSER_LIGHT,

@@ -1,4 +1,4 @@
-/***
+/**
  * Widget are responsible for accepting the abstraction layer inputs, interpretting them into rederable props and
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
@@ -10,14 +10,28 @@ import {
   CSSUnits,
 } from "../constants/WidgetConstants";
 import React, { Component } from "react";
-import { BaseStyle } from "../components/designSystems/appsmith/BaseComponent";
+import { PositionType, CSSUnit } from "constants/WidgetConstants";
 import _ from "lodash";
-import DraggableComponent from "../components/editorComponents/DraggableComponent";
-import ResizableComponent from "../components/editorComponents/ResizableComponent";
-import { ActionPayload } from "../constants/ActionConstants";
-import { WidgetFunctionsContext } from "../pages/Editor/WidgetsEditor";
+import DraggableComponent from "components/editorComponents/DraggableComponent";
+import ResizableComponent from "components/editorComponents/ResizableComponent";
+import { ActionPayload } from "constants/ActionConstants";
+import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
+import WidgetNameComponent from "components/designSystems/appsmith/WidgetNameComponent";
 import shallowequal from "shallowequal";
-
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { PositionTypes } from "constants/WidgetConstants";
+/***
+ * BaseWidget
+ *
+ * The abstract class which is extended/implemented by all widgets.
+ * Widgets must adhere to the abstractions provided by BaseWidget.
+ *
+ * Do not:
+ * 1) Use the context directly in the widgets
+ * 2) Update or access the dsl in the widgets
+ * 3) Call actions in widgets or connect the widgets to the entity reducers
+ *
+ */
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
@@ -33,8 +47,22 @@ abstract class BaseWidget<
     this.state = initialState as K;
   }
 
-  static contextType = WidgetFunctionsContext;
+  static contextType = EditorContext;
 
+  /**
+   *  Widget abstraction to register the widget type
+   *  ```javascript
+   *   getWidgetType() {
+   *     return "MY_AWESOME_WIDGET",
+   *   }
+   *  ```
+   */
+  abstract getWidgetType(): WidgetType;
+
+  /**
+   *  Widgets can execute actions using this `executeAction` method.
+   *  Triggers may be specific to the widget
+   */
   executeAction(actionPayloads?: ActionPayload[]): void {
     const { executeAction } = this.context;
     executeAction && executeAction(actionPayloads);
@@ -97,40 +125,51 @@ abstract class BaseWidget<
     return this.getWidgetView();
   }
 
-  getWidgetView(): JSX.Element {
+  private getWidgetView(): JSX.Element {
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        return this.getCanvasView();
+        const style = this.getPositionStyle();
+        if (this.props.parentId) {
+          return (
+            <PositionedContainer style={style}>
+              <DraggableComponent {...this.props} orientation={"VERTICAL"}>
+                <WidgetNameComponent
+                  widgetName={this.props.widgetName}
+                  widgetId={this.props.widgetId}
+                />
+                <ResizableComponent
+                  {...this.props}
+                  paddingOffset={PositionedContainer.padding}
+                >
+                  {this.getCanvasView()}
+                </ResizableComponent>
+              </DraggableComponent>
+            </PositionedContainer>
+          );
+        }
+        return (
+          <PositionedContainer style={style}>
+            {this.getCanvasView()}
+          </PositionedContainer>
+        );
       case RenderModes.PAGE:
-        if (this.props.isVisible) return this.getPageView();
-        else return <div />;
+        if (this.props.isVisible) {
+          return (
+            <PositionedContainer style={this.getPositionStyle()}>
+              {this.getPageView()}
+            </PositionedContainer>
+          );
+        }
+        return <React.Fragment />;
       default:
-        return this.getPageView();
+        throw Error("RenderMode not defined");
     }
   }
 
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    const style = this.getPositionStyle();
-    if (!this.props.parentId) {
-      return this.getPageView();
-    } else {
-      return (
-        <DraggableComponent
-          {...this.props}
-          style={{ ...style }}
-          orientation={"VERTICAL"}
-        >
-          <ResizableComponent
-            style={{ ...style, opacity: this.props.isVisible ? 1 : 0.4 }}
-            {...this.props}
-          >
-            {this.getPageView()}
-          </ResizableComponent>
-        </DraggableComponent>
-      );
-    }
+    return this.getPageView();
   }
 
   shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
@@ -140,18 +179,15 @@ abstract class BaseWidget<
     return isNotEqual;
   }
 
-  abstract getWidgetType(): WidgetType;
-
-  getPositionStyle(): BaseStyle {
+  private getPositionStyle(): BaseStyle {
     return {
-      positionType: "ABSOLUTE",
+      positionType: PositionTypes.ABSOLUTE,
       componentHeight: this.state.componentHeight,
       componentWidth: this.state.componentWidth,
       yPosition: this.props.topRow * this.props.parentRowSpace,
       xPosition: this.props.leftColumn * this.props.parentColumnSpace,
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
-      backgroundColor: this.props.backgroundColor,
     };
   }
 
@@ -161,6 +197,18 @@ abstract class BaseWidget<
     topRow: 0,
     leftColumn: 0,
   };
+}
+
+export interface BaseStyle {
+  componentHeight: number;
+  componentWidth: number;
+  positionType: PositionType;
+  xPosition: number;
+  yPosition: number;
+  xPositionUnit: CSSUnit;
+  yPositionUnit: CSSUnit;
+  heightUnit?: CSSUnit;
+  widthUnit?: CSSUnit;
 }
 
 export interface WidgetState {
@@ -190,19 +238,17 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
+  isDisabled?: boolean;
   parentId?: string;
   backgroundColor?: string;
 }
 
-export interface WidgetFunctions {
-  executeAction?: (actionPayloads?: ActionPayload[]) => void;
-  updateWidget?: Function;
-  updateWidgetProperty?: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-}
+export type WidgetRowCols = {
+  leftColumn: number;
+  rightColumn: number;
+  topRow: number;
+  bottomRow: number;
+};
 
 export interface WidgetCardProps {
   type: WidgetType;
@@ -212,7 +258,6 @@ export interface WidgetCardProps {
 }
 
 export const WidgetOperations = {
-  // WidgetActivities?
   MOVE: "MOVE",
   RESIZE: "RESIZE",
   ADD_CHILD: "ADD_CHILD",
