@@ -14,8 +14,22 @@ type DropdownProps = {
 const selectStyles = {
   control: (styles: any) => ({
     ...styles,
-    width: 120,
+    width: 100,
+    minHeight: "32px",
   }),
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    height: "30px",
+  }),
+  clearIndicator: (provided: any) => ({
+    ...provided,
+    padding: "5px",
+  }),
+  dropdownIndicator: (provided: any) => ({
+    ...provided,
+    padding: "5px",
+  }),
+  indicatorSeparator: (styles: any) => ({}),
 };
 
 export const BaseDropdown = (props: DropdownProps) => {

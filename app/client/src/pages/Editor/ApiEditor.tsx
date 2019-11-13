@@ -43,6 +43,7 @@ const EmptyStateContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
+  font-size: 20px;
 `;
 
 class ApiEditor extends React.Component<Props> {
@@ -115,7 +116,7 @@ class ApiEditor extends React.Component<Props> {
           />
         ) : (
           <EmptyStateContainer>
-            {"Create an api select from the list"}
+            {"Create / Select an API from the list"}
           </EmptyStateContainer>
         )}
       </React.Fragment>

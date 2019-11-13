@@ -107,7 +107,7 @@ export const theme: Theme = {
     paneBG: Colors.OUTER_SPACE,
     paneText: Colors.GRAY_CHATEAU,
     paneSectionLabel: Colors.CADET_BLUE,
-    navBG: Colors.DEEP_SPACE,
+    navBG: Colors.SHARK,
     grid: Colors.GEYSER,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
@@ -136,7 +136,7 @@ export const theme: Theme = {
       color: Colors.GEYSER_LIGHT,
     },
   ],
-  sidebarWidth: "350px",
+  sidebarWidth: "300px",
   headerHeight: "50px",
   sideNav: {
     maxWidth: 250,

@@ -34,11 +34,29 @@ const selectStyles = {
     backgroundColor: "rgba(104,113,239,0.1)",
     border: "1px solid rgba(104, 113, 239, 0.5)",
     borderRadius: `${theme.radii[3]}px`,
-    padding: `${theme.spaces[1]}px`,
+    padding: "2px 5px",
+    fontSize: "14px",
+    maxWidth: "95%",
   }),
   container: (styles: any) => ({
     ...styles,
     flex: 1,
+  }),
+  control: (styles: any) => ({
+    ...styles,
+    minHeight: "32px",
+  }),
+  indicatorsContainer: (provided: any) => ({
+    ...provided,
+    height: "30px",
+  }),
+  clearIndicator: (provided: any) => ({
+    ...provided,
+    padding: "5px",
+  }),
+  dropdownIndicator: (provided: any) => ({
+    ...provided,
+    padding: "5px",
   }),
 };
 

@@ -28,7 +28,7 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 const DrawerWrapper = styled.div<{ isVisible: boolean }>`
   background-color: white;
-  width: 80%;
+  width: 75%;
   height: 100%;
   box-shadow: -1px 2px 3px 0px ${props => props.theme.colors.paneBG};
   transform: translateX(${props => (props.isVisible ? `0` : `-80vw`)});

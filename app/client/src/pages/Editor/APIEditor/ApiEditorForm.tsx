@@ -29,7 +29,7 @@ const Form = styled.form`
   }
   ${FormRow} {
     flex-wrap: wrap;
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${props => props.theme.spaces[2]}px;
     & > * {
       margin-right: 5px;
     }
@@ -51,10 +51,11 @@ const SecondaryWrapper = styled.div`
 `;
 
 const RequestParamsWrapper = styled.div`
-  flex: 5;
+  flex: 4;
   border-right: 1px solid #d0d7dd;
   height: 100%;
   overflow-y: scroll;
+  padding-top: 6px;
 `;
 
 const ActionButtons = styled.div`
@@ -102,6 +103,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="name"
             placeholderMessage="API Name *"
             validate={required}
+            showError
           />
           <ActionButtons>
             <ActionButton
@@ -137,6 +139,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.path"
             validate={[apiPathValidation]}
             icon="slash"
+            showError
           />
         </FormRow>
       </MainConfiguration>

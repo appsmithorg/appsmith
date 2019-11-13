@@ -1,16 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { FormGroup, IconName, InputGroup, Intent } from "@blueprintjs/core";
+import { IconName, InputGroup, MaybeElement } from "@blueprintjs/core";
 import { ComponentProps } from "./BaseComponent";
 
 const TextInput = styled(InputGroup)`
   flex: 1;
-  input {
+  &&& input {
     border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
     border-radius: 4px;
     box-shadow: none;
-    height: 38px;
+    height: 32px;
     background-color: ${props => props.theme.colors.textOnDarkBG};
     &:focus {
       border-color: ${props => props.theme.colors.secondary};
@@ -18,20 +18,23 @@ const TextInput = styled(InputGroup)`
       outline: 0;
     }
   }
+  &&&&.bp3-input-group .bp3-input:not(:first-child) {
+    padding-left: 35px;
+  }
   .bp3-icon {
     border-radius: 4px 0 0 4px;
     margin: 0;
-    height: 38px;
+    height: 32px;
     width: 30px;
-    background-color: ${props => props.theme.colors.menuButtonBGInactive};
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #eef2f5;
     svg {
       height: 20px;
       width: 20px;
       path {
-        fill: ${props => props.theme.colors.textDefault};
+        fill: #979797;
       }
     }
   }
@@ -54,15 +57,16 @@ export interface TextInputProps {
   placeholderMessage?: string;
   input?: Partial<WrappedFieldInputProps>;
   meta?: WrappedFieldMetaProps;
-  icon?: IconName;
+  icon?: IconName | MaybeElement;
+  showError?: boolean;
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholderMessage, input, meta, icon } = props;
+  const { placeholderMessage, input, meta, icon, showError } = props;
   return (
     <InputContainer>
       <TextInput {...input} placeholder={placeholderMessage} leftIcon={icon} />
-      <ErrorText>{meta && meta.touched && meta.error}</ErrorText>
+      {showError && <ErrorText>{meta && meta.touched && meta.error}</ErrorText>}
     </InputContainer>
   );
 };
