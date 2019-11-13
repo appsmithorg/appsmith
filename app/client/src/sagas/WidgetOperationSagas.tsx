@@ -19,7 +19,6 @@ import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 import { getNextWidgetName } from "../utils/AppsmithUtils";
 import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
 import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
-import { createUpdateBindingsMap } from "../actions/bindingActions";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -57,8 +56,6 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-    // TODO might be a potential performance choke point.
-    yield put(createUpdateBindingsMap());
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -84,7 +81,6 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       type: ReduxActionTypes.UPDATE_LAYOUT,
       payload: { widgets },
     });
-    yield put(createUpdateBindingsMap());
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

@@ -11,11 +11,12 @@ const PageSelector = styled(DropdownComponent)`
   flex: 2;
 `;
 
-const NotificationText = styled.div`
+const LoadingContainer = styled.div`
   display: flex;
-  justify-content: space-evenly;
+  justify-content: flex-end;
   align-items: center;
   flex-grow: 1;
+  margin: 0 10px;
 `;
 
 const PreviewPublishSection = styled.div`
@@ -37,7 +38,7 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 `;
 
 type EditorHeaderProps = {
-  notificationText?: string;
+  isSaving?: boolean;
   pageName: string;
   onPublish: React.FormEventHandler;
   onCreatePage: (name: string) => void;
@@ -83,9 +84,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           }}
         />
       )}
-      <NotificationText>
-        <span>{props.notificationText}</span>
-      </NotificationText>
+      <LoadingContainer>
+        {props.isSaving ? "Saving..." : "All changed Saved"}
+      </LoadingContainer>
       <PreviewPublishSection>
         <BaseButton
           onClick={props.onPublish}

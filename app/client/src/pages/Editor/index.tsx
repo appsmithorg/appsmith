@@ -72,7 +72,7 @@ class Editor extends Component<EditorProps> {
     return (
       <div>
         <EditorHeader
-          notificationText={this.props.isSaving ? "Saving page..." : undefined}
+          isSaving={this.props.isSaving}
           pageName={this.props.currentPageName}
           onPublish={this.handlePublish}
           onCreatePage={this.handleCreatePage}

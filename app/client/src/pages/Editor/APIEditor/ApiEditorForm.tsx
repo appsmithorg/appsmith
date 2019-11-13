@@ -40,21 +40,14 @@ const Form = styled.form`
   }
 `;
 
+const MainConfiguration = styled.div`
+  padding-top: 10px;
+`;
+
 const SecondaryWrapper = styled.div`
   display: flex;
   height: 100%;
   border-top: 1px solid #d0d7dd;
-`;
-
-const ForwardSlash = styled.div`
-  && {
-    margin: 0 10px;
-    height: 27px;
-    width: 1px;
-    background-color: #d0d7dd;
-    transform: rotate(27deg);
-    align-self: center;
-  }
 `;
 
 const RequestParamsWrapper = styled.div`
@@ -103,48 +96,50 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   } = props;
   return (
     <Form onSubmit={handleSubmit}>
-      <FormRow>
-        <TextField
-          name="name"
-          placeholderMessage="API Name"
-          validate={required}
-        />
-        <ActionButtons>
-          <ActionButton
-            text="Delete"
-            styleName="error"
-            onClick={onDeleteClick}
-            loading={isDeleting}
+      <MainConfiguration>
+        <FormRow>
+          <TextField
+            name="name"
+            placeholderMessage="API Name *"
+            validate={required}
           />
-          <ActionButton
-            text="Run"
-            styleName="secondary"
-            onClick={onRunClick}
-            loading={isRunning}
+          <ActionButtons>
+            <ActionButton
+              text="Delete"
+              styleName="error"
+              onClick={onDeleteClick}
+              loading={isDeleting}
+            />
+            <ActionButton
+              text="Run"
+              styleName="secondary"
+              onClick={onRunClick}
+              loading={isRunning}
+            />
+            <ActionButton
+              text="Save"
+              styleName="primary"
+              filled
+              onClick={onSaveClick}
+              loading={isSaving}
+            />
+          </ActionButtons>
+        </FormRow>
+        <FormRow>
+          <DropdownField
+            placeholder="Method"
+            name="actionConfiguration.httpMethod"
+            options={HTTP_METHOD_OPTIONS}
           />
-          <ActionButton
-            text="Save"
-            styleName="primary"
-            filled
-            onClick={onSaveClick}
-            loading={isSaving}
+          <DatasourcesField name="datasource.id" />
+          <TextField
+            placeholderMessage="API Path"
+            name="actionConfiguration.path"
+            validate={[apiPathValidation]}
+            icon="slash"
           />
-        </ActionButtons>
-      </FormRow>
-      <FormRow>
-        <DropdownField
-          placeholder="Method"
-          name="actionConfiguration.httpMethod"
-          options={HTTP_METHOD_OPTIONS}
-        />
-        <DatasourcesField name="datasource.id" />
-        <ForwardSlash />
-        <TextField
-          placeholderMessage="API Path"
-          name="actionConfiguration.path"
-          validate={[required, apiPathValidation]}
-        />
-      </FormRow>
+        </FormRow>
+      </MainConfiguration>
       <SecondaryWrapper>
         <RequestParamsWrapper>
           <KeyValueFieldArray

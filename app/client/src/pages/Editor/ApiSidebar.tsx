@@ -8,6 +8,10 @@ import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../../constants/routes";
 import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
 import { FormIcons } from "../../icons/FormIcons";
 import { Spinner } from "@blueprintjs/core";
+import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
+import { BaseTextInput } from "../../components/designSystems/appsmith/TextInputComponent";
+import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
+import { createActionRequest } from "../../actions/actionActions";
 
 const ApiSidebarWrapper = styled.div`
   height: 100%;
@@ -81,24 +85,81 @@ const CreateNewButton = styled(BaseButton)`
   }
 `;
 
+const CreateApiWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  grid-gap: 5px;
+  height: 40px;
+`;
+
 interface ReduxStateProps {
   actions: ActionDataState;
+  apiPane: ApiPaneReduxState;
 }
 
-type Props = ReduxStateProps & RouteComponentProps<{ id: string }>;
+interface ReduxDispatchProps {
+  createAction: (name: string) => void;
+}
 
-class ApiSidebar extends React.Component<Props> {
+type Props = ReduxStateProps &
+  ReduxDispatchProps &
+  RouteComponentProps<{ id: string }>;
+type State = {
+  isCreating: boolean;
+  name: string;
+};
+
+class ApiSidebar extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isCreating: false,
+      name: "",
+    };
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    if (!prevProps.match.params.id && this.props.match.params.id) {
+      this.setState({
+        isCreating: false,
+        name: "",
+      });
+    }
+  }
+
   handleCreateNew = () => {
     const { history } = this.props;
     history.push(API_EDITOR_URL);
+    this.setState({
+      isCreating: true,
+      name: "",
+    });
+  };
+
+  saveAction = () => {
+    if (this.state.name) {
+      this.props.createAction(this.state.name);
+    } else {
+      this.setState({
+        isCreating: false,
+      });
+    }
+  };
+
+  handleNameChange = (e: React.ChangeEvent<{ value: string }>) => {
+    const value = e.target.value;
+    this.setState({
+      name: value,
+    });
   };
 
   render() {
-    const { actions, history, match } = this.props;
+    const { actions, apiPane, history, match } = this.props;
+    const { isCreating } = this.state;
     const activeActionId = match.params.id;
     return (
       <ApiSidebarWrapper>
-        {actions.isFetching && <Spinner size={30} />}
+        {apiPane.isFetching && <Spinner size={30} />}
         <ApiItemsWrapper>
           {actions.data.map(action => (
             <ApiItem
@@ -112,18 +173,30 @@ class ApiSidebar extends React.Component<Props> {
               <ActionName>{action.name}</ActionName>
             </ApiItem>
           ))}
-          {!activeActionId && !actions.isFetching && (
-            <ApiItem isSelected>
-              <HTTPMethod method="" />
-              <ActionName>New Api</ActionName>
-            </ApiItem>
-          )}
         </ApiItemsWrapper>
-        <CreateNewButton
-          text="Create new API"
-          icon={FormIcons.ADD_NEW_ICON()}
-          onClick={this.handleCreateNew}
-        />
+        {isCreating ? (
+          <CreateApiWrapper>
+            <BaseTextInput
+              input={{
+                value: this.state.name,
+                onChange: this.handleNameChange,
+              }}
+            />
+            <BaseButton
+              icon={TICK}
+              styleName="primary"
+              text=""
+              onClick={this.saveAction}
+              filled
+            />
+          </CreateApiWrapper>
+        ) : (
+          <CreateNewButton
+            text="Create new API"
+            icon={FormIcons.ADD_NEW_ICON()}
+            onClick={this.handleCreateNew}
+          />
+        )}
       </ApiSidebarWrapper>
     );
   }
@@ -131,6 +204,19 @@ class ApiSidebar extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
+  apiPane: state.ui.apiPane,
 });
 
-export default connect(mapStateToProps)(ApiSidebar);
+const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
+  createAction: (name: string) =>
+    dispatch(
+      createActionRequest({
+        name,
+      }),
+    ),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ApiSidebar);

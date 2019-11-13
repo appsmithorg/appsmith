@@ -1,4 +1,4 @@
-import { all, select, takeLatest, put } from "redux-saga/effects";
+import { all, select, takeLatest, put, call, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 import { AppState } from "../reducers";
 import { bindingsMapSuccess } from "../actions/bindingActions";
@@ -16,11 +16,26 @@ function* createUpdateBindingsMapData() {
   yield put(bindingsMapSuccess(map));
 }
 
+// The listener will keep track of any action
+// that requires an update of the action and
+// then call the update function again
+function* initListener() {
+  while (true) {
+    // list all actions types here
+    yield take([
+      ReduxActionTypes.INIT_SUCCESS,
+      ReduxActionTypes.CREATE_ACTION_SUCCESS,
+      ReduxActionTypes.UPDATE_ACTION_SUCCESS,
+      ReduxActionTypes.DELETE_ACTION_SUCCESS,
+      ReduxActionTypes.UPDATE_CANVAS,
+      ReduxActionTypes.SAVE_PAGE_INIT,
+    ]);
+    yield call(createUpdateBindingsMapData);
+  }
+}
+
 export default function* watchBindingsSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.CREATE_UPDATE_BINDINGS_MAP_INIT,
-      createUpdateBindingsMapData,
-    ),
+    takeLatest(ReduxActionTypes.CREATE_UPDATE_BINDINGS_MAP_INIT, initListener),
   ]);
 }

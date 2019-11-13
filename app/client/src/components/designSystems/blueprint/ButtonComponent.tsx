@@ -3,16 +3,23 @@ import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { TextComponentProps } from "./TextComponent";
 import { ButtonStyle } from "../../../widgets/ButtonWidget";
+import { Theme } from "../../../constants/DefaultTheme";
+
+const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
+  if (props.filled) return props.theme.colors.textOnDarkBG;
+  if (props.styleName) {
+    if (props.styleName === "secondary") {
+      return props.theme.colors.OXFORD_BLUE;
+    }
+    return props.theme.colors[props.styleName];
+  }
+};
 
 const ButtonColorStyles = css<ButtonStyleProps>`
-  color: ${props => {
-    if (props.filled) return props.theme.colors.textOnDarkBG;
-    if (props.styleName) {
-      if (props.styleName === "secondary")
-        return props.theme.colors.OXFORD_BLUE;
-      return props.theme.colors[props.styleName];
-    }
-  }};
+  color: ${getButtonColorStyles};
+  svg {
+    fill: ${getButtonColorStyles};
+  }
 `;
 
 const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`

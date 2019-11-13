@@ -14,11 +14,13 @@ import { AppState } from "../../reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
-import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
+import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
+import styled from "styled-components";
 
 interface ReduxStateProps {
   actions: ActionDataState;
+  apiPane: ApiPaneReduxState;
   formData: any;
 }
 interface ReduxActionProps {
@@ -36,6 +38,13 @@ type Props = ReduxActionProps &
   ReduxStateProps &
   RouteComponentProps<{ id: string }>;
 
+const EmptyStateContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`;
+
 class ApiEditor extends React.Component<Props> {
   componentDidMount(): void {
     const currentId = this.props.match.params.id;
@@ -52,9 +61,6 @@ class ApiEditor extends React.Component<Props> {
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const currentId = this.props.match.params.id;
-    if (!currentId && prevProps.match.params.id) {
-      this.props.initialize(API_EDITOR_FORM_NAME, FORM_INITIAL_VALUES);
-    }
     if (currentId && currentId !== prevProps.match.params.id) {
       const data = this.props.actions.data.filter(
         action => action.id === currentId,
@@ -90,24 +96,36 @@ class ApiEditor extends React.Component<Props> {
 
   render() {
     const {
-      actions: { isSaving, isRunning, isDeleting },
+      apiPane: { isSaving, isRunning, isDeleting },
+      match: {
+        params: { id },
+      },
     } = this.props;
     return (
-      <ApiEditorForm
-        isSaving={isSaving}
-        isRunning={isRunning}
-        isDeleting={isDeleting}
-        onSubmit={this.handleSubmit}
-        onSaveClick={this.handleSaveClick}
-        onDeleteClick={this.handleDeleteClick}
-        onRunClick={this.handleRunClick}
-      />
+      <React.Fragment>
+        {id ? (
+          <ApiEditorForm
+            isSaving={isSaving}
+            isRunning={isRunning}
+            isDeleting={isDeleting}
+            onSubmit={this.handleSubmit}
+            onSaveClick={this.handleSaveClick}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+          />
+        ) : (
+          <EmptyStateContainer>
+            {"Create an api select from the list"}
+          </EmptyStateContainer>
+        )}
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
+  apiPane: state.ui.apiPane,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
 });
 
