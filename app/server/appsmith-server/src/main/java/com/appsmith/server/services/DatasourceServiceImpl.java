@@ -64,7 +64,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        Mono<Organization> organizationMono = userMono.flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), datasource.getPluginId()));
+        Mono<Organization> organizationMono = userMono.flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), datasource.getPluginId()));
 
         //Add organization id to the datasource.
         Mono<Datasource> updatedDatasourceMono = organizationMono

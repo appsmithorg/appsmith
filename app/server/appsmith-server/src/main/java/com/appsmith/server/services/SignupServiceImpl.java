@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 @Component
 @Slf4j
 public class SignupServiceImpl implements SignupService {
@@ -61,7 +65,13 @@ public class SignupServiceImpl implements SignupService {
                     log.debug("Going to update userId: {} with orgId: {} and groupId: {}", user.getId(), org.getId(), group.getId());
                     // Assign the user to the new organization
                     // TODO: Make organizationId as an array and allow a user to be assigned to multiple orgs
-                    user.setOrganizationId(org.getId());
+                    user.setCurrentOrganizationId(org.getId());
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    if (organizationIds == null) {
+                        organizationIds = new HashSet<>();
+                    }
+                    organizationIds.add(org.getId());
+                    user.setOrganizationIds(organizationIds);
                     // Assign the org-admin group to the user who created the new organization
                     user.getGroupIds().add(group.getId());
                     return userService.update(user.getId(), user)

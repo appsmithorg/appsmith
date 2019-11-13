@@ -95,7 +95,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                     username[0] = user.getEmail();
                     return user;
                 })
-                .flatMap(user -> applicationService.findByIdAndOrganizationId(page.getApplicationId(), user.getOrganizationId()))
+                .flatMap(user -> applicationService.findByIdAndOrganizationId(page.getApplicationId(), user.getCurrentOrganizationId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION, page.getId(), username[0])))
                 //If mono transmits, then application id belongs to the current user's organization. Return page.
                 .then(Mono.just(page));
