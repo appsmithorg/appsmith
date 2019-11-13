@@ -37,7 +37,9 @@ public class User extends BaseDomain implements UserDetails {
 
     private Boolean isEnabled = true;
 
-    private String organizationId;
+    private String currentOrganizationId;
+
+    private Set<String> organizationIds;
 
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.

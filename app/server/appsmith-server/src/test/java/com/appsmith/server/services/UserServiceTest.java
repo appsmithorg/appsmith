@@ -59,14 +59,14 @@ public class UserServiceTest {
         //Add valid organization id to the updateUser object.
         organizationMono
                 .map(organization -> {
-                    updateUser.setOrganizationId(organization.getId());
+                    updateUser.setCurrentOrganizationId(organization.getId());
                     return updateUser;
                 }).block();
 
         Mono<User> userMono1 = userMono.flatMap(user -> userService.update(user.getId(), updateUser));
         StepVerifier.create(userMono1)
                 .assertNext(updatedUserInRepository -> {
-                    assertThat(updatedUserInRepository.getOrganizationId()).isEqualTo(updateUser.getOrganizationId());
+                    assertThat(updatedUserInRepository.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
                 })
                 .verifyComplete();
     }
@@ -74,7 +74,7 @@ public class UserServiceTest {
     @Test
     public void updateUserWithInvalidOrganization() {
         User updateUser = new User();
-        updateUser.setOrganizationId("Random-OrgId-%Not-In_The-System_For_SUre");
+        updateUser.setCurrentOrganizationId("Random-OrgId-%Not-In_The-System_For_SUre");
         Mono<User> userMono1 = userMono.flatMap(user -> userService.update(user.getId(), updateUser));
         StepVerifier.create(userMono1)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&

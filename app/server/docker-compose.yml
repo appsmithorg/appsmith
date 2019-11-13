@@ -38,7 +38,7 @@ services:
     volumes:
       - ./appsmith-server/src/main/resources/opa/:/config
     environment:
-      - APPSMITH_SERVER_URL=http://appsmith-internal-server:8080
+      - APPSMITH_SERVER_URL=http://appsmith-internal-server:8080/public
     ports:
       - "8181:8181"
     networks:
