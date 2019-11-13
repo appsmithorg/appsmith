@@ -23,12 +23,14 @@ interface ComponentProps {
 const DatasourcesField = (
   props: ReduxActionProps & ReduxStateProps & ComponentProps,
 ) => {
-  const options = props.datasources.list.map(r => ({
-    label: r.datasourceConfiguration.url.endsWith("/")
-      ? r.datasourceConfiguration.url.slice(0, -1)
-      : r.datasourceConfiguration.url,
-    value: r.id,
-  }));
+  const options = props.datasources.list
+    .filter(r => r.datasourceConfiguration !== null)
+    .map(r => ({
+      label: r.datasourceConfiguration.url.endsWith("/")
+        ? r.datasourceConfiguration.url.slice(0, -1)
+        : r.datasourceConfiguration.url,
+      value: r.id,
+    }));
   return (
     <Field
       name={props.name}
