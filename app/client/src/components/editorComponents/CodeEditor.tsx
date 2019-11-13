@@ -2,6 +2,7 @@ import React from "react";
 import MonacoEditor from "react-monaco-editor";
 
 import styled from "styled-components";
+import { editor } from "monaco-editor";
 
 const Wrapper = styled.div<{ height: number }>`
   height: ${props => props.height}px;
@@ -26,7 +27,9 @@ interface Props {
 }
 
 const CodeEditor = (props: Props) => {
-  const options = {
+  const options: editor.IEditorConstructionOptions = {
+    wordWrap: "on",
+    wrappingIndent: "indent",
     selectOnLineNumbers: true,
     minimap: { enabled: false },
     readOnly: !props.input.onChange,

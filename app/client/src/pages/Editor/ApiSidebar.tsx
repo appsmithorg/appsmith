@@ -13,19 +13,29 @@ import { BaseTextInput } from "../../components/designSystems/appsmith/TextInput
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
 import { createActionRequest } from "../../actions/actionActions";
 
+const LoadingContainer = styled.div`
+  height: 50%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const ApiSidebarWrapper = styled.div`
+  margin-top: 10px;
   height: 100%;
   width: 100%;
   flex-direction: column;
 `;
 const ApiItemsWrapper = styled.div`
   flex: 1;
+  margin-bottom: 15px;
 `;
 
 const ApiItem = styled.div<{ isSelected: boolean }>`
   height: 32px;
   width: 100%;
-  padding: 5px 12px;
+  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -71,6 +81,8 @@ const CreateNewButton = styled(BaseButton)`
     border: none;
     color: ${props => props.theme.colors.textOnDarkBG};
     height: 32px;
+    text-align: left;
+    justify-content: flex-start;
     &:hover {
       color: ${props => props.theme.colors.paneBG};
       svg {
@@ -80,16 +92,18 @@ const CreateNewButton = styled(BaseButton)`
       }
     }
     svg {
-      height: 12px;
+      margin-top: 4px;
+      height: 14px;
+      width: 14px;
     }
   }
 `;
 
 const CreateApiWrapper = styled.div`
   display: grid;
-  grid-template-columns: 4fr 1fr;
+  grid-template-columns: 6fr 1fr;
   grid-gap: 5px;
-  height: 40px;
+  height: 32px;
 `;
 
 interface ReduxStateProps {
@@ -158,46 +172,58 @@ class ApiSidebar extends React.Component<Props, State> {
     const { isCreating } = this.state;
     const activeActionId = match.params.id;
     return (
-      <ApiSidebarWrapper>
-        {apiPane.isFetching && <Spinner size={30} />}
-        <ApiItemsWrapper>
-          {actions.data.map(action => (
-            <ApiItem
-              key={action.id}
-              onClick={() => history.push(API_EDITOR_ID_URL(action.id))}
-              isSelected={activeActionId === action.id}
-            >
-              <HTTPMethod method={action.actionConfiguration.httpMethod}>
-                {action.actionConfiguration.httpMethod}
-              </HTTPMethod>
-              <ActionName>{action.name}</ActionName>
-            </ApiItem>
-          ))}
-        </ApiItemsWrapper>
-        {isCreating ? (
-          <CreateApiWrapper>
-            <BaseTextInput
-              input={{
-                value: this.state.name,
-                onChange: this.handleNameChange,
-              }}
-            />
-            <BaseButton
-              icon={TICK}
-              styleName="primary"
-              text=""
-              onClick={this.saveAction}
-              filled
-            />
-          </CreateApiWrapper>
+      <React.Fragment>
+        {apiPane.isFetching ? (
+          <LoadingContainer>
+            <Spinner size={30} />
+          </LoadingContainer>
         ) : (
-          <CreateNewButton
-            text="Create new API"
-            icon={FormIcons.ADD_NEW_ICON()}
-            onClick={this.handleCreateNew}
-          />
+          <ApiSidebarWrapper>
+            <ApiItemsWrapper>
+              {actions.data.map(action => (
+                <ApiItem
+                  key={action.id}
+                  onClick={() => history.push(API_EDITOR_ID_URL(action.id))}
+                  isSelected={activeActionId === action.id}
+                >
+                  <HTTPMethod method={action.actionConfiguration.httpMethod}>
+                    {action.actionConfiguration.httpMethod}
+                  </HTTPMethod>
+                  <ActionName>{action.name}</ActionName>
+                </ApiItem>
+              ))}
+            </ApiItemsWrapper>
+            {isCreating ? (
+              <CreateApiWrapper>
+                <BaseTextInput
+                  placeholderMessage="API name"
+                  input={{
+                    value: this.state.name,
+                    onChange: this.handleNameChange,
+                  }}
+                />
+                <BaseButton
+                  icon={TICK}
+                  styleName="primary"
+                  text=""
+                  onClick={this.saveAction}
+                  filled
+                />
+              </CreateApiWrapper>
+            ) : (
+              <React.Fragment>
+                {!apiPane.isFetching && (
+                  <CreateNewButton
+                    text="Create new API"
+                    icon={FormIcons.ADD_NEW_ICON()}
+                    onClick={this.handleCreateNew}
+                  />
+                )}
+              </React.Fragment>
+            )}
+          </ApiSidebarWrapper>
         )}
-      </ApiSidebarWrapper>
+      </React.Fragment>
     );
   }
 }

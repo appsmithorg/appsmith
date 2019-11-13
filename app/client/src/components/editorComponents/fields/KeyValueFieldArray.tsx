@@ -31,12 +31,14 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               iconSize={20}
               onClick={() => props.fields.push({ key: "", value: "" })}
               color={"#A3B3BF"}
+              style={{ alignSelf: "center" }}
             />
           ) : (
             <FormIcons.DELETE_ICON
               height={20}
               width={20}
               onClick={() => props.fields.remove(index)}
+              style={{ alignSelf: "center" }}
             />
           )}
         </FormRowWithLabel>

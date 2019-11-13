@@ -53,7 +53,7 @@ const WidgetSidebarResponse: {
     {
       type: "RADIO_GROUP_WIDGET",
       icon: "icon-radio",
-      widgetCardName: "Radio Button",
+      widgetCardName: "Radio",
       key: generateReactKey(),
     },
     {
