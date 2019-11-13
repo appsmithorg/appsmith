@@ -106,6 +106,7 @@ class ActionSelectorControl extends BaseControl<
       return {
         label: action.name,
         value: action.id,
+        id: action.id,
       };
     });
     const selectedActionType = this.getSelectionActionType(
