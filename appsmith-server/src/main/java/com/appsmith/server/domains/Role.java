@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class Role extends BaseDomain {
 
     private static final long serialVersionUID = -9218373922209100577L;

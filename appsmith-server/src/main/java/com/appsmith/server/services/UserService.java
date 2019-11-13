@@ -9,4 +9,8 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
 
+    Mono<User> switchCurrentOrganization(String orgId);
+
+    Mono<User> addUserToOrganization(String orgId);
+
 }

@@ -57,7 +57,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
-                .map(user -> user.getOrganizationId())
+                .map(user -> user.getCurrentOrganizationId())
                 .map(orgId -> {
                     application.setOrganizationId(orgId);
                     return application;
@@ -70,7 +70,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
-                .map(user -> user.getOrganizationId())
+                .map(user -> user.getCurrentOrganizationId())
                 .flatMapMany(orgId -> repository.findByOrganizationId(orgId));
     }
 
@@ -83,7 +83,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
-                .map(user -> user.getOrganizationId())
+                .map(user -> user.getCurrentOrganizationId())
                 .flatMap(orgId -> repository.findByIdAndOrganizationId(id, orgId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
