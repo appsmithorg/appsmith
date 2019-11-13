@@ -48,8 +48,8 @@ public class AnalyticsService<T extends BaseDomain> {
                     HashMap<String, String> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", ((BaseDomain) object).getId());
                     analyticsProperties.put("object", object.toString());
-                    if(user.getOrganizationId() != null) {
-                        analyticsProperties.put("organizationId", user.getOrganizationId());
+                    if(user.getCurrentOrganizationId() != null) {
+                        analyticsProperties.put("organizationId", user.getCurrentOrganizationId());
                     }
 
                     analytics.enqueue(

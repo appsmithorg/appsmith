@@ -113,7 +113,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
         Mono<User> userMono = sessionUserService.getCurrentUser();
         Mono<Organization> organizationMono = userMono.flatMap(user ->
-                organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
+                organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), pluginDTO.getPluginId()));
 
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
@@ -134,7 +134,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
         Mono<User> userMono = sessionUserService.getCurrentUser();
         Mono<Organization> pluginInOrganizationMono = userMono.flatMap(user ->
-                organizationService.findByIdAndPluginsPluginId(user.getOrganizationId(), pluginDTO.getPluginId()));
+                organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), pluginDTO.getPluginId()));
 
 
         //If plugin is already present for the organization, just return the organization, else install and return organization
@@ -149,7 +149,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(user.getOrganizationId());
+                                installPluginRedisDTO.setOrganizationId(user.getCurrentOrganizationId());
                                 installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
                                 String jsonString;
                                 try {
@@ -164,7 +164,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
                             .then(userMono)
-                            .flatMap(user -> organizationService.findById(user.getOrganizationId()))
+                            .flatMap(user -> organizationService.findById(user.getCurrentOrganizationId()))
                             .map(organization -> {
 
                                 List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
