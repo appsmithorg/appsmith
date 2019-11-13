@@ -14,6 +14,7 @@ public interface Url {
     String APPLICATION_URL = BASE_URL + VERSION + "/applications";
     String PAGE_URL = BASE_URL + VERSION + "/pages";
     String PROPERTY_URL = BASE_URL + VERSION + "/properties";
+    String CONFIG_URL = BASE_URL + VERSION + "/configs";
     String TEAM_URL = BASE_URL + VERSION + "/teams";
     String GROUP_URL = BASE_URL + VERSION + "/groups";
     String PERMISSION_URL = BASE_URL + VERSION + "/permissions";

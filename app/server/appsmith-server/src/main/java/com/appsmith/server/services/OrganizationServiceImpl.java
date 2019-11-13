@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationSetting;
@@ -8,7 +7,6 @@ import com.appsmith.server.domains.Setting;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;

@@ -3,7 +3,6 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.Collection;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithException;
