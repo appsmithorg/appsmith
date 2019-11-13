@@ -64,7 +64,12 @@ allowed_operations = [
 
     {"method": "GET", "resource": "datasources", "permission": "read:datasources"},
     {"method": "POST", "resource": "datasources", "permission": "create:datasources"},
-    {"method": "PUT", "resource": "datasources", "permission": "update:datasources"}
+    {"method": "PUT", "resource": "datasources", "permission": "update:datasources"},
+
+    {"method": "GET", "resource": "configs", "permission": "read:configs"},
+    {"method": "POST", "resource": "configs", "permission": "create:configs"},
+    {"method": "PUT", "resource": "configs", "permission": "update:configs"}
+
 ]
 
 

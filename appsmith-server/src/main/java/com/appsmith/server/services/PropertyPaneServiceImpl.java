@@ -6,7 +6,6 @@ import com.appsmith.server.domains.WidgetSectionProperty;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PropertyPaneRepository;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
