@@ -54,8 +54,12 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     public Mono<Datasource> create(@NotNull Datasource datasource) {
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        } else if (datasource.getPluginId() == null) {
+        }
+        if (datasource.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
+        }
+        if (datasource.getDatasourceConfiguration() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE));
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser();

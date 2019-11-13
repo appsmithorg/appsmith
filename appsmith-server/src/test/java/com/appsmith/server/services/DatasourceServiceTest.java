@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
@@ -65,6 +66,9 @@ public class DatasourceServiceTest {
     public void createDatasourceNotInstalledPlugin() {
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setDatabaseName("randomDbname");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
@@ -84,6 +88,9 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setDatabaseName("randomDbname");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());
             return datasource;
