@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.helpers.BeanCopyUtils.countOfNonNullFields;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 
 @Slf4j
@@ -167,11 +168,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
+        if (action.getName() != null) {
+            if (!validateActionName(action.getName())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+            }
+            if (countOfNonNullFields(action) == 5) {
+                //only action name is present. go ahead and save it without any validation.
+                return super.create(action);
+            }
+        }
         if (action.getDatasource() == null) {
             return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_NOT_GIVEN));
-        }
-        if (!validateActionName(action.getName())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
         }
 
         Mono<Datasource> datasourceMono;
