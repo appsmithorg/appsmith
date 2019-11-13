@@ -75,6 +75,7 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
+  id: string;
 }
 
 export interface DropdownWidgetProps extends WidgetProps {

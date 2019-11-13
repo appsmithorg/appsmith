@@ -4,6 +4,7 @@ import { ControlWrapper, StyledInputGroup } from "./StyledControls";
 import { Button } from "@blueprintjs/core";
 import { DropdownOption } from "../../widgets/DropdownWidget";
 import { ControlType } from "../../constants/PropertyControlConstants";
+import { generateReactKey } from "../../utils/generators";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
@@ -13,7 +14,7 @@ class OptionControl extends BaseControl<ControlProps> {
         <label>{this.props.label}</label>
         {options.map((option, index) => {
           return (
-            <ControlWrapper orientation={"HORIZONTAL"} key={index + ""}>
+            <ControlWrapper orientation={"HORIZONTAL"} key={option.id}>
               <StyledInputGroup
                 type={"text"}
                 placeholder={"Name"}
@@ -30,6 +31,13 @@ class OptionControl extends BaseControl<ControlProps> {
                 }}
                 defaultValue={option.value}
               />
+              <Button
+                color={"#A3B3BF"}
+                icon={"delete"}
+                onClick={() => {
+                  this.deleteOption(index);
+                }}
+              ></Button>
             </ControlWrapper>
           );
         })}
@@ -38,21 +46,49 @@ class OptionControl extends BaseControl<ControlProps> {
     );
   }
 
-  updateOptionLabel = (index: number, updatedLabel: string) => {
-    const options: DropdownOption[] = this.props.propertyValue || [{}];
-    options[index].label = updatedLabel;
+  deleteOption = (index: number) => {
+    const options: DropdownOption[] = this.props.propertyValue.slice();
+    options.splice(index, 1);
     this.updateProperty("options", options);
+  };
+
+  updateOptionLabel = (index: number, updatedLabel: string) => {
+    const options: DropdownOption[] = this.props.propertyValue;
+    this.updateProperty(
+      "options",
+      options.map((option, optionIndex) => {
+        if (index !== optionIndex) {
+          return option;
+        }
+        return {
+          ...option,
+          label: updatedLabel,
+        };
+      }),
+    );
   };
 
   updateOptionValue = (index: number, updatedValue: string) => {
-    const options: DropdownOption[] = this.props.propertyValue || [{}];
-    options[index].value = updatedValue;
-    this.updateProperty("options", options);
+    const options: DropdownOption[] = this.props.propertyValue;
+    this.updateProperty(
+      "options",
+      options.map((option, optionIndex) => {
+        if (index !== optionIndex) {
+          return option;
+        }
+        return {
+          ...option,
+          value: updatedValue,
+        };
+      }),
+    );
   };
 
   addOption = () => {
-    const options: DropdownOption[] = this.props.propertyValue || [{}];
-    options.push({ label: "", value: "" });
+    const options: DropdownOption[] = this.props.propertyValue
+      ? this.props.propertyValue.slice()
+      : [];
+    options.push({ label: "", value: "", id: generateReactKey() });
     this.updateProperty("options", options);
   };
 

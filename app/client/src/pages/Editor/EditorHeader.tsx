@@ -59,12 +59,14 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     | Array<{
         label: string;
         value: string;
+        id: string;
       }>
     | undefined =
     props.pages &&
     props.pages.map((page: { pageName: string; pageId: string }) => ({
       label: page.pageName,
       value: page.pageId,
+      id: page.pageId,
     }));
 
   const selectedPage: DropdownOption | undefined =

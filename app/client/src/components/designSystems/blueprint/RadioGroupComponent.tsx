@@ -2,6 +2,7 @@ import React from "react";
 import { ComponentProps } from "../appsmith/BaseComponent";
 import { RadioOption } from "../../../widgets/RadioGroupWidget";
 import { RadioGroup, Radio } from "@blueprintjs/core";
+
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
@@ -12,11 +13,7 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
       >
         {this.props.options.map(option => {
           return (
-            <Radio
-              label={option.label}
-              value={option.value}
-              key={option.value}
-            />
+            <Radio label={option.label} value={option.value} key={option.id} />
           );
         })}
       </RadioGroup>
