@@ -1,47 +1,42 @@
 import * as React from "react";
 import { ComponentProps } from "../appsmith/BaseComponent";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
-import { Container } from "../appsmith/ContainerComponent";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "../../../widgets/DatePickerWidget";
 
 class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
-    return (
-      <Container {...this.props}>
-        {this.props.datePickerType === "DATE_PICKER" ? (
-          <DateInput
-            formatDate={this.formatDate}
-            parseDate={this.parseDate}
-            placeholder={this.props.dateFormat}
-            disabled={this.props.isDisabled}
-            showActionsBar={true}
-            timePickerProps={
-              this.props.enableTimePicker
-                ? {
-                    useAmPm: true,
-                    value: this.props.selectedDate || this.props.defaultDate,
-                    showArrowButtons: true,
-                  }
-                : undefined
-            }
-            closeOnSelection={true}
-            onChange={this.onDateSelected}
-            value={this.props.selectedDate || this.props.defaultDate}
-          />
-        ) : (
-          <DateRangeInput
-            allowSingleDayRange={true}
-            disabled={this.props.isDisabled}
-            contiguousCalendarMonths={false}
-            formatDate={this.formatDate}
-            minDate={this.props.minDate}
-            maxDate={this.props.maxDate}
-            closeOnSelection={true}
-          />
-        )}
-      </Container>
+    return this.props.datePickerType === "DATE_PICKER" ? (
+      <DateInput
+        formatDate={this.formatDate}
+        parseDate={this.parseDate}
+        placeholder={this.props.dateFormat}
+        disabled={this.props.isDisabled}
+        showActionsBar={true}
+        timePickerProps={
+          this.props.enableTimePicker
+            ? {
+                useAmPm: true,
+                value: this.props.selectedDate || this.props.defaultDate,
+                showArrowButtons: true,
+              }
+            : undefined
+        }
+        closeOnSelection={true}
+        onChange={this.onDateSelected}
+        value={this.props.selectedDate || this.props.defaultDate}
+      />
+    ) : (
+      <DateRangeInput
+        allowSingleDayRange={true}
+        disabled={this.props.isDisabled}
+        contiguousCalendarMonths={false}
+        formatDate={this.formatDate}
+        minDate={this.props.minDate}
+        maxDate={this.props.maxDate}
+        closeOnSelection={true}
+      />
     );
   }
 

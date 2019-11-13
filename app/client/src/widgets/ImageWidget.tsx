@@ -8,7 +8,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return (
       <ImageComponent
         widgetId={this.props.widgetId}
-        style={this.getPositionStyle()}
         imageUrl={this.props.image}
         defaultImageUrl={this.props.defaultImage}
       />

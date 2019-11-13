@@ -1,8 +1,8 @@
 import React, { createContext, useState, Context } from "react";
-import WidgetFactory from "../../utils/WidgetFactory";
-import { RenderModes } from "../../constants/WidgetConstants";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { WidgetProps } from "../../widgets/BaseWidget";
+import WidgetFactory from "utils/WidgetFactory";
+import { RenderModes } from "constants/WidgetConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
 import ArtBoard from "../common/ArtBoard";
 

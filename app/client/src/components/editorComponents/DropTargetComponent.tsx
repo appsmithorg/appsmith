@@ -1,22 +1,29 @@
-import React, { useState, useContext, createContext, Context } from "react";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { OccupiedSpaceContext } from "../../widgets/ContainerWidget";
-import { WidgetConfigProps } from "../../reducers/entityReducers/widgetConfigReducer";
-import { useDrop, XYCoord } from "react-dnd";
-import { ContainerProps } from "../designSystems/appsmith/ContainerComponent";
-import WidgetFactory from "../../utils/WidgetFactory";
-import {
-  widgetOperationParams,
-  noCollision,
-} from "../../utils/WidgetPropsUtils";
-import DragLayerComponent from "./DragLayerComponent";
-import { WidgetFunctionsContext } from "../../pages/Editor/WidgetsEditor";
-import { FocusContext } from "../../pages/Editor/Canvas";
+import React, {
+  useState,
+  useContext,
+  createContext,
+  Context,
+  ReactNode,
+} from "react";
+import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 
-type DropTargetComponentProps = ContainerProps & {
-  updateWidget?: Function;
-  snapColumns?: number;
-  snapRows?: number;
+import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import WidgetFactory from "utils/WidgetFactory";
+import { widgetOperationParams, noCollision } from "utils/WidgetPropsUtils";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { FocusContext } from "pages/Editor/Canvas";
+
+import DragLayerComponent from "./DragLayerComponent";
+
+/* 
+TODO(abhinav): 
+  1) Drag collision is not working
+  2) Dragging into a new container does not work 
+*/
+
+type DropTargetComponentProps = WidgetProps & {
+  children?: ReactNode;
   snapColumnSpace: number;
   snapRowSpace: number;
 };
@@ -37,53 +44,62 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
-  const { updateWidget } = useContext(WidgetFunctionsContext);
-  const occupiedSpaces = useContext(OccupiedSpaceContext);
+  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { setFocus, showPropertyPane } = useContext(FocusContext);
+  const spacesOccupiedBySiblingWidgets =
+    occupiedSpaces && occupiedSpaces[props.widgetId]
+      ? occupiedSpaces[props.widgetId]
+      : undefined;
   // Make this component a drop target
   const [{ isOver, isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
-      if (isOver) {
+      if (isExactlyOver) {
+        const updateWidgetParams = widgetOperationParams(
+          widget,
+          monitor.getClientOffset() as XYCoord,
+          dropTargetOffset,
+          props.snapColumnSpace,
+          props.snapRowSpace,
+          props.widgetId,
+        );
+
         updateWidget &&
           updateWidget(
-            ...widgetOperationParams(
-              widget,
-              monitor.getClientOffset() as XYCoord,
-              dropTargetOffset,
-              props.snapColumnSpace,
-              props.snapRowSpace,
-              props.widgetId,
-            ),
+            updateWidgetParams.operation,
+            updateWidgetParams.widgetId,
+            updateWidgetParams.payload,
           );
       }
       return undefined;
     },
     // Collect isOver for ui transforms when hovering over this component
-    collect: monitor => ({
+    collect: (monitor: DropTargetMonitor) => ({
       isOver:
         (monitor.isOver({ shallow: true }) &&
           props.widgetId !== monitor.getItem().widgetId) ||
         (monitor.isOver() && props.widgetId !== monitor.getItem().widgetId),
       isExactlyOver: monitor.isOver({ shallow: true }),
+      draggingItem: monitor.getItem() as WidgetProps,
     }),
     // Only allow drop if the drag object is directly over this component
     // As opposed to the drag object being over a child component, or outside the component bounds
     // Also only if the dropzone does not overlap any existing children
     canDrop: (widget, monitor) => {
       // Check if the draggable is the same as the dropTarget
-      if (isOver) {
-        return noCollision(
+      if (isExactlyOver) {
+        const hasCollision = !noCollision(
           monitor.getClientOffset() as XYCoord,
           props.snapColumnSpace,
           props.snapRowSpace,
           widget,
           dropTargetOffset,
-          occupiedSpaces,
+          spacesOccupiedBySiblingWidgets,
           props.snapRows,
           props.snapColumns,
         );
+        return !hasCollision;
       }
       return false;
     },
@@ -99,7 +115,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   const handleFocus = () => {
-    if (props.isRoot) {
+    if (!props.parentId) {
       setFocus && setFocus(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
@@ -113,14 +129,11 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         style={{
           position: "relative",
           left: 0,
-          height: props.isRoot
-            ? props.style.componentHeight + (props.style.heightUnit || "px")
-            : "100%",
-          width: props.isRoot
-            ? props.style.componentWidth + (props.style.widthUnit || "px")
-            : "100%",
+          height: "100%",
+          width: "100%",
           top: 0,
           userSelect: "none",
+          opacity: 0.99,
         }}
       >
         {props.children}
@@ -131,7 +144,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           visible={isOver || isResizing}
           isOver={isExactlyOver}
           dropTargetOffset={dropTargetOffset}
-          occupiedSpaces={occupiedSpaces}
+          occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
           parentRows={props.snapRows}
           parentCols={props.snapColumns}

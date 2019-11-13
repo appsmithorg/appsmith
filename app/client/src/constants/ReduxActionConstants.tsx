@@ -73,6 +73,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CREATE_APPLICATION_SUCCESS: "CREATE_APPLICATION_SUCCESS",
   CREATE_UPDATE_BINDINGS_MAP_INIT: "CREATE_UPDATE_BINDINGS_MAP_INIT",
   CREATE_UPDATE_BINDINGS_MAP_SUCCESS: "CREATE_UPDATE_BINDINGS_MAP_SUCCESS",
+  HIDE_PROPERTY_PANE: "HIDE_PROPERTY_PANE",
 };
 
 export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];

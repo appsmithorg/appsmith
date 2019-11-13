@@ -19,7 +19,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   getPageView() {
     return (
       <ButtonComponent
-        style={this.getPositionStyle()}
         buttonStyle={this.props.buttonStyle}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}

@@ -2,7 +2,6 @@ import React from "react";
 import styled, { css } from "styled-components";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { ComponentProps } from "./BaseComponent";
-import { Container } from "./ContainerComponent";
 
 const InputStyles = css`
   padding: ${props => `${props.theme.spaces[3]}px ${props.theme.spaces[1]}px`};
@@ -59,11 +58,7 @@ export const BaseTextInput = (props: TextInputProps) => {
 };
 
 const TextInputComponent = (props: TextInputProps & ComponentProps) => {
-  return (
-    <Container {...props}>
-      <BaseTextInput {...props} />
-    </Container>
-  );
+  return <BaseTextInput {...props} />;
 };
 
 export default TextInputComponent;

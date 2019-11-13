@@ -10,7 +10,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       <DatePickerComponent
         label={this.props.label}
         dateFormat={this.props.dateFormat}
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         timezone={this.props.timezone}
         enableTimePicker={this.props.enableTimePicker}

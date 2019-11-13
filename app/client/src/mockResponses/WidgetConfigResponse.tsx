@@ -29,7 +29,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       label: "Label me",
-      rows: 1,
+      rows: 2,
       columns: 5,
       widgetName: "Input",
     },

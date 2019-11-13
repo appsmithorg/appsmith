@@ -1,4 +1,5 @@
-import * as React from "react";
+import React from "react";
+import styled from "styled-components";
 import { ComponentProps } from "../appsmith/BaseComponent";
 import {
   Intent,
@@ -9,7 +10,6 @@ import {
   Label,
   Text,
 } from "@blueprintjs/core";
-import { Container } from "../appsmith/ContainerComponent";
 import { InputType } from "../../../widgets/InputWidget";
 /**
  * All design system component specific logic goes here.
@@ -17,6 +17,13 @@ import { InputType } from "../../../widgets/InputWidget";
  * Ex. To set the icon as currency, blue print takes in a set of defined types
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
+
+const InputComponentWrapper = styled.div`
+  &&&& div.bp3-input-group {
+    display: block;
+    margin: 0;
+  }
+`;
 
 class InputComponent extends React.Component<
   InputComponentProps,
@@ -72,7 +79,7 @@ class InputComponent extends React.Component<
 
   render() {
     return (
-      <Container {...this.props}>
+      <InputComponentWrapper>
         <Label className={"bp3-inline"}>
           {this.props.label}
           {this.isNumberInputType(this.props.inputType) ? (
@@ -120,7 +127,7 @@ class InputComponent extends React.Component<
           )}
         </Label>
         <Text>{this.props.errorMessage}</Text>
-      </Container>
+      </InputComponentWrapper>
     );
   }
 }

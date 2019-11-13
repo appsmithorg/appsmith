@@ -8,7 +8,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}

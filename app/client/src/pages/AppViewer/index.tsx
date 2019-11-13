@@ -26,7 +26,7 @@ import SideNav, { SideNavItem } from "./viewer/SideNav";
 import AppViewerHeader from "./viewer/AppViewerHeader";
 import { updateWidgetProperty } from "../../actions/controlActions";
 import { RenderModes } from "../../constants/WidgetConstants";
-import { WidgetFunctionsContext } from "../Editor/WidgetsEditor";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -132,7 +132,7 @@ class AppViewer extends Component<AppViewerProps> {
         page => page.pageId === this.props.currentRoutePageId,
       );
     return (
-      <WidgetFunctionsContext.Provider
+      <EditorContext.Provider
         value={{
           executeAction: this.props.executeAction,
           updateWidgetProperty: this.props.updateWidgetProperty,
@@ -184,7 +184,7 @@ class AppViewer extends Component<AppViewerProps> {
             {this.props.dsl && <AppPage dsl={this.props.dsl} />}
           </AppViewerBody>
         </AppViewWrapper>
-      </WidgetFunctionsContext.Provider>
+      </EditorContext.Provider>
     );
   }
 }

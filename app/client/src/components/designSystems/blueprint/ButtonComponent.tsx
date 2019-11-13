@@ -1,7 +1,6 @@
 import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
-import { Container } from "../appsmith/ContainerComponent";
 import { TextComponentProps } from "./TextComponent";
 import { ButtonStyle } from "../../../widgets/ButtonWidget";
 
@@ -30,7 +29,7 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
           ? props.theme.colors[props.styleName]
           : props.theme.colors.secondary};
     border-radius: 4px;
-    font-weight: bold;
+    font-weight: ${props => props.theme.fontWeights[1]};
     outline: none;
     &&:hover,
     &&:focus {
@@ -107,16 +106,14 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
 // To be used with the canvas
 const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
-    <Container {...props}>
-      <BaseButton
-        icon={props.icon}
-        text={props.text}
-        filled={props.buttonStyle === "PRIMARY_BUTTON"}
-        styleName={mapButtonStyleToStyleName(props.buttonStyle)}
-        onClick={props.onClick}
-        disabled={props.disabled}
-      />
-    </Container>
+    <BaseButton
+      icon={props.icon}
+      text={props.text}
+      filled={props.buttonStyle === "PRIMARY_BUTTON"}
+      styleName={mapButtonStyleToStyleName(props.buttonStyle)}
+      onClick={props.onClick}
+      disabled={props.disabled}
+    />
   );
 };
 

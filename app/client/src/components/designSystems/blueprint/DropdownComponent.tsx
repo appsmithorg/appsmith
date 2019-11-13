@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ComponentProps } from "../appsmith/BaseComponent";
 import { MenuItem, Button } from "@blueprintjs/core";
-import { Container } from "../appsmith/ContainerComponent";
 import { SelectionType, DropdownOption } from "../../../widgets/DropdownWidget";
 import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
@@ -26,30 +25,26 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             itemRenderer={this.renderItem}
             onItemSelect={this.onItemSelect}
           >
-            <Container {...this.props}>
-              <Button
-                intent={"primary"}
-                rightIcon="chevron-down"
-                text={
-                  !_.isEmpty(this.props.options)
-                    ? this.props.options[this.props.selectedIndex].label
-                    : "Add options"
-                }
-              />
-            </Container>
+            <Button
+              intent={"primary"}
+              rightIcon="chevron-down"
+              text={
+                !_.isEmpty(this.props.options)
+                  ? this.props.options[this.props.selectedIndex].label
+                  : "Add options"
+              }
+            />
           </SingleDropDown>
         ) : (
-          <Container {...this.props}>
-            <MultiDropDown
-              items={this.props.options}
-              placeholder={this.props.placeholder}
-              tagRenderer={this.renderTag}
-              itemRenderer={this.renderItem}
-              selectedItems={selectedItems}
-              tagInputProps={{ onRemove: this.onItemRemoved }}
-              onItemSelect={this.onItemSelect}
-            ></MultiDropDown>
-          </Container>
+          <MultiDropDown
+            items={this.props.options}
+            placeholder={this.props.placeholder}
+            tagRenderer={this.renderTag}
+            itemRenderer={this.renderItem}
+            selectedItems={selectedItems}
+            tagInputProps={{ onRemove: this.onItemRemoved }}
+            onItemSelect={this.onItemSelect}
+          ></MultiDropDown>
         )}
       </div>
     );

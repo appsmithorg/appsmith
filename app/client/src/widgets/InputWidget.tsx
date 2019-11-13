@@ -1,8 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import InputComponent from "../components/designSystems/blueprint/InputComponent";
-import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import InputComponent from "components/designSystems/blueprint/InputComponent";
+import { ActionPayload } from "constants/ActionConstants";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   regex = new RegExp("");
@@ -45,7 +45,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return (
       <InputComponent
         onValueChange={this.onValueChange}
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         errorMessage={errorMessage}
         inputType={this.props.inputType}

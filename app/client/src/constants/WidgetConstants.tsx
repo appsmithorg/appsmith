@@ -29,7 +29,13 @@ export const WidgetTypes: { [id: string]: WidgetType } = {
 };
 
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
-export type PositionType = "ABSOLUTE" | "CONTAINER_DIRECTION";
+
+export const PositionTypes: { [id: string]: string } = {
+  ABSOLUTE: "ABSOLUTE",
+  CONTAINER_DIREACTION: "CONTAINER_DIRECTION",
+};
+export type PositionType = (typeof PositionTypes)[keyof typeof PositionTypes];
+
 export type CSSUnit =
   | "px"
   | "cm"

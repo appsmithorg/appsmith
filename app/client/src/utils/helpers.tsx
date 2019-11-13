@@ -18,3 +18,10 @@ export const formatBytes = (bytes: string | number) => {
   if (i === 0) return bytes + " " + sizes[i];
   return (value / Math.pow(1024, i)).toFixed(1) + " " + sizes[i];
 };
+
+export const getAbsolutePixels = (size?: string | null) => {
+  if (!size) return 0;
+  const _dex = size.indexOf("px");
+  if (_dex === -1) return 0;
+  return parseInt(size.slice(0, _dex), 10);
+};
