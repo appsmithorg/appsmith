@@ -31,6 +31,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.StringReader;
@@ -97,6 +98,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
+        if (action.getName() != null) {
+            // There is a change in the name of the action. Validate
+            if (!validateActionName(action.getName())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+            }
+        }
 
         Mono<Action> replaceOrCreateNewDataSourceMono = replaceOrCreateNewDataSource(action);
         Mono<Action> dbActionMono = repository.findById(id)
@@ -148,12 +155,23 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return Mono.just(action);
     }
 
+    private Boolean validateActionName(String name) {
+        boolean isValidName = SourceVersion.isName(name);
+        String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
+        boolean doesPatternMatch = name.matches(pattern);
+        return (isValidName && doesPatternMatch);
+    }
+
     @Override
     public Mono<Action> create(@NotNull Action action) {
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
-        } else if (action.getDatasource() == null) {
+        }
+        if (action.getDatasource() == null) {
             return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_NOT_GIVEN));
+        }
+        if (!validateActionName(action.getName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
         }
 
         Mono<Datasource> datasourceMono;

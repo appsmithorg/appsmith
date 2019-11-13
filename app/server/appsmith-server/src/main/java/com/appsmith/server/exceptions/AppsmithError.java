@@ -18,6 +18,7 @@ public enum AppsmithError {
     ACTION_RUN_KEY_VALUE_INVALID(400, 4008, "Invalid template param key value pair: {0}:{1}"),
     UNAUTHORIZED_DOMAIN(401, 4001, "Invalid email domain provided. Please sign in with a valid work email ID"),
     UNAUTHORIZED_ACCESS(401, 4002, "Unauthorized access"),
+    INVALID_ACTION_NAME(401, 4003, "Action name is invalid. Please input syntactically correct name"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed"),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again"),
