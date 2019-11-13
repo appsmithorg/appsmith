@@ -16,6 +16,7 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization"),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation"),
     ACTION_RUN_KEY_VALUE_INVALID(400, 4008, "Invalid template param key value pair: {0}:{1}"),
+    NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4009, "Datasource without any configuration is invalid. Please try again with datasourceConfiguration"),
     UNAUTHORIZED_DOMAIN(401, 4001, "Invalid email domain provided. Please sign in with a valid work email ID"),
     UNAUTHORIZED_ACCESS(401, 4002, "Unauthorized access"),
     INVALID_ACTION_NAME(401, 4003, "Action name is invalid. Please input syntactically correct name"),
