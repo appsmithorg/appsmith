@@ -5,6 +5,7 @@ import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
 import applicationsReducer from "./applicationsReducer";
 import { widgetSidebarReducer } from "./widgetSidebarReducer";
+import apiPaneReducer from "./apiPaneReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -13,5 +14,6 @@ const uiReducer = combineReducers({
   propertyPane: propertyPaneReducer,
   appView: appViewReducer,
   applications: applicationsReducer,
+  apiPane: apiPaneReducer,
 });
 export default uiReducer;

@@ -153,7 +153,7 @@ const ApiResponseView = (props: Props) => {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   responses: state.entities.apiData,
-  isRunning: state.entities.actions.isRunning,
+  isRunning: state.ui.apiPane.isRunning,
 });
 
 export default connect(mapStateToProps)(withRouter(ApiResponseView));

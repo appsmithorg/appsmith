@@ -1,24 +1,40 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { FormGroup, IconName, InputGroup, Intent } from "@blueprintjs/core";
 import { ComponentProps } from "./BaseComponent";
 
-const InputStyles = css`
-  padding: ${props => `${props.theme.spaces[3]}px ${props.theme.spaces[1]}px`};
+const TextInput = styled(InputGroup)`
   flex: 1;
-  border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
-  border-radius: 4px;
-  height: 32px;
-  background-color: ${props => props.theme.colors.textOnDarkBG};
-  &:focus {
-    border-color: ${props => props.theme.colors.secondary};
+  input {
+    border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
+    border-radius: 4px;
+    box-shadow: none;
+    height: 38px;
     background-color: ${props => props.theme.colors.textOnDarkBG};
-    outline: 0;
+    &:focus {
+      border-color: ${props => props.theme.colors.secondary};
+      background-color: ${props => props.theme.colors.textOnDarkBG};
+      outline: 0;
+    }
   }
-`;
-
-const Input = styled.input`
-  ${InputStyles}
+  .bp3-icon {
+    border-radius: 4px 0 0 4px;
+    margin: 0;
+    height: 38px;
+    width: 30px;
+    background-color: ${props => props.theme.colors.menuButtonBGInactive};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg {
+      height: 20px;
+      width: 20px;
+      path {
+        fill: ${props => props.theme.colors.textDefault};
+      }
+    }
+  }
 `;
 
 const InputContainer = styled.div`
@@ -27,32 +43,26 @@ const InputContainer = styled.div`
   flex-direction: column;
 `;
 
-const Error = styled.span`
+const ErrorText = styled.span`
+  height: 10px;
+  padding: 3px;
+  font-size: 10px;
   color: ${props => props.theme.colors.error};
-  fontsize: ${props => props.theme.fontSizes[1]};
-`;
-
-const TextArea = styled.textarea`
-  ${InputStyles}
-  height: 100px;
 `;
 
 export interface TextInputProps {
   placeholderMessage?: string;
-  multiline?: boolean;
-  input?: WrappedFieldInputProps;
+  input?: Partial<WrappedFieldInputProps>;
   meta?: WrappedFieldMetaProps;
+  icon?: IconName;
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholderMessage, multiline, input, meta } = props;
-  if (multiline) {
-    return <TextArea placeholder={placeholderMessage} {...input} />;
-  }
+  const { placeholderMessage, input, meta, icon } = props;
   return (
     <InputContainer>
-      <Input placeholder={placeholderMessage} {...input} />
-      {meta && meta.touched && meta.error && <Error>{meta.error}</Error>}
+      <TextInput {...input} placeholder={placeholderMessage} leftIcon={icon} />
+      <ErrorText>{meta && meta.touched && meta.error}</ErrorText>
     </InputContainer>
   );
 };

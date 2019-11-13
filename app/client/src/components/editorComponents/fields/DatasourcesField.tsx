@@ -7,7 +7,6 @@ import { DatasourceDataState } from "../../../reducers/entityReducers/datasource
 import _ from "lodash";
 import { createDatasource } from "../../../actions/datasourcesActions";
 import { REST_PLUGIN_ID } from "../../../constants/ApiEditorConstants";
-import { required } from "../../../utils/validation/common";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
@@ -41,7 +40,6 @@ const DatasourcesField = (
       onCreateOption={props.createDatasource}
       format={(value: string) => _.find(options, { value })}
       parse={(option: { value: string }) => (option ? option.value : null)}
-      validate={required}
     />
   );
 };

@@ -16,6 +16,7 @@ import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { BindingsDataState } from "./entityReducers/bindingsReducer";
+import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -33,6 +34,7 @@ export interface AppState {
     errors: ErrorReduxState;
     appView: AppViewReduxState;
     applications: ApplicationsReduxState;
+    apiPane: ApiPaneReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

@@ -65,7 +65,7 @@ abstract class BaseWidget<
    */
   executeAction(actionPayloads?: ActionPayload[]): void {
     const { executeAction } = this.context;
-    executeAction && executeAction(actionPayloads);
+    executeAction && !_.isNil(actionPayloads) && executeAction(actionPayloads);
   }
 
   updateWidgetProperty(

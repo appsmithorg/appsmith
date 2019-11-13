@@ -6,7 +6,7 @@ import {
   REQUEST_HEADERS,
   AUTH_CREDENTIALS,
 } from "../constants/ApiConstants";
-import { ActionApiResponse, ActionResponse } from "./ActionAPI";
+import { ActionApiResponse } from "./ActionAPI";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,

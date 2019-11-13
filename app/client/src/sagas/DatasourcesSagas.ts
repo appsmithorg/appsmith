@@ -11,20 +11,24 @@ import DatasourcesApi, {
   Datasource,
 } from "../api/DatasourcesApi";
 import { API_EDITOR_FORM_NAME } from "../constants/forms";
+import { validateResponse } from "./ErrorSagas";
 
 function* fetchDatasourcesSaga() {
-  const response: GenericApiResponse<
-    Datasource[]
-  > = yield DatasourcesApi.fetchDatasources();
-  if (response.responseMeta.success) {
-    yield put({
-      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      payload: response.data,
-    });
-  } else {
+  try {
+    const response: GenericApiResponse<
+      Datasource[]
+    > = yield DatasourcesApi.fetchDatasources();
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-      payload: response.responseMeta.status,
+      payload: { error },
     });
   }
 }
@@ -32,19 +36,23 @@ function* fetchDatasourcesSaga() {
 function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
-  const response: GenericApiResponse<
-    Datasource
-  > = yield DatasourcesApi.createDatasource(actionPayload.payload);
-  if (response.responseMeta.success) {
+  try {
+    const response: GenericApiResponse<
+      Datasource
+    > = yield DatasourcesApi.createDatasource(actionPayload.payload);
+    if (response.responseMeta.success) {
+      yield put({
+        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+      yield put(
+        change(API_EDITOR_FORM_NAME, "datasource.id", response.data.id),
+      );
+    }
+  } catch (error) {
     yield put({
-      type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-      payload: response.data,
-    });
-    yield put(change(API_EDITOR_FORM_NAME, "datasource.id", response.data.id));
-  } else {
-    yield put({
-      type: ReduxActionTypes.CREATE_DATASOURCES_ERROR,
-      payload: response.responseMeta.error,
+      type: ReduxActionTypes.CREATE_DATASOURCE_ERROR,
+      payload: { error },
     });
   }
 }

@@ -2,7 +2,7 @@ import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 import { RestAction } from "../api/ActionAPI";
 import { ActionPayload } from "../constants/ActionConstants";
 
-export const createActionRequest = (payload: RestAction) => {
+export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
