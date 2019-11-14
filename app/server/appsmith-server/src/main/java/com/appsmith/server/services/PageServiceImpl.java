@@ -86,7 +86,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> doesPageIdBelongToCurrentUserOrganization(Page page) {
+    public Mono<Page> doesPageBelongToCurrentUserOrganization(Page page) {
         Mono<User> userMono = sessionUserService.getCurrentUser();
         final String[] username = {null};
 
@@ -120,5 +120,22 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
         return repository.findByApplicationId(applicationId);
+    }
+
+    @Override
+    public Mono<Page> getPage(String pageId, Boolean viewMode) {
+        return repository.findById(pageId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID)))
+                .flatMap(this::doesPageBelongToCurrentUserOrganization)
+                //The pageId given is correct and belongs to the current user's organization.
+                .map(page -> {
+                    List<Layout> layoutList = page.getLayouts();
+                    // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
+                    // back to the client
+                    layoutList.stream()
+                            .forEach(layout -> layout.setViewMode(viewMode));
+                    page.setLayouts(layoutList);
+                    return page;
+                });
     }
 }
