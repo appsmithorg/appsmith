@@ -259,7 +259,10 @@ export default function* pageSagas() {
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
       updateWidgetPropertySaga,
     ),
-    takeLatest(ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY, saveLayoutSaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,
+      updateWidgetPropertySaga,
+    ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
   ]);
