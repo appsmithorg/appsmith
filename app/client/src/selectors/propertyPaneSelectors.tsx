@@ -61,3 +61,8 @@ export const getIsPropertyPaneVisible = createSelector(
   (pane: PropertyPaneReduxState, content?: PropertySection[]) =>
     !!(pane.isVisible && pane.widgetId && pane.node && content),
 );
+
+export const getPropertyErrors = createSelector(
+  getPropertyPaneState,
+  (pane: PropertyPaneReduxState) => pane.errors || {},
+);

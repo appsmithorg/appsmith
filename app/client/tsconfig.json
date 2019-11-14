@@ -26,7 +26,7 @@
     "importHelpers": true,
     "typeRoots" : ["./typings", "./node_modules/@types"],
     "sourceMap": true,
-    "baseUrl": "./src",
+    "baseUrl": "./src"
   },
   "include": [
     "./src/**/*"

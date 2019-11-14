@@ -18,7 +18,7 @@ import {
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 import { getNextWidgetName } from "../utils/AppsmithUtils";
 import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
-import { DATA_BIND_REGEX } from "../constants/BindingsConstants";
+import { isDynamicValue } from "../utils/DynamicBindingUtils";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -173,8 +173,7 @@ function* updateWidgetPropertySaga(
     payload: { propertyValue },
   } = updateAction;
 
-  const isDynamic = DATA_BIND_REGEX.test(propertyValue);
-  if (isDynamic) {
+  if (isDynamicValue(propertyValue)) {
     yield put({
       type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,
       payload: updateAction.payload,

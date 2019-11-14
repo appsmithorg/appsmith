@@ -3,9 +3,9 @@ import { AppState, DataTree } from "../reducers";
 import { AppViewReduxState } from "../reducers/uiReducers/appViewReducer";
 import { AppViewerProps } from "../pages/AppViewer";
 import { injectDataTreeIntoDsl } from "../utils/DynamicBindingUtils";
+import { getDataTree } from "./entitiesSelector";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
-const getDataTree = (state: AppState): DataTree => state.entities;
 
 export const getCurrentLayoutId = (state: AppState, props: AppViewerProps) =>
   state.ui.appView.currentLayoutId || props.match.params.layoutId;

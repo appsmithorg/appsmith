@@ -5,6 +5,7 @@
 import { Component } from "react";
 import _ from "lodash";
 import { ControlType } from "../../constants/PropertyControlConstants";
+import { ErrorCode } from "../../constants/validationErrorCodes";
 
 abstract class BaseControl<T extends ControlProps> extends Component<T> {
   updateProperty(propertyName: string, propertyValue: any) {
@@ -29,10 +30,13 @@ export interface ControlData {
   propertyName: string;
   controlType: ControlType;
   propertyValue?: any;
+  propertyError?: ErrorCode;
 }
 
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
+  getDynamicValue: (dynamicBinding: string) => any;
+  setPropertyValidation: (propertyName: string, errorCode: ErrorCode) => void;
 }
 
 export default BaseControl;

@@ -1,6 +1,6 @@
 import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
 
-const PropertyPaneConfigResponse: PropertyPaneConfigState = {
+const PropertyPaneConfigResponse = {
   config: {
     BUTTON_WIDGET: [
       {
@@ -384,6 +384,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "tableData",
             label: "Table Data",
             controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
           },
           {
             id: "11.3",

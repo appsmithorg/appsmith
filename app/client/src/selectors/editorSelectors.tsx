@@ -8,6 +8,7 @@ import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { injectDataTreeIntoDsl } from "utils/DynamicBindingUtils";
+import { getDataTree } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
   CanvasWidgetsReduxState,
@@ -18,7 +19,6 @@ import { WidgetTypes } from "constants/WidgetConstants";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
-const getEntities = (state: AppState) => state.entities;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
@@ -102,7 +102,7 @@ export const getWidgetCards = createSelector(
 
 export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
-  getEntities,
+  getDataTree,
   (pageWidgetId: string, entities: DataTree) => {
     const dsl = CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
     return injectDataTreeIntoDsl(entities, dsl);

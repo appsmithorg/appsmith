@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import { ActionPayload } from "../constants/ActionConstants";
@@ -26,27 +27,24 @@ function constructColumns(data: object[]): Column[] {
   return cols;
 }
 
-function parseTableArray(parsable: string): object[] {
-  let data: object[] = [];
+function getTableArrayData(tableData: string | object[] | undefined): object[] {
   try {
-    const parsedData = JSON.parse(parsable);
-    if (!Array.isArray(parsedData)) {
-      throw new Error("Parsed Data is an object");
+    if (!tableData) return [];
+    if (_.isString(tableData)) {
+      return JSON.parse(tableData);
     }
-    data = parsedData;
-  } catch (ex) {
-    console.log(ex);
+    return tableData;
+  } catch (error) {
+    console.error({ error });
+    return [];
   }
-  return data;
 }
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
-    const tableData = parseTableArray(
-      this.props.tableData ? ((this.props.tableData as any) as string) : "",
-    );
-
-    const columns = constructColumns(tableData);
+    const { tableData } = this.props;
+    const data = getTableArrayData(tableData);
+    const columns = constructColumns(data);
     return (
       <AutoResizer>
         {({ width, height }: { width: number; height: number }) => (
@@ -54,7 +52,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             width={width}
             height={height}
             columns={columns}
-            data={tableData}
+            data={data}
             maxHeight={height}
             selectedRowIndex={
               this.props.selectedRow && this.props.selectedRow.rowIndex

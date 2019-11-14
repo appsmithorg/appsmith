@@ -8,11 +8,28 @@ import {
   DATA_PATH_REGEX,
 } from "../constants/BindingsConstants";
 
+export const isDynamicValue = (value: string): boolean =>
+  DATA_BIND_REGEX.test(value);
+
+export const getDynamicBindings = (
+  dynamicString: string,
+): { bindings: string[]; paths: string[] } => {
+  // Get the {{binding}} bound values
+  const bindings = dynamicString.match(DATA_BIND_REGEX) || [];
+  // Get the "binding" path values
+  const paths = bindings.map(p => {
+    const matches = p.match(DATA_PATH_REGEX);
+    if (matches) return matches[0];
+    return "";
+  });
+  return { bindings, paths };
+};
+
 // Paths are expected to have "{name}.{path}" signature
-export const getDynamicBoundValue = (
+export const extractDynamicBoundValue = (
   dataTree: DataTree,
   path: string,
-): Array<any> => {
+): any => {
   // Remove the name in the binding
   const splitPath = path.split(".");
   // Find the dataTree path of the name
@@ -20,7 +37,42 @@ export const getDynamicBoundValue = (
   // Create the full path
   const fullPath = `${bindingPath}.${splitPath.slice(1).join(".")}`;
   // Search with JSONPath
-  return JSONPath({ path: fullPath, json: dataTree });
+  return JSONPath({ path: fullPath, json: dataTree })[0];
+};
+
+// For creating a final value where bindings could be in a template format
+export const createDynamicValueString = (
+  binding: string,
+  subBindings: string[],
+  subValues: string[],
+): string => {
+  // Replace the string with the data tree values
+  let finalValue = binding;
+  subBindings.forEach((b, i) => {
+    let value = subValues[i];
+    if (Array.isArray(value) || _.isObject(value)) {
+      value = JSON.stringify(value);
+    }
+    finalValue = finalValue.replace(b, value);
+  });
+  return finalValue;
+};
+
+export const getDynamicValue = (
+  dynamicBinding: string,
+  dataTree: DataTree,
+): any => {
+  // Get the {{binding}} bound values
+  const { bindings, paths } = getDynamicBindings(dynamicBinding);
+  if (bindings.length) {
+    // Get the Data Tree value of those "binding "paths
+    const values = paths.map(p => extractDynamicBoundValue(dataTree, p));
+    // if it is just one binding, no need to create template string
+    if (bindings.length === 1) return values[0];
+    // else return a string template with bindings
+    return createDynamicValueString(dynamicBinding, bindings, values);
+  }
+  return undefined;
 };
 
 export const injectDataTreeIntoDsl = (
@@ -36,33 +88,7 @@ export const injectDataTreeIntoDsl = (
     // Check for dynamic bindings
     if (dynamicBindings && !_.isEmpty(dynamicBindings)) {
       Object.keys(dynamicBindings).forEach((dKey: string) => {
-        // Get the {{binding}} bound values
-        const bindings = dynamicBindings[dKey].match(DATA_BIND_REGEX);
-        if (bindings && bindings.length) {
-          // Get the "binding" path values
-          const paths = bindings.map(p => {
-            const matches = p.match(DATA_PATH_REGEX);
-            if (matches) return matches[0];
-            return "";
-          });
-          // Get the Data Tree value of those "binding "paths
-          const values = paths.map(p => {
-            const value = getDynamicBoundValue(entities, p)[0];
-            if (value) return value;
-            return "undefined";
-          });
-          // Replace the string with the data tree values
-          let string = dynamicBindings[dKey];
-          bindings.forEach((b, i) => {
-            let value = values[i];
-            if (Array.isArray(value)) {
-              value = JSON.stringify(value);
-            }
-            string = string.replace(b, value);
-          });
-          // Overwrite the property with the evaluated data tree property
-          widget[dKey] = string;
-        }
+        widget[dKey] = getDynamicValue(dynamicBindings[dKey], entities);
       });
     }
     if (tree.children) {

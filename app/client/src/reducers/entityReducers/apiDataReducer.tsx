@@ -8,9 +8,7 @@ import { ActionDataState } from "./actionsReducer";
 
 const initialState: APIDataState = {};
 
-export interface APIDataState {
-  [id: string]: ActionResponse;
-}
+export type APIDataState = Record<string, ActionResponse>;
 
 const apiDataReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_ACTION_SUCCESS]: (
