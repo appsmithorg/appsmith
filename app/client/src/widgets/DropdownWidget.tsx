@@ -12,7 +12,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         onOptionSelected={this.onOptionSelected}
         onOptionRemoved={this.onOptionRemoved}
         widgetId={this.props.widgetId}
-        style={this.getPositionStyle()}
         placeholder={this.props.placeholderText}
         options={this.props.options || []}
         selectionType={this.props.selectionType}
@@ -76,6 +75,7 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
+  id: string;
 }
 
 export interface DropdownWidgetProps extends WidgetProps {

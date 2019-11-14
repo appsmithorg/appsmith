@@ -9,6 +9,7 @@ const PageView = styled.div`
   flex-grow: 1;
   height: 100%;
   margin-top: ${props => props.theme.spaces[1]}px;
+  position: relative;
 `;
 
 type AppPageProps = {

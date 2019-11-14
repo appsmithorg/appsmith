@@ -7,7 +7,6 @@ import { DatasourceDataState } from "../../../reducers/entityReducers/datasource
 import _ from "lodash";
 import { createDatasource } from "../../../actions/datasourcesActions";
 import { REST_PLUGIN_ID } from "../../../constants/ApiEditorConstants";
-import { required } from "../../../utils/validation/common";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
@@ -23,12 +22,14 @@ interface ComponentProps {
 const DatasourcesField = (
   props: ReduxActionProps & ReduxStateProps & ComponentProps,
 ) => {
-  const options = props.datasources.list.map(r => ({
-    label: r.datasourceConfiguration.url.endsWith("/")
-      ? r.datasourceConfiguration.url.slice(0, -1)
-      : r.datasourceConfiguration.url,
-    value: r.id,
-  }));
+  const options = props.datasources.list
+    .filter(r => r.datasourceConfiguration !== null)
+    .map(r => ({
+      label: r.datasourceConfiguration.url.endsWith("/")
+        ? r.datasourceConfiguration.url.slice(0, -1)
+        : r.datasourceConfiguration.url,
+      value: r.id,
+    }));
   return (
     <Field
       name={props.name}
@@ -39,7 +40,7 @@ const DatasourcesField = (
       onCreateOption={props.createDatasource}
       format={(value: string) => _.find(options, { value })}
       parse={(option: { value: string }) => (option ? option.value : null)}
-      validate={required}
+      formatCreateLabel={(value: string) => `Create data source "${value}"`}
     />
   );
 };

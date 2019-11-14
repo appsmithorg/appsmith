@@ -1,18 +1,15 @@
 import * as React from "react";
 import { ComponentProps } from "../appsmith/BaseComponent";
 import { Spinner, Intent } from "@blueprintjs/core";
-import { Container } from "../appsmith/ContainerComponent";
 
 class SpinnerComponent extends React.Component<SpinnerComponentProps> {
   render() {
     return (
-      <Container {...this.props}>
-        <Spinner
-          size={this.props.size}
-          value={this.props.value}
-          intent={this.props.intent}
-        />
-      </Container>
+      <Spinner
+        size={this.props.size}
+        value={this.props.value}
+        intent={this.props.intent}
+      />
     );
   }
 }

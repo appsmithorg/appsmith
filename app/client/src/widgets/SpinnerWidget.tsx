@@ -8,7 +8,6 @@ class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <SpinnerComponent
-        style={this.getPositionStyle()}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         key={this.props.widgetId}

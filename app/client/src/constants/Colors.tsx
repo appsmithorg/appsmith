@@ -9,6 +9,7 @@ export const Colors: Record<string, string> = {
   MYSTIC: "#E1E8ED",
   AQUA_HAZE: "#EEF2F5",
   GRAY_CHATEAU: "#A2A6A8",
+  SUNGLOW: "#FFCB33",
 
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
@@ -20,6 +21,7 @@ export const Colors: Record<string, string> = {
   HIT_GRAY: "#A1ACB3",
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
+  MAKO: "#464D53",
 
   GREEN: "#29CCA3",
   JUNGLE_GREEN: "#24BA91",

@@ -23,7 +23,7 @@ export type ActionType =
   | "DOWNLOAD";
 
 export const PropertyPaneActionDropdownOptions: DropdownOption[] = [
-  { label: "Call API", value: "API" },
+  { label: "Call API", value: "API", id: "API" },
   // { label: "Run Query", value: "QUERY" },
 ];
 

@@ -7,23 +7,27 @@ import {
   executeAction,
   deleteAction,
   updateAction,
+  dryRunAction,
 } from "../../actions/actionActions";
 import { RestAction } from "../../api/ActionAPI";
 import { AppState } from "../../reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_URL } from "../../constants/routes";
 import { API_EDITOR_FORM_NAME } from "../../constants/forms";
-import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
+import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
+import styled from "styled-components";
 
 interface ReduxStateProps {
   actions: ActionDataState;
+  apiPane: ApiPaneReduxState;
   formData: any;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
   runAction: (id: string) => void;
+  dryRunAction: (data: RestAction) => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
@@ -33,6 +37,14 @@ interface ReduxActionProps {
 type Props = ReduxActionProps &
   ReduxStateProps &
   RouteComponentProps<{ id: string }>;
+
+const EmptyStateContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 20px;
+`;
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount(): void {
@@ -50,9 +62,6 @@ class ApiEditor extends React.Component<Props> {
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
     const currentId = this.props.match.params.id;
-    if (!currentId && prevProps.match.params.id) {
-      this.props.initialize(API_EDITOR_FORM_NAME, FORM_INITIAL_VALUES);
-    }
     if (currentId && currentId !== prevProps.match.params.id) {
       const data = this.props.actions.data.filter(
         action => action.id === currentId,
@@ -78,29 +87,46 @@ class ApiEditor extends React.Component<Props> {
     this.props.deleteAction(this.props.match.params.id);
   };
   handleRunClick = () => {
-    this.props.runAction(this.props.match.params.id);
+    const { formData } = this.props;
+    if (formData.id) {
+      this.props.runAction(this.props.match.params.id);
+    } else {
+      this.props.dryRunAction(formData);
+    }
   };
 
   render() {
     const {
-      actions: { isSaving, isRunning, isDeleting },
+      apiPane: { isSaving, isRunning, isDeleting },
+      match: {
+        params: { id },
+      },
     } = this.props;
     return (
-      <ApiEditorForm
-        isSaving={isSaving}
-        isRunning={isRunning}
-        isDeleting={isDeleting}
-        onSubmit={this.handleSubmit}
-        onSaveClick={this.handleSaveClick}
-        onDeleteClick={this.handleDeleteClick}
-        onRunClick={this.handleRunClick}
-      />
+      <React.Fragment>
+        {id ? (
+          <ApiEditorForm
+            isSaving={isSaving}
+            isRunning={isRunning}
+            isDeleting={isDeleting}
+            onSubmit={this.handleSubmit}
+            onSaveClick={this.handleSaveClick}
+            onDeleteClick={this.handleDeleteClick}
+            onRunClick={this.handleRunClick}
+          />
+        ) : (
+          <EmptyStateContainer>
+            {"Create / Select an API from the list"}
+          </EmptyStateContainer>
+        )}
+      </React.Fragment>
     );
   }
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
+  apiPane: state.ui.apiPane,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state),
 });
 
@@ -117,6 +143,7 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
         },
       ]),
     ),
+  dryRunAction: (data: RestAction) => dispatch(dryRunAction(data)),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>

@@ -5,7 +5,7 @@ import {
 } from "../constants/ReduxActionConstants";
 import { NamePathBindingMap } from "../constants/BindingsConstants";
 
-export const createUpdateBindingsMap = (): ReduxActionWithoutPayload => ({
+export const initBindingMapListener = (): ReduxActionWithoutPayload => ({
   type: ReduxActionTypes.CREATE_UPDATE_BINDINGS_MAP_INIT,
 });
 

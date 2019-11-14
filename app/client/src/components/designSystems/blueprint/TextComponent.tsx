@@ -2,7 +2,6 @@ import * as React from "react";
 import { Text, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "../appsmith/BaseComponent";
-import { Container } from "../appsmith/ContainerComponent";
 import { TextStyle } from "../../../widgets/TextWidget";
 
 type TextStyleProps = {
@@ -33,14 +32,12 @@ class TextComponent extends React.Component<TextComponentProps> {
 
   render() {
     return (
-      <Container {...this.props}>
-        <Text
-          className={this.getTextClass(this.props.textStyle)}
-          ellipsize={this.props.ellipsize}
-        >
-          {this.props.text}
-        </Text>
-      </Container>
+      <Text
+        className={this.getTextClass(this.props.textStyle)}
+        ellipsize={this.props.ellipsize}
+      >
+        {this.props.text}
+      </Text>
     );
   }
 }

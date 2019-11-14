@@ -6,6 +6,7 @@ import {
   REQUEST_HEADERS,
   AUTH_CREDENTIALS,
 } from "../constants/ApiConstants";
+import { ActionApiResponse } from "./ActionAPI";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -20,10 +21,12 @@ axiosInstance.interceptors.request.use((config: any) => {
   return { ...config, timer: performance.now() };
 });
 
-const makeExecuteActionResponse = (response: any) => ({
+const makeExecuteActionResponse = (response: any): ActionApiResponse => ({
   ...response.data,
-  size: response.headers["content-length"],
-  duration: Number(performance.now() - response.config.timer).toFixed(),
+  clientMeta: {
+    size: response.headers["content-length"],
+    duration: Number(performance.now() - response.config.timer).toFixed(),
+  },
 });
 
 axiosInstance.interceptors.response.use(

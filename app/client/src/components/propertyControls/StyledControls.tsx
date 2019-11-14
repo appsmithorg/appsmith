@@ -76,3 +76,7 @@ export const StyledTimeZonePicker = styled(TimezonePicker)`
     box-shadow: none;
   }
 `;
+
+export const StyledValidationError = styled.span`
+  color: ${props => props.theme.colors.error};
+`;

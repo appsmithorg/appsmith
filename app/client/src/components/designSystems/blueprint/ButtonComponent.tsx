@@ -1,19 +1,25 @@
 import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
-import { Container } from "../appsmith/ContainerComponent";
 import { TextComponentProps } from "./TextComponent";
 import { ButtonStyle } from "../../../widgets/ButtonWidget";
+import { Theme } from "../../../constants/DefaultTheme";
+
+const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
+  if (props.filled) return props.theme.colors.textOnDarkBG;
+  if (props.styleName) {
+    if (props.styleName === "secondary") {
+      return props.theme.colors.OXFORD_BLUE;
+    }
+    return props.theme.colors[props.styleName];
+  }
+};
 
 const ButtonColorStyles = css<ButtonStyleProps>`
-  color: ${props => {
-    if (props.filled) return props.theme.colors.textOnDarkBG;
-    if (props.styleName) {
-      if (props.styleName === "secondary")
-        return props.theme.colors.OXFORD_BLUE;
-      return props.theme.colors[props.styleName];
-    }
-  }};
+  color: ${getButtonColorStyles};
+  svg {
+    fill: ${getButtonColorStyles};
+  }
 `;
 
 const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
@@ -30,7 +36,8 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
           ? props.theme.colors[props.styleName]
           : props.theme.colors.secondary};
     border-radius: 4px;
-    font-weight: bold;
+    font-weight: ${props => props.theme.fontWeights[2]};
+    font-family: "DM Sans";
     outline: none;
     &&:hover,
     &&:focus {
@@ -107,16 +114,14 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
 // To be used with the canvas
 const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
-    <Container {...props}>
-      <BaseButton
-        icon={props.icon}
-        text={props.text}
-        filled={props.buttonStyle === "PRIMARY_BUTTON"}
-        styleName={mapButtonStyleToStyleName(props.buttonStyle)}
-        onClick={props.onClick}
-        disabled={props.disabled}
-      />
-    </Container>
+    <BaseButton
+      icon={props.icon}
+      text={props.text}
+      filled={props.buttonStyle === "PRIMARY_BUTTON"}
+      styleName={mapButtonStyleToStyleName(props.buttonStyle)}
+      onClick={props.onClick}
+      disabled={props.disabled}
+    />
   );
 };
 

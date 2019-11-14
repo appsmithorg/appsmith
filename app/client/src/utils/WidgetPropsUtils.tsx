@@ -2,12 +2,22 @@ import { FetchPageResponse } from "../api/PageApi";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps, WidgetOperations } from "../widgets/BaseWidget";
+import {
+  WidgetProps,
+  WidgetOperations,
+  WidgetOperation,
+} from "../widgets/BaseWidget";
 import { WidgetType, RenderModes } from "../constants/WidgetConstants";
 import { generateReactKey } from "../utils/generators";
 import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
-import { OccupiedSpace } from "../widgets/ContainerWidget";
+import { OccupiedSpace } from "constants/editorConstants";
+
+export type WidgetOperationParams = {
+  operation: WidgetOperation;
+  widgetId: string;
+  payload: any;
+};
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROWS } = GridDefaults;
 type Rect = {
@@ -69,7 +79,7 @@ const areIntersecting = (r1: Rect, r2: Rect) => {
 export const isDropZoneOccupied = (
   offset: Rect,
   widgetId: string,
-  occupied: OccupiedSpace[] | null,
+  occupied?: OccupiedSpace[],
 ) => {
   if (occupied) {
     occupied = occupied.filter(widgetDetails => {
@@ -103,7 +113,7 @@ export const noCollision = (
   rowHeight: number,
   widget: WidgetProps & Partial<WidgetConfigProps>,
   dropTargetOffset: XYCoord,
-  occupiedSpaces: OccupiedSpace[] | null,
+  occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
 ): boolean => {
@@ -140,49 +150,46 @@ export const widgetOperationParams = (
   parentOffset: XYCoord,
   parentColumnSpace: number,
   parentRowSpace: number,
-  widgetId?: string,
-) => {
-  if (widgetOffset) {
-    const [leftColumn, topRow] = getDropZoneOffsets(
-      parentColumnSpace,
-      parentRowSpace,
-      widgetOffset,
-      parentOffset,
-    );
-    // If this is an existing widget, we'll have the widgetId
-    // Therefore, this is a move operation on drop of the widget
-    if (widget.widgetId) {
-      return [
-        WidgetOperations.MOVE,
-        widget.widgetId,
-        {
-          leftColumn,
-          topRow,
-          parentId: widget.parentId,
-          newParentId: widgetId,
-        },
-      ];
-      // If this is not an existing widget, we'll not have the widgetId
-      // Therefore, this is an operation to add child to this container
-    } else {
-      const widgetDimensions = {
-        columns: widget.columns,
-        rows: widget.rows,
-      };
-      return [
-        WidgetOperations.ADD_CHILD,
-        widgetId,
-        {
-          type: widget.type,
-          leftColumn,
-          topRow,
-          ...widgetDimensions,
-          parentRowSpace,
-          parentColumnSpace,
-        },
-      ];
-    }
+  parentWidgetId: string, // parentWidget
+): WidgetOperationParams => {
+  const [leftColumn, topRow] = getDropZoneOffsets(
+    parentColumnSpace,
+    parentRowSpace,
+    widgetOffset,
+    parentOffset,
+  );
+  // If this is an existing widget, we'll have the widgetId
+  // Therefore, this is a move operation on drop of the widget
+  if (widget.widgetId) {
+    return {
+      operation: WidgetOperations.MOVE,
+      widgetId: widget.widgetId,
+      payload: {
+        leftColumn,
+        topRow,
+        parentId: widget.parentId,
+        newParentId: parentWidgetId,
+      },
+    };
+    // If this is not an existing widget, we'll not have the widgetId
+    // Therefore, this is an operation to add child to this container
   }
+  const widgetDimensions = {
+    columns: widget.columns,
+    rows: widget.rows,
+  };
+  return {
+    operation: WidgetOperations.ADD_CHILD,
+    widgetId: parentWidgetId,
+    payload: {
+      type: widget.type,
+      leftColumn,
+      topRow,
+      ...widgetDimensions,
+      parentRowSpace,
+      parentColumnSpace,
+    },
+  };
 };
 
 export const updateWidgetPosition = (

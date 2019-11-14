@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Breadcrumbs, IBreadcrumbProps, Spinner } from "@blueprintjs/core";
+import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import DropdownComponent from "../../components/editorComponents/DropdownComponent";
 import { PageListPayload } from "../../constants/ReduxActionConstants";
 import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
@@ -11,11 +11,12 @@ const PageSelector = styled(DropdownComponent)`
   flex: 2;
 `;
 
-const NotificationText = styled.div`
+const LoadingContainer = styled.div`
   display: flex;
-  justify-content: space-evenly;
+  justify-content: flex-end;
   align-items: center;
   flex-grow: 1;
+  margin: 0 10px;
 `;
 
 const PreviewPublishSection = styled.div`
@@ -37,7 +38,7 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 `;
 
 type EditorHeaderProps = {
-  notificationText?: string;
+  isSaving?: boolean;
   pageName: string;
   onPublish: React.FormEventHandler;
   onCreatePage: (name: string) => void;
@@ -58,12 +59,14 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     | Array<{
         label: string;
         value: string;
+        id: string;
       }>
     | undefined =
     props.pages &&
     props.pages.map((page: { pageName: string; pageId: string }) => ({
       label: page.pageName,
       value: page.pageId,
+      id: page.pageId,
     }));
 
   const selectedPage: DropdownOption | undefined =
@@ -83,10 +86,9 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           }}
         />
       )}
-      <NotificationText>
-        {props.notificationText && <Spinner size={Spinner.SIZE_SMALL} />}
-        <span>{props.notificationText}</span>
-      </NotificationText>
+      <LoadingContainer>
+        {props.isSaving ? "Saving..." : "All changed Saved"}
+      </LoadingContainer>
       <PreviewPublishSection>
         <BaseButton
           onClick={props.onPublish}

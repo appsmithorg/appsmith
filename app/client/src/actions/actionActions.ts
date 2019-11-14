@@ -2,7 +2,7 @@ import { ReduxActionTypes } from "../constants/ReduxActionConstants";
 import { RestAction } from "../api/ActionAPI";
 import { ActionPayload } from "../constants/ActionConstants";
 
-export const createActionRequest = (payload: RestAction) => {
+export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -53,6 +53,13 @@ export const deleteAction = (payload: { id: string }) => {
 export const deleteActionSuccess = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const dryRunAction = (payload: RestAction) => {
+  return {
+    type: ReduxActionTypes.DRY_RUN_ACTION,
     payload,
   };
 };

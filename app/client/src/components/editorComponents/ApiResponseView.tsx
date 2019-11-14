@@ -7,7 +7,7 @@ import { BaseTabbedView } from "../designSystems/appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "../../reducers";
 import CodeEditor from "./CodeEditor";
-import { ActionApiResponse } from "../../api/ActionAPI";
+import { ActionResponse } from "../../api/ActionAPI";
 import { formatBytes } from "../../utils/helpers";
 
 const ResponseWrapper = styled.div`
@@ -62,7 +62,7 @@ const LoadingScreen = styled.div`
 
 interface ReduxStateProps {
   responses: {
-    [id: string]: ActionApiResponse;
+    [id: string]: ActionResponse;
   };
   isRunning: boolean;
 }
@@ -153,7 +153,7 @@ const ApiResponseView = (props: Props) => {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   responses: state.entities.apiData,
-  isRunning: state.entities.actions.isRunning,
+  isRunning: state.ui.apiPane.isRunning,
 });
 
 export default connect(mapStateToProps)(withRouter(ApiResponseView));

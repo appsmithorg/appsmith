@@ -1,19 +1,17 @@
-import React, { createContext, Context } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import ContainerComponent from "../components/designSystems/appsmith/ContainerComponent";
-import { ContainerOrientation, WidgetType } from "../constants/WidgetConstants";
-import WidgetFactory from "../utils/WidgetFactory";
+import React from "react";
 import _ from "lodash";
-import { Color } from "../constants/Colors";
-import DropTargetComponent from "../components/editorComponents/DropTargetComponent";
-import { GridDefaults } from "../constants/WidgetConstants";
-import DraggableComponent from "../components/editorComponents/DraggableComponent";
-import ResizableComponent from "../components/editorComponents/ResizableComponent";
+
+import ContainerComponent from "../components/designSystems/appsmith/ContainerComponent";
+import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
+import { Color } from "constants/Colors";
+import DropTargetComponent from "components/editorComponents/DropTargetComponent";
+import { GridDefaults } from "constants/WidgetConstants";
+
+import ResizeBoundsContainerComponent from "components/editorComponents/ResizeBoundsContainerComponent";
+import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
-export const OccupiedSpaceContext: Context<
-  OccupiedSpace[] | any
-> = createContext(null);
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -46,73 +44,50 @@ class ContainerWidget extends BaseWidget<
     }
   }
 
-  renderChildWidget(childWidgetData: WidgetProps) {
+  renderChildWidget(childWidgetData: WidgetProps): JSX.Element {
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
     childWidgetData.parentId = this.props.widgetId;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
-  getPageView() {
+  renderChildren = () => {
+    return _.map(this.props.children, this.renderChildWidget);
+  };
+
+  renderAsDropTarget() {
     return (
-      <ContainerComponent
-        widgetId={this.props.widgetId}
-        style={{
-          ...this.getPositionStyle(),
-        }}
-        isRoot={!this.props.parentId}
-        orientation={this.props.orientation || "VERTICAL"}
-        widgetName={this.props.widgetName}
-      >
-        {_.map(this.props.children, this.renderChildWidget)}
+      <DropTargetComponent {...this.props} {...this.state}>
+        <ResizeBoundsContainerComponent {...this.props}>
+          {this.renderChildren()}
+        </ResizeBoundsContainerComponent>
+      </DropTargetComponent>
+    );
+  }
+
+  getContainerComponentProps = () => {
+    const containerProps: ContainerWidgetProps<WidgetProps> = { ...this.props };
+    containerProps.backgroundColor = this.props.backgroundColor || "white";
+    if (!this.props.parentId) {
+      containerProps.containerStyle = "none";
+    }
+    return containerProps;
+  };
+
+  renderAsContainerComponent() {
+    return (
+      <ContainerComponent {...this.getContainerComponentProps()}>
+        {this.renderChildren()}
       </ContainerComponent>
     );
   }
 
-  getOccupiedSpaces(): OccupiedSpace[] | null {
-    return this.props.children
-      ? this.props.children.map(child => ({
-          id: child.widgetId,
-          parentId: this.props.widgetId,
-          left: child.leftColumn,
-          top: child.topRow,
-          bottom: child.bottomRow,
-          right: child.rightColumn,
-        }))
-      : null;
+  getPageView() {
+    return this.renderAsContainerComponent();
   }
 
   getCanvasView() {
-    const style = this.getPositionStyle();
-    const occupiedSpaces = this.getOccupiedSpaces();
-    const renderComponent = (
-      <DropTargetComponent
-        {...this.props}
-        {...this.state}
-        style={{
-          ...style,
-        }}
-        isRoot={!this.props.parentId}
-      >
-        <OccupiedSpaceContext.Provider value={occupiedSpaces}>
-          {this.getPageView()}
-        </OccupiedSpaceContext.Provider>
-      </DropTargetComponent>
-    );
-    const renderDraggableComponent = (
-      <DraggableComponent
-        style={{ ...style }}
-        {...this.props}
-        orientation={"VERTICAL"}
-      >
-        <ResizableComponent style={{ ...style }} {...this.props}>
-          <OccupiedSpaceContext.Provider value={occupiedSpaces}>
-            {renderComponent}
-          </OccupiedSpaceContext.Provider>
-        </ResizableComponent>
-      </DraggableComponent>
-    );
-    return this.props.parentId ? renderDraggableComponent : renderComponent;
+    return this.renderAsDropTarget();
   }
 
   getWidgetType(): WidgetType {
@@ -133,14 +108,5 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   orientation?: ContainerOrientation;
   backgroundColor?: Color;
 }
-
-export type OccupiedSpace = {
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-  id: string;
-  parentId?: string;
-};
 
 export default ContainerWidget;

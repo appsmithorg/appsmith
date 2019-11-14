@@ -1,6 +1,6 @@
 import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
 
-const PropertyPaneConfigResponse: PropertyPaneConfigState = {
+const PropertyPaneConfigResponse = {
   config: {
     BUTTON_WIDGET: [
       {
@@ -20,9 +20,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Button Style",
             controlType: "DROP_DOWN",
             options: [
-              { label: "Primary Button", value: "PRIMARY_BUTTON" },
-              { label: "Secondary Button", value: "SECONDARY_BUTTON" },
-              { label: "Danger Button", value: "DANGER_BUTTON" },
+              { id: "1.2.1", label: "Primary Button", value: "PRIMARY_BUTTON" },
+              {
+                id: "1.2.2",
+                label: "Secondary Button",
+                value: "SECONDARY_BUTTON",
+              },
+              { id: "1.2.3", label: "Danger Button", value: "DANGER_BUTTON" },
             ],
           },
           {
@@ -34,7 +38,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "1.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -70,15 +74,15 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Text Style",
             controlType: "DROP_DOWN",
             options: [
-              { label: "Heading", value: "HEADING" },
-              { label: "Label", value: "LABEL" },
-              { label: "Body", value: "BODY" },
+              { id: "3.2.1", label: "Heading", value: "HEADING" },
+              { id: "3.2.2", label: "Label", value: "LABEL" },
+              { id: "3.2.3", label: "Body", value: "BODY" },
             ],
           },
           {
             id: "3.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -98,7 +102,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           },
           {
             id: "4.1",
-            propertyName: "image",
+            propertyName: "defaultImage",
             label: "Default Image",
             placeholderText: "Enter URL",
             controlType: "INPUT_TEXT",
@@ -112,7 +116,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "4.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -137,11 +141,11 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Data Type",
             controlType: "DROP_DOWN",
             options: [
-              { label: "Text", value: "TEXT" },
-              { label: "Number", value: "NUMBER" },
-              { label: "Password", value: "PASSWORD" },
-              { label: "Phone Number", value: "PHONE_NUMBER" },
-              { label: "Email", value: "EMAIL" },
+              { id: "5.2.1", label: "Text", value: "TEXT" },
+              { id: "5.2.2", label: "Number", value: "NUMBER" },
+              { id: "5.2.3", label: "Password", value: "PASSWORD" },
+              { id: "5.2.4", label: "Phone Number", value: "PHONE_NUMBER" },
+              { id: "5.2.5", label: "Email", value: "EMAIL" },
             ],
           },
           {
@@ -153,6 +157,13 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           },
           {
             id: "5.4",
+            propertyName: "defaultText",
+            label: "Default Input",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter the default text",
+          },
+          {
+            id: "5.5",
             propertyName: "maxChars",
             label: "Max Chars",
             controlType: "INPUT_TEXT",
@@ -160,7 +171,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             placeholderText: "Enter the max length",
           },
           {
-            id: "5.5",
+            id: "5.6",
             propertyName: "regex",
             label: "Regex",
             controlType: "INPUT_TEXT",
@@ -168,7 +179,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             placeholderText: "Enter the regex",
           },
           {
-            id: "5.6",
+            id: "5.7",
             propertyName: "errorMessage",
             label: "Error Message",
             controlType: "INPUT_TEXT",
@@ -178,7 +189,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "5.8",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -224,7 +235,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "6.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
           {
@@ -262,7 +273,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "6.3",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -276,7 +287,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "8.1",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -373,6 +384,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             propertyName: "tableData",
             label: "Table Data",
             controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
           },
           {
             id: "11.3",
@@ -430,8 +442,8 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             label: "Selection Type",
             controlType: "DROP_DOWN",
             options: [
-              { label: "Single Select", value: "SINGLE_SELECT" },
-              { label: "Multi Select", value: "MULTI_SELECT" },
+              { id: "13.1.1", label: "Single Select", value: "SINGLE_SELECT" },
+              { id: "13.1.2", label: "Multi Select", value: "MULTI_SELECT" },
             ],
           },
           {
@@ -450,7 +462,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "13.5",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -495,7 +507,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "15.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -540,7 +552,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "16.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],
@@ -585,34 +597,42 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
             placeholderText: "Enter No. of files",
             options: [
               {
+                id: "18.3.1",
                 label: "Any File",
                 value: "*",
               },
               {
+                id: "18.3.2",
                 label: "Images",
                 value: "image/*",
               },
               {
+                id: "18.3.3",
                 label: "Videos",
                 value: "video/*",
               },
               {
+                id: "18.3.4",
                 label: "Audio",
                 value: "audio/*",
               },
               {
+                id: "18.3.5",
                 label: "Text",
                 value: "text/*",
               },
               {
+                id: "18.3.6",
                 label: "JPEG",
                 value: "image/jpeg",
               },
               {
+                id: "18.3.7",
                 label: "PNG",
                 value: "*.png",
               },
               {
+                id: "18.3.8",
                 label: "GIF",
                 value: "*.gif",
               },
@@ -622,7 +642,7 @@ const PropertyPaneConfigResponse: PropertyPaneConfigState = {
           {
             id: "18.4",
             propertyName: "isVisible",
-            label: "Visibile",
+            label: "Visible",
             controlType: "SWITCH",
           },
         ],

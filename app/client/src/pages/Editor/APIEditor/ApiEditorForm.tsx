@@ -29,7 +29,7 @@ const Form = styled.form`
   }
   ${FormRow} {
     flex-wrap: wrap;
-    padding: ${props => props.theme.spaces[3]}px;
+    padding: ${props => props.theme.spaces[2]}px;
     & > * {
       margin-right: 5px;
     }
@@ -40,28 +40,22 @@ const Form = styled.form`
   }
 `;
 
+const MainConfiguration = styled.div`
+  padding-top: 10px;
+`;
+
 const SecondaryWrapper = styled.div`
   display: flex;
   height: 100%;
   border-top: 1px solid #d0d7dd;
 `;
 
-const ForwardSlash = styled.div`
-  && {
-    margin: 0 10px;
-    height: 27px;
-    width: 1px;
-    background-color: #d0d7dd;
-    transform: rotate(27deg);
-    align-self: center;
-  }
-`;
-
 const RequestParamsWrapper = styled.div`
-  flex: 5;
+  flex: 4;
   border-right: 1px solid #d0d7dd;
   height: 100%;
   overflow-y: scroll;
+  padding-top: 6px;
 `;
 
 const ActionButtons = styled.div`
@@ -103,48 +97,52 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   } = props;
   return (
     <Form onSubmit={handleSubmit}>
-      <FormRow>
-        <TextField
-          name="name"
-          placeholderMessage="API Name"
-          validate={required}
-        />
-        <ActionButtons>
-          <ActionButton
-            text="Delete"
-            styleName="error"
-            onClick={onDeleteClick}
-            loading={isDeleting}
+      <MainConfiguration>
+        <FormRow>
+          <TextField
+            name="name"
+            placeholderMessage="API Name *"
+            validate={required}
+            showError
           />
-          <ActionButton
-            text="Run"
-            styleName="secondary"
-            onClick={onRunClick}
-            loading={isRunning}
+          <ActionButtons>
+            <ActionButton
+              text="Delete"
+              styleName="error"
+              onClick={onDeleteClick}
+              loading={isDeleting}
+            />
+            <ActionButton
+              text="Run"
+              styleName="secondary"
+              onClick={onRunClick}
+              loading={isRunning}
+            />
+            <ActionButton
+              text="Save"
+              styleName="primary"
+              filled
+              onClick={onSaveClick}
+              loading={isSaving}
+            />
+          </ActionButtons>
+        </FormRow>
+        <FormRow>
+          <DropdownField
+            placeholder="Method"
+            name="actionConfiguration.httpMethod"
+            options={HTTP_METHOD_OPTIONS}
           />
-          <ActionButton
-            text="Save"
-            styleName="primary"
-            filled
-            onClick={onSaveClick}
-            loading={isSaving}
+          <DatasourcesField name="datasource.id" />
+          <TextField
+            placeholderMessage="API Path"
+            name="actionConfiguration.path"
+            validate={[apiPathValidation]}
+            icon="slash"
+            showError
           />
-        </ActionButtons>
-      </FormRow>
-      <FormRow>
-        <DropdownField
-          placeholder="Method"
-          name="actionConfiguration.httpMethod"
-          options={HTTP_METHOD_OPTIONS}
-        />
-        <DatasourcesField name="datasourceId" />
-        <ForwardSlash />
-        <TextField
-          placeholderMessage="API Path"
-          name="actionConfiguration.path"
-          validate={[required, apiPathValidation]}
-        />
-      </FormRow>
+        </FormRow>
+      </MainConfiguration>
       <SecondaryWrapper>
         <RequestParamsWrapper>
           <KeyValueFieldArray

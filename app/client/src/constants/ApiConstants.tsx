@@ -33,15 +33,15 @@ export interface APIRequest {
 export const getEditorConfigs = () => {
   if (process.env.NODE_ENV === "development") {
     return {
-      currentPageId: "5d807e7f795dc6000482bc78",
-      currentLayoutId: "5d807e7f795dc6000482bc77",
+      currentPageId: "5dcab609312463000408b92b",
+      currentLayoutId: "5dcab609312463000408b92a",
       currentPageName: "page1",
       propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
     };
   } else {
     return {
-      currentPageId: "5d807e76795dc6000482bc76",
-      currentLayoutId: "5d807e76795dc6000482bc75",
+      currentPageId: "5dcab609312463000408b92b",
+      currentLayoutId: "5dcab609312463000408b92a",
       currentPageName: "page1",
       propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
     };

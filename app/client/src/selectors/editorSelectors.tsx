@@ -1,18 +1,28 @@
 import { createSelector } from "reselect";
 import createCachedSelector from "re-reselect";
 
-import { AppState, DataTree } from "../reducers";
-import { EditorReduxState } from "../reducers/uiReducers/editorReducer";
-import { WidgetConfigReducerState } from "../reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps } from "../widgets/BaseWidget";
-import { WidgetSidebarReduxState } from "../reducers/uiReducers/widgetSidebarReducer";
-import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
-import { injectDataTreeIntoDsl } from "../utils/DynamicBindingUtils";
+import { AppState, DataTree } from "reducers";
+import { EditorReduxState } from "reducers/uiReducers/editorReducer";
+import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { injectDataTreeIntoDsl } from "utils/DynamicBindingUtils";
+import { getDataTree } from "./entitiesSelector";
+import {
+  FlattenedWidgetProps,
+  CanvasWidgetsReduxState,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+
+import { OccupiedSpace } from "constants/editorConstants";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
-const getEntities = (state: AppState) => state.entities;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
+
+const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
+  state.entities.canvasWidgets;
 
 export const getPageList = createSelector(
   getEditorState,
@@ -92,9 +102,62 @@ export const getWidgetCards = createSelector(
 
 export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
-  getEntities,
+  getDataTree,
   (pageWidgetId: string, entities: DataTree) => {
     const dsl = CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
     return injectDataTreeIntoDsl(entities, dsl);
   },
 )((pageWidgetId, entities) => entities || 0);
+
+const getOccupiedSpacesForContainer = (
+  containerWidgetId: string,
+  widgets: FlattenedWidgetProps[],
+): OccupiedSpace[] => {
+  return widgets.map(widget => {
+    const occupiedSpace: OccupiedSpace = {
+      id: widget.widgetId,
+      parentId: containerWidgetId,
+      left: widget.leftColumn,
+      top: widget.topRow,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+    };
+    return occupiedSpace;
+  });
+};
+
+export const getOccupiedSpaces = createSelector(
+  getWidgets,
+  (
+    widgets: CanvasWidgetsReduxState,
+  ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+    const occupiedSpaces: {
+      [containerWidgetId: string]: OccupiedSpace[];
+    } = {};
+    // Get all widgets with type "CONTAINER_WIDGET" and has children
+    const containerWidgets: FlattenedWidgetProps[] = Object.values(
+      widgets,
+    ).filter(widget => widget.type === WidgetTypes.CONTAINER_WIDGET);
+
+    // If we have any container widgets
+    if (containerWidgets) {
+      containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
+        const containerWidgetId = containerWidget.widgetId;
+        // Get child widgets for the container
+        const childWidgets = Object.keys(widgets).filter(
+          widgetId =>
+            containerWidget.children &&
+            containerWidget.children.indexOf(widgetId) > -1,
+        );
+        // Get the occupied spaces in this container
+        // Assign it to the containerWidgetId key in occupiedSpaces
+        occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+          containerWidgetId,
+          childWidgets.map(widgetId => widgets[widgetId]),
+        );
+      });
+    }
+    // Return undefined if there are no occupiedSpaces.
+    return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  },
+);

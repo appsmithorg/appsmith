@@ -16,7 +16,7 @@ const IconContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 5px;
-  margin-bottom: 2px;
+  margin-bottom: 5px;
   background-color: ${props => props.theme.colors.menuButtonBGInactive};
   border-radius: ${props => props.theme.radii[1]}px;
   height: 32px;
@@ -32,18 +32,19 @@ const ItemContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 60px;
+    height: 70px;
     color: ${props => props.theme.colors.textOnDarkBG}
     font-size: ${props => props.theme.fontSizes[1]}px;
     cursor: pointer;
-    margin: ${props => props.theme.spaces[3]}px 0;
     background-color: ${props => props.theme.colors.navBG};
     &:hover {
       background-color: ${props => props.theme.colors.paneBG};
       text-decoration: none;
     }
+    color: ${props => props.theme.colors.menuButtonBGInactive};
     &.active {
       background-color: ${props => props.theme.colors.paneBG}
+      color: ${props => props.theme.colors.textOnDarkBG};
       ${IconContainer} {
         background-color: ${props => props.theme.colors.primary};
         svg path {

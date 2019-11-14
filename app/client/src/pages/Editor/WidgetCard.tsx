@@ -15,7 +15,10 @@ export const Wrapper = styled.div`
   background: ${props => props.theme.colors.paneCard};
   border: 1px solid ${props => props.theme.colors.paneCard};
   color: ${props => props.theme.colors.textOnDarkBG};
-  height: 80px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   & > div {
     display: flex;
     flex-direction: column;

@@ -36,6 +36,7 @@
     "eslint": "^6.4.0",
     "flow-bin": "^0.91.0",
     "fontfaceobserver": "^2.1.0",
+    "fuse.js": "^3.4.5",
     "history": "^4.10.1",
     "husky": "^3.0.5",
     "jsonpath-plus": "^1.0.0",
@@ -94,6 +95,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/jest": "^24.0.22",
     "@types/react-select": "^3.0.5",
     "@types/react-tabs": "^2.3.1",
     "@types/redux-form": "^8.1.9",
@@ -105,6 +107,7 @@
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
+    "react-test-renderer": "^16.11.0",
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8"
   },
