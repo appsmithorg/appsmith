@@ -27,7 +27,9 @@ function constructColumns(data: object[]): Column[] {
   return cols;
 }
 
-function getTableArrayData(tableData: string | object[] | undefined): object[] {
+const getTableArrayData = (
+  tableData: string | object[] | undefined,
+): object[] => {
   try {
     if (!tableData) return [];
     if (_.isString(tableData)) {
@@ -38,7 +40,7 @@ function getTableArrayData(tableData: string | object[] | undefined): object[] {
     console.error({ error });
     return [];
   }
-}
+};
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
@@ -58,17 +60,40 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               this.props.selectedRow && this.props.selectedRow.rowIndex
             }
             onRowClick={(rowData: object, index: number) => {
-              const { widgetId, onRowSelected } = this.props;
-              super.updateWidgetProperty(widgetId, "selectedRow", {
-                ...rowData,
-                rowIndex: index,
-              });
+              const { onRowSelected } = this.props;
+              this.updateSelectedRowProperty(rowData, index);
               super.executeAction(onRowSelected);
             }}
           />
         )}
       </AutoResizer>
     );
+  }
+  componentDidUpdate(prevProps: TableWidgetProps) {
+    const { tableData, selectedRow } = this.props;
+    const newData = getTableArrayData(tableData);
+    if (
+      newData &&
+      !_.isEmpty(newData) &&
+      selectedRow &&
+      !_.isEqual(
+        newData[selectedRow.rowIndex],
+        _.omit(selectedRow, ["rowIndex"]),
+      )
+    ) {
+      this.updateSelectedRowProperty(
+        newData[selectedRow.rowIndex],
+        selectedRow.rowIndex,
+      );
+    }
+  }
+
+  updateSelectedRowProperty(rowData: object, index: number) {
+    const { widgetId } = this.props;
+    super.updateWidgetProperty(widgetId, "selectedRow", {
+      ...rowData,
+      rowIndex: index,
+    });
   }
 
   getWidgetType(): WidgetType {
@@ -82,19 +107,20 @@ export interface TableAction extends ActionPayload {
   actionName: string;
 }
 
-interface RowData {
+type RowData = {
   rowIndex: number;
-}
+};
+type SelectedRow = object & RowData;
 
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  tableData?: object[];
+  tableData?: string | object[];
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  selectedRow?: object & RowData;
+  selectedRow?: SelectedRow;
 }
 
 export default TableWidget;
