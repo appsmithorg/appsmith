@@ -32,4 +32,10 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
+
+    @GetMapping("/{pageId}/view")
+    public Mono<ResponseDTO<Page>> getPageView(@PathVariable String pageId) {
+        return service.getPage(pageId, true)
+                .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+    }
 }
