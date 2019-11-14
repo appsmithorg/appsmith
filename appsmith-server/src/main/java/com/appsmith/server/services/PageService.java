@@ -13,11 +13,13 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId);
 
-    Mono<Page> doesPageIdBelongToCurrentUserOrganization(Page page);
+    Mono<Page> doesPageBelongToCurrentUserOrganization(Page page);
 
     Mono<Page> findByName(String name);
 
     Mono<Void> deleteAll();
 
     Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId);
+
+    Mono<Page> getPage(String pageId, Boolean viewMode);
 }
