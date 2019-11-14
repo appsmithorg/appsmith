@@ -172,7 +172,6 @@ function* updateWidgetPropertySaga(
   const {
     payload: { propertyValue },
   } = updateAction;
-
   if (isDynamicValue(propertyValue)) {
     yield put({
       type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,

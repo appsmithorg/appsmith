@@ -31,6 +31,8 @@ import { getPageLayoutId } from "./selectors";
 import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
+import { RenderModes } from "constants/WidgetConstants";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 
 export function* fetchPageListSaga() {
   try {
@@ -129,15 +131,16 @@ export function* fetchPublishedPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const canvasWidgetsPayload = getAppViewWidgetsPayload(response);
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
         payload: {
           dsl: response.data.dsl,
           layoutId: response.data.id,
           pageId: request.pageId,
+          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
         },
       });
-      const canvasWidgetsPayload = getAppViewWidgetsPayload(response);
       yield put(updateCanvas(canvasWidgetsPayload));
     }
   } catch (error) {
@@ -206,6 +209,14 @@ export function* saveLayoutSaga() {
   }
 }
 
+export function* updateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  if (action.payload.renderMode === RenderModes.CANVAS) {
+    yield saveLayoutSaga();
+  }
+}
+
 export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageRequest>,
 ) {
@@ -244,7 +255,10 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLatest(ReduxActionTypes.UPDATE_WIDGET_PROPERTY, saveLayoutSaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+      updateWidgetPropertySaga,
+    ),
     takeLatest(ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY, saveLayoutSaga),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
