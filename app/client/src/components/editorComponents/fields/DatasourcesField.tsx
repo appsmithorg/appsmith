@@ -40,6 +40,7 @@ const DatasourcesField = (
       onCreateOption={props.createDatasource}
       format={(value: string) => _.find(options, { value })}
       parse={(option: { value: string }) => (option ? option.value : null)}
+      formatCreateLabel={(value: string) => `Create data source "${value}"`}
     />
   );
 };

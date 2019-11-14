@@ -36,6 +36,7 @@
     "eslint": "^6.4.0",
     "flow-bin": "^0.91.0",
     "fontfaceobserver": "^2.1.0",
+    "fuse.js": "^3.4.5",
     "history": "^4.10.1",
     "husky": "^3.0.5",
     "jsonpath-plus": "^1.0.0",

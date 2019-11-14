@@ -36,7 +36,8 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
           ? props.theme.colors[props.styleName]
           : props.theme.colors.secondary};
     border-radius: 4px;
-    font-weight: ${props => props.theme.fontWeights[1]};
+    font-weight: ${props => props.theme.fontWeights[2]};
+    font-family: "DM Sans";
     outline: none;
     &&:hover,
     &&:focus {

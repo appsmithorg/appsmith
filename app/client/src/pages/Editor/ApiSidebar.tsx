@@ -12,6 +12,7 @@ import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
 import { BaseTextInput } from "../../components/designSystems/appsmith/TextInputComponent";
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
 import { createActionRequest } from "../../actions/actionActions";
+import Fuse from "fuse.js";
 
 const LoadingContainer = styled.div`
   height: 50%;
@@ -27,6 +28,22 @@ const ApiSidebarWrapper = styled.div`
   width: 100%;
   flex-direction: column;
 `;
+
+const SearchBar = styled(BaseTextInput)`
+  margin-bottom: 10px;
+  input {
+    background-color: #23292e;
+    border: none;
+    color: ${props => props.theme.colors.textOnDarkBG}
+    :focus {
+      background-color: #23292e;
+    }
+  }
+  .bp3-icon {
+    background-color: #23292e;
+  }
+`;
+
 const ApiItemsWrapper = styled.div`
   flex: 1;
   margin-bottom: 15px;
@@ -49,7 +66,7 @@ const ApiItem = styled.div<{ isSelected: boolean }>`
   }
 `;
 
-const HTTPMethod = styled.span<{ method: string | undefined }>`
+const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
   font-size: 12px;
   color: ${props => {
@@ -121,6 +138,15 @@ type Props = ReduxStateProps &
 type State = {
   isCreating: boolean;
   name: string;
+  search: string;
+};
+
+const fuseOptions = {
+  shouldSort: true,
+  threshold: 0.1,
+  location: 0,
+  minMatchCharLength: 3,
+  keys: ["name"],
 };
 
 class ApiSidebar extends React.Component<Props, State> {
@@ -129,6 +155,7 @@ class ApiSidebar extends React.Component<Props, State> {
     this.state = {
       isCreating: false,
       name: "",
+      search: "",
     };
   }
 
@@ -167,10 +194,24 @@ class ApiSidebar extends React.Component<Props, State> {
     });
   };
 
+  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
+    const value = e.target.value;
+    this.setState({
+      search: value,
+    });
+  };
+
   render() {
-    const { actions, apiPane, history, match } = this.props;
-    const { isCreating } = this.state;
+    const {
+      apiPane,
+      history,
+      match,
+      actions: { data },
+    } = this.props;
+    const { isCreating, search, name } = this.state;
     const activeActionId = match.params.id;
+    const fuse = new Fuse(data, fuseOptions);
+    const actions = search ? fuse.search(search) : data;
     return (
       <React.Fragment>
         {apiPane.isFetching ? (
@@ -180,15 +221,27 @@ class ApiSidebar extends React.Component<Props, State> {
         ) : (
           <ApiSidebarWrapper>
             <ApiItemsWrapper>
-              {actions.data.map(action => (
+              <SearchBar
+                icon="search"
+                input={{
+                  value: search,
+                  onChange: this.handleSearchChange,
+                }}
+                placeholderMessage="Search"
+              />
+              {actions.map(action => (
                 <ApiItem
                   key={action.id}
                   onClick={() => history.push(API_EDITOR_ID_URL(action.id))}
                   isSelected={activeActionId === action.id}
                 >
-                  <HTTPMethod method={action.actionConfiguration.httpMethod}>
-                    {action.actionConfiguration.httpMethod}
-                  </HTTPMethod>
+                  {action.actionConfiguration ? (
+                    <HTTPMethod method={action.actionConfiguration.httpMethod}>
+                      {action.actionConfiguration.httpMethod}
+                    </HTTPMethod>
+                  ) : (
+                    <HTTPMethod />
+                  )}
                   <ActionName>{action.name}</ActionName>
                 </ApiItem>
               ))}
@@ -198,7 +251,7 @@ class ApiSidebar extends React.Component<Props, State> {
                 <BaseTextInput
                   placeholderMessage="API name"
                   input={{
-                    value: this.state.name,
+                    value: name,
                     onChange: this.handleNameChange,
                   }}
                 />
@@ -208,6 +261,7 @@ class ApiSidebar extends React.Component<Props, State> {
                   text=""
                   onClick={this.saveAction}
                   filled
+                  loading={apiPane.isSaving}
                 />
               </CreateApiWrapper>
             ) : (

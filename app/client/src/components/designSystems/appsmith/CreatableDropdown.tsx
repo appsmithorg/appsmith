@@ -33,18 +33,29 @@ const selectStyles = {
     ...provided,
     backgroundColor: "rgba(104,113,239,0.1)",
     border: "1px solid rgba(104, 113, 239, 0.5)",
-    borderRadius: `${theme.radii[3]}px`,
+    borderRadius: `${theme.radii[1]}px`,
     padding: "2px 5px",
     fontSize: "14px",
     maxWidth: "95%",
+    position: "relative",
+    display: "inline-block",
+    transform: "none",
   }),
   container: (styles: any) => ({
     ...styles,
     flex: 1,
   }),
-  control: (styles: any) => ({
+  control: (styles: any, state: any) => ({
     ...styles,
+    width: 370,
     minHeight: "32px",
+    border: state.isFocused
+      ? `${theme.colors.secondary} solid 1px`
+      : `${theme.colors.inputInactiveBorders} solid 1px`,
+    boxShadow: state.isFocused ? 0 : 0,
+    "&:hover": {
+      border: `${theme.colors.secondary} solid 1px`,
+    },
   }),
   indicatorsContainer: (provided: any) => ({
     ...provided,
