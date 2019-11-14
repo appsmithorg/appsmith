@@ -19,8 +19,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 public class RestApiPlugin extends BasePlugin {
@@ -110,6 +112,22 @@ public class RestApiPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(Object connection) {
 
+        }
+
+        @Override
+        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+            if (datasourceConfiguration.getUrl() == null) {
+                System.out.println("URL is null. Data validation failed");
+                return false;
+            }
+            // Check for URL validity
+            try {
+                new URL(datasourceConfiguration.getUrl()).toURI();
+                return true;
+            } catch (Exception e) {
+                System.out.println("URL is invalid. Data validation failed");
+                return false;
+            }
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {

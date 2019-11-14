@@ -1,18 +1,26 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -22,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
+@DirtiesContext
 public class DatasourceServiceTest {
 
     @Autowired
@@ -30,12 +39,43 @@ public class DatasourceServiceTest {
     @Autowired
     PluginService pluginService;
 
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+
+    class TestPluginExecutor implements PluginExecutor {
+
+        @Override
+        public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            System.out.println("In the execute");
+            return null;
+        }
+
+        @Override
+        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            System.out.println("In the datasourceCreate");
+            return null;
+        }
+
+        @Override
+        public void datasourceDestroy(Object connection) {
+            System.out.println("In the datasourceDestroy");
+
+        }
+
+        @Override
+        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+            System.out.println("In the datasourceValidate");
+            return true;
+        }
+    }
+
     @Before
     public void setup() {
+
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithMockUser(username = "api_user", roles = "USER")
     public void createDatasourceWithNullPluginId() {
         Datasource datasource = new Datasource();
         Mono<Datasource> datasourceMono = Mono.just(datasource)
@@ -48,7 +88,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithMockUser(username = "api_user", roles = "USER")
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
@@ -62,12 +102,14 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithMockUser(username = "api_user", roles = "USER")
     public void createDatasourceNotInstalledPlugin() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setDatabaseName("randomDbname");
+        datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
@@ -83,13 +125,16 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithMockUser(username = "api_user", roles = "USER")
     public void createDatasourceValid() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setDatabaseName("randomDbname");
+        datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
             datasource.setPluginId(plugin.getId());

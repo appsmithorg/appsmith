@@ -31,4 +31,6 @@ public interface PluginExecutor extends ExtensionPoint {
      * @param connection
      */
     void datasourceDestroy(Object connection);
+
+    Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration);
 }
