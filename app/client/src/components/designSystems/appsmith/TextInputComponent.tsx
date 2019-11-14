@@ -4,9 +4,9 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { IconName, InputGroup, MaybeElement } from "@blueprintjs/core";
 import { ComponentProps } from "./BaseComponent";
 
-const TextInput = styled(InputGroup)`
+export const TextInput = styled(InputGroup)`
   flex: 1;
-  &&& input {
+  & input {
     border: 1px solid ${props => props.theme.colors.inputInactiveBorders};
     border-radius: 4px;
     box-shadow: none;
@@ -18,7 +18,7 @@ const TextInput = styled(InputGroup)`
       outline: 0;
     }
   }
-  &&&&.bp3-input-group .bp3-input:not(:first-child) {
+  &.bp3-input-group .bp3-input:not(:first-child) {
     padding-left: 35px;
   }
   .bp3-icon {
@@ -59,12 +59,13 @@ export interface TextInputProps {
   meta?: WrappedFieldMetaProps;
   icon?: IconName | MaybeElement;
   showError?: boolean;
+  className?: string;
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholderMessage, input, meta, icon, showError } = props;
+  const { placeholderMessage, input, meta, icon, showError, className } = props;
   return (
-    <InputContainer>
+    <InputContainer className={className}>
       <TextInput {...input} placeholder={placeholderMessage} leftIcon={icon} />
       {showError && <ErrorText>{meta && meta.touched && meta.error}</ErrorText>}
     </InputContainer>

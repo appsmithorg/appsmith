@@ -1,6 +1,7 @@
 import React from "react";
 import Select from "react-select";
 import { WrappedFieldInputProps } from "redux-form";
+import { theme } from "../../../constants/DefaultTheme";
 
 type DropdownProps = {
   options: Array<{
@@ -12,10 +13,17 @@ type DropdownProps = {
 };
 
 const selectStyles = {
-  control: (styles: any) => ({
+  control: (styles: any, state: any) => ({
     ...styles,
     width: 100,
     minHeight: "32px",
+    border: state.isFocused
+      ? `${theme.colors.secondary} solid 1px`
+      : `${theme.colors.inputInactiveBorders} solid 1px`,
+    boxShadow: state.isFocused ? 0 : 0,
+    "&:hover": {
+      border: `${theme.colors.secondary} solid 1px`,
+    },
   }),
   indicatorsContainer: (provided: any) => ({
     ...provided,
