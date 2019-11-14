@@ -51,7 +51,7 @@ export function* initializeAppViewerSaga(
     type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
     payload: action.payload,
   });
-  yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
+  yield take(ReduxActionTypes.UPDATE_CANVAS);
   yield put({
     type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });

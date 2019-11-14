@@ -70,6 +70,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
+    super.componentDidUpdate(prevProps);
     const { tableData, selectedRow } = this.props;
     const newData = getTableArrayData(tableData);
     if (
