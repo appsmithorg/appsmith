@@ -63,17 +63,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
     if (this.isNumberType(inputType)) {
       value = _.toNumber(value);
     }
-    if (inputType === "ARRAY" || inputType === "OBJECT") {
-      try {
-        value = JSON.parse(value as string);
-      } catch (e) {
-        console.error(e);
-        value = "";
-      }
-    }
-    if (this.validateInput(value)) {
-      this.updateProperty(this.props.propertyName, value);
-    }
+    // if (this.validateInput(value)) {
+    this.updateProperty(this.props.propertyName, value);
+    // }
   };
 
   getControlType(): ControlType {

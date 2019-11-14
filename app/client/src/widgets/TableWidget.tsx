@@ -32,10 +32,15 @@ const getTableArrayData = (
 ): object[] => {
   try {
     if (!tableData) return [];
+    let data = tableData;
     if (_.isString(tableData)) {
-      return JSON.parse(tableData);
+      data = JSON.parse(data as string);
     }
-    return tableData;
+    if (!Array.isArray(data)) {
+      return [];
+    } else {
+      return data;
+    }
   } catch (error) {
     console.error({ error });
     return [];
@@ -46,6 +51,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
     const { tableData } = this.props;
     const data = getTableArrayData(tableData);
+    console.log({ data });
     const columns = constructColumns(data);
     return (
       <AutoResizer>
@@ -71,27 +77,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     super.componentDidUpdate(prevProps);
-    const { tableData, selectedRow } = this.props;
-    const newData = getTableArrayData(tableData);
-    if (
-      newData &&
-      !_.isEmpty(newData) &&
-      selectedRow &&
-      !_.isEqual(
-        newData[selectedRow.rowIndex],
-        _.omit(selectedRow, ["rowIndex"]),
-      )
-    ) {
+    const newData = getTableArrayData(this.props.tableData);
+    if (prevProps.tableData !== this.props.tableData && prevProps.selectedRow) {
       this.updateSelectedRowProperty(
-        newData[selectedRow.rowIndex],
-        selectedRow.rowIndex,
+        newData[prevProps.selectedRow.rowIndex],
+        prevProps.selectedRow.rowIndex,
       );
     }
   }
 
   updateSelectedRowProperty(rowData: object, index: number) {
     const { widgetId } = this.props;
-    super.updateWidgetProperty(widgetId, "selectedRow", {
+    this.updateWidgetProperty(widgetId, "selectedRow", {
       ...rowData,
       rowIndex: index,
     });
