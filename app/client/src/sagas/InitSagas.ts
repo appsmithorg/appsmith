@@ -34,7 +34,7 @@ function* initializeEditorSaga() {
   ]);
   // Step 3: Create the success;
   yield put({
-    type: ReduxActionTypes.INIT_SUCCESS,
+    type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });
 }
 
@@ -53,13 +53,13 @@ export function* initializeAppViewerSaga(
   });
   yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
   yield put({
-    type: ReduxActionTypes.INIT_SUCCESS,
+    type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
   });
 }
 
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.INIT_EDITOR, initializeEditorSaga),
+    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initializeEditorSaga),
     takeLatest(
       ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
       initializeAppViewerSaga,

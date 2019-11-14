@@ -10,6 +10,7 @@ import {
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
   pages: [],
+  pageWidgetId: "0",
 };
 
 const appViewReducer = createReducer(initialState, {
@@ -31,6 +32,7 @@ const appViewReducer = createReducer(initialState, {
       pageId: string;
       layoutId: string;
       dsl: ContainerWidgetProps<WidgetProps>;
+      pageWidgetId: string;
     }>,
   ) => {
     return {
@@ -39,6 +41,7 @@ const appViewReducer = createReducer(initialState, {
       currentPageId: action.payload.pageId,
       currentLayoutId: action.payload.layoutId,
       isFetchingPage: false,
+      pageWidgetId: action.payload.pageWidgetId,
     };
   },
 });
@@ -49,6 +52,7 @@ export interface AppViewReduxState {
   currentPageId?: string;
   currentLayoutId?: string;
   pages: PageListPayload;
+  pageWidgetId: string;
 }
 
 export default appViewReducer;
