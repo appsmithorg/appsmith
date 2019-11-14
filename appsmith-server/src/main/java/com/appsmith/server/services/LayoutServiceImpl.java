@@ -58,7 +58,7 @@ public class LayoutServiceImpl implements LayoutService {
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
-                .flatMap(pageService::doesPageIdBelongToCurrentUserOrganization)
+                .flatMap(pageService::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
@@ -73,7 +73,7 @@ public class LayoutServiceImpl implements LayoutService {
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
-                .flatMap(pageService::doesPageIdBelongToCurrentUserOrganization)
+                .flatMap(pageService::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
