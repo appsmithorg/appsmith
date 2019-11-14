@@ -119,7 +119,7 @@ public class SeedMongoData {
                             })
                             .flatMap(pageRepository::save)
                     )
-                    .subscribe(obj -> log.info("Last Saved Object: " + obj));
+                    .blockLast();
         };
     }
 }
