@@ -34,6 +34,10 @@ import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
 import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 import { validateResponse } from "./ErrorSagas";
+import {
+  ERROR_MESSAGE_SELECT_ACTION,
+  ERROR_MESSAGE_SELECT_ACTION_TYPE,
+} from "constants/messages";
 
 const getDataTree = (state: AppState): DataTree => {
   return state.entities;
@@ -135,20 +139,42 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   }
 }
 
-// TODO(satbir): Refact this to not make this recursive.
+function validateActionPayload(actionPayload: ActionPayload) {
+  const validation = {
+    isValid: true,
+    messages: [] as string[],
+  };
+
+  const noActionId = actionPayload.actionId === undefined;
+  validation.isValid = validation.isValid && !noActionId;
+  if (noActionId) {
+    validation.messages.push(ERROR_MESSAGE_SELECT_ACTION);
+  }
+
+  const noActionType = actionPayload.actionType === undefined;
+  validation.isValid = validation.isValid && !noActionType;
+  if (noActionType) {
+    validation.messages.push(ERROR_MESSAGE_SELECT_ACTION_TYPE);
+  }
+  return validation;
+}
+
 export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
   yield all(
     _.map(actionPayloads, (actionPayload: ActionPayload) => {
+      const actionValidation = validateActionPayload(actionPayload);
+      if (!actionValidation.isValid) {
+        console.error(actionValidation.messages.join(", "));
+        return undefined;
+      }
+
       switch (actionPayload.actionType) {
         case "API":
           return call(executeAPIQueryActionSaga, actionPayload);
         case "QUERY":
           return call(executeAPIQueryActionSaga, actionPayload);
         default:
-          return put({
-            type: ReduxActionTypes.EXECUTE_ACTION_ERROR,
-            payload: "No action type defined",
-          });
+          return undefined;
       }
     }),
   );

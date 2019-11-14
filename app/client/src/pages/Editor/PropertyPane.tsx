@@ -13,12 +13,14 @@ import {
   getIsPropertyPaneVisible,
   getCurrentWidgetProperties,
 } from "../../selectors/propertyPaneSelectors";
-import { Button, Divider } from "@blueprintjs/core";
+import { Divider } from "@blueprintjs/core";
 
 import Popper from "./Popper";
 import { ControlProps } from "../../components/propertyControls/BaseControl";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { CloseButton } from "components/designSystems/blueprint/CloseButton";
+import { theme } from "../../constants/DefaultTheme";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -42,19 +44,6 @@ const PropertyPaneTitle = styled.div`
 
 const PropertyPaneWrapper = styled.div`
   position: relative;
-`;
-
-const CloseButton = styled(Button)`
-  position: absolute;
-  top: 0;
-  right: 0;
-  justify-content: center;
-  padding: 0;
-  color: ${props => props.theme.colors.paneSectionLabel};
-  & svg {
-    width: 12;
-    height: 12;
-  }
 `;
 
 class PropertyPane extends Component<
@@ -96,8 +85,8 @@ class PropertyPane extends Component<
         </PropertyPaneTitle>
         <CloseButton
           onClick={this.props.hidePropertyPane}
-          rightIcon="cross"
-          minimal
+          size={theme.spaces[5]}
+          color={theme.colors.paneSectionLabel}
         />
         <Divider />
         {!_.isNil(propertySections)
