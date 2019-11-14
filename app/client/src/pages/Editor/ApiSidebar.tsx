@@ -13,6 +13,7 @@ import { BaseTextInput } from "../../components/designSystems/appsmith/TextInput
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
 import { createActionRequest } from "../../actions/actionActions";
 import Fuse from "fuse.js";
+import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 
 const LoadingContainer = styled.div`
   height: 50%;
@@ -291,6 +292,7 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   createAction: (name: string) =>
     dispatch(
       createActionRequest({
+        ...FORM_INITIAL_VALUES,
         name,
       }),
     ),
