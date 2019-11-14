@@ -17,6 +17,7 @@ import { API_EDITOR_FORM_NAME } from "../../constants/forms";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
 import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
 import styled from "styled-components";
+import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -67,7 +68,14 @@ class ApiEditor extends React.Component<Props> {
         action => action.id === currentId,
       )[0];
       this.props.destroy(API_EDITOR_FORM_NAME);
-      this.props.initialize(API_EDITOR_FORM_NAME, data);
+      let initialData = data;
+      if (!initialData.actionConfiguration) {
+        initialData = {
+          ...data,
+          ...FORM_INITIAL_VALUES,
+        };
+      }
+      this.props.initialize(API_EDITOR_FORM_NAME, initialData);
     }
   }
 
