@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "lodash";
 
-import ContainerComponent from "components/designSystems/appsmith/ContainerComponent";
+import ContainerComponent from "../components/designSystems/appsmith/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { Color } from "constants/Colors";

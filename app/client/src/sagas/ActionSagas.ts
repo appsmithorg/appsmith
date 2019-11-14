@@ -20,7 +20,7 @@ import ActionAPI, {
   ExecuteActionRequest,
   RestAction,
 } from "../api/ActionAPI";
-import { AppState, DataTree } from "../reducers";
+import { AppState } from "../reducers";
 import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editorComponents/ToastComponent";
@@ -31,17 +31,14 @@ import {
   updateActionSuccess,
 } from "../actions/actionActions";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
-import { getDynamicBoundValue } from "../utils/DynamicBindingUtils";
+import { extractDynamicBoundValue } from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 import { validateResponse } from "./ErrorSagas";
+import { getDataTree } from "../selectors/entitiesSelector";
 import {
   ERROR_MESSAGE_SELECT_ACTION,
   ERROR_MESSAGE_SELECT_ACTION_TYPE,
 } from "constants/messages";
-
-const getDataTree = (state: AppState): DataTree => {
-  return state.entities;
-};
 
 const getAction = (
   state: AppState,
@@ -69,7 +66,7 @@ const createActionErrorResponse = (
 
 export function* evaluateJSONPathSaga(path: string): any {
   const dataTree = yield select(getDataTree);
-  return getDynamicBoundValue(dataTree, path);
+  return extractDynamicBoundValue(dataTree, path);
 }
 
 export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
