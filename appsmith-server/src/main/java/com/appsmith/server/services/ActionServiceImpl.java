@@ -7,14 +7,11 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PageAction;
-import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +19,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -37,11 +33,7 @@ import javax.validation.constraints.NotNull;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -56,9 +48,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PageService pageService;
-    private final PluginManager pluginManager;
     private final ObjectMapper objectMapper;
     private final DatasourceContextService datasourceContextService;
+    private final PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -69,18 +61,18 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              DatasourceService datasourceService,
                              PluginService pluginService,
                              PageService pageService,
-                             PluginManager pluginManager,
                              AnalyticsService analyticsService,
                              ObjectMapper objectMapper,
-                             DatasourceContextService datasourceContextService) {
+                             DatasourceContextService datasourceContextService,
+                             PluginExecutorHelper pluginExecutorHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pageService = pageService;
-        this.pluginManager = pluginManager;
         this.objectMapper = objectMapper;
         this.datasourceContextService = datasourceContextService;
+        this.pluginExecutorHelper = pluginExecutorHelper;
     }
 
     /**
@@ -320,14 +312,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(datasource -> pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin")));
 
-        Mono<PluginExecutor> pluginExecutorMono = pluginMono.flatMap(plugin -> {
-                    List<PluginExecutor> executorList = pluginManager.getExtensions(PluginExecutor.class, plugin.getExecutorClass());
-                    if (executorList.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getExecutorClass()));
-                    }
-                    return Mono.just(executorList.get(0));
-                }
-        );
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
         return actionMono

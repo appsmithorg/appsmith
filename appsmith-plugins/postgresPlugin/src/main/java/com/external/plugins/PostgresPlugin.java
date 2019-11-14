@@ -116,6 +116,11 @@ public class PostgresPlugin extends BasePlugin {
             }
         }
 
+        @Override
+        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+            return true;
+        }
+
     }
 
 }

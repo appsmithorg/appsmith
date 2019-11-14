@@ -1,11 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +34,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
     private final ObjectMapper objectMapper;
+    private final PluginService pluginService;
+    private final PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -42,12 +46,16 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  OrganizationService organizationService,
                                  AnalyticsService analyticsService,
                                  SessionUserService sessionUserService,
-                                 ObjectMapper objectMapper) {
+                                 ObjectMapper objectMapper,
+                                 PluginService pluginService,
+                                 PluginExecutorHelper pluginExecutorHelper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
         this.objectMapper = objectMapper;
+        this.pluginService = pluginService;
+        this.pluginExecutorHelper = pluginExecutorHelper;
     }
 
     @Override
@@ -61,10 +69,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() == null) {
             return Mono.error(new AppsmithException(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE));
         }
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        Mono<Organization> organizationMono = userMono.flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), datasource.getPluginId()));
+        Mono<Organization> organizationMono = userMono
+                .flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, datasource.getPluginId())));
 
         //Add organization id to the datasource.
         Mono<Datasource> updatedDatasourceMono = organizationMono
@@ -73,10 +84,40 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     return datasource;
                 });
 
-        return organizationMono
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, datasource.getPluginId())))
-                .then(updatedDatasourceMono)
+        return Mono.zip(updatedDatasourceMono, pluginExecutorMono)
+                .flatMap(tuple -> {
+                    Datasource datasource1 = tuple.getT1();
+                    PluginExecutor pluginExecutor = tuple.getT2();
+                    Boolean isValid = pluginExecutor.isDatasourceValid(datasource1.getDatasourceConfiguration());
+                    if (isValid) {
+                        return Mono.just(datasource1);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE_CONFIGURATION));
+                })
                 .flatMap(super::create);
+    }
+
+    @Override
+    public Mono<Datasource> update(String id, Datasource datasource) {
+        if (datasource.getDatasourceConfiguration() != null) {
+
+            Mono<Datasource> datasourceMono = repository.findById(id)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
+            Mono<PluginExecutor> pluginExecutorMono = datasourceMono
+                    .flatMap(datasource1 -> pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId())));
+
+            return pluginExecutorMono
+                    .flatMap(pluginExecutor -> {
+                        Boolean isValid = pluginExecutor.isDatasourceValid(datasource.getDatasourceConfiguration());
+                        if (!isValid) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE_CONFIGURATION));
+                        }
+                        return Mono.just(datasource);
+                    })
+                    .flatMap(datasource1 -> super.update(id, datasource1));
+        }
+        return super.update(id, datasource);
     }
 
     @Override
