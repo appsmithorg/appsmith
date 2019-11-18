@@ -218,7 +218,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         String baseUrl = "../dist/plugins/";
         String pluginJar = plugin.getName() + "-" + organizationId + ".jar";
-        log.debug("Going to download plugin jar with name : {}", baseUrl+pluginJar);
+        log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {
             FileUtils.copyURLToFile(
@@ -227,7 +227,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     CONNECTION_TIMEOUT,
                     READ_TIMEOUT);
         } catch (Exception e) {
-            log.error("",e);
+            log.error("", e);
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR));
         }
 

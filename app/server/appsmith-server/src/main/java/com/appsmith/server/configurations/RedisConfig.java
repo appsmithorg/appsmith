@@ -25,6 +25,7 @@ public class RedisConfig {
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
      * that we wish to broadcast. Starting with a single one for now.
+     *
      * @return
      */
     @Bean
