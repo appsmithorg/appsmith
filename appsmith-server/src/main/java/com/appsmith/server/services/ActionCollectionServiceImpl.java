@@ -25,6 +25,7 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
 
     /**
      * Called by Collection controller to create Collection.
+     *
      * @param collection
      * @return
      */
@@ -42,8 +43,8 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(action -> {
                     if (action.getId() == null) {
-                      //Action doesn't exist. Create now.
-                      return actionService.create(action);
+                        //Action doesn't exist. Create now.
+                        return actionService.create(action);
                     }
                     return Mono.just(action);
                 })
@@ -57,14 +58,15 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                 .flatMap(actions -> {
                     collection.setActions(null);
                     return collectionService
-                                .create(collection)
-                                .flatMap(savedCollection ->
+                            .create(collection)
+                            .flatMap(savedCollection ->
                                     collectionService.addActionsToCollection(savedCollection, actions));
                 });
     }
 
     /**
      * Called by Action controller to create Action
+     *
      * @param action
      * @return
      */

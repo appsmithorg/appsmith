@@ -48,7 +48,7 @@ public class AnalyticsService<T extends BaseDomain> {
                     HashMap<String, String> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", ((BaseDomain) object).getId());
                     analyticsProperties.put("object", object.toString());
-                    if(user.getCurrentOrganizationId() != null) {
+                    if (user.getCurrentOrganizationId() != null) {
                         analyticsProperties.put("organizationId", user.getCurrentOrganizationId());
                     }
 

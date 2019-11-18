@@ -49,21 +49,21 @@ public class SeedMongoData {
                 {"validPageName"}
         };
         Object[][] pluginData = {
-                {"Installed Plugin Name", PluginType.REST, "installed-plugin" },
-                {"Not Installed Plugin Name", PluginType.REST, "not-installed-plugin" }
+                {"Installed Plugin Name", PluginType.REST, "installed-plugin"},
+                {"Not Installed Plugin Name", PluginType.REST, "not-installed-plugin"}
         };
         return args -> {
             organizationRepository.deleteAll()
                     .thenMany(
                             // Seed the plugin data into the DB
                             Flux.just(pluginData)
-                            .map(array -> {
-                                Plugin plugin = new Plugin();
-                                plugin.setName((String) array[0]);
-                                plugin.setType((PluginType) array[1]);
-                                plugin.setExecutorClass((String) array[2]);
-                                return plugin;
-                            }).flatMap(pluginRepository::save)
+                                    .map(array -> {
+                                        Plugin plugin = new Plugin();
+                                        plugin.setName((String) array[0]);
+                                        plugin.setType((PluginType) array[1]);
+                                        plugin.setExecutorClass((String) array[2]);
+                                        return plugin;
+                                    }).flatMap(pluginRepository::save)
                     )
                     .then(pluginRepository.findByName((String) pluginData[0][0]))
                     .map(plugin -> plugin.getId())
@@ -99,13 +99,13 @@ public class SeedMongoData {
                             .flatMap(userRepository::save)
                             .then(Mono.just(orgId))
                     ).flatMap(orgId ->
-                    // Seed the application data into the DB
-                    Flux.just(appData).map(array -> {
-                        Application app = new Application();
-                        app.setName((String) array[0]);
-                        app.setOrganizationId(orgId);
-                        return app;
-                    }).flatMap(applicationRepository::save)
+                            // Seed the application data into the DB
+                            Flux.just(appData).map(array -> {
+                                Application app = new Application();
+                                app.setName((String) array[0]);
+                                app.setOrganizationId(orgId);
+                                return app;
+                            }).flatMap(applicationRepository::save)
                     // Query the seed data to get the applicationId (required for page creation)
             ).then(applicationRepository.findByName((String) appData[0][0]))
                     .map(application -> application.getId())

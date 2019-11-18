@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -78,13 +77,18 @@ public class DatasourceServiceTest {
     @WithMockUser(username = "api_user", roles = "USER")
     public void createDatasourceWithNullPluginId() {
         Datasource datasource = new Datasource();
+        datasource.setName("DS-with-null-pluginId");
         Mono<Datasource> datasourceMono = Mono.just(datasource)
                 .flatMap(datasourceService::create);
         StepVerifier
                 .create(datasourceMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage()))
-                .verify();
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getIsValid() == false);
+                    assertThat(createdDatasource.getInvalids().contains("Missing plugin id. Please input correct plugin id"));
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -108,6 +112,7 @@ public class DatasourceServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
+        datasource.setName("DS-with-uninstalled-plugin");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -119,9 +124,14 @@ public class DatasourceServiceTest {
 
         StepVerifier
                 .create(datasourceMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        ((AppsmithException) throwable).getError().equals(AppsmithError.PLUGIN_NOT_INSTALLED))
-                .verify();
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getIsValid() == false);
+                    assertThat(createdDatasource.getInvalids().contains("Plugin " + datasource.getPluginId() + " not installed"));
+                })
+                .verifyComplete();
     }
 
     @Test
