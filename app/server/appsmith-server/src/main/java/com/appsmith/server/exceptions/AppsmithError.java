@@ -22,6 +22,7 @@ public enum AppsmithError {
     UNAUTHORIZED_DOMAIN(401, 4012, "Invalid email domain provided. Please sign in with a valid work email ID"),
     UNAUTHORIZED_ACCESS(401, 4013, "Unauthorized access"),
     INVALID_ACTION_NAME(401, 4014, "Action name is invalid. Please input syntactically correct name"),
+    INVALID_DATASOURCE_CONFIGURATION(400, 4015, "Datasource configuration is invalid"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed"),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again"),

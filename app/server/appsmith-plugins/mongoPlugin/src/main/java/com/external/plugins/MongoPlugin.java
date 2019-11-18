@@ -125,6 +125,11 @@ public class MongoPlugin extends BasePlugin {
             }
         }
 
+        @Override
+        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+            return true;
+        }
+
     }
 
 }
