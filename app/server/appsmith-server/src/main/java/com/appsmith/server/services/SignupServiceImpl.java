@@ -33,6 +33,7 @@ public class SignupServiceImpl implements SignupService {
 
     /**
      * {@inheritDoc}
+     *
      * @param organization
      * @return
      */
@@ -44,13 +45,13 @@ public class SignupServiceImpl implements SignupService {
 
         // Create the org-admin group for the new organization
         Mono<Group> groupMono = orgMono.flatMap(org -> {
-                                        Group group = new Group();
-                                        group.setName(AclConstants.GROUP_ORG_ADMIN);
-                                        group.setOrganizationId(org.getId());
-                                        group.setPermissions(AclConstants.PERMISSIONS_GROUP_ORG_ADMIN);
-                                        log.debug("Creating group for org: {}", org);
-                                        return groupService.create(group);
-                                    });
+            Group group = new Group();
+            group.setName(AclConstants.GROUP_ORG_ADMIN);
+            group.setOrganizationId(org.getId());
+            group.setPermissions(AclConstants.PERMISSIONS_GROUP_ORG_ADMIN);
+            log.debug("Creating group for org: {}", org);
+            return groupService.create(group);
+        });
 
         // Get details of user creating the organization
         Mono<User> userMono = sessionUserService.getCurrentUser();

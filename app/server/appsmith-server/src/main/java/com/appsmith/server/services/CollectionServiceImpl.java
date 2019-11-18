@@ -95,7 +95,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "actionId or collectionId"));
                     }
                     ListIterator<Action> actionIterator = actions.listIterator();
-                    while(actionIterator.hasNext()) {
+                    while (actionIterator.hasNext()) {
                         if (actionIterator.next().getId().equals(action.getId())) {
                             actionIterator.remove();
                             break;
