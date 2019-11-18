@@ -48,7 +48,7 @@ public class AclFilter implements WebFilter {
 
         // This is because all the urls are of the form /api/v1/{resource}. When we split by "/", the resource is always
         // the 4th element in the result array
-        if(urlParts.length < 4) {
+        if (urlParts.length < 4) {
             log.debug("Got request path {}. Not applying ACL filter", request.getPath());
             return chain.filter(exchange);
         }

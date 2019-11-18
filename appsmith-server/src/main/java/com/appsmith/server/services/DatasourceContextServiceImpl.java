@@ -2,8 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,25 +47,25 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         Mono<Datasource> datasourceMono;
 
         if (datasource.getId() != null) {
-            datasourceMono= datasourceService.findById(datasourceId);
+            datasourceMono = datasourceService.findById(datasourceId);
         } else {
             datasourceMono = Mono.just(datasource);
         }
 
         Mono<Plugin> pluginMono = datasourceMono
-                                    .flatMap(resource -> pluginService.findById(resource.getPluginId()));
+                .flatMap(resource -> pluginService.findById(resource.getPluginId()));
 
         //Datasource Context has not been created for this resource on this machine. Create one now.
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource1, pluginExecutor) -> {
-                Object connection = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
-                DatasourceContext datasourceContext = new DatasourceContext();
-                datasourceContext.setConnection(connection);
-                if (datasource1.getId() != null) {
-                    datasourceContextMap.put(datasourceId, datasourceContext);
-                }
-                return datasourceContext;
+            Object connection = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
+            DatasourceContext datasourceContext = new DatasourceContext();
+            datasourceContext.setConnection(connection);
+            if (datasource1.getId() != null) {
+                datasourceContextMap.put(datasourceId, datasourceContext);
+            }
+            return datasourceContext;
         }));
     }
 

@@ -57,14 +57,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> switchCurrentOrganization(String orgId) {
-        if(orgId == null || orgId.isEmpty()) {
+        if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
                     log.debug("Going to set organizationId: {} for user: {}", orgId, user.getId());
 
-                    if(user.getCurrentOrganizationId().equals(orgId)) {
+                    if (user.getCurrentOrganizationId().equals(orgId)) {
                         return Mono.just(user);
                     }
 
@@ -77,7 +77,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             .filter(organizationId -> organizationId.equals(orgId))
                             .findFirst();
 
-                    if(maybeOrgId.isPresent()) {
+                    if (maybeOrgId.isPresent()) {
                         user.setCurrentOrganizationId(maybeOrgId.get());
                         return repository.save(user);
                     }
@@ -97,7 +97,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     Set<String> organizationIds = user.getOrganizationIds();
                     if (organizationIds == null) {
                         organizationIds = new HashSet<>();
-                        if(user.getCurrentOrganizationId() != null) {
+                        if (user.getCurrentOrganizationId() != null) {
                             // If the list of organizationIds for a user is null, add the current user org
                             // to the new list as well
                             organizationIds.add(user.getCurrentOrganizationId());

@@ -9,4 +9,5 @@ public class FieldName {
     public static String APPLICATIONID = "applicationId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
+    public static String PLUGIN = "plugin";
 }

@@ -13,7 +13,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @Document
-public class Collection extends BaseDomain{
+public class Collection extends BaseDomain {
 
     String name;
 

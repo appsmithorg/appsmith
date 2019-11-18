@@ -11,7 +11,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 
 @Service
-public class PermissionServiceImpl extends BaseService<PermissionRepository, Permission, String> implements PermissionService  {
+public class PermissionServiceImpl extends BaseService<PermissionRepository, Permission, String> implements PermissionService {
 
     private final PermissionRepository repository;
 
