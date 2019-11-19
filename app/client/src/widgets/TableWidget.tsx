@@ -9,6 +9,8 @@ import { forIn } from "lodash";
 import SelectableTable, {
   Column,
 } from "../components/designSystems/appsmith/TableComponent";
+import { VALIDATION_TYPES } from "../constants/WidgetValidation";
+import { WidgetPropertyValidationType } from "../utils/ValidationFactory";
 
 function constructColumns(data: object[]): Column[] {
   const cols: Column[] = [];
@@ -30,28 +32,24 @@ function constructColumns(data: object[]): Column[] {
 const getTableArrayData = (
   tableData: string | object[] | undefined,
 ): object[] => {
-  try {
-    if (!tableData) return [];
-    let data = tableData;
-    if (_.isString(tableData)) {
-      data = JSON.parse(data as string);
-    }
-    if (!Array.isArray(data)) {
-      return [];
-    } else {
-      return data;
-    }
-  } catch (error) {
-    console.error({ error });
-    return [];
+  if (!tableData) return [];
+  if (_.isString(tableData)) {
+    return JSON.parse(tableData as string);
+  } else {
+    return tableData;
   }
 };
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      tableData: VALIDATION_TYPES.TABLE_DATA,
+    };
+  }
+
   getPageView() {
     const { tableData } = this.props;
     const data = getTableArrayData(tableData);
-    console.log({ data });
     const columns = constructColumns(data);
     return (
       <AutoResizer>

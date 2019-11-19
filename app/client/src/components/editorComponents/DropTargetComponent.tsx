@@ -16,10 +16,10 @@ import { FocusContext } from "pages/Editor/Canvas";
 
 import DragLayerComponent from "./DragLayerComponent";
 
-/* 
-TODO(abhinav): 
+/*
+TODO(abhinav):
   1) Drag collision is not working
-  2) Dragging into a new container does not work 
+  2) Dragging into a new container does not work
 */
 
 type DropTargetComponentProps = WidgetProps & {

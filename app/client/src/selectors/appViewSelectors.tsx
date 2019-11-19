@@ -2,10 +2,11 @@ import { createSelector } from "reselect";
 import { AppState, DataTree } from "../reducers";
 import { AppViewReduxState } from "../reducers/uiReducers/appViewReducer";
 import { AppViewerProps } from "../pages/AppViewer";
-import { injectDataTreeIntoDsl } from "../utils/DynamicBindingUtils";
 import { getDataTree } from "./entitiesSelector";
 import createCachedSelector from "re-reselect";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { getValidatedDynamicProps } from "./editorSelectors";
+import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 
@@ -46,8 +47,15 @@ export const getPageWidgetId = createSelector(
 export const getCurrentPageLayoutDSL = createCachedSelector(
   getPageWidgetId,
   getDataTree,
-  (pageWidgetId: string, entities: DataTree) => {
-    const dsl = CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
-    return injectDataTreeIntoDsl(entities, dsl);
+  getValidatedDynamicProps,
+  (
+    pageWidgetId: string,
+    entities: DataTree,
+    validatedDynamicWidgets: CanvasWidgetsReduxState,
+  ) => {
+    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, {
+      ...entities,
+      canvasWidgets: validatedDynamicWidgets,
+    });
   },
 )((pageWidgetId, entities) => entities || 0);

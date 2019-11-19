@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { createReducer } from "../../utils/AppsmithUtils";
 import {
   ReduxActionTypes,
@@ -38,27 +37,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
       [action.payload.widgetId]: {
         ...widget,
         [action.payload.propertyName]: action.payload.propertyValue,
-        dynamicBindings: _.omit(
-          widget.dynamicBindings,
-          action.payload.propertyName,
-        ),
-      },
-    };
-  },
-  [ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateWidgetPropertyPayload>,
-  ) => {
-    const widget = state[action.payload.widgetId];
-    return {
-      ...state,
-      [action.payload.widgetId]: {
-        ...widget,
-        [action.payload.propertyName]: null,
-        dynamicBindings: {
-          ...widget.dynamicBindings,
-          [action.payload.propertyName]: action.payload.propertyValue,
-        },
+        dynamicBindings: action.payload.dynamicBindings,
       },
     };
   },

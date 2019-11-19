@@ -15,6 +15,7 @@ import { Property } from "../api/ActionAPI";
 import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
 import _ from "lodash";
 import moment from "moment-timezone";
+import ValidationRegistry from "./ValidationRegistry";
 
 export const createReducer = (
   initialState: any,
@@ -32,6 +33,7 @@ export const createReducer = (
 export const appInitializer = () => {
   WidgetBuilderRegistry.registerWidgetBuilders();
   PropertyControlRegistry.registerPropertyControlBuilders();
+  ValidationRegistry.registerInternalValidators();
   netlifyIdentity.init();
   moment.tz.setDefault(moment.tz.guess());
   switch (process.env.REACT_APP_ENVIRONMENT) {
