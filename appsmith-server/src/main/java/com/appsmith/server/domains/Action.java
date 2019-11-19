@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@CompoundIndex(def = "{'pageId':1, 'name':1}", name = "action_page_compound_index", unique = true)
 public class Action extends BaseDomain {
 
     String name;

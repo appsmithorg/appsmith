@@ -46,6 +46,16 @@ public class GlobalExceptionHandler {
         return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage())));
     }
 
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchException(org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+        log.error("", e);
+        rollbar.log(e);
+        return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.DUPLICATE_KEY.getHttpErrorCode(),
+                AppsmithError.DUPLICATE_KEY.getMessage())));
+    }
+
     /**
      * This function catches the generic Exception class and is meant to be a catch all to ensure that we don't leak
      * any information to the client. Ideally, the function #catchAppsmithException should be used
@@ -63,5 +73,4 @@ public class GlobalExceptionHandler {
         return Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDTO(AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode(),
                 AppsmithError.INTERNAL_SERVER_ERROR.getMessage())));
     }
-
 }
