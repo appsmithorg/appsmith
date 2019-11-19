@@ -90,8 +90,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         if (datasource.getName() == null || datasource.getName().trim().isEmpty()) {
-            datasource.setIsValid(false);
-            invalids.add(AppsmithError.INVALID_DATASOURCE_NAME.getMessage());
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
         if (datasource.getPluginId() == null) {
