@@ -16,11 +16,11 @@ import java.util.List;
 @Document
 public class Plugin extends BaseDomain {
 
-    @Indexed(unique = true)
     String name;
 
     PluginType type;
 
+    @Indexed(unique = true)
     String executorClass;
 
     String jarLocation;

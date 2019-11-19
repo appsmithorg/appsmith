@@ -168,13 +168,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Set<String> invalids = new HashSet<>();
         action.setIsValid(true);
 
-        if (action.getName() != null) {
-            if (!validateActionName(action.getName())) {
-                action.setIsValid(false);
-                invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
-            }
-        } else {
-            //Action name is null. That's not valid
+        if (action.getName() == null || action.getName().trim().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        if (!validateActionName(action.getName())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
