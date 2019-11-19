@@ -1,9 +1,12 @@
 import { createSelector } from "reselect";
-import { AppState } from "../reducers";
+import { AppState, DataTree } from "../reducers";
 import { PropertyPaneReduxState } from "../reducers/uiReducers/propertyPaneReducer";
 import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "../reducers/entityReducers/propertyPaneConfigReducer";
+import { getDataTree } from "./entitiesSelector";
+import { enhanceWithDynamicValuesAndValidations } from "../utils/DynamicBindingUtils";
+import { WidgetProps } from "../widgets/BaseWidget";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -22,8 +25,20 @@ export const getCurrentWidgetId = createSelector(
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
   getPropertyPaneState,
-  (widgets: CanvasWidgetsReduxState, pane: PropertyPaneReduxState) => {
+  (
+    widgets: CanvasWidgetsReduxState,
+    pane: PropertyPaneReduxState,
+  ): WidgetProps | undefined => {
     return pane.widgetId && widgets ? widgets[pane.widgetId] : undefined;
+  },
+);
+
+export const getWidgetPropsWithValidations = createSelector(
+  getCurrentWidgetProperties,
+  getDataTree,
+  (widget: WidgetProps | undefined, dataTree: DataTree) => {
+    if (!widget) return undefined;
+    return enhanceWithDynamicValuesAndValidations(widget, dataTree, false);
   },
 );
 
@@ -60,9 +75,4 @@ export const getIsPropertyPaneVisible = createSelector(
   getPropertyConfig,
   (pane: PropertyPaneReduxState, content?: PropertySection[]) =>
     !!(pane.isVisible && pane.widgetId && pane.node && content),
-);
-
-export const getPropertyErrors = createSelector(
-  getPropertyPaneState,
-  (pane: PropertyPaneReduxState) => pane.errors || {},
 );

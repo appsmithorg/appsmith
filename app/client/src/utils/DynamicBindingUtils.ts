@@ -2,11 +2,11 @@ import _ from "lodash";
 import { DataTree } from "../reducers";
 import { JSONPath } from "jsonpath-plus";
 import { WidgetProps } from "../widgets/BaseWidget";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 import {
   DATA_BIND_REGEX,
   DATA_PATH_REGEX,
 } from "../constants/BindingsConstants";
+import ValidationFactory from "./ValidationFactory";
 
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -75,27 +75,30 @@ export const getDynamicValue = (
   return undefined;
 };
 
-export const injectDataTreeIntoDsl = (
+export const enhanceWithDynamicValuesAndValidations = (
+  widget: WidgetProps,
   entities: DataTree,
-  dsl?: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (!dsl) return dsl;
-  const traverseTree = (
-    tree: ContainerWidgetProps<WidgetProps>,
-  ): ContainerWidgetProps<WidgetProps> => {
-    const { dynamicBindings } = tree;
-    const widget = { ...tree };
+  safeValues: boolean,
+): WidgetProps => {
+  if (!widget) return widget;
+  const properties = { ...widget };
+  const invalidProps: Record<string, boolean> = {};
+  Object.keys(widget).forEach((property: string) => {
+    let value = widget[property];
     // Check for dynamic bindings
-    if (dynamicBindings && !_.isEmpty(dynamicBindings)) {
-      Object.keys(dynamicBindings).forEach((dKey: string) => {
-        widget[dKey] = getDynamicValue(dynamicBindings[dKey], entities);
-      });
+    if (isDynamicValue(value)) {
+      value = getDynamicValue(value, entities);
     }
-    if (tree.children) {
-      const children = tree.children.map(b => traverseTree(b));
-      return { ...widget, children };
+    const isValid = ValidationFactory.validateWidgetProperty(
+      widget.type,
+      property,
+      value,
+    );
+    if (!isValid) {
+      if (safeValues) value = undefined;
+      invalidProps[property] = true;
     }
-    return { ...widget };
-  };
-  return traverseTree(dsl);
+    if (safeValues) properties[property] = value;
+  });
+  return { ...properties, invalidProps };
 };

@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { AppState, DataTree } from "../../reducers";
+import { AppState } from "../../reducers";
 import PropertyControlFactory from "../../utils/PropertyControlFactory";
 import _ from "lodash";
 import { PropertySection } from "../../reducers/entityReducers/propertyPaneConfigReducer";
-import {
-  updateWidgetProperty,
-  updateWidgetPropertyValidation,
-} from "../../actions/controlActions";
+import { updateWidgetProperty } from "../../actions/controlActions";
 import {
   getCurrentWidgetId,
   getCurrentReferenceNode,
   getPropertyConfig,
   getIsPropertyPaneVisible,
-  getCurrentWidgetProperties,
-  getPropertyErrors,
+  getWidgetPropsWithValidations,
 } from "../../selectors/propertyPaneSelectors";
 import { Divider } from "@blueprintjs/core";
 
@@ -23,14 +19,9 @@ import Popper from "./Popper";
 import { ControlProps } from "../../components/propertyControls/BaseControl";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getDataTree } from "../../selectors/entitiesSelector";
-import { getDynamicValue as extractDynamicValue } from "../../utils/DynamicBindingUtils";
-import {
-  ErrorCode,
-  ERROR_CODES_MESSAGES,
-} from "../../constants/validationErrorCodes";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { theme } from "../../constants/DefaultTheme";
+import { WidgetProps } from "../../widgets/BaseWidget";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -62,29 +53,7 @@ class PropertyPane extends Component<
   constructor(props: PropertyPaneProps & PropertyPaneFunctions) {
     super(props);
     this.onPropertyChange = this.onPropertyChange.bind(this);
-    this.getDynamicValue = this.getDynamicValue.bind(this);
-    this.setPropertyValidation = this.setPropertyValidation.bind(this);
   }
-
-  getPropertyValue = (propertyName: string) => {
-    const { widgetProperties } = this.props;
-    const { dynamicBindings } = widgetProperties;
-    if (dynamicBindings && dynamicBindings[propertyName]) {
-      return dynamicBindings[propertyName];
-    }
-    return widgetProperties[propertyName];
-  };
-
-  getPropertyValidation = (propertyName: string): string | undefined => {
-    const { propertyErrors, widgetId } = this.props;
-    if (!widgetId) return undefined;
-    if (widgetId in propertyErrors) {
-      const errorCode: ErrorCode = propertyErrors[widgetId][propertyName];
-      return ERROR_CODES_MESSAGES[errorCode];
-    } else {
-      return undefined;
-    }
-  };
 
   render() {
     if (this.props.isVisible) {
@@ -101,11 +70,11 @@ class PropertyPane extends Component<
   }
 
   renderPropertyPane(propertySections?: PropertySection[]) {
+    const { widgetProperties } = this.props;
+    if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper>
-        <PropertyPaneTitle>
-          {this.props.widgetProperties.widgetName}
-        </PropertyPaneTitle>
+        <PropertyPaneTitle>{widgetProperties.widgetName}</PropertyPaneTitle>
         <CloseButton
           onClick={this.props.hidePropertyPane}
           size={theme.spaces[5]}
@@ -125,6 +94,7 @@ class PropertyPane extends Component<
   }
 
   renderPropertySection(propertySection: PropertySection, key: string) {
+    const { widgetProperties } = this.props;
     return (
       <div key={key}>
         {!_.isNil(propertySection) ? (
@@ -151,20 +121,17 @@ class PropertyPane extends Component<
                 );
               } else {
                 try {
-                  propertyControlOrSection.propertyValue = this.getPropertyValue(
-                    propertyControlOrSection.propertyName,
-                  );
-                  propertyControlOrSection.propertyError = this.getPropertyValidation(
-                    propertyControlOrSection.propertyName,
-                  );
-                  return PropertyControlFactory.createControl(
-                    propertyControlOrSection,
-                    {
-                      onPropertyChange: this.onPropertyChange,
-                      getDynamicValue: this.getDynamicValue,
-                      setPropertyValidation: this.setPropertyValidation,
-                    },
-                  );
+                  const { propertyName } = propertyControlOrSection;
+                  const config = { ...propertyControlOrSection };
+                  if (widgetProperties) {
+                    config.propertyValue = widgetProperties[propertyName];
+                    config.isValid = widgetProperties.invalidProps
+                      ? !(propertyName in widgetProperties.invalidProps)
+                      : true;
+                  }
+                  return PropertyControlFactory.createControl(config, {
+                    onPropertyChange: this.onPropertyChange,
+                  });
                 } catch (e) {
                   console.log(e);
                 }
@@ -183,30 +150,13 @@ class PropertyPane extends Component<
       propertyValue,
     );
   }
-
-  getDynamicValue(dynamicBinding: string) {
-    const { dataTree } = this.props;
-    return extractDynamicValue(dynamicBinding, dataTree);
-  }
-
-  setPropertyValidation(propertyName: string, errorCode: ErrorCode) {
-    if (this.props.widgetId) {
-      this.props.setPropertyValidation(
-        this.props.widgetId,
-        propertyName,
-        errorCode,
-      );
-    }
-  }
 }
 
 const mapStateToProps = (state: AppState): PropertyPaneProps => {
   return {
     propertySections: getPropertyConfig(state),
-    dataTree: getDataTree(state),
-    propertyErrors: getPropertyErrors(state),
     widgetId: getCurrentWidgetId(state),
-    widgetProperties: getCurrentWidgetProperties(state),
+    widgetProperties: getWidgetPropsWithValidations(state),
     isVisible: getIsPropertyPaneVisible(state),
     targetNode: getCurrentReferenceNode(state),
   };
@@ -231,23 +181,13 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
       }),
-    setPropertyValidation: (
-      widgetId: string,
-      propertyName: string,
-      errorCode: ErrorCode,
-    ) =>
-      dispatch(
-        updateWidgetPropertyValidation(widgetId, propertyName, errorCode),
-      ),
   };
 };
 
 export interface PropertyPaneProps {
   propertySections?: PropertySection[];
-  propertyErrors: Record<string, Record<string, ErrorCode>>;
-  dataTree: DataTree;
   widgetId?: string;
-  widgetProperties?: any; //TODO(abhinav): Secure type definition
+  widgetProperties?: WidgetProps; //TODO(abhinav): Secure type definition
   isVisible: boolean;
   targetNode?: HTMLDivElement;
 }
@@ -255,11 +195,6 @@ export interface PropertyPaneProps {
 export interface PropertyPaneFunctions {
   updateWidgetProperty: Function;
   hidePropertyPane: () => void;
-  setPropertyValidation: (
-    widgetId: string,
-    propertyName: string,
-    errorCode: ErrorCode,
-  ) => void;
 }
 
 export default connect(

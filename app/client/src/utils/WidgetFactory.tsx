@@ -4,15 +4,22 @@ import {
   WidgetProps,
   WidgetDataProps,
 } from "widgets/BaseWidget";
+import { WidgetPropertyValidationType } from "./ValidationFactory";
 
 class WidgetFactory {
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();
+  static widgetPropValidationMap: Map<
+    WidgetType,
+    WidgetPropertyValidationType
+  > = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps>,
+    widgetPropertyValidation: WidgetPropertyValidationType,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
+    this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
   }
 
   static createWidget(
@@ -27,6 +34,7 @@ class WidgetFactory {
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
+      // TODO validate props here
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
@@ -40,6 +48,17 @@ class WidgetFactory {
 
   static getWidgetTypes(): WidgetType[] {
     return Array.from(this.widgetMap.keys());
+  }
+
+  static getWidgetPropertyValidationMap(
+    widgetType: WidgetType,
+  ): WidgetPropertyValidationType {
+    const map = this.widgetPropValidationMap.get(widgetType);
+    if (!map) {
+      console.error("Widget type validation is not defined");
+      return {};
+    }
+    return map;
   }
 }
 

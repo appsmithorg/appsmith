@@ -7,7 +7,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { injectDataTreeIntoDsl } from "utils/DynamicBindingUtils";
+import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
 import { getDataTree } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
@@ -93,6 +93,21 @@ export const getWidgetCards = createSelector(
   },
 );
 
+export const getValidatedDynamicProps = createSelector(
+  getDataTree,
+  (entities: DataTree) => {
+    const widgets = { ...entities.canvasWidgets };
+    Object.keys(widgets).forEach(widgetKey => {
+      widgets[widgetKey] = enhanceWithDynamicValuesAndValidations(
+        widgets[widgetKey],
+        entities,
+        true,
+      );
+    });
+    return widgets;
+  },
+);
+
 // TODO(abhinav) : Benchmark this, see how many times this is called in the application
 // lifecycle. Move to using flattend redux state for widgets if necessary.
 
@@ -103,9 +118,16 @@ export const getWidgetCards = createSelector(
 export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
   getDataTree,
-  (pageWidgetId: string, entities: DataTree) => {
-    const dsl = CanvasWidgetsNormalizer.denormalize(pageWidgetId, entities);
-    return injectDataTreeIntoDsl(entities, dsl);
+  getValidatedDynamicProps,
+  (
+    pageWidgetId: string,
+    entities: DataTree,
+    validatedDynamicWidgets: CanvasWidgetsReduxState,
+  ) => {
+    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, {
+      ...entities,
+      canvasWidgets: validatedDynamicWidgets,
+    });
   },
 )((pageWidgetId, entities) => entities || 0);
 
