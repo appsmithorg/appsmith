@@ -5,13 +5,16 @@ import {
   ReduxActionErrorTypes,
 } from "../../constants/ReduxActionConstants";
 import { RestAction } from "../../api/ActionAPI";
+import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 const initialState: ActionDataState = {
   data: [],
+  actionToWidgetIdMap: {},
 };
 
 export interface ActionDataState {
   data: RestAction[];
+  actionToWidgetIdMap: ActionWidgetIdsMap;
 }
 
 const actionsReducer = createReducer(initialState, {
@@ -50,6 +53,13 @@ const actionsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     data: state.data.filter(d => d.id !== action.payload.id),
+  }),
+  [ReduxActionTypes.CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<ActionWidgetIdsMap>,
+  ) => ({
+    ...state,
+    actionToWidgetIdMap: action.payload,
   }),
 });
 

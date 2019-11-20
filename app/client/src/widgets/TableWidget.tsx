@@ -60,6 +60,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columns={columns}
             data={data}
             maxHeight={height}
+            isLoading={this.props.isLoading}
             selectedRowIndex={
               this.props.selectedRow && this.props.selectedRow.rowIndex
             }

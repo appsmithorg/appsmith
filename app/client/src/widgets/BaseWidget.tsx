@@ -20,6 +20,7 @@ import WidgetNameComponent from "components/designSystems/appsmith/WidgetNameCom
 import shallowequal from "shallowequal";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
+
 import ErrorBoundary from "../components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "../utils/ValidationFactory";
 /***
@@ -232,6 +233,7 @@ export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
   dynamicBindings?: Record<string, boolean>;
+  isLoading: boolean;
   invalidProps?: Record<string, boolean>;
   [key: string]: any;
 }
@@ -247,6 +249,7 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
+  isLoading: boolean;
   isDisabled?: boolean;
   parentId?: string;
   backgroundColor?: string;
