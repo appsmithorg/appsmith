@@ -1,5 +1,5 @@
 import BaseTable, { Column } from "react-base-table";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import React from "react";
 import { noop } from "../../../utils/AppsmithUtils";
 
@@ -59,7 +59,7 @@ export default class SelectableTable extends React.PureComponent<
   };
 
   _rowClassName = ({ rowIndex }: { rowIndex: number }) => {
-    const { selectedRowIndex, isLoading } = this.props;
+    const { selectedRowIndex } = this.props;
     const className = selectedRowIndex === rowIndex ? "row-selected" : "";
     return className;
   };

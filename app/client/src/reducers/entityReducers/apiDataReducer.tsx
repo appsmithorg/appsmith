@@ -15,6 +15,10 @@ const apiDataReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => ({ ...state, ...action.payload }),
+  [ReduxActionTypes.RUN_API_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ [id: string]: ActionResponse }>,
+  ) => ({ ...state, ...action.payload }),
 });
 
 export default apiDataReducer;

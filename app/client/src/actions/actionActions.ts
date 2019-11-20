@@ -3,7 +3,6 @@ import {
   ReduxAction,
 } from "../constants/ReduxActionConstants";
 import { RestAction } from "../api/ActionAPI";
-import { ActionPayload } from "../constants/ActionConstants";
 import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {
@@ -26,10 +25,9 @@ export const fetchActions = () => {
   };
 };
 
-export const executeAction = (payload: ActionPayload[]) => {
+export const runApiAction = () => {
   return {
-    type: ReduxActionTypes.EXECUTE_ACTION,
-    payload,
+    type: ReduxActionTypes.RUN_API_REQUEST,
   };
 };
 
@@ -78,7 +76,7 @@ export const actionToWidgetIdMapSuccess = (
 export default {
   createAction: createActionRequest,
   fetchActions,
-  runAction: executeAction,
+  runAction: runApiAction,
   deleteAction,
   deleteActionSuccess,
   updateAction,
