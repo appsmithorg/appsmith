@@ -3,45 +3,15 @@ import styled, { keyframes } from "styled-components";
 import React from "react";
 import { noop } from "../../../utils/AppsmithUtils";
 
-const move = keyframes`
-  from {
-    transform: translateX(-100%);
-  }
-
-  to {
-    transform: translateX(100%);
-  }
-`;
-
-const InlineLoader = styled.div`
-  overflow: hidden;
-  height: 100%;
-  width: 100%;
-  position: relative;
-  background-color: #eee;
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-position: left top;
-    background-repeat: no-repeat;
-    background-image: linear-gradient(to right, transparent, #ccc, transparent);
-    animation: ${move} 1.5s linear infinite;
-  }
-`;
-
-const RowLoader = styled(InlineLoader)`
+const RowLoader = styled.div`
   height: 16px !important;
+  width: 100%;
   margin: 0 15px;
 `;
 
 const Row = (props: any) => (
   <div {...props}>
-    <RowLoader />
+    <RowLoader className={"bp3-skeleton"} />
   </div>
 );
 
@@ -89,8 +59,9 @@ export default class SelectableTable extends React.PureComponent<
   };
 
   _rowClassName = ({ rowIndex }: { rowIndex: number }) => {
-    const { selectedRowIndex } = this.props;
-    return selectedRowIndex === rowIndex ? "row-selected" : "";
+    const { selectedRowIndex, isLoading } = this.props;
+    const className = selectedRowIndex === rowIndex ? "row-selected" : "";
+    return className;
   };
 
   render() {
