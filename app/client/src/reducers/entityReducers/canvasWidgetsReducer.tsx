@@ -32,16 +32,11 @@ const canvasWidgetsReducer = createReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<WidgetLoadingState>,
   ) => {
-    let finalState = { ...state };
+    const finalState = { ...state };
     action.payload.widgetIds.forEach(widgetId => {
       const widget = state[widgetId];
       widget.isLoading = action.payload.areLoading;
-      finalState = {
-        ...finalState,
-        [widgetId]: {
-          ...widget,
-        },
-      };
+      finalState[widgetId] = widget;
     });
 
     return finalState;
