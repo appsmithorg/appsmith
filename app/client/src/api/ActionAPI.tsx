@@ -56,6 +56,7 @@ export interface RestAction {
   pluginId: string;
   pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;
+  jsonPathKeys: string[];
 }
 
 export interface ExecuteActionRequest extends APIRequest {

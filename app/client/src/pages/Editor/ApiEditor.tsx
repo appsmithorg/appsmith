@@ -4,10 +4,9 @@ import { submit, initialize, getFormValues, destroy } from "redux-form";
 import ApiEditorForm from "./APIEditor/ApiEditorForm";
 import {
   createActionRequest,
-  executeAction,
+  runApiAction,
   deleteAction,
   updateAction,
-  dryRunAction,
 } from "../../actions/actionActions";
 import { RestAction } from "../../api/ActionAPI";
 import { AppState } from "../../reducers";
@@ -27,8 +26,7 @@ interface ReduxStateProps {
 interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
-  runAction: (id: string) => void;
-  dryRunAction: (data: RestAction) => void;
+  runAction: () => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   initialize: (formName: string, data?: Partial<RestAction>) => void;
@@ -95,12 +93,7 @@ class ApiEditor extends React.Component<Props> {
     this.props.deleteAction(this.props.match.params.id);
   };
   handleRunClick = () => {
-    const { formData } = this.props;
-    if (formData.id) {
-      this.props.runAction(this.props.match.params.id);
-    } else {
-      this.props.dryRunAction(formData);
-    }
+    this.props.runAction();
   };
 
   render() {
@@ -141,17 +134,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   createAction: (action: RestAction) => dispatch(createActionRequest(action)),
-  runAction: (id: string) =>
-    dispatch(
-      executeAction([
-        {
-          actionId: id,
-          actionType: "API",
-          contextParams: {},
-        },
-      ]),
-    ),
-  dryRunAction: (data: RestAction) => dispatch(dryRunAction(data)),
+  runAction: () => dispatch(runApiAction()),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   initialize: (formName: string, data?: Partial<RestAction>) =>

@@ -18,6 +18,7 @@ import ActionAPI, {
   ActionCreateUpdateResponse,
   ActionResponse,
   ExecuteActionRequest,
+  Property,
   RestAction,
 } from "../api/ActionAPI";
 import { AppState, DataTree } from "../reducers";
@@ -31,7 +32,11 @@ import {
   updateActionSuccess,
 } from "../actions/actionActions";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
-import { extractDynamicBoundValue } from "../utils/DynamicBindingUtils";
+import {
+  extractDynamicBoundValue,
+  getDynamicBindings,
+  isDynamicValue,
+} from "../utils/DynamicBindingUtils";
 import history from "../utils/history";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "../selectors/entitiesSelector";
@@ -39,6 +44,8 @@ import {
   ERROR_MESSAGE_SELECT_ACTION,
   ERROR_MESSAGE_SELECT_ACTION_TYPE,
 } from "constants/messages";
+import { getFormData } from "selectors/formSelectors";
+import { API_EDITOR_FORM_NAME } from "../constants/forms";
 
 const getAction = (
   state: AppState,
@@ -69,6 +76,22 @@ export function* evaluateJSONPathSaga(path: string): any {
   return extractDynamicBoundValue(dataTree, path);
 }
 
+export function* getActionParams(jsonPathKeys: string[] | undefined) {
+  if (_.isNil(jsonPathKeys)) return [];
+  const values: any = _.flatten(
+    yield all(
+      jsonPathKeys.map((jsonPath: string) => {
+        return call(evaluateJSONPathSaga, jsonPath);
+      }),
+    ),
+  );
+  const dynamicBindings: Record<string, string> = {};
+  jsonPathKeys.forEach((key, i) => {
+    dynamicBindings[key] = values[i];
+  });
+  return mapToPropList(dynamicBindings);
+}
+
 export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
   try {
     const api: PageAction = yield select(getAction, apiAction.actionId);
@@ -79,26 +102,11 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
       });
       return;
     }
-
+    const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
     const executeActionRequest: ExecuteActionRequest = {
-      action: {
-        id: apiAction.actionId,
-      },
+      action: { id: apiAction.actionId },
+      params,
     };
-    if (!_.isNil(api.jsonPathKeys)) {
-      const values: any = _.flatten(
-        yield all(
-          api.jsonPathKeys.map((jsonPath: string) => {
-            return call(evaluateJSONPathSaga, jsonPath);
-          }),
-        ),
-      );
-      const dynamicBindings: Record<string, string> = {};
-      api.jsonPathKeys.forEach((key, i) => {
-        dynamicBindings[key] = values[i];
-      });
-      executeActionRequest.params = mapToPropList(dynamicBindings);
-    }
     const dataTree: DataTree = yield select(getDataTree);
     yield put({
       type: ReduxActionTypes.WIDGETS_LOADING,
@@ -205,26 +213,6 @@ export function* executeReduxActionSaga(action: ReduxAction<ActionPayload[]>) {
   }
 }
 
-function* dryRunActionSaga(action: ReduxAction<RestAction>) {
-  const executeActionRequest: ExecuteActionRequest = {
-    action: {
-      ...action.payload,
-    },
-  };
-  // TODO(hetu): No support for dynamic bindings in dry runs yet
-  const response: ActionApiResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
-  );
-  let payload = createActionResponse(response);
-  if (response.responseMeta && response.responseMeta.error) {
-    payload = createActionErrorResponse(response);
-  }
-  yield put({
-    type: ReduxActionTypes.EXECUTE_ACTION_SUCCESS,
-    payload: { [action.type]: payload },
-  });
-}
-
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
     const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
@@ -313,13 +301,63 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+export function* runApiActionSaga() {
+  try {
+    const {
+      values,
+      dirty,
+      valid,
+    }: { values: RestAction; dirty: boolean; valid: boolean } = yield select(
+      getFormData,
+      API_EDITOR_FORM_NAME,
+    );
+    let action: ExecuteActionRequest["action"] = { id: values.id };
+    let jsonPathKeys = values.jsonPathKeys;
+    if (!valid) {
+      console.error("Form error");
+      return;
+    }
+    if (dirty) {
+      action = _.omit(values, "id");
+      const actionString = JSON.stringify(action);
+      if (isDynamicValue(actionString)) {
+        const { paths } = getDynamicBindings(actionString);
+        // Replace cause the existing keys could have been updated
+        jsonPathKeys = paths;
+      } else {
+        jsonPathKeys = [];
+      }
+    }
+    const params = yield call(getActionParams, jsonPathKeys);
+    const response: ActionApiResponse = yield ActionAPI.executeAction({
+      action,
+      params,
+    });
+    let payload = createActionResponse(response);
+    if (response.responseMeta && response.responseMeta.error) {
+      payload = createActionErrorResponse(response);
+    }
+    const id = values.id || "DRY_RUN";
+    yield put({
+      type: ReduxActionTypes.RUN_API_SUCCESS,
+      payload: { [id]: payload },
+    });
+  } catch (error) {
+    console.log({ error });
+    yield put({
+      type: ReduxActionErrorTypes.RUN_API_ERROR,
+      payload: error,
+    });
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
     takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeReduxActionSaga),
+    takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
-    takeLatest(ReduxActionTypes.DRY_RUN_ACTION, dryRunActionSaga),
   ]);
 }
