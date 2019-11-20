@@ -12,3 +12,21 @@ export const executeAction = (
     payload: actionPayloads,
   };
 };
+
+export const loadingAction = (
+  areLoading: boolean,
+  widgetIds: string[],
+): ReduxAction<WidgetLoadingState> => {
+  return {
+    type: ReduxActionTypes.LOADING_ACTION,
+    payload: {
+      areLoading: areLoading,
+      widgetIds: widgetIds,
+    },
+  };
+};
+
+export type WidgetLoadingState = {
+  areLoading: boolean;
+  widgetIds: string[];
+};

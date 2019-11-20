@@ -20,7 +20,7 @@ import ActionAPI, {
   ExecuteActionRequest,
   RestAction,
 } from "../api/ActionAPI";
-import { AppState } from "../reducers";
+import { AppState, DataTree } from "../reducers";
 import _ from "lodash";
 import { mapToPropList } from "../utils/AppsmithUtils";
 import AppToaster from "../components/editorComponents/ToastComponent";
@@ -99,9 +99,26 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
       });
       executeActionRequest.params = mapToPropList(dynamicBindings);
     }
+    const dataTree: DataTree = yield select(getDataTree);
+    yield put({
+      type: ReduxActionTypes.WIDGETS_LOADING,
+      payload: {
+        widgetIds:
+          dataTree.actions.actionToWidgetIdMap[apiAction.actionId] || [],
+        areLoading: true,
+      },
+    });
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
     );
+    yield put({
+      type: ReduxActionTypes.WIDGETS_LOADING,
+      payload: {
+        widgetIds:
+          dataTree.actions.actionToWidgetIdMap[apiAction.actionId] || [],
+        areLoading: false,
+      },
+    });
     let payload = createActionResponse(response);
     if (response.responseMeta && response.responseMeta.error) {
       payload = createActionErrorResponse(response);

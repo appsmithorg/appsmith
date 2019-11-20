@@ -263,6 +263,7 @@ export const generateWidgetProps = (
       widgetId: generateReactKey(),
       widgetName: widgetName,
       isVisible: true,
+      isLoading: false,
       parentColumnSpace,
       parentRowSpace,
       renderMode: RenderModes.CANVAS,
