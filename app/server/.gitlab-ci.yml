@@ -44,9 +44,9 @@ docker-package:
     - docker:dind
   stage: package
   script:
-    - docker build -t arpitappsmith/appsmith-server:release .
+    - docker build -t appsmith/appsmith-server:release .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-    - docker push arpitappsmith/appsmith-server:release
+    - docker push appsmith/appsmith-server:release
   only:
     - release
 
@@ -56,9 +56,9 @@ docker-package-master:
     - docker:dind
   stage: package
   script:
-    - docker build -t arpitappsmith/appsmith-server:latest .
+    - docker build -t appsmith/appsmith-server:latest .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-    - docker push arpitappsmith/appsmith-server:latest
+    - docker push appsmith/appsmith-server:latest
   only:
     - master
 
