@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -96,13 +95,16 @@ public class OrganizationServiceTest {
     @Test
     @WithMockUser(username = "api_user")
     public void validGetOrganizationByName() {
+        Organization organization = new Organization();
+        organization.setName("Test For Get Name");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
         StepVerifier.create(getOrganization)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
-                    assertThat(t.getName()).isEqualTo(organization.getName());
-                    assertThat(t.getId()).isEqualTo(organization.getId());
+                    assertThat(t.getName()).isEqualTo("Test For Get Name");
                 })
                 .verifyComplete();
     }
@@ -112,7 +114,7 @@ public class OrganizationServiceTest {
     @WithMockUser(username = "api_user")
     public void validUpdateOrganization() {
         Organization organization = new Organization();
-        organization.setName("Test Name");
+        organization.setName("Test Update Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
 

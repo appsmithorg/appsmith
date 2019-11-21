@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Document
+@CompoundIndex(def = "{'organizationId':1, 'name':1}", name = "organization_group_compound_index", unique = true)
 public class Group extends BaseDomain {
 
     @NotNull
