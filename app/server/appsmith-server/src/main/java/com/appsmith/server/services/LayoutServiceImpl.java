@@ -5,26 +5,37 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 
 @Slf4j
 @Service
 public class LayoutServiceImpl implements LayoutService {
 
     private final PageService pageService;
+    private final ObjectMapper objectMapper;
+    private final ActionService actionService;
 
     @Autowired
-    public LayoutServiceImpl(PageService pageService) {
+    public LayoutServiceImpl(PageService pageService, ObjectMapper objectMapper, ActionService actionService) {
         this.pageService = pageService;
+        this.objectMapper = objectMapper;
+        this.actionService = actionService;
     }
 
     @Override
@@ -71,19 +82,61 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
+        List<String> mustacheKeys = new ArrayList<>();;
+        //Extract the mustache keys and find all keys which match actions
+        JSONObject dsl = layout.getDsl();
+        try {
+            String dslAsString = objectMapper.writeValueAsString(dsl);
+            Set<String> extractMustacheKeys = extractMustacheKeys(dslAsString);
+            mustacheKeys.addAll(extractMustacheKeys);
+        } catch (JsonProcessingException e) {
+            log.error("Exception caught during mustache extraction from the dsl in Layout. ", e);
+        }
+
+        Mono<List<String>> actionsInPage = Flux.fromIterable(mustacheKeys)
+                .map(mustacheKey -> {
+                    String subStrings[] = mustacheKey.split(Pattern.quote("."));
+                    // Assumption here is that the action name would always be the first substring here.
+                    // If we start referring to actions from another page via <PageName>.<ActionName> format, this
+                    // would break.
+                    return subStrings[0];
+                })
+                /**
+                 * TODO : Instead of finding each action by name, bulk search for actions by Name should be done.
+                 */
+                .flatMap(mustacheKey -> actionService.findByName(mustacheKey))
+                .map(action -> {
+                    action.setPageId(pageId);
+                    return action;
+                })
+                .flatMap(actionService::save)
+                .map(action -> action.getId())
+                .collectList();
+
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
                 .flatMap(pageService::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
-                .map(page -> {
+                .zipWith(actionsInPage)
+                .map(tuple -> {
+                    Page page = tuple.getT1();
+                    List<String> actions = tuple.getT2();
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
+                            //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
+                            List<String> publishedDslActionIds = storedLayout.getPublishedDslActionIds();
+
+                            //Update
+                            layout.setDslActionIds(actions);
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
+
+                            //Copy back the conserved variables.
                             storedLayout.setPublishedDsl(publishedDsl);
+                            storedLayout.setPublishedDslActionIds(publishedDslActionIds);
                             break;
                         }
                     }
