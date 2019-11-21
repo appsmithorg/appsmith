@@ -5,6 +5,7 @@ import {
   ReduxActionErrorTypes,
   ApplicationPayload,
 } from "../../constants/ReduxActionConstants";
+import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -19,10 +20,18 @@ const applicationsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_APPLICATION_LIST_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
-  ) => ({ ...state, applicationList: action.payload }),
+  ) => ({
+    ...state,
+    applicationList: action.payload,
+    isFetchingApplications: false,
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
-  ) => ({ ...state, creatingApplication: true }),
+  ) => ({
+    ...state,
+    creatingApplication: true,
+    createApplicationError: undefined,
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload>,
@@ -39,6 +48,7 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       creatingApplication: false,
+      createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
 });
@@ -47,6 +57,7 @@ export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   isFetchingApplications: boolean;
   creatingApplication: boolean;
+  createApplicationError?: string;
 }
 
 export default applicationsReducer;

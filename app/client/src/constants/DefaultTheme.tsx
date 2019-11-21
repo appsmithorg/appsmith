@@ -13,6 +13,8 @@ const {
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
+export type Intent = "primary" | "danger" | "warning" | "none";
+
 export type ThemeBorder = {
   thickness: number;
   style: "dashed" | "solid";
@@ -49,6 +51,10 @@ export type Theme = {
   card: {
     minWidth: number;
     minHeight: number;
+    titleHeight: number;
+    divider: ThemeBorder;
+    hoverBG: Color;
+    hoverBGOpacity: number;
   };
   shadows: string[];
   widgets: {
@@ -112,6 +118,8 @@ export const theme: Theme = {
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
+    bodyBG: Colors.ATHENS_GRAY,
+    builderBodyBG: Colors.WHITE,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -147,8 +155,16 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 300,
-    minHeight: 300,
+    minWidth: 282,
+    minHeight: 220,
+    titleHeight: 48,
+    divider: {
+      thickness: 1,
+      style: "solid",
+      color: Colors.GEYSER_LIGHT,
+    },
+    hoverBG: Colors.BLACK,
+    hoverBGOpacity: 0.5,
   },
   shadows: ["0px 2px 4px rgba(67, 70, 74, 0.14)"],
   widgets: {

@@ -1,38 +1,32 @@
-import React, { useRef, MutableRefObject } from "react";
-import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
-import { ControlGroup, Classes } from "@blueprintjs/core";
+import React from "react";
+import { Form, reduxForm, InjectedFormProps } from "redux-form";
+import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import {
+  CreateApplicationFormValues,
+  createApplicationFormSubmitHandler,
+} from "utils/formhelpers";
+import TextField from "components/editorComponents/fields/TextField";
+import { required } from "utils/validation/common";
+import { FormGroup } from "@blueprintjs/core";
 
-type CreateApplicationFormProps = {
-  onCreate: (name: string) => void;
-  creating: boolean;
-  error?: string;
-};
-
-export const CreateApplicationForm = (props: CreateApplicationFormProps) => {
-  const inputRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const handleCreate = () => {
-    if (inputRef && inputRef.current) {
-      props.onCreate(inputRef.current.value);
-    } else {
-      //TODO (abhinav): Add validation code.
-    }
-  };
+export const CreateApplicationForm = (
+  props: InjectedFormProps<CreateApplicationFormValues>,
+) => {
+  const { error, handleSubmit } = props;
   return (
-    <ControlGroup fill vertical>
-      <input
-        type="text"
-        className={Classes.INPUT}
-        ref={inputRef}
-        placeholder="Application Name"
-      />
-      <BaseButton
-        text="Create Application"
-        onClick={handleCreate}
-        styleName="secondary"
-        loading={props.creating}
-      ></BaseButton>
-    </ControlGroup>
+    <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
+      <FormGroup intent={error ? "danger" : "none"} helperText={error}>
+        <TextField
+          name="applicationName"
+          placeholderMessage="Name"
+          validate={required}
+        />
+      </FormGroup>
+    </Form>
   );
 };
 
-export default CreateApplicationForm;
+export default reduxForm<CreateApplicationFormValues>({
+  form: CREATE_APPLICATION_FORM_NAME,
+  onSubmit: createApplicationFormSubmitHandler,
+})(CreateApplicationForm);

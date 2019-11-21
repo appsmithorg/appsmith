@@ -2,172 +2,103 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { withRouter } from "react-router";
-import {
-  getApplicationBuilderURL,
-  getApplicationViewerURL,
-} from "../../constants/routes";
 import { AppState } from "../../reducers";
 import {
   getApplicationList,
   getIsFetchingApplications,
   getIsCreatingApplication,
+  getCreateApplicationError,
 } from "../../selectors/applicationSelectors";
 import {
   ReduxActionTypes,
   ApplicationPayload,
 } from "../../constants/ReduxActionConstants";
-import { Card, Spinner, Tooltip } from "@blueprintjs/core";
-import { ControlIcons } from "../../icons/ControlIcons";
-import { theme } from "../../constants/DefaultTheme";
+import { Divider } from "@blueprintjs/core";
 import ApplicationsHeader from "./ApplicationsHeader";
+import SubHeader from "pages/common/SubHeader";
+import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
+import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
+import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import { noop } from "utils/AppsmithUtils";
 
-const APPLICATION_CONTROL_FONTSIZE_INDEX = 7;
-
-const ApplicationsBody = styled.section`
+const ApplicationsPageWrapper = styled.section`
   width: 100vw;
+`;
+const SectionDivider = styled(Divider)`
+  margin: ${props => props.theme.spaces[11]}px auto;
+  width: 100%;
+`;
+const ApplicationsBody = styled.div`
+  width: 1224px;
   min-height: calc(100vh - ${props => props.theme.headerHeight});
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: white;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: ${props => props.theme.spaces[12]}px auto;
+  background: ${props => props.theme.colors.bodyBG};
 `;
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
-  align-items: space-around;
-  width: 80%;
+  justify-content: flex-start;
+  align-items: space-evenly;
 `;
-const ApplicationCard = styled(Card)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: ${props => props.theme.card.minWidth}px;
-  min-height: ${props => props.theme.card.minHeight}px;
-  position: relative;
-  margin-bottom: ${props => props.theme.spaces[2]}px;
-  margin-right: ${props => props.theme.spaces[2]}px;
-  &:hover {
-    & div.controls {
-      display: flex;
-    }
-  }
-`;
-const ApplicationTitle = styled.h1`
-  font-size: ${props => props.theme.fontSizes[7]}px;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-`;
-const ApplicationControls = styled.div`
-  display: none;
-  flex-flow: row nowrap;
-  justify-content: space-around;
-`;
-
-const Control = styled.button<{ fixed?: boolean }>`
-  outline: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: ${props => (props.fixed ? "absolute" : "auto")};
-  right: ${props => props.theme.spaces[2]}px;
-  top: ${props => props.theme.spaces[2]}px;
-`;
-
-const editControlIcon = ControlIcons.EDIT_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-});
-
-const deleteControlIcon = ControlIcons.DELETE_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-  background: theme.colors.error,
-});
-
-const viewControlIcon = ControlIcons.VIEW_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-});
 
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
   fetchApplications: () => void;
   createApplication: (appName: string) => void;
   isCreatingApplication: boolean;
+  isFetchingApplications: boolean;
+  createApplicationError?: string;
   history: any;
 };
 
 class Applications extends Component<ApplicationProps> {
-  handleEditApplication = (applicationId: string) => () => {
-    this.props.history.push(getApplicationBuilderURL(applicationId));
-  };
-
-  handleViewApplication = (applicationId: string, pageId?: string) => () => {
-    this.props.history.push(getApplicationViewerURL(applicationId, pageId));
-  };
-
-  renderApplicationCard = (application: ApplicationPayload) => {
-    return (
-      <ApplicationCard interactive key={application.id}>
-        <ApplicationTitle>{application.name}</ApplicationTitle>
-        <ApplicationControls className="controls">
-          <Control fixed>
-            <Tooltip content="Delete Application" hoverOpenDelay={500}>
-              {deleteControlIcon}
-            </Tooltip>
-          </Control>
-          <Control
-            onClick={this.handleViewApplication(
-              application.id,
-              application.defaultPageId,
-            )}
-          >
-            <Tooltip content="View Application" hoverOpenDelay={500}>
-              {viewControlIcon}
-            </Tooltip>
-          </Control>
-          <Control onClick={this.handleEditApplication(application.id)}>
-            <Tooltip content="Edit Application" hoverOpenDelay={500}>
-              {editControlIcon}
-            </Tooltip>
-          </Control>
-        </ApplicationControls>
-      </ApplicationCard>
-    );
-  };
   componentDidMount() {
     this.props.fetchApplications();
   }
   public render() {
+    const applicationList = this.props.isFetchingApplications
+      ? getApplicationPayloads(4)
+      : this.props.applicationList;
     return (
-      <div>
-        <ApplicationsHeader
-          add={{
-            form: (
-              <CreateApplicationForm
-                onCreate={this.props.createApplication}
-                creating={this.props.isCreatingApplication}
-              />
-            ),
-            title: "Create Application",
-          }}
-        />
+      <ApplicationsPageWrapper>
+        <ApplicationsHeader />
         <ApplicationsBody>
-          {this.props.applicationList ? (
-            <ApplicationCardsWrapper>
-              {this.props.applicationList.map(this.renderApplicationCard)}
-            </ApplicationCardsWrapper>
-          ) : (
-            <Spinner />
-          )}
+          <SubHeader
+            add={{
+              form: <CreateApplicationForm />,
+              title: "Create New App",
+              formName: CREATE_APPLICATION_FORM_NAME,
+              formSubmitIntent: "primary",
+              isAdding:
+                this.props.isCreatingApplication ||
+                !!this.props.createApplicationError,
+              errorAdding: this.props.createApplicationError,
+            }}
+            search={{
+              placeholder: "Search",
+            }}
+          />
+          <SectionDivider />
+          <ApplicationCardsWrapper>
+            {applicationList.map((application: ApplicationPayload) => (
+              <ApplicationCard
+                key={application.id}
+                loading={this.props.isFetchingApplications}
+                application={application}
+                share={noop}
+                duplicate={noop}
+                delete={noop}
+              />
+            ))}
+          </ApplicationCardsWrapper>
         </ApplicationsBody>
-      </div>
+      </ApplicationsPageWrapper>
     );
   }
 }
@@ -176,6 +107,7 @@ const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
+  createApplicationError: getCreateApplicationError(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -192,8 +124,5 @@ const mapDispatchToProps = (dispatch: any) => ({
 });
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Applications),
+  connect(mapStateToProps, mapDispatchToProps)(Applications),
 );

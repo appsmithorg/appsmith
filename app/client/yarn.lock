@@ -1555,6 +1555,11 @@
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
+"@types/faker@^4.1.7":
+  version "4.1.7"
+  resolved "https://registry.yarnpkg.com/@types/faker/-/faker-4.1.7.tgz#27e8dff9bc0d11c798e7c4a414c4dbd3755a9a34"
+  integrity sha512-tq8puryvH3X1Stlg6mma27/BI2BOwcQOvg/uU7LH7dAsCnyfVEtUXTbcksMZgOA/BZur8rkn9C0CFEgpbxfTdA==
+
 "@types/fontfaceobserver@^0.0.6":
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/@types/fontfaceobserver/-/fontfaceobserver-0.0.6.tgz#14a4a02b77e66e6a1070622981d431c885a174ed"
@@ -5031,6 +5036,11 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
+
+faker@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/faker/-/faker-4.1.0.tgz#1e45bbbecc6774b3c195fad2835109c6d748cc3f"
+  integrity sha1-HkW7vsxndLPBlfrSg1EJxtdIzD8=
 
 fast-deep-equal@^2.0.1:
   version "2.0.1"

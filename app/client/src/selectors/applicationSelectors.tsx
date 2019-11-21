@@ -22,3 +22,9 @@ export const getIsCreatingApplication = createSelector(
   (applications: ApplicationsReduxState): boolean =>
     applications.creatingApplication,
 );
+
+export const getCreateApplicationError = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): string | undefined =>
+    applications.createApplicationError,
+);
