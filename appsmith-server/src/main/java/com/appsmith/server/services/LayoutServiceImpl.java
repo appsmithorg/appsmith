@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -93,7 +94,7 @@ public class LayoutServiceImpl implements LayoutService {
             log.error("Exception caught during mustache extraction from the dsl in Layout. ", e);
         }
 
-        Mono<List<String>> actionsInPage = Flux.fromIterable(mustacheKeys)
+        Mono<Set<String>> actionsInPage = Flux.fromIterable(mustacheKeys)
                 .map(mustacheKey -> {
                     String subStrings[] = mustacheKey.split(Pattern.quote("."));
                     // Assumption here is that the action name would always be the first substring here.
@@ -111,7 +112,7 @@ public class LayoutServiceImpl implements LayoutService {
                 })
                 .flatMap(actionService::save)
                 .map(action -> action.getId())
-                .collectList();
+                .collect(toSet());
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
@@ -120,14 +121,14 @@ public class LayoutServiceImpl implements LayoutService {
                 .zipWith(actionsInPage)
                 .map(tuple -> {
                     Page page = tuple.getT1();
-                    List<String> actions = tuple.getT2();
+                    Set<String> actions = tuple.getT2();
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
                             //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            List<String> publishedDslActionIds = storedLayout.getPublishedDslActionIds();
+                            Set<String> publishedDslActionIds = storedLayout.getPublishedDslActionIds();
 
                             //Update
                             layout.setDslActionIds(actions);
