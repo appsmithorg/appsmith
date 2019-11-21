@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
+@CompoundIndex(def = "{'pageId':1, 'name':1}", name = "action_page_compound_index", unique = true)
 public class Action extends BaseDomain {
 
     String name;
@@ -27,13 +29,18 @@ public class Action extends BaseDomain {
     @JsonIgnore
     String datasourceId;
 
-    String pluginId;
-
     String pageId;
 
     String collectionId;
 
     ActionConfiguration actionConfiguration;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Boolean isValid;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Set<String> invalids;
+
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
@@ -46,9 +53,13 @@ public class Action extends BaseDomain {
             return this.datasource;
         }
 
-        //The action object has been fetched from the db. It would not have datasource. Create and return one.
-        Datasource datasource = new Datasource();
-        datasource.setId(this.datasourceId);
-        return datasource;
+        //If the action object has been fetched from the db, it would not have datasource. Create and return one.
+        if (this.getDatasourceId() != null) {
+            Datasource datasource = new Datasource();
+            datasource.setId(this.datasourceId);
+            return datasource;
+        }
+
+        return null;
     }
 }

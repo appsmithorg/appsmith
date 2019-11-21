@@ -32,6 +32,7 @@ public class RedisListenerConfig {
     /**
      * This is the listener that will receive all the messages from the Redis channel topic configured in topic().
      * Currently the only topic we are listening to is for install plugin requests.
+     *
      * @param factory
      * @return
      */
@@ -59,7 +60,7 @@ public class RedisListenerConfig {
                 // Handle this error because it prevents the Redis connection from shutting down when the server is shut down
                 // TODO: Verify if this is invoked in normal redis pubsub execution as well
                 .doOnError(throwable -> {
-                    if(!(throwable instanceof CancellationException)) {
+                    if (!(throwable instanceof CancellationException)) {
                         // The Reactive RedisListener doesn't shut down properly. Hence, only printing errors for
                         // ones that are not of type CancellationException
                         log.error("Error occurred in RedisListenerConfig: ", throwable);

@@ -128,7 +128,7 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         newUser.setPermissions(permissions);
 
         return userService.findByEmail(user.getEmail())
-                .switchIfEmpty(Mono.defer(() ->userService.create(newUser))); //In case the user doesn't exist, create and save the user.
+                .switchIfEmpty(Mono.defer(() -> userService.create(newUser))); //In case the user doesn't exist, create and save the user.
     }
 
     @Override

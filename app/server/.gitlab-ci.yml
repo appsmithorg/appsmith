@@ -1,11 +1,10 @@
 .only-default: &only-default
   only:
+    - release
     - master
     - merge_requests
 
 image: docker:latest
-services:
-  - redis
 
 cache:
   paths:
@@ -26,20 +25,40 @@ stages:
 maven-build:
   image: maven:3-jdk-11-slim
   stage: build
+  services:
+    - redis
   script:
     - mvn package -B -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE
   artifacts:
     paths:
       - appsmith-server/target/*.jar
+      - appsmith-plugins/*/target/*.jar
   only:
+    - release
     - master
     - merge_requests
 
 docker-package:
-  image: maven:3-jdk-11-slim
+  image: docker:dind
+  services:
+    - docker:dind
   stage: package
   script:
-    - mvn package -DskipTests -DskipDockerBuild=false
+    - docker build -t arpitappsmith/appsmith-server:release .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push arpitappsmith/appsmith-server:release
+  only:
+    - release
+
+docker-package-master:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - docker build -t arpitappsmith/appsmith-server:latest .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push arpitappsmith/appsmith-server:latest
   only:
     - master
 
@@ -49,4 +68,4 @@ heroku-deploy:
   script:
     - dpl --provider=heroku --app=appsmith-test --api-key=$HEROKU_API_KEY
   only:
-    - master
+    - release

@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Url.CONFIG_URL)
-public class ConfigController extends BaseController<ConfigService, Config, String>{
+public class ConfigController extends BaseController<ConfigService, Config, String> {
 
     public ConfigController(ConfigService service) {
         super(service);
     }
-    
+
     @GetMapping("/name/{name}")
     public Mono<ResponseDTO<Config>> getByName(@PathVariable String name) {
         return service.getByName(name)

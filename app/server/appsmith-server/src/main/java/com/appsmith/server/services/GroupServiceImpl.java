@@ -13,7 +13,7 @@ import javax.validation.Validator;
 import java.util.Set;
 
 @Service
-public class GroupServiceImpl extends BaseService<GroupRepository, Group, String> implements GroupService  {
+public class GroupServiceImpl extends BaseService<GroupRepository, Group, String> implements GroupService {
 
     private final GroupRepository repository;
 
