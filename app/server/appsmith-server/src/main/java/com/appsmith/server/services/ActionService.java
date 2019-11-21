@@ -10,4 +10,6 @@ public interface ActionService extends CrudService<Action, String> {
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
     Mono<Action> save(Action action);
+
+    Mono<Action> findByName(String name);
 }

@@ -11,4 +11,6 @@ public interface ActionRepository extends BaseRepository<Action, String> {
     Mono<Action> findById(String id);
 
     Flux<Action> findAllByOrderByName();
+
+    Mono<Action> findByName(String name);
 }
