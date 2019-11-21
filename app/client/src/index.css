@@ -17,3 +17,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+
+div.bp3-select-popover .bp3-popover-content {
+  padding: 0;
+}
+
+div.bp3-popover-arrow {
+  display:none;
+}
