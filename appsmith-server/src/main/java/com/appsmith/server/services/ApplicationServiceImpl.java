@@ -162,6 +162,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                             List<Layout> layoutList = page.getLayouts();
                             for (Layout layout : layoutList) {
                                 layout.setPublishedDsl(layout.getDsl());
+                                layout.setPublishedDslActionIds(layout.getDslActionIds());
                             }
                             return page;
                         })
