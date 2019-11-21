@@ -391,6 +391,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return repository.save(action);
     }
 
+    @Override
+    public Mono<Action> findByName(String name) {
+        return repository.findByName(name);
+    }
+
 
     /**
      * This function replaces the variables in the Object with the actual params
