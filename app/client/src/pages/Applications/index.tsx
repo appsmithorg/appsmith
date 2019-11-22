@@ -124,5 +124,8 @@ const mapDispatchToProps = (dispatch: any) => ({
 });
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Applications),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Applications),
 );

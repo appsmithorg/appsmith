@@ -3,8 +3,17 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "../constants/WidgetConstants";
 import RadioGroupComponent from "../components/designSystems/blueprint/RadioGroupComponent";
 import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      label: VALIDATION_TYPES.TEXT,
+      options: VALIDATION_TYPES.ARRAY,
+      selectedOptionValue: VALIDATION_TYPES.TEXT,
+    };
+  }
   getPageView() {
     return (
       <RadioGroupComponent

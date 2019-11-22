@@ -44,6 +44,7 @@
     "jsonpath-plus": "^1.0.0",
     "lint-staged": "^9.2.5",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "moment-timezone": "^0.5.27",
     "monaco-editor": "^0.15.1",
     "monaco-editor-webpack-plugin": "^1.7.0",

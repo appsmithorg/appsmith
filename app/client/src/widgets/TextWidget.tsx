@@ -9,6 +9,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       text: VALIDATION_TYPES.TEXT,
+      textStyle: VALIDATION_TYPES.TEXT,
     };
   }
 

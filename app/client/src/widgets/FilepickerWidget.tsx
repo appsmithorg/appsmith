@@ -7,6 +7,8 @@ import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
 import FilePickerComponent from "../components/designSystems/appsmith/FilePickerComponent";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
@@ -14,6 +16,14 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   constructor(props: FilePickerWidgetProps) {
     super(props);
     this.refreshUppy(props);
+  }
+
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      label: VALIDATION_TYPES.TEXT,
+      maxNumFiles: VALIDATION_TYPES.NUMBER,
+      allowedFileTypes: VALIDATION_TYPES.ARRAY,
+    };
   }
 
   refreshUppy = (props: FilePickerWidgetProps) => {

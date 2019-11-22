@@ -4,8 +4,20 @@ import { WidgetType } from "../constants/WidgetConstants";
 import { ActionPayload } from "../constants/ActionConstants";
 import DropDownComponent from "../components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      placeholderText: VALIDATION_TYPES.TEXT,
+      label: VALIDATION_TYPES.TEXT,
+      options: VALIDATION_TYPES.ARRAY,
+      selectionType: VALIDATION_TYPES.TEXT,
+      selectedIndex: VALIDATION_TYPES.NUMBER,
+      selectedIndexArr: VALIDATION_TYPES.ARRAY,
+    };
+  }
   getPageView() {
     return (
       <DropDownComponent

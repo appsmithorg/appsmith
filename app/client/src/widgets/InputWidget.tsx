@@ -3,8 +3,28 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent from "components/designSystems/blueprint/InputComponent";
 import { ActionPayload } from "constants/ActionConstants";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      inputType: VALIDATION_TYPES.TEXT,
+      defaultText: VALIDATION_TYPES.TEXT,
+      isDisabled: VALIDATION_TYPES.BOOLEAN,
+      text: VALIDATION_TYPES.TEXT,
+      regex: VALIDATION_TYPES.TEXT,
+      errorMessage: VALIDATION_TYPES.TEXT,
+      placeholderText: VALIDATION_TYPES.TEXT,
+      maxChars: VALIDATION_TYPES.NUMBER,
+      minNum: VALIDATION_TYPES.NUMBER,
+      maxNum: VALIDATION_TYPES.NUMBER,
+      label: VALIDATION_TYPES.TEXT,
+      inputValidators: VALIDATION_TYPES.ARRAY,
+      focusIndex: VALIDATION_TYPES.NUMBER,
+      isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
+    };
+  }
   regex = new RegExp("");
 
   componentDidMount() {

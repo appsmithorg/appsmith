@@ -29,28 +29,20 @@ function constructColumns(data: object[]): Column[] {
   return cols;
 }
 
-const getTableArrayData = (
-  tableData: string | object[] | undefined,
-): object[] => {
-  if (!tableData) return [];
-  if (_.isString(tableData)) {
-    return JSON.parse(tableData as string);
-  } else {
-    return tableData;
-  }
-};
-
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       tableData: VALIDATION_TYPES.TABLE_DATA,
+      nextPageKey: VALIDATION_TYPES.TEXT,
+      prevPageKey: VALIDATION_TYPES.TEXT,
+      label: VALIDATION_TYPES.TEXT,
+      selectedRow: VALIDATION_TYPES.OBJECT,
     };
   }
 
   getPageView() {
     const { tableData } = this.props;
-    const data = getTableArrayData(tableData);
-    const columns = constructColumns(data);
+    const columns = constructColumns(tableData);
     return (
       <AutoResizer>
         {({ width, height }: { width: number; height: number }) => (
@@ -58,7 +50,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             width={width}
             height={height}
             columns={columns}
-            data={data}
+            data={tableData}
             maxHeight={height}
             isLoading={this.props.isLoading}
             selectedRowIndex={
@@ -76,10 +68,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     super.componentDidUpdate(prevProps);
-    const newData = getTableArrayData(this.props.tableData);
-    if (prevProps.tableData !== this.props.tableData && prevProps.selectedRow) {
+    if (
+      !_.isEqual(prevProps.tableData, this.props.tableData) &&
+      prevProps.selectedRow
+    ) {
       this.updateSelectedRowProperty(
-        newData[prevProps.selectedRow.rowIndex],
+        this.props.tableData[prevProps.selectedRow.rowIndex],
         prevProps.selectedRow.rowIndex,
       );
     }
@@ -113,7 +107,7 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  tableData?: string | object[];
+  tableData: object[];
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];

@@ -11,6 +11,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       isDisabled: VALIDATION_TYPES.BOOLEAN,
       label: VALIDATION_TYPES.TEXT,
+      defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
+      isChecked: VALIDATION_TYPES.BOOLEAN,
     };
   }
 
