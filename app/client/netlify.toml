@@ -1,0 +1,15 @@
+[context.production]
+  [context.production.environment]
+    REACT_APP_ENVIRONMENT = "PRODUCTION"
+
+[context.release]
+  [context.release.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+
+[context.develop]
+  [context.develop.environment]
+    REACT_APP_ENVIRONMENT = "DEVELOPMENT"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    REACT_APP_ENVIRONMENT = "DEVELOPMENT"
