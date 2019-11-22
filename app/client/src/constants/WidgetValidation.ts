@@ -14,5 +14,5 @@ export type ValidationResponse = {
   parsed: any;
 };
 
-export type ValidationType = (typeof VALIDATION_TYPES)[keyof typeof VALIDATION_TYPES];
+export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];
 export type Validator = (value: any) => ValidationResponse;

@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useEffect, ReactNode } from "react";
 import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Canvas from "./Canvas";
 import PropertyPane from "./PropertyPane";
 import { AppState } from "../../reducers";
 import { WidgetProps } from "../../widgets/BaseWidget";
 import { savePage } from "../../actions/pageActions";
-import { getDenormalizedDSL } from "../../selectors/editorSelectors";
+import {
+  getDenormalizedDSL,
+  getIsFetchingPage,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
 import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
-
+import { BuilderRouteParams } from "constants/routes";
+import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { Spinner } from "@blueprintjs/core";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -38,31 +45,56 @@ const CanvasContainer = styled.section`
 `;
 
 type EditorProps = {
-  dsl: ContainerWidgetProps<WidgetProps> | any;
+  dsl?: ContainerWidgetProps<WidgetProps>;
   savePageLayout: Function;
   showPropertyPane: (
     widgetId?: string,
     node?: HTMLDivElement,
     toggle?: boolean,
   ) => void;
+  fetchPage: (pageId: string) => void;
+  currentPageId?: string;
+  isFetchingPage: boolean;
 };
 
-const WidgetsEditor = (props: EditorProps) => (
-  <EditorContextProvider>
-    <EditorWrapper>
-      <CanvasContainer>
-        {props.dsl && (
-          <Canvas dsl={props.dsl} showPropertyPane={props.showPropertyPane} />
-        )}
-      </CanvasContainer>
-      <PropertyPane />
-    </EditorWrapper>
-  </EditorContextProvider>
-);
+const WidgetsEditor = (props: EditorProps) => {
+  const params = useParams<BuilderRouteParams>();
+  const { pageId } = params;
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    if (pageId !== props.currentPageId) {
+      props.fetchPage(pageId);
+    }
+  }, [pageId]);
+
+  const pageLoading = (
+    <Centered>
+      <Spinner />
+    </Centered>
+  );
+  let node: ReactNode;
+  if (props.isFetchingPage) {
+    node = pageLoading;
+  }
+  if (!props.isFetchingPage && props.dsl) {
+    node = <Canvas dsl={props.dsl} showPropertyPane={props.showPropertyPane} />;
+  }
+  return (
+    <EditorContextProvider>
+      <EditorWrapper>
+        <CanvasContainer>{node}</CanvasContainer>
+        <PropertyPane />
+      </EditorWrapper>
+    </EditorContextProvider>
+  );
+};
 
 const mapStateToProps = (state: AppState) => {
   return {
     dsl: getDenormalizedDSL(state),
+    isFetchingPage: getIsFetchingPage(state),
+    currentPageId: getCurrentPageId(state),
   };
 };
 
@@ -83,10 +115,12 @@ const mapDispatchToProps = (dispatch: any) => {
         payload: { widgetId, node, toggle },
       });
     },
+    fetchPage: (pageId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_PAGE_INIT,
+        payload: { pageId },
+      }),
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(WidgetsEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(WidgetsEditor);

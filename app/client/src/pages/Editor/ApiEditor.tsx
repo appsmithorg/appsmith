@@ -35,7 +35,7 @@ interface ReduxActionProps {
 
 type Props = ReduxActionProps &
   ReduxStateProps &
-  RouteComponentProps<{ id: string }>;
+  RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -47,21 +47,26 @@ const EmptyStateContainer = styled.div`
 
 class ApiEditor extends React.Component<Props> {
   componentDidMount(): void {
-    const currentId = this.props.match.params.id;
-    if (!currentId) return;
+    const currentApiId = this.props.match.params.apiId;
+    const currentApplicationId = this.props.match.params.applicationId;
+    const currentPageId = this.props.match.params.pageId;
+
+    if (!currentApiId) return;
     if (!this.props.actions.data.length) {
-      this.props.history.push(API_EDITOR_URL);
+      this.props.history.push(
+        API_EDITOR_URL(currentApplicationId, currentPageId),
+      );
       return;
     }
     const data = this.props.actions.data.filter(
-      action => action.id === currentId,
+      action => action.id === currentApiId,
     )[0];
     this.props.initialize(API_EDITOR_FORM_NAME, data);
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    const currentId = this.props.match.params.id;
-    if (currentId && currentId !== prevProps.match.params.id) {
+    const currentId = this.props.match.params.apiId;
+    if (currentId && currentId !== prevProps.match.params.apiId) {
       const data = this.props.actions.data.filter(
         action => action.id === currentId,
       )[0];
@@ -90,7 +95,7 @@ class ApiEditor extends React.Component<Props> {
     this.props.submitForm(API_EDITOR_FORM_NAME);
   };
   handleDeleteClick = () => {
-    this.props.deleteAction(this.props.match.params.id);
+    this.props.deleteAction(this.props.match.params.apiId);
   };
   handleRunClick = () => {
     this.props.runAction();
@@ -100,12 +105,12 @@ class ApiEditor extends React.Component<Props> {
     const {
       apiPane: { isSaving, isRunning, isDeleting },
       match: {
-        params: { id },
+        params: { apiId },
       },
     } = this.props;
     return (
       <React.Fragment>
-        {id ? (
+        {apiId ? (
           <ApiEditorForm
             isSaving={isSaving}
             isRunning={isRunning}
@@ -142,7 +147,4 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   destroy: (formName: string) => dispatch(destroy(formName)),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ApiEditor);
+export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);

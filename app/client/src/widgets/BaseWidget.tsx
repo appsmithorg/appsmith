@@ -278,6 +278,6 @@ export const WidgetOperations = {
   DELETE: "DELETE",
 };
 
-export type WidgetOperation = (typeof WidgetOperations)[keyof typeof WidgetOperations];
+export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default BaseWidget;

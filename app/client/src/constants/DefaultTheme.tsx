@@ -3,7 +3,7 @@ import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import _ from "lodash";
 
-export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
+export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
   default: styled,

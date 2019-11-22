@@ -39,11 +39,11 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 
 type EditorHeaderProps = {
   isSaving?: boolean;
-  pageName: string;
+  pageName?: string;
   onPublish: React.FormEventHandler;
   onCreatePage: (name: string) => void;
   pages?: PageListPayload;
-  currentPageId: string;
+  currentPageId?: string;
   switchToPage: (selectedPage: string) => void;
   isPublishing: boolean;
 };

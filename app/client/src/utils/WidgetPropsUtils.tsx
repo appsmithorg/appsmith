@@ -35,8 +35,8 @@ const defaultDSL = {
   parentColumnSpace: 1,
   parentRowSpace: 1,
   renderMode: "CANVAS",
-  rightColumn: 1300,
-  snapColumns: 16,
+  rightColumn: 1200,
+  snapColumns: 24,
   snapRows: 32,
   topRow: 0,
   type: "CONTAINER_WIDGET",
@@ -47,8 +47,6 @@ export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
-  currentDSL.rightColumn = 1200;
-  currentDSL.snapColumns = 24;
   return currentDSL;
 };
 

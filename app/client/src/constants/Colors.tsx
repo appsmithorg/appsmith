@@ -33,4 +33,4 @@ export const Colors: Record<string, string> = {
   CADET_BLUE: "#A3B3BF",
 };
 
-export type Color = (typeof Colors)[keyof typeof Colors];
+export type Color = typeof Colors[keyof typeof Colors];

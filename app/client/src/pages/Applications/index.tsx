@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { withRouter } from "react-router";
 import { AppState } from "../../reducers";
 import {
   getApplicationList,
@@ -54,7 +53,6 @@ type ApplicationProps = {
   isCreatingApplication: boolean;
   isFetchingApplications: boolean;
   createApplicationError?: string;
-  history: any;
 };
 
 class Applications extends Component<ApplicationProps> {
@@ -86,16 +84,20 @@ class Applications extends Component<ApplicationProps> {
           />
           <SectionDivider />
           <ApplicationCardsWrapper>
-            {applicationList.map((application: ApplicationPayload) => (
-              <ApplicationCard
-                key={application.id}
-                loading={this.props.isFetchingApplications}
-                application={application}
-                share={noop}
-                duplicate={noop}
-                delete={noop}
-              />
-            ))}
+            {applicationList.map((application: ApplicationPayload) => {
+              return (
+                application.pageCount > 0 && (
+                  <ApplicationCard
+                    key={application.id}
+                    loading={this.props.isFetchingApplications}
+                    application={application}
+                    share={noop}
+                    duplicate={noop}
+                    delete={noop}
+                  />
+                )
+              );
+            })}
           </ApplicationCardsWrapper>
         </ApplicationsBody>
       </ApplicationsPageWrapper>
@@ -123,9 +125,4 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Applications),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(Applications);

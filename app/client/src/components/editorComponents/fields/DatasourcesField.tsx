@@ -64,7 +64,4 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
     ),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DatasourcesField);
+export default connect(mapStateToProps, mapDispatchToProps)(DatasourcesField);

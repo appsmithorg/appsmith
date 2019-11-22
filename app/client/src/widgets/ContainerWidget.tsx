@@ -1,7 +1,9 @@
 import React from "react";
 import _ from "lodash";
 
-import ContainerComponent from "../components/designSystems/appsmith/ContainerComponent";
+import ContainerComponent, {
+  ContainerStyle,
+} from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { Color } from "constants/Colors";
@@ -107,6 +109,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   snapRows?: number;
   orientation?: ContainerOrientation;
   backgroundColor?: Color;
+  containerStyle?: ContainerStyle;
 }
 
 export default ContainerWidget;

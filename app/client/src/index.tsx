@@ -49,7 +49,11 @@ ReactDOM.render(
             <Route exact path={BASE_URL} component={App} />
             <ProtectedRoute path={BUILDER_URL} component={Editor} />
             <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
-            <ProtectedRoute path={APPLICATIONS_URL} component={Applications} />
+            <ProtectedRoute
+              exact
+              path={APPLICATIONS_URL}
+              component={Applications}
+            />
             <Route exact path={LOGIN_URL} component={LoginPage} />
             <Route component={PageNotFound} />
           </Switch>

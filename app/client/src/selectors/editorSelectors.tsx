@@ -13,6 +13,7 @@ import {
   FlattenedWidgetProps,
   CanvasWidgetsReduxState,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
@@ -20,18 +21,33 @@ import { WidgetTypes } from "constants/WidgetConstants";
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
+const getPageListState = (state: AppState) => state.entities.pageList;
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
-export const getPageList = createSelector(
+export const getIsEditorLoading = createSelector(
   getEditorState,
-  (editor: EditorReduxState) => editor.pages,
+  (editor: EditorReduxState) => editor.loadingStates.loading,
+);
+export const getIsFetchingPage = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.loadingStates.isPageSwitching,
 );
 
-export const getPropertyPaneConfigsId = createSelector(
+export const getPublishedTime = createSelector(
   getEditorState,
-  (editor: EditorReduxState) => editor.propertyPaneConfigsId,
+  (editor: EditorReduxState) => editor.loadingStates.published,
+);
+
+export const getLoadingError = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.loadingStates.loadingError,
+);
+
+export const getPageList = createSelector(
+  getPageListState,
+  (pageList: PageListReduxState) => pageList.pages,
 );
 
 export const getCurrentPageId = createSelector(
@@ -46,7 +62,7 @@ export const getCurrentLayoutId = createSelector(
 
 export const getPageWidgetId = createSelector(
   getEditorState,
-  (editor: EditorReduxState) => editor.pageWidgetId,
+  (editor: EditorReduxState) => editor.pageWidgetId || "0",
 );
 
 export const getCurrentPageName = createSelector(
@@ -55,8 +71,8 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getCurrentApplicationId = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.currentApplicationId,
+  getPageListState,
+  (pageList: PageListReduxState) => pageList.applicationId,
 );
 
 export const getIsPageSaving = createSelector(

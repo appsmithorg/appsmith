@@ -197,7 +197,4 @@ export interface PropertyPaneFunctions {
   hidePropertyPane: () => void;
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PropertyPane);
+export default connect(mapStateToProps, mapDispatchToProps)(PropertyPane);

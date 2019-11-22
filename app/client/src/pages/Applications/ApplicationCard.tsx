@@ -1,5 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
+import {
+  getApplicationViewerPageURL,
+  BUILDER_PAGE_URL,
+} from "constants/routes";
 import { Card, Tooltip, Classes } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
@@ -107,8 +112,9 @@ const Control = styled.button<{ fixed?: boolean }>`
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
 
 const viewControlIcon = ControlIcons.VIEW_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
+  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
+  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
+  color: theme.colors.secondary,
 });
 
 type ApplicationCardProps = {
@@ -150,33 +156,49 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       intent: "danger",
     },
   ];
+  const viewApplicationURL = getApplicationViewerPageURL(
+    props.application.id,
+    props.application.defaultPageId,
+  );
+  const editApplicationURL = BUILDER_PAGE_URL(
+    props.application.id,
+    props.application.defaultPageId,
+  );
   return (
     <Wrapper key={props.application.id}>
       <ApplicationTitle
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Control className="control">
-          <Tooltip content="View Application" hoverOpenDelay={500}>
-            {viewControlIcon}
-          </Tooltip>
-        </Control>
+        <Link to={viewApplicationURL}>
+          <Control className="control">
+            <Tooltip content="View Application" hoverOpenDelay={500}>
+              {viewControlIcon}
+            </Tooltip>
+          </Control>
+        </Link>
         <ContextDropdown
           options={moreActionItems}
-          toggle={{ type: "icon", icon: "MORE_VERTICAL_CONTROL" }}
+          toggle={{
+            type: "icon",
+            icon: "MORE_VERTICAL_CONTROL",
+            iconSize: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
+          }}
           className="more"
         />
       </ApplicationTitle>
       <ApplicationImage className="image-container">
         <Control className="control">
-          <Tooltip content="Edit Application" hoverOpenDelay={500}>
-            <BaseButton
-              icon="edit"
-              text="Edit"
-              styleName="primary"
-              filled={true}
-            />
-          </Tooltip>
+          <Link to={editApplicationURL}>
+            <Tooltip content="Edit Application" hoverOpenDelay={500}>
+              <BaseButton
+                icon="edit"
+                text="Edit"
+                styleName="primary"
+                filled={true}
+              />
+            </Tooltip>
+          </Link>
         </Control>
       </ApplicationImage>
     </Wrapper>

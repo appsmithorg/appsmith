@@ -29,21 +29,3 @@ export interface APIHeaders {
 export interface APIRequest {
   requestId?: string;
 }
-
-export const getEditorConfigs = () => {
-  if (process.env.NODE_ENV === "development") {
-    return {
-      currentPageId: "5dcab609312463000408b92b",
-      currentLayoutId: "5dcab609312463000408b92a",
-      currentPageName: "page1",
-      propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
-    };
-  } else {
-    return {
-      currentPageId: "5dcab609312463000408b92b",
-      currentLayoutId: "5dcab609312463000408b92a",
-      currentPageName: "page1",
-      propertyPaneConfigsId: "5d8a04195cf8050004db6e30",
-    };
-  }
-};

@@ -14,12 +14,14 @@ export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
 
 export const getEditorConfigs = (
   state: AppState,
-): { pageId: string; layoutId: string } => {
+): { pageId: string; layoutId: string } | undefined => {
   const { currentLayoutId, currentPageId } = state.ui.editor;
-  return {
-    pageId: currentPageId,
-    layoutId: currentLayoutId,
-  };
+  return currentLayoutId && currentPageId
+    ? {
+        pageId: currentPageId,
+        layoutId: currentLayoutId,
+      }
+    : undefined;
 };
 
 export const getDefaultWidgetConfig = (
@@ -33,11 +35,20 @@ export const getDefaultWidgetConfig = (
   return widgetConfig;
 };
 
-export const getPageLayoutId = (state: AppState, pageId: string): string => {
-  const pages = state.ui.appView.pages;
+// export const getPageLayoutId = (state: AppState, pageId: string): string => {
+//   const { pages } = state.entities.pageList;
+//   const page = pages.find(page => page.pageId === pageId);
+//   if (!page) {
+//     throw Error("Page not found");
+//   }
+//   return page.layoutId;
+// };
+
+//TODO(abhinav): The api will return a default flag in the future. use that
+// Also, check out `sagaUtils.ts` this has a getDefaultPageId. when the flag is available
+// remove that and use this.
+export const getDefaultPageId = (state: AppState, pageId?: string): string => {
+  const { pages } = state.entities.pageList;
   const page = pages.find(page => page.pageId === pageId);
-  if (!page) {
-    throw Error("Page not found");
-  }
-  return page.layoutId;
+  return page ? page.pageId : pages[0].pageId;
 };
