@@ -3,10 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "../constants/ReduxActionConstants";
-import {
-  getPropertyPaneConfigsId,
-  getCurrentPageId,
-} from "../selectors/editorSelectors";
+import { getCurrentPageId } from "../selectors/editorSelectors";
 import { fetchEditorConfigs } from "../actions/configsActions";
 import { fetchPage, fetchPageList } from "../actions/pageActions";
 import { fetchActions } from "../actions/actionActions";
@@ -15,12 +12,11 @@ import { initBindingMapListener } from "../actions/bindingActions";
 
 function* initializeEditorSaga() {
   // Step 1: Start getting all the data needed by the app
-  const propertyPaneConfigsId = yield select(getPropertyPaneConfigsId);
   const currentPageId = yield select(getCurrentPageId);
   yield all([
     put(initBindingMapListener()),
     put(fetchPageList()),
-    put(fetchEditorConfigs({ propertyPaneConfigsId })),
+    put(fetchEditorConfigs()),
     put(fetchPage(currentPageId)),
     put(fetchActions()),
     put(fetchDatasources()),

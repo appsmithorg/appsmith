@@ -1,25 +1,17 @@
 import { all, call, put, takeLatest } from "redux-saga/effects";
 import {
-  ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "../constants/ReduxActionConstants";
 
-import PropertyPaneConfigsApi, {
-  PropertyPaneConfigsResponse,
-  PropertyPaneConfigsRequest,
-} from "../api/PropertPaneConfigsApi";
-
-import { EditorConfigIdsType } from "../actions/configsActions";
+import ConfigsApi, { PropertyPaneConfigsResponse } from "../api/ConfigsApi";
 
 import { validateResponse } from "./ErrorSagas";
 
-export function* fetchPropertyPaneConfigsSaga(propertyPaneConfigsId: string) {
-  const request: PropertyPaneConfigsRequest = { propertyPaneConfigsId };
+export function* fetchPropertyPaneConfigsSaga() {
   try {
     const response: PropertyPaneConfigsResponse = yield call(
-      PropertyPaneConfigsApi.fetch,
-      request,
+      ConfigsApi.fetchPropertyPane,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -40,25 +32,12 @@ export function* fetchPropertyPaneConfigsSaga(propertyPaneConfigsId: string) {
   }
 }
 
-export function* configsSaga(configsIds: ReduxAction<EditorConfigIdsType>) {
-  const {
-    propertyPaneConfigsId,
-    widgetCardsPaneId,
-    widgetConfigsId,
-  } = configsIds.payload;
+export function* configsSaga() {
   try {
     const sagasToCall = [];
-    if (propertyPaneConfigsId) {
-      sagasToCall.push(
-        call(fetchPropertyPaneConfigsSaga, propertyPaneConfigsId),
-      );
-    }
-    if (widgetCardsPaneId) {
-      // sagasToCall.push(call(fetchWidgetCardsConfigsSaga, widgetCardsPaneId));
-    }
-    if (widgetConfigsId) {
-      // sagasToCall.push(call(fetchWidgetConfigsSaga, widgetConfigsId));
-    }
+    sagasToCall.push(call(fetchPropertyPaneConfigsSaga));
+    // sagasToCall.push(call(fetchWidgetCardsConfigsSaga, widgetCardsPaneId));
+    // sagasToCall.push(call(fetchWidgetConfigsSaga, widgetConfigsId));
     yield all(sagasToCall);
   } catch (error) {
     yield put({

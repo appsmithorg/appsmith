@@ -13,15 +13,11 @@ export interface PropertyPaneConfigsRequest {
   propertyPaneConfigsId: string;
 }
 
-class PropertyPaneConfigsApi extends Api {
-  static url = "v1/properties";
-  static fetch(
-    request: PropertyPaneConfigsRequest,
-  ): AxiosPromise<PropertyPaneConfigsResponse> {
-    return Api.get(
-      PropertyPaneConfigsApi.url + "/" + request.propertyPaneConfigsId,
-    );
+class ConfigsApi extends Api {
+  static baseURL = "v1/configs/name/";
+  static fetchPropertyPane(): AxiosPromise<PropertyPaneConfigsResponse> {
+    return Api.get(ConfigsApi.baseURL + "propertyPane");
   }
 }
 
-export default PropertyPaneConfigsApi;
+export default ConfigsApi;
