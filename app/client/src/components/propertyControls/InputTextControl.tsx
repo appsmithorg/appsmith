@@ -1,5 +1,4 @@
 import React from "react";
-import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledInputGroup } from "./StyledControls";
 import { InputType } from "../../widgets/InputWidget";

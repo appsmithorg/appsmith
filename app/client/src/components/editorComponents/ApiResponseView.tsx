@@ -9,6 +9,7 @@ import { AppState } from "../../reducers";
 import CodeEditor from "./CodeEditor";
 import { ActionResponse } from "../../api/ActionAPI";
 import { formatBytes } from "../../utils/helpers";
+import { APIEditorRouteParams } from "constants/routes";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -91,10 +92,27 @@ const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
   );
 };
 
-type Props = ReduxStateProps & RouteComponentProps<{ id: string }>;
+type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
+
+const EMPTY_RESPONSE = {
+  statusCode: "",
+  duration: "",
+  body: {},
+  headers: {},
+  size: "",
+};
 
 const ApiResponseView = (props: Props) => {
-  const response = props.responses[props.match.params.id] || {};
+  const {
+    match: {
+      params: { apiId },
+    },
+    responses,
+  } = props;
+  let response: ActionResponse = EMPTY_RESPONSE;
+  if (apiId && apiId in responses) {
+    response = responses[apiId];
+  }
   return (
     <ResponseWrapper>
       {props.isRunning && <LoadingScreen>Sending Request</LoadingScreen>}
