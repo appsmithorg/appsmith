@@ -9,7 +9,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
-  FETCH_PAGE: "FETCH_PAGE",
+  FETCH_PAGE_INIT: "FETCH_PAGE_INIT",
+  FETCH_PAGE_SUCCESS: "FETCH_PAGE_SUCCESS",
   DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",
   REMOVE_WIDGET_CANVAS: "REMOVE_WIDGET_CANVAS",
   LOAD_WIDGET_PANE: "LOAD_WIDGET_PANE",
@@ -83,10 +84,10 @@ export const ReduxActionTypes: { [key: string]: string } = {
   HIDE_PROPERTY_PANE: "HIDE_PROPERTY_PANE",
 };
 
-export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
+export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
-  INIT_EDITOR_ERROR: "INIT_EDITOR_ERROR",
+  INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
@@ -117,7 +118,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
 };
 
-export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
@@ -149,7 +150,6 @@ export interface ShowPropertyPanePayload {
 export type PageListPayload = Array<{
   pageName: string;
   pageId: string;
-  layoutId: string;
 }>;
 
 export type ApplicationPayload = {
@@ -175,3 +175,9 @@ export interface LoadWidgetSidebarPayload {
 export type SavePagePayload = {};
 export type SavePageErrorPayload = {};
 export type SavePageSuccessPayload = {};
+
+export type InitializeEditorPayload = {
+  applicationId: string;
+};
+
+export type FetchPageListPayload = InitializeEditorPayload;

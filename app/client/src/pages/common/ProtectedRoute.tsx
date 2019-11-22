@@ -10,6 +10,7 @@ const ProtectedRoute = ({
 }: {
   path: string;
   component: React.ReactType;
+  exact?: boolean;
 }) => {
   return (
     <Route

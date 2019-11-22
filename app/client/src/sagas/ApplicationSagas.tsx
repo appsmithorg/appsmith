@@ -3,15 +3,17 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
   ApplicationPayload,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import ApplicationApi, {
   PublishApplicationResponse,
   PublishApplicationRequest,
   FetchApplicationsResponse,
   CreateApplicationRequest,
   CreateApplicationResponse,
+  ApplicationResponsePayload,
   ApplicationPagePayload,
-} from "../api/ApplicationApi";
+} from "api/ApplicationApi";
+import { getDefaultPageId } from "./SagaUtils";
 import { call, put, takeLatest, all, select } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
@@ -42,19 +44,6 @@ export function* publishApplicationSaga(
   }
 }
 
-const getDefaultPageId = (
-  pages?: ApplicationPagePayload[],
-): string | undefined => {
-  let defaultPage: ApplicationPagePayload | undefined = undefined;
-  if (pages) {
-    pages.find(page => page.isDefault);
-    if (!defaultPage) {
-      defaultPage = pages[0];
-    }
-  }
-  return defaultPage ? defaultPage.id : undefined;
-};
-
 export function* fetchApplicationListSaga() {
   try {
     const response: FetchApplicationsResponse = yield call(
@@ -63,7 +52,11 @@ export function* fetchApplicationListSaga() {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const applicationListPayload: ApplicationPayload[] = response.data.map(
-        application => ({
+        (
+          application: ApplicationResponsePayload & {
+            pages: ApplicationPagePayload[];
+          },
+        ) => ({
           name: application.name,
           organizationId: application.organizationId,
           id: application.id,

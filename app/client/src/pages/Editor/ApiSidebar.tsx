@@ -4,7 +4,11 @@ import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "../../reducers";
 import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
-import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../../constants/routes";
+import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  APIEditorRouteParams,
+} from "../../constants/routes";
 import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
 import { FormIcons } from "../../icons/FormIcons";
 import { Spinner } from "@blueprintjs/core";
@@ -12,6 +16,7 @@ import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
 import { BaseTextInput } from "../../components/designSystems/appsmith/TextInputComponent";
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
 import { createActionRequest } from "../../actions/actionActions";
+import { RestAction } from "api/ActionAPI";
 import Fuse from "fuse.js";
 
 const LoadingContainer = styled.div`
@@ -134,7 +139,7 @@ interface ReduxDispatchProps {
 
 type Props = ReduxStateProps &
   ReduxDispatchProps &
-  RouteComponentProps<{ id: string }>;
+  RouteComponentProps<APIEditorRouteParams>;
 type State = {
   isCreating: boolean;
   name: string;
@@ -160,7 +165,7 @@ class ApiSidebar extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (!prevProps.match.params.id && this.props.match.params.id) {
+    if (!prevProps.match.params.apiId && this.props.match.params.apiId) {
       this.setState({
         isCreating: false,
         name: "",
@@ -170,7 +175,9 @@ class ApiSidebar extends React.Component<Props, State> {
 
   handleCreateNew = () => {
     const { history } = this.props;
-    history.push(API_EDITOR_URL);
+    const { pageId, applicationId } = this.props.match.params;
+
+    history.push(API_EDITOR_URL(applicationId, pageId));
     this.setState({
       isCreating: true,
       name: "",
@@ -202,6 +209,7 @@ class ApiSidebar extends React.Component<Props, State> {
   };
 
   render() {
+    const { applicationId, pageId } = this.props.match.params;
     const {
       apiPane,
       history,
@@ -209,9 +217,9 @@ class ApiSidebar extends React.Component<Props, State> {
       actions: { data },
     } = this.props;
     const { isCreating, search, name } = this.state;
-    const activeActionId = match.params.id;
+    const activeActionId = match.params.apiId;
     const fuse = new Fuse(data, fuseOptions);
-    const actions = search ? fuse.search(search) : data;
+    const actions: RestAction[] = search ? fuse.search(search) : data;
     return (
       <React.Fragment>
         {apiPane.isFetching ? (
@@ -232,7 +240,11 @@ class ApiSidebar extends React.Component<Props, State> {
               {actions.map(action => (
                 <ApiItem
                   key={action.id}
-                  onClick={() => history.push(API_EDITOR_ID_URL(action.id))}
+                  onClick={() =>
+                    history.push(
+                      API_EDITOR_ID_URL(applicationId, pageId, action.id),
+                    )
+                  }
                   isSelected={activeActionId === action.id}
                 >
                   {action.actionConfiguration ? (
@@ -291,7 +303,4 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   createAction: (name: string) => dispatch(createActionRequest({ name })),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ApiSidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(ApiSidebar);

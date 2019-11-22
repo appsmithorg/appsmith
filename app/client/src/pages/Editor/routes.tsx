@@ -9,7 +9,10 @@ import ApiEditor from "./ApiEditor";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
-  BUILDER_URL,
+  BUILDER_PAGE_URL,
+  BUILDER_BASE_URL,
+  BuilderRouteParams,
+  APIEditorRouteParams,
 } from "../../constants/routes";
 import styled from "styled-components";
 
@@ -39,27 +42,39 @@ interface RouterState {
   isVisible: boolean;
 }
 
-class EditorsRouter extends React.Component<RouteComponentProps, RouterState> {
-  constructor(props: RouteComponentProps) {
+class EditorsRouter extends React.Component<
+  RouteComponentProps<BuilderRouteParams>,
+  RouterState
+> {
+  constructor(props: RouteComponentProps<APIEditorRouteParams>) {
     super(props);
+    const { applicationId, pageId } = this.props.match.params;
     this.state = {
-      isVisible: this.props.location.pathname !== BUILDER_URL,
+      isVisible:
+        this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
+        this.props.location.pathname !==
+          BUILDER_PAGE_URL(applicationId, pageId),
     };
   }
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
+      const { applicationId, pageId } = this.props.match.params;
       this.setState({
-        isVisible: this.props.location.pathname !== BUILDER_URL,
+        isVisible:
+          this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
+          this.props.location.pathname !==
+            BUILDER_PAGE_URL(applicationId, pageId),
       });
     }
   }
 
   handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const { applicationId, pageId } = this.props.match.params;
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(BUILDER_URL);
+    this.props.history.replace(BUILDER_PAGE_URL(applicationId, pageId));
   };
 
   preventClose = (e: React.MouseEvent) => {
@@ -74,8 +89,8 @@ class EditorsRouter extends React.Component<RouteComponentProps, RouterState> {
           onClick={this.preventClose}
         >
           <Switch>
-            <Route exact path={API_EDITOR_URL} component={ApiEditor} />
-            <Route path={API_EDITOR_ID_URL()} component={ApiEditor} />
+            <Route exact path={API_EDITOR_URL()} component={ApiEditor} />
+            <Route exact path={API_EDITOR_ID_URL()} component={ApiEditor} />
           </Switch>
         </DrawerWrapper>
       </Wrapper>

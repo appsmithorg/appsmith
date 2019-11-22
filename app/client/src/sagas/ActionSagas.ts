@@ -237,9 +237,7 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
 
 export function* fetchActionsSaga() {
   try {
-    const response: GenericApiResponse<
-      RestAction[]
-    > = yield ActionAPI.fetchActions();
+    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions();
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -281,9 +279,9 @@ export function* updateActionSaga(
 export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     const id = actionPayload.payload.id;
-    const response: GenericApiResponse<
-      RestAction
-    > = yield ActionAPI.deleteAction(id);
+    const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
+      id,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AppToaster.show({

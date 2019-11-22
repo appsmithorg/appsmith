@@ -9,16 +9,14 @@ import {
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
+  loading: false,
   pages: [],
   pageWidgetId: "0",
 };
 
 const appViewReducer = createReducer(initialState, {
-  [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
-    state: AppViewReduxState,
-    action: ReduxAction<PageListPayload>,
-  ) => {
-    return { ...state, pages: action.payload };
+  [ReduxActionTypes.INITIALIZE_PAGE_VIEWER]: (state: AppViewReduxState) => {
+    return { ...state, loading: true };
   },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT]: (state: AppViewReduxState) => {
     return { ...state, dsl: undefined, isFetchingPage: true };
@@ -30,16 +28,13 @@ const appViewReducer = createReducer(initialState, {
     state: AppViewReduxState,
     action: ReduxAction<{
       pageId: string;
-      layoutId: string;
       dsl: ContainerWidgetProps<WidgetProps>;
       pageWidgetId: string;
     }>,
   ) => {
     return {
-      pages: state.pages,
       dsl: action.payload.dsl,
       currentPageId: action.payload.pageId,
-      currentLayoutId: action.payload.layoutId,
       isFetchingPage: false,
       pageWidgetId: action.payload.pageWidgetId,
     };
@@ -50,6 +45,7 @@ export interface AppViewReduxState {
   dsl?: ContainerWidgetProps<WidgetProps>;
   isFetchingPage: boolean;
   currentPageId?: string;
+  loading: boolean;
   currentLayoutId?: string;
   pages: PageListPayload;
   pageWidgetId: string;

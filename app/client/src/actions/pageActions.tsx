@@ -7,19 +7,32 @@ import {
   UpdateCanvasPayload,
   SavePagePayload,
   SavePageSuccessPayload,
+  FetchPageListPayload,
 } from "../constants/ReduxActionConstants";
 import { ContainerWidgetProps } from "../widgets/ContainerWidget";
 
-export const fetchPageList = () => ({
-  type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
-});
+export const fetchPageList = (
+  applicationId: string,
+): ReduxAction<FetchPageListPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};
 
 export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
-    type: ReduxActionTypes.FETCH_PAGE,
+    type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       pageId: pageId,
     },
+  };
+};
+export const fetchPageSuccess = () => {
+  return {
+    type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
   };
 };
 

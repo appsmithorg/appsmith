@@ -1,8 +1,14 @@
 import {
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
-} from "../constants/ReduxActionConstants";
+  ReduxAction,
+  InitializeEditorPayload,
+} from "constants/ReduxActionConstants";
 
-export const initEditor = (): ReduxActionWithoutPayload => ({
+export const initEditor = (
+  applicationId: string,
+): ReduxAction<InitializeEditorPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
+  payload: {
+    applicationId,
+  },
 });

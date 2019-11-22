@@ -15,9 +15,7 @@ import { validateResponse } from "./ErrorSagas";
 
 function* fetchDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<
-      Datasource[]
-    > = yield DatasourcesApi.fetchDatasources();
+    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources();
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -37,9 +35,9 @@ function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    const response: GenericApiResponse<
-      Datasource
-    > = yield DatasourcesApi.createDatasource(actionPayload.payload);
+    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+      actionPayload.payload,
+    );
     if (response.responseMeta.success) {
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,

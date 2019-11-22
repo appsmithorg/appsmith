@@ -38,7 +38,7 @@ ContainerComponent.defaultProps = {
   backgroundColor: "white",
 };
 
-type ContainerStyle = "border" | "card" | "rounded-border" | "none";
+export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
 export interface ContainerComponentProps extends ComponentProps {
   containerStyle?: ContainerStyle;

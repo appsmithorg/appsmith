@@ -29,6 +29,7 @@ type ContextDropdownProps = {
   toggle: {
     type: "icon" | "button";
     icon?: ControlIconName;
+    iconSize?: number;
     text?: string;
     placeholder?: string;
   };
@@ -37,7 +38,10 @@ type ContextDropdownProps = {
 export const ContextDropdown = (props: ContextDropdownProps) => {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon)
-    trigger = ControlIcons[props.toggle.icon]();
+    trigger = ControlIcons[props.toggle.icon]({
+      width: props.toggle.iconSize,
+      height: props.toggle.iconSize,
+    });
   if (props.toggle.type === "button" && props.toggle.text)
     trigger = <Button text={props.toggle.text} />;
 
