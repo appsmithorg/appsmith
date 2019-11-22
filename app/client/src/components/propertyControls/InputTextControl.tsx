@@ -36,10 +36,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
   }
 
   onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value: string | number = event.target.value;
-    if (this.isNumberType()) {
-      value = _.toNumber(value);
-    }
+    const value: string = event.target.value;
     this.updateProperty(this.props.propertyName, value);
   };
 

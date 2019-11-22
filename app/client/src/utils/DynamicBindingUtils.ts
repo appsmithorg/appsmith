@@ -78,7 +78,7 @@ export const getDynamicValue = (
 export const enhanceWithDynamicValuesAndValidations = (
   widget: WidgetProps,
   entities: DataTree,
-  safeValues: boolean,
+  replaceWithParsed: boolean,
 ): WidgetProps => {
   if (!widget) return widget;
   const properties = { ...widget };
@@ -86,19 +86,19 @@ export const enhanceWithDynamicValuesAndValidations = (
   Object.keys(widget).forEach((property: string) => {
     let value = widget[property];
     // Check for dynamic bindings
-    if (isDynamicValue(value)) {
+    if (widget.dynamicBindings && property in widget.dynamicBindings) {
       value = getDynamicValue(value, entities);
     }
-    const isValid = ValidationFactory.validateWidgetProperty(
+    // Pass it through validation and parse
+    const { isValid, parsed } = ValidationFactory.validateWidgetProperty(
       widget.type,
       property,
       value,
     );
-    if (!isValid) {
-      if (safeValues) value = undefined;
-      invalidProps[property] = true;
-    }
-    if (safeValues) properties[property] = value;
+    // Store all invalid props
+    if (!isValid) invalidProps[property] = true;
+    // Replace if flag is turned on
+    if (replaceWithParsed) properties[property] = parsed;
   });
   return { ...properties, invalidProps };
 };
