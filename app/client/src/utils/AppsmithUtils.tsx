@@ -45,6 +45,8 @@ export const appInitializer = () => {
     case "STAGING":
       Sentry.init(SENTRY_STAGE_CONFIG);
       break;
+    case "DEVELOPMENT":
+      break;
     case "LOCAL":
       break;
   }
