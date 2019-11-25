@@ -1,15 +1,16 @@
 import _ from "lodash";
 import axios from "axios";
+import { getAppsmithConfigs } from "configs";
 import {
-  BASE_URL,
   REQUEST_TIMEOUT_MS,
   REQUEST_HEADERS,
   AUTH_CREDENTIALS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
+const { apiUrl } = getAppsmithConfigs();
 
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
+  baseURL: apiUrl,
   timeout: REQUEST_TIMEOUT_MS,
   headers: REQUEST_HEADERS,
   withCredentials: true,
