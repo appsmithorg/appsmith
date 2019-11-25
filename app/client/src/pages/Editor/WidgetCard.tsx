@@ -1,9 +1,9 @@
 import React from "react";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
-import blankImage from "../../assets/images/blank.png";
-import { WidgetCardProps } from "../../widgets/BaseWidget";
+import blankImage from "assets/images/blank.png";
+import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { WidgetIcons } from "../../icons/WidgetIcons";
+import { WidgetIcons } from "icons/WidgetIcons";
 
 type CardProps = {
   details: WidgetCardProps;

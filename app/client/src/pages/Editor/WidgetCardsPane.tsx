@@ -1,8 +1,8 @@
 import React from "react";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "../../widgets/BaseWidget";
-import PaneWrapper from "../common/PaneWrapper";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import PaneWrapper from "pages/common/PaneWrapper";
 
 type WidgetCardPaneProps = {
   cards?: { [id: string]: WidgetCardProps[] };

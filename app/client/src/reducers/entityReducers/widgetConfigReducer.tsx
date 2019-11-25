@@ -1,17 +1,14 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import WidgetConfigResponse from "../../mockResponses/WidgetConfigResponse";
-import { ButtonWidgetProps } from "../../widgets/ButtonWidget";
-import { TextWidgetProps } from "../../widgets/TextWidget";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { ImageWidgetProps } from "../../widgets/ImageWidget";
-import { InputWidgetProps } from "../../widgets/InputWidget";
-import { SwitchWidgetProps } from "../../widgets/SwitchWidget";
-import { SpinnerWidgetProps } from "../../widgets/SpinnerWidget";
+import { createReducer } from "utils/AppsmithUtils";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { ButtonWidgetProps } from "widgets/ButtonWidget";
+import { TextWidgetProps } from "widgets/TextWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ImageWidgetProps } from "widgets/ImageWidget";
+import { InputWidgetProps } from "widgets/InputWidget";
+import { SwitchWidgetProps } from "widgets/SwitchWidget";
+import { SpinnerWidgetProps } from "widgets/SpinnerWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
 import { TableWidgetProps } from "../../widgets/TableWidget";
 import { DropdownWidgetProps } from "../../widgets/DropdownWidget";

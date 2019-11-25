@@ -1,8 +1,8 @@
 import Api from "./Api";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { PageAction } from "../constants/ActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { PageAction } from "constants/ActionConstants";
 import { AxiosPromise } from "axios";
 
 export interface FetchPageRequest {
@@ -11,7 +11,6 @@ export interface FetchPageRequest {
 
 export interface FetchPublishedPageRequest {
   pageId: string;
-  layoutId: string;
 }
 
 export interface SavePageRequest {
@@ -70,8 +69,8 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
-  static getPublishedPageURL = (pageId: string, layoutId: string) => {
-    return `v1/layouts/${layoutId}/pages/${pageId}/view`;
+  static getPublishedPageURL = (pageId: string) => {
+    return `v1/pages/${pageId}/view`;
   };
 
   static fetchPage(
@@ -97,9 +96,7 @@ class PageApi extends Api {
   static fetchPublishedPage(
     pageRequest: FetchPublishedPageRequest,
   ): AxiosPromise<FetchPublishedPageResponse> {
-    return Api.get(
-      PageApi.getPublishedPageURL(pageRequest.pageId, pageRequest.layoutId),
-    );
+    return Api.get(PageApi.getPublishedPageURL(pageRequest.pageId));
   }
 
   static createPage(
@@ -108,8 +105,10 @@ class PageApi extends Api {
     return Api.post(PageApi.url, createPageRequest);
   }
 
-  static fetchPageList(): AxiosPromise<FetchPageListResponse> {
-    return Api.get(PageApi.url);
+  static fetchPageList(
+    applicationId: string,
+  ): AxiosPromise<FetchPageListResponse> {
+    return Api.get(PageApi.url + "/application/" + applicationId);
   }
 }
 

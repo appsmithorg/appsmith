@@ -1,5 +1,5 @@
-import { AlertType, MessageIntent } from "../widgets/AlertWidget";
-import { DropdownOption } from "../widgets/DropdownWidget";
+import { AlertType, MessageIntent } from "widgets/AlertWidget";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 export type EventType =
   | "ON_CLICK"

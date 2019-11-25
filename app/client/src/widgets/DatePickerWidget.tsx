@@ -1,10 +1,25 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import { ActionPayload } from "../constants/ActionConstants";
-import DatePickerComponent from "../components/designSystems/blueprint/DatePickerComponent";
+import { WidgetType } from "constants/WidgetConstants";
+import { ActionPayload } from "constants/ActionConstants";
+import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      defaultDate: VALIDATION_TYPES.DATE,
+      selectedDate: VALIDATION_TYPES.DATE,
+      timezone: VALIDATION_TYPES.TEXT,
+      enableTimePicker: VALIDATION_TYPES.BOOLEAN,
+      dateFormat: VALIDATION_TYPES.TEXT,
+      label: VALIDATION_TYPES.TEXT,
+      datePickerType: VALIDATION_TYPES.TEXT,
+      maxDate: VALIDATION_TYPES.DATE,
+      minDate: VALIDATION_TYPES.DATE,
+    };
+  }
   getPageView() {
     return (
       <DatePickerComponent

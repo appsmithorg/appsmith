@@ -1,19 +1,19 @@
 import React from "react";
-import { IconProps, IconWrapper } from "../constants/IconConstants";
-import { ReactComponent as SpinnerIcon } from "../assets/icons/widget/alert.svg";
-import { ReactComponent as ButtonIcon } from "../assets/icons/widget/button.svg";
-import { ReactComponent as CollapseIcon } from "../assets/icons/widget/collapse.svg";
-import { ReactComponent as ContainerIcon } from "../assets/icons/widget/container.svg";
-import { ReactComponent as DatePickerIcon } from "../assets/icons/widget/datepicker.svg";
-import { ReactComponent as TableIcon } from "../assets/icons/widget/table.svg";
-import { ReactComponent as DropDownIcon } from "../assets/icons/widget/dropdown.svg";
-import { ReactComponent as CheckboxIcon } from "../assets/icons/widget/checkbox.svg";
-import { ReactComponent as RadioGroupIcon } from "../assets/icons/widget/radio.svg";
-import { ReactComponent as InputIcon } from "../assets/icons/widget/input.svg";
-import { ReactComponent as SwitchIcon } from "../assets/icons/widget/switch.svg";
-import { ReactComponent as TextIcon } from "../assets/icons/widget/text.svg";
-import { ReactComponent as ImageIcon } from "../assets/icons/widget/image.svg";
-import { ReactComponent as FilePickerIcon } from "../assets/icons/widget/filepicker.svg";
+import { IconProps, IconWrapper } from "constants/IconConstants";
+import { ReactComponent as SpinnerIcon } from "assets/icons/widget/alert.svg";
+import { ReactComponent as ButtonIcon } from "assets/icons/widget/button.svg";
+import { ReactComponent as CollapseIcon } from "assets/icons/widget/collapse.svg";
+import { ReactComponent as ContainerIcon } from "assets/icons/widget/container.svg";
+import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker.svg";
+import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
+import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
+import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
+import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
+import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
+import { ReactComponent as SwitchIcon } from "assets/icons/widget/switch.svg";
+import { ReactComponent as TextIcon } from "assets/icons/widget/text.svg";
+import { ReactComponent as ImageIcon } from "assets/icons/widget/image.svg";
+import { ReactComponent as FilePickerIcon } from "assets/icons/widget/filepicker.svg";
 
 /* eslint-disable react/display-name */
 
@@ -92,4 +92,4 @@ export const WidgetIcons: {
   ),
 };
 
-export type WidgetIcon = (typeof WidgetIcons)[keyof typeof WidgetIcons];
+export type WidgetIcon = typeof WidgetIcons[keyof typeof WidgetIcons];

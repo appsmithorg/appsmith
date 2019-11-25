@@ -5,7 +5,7 @@ import {
   REQUEST_TIMEOUT_MS,
   REQUEST_HEADERS,
   AUTH_CREDENTIALS,
-} from "../constants/ApiConstants";
+} from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 
 const axiosInstance = axios.create({

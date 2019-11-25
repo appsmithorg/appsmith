@@ -1,8 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import { ControlWrapper } from "./StyledControls";
-import CodeEditor from "../editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     return (

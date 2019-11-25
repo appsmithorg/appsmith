@@ -1,14 +1,16 @@
 import React from "react";
 import _ from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import { ActionPayload } from "constants/ActionConstants";
 import { AutoResizer } from "react-base-table";
 import "react-base-table/styles.css";
 import { forIn } from "lodash";
 import SelectableTable, {
   Column,
-} from "../components/designSystems/appsmith/TableComponent";
+} from "components/designSystems/appsmith/TableComponent";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 
 function constructColumns(data: object[]): Column[] {
   const cols: Column[] = [];
@@ -27,24 +29,20 @@ function constructColumns(data: object[]): Column[] {
   return cols;
 }
 
-function getTableArrayData(tableData: string | object[] | undefined): object[] {
-  try {
-    if (!tableData) return [];
-    if (_.isString(tableData)) {
-      return JSON.parse(tableData);
-    }
-    return tableData;
-  } catch (error) {
-    console.error({ error });
-    return [];
-  }
-}
-
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      tableData: VALIDATION_TYPES.TABLE_DATA,
+      nextPageKey: VALIDATION_TYPES.TEXT,
+      prevPageKey: VALIDATION_TYPES.TEXT,
+      label: VALIDATION_TYPES.TEXT,
+      selectedRow: VALIDATION_TYPES.OBJECT,
+    };
+  }
+
   getPageView() {
     const { tableData } = this.props;
-    const data = getTableArrayData(tableData);
-    const columns = constructColumns(data);
+    const columns = constructColumns(tableData);
     return (
       <AutoResizer>
         {({ width, height }: { width: number; height: number }) => (
@@ -52,23 +50,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             width={width}
             height={height}
             columns={columns}
-            data={data}
+            data={tableData}
             maxHeight={height}
+            isLoading={this.props.isLoading}
             selectedRowIndex={
               this.props.selectedRow && this.props.selectedRow.rowIndex
             }
             onRowClick={(rowData: object, index: number) => {
-              const { widgetId, onRowSelected } = this.props;
-              super.updateWidgetProperty(widgetId, "selectedRow", {
-                ...rowData,
-                rowIndex: index,
-              });
+              const { onRowSelected } = this.props;
+              this.updateSelectedRowProperty(rowData, index);
               super.executeAction(onRowSelected);
             }}
           />
         )}
       </AutoResizer>
     );
+  }
+  componentDidUpdate(prevProps: TableWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      !_.isEqual(prevProps.tableData, this.props.tableData) &&
+      prevProps.selectedRow
+    ) {
+      this.updateSelectedRowProperty(
+        this.props.tableData[prevProps.selectedRow.rowIndex],
+        prevProps.selectedRow.rowIndex,
+      );
+    }
+  }
+
+  updateSelectedRowProperty(rowData: object, index: number) {
+    const { widgetId } = this.props;
+    this.updateWidgetProperty(widgetId, "selectedRow", {
+      ...rowData,
+      rowIndex: index,
+    });
   }
 
   getWidgetType(): WidgetType {
@@ -82,19 +98,20 @@ export interface TableAction extends ActionPayload {
   actionName: string;
 }
 
-interface RowData {
+type RowData = {
   rowIndex: number;
-}
+};
+type SelectedRow = object & RowData;
 
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  tableData?: object[];
+  tableData: object[];
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  selectedRow?: object & RowData;
+  selectedRow?: SelectedRow;
 }
 
 export default TableWidget;

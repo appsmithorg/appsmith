@@ -3,7 +3,7 @@ import { Field, BaseFieldProps } from "redux-form";
 import {
   BaseTextInput,
   TextInputProps,
-} from "../../designSystems/appsmith/TextInputComponent";
+} from "components/designSystems/appsmith/TextInputComponent";
 
 class TextField extends React.Component<BaseFieldProps & TextInputProps> {
   render() {

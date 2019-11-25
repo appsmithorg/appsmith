@@ -4,7 +4,7 @@ export const Colors: Record<string, string> = {
   POLAR: "#E9FAF3",
   GEYSER: "#D3DEE3",
   GEYSER_LIGHT: "#D0D7DD",
-  ATHENS_GRAY: "#FAFBFC",
+  ATHENS_GRAY: "#EBEFF2",
   CONCRETE: "#F3F3F3",
   MYSTIC: "#E1E8ED",
   AQUA_HAZE: "#EEF2F5",
@@ -33,4 +33,4 @@ export const Colors: Record<string, string> = {
   CADET_BLUE: "#A3B3BF",
 };
 
-export type Color = (typeof Colors)[keyof typeof Colors];
+export type Color = typeof Colors[keyof typeof Colors];

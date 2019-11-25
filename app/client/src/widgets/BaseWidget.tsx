@@ -8,7 +8,7 @@ import {
   RenderMode,
   RenderModes,
   CSSUnits,
-} from "../constants/WidgetConstants";
+} from "constants/WidgetConstants";
 import React, { Component } from "react";
 import { PositionType, CSSUnit } from "constants/WidgetConstants";
 import _ from "lodash";
@@ -20,6 +20,9 @@ import WidgetNameComponent from "components/designSystems/appsmith/WidgetNameCom
 import shallowequal from "shallowequal";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
+
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 /***
  * BaseWidget
  *
@@ -48,6 +51,12 @@ abstract class BaseWidget<
   }
 
   static contextType = EditorContext;
+
+  // Needed to send a default no validation option. In case a widget needs
+  // validation implement this in the widget class again
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {};
+  }
 
   /**
    *  Widget abstraction to register the widget type
@@ -169,7 +178,7 @@ abstract class BaseWidget<
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    return this.getPageView();
+    return <ErrorBoundary>{this.getPageView()}</ErrorBoundary>;
   }
 
   shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
@@ -223,7 +232,9 @@ export interface WidgetBuilder<T extends WidgetProps> {
 export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
-  dynamicBindings?: Record<string, string>;
+  dynamicBindings?: Record<string, boolean>;
+  isLoading: boolean;
+  invalidProps?: Record<string, boolean>;
   [key: string]: any;
 }
 
@@ -238,6 +249,7 @@ export interface WidgetDataProps {
   parentColumnSpace: number;
   parentRowSpace: number;
   isVisible?: boolean;
+  isLoading: boolean;
   isDisabled?: boolean;
   parentId?: string;
   backgroundColor?: string;
@@ -266,6 +278,6 @@ export const WidgetOperations = {
   DELETE: "DELETE",
 };
 
-export type WidgetOperation = (typeof WidgetOperations)[keyof typeof WidgetOperations];
+export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default BaseWidget;

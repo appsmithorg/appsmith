@@ -1,15 +1,16 @@
-import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
+import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
 import { RefObject } from "react";
 
 export const ReduxActionTypes: { [key: string]: string } = {
-  INIT_EDITOR: "INIT_EDITOR",
-  INIT_SUCCESS: "INIT_SUCCESS",
+  INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
+  INITIALIZE_EDITOR_SUCCESS: "INITIALIZE_EDITOR_SUCCESS",
   REPORT_ERROR: "REPORT_ERROR",
   FLUSH_ERRORS: "FLUSH_ERRORS",
   UPDATE_CANVAS: "UPDATE_CANVAS",
   FETCH_CANVAS: "FETCH_CANVAS",
   CLEAR_CANVAS: "CLEAR_CANVAS",
-  FETCH_PAGE: "FETCH_PAGE",
+  FETCH_PAGE_INIT: "FETCH_PAGE_INIT",
+  FETCH_PAGE_SUCCESS: "FETCH_PAGE_SUCCESS",
   DROP_WIDGET_CANVAS: "DROP_WIDGET_CANVAS",
   REMOVE_WIDGET_CANVAS: "REMOVE_WIDGET_CANVAS",
   LOAD_WIDGET_PANE: "LOAD_WIDGET_PANE",
@@ -26,6 +27,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   REMOVE_PAGE_WIDGET: "REMOVE_PAGE_WIDGET",
   LOAD_API_RESPONSE: "LOAD_API_RESPONSE",
   LOAD_QUERY_RESPONSE: "LOAD_QUERY_RESPONSE",
+  RUN_API_REQUEST: "RUN_API_REQUEST",
+  RUN_API_SUCCESS: "RUN_API_SUCCESS",
   EXECUTE_ACTION: "EXECUTE_ACTION",
   EXECUTE_ACTION_SUCCESS: "EXECUTE_ACTION_SUCCESS",
   EXECUTE_ACTION_ERROR: "EXECUTE_ACTION_ERROR",
@@ -38,6 +41,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   WIDGET_MOVE: "WIDGET_MOVE",
   WIDGET_RESIZE: "WIDGET_RESIZE",
   WIDGET_DELETE: "WIDGET_DELETE",
+  WIDGETS_LOADING: "WIDGETS_LOADING",
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
   UPDATE_WIDGET_PROPERTY_REQUEST: "UPDATE_WIDGET_PROPERTY_REQUEST",
   UPDATE_WIDGET_PROPERTY: "UPDATE_WIDGET_PROPERTY",
@@ -54,7 +58,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ACTION_SUCCESS: "UPDATE_ACTION_SUCCESS",
   DELETE_ACTION_INIT: "DELETE_ACTION_INIT",
   DELETE_ACTION_SUCCESS: "DELETE_ACTION_SUCCESS",
-  DRY_RUN_ACTION: "DRY_RUN_ACTION",
   FETCH_DATASOURCES_INIT: "FETCH_DATASOURCES_INIT",
   FETCH_DATASOURCES_SUCCESS: "FETCH_DATASOURCES_SUCCESS",
   CREATE_DATASOURCE_INIT: "CREATE_DATASOURCE_INIT",
@@ -72,16 +75,19 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_APPLICATION_LIST_SUCCESS: "FETCH_APPLICATION_LIST_SUCCESS",
   CREATE_APPLICATION_INIT: "CREATE_APPLICATION_INIT",
   CREATE_APPLICATION_SUCCESS: "CREATE_APPLICATION_SUCCESS",
-  CREATE_UPDATE_BINDINGS_MAP_INIT: "CREATE_UPDATE_BINDINGS_MAP_INIT",
+  CREATE_UPDATE_BINDINGS_MAP_LISTENER_INIT:
+    "CREATE_UPDATE_BINDINGS_MAP_LISTENER_INIT",
   CREATE_UPDATE_BINDINGS_MAP_SUCCESS: "CREATE_UPDATE_BINDINGS_MAP_SUCCESS",
+  CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS:
+    "CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS",
   UPDATE_WIDGET_PROPERTY_VALIDATION: "UPDATE_WIDGET_PROPERTY_VALIDATION",
   HIDE_PROPERTY_PANE: "HIDE_PROPERTY_PANE",
 };
 
-export type ReduxActionType = (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
+export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes: { [key: string]: string } = {
-  INIT_EDITOR_ERROR: "INIT_EDITOR_ERROR",
+  INITIALIZE_EDITOR_ERROR: "INITIALIZE_EDITOR_ERROR",
   API_ERROR: "API_ERROR",
   WIDGET_DELETE_ERROR: "WIDGET_DELETE_ERROR",
   WIDGET_MOVE_ERROR: "WIDGET_MOVE_ERROR",
@@ -100,6 +106,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_ACTION_ERROR: "CREATE_ACTION_ERROR",
   UPDATE_ACTION_ERROR: "UPDATE_ACTION_ERROR",
   DELETE_ACTION_ERROR: "DELETE_ACTION_ERROR",
+  RUN_API_ERROR: "RUN_API_ERROR",
   EXECUTE_ACTION_ERROR: "EXECUTE_ACTION_ERROR",
   FETCH_DATASOURCES_ERROR: "FETCH_DATASOURCES_ERROR",
   CREATE_DATASOURCE_ERROR: "CREATE_DATASOURCE_ERROR",
@@ -111,7 +118,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
 };
 
-export type ReduxActionErrorType = (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
+export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
@@ -143,7 +150,6 @@ export interface ShowPropertyPanePayload {
 export type PageListPayload = Array<{
   pageName: string;
   pageId: string;
-  layoutId: string;
 }>;
 
 export type ApplicationPayload = {
@@ -169,3 +175,9 @@ export interface LoadWidgetSidebarPayload {
 export type SavePagePayload = {};
 export type SavePageErrorPayload = {};
 export type SavePageSuccessPayload = {};
+
+export type InitializeEditorPayload = {
+  applicationId: string;
+};
+
+export type FetchPageListPayload = InitializeEditorPayload;

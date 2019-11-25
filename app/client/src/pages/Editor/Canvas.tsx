@@ -4,7 +4,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
-import ArtBoard from "../common/ArtBoard";
+import ArtBoard from "pages/common/ArtBoard";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;

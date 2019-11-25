@@ -1,9 +1,5 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../constants/ReduxActionConstants";
-import { RenderMode } from "../constants/WidgetConstants";
-import { ErrorCode } from "../constants/validationErrorCodes";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { RenderMode } from "constants/WidgetConstants";
 
 export const updateWidgetProperty = (
   widgetId: string,
@@ -22,28 +18,10 @@ export const updateWidgetProperty = (
   };
 };
 
-export const updateWidgetPropertyValidation = (
-  widgetId: string,
-  propertyName: string,
-  errorCode: ErrorCode,
-): ReduxAction<UpdateWidgetPropertyValidation> => ({
-  type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_VALIDATION,
-  payload: {
-    widgetId,
-    propertyName,
-    errorCode,
-  },
-});
-
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
   propertyName: string;
   propertyValue: any;
   renderMode: RenderMode;
-}
-
-export interface UpdateWidgetPropertyValidation {
-  widgetId: string;
-  propertyName: string;
-  errorCode: ErrorCode;
+  dynamicBindings?: Record<string, boolean>;
 }

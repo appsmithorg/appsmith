@@ -1,11 +1,9 @@
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "../constants/ReduxActionConstants";
-import WidgetSidebarApi, {
-  WidgetSidebarResponse,
-} from "../api/WidgetSidebarApi";
-import { successFetchingWidgetCards } from "../actions/widgetSidebarActions";
+} from "constants/ReduxActionConstants";
+import WidgetSidebarApi, { WidgetSidebarResponse } from "api/WidgetSidebarApi";
+import { successFetchingWidgetCards } from "actions/widgetSidebarActions";
 import { call, put, takeLatest, all } from "redux-saga/effects";
 
 export function* fetchWidgetCards() {

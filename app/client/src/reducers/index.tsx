@@ -16,6 +16,7 @@ import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { BindingsDataState } from "./entityReducers/bindingsReducer";
+import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 
 const appReducer = combineReducers({
@@ -45,6 +46,7 @@ export interface AppState {
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;
     nameBindings: BindingsDataState;
+    pageList: PageListReduxState;
   };
 }
 

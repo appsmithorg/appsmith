@@ -1,17 +1,25 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Menu, MenuItem, IconName, Button, Icon } from "@blueprintjs/core";
+import {
+  Menu,
+  MenuItem,
+  IconName,
+  Button,
+  Icon,
+  Classes,
+} from "@blueprintjs/core";
+import { Link } from "react-router-dom";
 
 export type SideNavItem = {
   id: string;
   icon?: string;
   text: string;
+  path: string;
 };
 
 type SideNavProps = {
-  items: SideNavItem[];
-  active?: SideNavItem;
-  onSelect: Function;
+  items?: SideNavItem[];
+  active?: string;
   headeroffset?: number;
   iconSize?: number;
 };
@@ -44,6 +52,7 @@ const SideNavWrapper = styled.div<{
           flex-grow: 0;
           display: inline;
           width: ${props => (props.open ? 100 : 0)}px;
+          color: ${props => props.theme.sideNav.fontColor};
         }
         & > span {
           margin-right: ${props => (props.open ? props.theme.spaces[3] : 0)}px;
@@ -70,23 +79,29 @@ const ToggleButton = styled(Button)<{
 
 export const SideNav = (props: SideNavProps) => {
   const [open, setopen] = useState(true);
-  const select = (item: SideNavItem) => () => {
-    props.onSelect(item);
-  };
-  const renderItems = (items: SideNavItem[]) => {
+  const renderItems = (sideNavItems?: SideNavItem[]) => {
+    let items = sideNavItems;
+    if (!items) {
+      items = [
+        { id: "0", text: "", path: "" },
+        { id: "1", text: "", path: "" },
+        { id: "2", text: "", path: "" },
+      ];
+    }
     return items.map(item => {
       const icon = (
         <Icon iconSize={props.iconSize} icon={item.icon as IconName} />
       );
       return (
-        <MenuItem
-          icon={icon}
-          active={props.active && item.id === props.active.id}
-          key={item.id}
-          onClick={select(item)}
-          text={open ? item.text : undefined}
-          tagName="div"
-        />
+        <Link to={item.path} key={item.id}>
+          <MenuItem
+            className={!sideNavItems ? Classes.SKELETON : undefined}
+            icon={icon}
+            active={props.active === item.id}
+            text={open ? item.text : undefined}
+            tagName="div"
+          />
+        </Link>
       );
     });
   };

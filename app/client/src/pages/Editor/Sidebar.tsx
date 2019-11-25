@@ -1,8 +1,9 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import SidebarComponent from "../../components/editorComponents/Sidebar";
-import NavBarItem from "../../components/editorComponents/NavBarItem";
-import { EDITOR_ROUTES } from "../../constants/routes";
+import SidebarComponent from "components/editorComponents/Sidebar";
+import NavBarItem from "components/editorComponents/NavBarItem";
+import { EDITOR_ROUTES, BuilderRouteParams } from "constants/routes";
 
 const Wrapper = styled.div`
   display: grid;
@@ -23,11 +24,16 @@ const EditorSidebar = styled(SidebarComponent)`
 `;
 
 const Sidebar = () => {
+  const params = useParams<BuilderRouteParams>();
   return (
     <Wrapper>
       <NavBar>
         {EDITOR_ROUTES.map(config => (
-          <NavBarItem key={config.path} {...config} />
+          <NavBarItem
+            key={config.title}
+            {...config}
+            path={config.path(params.applicationId, params.pageId)}
+          />
         ))}
       </NavBar>
       <EditorSidebar />

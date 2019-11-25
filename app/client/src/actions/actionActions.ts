@@ -1,6 +1,6 @@
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
-import { RestAction } from "../api/ActionAPI";
-import { ActionPayload } from "../constants/ActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { RestAction } from "api/ActionAPI";
+import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
@@ -22,10 +22,9 @@ export const fetchActions = () => {
   };
 };
 
-export const executeAction = (payload: ActionPayload[]) => {
+export const runApiAction = () => {
   return {
-    type: ReduxActionTypes.EXECUTE_ACTION,
-    payload,
+    type: ReduxActionTypes.RUN_API_REQUEST,
   };
 };
 
@@ -64,10 +63,17 @@ export const dryRunAction = (payload: RestAction) => {
   };
 };
 
+export const actionToWidgetIdMapSuccess = (
+  map: ActionWidgetIdsMap,
+): ReduxAction<ActionWidgetIdsMap> => ({
+  type: ReduxActionTypes.CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS,
+  payload: map,
+});
+
 export default {
   createAction: createActionRequest,
   fetchActions,
-  runAction: executeAction,
+  runAction: runApiAction,
   deleteAction,
   deleteActionSuccess,
   updateAction,

@@ -1,7 +1,7 @@
 import { all, select, takeLatest, put, call, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
-import { AppState } from "../reducers";
-import { bindingsMapSuccess } from "../actions/bindingActions";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { AppState } from "reducers";
+import { bindingsMapSuccess } from "actions/bindingActions";
 
 function* createUpdateBindingsMapData() {
   const data: AppState = yield select();
@@ -23,7 +23,7 @@ function* initListener() {
   while (true) {
     // list all actions types here
     yield take([
-      ReduxActionTypes.INIT_SUCCESS,
+      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
       ReduxActionTypes.CREATE_ACTION_SUCCESS,
       ReduxActionTypes.UPDATE_ACTION_SUCCESS,
       ReduxActionTypes.DELETE_ACTION_SUCCESS,
@@ -36,6 +36,9 @@ function* initListener() {
 
 export default function* watchBindingsSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.CREATE_UPDATE_BINDINGS_MAP_INIT, initListener),
+    takeLatest(
+      ReduxActionTypes.CREATE_UPDATE_BINDINGS_MAP_LISTENER_INIT,
+      initListener,
+    ),
   ]);
 }

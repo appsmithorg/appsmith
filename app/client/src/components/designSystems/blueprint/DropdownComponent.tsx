@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { MenuItem, Button } from "@blueprintjs/core";
-import { SelectionType, DropdownOption } from "../../../widgets/DropdownWidget";
+import { SelectionType, DropdownOption } from "widgets/DropdownWidget";
 import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";

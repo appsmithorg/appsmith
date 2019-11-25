@@ -1,18 +1,32 @@
-import * as React from "react";
-
+import React from "react";
+import styled from "styled-components";
 import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core";
 import { RouterProps } from "react-router";
 
+const NotFoundPageWrapper = styled.div`
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const Title = styled.div`
+  font-size: ${props => props.theme.fontSizes[10]}px;
+  text-align: center;
+`;
 class PageNotFound extends React.PureComponent<RouterProps> {
   public render() {
     return (
-      <div style={{ textAlign: "center" }}>
+      <NotFoundPageWrapper>
         <Card elevation={Elevation.TWO}>
+          <Title>
+            <span role="img" aria-label="Page Not Found">
+              🙊
+            </span>
+          </Title>
           <NonIdealState
-            icon={"search"}
-            title="Page not found"
             description={
-              "The page you were looking for does not appear to exist"
+              "We didn't mean for you to reach this page. Let's find your way back to building awesome applications."
             }
             action={
               <Button
@@ -25,7 +39,7 @@ class PageNotFound extends React.PureComponent<RouterProps> {
             }
           />
         </Card>
-      </div>
+      </NotFoundPageWrapper>
     );
   }
 }

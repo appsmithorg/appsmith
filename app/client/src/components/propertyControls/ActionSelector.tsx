@@ -1,20 +1,20 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledDropDown } from "./StyledControls";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import {
   ActionPayload,
   ActionType,
   PropertyPaneActionDropdownOptions,
-} from "../../constants/ActionConstants";
-import { DropdownOption } from "../../widgets/DropdownWidget";
+} from "constants/ActionConstants";
+import { DropdownOption } from "widgets/DropdownWidget";
 import { MenuItem, Button } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { connect } from "react-redux";
-import { AppState } from "../../reducers";
-import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
+import { AppState } from "reducers";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import styled from "styled-components";
-import { theme } from "../../constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 
 const DEFAULT_ACTION_TYPE = "Select Action Type" as ActionType;

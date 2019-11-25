@@ -1,6 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { AppState } from "../../reducers";
+import { Redirect } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
+import {
+  BuilderRouteParams,
+  getApplicationViewerPageURL,
+  BUILDER_PAGE_URL,
+} from "constants/routes";
+import { AppState } from "reducers";
 import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
 import {
@@ -11,20 +18,23 @@ import {
   getIsPublishingApplication,
   getPublishingError,
   getIsPageSaving,
-} from "../../selectors/editorSelectors";
+  getIsEditorLoading,
+  getLoadingError,
+  getPublishedTime,
+} from "selectors/editorSelectors";
 import {
   ReduxActionTypes,
   PageListPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
-import { initEditor } from "../../actions/initActions";
+import { initEditor } from "actions/initActions";
 
 type EditorProps = {
-  currentPageName: string;
+  currentPageName?: string;
   isSaving: boolean;
   currentApplicationId?: string;
-  currentLayoutId: string;
-  currentPageId: string;
+  currentLayoutId?: string;
+  currentPageId?: string;
   publishApplication: Function;
   previewPage: Function;
   initEditor: Function;
@@ -32,8 +42,12 @@ type EditorProps = {
   pages: PageListPayload;
   switchPage: (pageId: string) => void;
   isPublishing: boolean;
+  isEditorLoading: boolean;
+  editorLoadingError: boolean;
   errorPublishing: boolean;
-};
+  publishedTime: string | boolean;
+  isPageSwitching: boolean;
+} & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<EditorProps> {
   public state = {
@@ -41,20 +55,37 @@ class Editor extends Component<EditorProps> {
   };
 
   componentDidMount() {
-    this.props.initEditor();
-  }
-  componentDidUpdate(currently: EditorProps) {
-    const previously = this.props;
-    if (
-      !currently.isPublishing &&
-      previously.isPublishing &&
-      !currently.errorPublishing
-    ) {
-      this.setState({
-        isDialogOpen: true,
-      });
+    if (this.props.match.params.applicationId) {
+      this.props.initEditor(this.props.match.params.applicationId);
     }
   }
+  componentDidUpdate(previously: EditorProps) {
+    // const currently = this.props;
+    // if (currently.publishedTime !== previously.publishedTime) {
+    //   this.setState({
+    //     isDialogOpen: true,
+    //   });
+    // }
+    // if (
+    //   currently.currentPageId &&
+    //   previously.currentPageId !== currently.currentPageId &&
+    //   currently.currentApplicationId
+    // ) {
+    //   this.props.history.replace(
+    //     BUILDER_PAGE_URL(
+    //       currently.currentApplicationId,
+    //       currently.currentPageId,
+    //     ),
+    //   );
+    // }
+    // if (
+    //   previously.match.params.pageId !== currently.match.params.pageId &&
+    //   currently.currentPageId !== currently.match.params.pageId
+    // ) {
+    //   this.props.switchPage(currently.match.params.pageId);
+    // }
+  }
+
   handleDialogClose = () => {
     this.setState({
       isDialogOpen: false,
@@ -68,7 +99,17 @@ class Editor extends Component<EditorProps> {
   handleCreatePage = (pageName: string) => {
     this.props.createPage(this.props.currentApplicationId, pageName);
   };
+  redirectToPage = (pageId: string) => {
+    if (this.props.currentApplicationId) {
+      this.props.history.push(
+        BUILDER_PAGE_URL(this.props.currentApplicationId, pageId),
+      );
+    }
+  };
   public render() {
+    if (!this.props.match.params.applicationId) {
+      return <Redirect to="/applications" />;
+    }
     return (
       <div>
         <EditorHeader
@@ -78,7 +119,7 @@ class Editor extends Component<EditorProps> {
           onCreatePage={this.handleCreatePage}
           pages={this.props.pages}
           currentPageId={this.props.currentPageId}
-          switchToPage={this.props.switchPage}
+          switchToPage={this.redirectToPage}
           isPublishing={this.props.isPublishing}
         />
         <MainContainer />
@@ -101,7 +142,10 @@ class Editor extends Component<EditorProps> {
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <AnchorButton
                 target="_blank"
-                href={`/view/pages/${this.props.currentPageId}`}
+                href={getApplicationViewerPageURL(
+                  this.props.currentApplicationId,
+                  this.props.currentPageId,
+                )}
                 text="View Application"
               />
             </div>
@@ -121,11 +165,14 @@ const mapStateToProps = (state: AppState) => ({
   pages: getPageList(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
+  isEditorLoading: getIsEditorLoading(state),
+  editorLoadingError: getLoadingError(state),
+  publishedTime: getPublishedTime(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: () => dispatch(initEditor()),
+    initEditor: (applicationId: string) => dispatch(initEditor(applicationId)),
     publishApplication: (applicationId: string) => {
       dispatch({
         type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
@@ -154,7 +201,7 @@ const mapDispatchToProps = (dispatch: any) => {
     },
     switchPage: (pageId: string) => {
       dispatch({
-        type: ReduxActionTypes.FETCH_PAGE,
+        type: ReduxActionTypes.FETCH_PAGE_INIT,
         payload: {
           pageId,
         },
@@ -163,7 +210,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Editor);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Editor));

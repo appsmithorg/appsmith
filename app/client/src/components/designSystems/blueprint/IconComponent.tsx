@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { Icon, Intent } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 class IconComponent extends React.Component<IconComponentProps> {

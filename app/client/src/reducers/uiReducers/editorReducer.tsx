@@ -1,28 +1,69 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import { getEditorConfigs } from "../../constants/ApiConstants";
-import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { createReducer } from "utils/AppsmithUtils";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import moment from "moment";
 import {
   ReduxAction,
   UpdateCanvasPayload,
-  PageListPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
-const editorConfigs = getEditorConfigs();
 const initialState: EditorReduxState = {
-  pageWidgetId: "0",
-  ...editorConfigs,
-  pages: [],
   loadingStates: {
     publishing: false,
     publishingError: false,
+    published: false,
     saving: false,
     savingError: false,
+    loading: false,
+    loadingError: false,
+    pageSwitchingError: false,
+    isPageSwitching: false,
   },
 };
 
 const editorReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      isPageSwitching: true,
+    },
+  }),
+  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      isPageSwitching: false,
+    },
+  }),
+  [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: (state: EditorReduxState) => ({
+    ...state,
+    loadingStates: {
+      ...state.loadingStates,
+      isPageSwitching: false,
+    },
+  }),
+  [ReduxActionTypes.INIT_EDITOR]: (state: EditorReduxState) => {
+    state.loadingStates.loading = true;
+    state.loadingStates.loadingError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.INIT_EDITOR_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.loading = false;
+    state.loadingStates.loadingError = false;
+    return { ...state };
+  },
+  [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    state.loadingStates.loading = false;
+    state.loadingStates.loadingError = true;
+    return { ...state };
+  },
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
     state.loadingStates.publishingError = false;
@@ -36,19 +77,7 @@ const editorReducer = createReducer(initialState, {
   [ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
-    return { ...state };
-  },
-  [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
-    state: EditorReduxState,
-    action: ReduxAction<PageListPayload>,
-  ) => {
-    return { ...state, pages: action.payload };
-  },
-  [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
-    state: EditorReduxState,
-    action: ReduxAction<{ pageName: string; pageId: string; layoutId: string }>,
-  ) => {
-    state.pages.push(action.payload);
+    state.loadingStates.published = moment().format();
     return { ...state };
   },
   [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -86,18 +115,20 @@ const editorReducer = createReducer(initialState, {
 
 export interface EditorReduxState {
   dsl?: ContainerWidgetProps<WidgetProps>;
-  pageWidgetId: string;
-  currentPageId: string;
-  currentLayoutId: string;
-  currentPageName: string;
-  propertyPaneConfigsId: string;
-  currentApplicationId?: string;
-  pages: PageListPayload;
+  pageWidgetId?: string;
+  currentPageId?: string;
+  currentLayoutId?: string;
+  currentPageName?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
     publishing: boolean;
+    published: string | boolean;
     publishingError: boolean;
+    loading: boolean;
+    loadingError: boolean;
+    isPageSwitching: boolean;
+    pageSwitchingError: boolean;
   };
 }
 

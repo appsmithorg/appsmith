@@ -1,8 +1,10 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent from "../components/designSystems/blueprint/ButtonComponent";
-import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import ButtonComponent from "components/designSystems/blueprint/ButtonComponent";
+import { ActionPayload } from "constants/ActionConstants";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -10,6 +12,15 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
+  }
+
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      text: VALIDATION_TYPES.TEXT,
+      isDisabled: VALIDATION_TYPES.BOOLEAN,
+      isVisible: VALIDATION_TYPES.BOOLEAN,
+      buttonStyle: VALIDATION_TYPES.TEXT,
+    };
   }
 
   onButtonClick() {

@@ -2,9 +2,9 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledInputGroup } from "./StyledControls";
 import { Button } from "@blueprintjs/core";
-import { DropdownOption } from "../../widgets/DropdownWidget";
-import { ControlType } from "../../constants/PropertyControlConstants";
-import { generateReactKey } from "../../utils/generators";
+import { DropdownOption } from "widgets/DropdownWidget";
+import { ControlType } from "constants/PropertyControlConstants";
+import { generateReactKey } from "utils/generators";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {

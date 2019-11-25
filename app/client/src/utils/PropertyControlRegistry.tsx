@@ -2,26 +2,26 @@ import React from "react";
 import PropertyControlFactory from "./PropertyControlFactory";
 import InputTextControl, {
   InputControlProps,
-} from "../components/propertyControls/InputTextControl";
+} from "components/propertyControls/InputTextControl";
 import DropDownControl, {
   DropDownControlProps,
-} from "../components/propertyControls/DropDownControl";
+} from "components/propertyControls/DropDownControl";
 import SwitchControl, {
   SwitchControlProps,
-} from "../components/propertyControls/SwitchControl";
-import OptionControl from "../components/propertyControls/OptionControl";
-import { ControlProps } from "../components/propertyControls/BaseControl";
-import CodeEditorControl from "../components/propertyControls/CodeEditorControl";
+} from "components/propertyControls/SwitchControl";
+import OptionControl from "components/propertyControls/OptionControl";
+import { ControlProps } from "components/propertyControls/BaseControl";
+import CodeEditorControl from "components/propertyControls/CodeEditorControl";
 import MultiSelectControl, {
   MultiSelectControlProps,
-} from "../components/propertyControls/MultiSelectControl";
+} from "components/propertyControls/MultiSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
-} from "../components/propertyControls/DatePickerControl";
+} from "components/propertyControls/DatePickerControl";
 import TimeZoneControl, {
   TimeZoneControlProps,
-} from "../components/propertyControls/TimezoneControl";
-import ActionSelectorControl from "../components/propertyControls/ActionSelector";
+} from "components/propertyControls/TimezoneControl";
+import ActionSelectorControl from "components/propertyControls/ActionSelector";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {

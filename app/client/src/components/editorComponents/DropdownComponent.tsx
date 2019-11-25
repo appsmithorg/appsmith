@@ -1,14 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 import styled from "styled-components";
 import { MenuItem, Menu, ControlGroup, InputGroup } from "@blueprintjs/core";
-import { BaseButton } from "../designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import {
   ItemRenderer,
   Select,
   ItemListRenderer,
   IItemListRendererProps,
 } from "@blueprintjs/select";
-import { DropdownOption } from "../../widgets/DropdownWidget";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 const Dropdown = Select.ofType<DropdownOption>();
 const StyledDropdown = styled(Dropdown)``;
@@ -128,11 +128,13 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         activeItem={this.props.selected}
         noResults={<MenuItem disabled={true} text="No results." />}
       >
-        <BaseButton
-          styleName="secondary"
-          text={this.getSelectedDisplayText()}
-          rightIcon="chevron-down"
-        />
+        {this.props.toggle || (
+          <BaseButton
+            styleName="secondary"
+            text={this.getSelectedDisplayText()}
+            rightIcon="chevron-down"
+          />
+        )}
       </StyledDropdown>
     );
   }
@@ -150,6 +152,7 @@ export interface DropdownComponentProps {
     displayText: string;
     addItemHandler: (name: string) => void;
   };
+  toggle?: ReactNode;
 }
 
 export default DropdownComponent;

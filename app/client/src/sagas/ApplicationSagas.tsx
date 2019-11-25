@@ -3,18 +3,21 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
   ApplicationPayload,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import ApplicationApi, {
   PublishApplicationResponse,
   PublishApplicationRequest,
   FetchApplicationsResponse,
   CreateApplicationRequest,
   CreateApplicationResponse,
+  ApplicationResponsePayload,
   ApplicationPagePayload,
-} from "../api/ApplicationApi";
-import { call, put, takeLatest, all } from "redux-saga/effects";
+} from "api/ApplicationApi";
+import { getDefaultPageId } from "./SagaUtils";
+import { call, put, takeLatest, all, select } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
+import { getApplicationList } from "selectors/applicationSelectors";
 
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
@@ -41,19 +44,6 @@ export function* publishApplicationSaga(
   }
 }
 
-const getDefaultPageId = (
-  pages?: ApplicationPagePayload[],
-): string | undefined => {
-  let defaultPage: ApplicationPagePayload | undefined = undefined;
-  if (pages) {
-    pages.find(page => page.isDefault);
-    if (!defaultPage) {
-      defaultPage = pages[0];
-    }
-  }
-  return defaultPage ? defaultPage.id : undefined;
-};
-
 export function* fetchApplicationListSaga() {
   try {
     const response: FetchApplicationsResponse = yield call(
@@ -62,7 +52,11 @@ export function* fetchApplicationListSaga() {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const applicationListPayload: ApplicationPayload[] = response.data.map(
-        application => ({
+        (
+          application: ApplicationResponsePayload & {
+            pages: ApplicationPagePayload[];
+          },
+        ) => ({
           name: application.name,
           organizationId: application.organizationId,
           id: application.id,
@@ -86,32 +80,62 @@ export function* fetchApplicationListSaga() {
 }
 
 export function* createApplicationSaga(
-  request: ReduxAction<CreateApplicationRequest>,
+  action: ReduxAction<{
+    applicationName: string;
+    resolve: any;
+    reject: any;
+  }>,
 ) {
   try {
-    const response: CreateApplicationResponse = yield call(
-      ApplicationApi.createApplication,
-      request.payload,
+    const { applicationName, resolve, reject } = action.payload;
+    const applicationList: ApplicationPayload[] = yield select(
+      getApplicationList,
     );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      const application: ApplicationPayload = {
-        id: response.data.id,
-        name: response.data.name,
-        organizationId: response.data.organizationId,
-        pageCount: response.data.pages ? response.data.pages.length : 0,
-        defaultPageId: getDefaultPageId(response.data.pages),
-      };
-      yield put({
-        type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
-        payload: application,
+    const existingApplication = applicationList.find(application => {
+      return application.name === applicationName;
+    });
+
+    if (existingApplication) {
+      yield call(reject, {
+        _error: "An application with this name already exists",
       });
+      yield put({
+        type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
+        payload: {
+          error: "Could not create application",
+          show: false,
+        },
+      });
+    } else {
+      const request: CreateApplicationRequest = { name: applicationName };
+      const response: CreateApplicationResponse = yield call(
+        ApplicationApi.createApplication,
+        request,
+      );
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        const application: ApplicationPayload = {
+          id: response.data.id,
+          name: response.data.name,
+          organizationId: response.data.organizationId,
+          pageCount: response.data.pages ? response.data.pages.length : 0,
+          defaultPageId: getDefaultPageId(response.data.pages),
+        };
+        yield put({
+          type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
+          payload: application,
+        });
+        yield call(resolve);
+      } else {
+        yield call(reject, { _error: "Could not create application" });
+      }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
       payload: {
         error,
+        show: false,
       },
     });
   }

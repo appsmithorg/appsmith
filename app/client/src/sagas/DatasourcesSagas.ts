@@ -4,20 +4,18 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
-import { GenericApiResponse } from "../api/ApiResponses";
+} from "constants/ReduxActionConstants";
+import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, {
   CreateDatasourceConfig,
   Datasource,
-} from "../api/DatasourcesApi";
-import { API_EDITOR_FORM_NAME } from "../constants/forms";
+} from "api/DatasourcesApi";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 
 function* fetchDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<
-      Datasource[]
-    > = yield DatasourcesApi.fetchDatasources();
+    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources();
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -37,9 +35,9 @@ function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    const response: GenericApiResponse<
-      Datasource
-    > = yield DatasourcesApi.createDatasource(actionPayload.payload);
+    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+      actionPayload.payload,
+    );
     if (response.responseMeta.success) {
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,

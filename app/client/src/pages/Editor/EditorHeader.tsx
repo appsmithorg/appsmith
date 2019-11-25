@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
-import DropdownComponent from "../../components/editorComponents/DropdownComponent";
-import { PageListPayload } from "../../constants/ReduxActionConstants";
-import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
-import StyledHeader from "../../components/designSystems/appsmith/StyledHeader";
-import { DropdownOption } from "../../widgets/DropdownWidget";
+import DropdownComponent from "components/editorComponents/DropdownComponent";
+import { PageListPayload } from "constants/ReduxActionConstants";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import StyledHeader from "components/designSystems/appsmith/StyledHeader";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 const PageSelector = styled(DropdownComponent)`
   flex: 2;
@@ -39,11 +39,11 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 
 type EditorHeaderProps = {
   isSaving?: boolean;
-  pageName: string;
+  pageName?: string;
   onPublish: React.FormEventHandler;
   onCreatePage: (name: string) => void;
   pages?: PageListPayload;
-  currentPageId: string;
+  currentPageId?: string;
   switchToPage: (selectedPage: string) => void;
   isPublishing: boolean;
 };

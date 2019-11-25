@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { Select, MultiSelect } from "@blueprintjs/select";
 import { Switch, InputGroup } from "@blueprintjs/core";
-import { DropdownOption } from "../../widgets/DropdownWidget";
-import { ContainerOrientation } from "../../constants/WidgetConstants";
+import { DropdownOption } from "widgets/DropdownWidget";
+import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { TimezonePicker } from "@blueprintjs/timezone";
 
@@ -75,8 +75,4 @@ export const StyledTimeZonePicker = styled(TimezonePicker)`
     color: ${props => props.theme.colors.textOnDarkBG};
     box-shadow: none;
   }
-`;
-
-export const StyledValidationError = styled.span`
-  color: ${props => props.theme.colors.error};
 `;

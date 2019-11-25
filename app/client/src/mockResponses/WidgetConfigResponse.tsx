@@ -1,4 +1,4 @@
-import { WidgetConfigReducerState } from "../reducers/entityReducers/widgetConfigReducer";
+import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -15,11 +15,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Label me",
       textStyle: "LABEL",
       rows: 1,
-      columns: 2,
+      columns: 3,
       widgetName: "Text",
     },
     IMAGE_WIDGET: {
-      defaultImage: "",
+      defaultImage:
+        "https://www.cowgirlcontractcleaning.com/wp-content/uploads/sites/360/2018/05/placeholder-img-5.jpg",
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
@@ -61,10 +62,60 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "DatePicker",
     },
     TABLE_WIDGET: {
-      rows: 5,
-      columns: 7,
+      rows: 10,
+      columns: 15,
       label: "Data",
       widgetName: "Table",
+      tableData: [
+        {
+          Id: 7,
+          Email: "michael.lawson@reqres.in",
+          "First Name": "Michael",
+          "Last Name": "Lawson",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/follettkyle/128.jpg",
+        },
+        {
+          Id: 8,
+          Email: "lindsay.ferguson@reqres.in",
+          "First Name": "Lindsay",
+          "Last Name": "Ferguson",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/araa3185/128.jpg",
+        },
+        {
+          Id: 9,
+          Email: "tobias.funke@reqres.in",
+          "First Name": "Tobias",
+          "Last Name": "Funke",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/vivekprvr/128.jpg",
+        },
+        {
+          Id: 10,
+          Email: "byron.fields@reqres.in",
+          "First Name": "Byron",
+          "Last Name": "Fields",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/russoedu/128.jpg",
+        },
+        {
+          Id: 11,
+          Email: "george.edwards@reqres.in",
+          "First Name": "George",
+          "Last Name": "Edwards",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/mrmoiree/128.jpg",
+        },
+        {
+          Id: 12,
+          Email: "rachel.howell@reqres.in",
+          "First Name": "Rachel",
+          "Last Name": "Howell",
+          Avatar:
+            "https://s3.amazonaws.com/uifaces/faces/twitter/hebertialmeida/128.jpg",
+        },
+      ],
     },
     DROP_DOWN_WIDGET: {
       rows: 1,

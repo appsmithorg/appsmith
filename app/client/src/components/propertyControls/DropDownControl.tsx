@@ -3,8 +3,8 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { ControlWrapper, StyledDropDown } from "./StyledControls";
-import { DropdownOption } from "../../widgets/DropdownWidget";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { DropdownOption } from "widgets/DropdownWidget";
+import { ControlType } from "constants/PropertyControlConstants";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {

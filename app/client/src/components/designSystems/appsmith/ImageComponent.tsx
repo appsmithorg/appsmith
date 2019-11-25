@@ -3,9 +3,13 @@ import { ComponentProps } from "./BaseComponent";
 import { StyledContainer, StyledContainerProps } from "./StyledContainer";
 import styled from "styled-components";
 
-export const StyledImage = styled(StyledContainer)<StyledContainerProps>`
+export interface StyledImageProps extends StyledContainerProps {
+  defaultImageUrl: string;
+}
+
+export const StyledImage = styled(StyledContainer)<StyledImageProps>`
     background-image: url("${props => {
-      return props.imageUrl;
+      return props.imageUrl || props.defaultImageUrl;
     }}");
     background-position: center;
     background-repeat: no-repeat;

@@ -1,12 +1,17 @@
-import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
   UpdateCanvasPayload,
   PageListPayload,
-} from "../constants/ReduxActionConstants";
-import { updateCanvas, savePageSuccess } from "../actions/pageActions";
+  FetchPageListPayload,
+} from "constants/ReduxActionConstants";
+import {
+  updateCanvas,
+  savePageSuccess,
+  fetchPageSuccess,
+} from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
   SavePageResponse,
@@ -16,8 +21,8 @@ import PageApi, {
   FetchPublishedPageResponse,
   CreatePageRequest,
   FetchPageListResponse,
-} from "../api/PageApi";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+} from "api/PageApi";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   call,
   select,
@@ -26,25 +31,34 @@ import {
   takeEvery,
   all,
 } from "redux-saga/effects";
-import { getPageLayoutId } from "./selectors";
 
-import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
+import { RenderModes } from "constants/WidgetConstants";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 
-export function* fetchPageListSaga() {
+export function* fetchPageListSaga(
+  fetchPageListAction: ReduxAction<FetchPageListPayload>,
+) {
   try {
-    const response: FetchPageListResponse = yield call(PageApi.fetchPageList);
+    const { applicationId } = fetchPageListAction.payload;
+    const response: FetchPageListResponse = yield call(
+      PageApi.fetchPageList,
+      applicationId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const pageList: PageListPayload = response.data.map(page => ({
+      const pages: PageListPayload = response.data.map(page => ({
         pageName: page.name,
         pageId: page.id,
-        layoutId: page.layouts[0].id,
       }));
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: pageList,
+        payload: {
+          pages,
+          applicationId,
+        },
       });
       return;
     }
@@ -74,21 +88,6 @@ const getCanvasWidgetsPayload = (
   };
 };
 
-// TODO(abhinav): Make this similar for both Render Modes
-const getAppViewWidgetsPayload = (pageResponse: any) => {
-  const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-    pageResponse.data.dsl,
-  );
-  return {
-    pageWidgetId: normalizedResponse.result,
-    currentPageName: pageResponse.data.name,
-    currentPageId: pageResponse.data.id,
-    widgets: normalizedResponse.entities.canvasWidgets,
-    currentLayoutId: pageResponse.data.id,
-    currentApplicationId: pageResponse.data.applicationId,
-  };
-};
-
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
@@ -102,6 +101,7 @@ export function* fetchPageSaga(
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       yield put(updateCanvas(canvasWidgetsPayload));
+      yield put(fetchPageSuccess());
     }
   } catch (error) {
     yield put({
@@ -118,10 +118,8 @@ export function* fetchPublishedPageSaga(
 ) {
   try {
     const { pageId } = pageRequestAction.payload;
-    const layoutId: string = yield select(getPageLayoutId, pageId);
     const request: FetchPublishedPageRequest = {
       pageId,
-      layoutId,
     };
     const response: FetchPublishedPageResponse = yield call(
       PageApi.fetchPublishedPage,
@@ -129,15 +127,16 @@ export function* fetchPublishedPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
         payload: {
-          dsl: response.data.dsl,
-          layoutId: response.data.id,
+          dsl: response.data.layouts[0].dsl,
+          layoutId: response.data.layouts[0].id,
           pageId: request.pageId,
+          pageWidgetId: canvasWidgetsPayload.pageWidgetId,
         },
       });
-      const canvasWidgetsPayload = getAppViewWidgetsPayload(response);
       yield put(updateCanvas(canvasWidgetsPayload));
     }
   } catch (error) {
@@ -206,6 +205,14 @@ export function* saveLayoutSaga() {
   }
 }
 
+export function* updateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  if (action.payload.renderMode === RenderModes.CANVAS) {
+    yield saveLayoutSaga();
+  }
+}
+
 export function* createPageSaga(
   createPageAction: ReduxAction<CreatePageRequest>,
 ) {
@@ -237,15 +244,17 @@ export function* createPageSaga(
 
 export default function* pageSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.FETCH_PAGE, fetchPageSaga),
+    takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
     takeLatest(
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       fetchPublishedPageSaga,
     ),
     takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLatest(ReduxActionTypes.UPDATE_WIDGET_PROPERTY, saveLayoutSaga),
-    takeLatest(ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY, saveLayoutSaga),
+    takeLatest(
+      ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+      updateWidgetPropertySaga,
+    ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
   ]);

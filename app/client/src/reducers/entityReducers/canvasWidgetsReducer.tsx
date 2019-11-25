@@ -1,13 +1,13 @@
-import _ from "lodash";
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { UpdateWidgetPropertyPayload } from "../../actions/controlActions";
+} from "constants/ReduxActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { WidgetLoadingState } from "actions/widgetActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -28,6 +28,19 @@ const canvasWidgetsReducer = createReducer(initialState, {
   ) => {
     return { ...action.payload.widgets };
   },
+  [ReduxActionTypes.WIDGETS_LOADING]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<WidgetLoadingState>,
+  ) => {
+    const finalState = { ...state };
+    action.payload.widgetIds.forEach(widgetId => {
+      const widget = state[widgetId];
+      widget.isLoading = action.payload.areLoading;
+      finalState[widgetId] = widget;
+    });
+
+    return finalState;
+  },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
@@ -38,27 +51,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
       [action.payload.widgetId]: {
         ...widget,
         [action.payload.propertyName]: action.payload.propertyValue,
-        dynamicBindings: _.omit(
-          widget.dynamicBindings,
-          action.payload.propertyName,
-        ),
-      },
-    };
-  },
-  [ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateWidgetPropertyPayload>,
-  ) => {
-    const widget = state[action.payload.widgetId];
-    return {
-      ...state,
-      [action.payload.widgetId]: {
-        ...widget,
-        [action.payload.propertyName]: null,
-        dynamicBindings: {
-          ...widget.dynamicBindings,
-          [action.payload.propertyName]: action.payload.propertyValue,
-        },
+        dynamicBindings: action.payload.dynamicBindings,
       },
     };
   },

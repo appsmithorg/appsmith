@@ -1,32 +1,31 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { withRouter } from "react-router";
-import { AppState } from "../../reducers";
+import { withRouter, RouteComponentProps } from "react-router";
+import { Switch, Route } from "react-router-dom";
+import { AppState } from "reducers";
+import {
+  AppViewerRouteParams,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import {
   ReduxActionTypes,
   PageListPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import {
-  getCurrentRoutePageId,
-  getCurrentPageLayoutDSL,
   getPageList,
   getIsFetchingPage,
   getCurrentDSLPageId,
-} from "../../selectors/appViewSelectors";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { executeAction } from "../../actions/widgetActions";
-import { ActionPayload } from "../../constants/ActionConstants";
-import AppPage from "./AppPage";
-import { Spinner, NonIdealState, Icon } from "@blueprintjs/core";
-import { Link } from "react-router-dom";
-import { theme } from "../../constants/DefaultTheme";
+} from "selectors/appViewSelectors";
+import { executeAction } from "actions/widgetActions";
+import { ActionPayload } from "constants/ActionConstants";
 import SideNav, { SideNavItem } from "./viewer/SideNav";
 import AppViewerHeader from "./viewer/AppViewerHeader";
-import { updateWidgetProperty } from "../../actions/controlActions";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { updateWidgetProperty } from "actions/controlActions";
+import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import AppViewerPageContainer from "./AppViewerPageContainer";
+import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -39,57 +38,13 @@ const AppViewerBody = styled.section`
   justify-content: flex-start;
   height: calc(100vh - ${props => props.theme.headerHeight});
 `;
-const Centered = styled.div`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-const SideNavWrapper = styled.div`
-  background: ${props => props.theme.colors.paneBG};
-  & button.sidenav-toggle,
-  & button.sidenav-toggle:hover,
-  & button.sidenav-toggle:active {
-    background: ${props => props.theme.colors.paneBG};
-    outline: none;
-    border: none;
-    border-radius: 0;
-  }
-  & ul {
-    background: ${props => props.theme.colors.paneBG};
-    color: ${props => props.theme.colors.textOnDarkBG};
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    & li {
-      padding: 0;
-    }
-    & li div.bp3-menu-item {
-      width: 100%;
-      font-size: ${props => props.theme.fontSizes[3]}px;
-      &.bp3-intent-primary {
-        background: ${props => props.theme.sideNav.activeItemBGColor};
-      }
-      & div {
-        line-height: ${props => props.theme.lineHeights[6]}px;
-      }
-    }
-  }
-`;
 
 export type AppViewerProps = {
-  currentRoutePageId?: string;
   currentDSLPageId?: string;
   currentLayoutId?: string;
-  fetchPageWidgets: Function;
   pages?: PageListPayload;
-  dsl?: ContainerWidgetProps<WidgetProps>;
   initializeAppViewer: Function;
   isFetching: boolean;
-  match: any;
-  location: any;
-  history: any;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -98,25 +53,15 @@ export type AppViewerProps = {
   ) => void;
 };
 
-class AppViewer extends Component<AppViewerProps> {
-  handlePageSelect = (item: SideNavItem) => {
-    this.props.fetchPageWidgets(item.id);
-    this.props.history.push(`/view/pages/${item.id}`);
-  };
-
+class AppViewer extends Component<
+  AppViewerProps & RouteComponentProps<AppViewerRouteParams>
+> {
   componentDidMount() {
-    this.props.initializeAppViewer(this.props.currentRoutePageId);
-  }
-
-  componentDidUpdate(prevProps: AppViewerProps) {
-    if (
-      prevProps.currentRoutePageId !== this.props.currentRoutePageId &&
-      this.props.currentDSLPageId !== this.props.currentRoutePageId
-    ) {
-      this.props.fetchPageWidgets(this.props.currentRoutePageId);
+    const { applicationId } = this.props.match.params;
+    if (this.props.match.params.applicationId) {
+      this.props.initializeAppViewer(applicationId);
     }
   }
-
   public render() {
     const items: SideNavItem[] | undefined =
       this.props.pages &&
@@ -124,13 +69,12 @@ class AppViewer extends Component<AppViewerProps> {
         text: page.pageName,
         id: page.pageId,
         icon: "page-layout", //TODO: get the icon from page.
+        path: getApplicationViewerPageURL(
+          this.props.match.params.applicationId,
+          page.pageId,
+        ),
       }));
 
-    const currentPage =
-      this.props.pages &&
-      this.props.pages.find(
-        page => page.pageId === this.props.currentRoutePageId,
-      );
     return (
       <EditorContext.Provider
         value={{
@@ -141,47 +85,20 @@ class AppViewer extends Component<AppViewerProps> {
         <AppViewWrapper>
           <AppViewerHeader />
           <AppViewerBody>
-            {items && (
-              <SideNavWrapper>
-                <SideNav
-                  items={items}
-                  onSelect={this.handlePageSelect}
-                  iconSize={24}
-                  active={
-                    currentPage && {
-                      text: currentPage.pageName,
-                      id: currentPage.pageId,
-                    }
-                  }
-                />
-              </SideNavWrapper>
-            )}
-            {this.props.isFetching && (
-              <Centered>
-                <Spinner />
-              </Centered>
-            )}
-            {!this.props.isFetching && !this.props.dsl && items && (
-              <Centered>
-                <NonIdealState
-                  icon={
-                    <Icon
-                      iconSize={theme.fontSizes[9]}
-                      icon="page-layout"
-                      color={theme.colors.primary}
-                    />
-                  }
-                  title="This page seems to be blank"
-                  description={
-                    <p>
-                      Please add widgets to this page in the
-                      <Link to="/builder"> Appsmith Editor</Link>
-                    </p>
-                  }
-                />
-              </Centered>
-            )}
-            {this.props.dsl && <AppPage dsl={this.props.dsl} />}
+            <AppViewerSideNavWrapper>
+              <SideNav
+                items={items}
+                iconSize={24}
+                active={this.props.currentDSLPageId}
+              />
+            </AppViewerSideNavWrapper>
+            <Switch>
+              <Route
+                path={getApplicationViewerPageURL()}
+                exact
+                component={AppViewerPageContainer}
+              />
+            </Switch>
           </AppViewerBody>
         </AppViewWrapper>
       </EditorContext.Provider>
@@ -189,10 +106,8 @@ class AppViewer extends Component<AppViewerProps> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: AppViewerProps) => ({
-  currentRoutePageId: getCurrentRoutePageId(state, props),
+const mapStateToProps = (state: AppState) => ({
   currentDSLPageId: getCurrentDSLPageId(state),
-  dsl: getCurrentPageLayoutDSL(state),
   pages: getPageList(state),
   isFetching: getIsFetchingPage(state),
 });
@@ -213,24 +128,13 @@ const mapDispatchToProps = (dispatch: any) => ({
         RenderModes.PAGE,
       ),
     ),
-  fetchPageWidgets: (pageId: string) => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      payload: {
-        pageId,
-      },
-    });
-  },
-  initializeAppViewer: (pageId: string) =>
+  initializeAppViewer: (applicationId: string) =>
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { pageId },
+      payload: { applicationId },
     }),
 });
 
 export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(AppViewer),
+  connect(mapStateToProps, mapDispatchToProps)(AppViewer),
 );

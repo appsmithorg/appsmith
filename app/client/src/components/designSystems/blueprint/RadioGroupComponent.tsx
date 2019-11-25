@@ -1,6 +1,6 @@
 import React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
-import { RadioOption } from "../../../widgets/RadioGroupWidget";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
+import { RadioOption } from "widgets/RadioGroupWidget";
 import { RadioGroup, Radio } from "@blueprintjs/core";
 
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {

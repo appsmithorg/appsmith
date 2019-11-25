@@ -1,5 +1,5 @@
 import { all, spawn } from "redux-saga/effects";
-import pageSagas from "../sagas/PageSagas";
+import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
@@ -9,6 +9,9 @@ import applicationSagas from "./ApplicationSagas";
 import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
 import bindingsSagas from "./BindingsSagas";
+import watchActionWidgetMapSagas, {
+  watchPropertyAndBindingUpdate,
+} from "./ActionWidgetMapSagas";
 
 export function* rootSaga() {
   yield all([
@@ -22,5 +25,7 @@ export function* rootSaga() {
     spawn(watchDatasourcesSagas),
     spawn(applicationSagas),
     spawn(bindingsSagas),
+    spawn(watchActionWidgetMapSagas),
+    spawn(watchPropertyAndBindingUpdate),
   ]);
 }

@@ -1,12 +1,12 @@
 import React from "react";
-import CreatableDropdown from "../../designSystems/appsmith/CreatableDropdown";
+import CreatableDropdown from "components/designSystems/appsmith/CreatableDropdown";
 import { connect } from "react-redux";
 import { Field } from "redux-form";
-import { AppState } from "../../../reducers";
-import { DatasourceDataState } from "../../../reducers/entityReducers/datasourceReducer";
+import { AppState } from "reducers";
+import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import _ from "lodash";
-import { createDatasource } from "../../../actions/datasourcesActions";
-import { REST_PLUGIN_ID } from "../../../constants/ApiEditorConstants";
+import { createDatasource } from "actions/datasourcesActions";
+import { REST_PLUGIN_ID } from "constants/ApiEditorConstants";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
@@ -64,7 +64,4 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
     ),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DatasourcesField);
+export default connect(mapStateToProps, mapDispatchToProps)(DatasourcesField);

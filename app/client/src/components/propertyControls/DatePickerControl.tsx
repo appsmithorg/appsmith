@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledDatePicker } from "./StyledControls";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import moment from "moment-timezone";
 
 class DatePickerControl extends BaseControl<DatePickerControlProps> {

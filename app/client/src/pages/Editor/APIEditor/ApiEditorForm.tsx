@@ -3,21 +3,21 @@ import { reduxForm, InjectedFormProps, FormSubmitHandler } from "redux-form";
 import {
   FORM_INITIAL_VALUES,
   HTTP_METHOD_OPTIONS,
-} from "../../../constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants";
 import styled from "styled-components";
-import FormLabel from "../../../components/editorComponents/FormLabel";
-import FormRow from "../../../components/editorComponents/FormRow";
-import { BaseButton } from "../../../components/designSystems/blueprint/ButtonComponent";
-import { RestAction } from "../../../api/ActionAPI";
-import TextField from "../../../components/editorComponents/fields/TextField";
-import DropdownField from "../../../components/editorComponents/fields/DropdownField";
-import DatasourcesField from "../../../components/editorComponents/fields/DatasourcesField";
-import KeyValueFieldArray from "../../../components/editorComponents/fields/KeyValueFieldArray";
-import JSONEditorField from "../../../components/editorComponents/fields/JSONEditorField";
-import { required } from "../../../utils/validation/common";
-import { apiPathValidation } from "../../../utils/validation/ApiForm";
-import ApiResponseView from "../../../components/editorComponents/ApiResponseView";
-import { API_EDITOR_FORM_NAME } from "../../../constants/forms";
+import FormLabel from "components/editorComponents/FormLabel";
+import FormRow from "components/editorComponents/FormRow";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { RestAction } from "api/ActionAPI";
+import TextField from "components/editorComponents/fields/TextField";
+import DropdownField from "components/editorComponents/fields/DropdownField";
+import DatasourcesField from "components/editorComponents/fields/DatasourcesField";
+import KeyValueFieldArray from "components/editorComponents/fields/KeyValueFieldArray";
+import JSONEditorField from "components/editorComponents/fields/JSONEditorField";
+import { required } from "utils/validation/common";
+import { apiPathValidation } from "utils/validation/ApiForm";
+import ApiResponseView from "components/editorComponents/ApiResponseView";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 
 const Form = styled.form`
   display: flex;

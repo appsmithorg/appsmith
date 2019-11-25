@@ -1,9 +1,9 @@
 import React from "react";
 import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import { IconProps, IconWrapper } from "../constants/IconConstants";
-import { ReactComponent as DeleteIcon } from "../assets/icons/form/trash.svg";
-import { ReactComponent as AddNewIcon } from "../assets/icons/form/add-new.svg";
+import { IconProps, IconWrapper } from "constants/IconConstants";
+import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
+import { ReactComponent as AddNewIcon } from "assets/icons/form/add-new.svg";
 
 /* eslint-disable react/display-name */
 

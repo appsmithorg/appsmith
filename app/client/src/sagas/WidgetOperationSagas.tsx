@@ -2,23 +2,25 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import {
   WidgetAddChild,
   WidgetResize,
   WidgetMove,
   WidgetDelete,
-} from "../actions/pageActions";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+} from "actions/pageActions";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
-} from "../utils/WidgetPropsUtils";
+} from "utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
-import { getNextWidgetName } from "../utils/AppsmithUtils";
-import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
-import { isDynamicValue } from "../utils/DynamicBindingUtils";
+import { getNextWidgetName } from "utils/AppsmithUtils";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
+import _ from "lodash";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -170,20 +172,21 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyPayload>,
 ) {
   const {
-    payload: { propertyValue },
+    payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
-
-  if (isDynamicValue(propertyValue)) {
-    yield put({
-      type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_PROPERTY,
-      payload: updateAction.payload,
-    });
-  } else {
-    yield put({
-      type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-      payload: updateAction.payload,
-    });
+  const isDynamic = isDynamicValue(propertyValue);
+  const widget: WidgetProps = yield select(getWidget, widgetId);
+  let dynamicBindings: Record<string, boolean> = widget.dynamicBindings || {};
+  if (!isDynamic && propertyName in dynamicBindings) {
+    dynamicBindings = _.omit(dynamicBindings, propertyName);
   }
+  if (isDynamic && !(propertyName in dynamicBindings)) {
+    dynamicBindings[propertyName] = true;
+  }
+  yield put({
+    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+    payload: { ...updateAction.payload, dynamicBindings },
+  });
 }
 
 export default function* widgetOperationSagas() {

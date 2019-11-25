@@ -1,11 +1,11 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { ControlWrapper, StyledMultiSelectDropDown } from "./StyledControls";
 import _ from "lodash";
-import { DropdownOption } from "../../widgets/DropdownWidget";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
   render() {

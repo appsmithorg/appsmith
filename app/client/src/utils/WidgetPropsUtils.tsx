@@ -1,15 +1,15 @@
-import { FetchPageResponse } from "../api/PageApi";
+import { FetchPageResponse } from "api/PageApi";
 import { XYCoord } from "react-dnd";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
-import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetProps,
   WidgetOperations,
   WidgetOperation,
-} from "../widgets/BaseWidget";
-import { WidgetType, RenderModes } from "../constants/WidgetConstants";
-import { generateReactKey } from "../utils/generators";
-import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
+} from "widgets/BaseWidget";
+import { WidgetType, RenderModes } from "constants/WidgetConstants";
+import { generateReactKey } from "utils/generators";
+import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 
@@ -35,8 +35,8 @@ const defaultDSL = {
   parentColumnSpace: 1,
   parentRowSpace: 1,
   renderMode: "CANVAS",
-  rightColumn: 1300,
-  snapColumns: 16,
+  rightColumn: 1200,
+  snapColumns: 24,
   snapRows: 32,
   topRow: 0,
   type: "CONTAINER_WIDGET",
@@ -47,8 +47,6 @@ export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
-  currentDSL.rightColumn = 1200;
-  currentDSL.snapColumns = 24;
   return currentDSL;
 };
 
@@ -263,6 +261,7 @@ export const generateWidgetProps = (
       widgetId: generateReactKey(),
       widgetName: widgetName,
       isVisible: true,
+      isLoading: false,
       parentColumnSpace,
       parentRowSpace,
       renderMode: RenderModes.CANVAS,

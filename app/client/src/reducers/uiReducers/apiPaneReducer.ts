@@ -1,8 +1,8 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
 const initialState: ApiPaneReduxState = {
   isFetching: false,
@@ -43,15 +43,15 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isSaving: false,
   }),
-  [ReduxActionTypes.EXECUTE_ACTION]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.RUN_API_REQUEST]: (state: ApiPaneReduxState) => ({
     ...state,
     isRunning: true,
   }),
-  [ReduxActionTypes.EXECUTE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.RUN_API_SUCCESS]: (state: ApiPaneReduxState) => ({
     ...state,
     isRunning: false,
   }),
-  [ReduxActionErrorTypes.EXECUTE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+  [ReduxActionErrorTypes.RUN_API_ERROR]: (state: ApiPaneReduxState) => ({
     ...state,
     isRunning: false,
   }),

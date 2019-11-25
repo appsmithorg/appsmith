@@ -1,7 +1,7 @@
 import React from "react";
 import Creatable from "react-select/creatable";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { theme } from "../../../constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -37,9 +37,9 @@ const selectStyles = {
     padding: "2px 5px",
     fontSize: "14px",
     maxWidth: "95%",
-    position: "relative",
-    display: "inline-block",
-    transform: "none",
+    // position: "relative",
+    // display: "inline-block",
+    // transform: "none",
   }),
   container: (styles: any) => ({
     ...styles,
@@ -47,7 +47,6 @@ const selectStyles = {
   }),
   control: (styles: any, state: any) => ({
     ...styles,
-    width: 370,
     minHeight: "32px",
     border: state.isFocused
       ? `${theme.colors.secondary} solid 1px`

@@ -4,13 +4,10 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "../constants/ReduxActionConstants";
-import AppToaster from "../components/editorComponents/ToastComponent";
-import {
-  DEFAULT_ERROR_MESSAGE,
-  DEFAULT_ACTION_ERROR,
-} from "../constants/errors";
-import { ApiResponse } from "../api/ApiResponses";
+} from "constants/ReduxActionConstants";
+import AppToaster from "components/editorComponents/ToastComponent";
+import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
+import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest } from "redux-saga/effects";
 
 export function* validateResponse(response: ApiResponse) {
@@ -48,7 +45,7 @@ ActionErrorDisplayMap = {
 };
 
 export function* errorSaga(
-  errorAction: ReduxAction<{ error: ErrorPayloadType }>,
+  errorAction: ReduxAction<{ error: ErrorPayloadType; show?: boolean }>,
 ) {
   // Just a pass through for now.
   // Add procedures to customize errors here
@@ -56,10 +53,10 @@ export function* errorSaga(
   // Show a toast when the error occurs
   const {
     type,
-    payload: { error },
+    payload: { error, show = true },
   } = errorAction;
   const message = ActionErrorDisplayMap[type](error);
-  AppToaster.show({ message, intent: Intent.DANGER });
+  if (show) AppToaster.show({ message, intent: Intent.DANGER });
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {

@@ -1,12 +1,14 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import FilePickerComponent from "../components/designSystems/appsmith/FilePickerComponent";
+import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
@@ -14,6 +16,14 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   constructor(props: FilePickerWidgetProps) {
     super(props);
     this.refreshUppy(props);
+  }
+
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      label: VALIDATION_TYPES.TEXT,
+      maxNumFiles: VALIDATION_TYPES.NUMBER,
+      allowedFileTypes: VALIDATION_TYPES.ARRAY,
+    };
   }
 
   refreshUppy = (props: FilePickerWidgetProps) => {
