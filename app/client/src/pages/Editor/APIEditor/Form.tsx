@@ -1,21 +1,16 @@
 import React from "react";
 import { reduxForm, InjectedFormProps, FormSubmitHandler } from "redux-form";
-import {
-  FORM_INITIAL_VALUES,
-  HTTP_METHOD_OPTIONS,
-} from "constants/ApiEditorConstants";
+import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { RestAction } from "api/ActionAPI";
-import TextField from "components/editorComponents/fields/TextField";
-import DropdownField from "components/editorComponents/fields/DropdownField";
-import DatasourcesField from "components/editorComponents/fields/DatasourcesField";
-import KeyValueFieldArray from "components/editorComponents/fields/KeyValueFieldArray";
-import JSONEditorField from "components/editorComponents/fields/JSONEditorField";
-import { required } from "utils/validation/common";
-import { apiPathValidation } from "utils/validation/ApiForm";
+import TextField from "components/editorComponents/form/fields/TextField";
+import DropdownField from "components/editorComponents/form/fields/DropdownField";
+import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
+import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
+import JSONEditorField from "components/editorComponents/form/fields/JSONEditorField";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 
@@ -74,6 +69,8 @@ const JSONEditorFieldWrapper = styled.div`
 `;
 
 interface APIFormProps {
+  allowSave: boolean;
+  allowPostBody: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
   onSaveClick: () => void;
   onRunClick: () => void;
@@ -87,6 +84,8 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
+    allowSave,
+    allowPostBody,
     onSaveClick,
     onDeleteClick,
     onRunClick,
@@ -99,12 +98,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
         <FormRow>
-          <TextField
-            name="name"
-            placeholderMessage="API Name *"
-            validate={required}
-            showError
-          />
+          <TextField name="name" placeholder="API Name *" showError />
           <ActionButtons>
             <ActionButton
               text="Delete"
@@ -124,6 +118,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               filled
               onClick={onSaveClick}
               loading={isSaving}
+              disabled={!allowSave}
             />
           </ActionButtons>
         </FormRow>
@@ -135,9 +130,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           />
           <DatasourcesField name="datasource.id" />
           <TextField
-            placeholderMessage="API Path"
+            placeholder="API Path"
             name="actionConfiguration.path"
-            validate={[apiPathValidation]}
             icon="slash"
             showError
           />
@@ -153,10 +147,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.queryParameters"
             label="Params"
           />
-          <FormLabel>{"Post Body"}</FormLabel>
-          <JSONEditorFieldWrapper>
-            <JSONEditorField name="actionConfiguration.body" />
-          </JSONEditorFieldWrapper>
+          {allowPostBody && (
+            <React.Fragment>
+              <FormLabel>{"Post Body"}</FormLabel>
+              <JSONEditorFieldWrapper>
+                <JSONEditorField name="actionConfiguration.body" />
+              </JSONEditorFieldWrapper>
+            </React.Fragment>
+          )}
         </RequestParamsWrapper>
         <ApiResponseView />
       </SecondaryWrapper>
@@ -167,5 +165,4 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 export default reduxForm<RestAction, APIFormProps>({
   form: API_EDITOR_FORM_NAME,
   enableReinitialize: true,
-  initialValues: FORM_INITIAL_VALUES,
 })(ApiEditorForm);

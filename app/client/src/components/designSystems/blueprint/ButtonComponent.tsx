@@ -70,6 +70,10 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
         }
       }};
     }
+    &&.bp3-disabled {
+      background-color: #d0d7dd;
+      border: none;
+    }
   }
 `;
 export type ButtonStyleName = "primary" | "secondary" | "error";

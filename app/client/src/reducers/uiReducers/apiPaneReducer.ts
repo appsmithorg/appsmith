@@ -2,9 +2,14 @@ import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxAction,
 } from "constants/ReduxActionConstants";
+import { RestAction } from "api/ActionAPI";
+import _ from "lodash";
 
 const initialState: ApiPaneReduxState = {
+  lastUsed: "",
+  drafts: {},
   isFetching: false,
   isRunning: false,
   isSaving: false,
@@ -12,6 +17,8 @@ const initialState: ApiPaneReduxState = {
 };
 
 export interface ApiPaneReduxState {
+  lastUsed: string;
+  drafts: Record<string, RestAction>;
   isFetching: boolean;
   isRunning: boolean;
   isSaving: boolean;
@@ -78,6 +85,30 @@ const apiPaneReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
     ...state,
     isDeleting: false,
+  }),
+  [ReduxActionTypes.UPDATE_API_DRAFT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string; draft: Partial<RestAction> }>,
+  ) => ({
+    ...state,
+    drafts: {
+      ...state.drafts,
+      [action.payload.id]: action.payload.draft,
+    },
+  }),
+  [ReduxActionTypes.DELETE_API_DRAFT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    drafts: _.omit(state.drafts, action.payload.id),
+  }),
+  [ReduxActionTypes.API_PANE_CHANGE_API]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    lastUsed: action.payload.id,
   }),
 });
 

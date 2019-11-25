@@ -16,6 +16,7 @@ export const TextInput = styled(InputGroup)`
       border-color: ${props => props.theme.colors.secondary};
       background-color: ${props => props.theme.colors.textOnDarkBG};
       outline: 0;
+      box-shadow: none;
     }
   }
   &.bp3-input-group .bp3-input:not(:first-child) {
@@ -54,7 +55,7 @@ const ErrorText = styled.span`
 `;
 
 export interface TextInputProps {
-  placeholderMessage?: string;
+  placeholder?: string;
   input?: Partial<WrappedFieldInputProps>;
   meta?: WrappedFieldMetaProps;
   icon?: IconName | MaybeElement;
@@ -63,11 +64,20 @@ export interface TextInputProps {
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholderMessage, input, meta, icon, showError, className } = props;
+  const { placeholder, input, meta, icon, showError, className } = props;
   return (
     <InputContainer className={className}>
-      <TextInput {...input} placeholder={placeholderMessage} leftIcon={icon} />
-      {showError && <ErrorText>{meta && meta.touched && meta.error}</ErrorText>}
+      <TextInput
+        {...input}
+        placeholder={placeholder}
+        leftIcon={icon}
+        autoComplete={"off"}
+      />
+      {showError && (
+        <ErrorText>
+          {meta && (meta.touched || meta.active) && meta.error}
+        </ErrorText>
+      )}
     </InputContainer>
   );
 };

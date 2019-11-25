@@ -82,6 +82,11 @@ export const ReduxActionTypes: { [key: string]: string } = {
     "CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS",
   UPDATE_WIDGET_PROPERTY_VALIDATION: "UPDATE_WIDGET_PROPERTY_VALIDATION",
   HIDE_PROPERTY_PANE: "HIDE_PROPERTY_PANE",
+  INIT_API_PANE: "INIT_API_PANE",
+  API_PANE_CHANGE_API: "API_PANE_CHANGE_API",
+  UPDATE_API_DRAFT: "UPDATE_API_DRAFT",
+  DELETE_API_DRAFT: "DELETE_API_DRAFT",
+  UPDATE_ROUTES_PARAMS: "UPDATE_ROUTES_PARAMS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -118,6 +123,11 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
 };
 
+export const ReduxFormActionTypes: { [key: string]: string } = {
+  VALUE_CHANGE: "@@redux-form/CHANGE",
+  UPDATE_FIELD_ERROR: "@@redux-form/UPDATE_SYNC_ERRORS",
+};
+
 export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
 
 export interface ReduxAction<T> {
@@ -126,6 +136,10 @@ export interface ReduxAction<T> {
 }
 
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
+
+export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
+  meta: M;
+}
 
 export interface ReduxActionErrorPayload {
   message: string;

@@ -4,11 +4,7 @@ import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  APIEditorRouteParams,
-} from "constants/routes";
+import { API_EDITOR_URL, APIEditorRouteParams } from "constants/routes";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { FormIcons } from "icons/FormIcons";
 import { Spinner } from "@blueprintjs/core";
@@ -16,15 +12,13 @@ import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
 import { createActionRequest } from "actions/actionActions";
+import { changeApi, initApiPane } from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Fuse from "fuse.js";
 
-const LoadingContainer = styled.div`
+const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const ApiSidebarWrapper = styled.div`
@@ -98,6 +92,14 @@ const ActionName = styled.span`
   text-overflow: ellipsis;
 `;
 
+const DraftIconIndicator = styled.span<{ isHidden: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background-color: #f2994a;
+  opacity: ${({ isHidden }) => (isHidden ? 0 : 1)};
+`;
+
 const CreateNewButton = styled(BaseButton)`
   && {
     border: none;
@@ -135,6 +137,8 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   createAction: (name: string) => void;
+  onApiChange: (id: string) => void;
+  initApiPane: (urlId?: string) => void;
 }
 
 type Props = ReduxStateProps &
@@ -164,7 +168,12 @@ class ApiSidebar extends React.Component<Props, State> {
     };
   }
 
+  componentDidMount(): void {
+    this.props.initApiPane(this.props.match.params.apiId);
+  }
+
   componentDidUpdate(prevProps: Readonly<Props>): void {
+    // If url has changed, hide the create input
     if (!prevProps.match.params.apiId && this.props.match.params.apiId) {
       this.setState({
         isCreating: false,
@@ -174,13 +183,13 @@ class ApiSidebar extends React.Component<Props, State> {
   }
 
   handleCreateNew = () => {
-    const { history } = this.props;
+    const { history, actions } = this.props;
     const { pageId, applicationId } = this.props.match.params;
 
     history.push(API_EDITOR_URL(applicationId, pageId));
     this.setState({
       isCreating: true,
-      name: "",
+      name: `action${actions.data.length}`,
     });
   };
 
@@ -208,11 +217,13 @@ class ApiSidebar extends React.Component<Props, State> {
     });
   };
 
+  handleApiChange = (actionId: string) => {
+    this.props.onApiChange(actionId);
+  };
+
   render() {
-    const { applicationId, pageId } = this.props.match.params;
     const {
-      apiPane,
-      history,
+      apiPane: { isFetching, isSaving, drafts },
       match,
       actions: { data },
     } = this.props;
@@ -222,7 +233,7 @@ class ApiSidebar extends React.Component<Props, State> {
     const actions: RestAction[] = search ? fuse.search(search) : data;
     return (
       <React.Fragment>
-        {apiPane.isFetching ? (
+        {isFetching ? (
           <LoadingContainer>
             <Spinner size={30} />
           </LoadingContainer>
@@ -235,16 +246,12 @@ class ApiSidebar extends React.Component<Props, State> {
                   value: search,
                   onChange: this.handleSearchChange,
                 }}
-                placeholderMessage="Search"
+                placeholder="Search"
               />
               {actions.map(action => (
                 <ApiItem
                   key={action.id}
-                  onClick={() =>
-                    history.push(
-                      API_EDITOR_ID_URL(applicationId, pageId, action.id),
-                    )
-                  }
+                  onClick={() => this.handleApiChange(action.id)}
                   isSelected={activeActionId === action.id}
                 >
                   {action.actionConfiguration ? (
@@ -255,13 +262,14 @@ class ApiSidebar extends React.Component<Props, State> {
                     <HTTPMethod />
                   )}
                   <ActionName>{action.name}</ActionName>
+                  <DraftIconIndicator isHidden={!(action.id in drafts)} />
                 </ApiItem>
               ))}
             </ApiItemsWrapper>
             {isCreating ? (
               <CreateApiWrapper>
                 <BaseTextInput
-                  placeholderMessage="API name"
+                  placeholder="API name"
                   input={{
                     value: name,
                     onChange: this.handleNameChange,
@@ -273,12 +281,12 @@ class ApiSidebar extends React.Component<Props, State> {
                   text=""
                   onClick={this.saveAction}
                   filled
-                  loading={apiPane.isSaving}
+                  loading={isSaving}
                 />
               </CreateApiWrapper>
             ) : (
               <React.Fragment>
-                {!apiPane.isFetching && (
+                {!isFetching && (
                   <CreateNewButton
                     text="Create new API"
                     icon={FormIcons.ADD_NEW_ICON()}
@@ -301,6 +309,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   createAction: (name: string) => dispatch(createActionRequest({ name })),
+  onApiChange: (actionId: string) => dispatch(changeApi(actionId)),
+  initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiSidebar);
