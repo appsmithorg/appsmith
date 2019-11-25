@@ -1,7 +1,7 @@
 import React from "react";
 import Creatable from "react-select/creatable";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { theme } from "../../../constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import styled from "styled-components";
 
 const Wrapper = styled.div`

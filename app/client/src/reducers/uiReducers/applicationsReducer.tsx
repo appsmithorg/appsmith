@@ -1,10 +1,10 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 
 const initialState: ApplicationsReduxState = {

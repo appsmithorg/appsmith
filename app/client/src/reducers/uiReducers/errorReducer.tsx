@@ -1,9 +1,9 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
 const initialState: ErrorReduxState = { sourceAction: "", message: "" };
 

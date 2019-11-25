@@ -1,8 +1,8 @@
 import Api from "./Api";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { PageAction } from "../constants/ActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { PageAction } from "constants/ActionConstants";
 import { AxiosPromise } from "axios";
 
 export interface FetchPageRequest {

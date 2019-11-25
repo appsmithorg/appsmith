@@ -1,8 +1,8 @@
 import React from "react";
 import { XYCoord } from "react-dnd";
 import styled from "styled-components";
-import { snapToGrid } from "../../utils/helpers";
-import { theme } from "../../constants/DefaultTheme";
+import { snapToGrid } from "utils/helpers";
+import { theme } from "constants/DefaultTheme";
 
 const DropZoneWrapper = styled.div`
   position: absolute;

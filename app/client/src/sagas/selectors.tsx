@@ -1,7 +1,7 @@
-import { AppState } from "../reducers";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { AppState } from "reducers";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
 export const getWidgets = (
   state: AppState,
 ): { [widgetId: string]: FlattenedWidgetProps } => {

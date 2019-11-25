@@ -1,4 +1,4 @@
-import CanvasWidgetsNormalizer from "../normalizers/CanvasWidgetsNormalizer";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -6,12 +6,12 @@ import {
   UpdateCanvasPayload,
   PageListPayload,
   FetchPageListPayload,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import {
   updateCanvas,
   savePageSuccess,
   fetchPageSuccess,
-} from "../actions/pageActions";
+} from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
   SavePageResponse,
@@ -21,8 +21,8 @@ import PageApi, {
   FetchPublishedPageResponse,
   CreatePageRequest,
   FetchPageListResponse,
-} from "../api/PageApi";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+} from "api/PageApi";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   call,
   select,
@@ -32,7 +32,7 @@ import {
   all,
 } from "redux-saga/effects";
 
-import { extractCurrentDSL } from "../utils/WidgetPropsUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { RenderModes } from "constants/WidgetConstants";

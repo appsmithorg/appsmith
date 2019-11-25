@@ -4,7 +4,7 @@ import {
   ValidationResponse,
   ValidationType,
   Validator,
-} from "../constants/WidgetValidation";
+} from "constants/WidgetValidation";
 import moment from "moment";
 
 export const VALIDATORS: Record<ValidationType, Validator> = {

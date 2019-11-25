@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { Spinner, Intent } from "@blueprintjs/core";
 
 class SpinnerComponent extends React.Component<SpinnerComponentProps> {

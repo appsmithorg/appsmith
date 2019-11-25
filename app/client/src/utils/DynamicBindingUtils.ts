@@ -1,11 +1,8 @@
 import _ from "lodash";
-import { DataTree } from "../reducers";
+import { DataTree } from "reducers";
 import { JSONPath } from "jsonpath-plus";
-import { WidgetProps } from "../widgets/BaseWidget";
-import {
-  DATA_BIND_REGEX,
-  DATA_PATH_REGEX,
-} from "../constants/BindingsConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DATA_BIND_REGEX, DATA_PATH_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 
 export const isDynamicValue = (value: string): boolean =>

@@ -1,12 +1,12 @@
 import { createSelector } from "reselect";
-import { AppState, DataTree } from "../reducers";
-import { PropertyPaneReduxState } from "../reducers/uiReducers/propertyPaneReducer";
-import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
-import { PropertySection } from "../reducers/entityReducers/propertyPaneConfigReducer";
+import { AppState, DataTree } from "reducers";
+import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { getDataTree } from "./entitiesSelector";
-import { enhanceWithDynamicValuesAndValidations } from "../utils/DynamicBindingUtils";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;

@@ -4,7 +4,7 @@
  */
 import { Component } from "react";
 import _ from "lodash";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 
 abstract class BaseControl<T extends ControlProps> extends Component<T> {
   updateProperty(propertyName: string, propertyValue: any) {

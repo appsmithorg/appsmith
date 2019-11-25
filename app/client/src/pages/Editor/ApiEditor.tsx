@@ -7,16 +7,16 @@ import {
   runApiAction,
   deleteAction,
   updateAction,
-} from "../../actions/actionActions";
-import { RestAction } from "../../api/ActionAPI";
-import { AppState } from "../../reducers";
+} from "actions/actionActions";
+import { RestAction } from "api/ActionAPI";
+import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
-import { API_EDITOR_URL } from "../../constants/routes";
-import { API_EDITOR_FORM_NAME } from "../../constants/forms";
-import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
-import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
+import { API_EDITOR_URL } from "constants/routes";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import styled from "styled-components";
-import { FORM_INITIAL_VALUES } from "../../constants/ApiEditorConstants";
+import { FORM_INITIAL_VALUES } from "constants/ApiEditorConstants";
 
 interface ReduxStateProps {
   actions: ActionDataState;

@@ -1,7 +1,7 @@
-import { FetchPageResponse } from "../api/PageApi";
-import { generateReactKey } from "../utils/generators";
-import { WidgetType } from "../constants/WidgetConstants";
-import { ActionType } from "../constants/ActionConstants";
+import { FetchPageResponse } from "api/PageApi";
+import { generateReactKey } from "utils/generators";
+import { WidgetType } from "constants/WidgetConstants";
+import { ActionType } from "constants/ActionConstants";
 
 const PageMockResponse: FetchPageResponse = {
   responseMeta: {

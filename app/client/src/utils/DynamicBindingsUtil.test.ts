@@ -1,5 +1,5 @@
 import { getDynamicValue } from "./DynamicBindingUtils";
-import { DataTree } from "../reducers";
+import { DataTree } from "reducers";
 
 it("Gets the value from the data tree", () => {
   const dynamicBinding = "{{GetUsers.data}}";

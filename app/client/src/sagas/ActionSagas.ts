@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { Intent } from "@blueprintjs/core";
 import {
   all,
@@ -12,7 +12,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { ActionPayload, PageAction } from "../constants/ActionConstants";
+import { ActionPayload, PageAction } from "constants/ActionConstants";
 import ActionAPI, {
   ActionApiResponse,
   ActionCreateUpdateResponse,
@@ -20,32 +20,32 @@ import ActionAPI, {
   ExecuteActionRequest,
   Property,
   RestAction,
-} from "../api/ActionAPI";
-import { AppState, DataTree } from "../reducers";
+} from "api/ActionAPI";
+import { AppState, DataTree } from "reducers";
 import _ from "lodash";
-import { mapToPropList } from "../utils/AppsmithUtils";
-import AppToaster from "../components/editorComponents/ToastComponent";
-import { GenericApiResponse } from "../api/ApiResponses";
+import { mapToPropList } from "utils/AppsmithUtils";
+import AppToaster from "components/editorComponents/ToastComponent";
+import { GenericApiResponse } from "api/ApiResponses";
 import {
   createActionSuccess,
   deleteActionSuccess,
   updateActionSuccess,
-} from "../actions/actionActions";
-import { API_EDITOR_ID_URL, API_EDITOR_URL } from "../constants/routes";
+} from "actions/actionActions";
+import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
 import {
   extractDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
-} from "../utils/DynamicBindingUtils";
-import history from "../utils/history";
+} from "utils/DynamicBindingUtils";
+import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
-import { getDataTree } from "../selectors/entitiesSelector";
+import { getDataTree } from "selectors/entitiesSelector";
 import {
   ERROR_MESSAGE_SELECT_ACTION,
   ERROR_MESSAGE_SELECT_ACTION_TYPE,
 } from "constants/messages";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "../constants/forms";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 
 const getAction = (
   state: AppState,

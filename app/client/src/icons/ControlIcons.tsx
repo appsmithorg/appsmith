@@ -1,8 +1,8 @@
 import React from "react";
-import { IconProps, IconWrapper } from "../constants/IconConstants";
-import { ReactComponent as DeleteIcon } from "../assets/icons/control/delete.svg";
-import { ReactComponent as MoveIcon } from "../assets/icons/control/move.svg";
-import { ReactComponent as EditIcon } from "../assets/icons/control/edit.svg";
+import { IconProps, IconWrapper } from "constants/IconConstants";
+import { ReactComponent as DeleteIcon } from "assets/icons/control/delete.svg";
+import { ReactComponent as MoveIcon } from "assets/icons/control/move.svg";
+import { ReactComponent as EditIcon } from "assets/icons/control/edit.svg";
 import { ReactComponent as ViewIcon } from "assets/icons/control/view.svg";
 import { ReactComponent as MoreVerticalIcon } from "assets/icons/control/more-vertical.svg";
 

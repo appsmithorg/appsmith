@@ -1,9 +1,9 @@
 import * as React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { BaseButton } from "../blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { DashboardModal } from "@uppy/react";
 
 class FilePickerComponent extends React.Component<

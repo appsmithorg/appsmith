@@ -1,7 +1,7 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import ImageComponent from "../components/designSystems/appsmith/ImageComponent";
+import { WidgetType } from "constants/WidgetConstants";
+import ImageComponent from "components/designSystems/appsmith/ImageComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 

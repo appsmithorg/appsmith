@@ -1,5 +1,5 @@
-import { WidgetCardProps } from "../widgets/BaseWidget";
-import { generateReactKey } from "../utils/generators";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import { generateReactKey } from "utils/generators";
 /* eslint-disable no-useless-computed-key */
 
 const WidgetSidebarResponse: {

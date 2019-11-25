@@ -1,12 +1,12 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   UpdateCanvasPayload,
   ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { UpdateWidgetPropertyPayload } from "../../actions/controlActions";
+} from "constants/ReduxActionConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { WidgetLoadingState } from "actions/widgetActions";
 
 const initialState: CanvasWidgetsReduxState = {};

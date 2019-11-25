@@ -2,9 +2,9 @@ import React from "react";
 import { connect } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "../../widgets/BaseWidget";
-import { AppState } from "../../reducers";
-import { getWidgetCards } from "../../selectors/editorSelectors";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import { AppState } from "reducers";
+import { getWidgetCards } from "selectors/editorSelectors";
 
 type WidgetSidebarProps = {
   cards: { [id: string]: WidgetCardProps[] };
@@ -48,7 +48,4 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null,
-)(WidgetSidebar);
+export default connect(mapStateToProps, null)(WidgetSidebar);

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { Switch, Route } from "react-router-dom";
-import { AppState } from "../../reducers";
+import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   getApplicationViewerPageURL,
@@ -11,18 +11,18 @@ import {
 import {
   ReduxActionTypes,
   PageListPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import {
   getPageList,
   getIsFetchingPage,
   getCurrentDSLPageId,
-} from "../../selectors/appViewSelectors";
-import { executeAction } from "../../actions/widgetActions";
-import { ActionPayload } from "../../constants/ActionConstants";
+} from "selectors/appViewSelectors";
+import { executeAction } from "actions/widgetActions";
+import { ActionPayload } from "constants/ActionConstants";
 import SideNav, { SideNavItem } from "./viewer/SideNav";
 import AppViewerHeader from "./viewer/AppViewerHeader";
-import { updateWidgetProperty } from "../../actions/controlActions";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { updateWidgetProperty } from "actions/controlActions";
+import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";

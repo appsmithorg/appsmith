@@ -1,9 +1,9 @@
 import * as React from "react";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import { DatePickerType } from "../../../widgets/DatePickerWidget";
+import { DatePickerType } from "widgets/DatePickerWidget";
 
 class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {

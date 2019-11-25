@@ -1,10 +1,10 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "../../constants/ReduxActionConstants";
-import { RestAction } from "../../api/ActionAPI";
+} from "constants/ReduxActionConstants";
+import { RestAction } from "api/ActionAPI";
 import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 const initialState: ActionDataState = {

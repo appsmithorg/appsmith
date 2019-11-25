@@ -1,26 +1,24 @@
-import { WidgetProps } from "../widgets/BaseWidget";
-import ContainerWidget, {
-  ContainerWidgetProps,
-} from "../widgets/ContainerWidget";
-import TextWidget, { TextWidgetProps } from "../widgets/TextWidget";
-import InputWidget, { InputWidgetProps } from "../widgets/InputWidget";
-import SpinnerWidget, { SpinnerWidgetProps } from "../widgets/SpinnerWidget";
-import CheckboxWidget, { CheckboxWidgetProps } from "../widgets/CheckboxWidget";
+import { WidgetProps } from "widgets/BaseWidget";
+import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
+import TextWidget, { TextWidgetProps } from "widgets/TextWidget";
+import InputWidget, { InputWidgetProps } from "widgets/InputWidget";
+import SpinnerWidget, { SpinnerWidgetProps } from "widgets/SpinnerWidget";
+import CheckboxWidget, { CheckboxWidgetProps } from "widgets/CheckboxWidget";
 import RadioGroupWidget, {
   RadioGroupWidgetProps,
-} from "../widgets/RadioGroupWidget";
+} from "widgets/RadioGroupWidget";
 import WidgetFactory from "./WidgetFactory";
 import React from "react";
-import ButtonWidget, { ButtonWidgetProps } from "../widgets/ButtonWidget";
-import DropdownWidget, { DropdownWidgetProps } from "../widgets/DropdownWidget";
-import ImageWidget, { ImageWidgetProps } from "../widgets/ImageWidget";
-import TableWidget, { TableWidgetProps } from "../widgets/TableWidget";
+import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
+import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
+import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
+import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
 import FilePickerWidget, {
   FilePickerWidgetProps,
-} from "../widgets/FilepickerWidget";
+} from "widgets/FilepickerWidget";
 import DatePickerWidget, {
   DatePickerWidgetProps,
-} from "../widgets/DatePickerWidget";
+} from "widgets/DatePickerWidget";
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(

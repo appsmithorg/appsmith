@@ -1,10 +1,7 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { Datasource } from "../../api/DatasourcesApi";
-import { REST_PLUGIN_ID } from "../../constants/ApiEditorConstants";
+import { createReducer } from "utils/AppsmithUtils";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { Datasource } from "api/DatasourcesApi";
+import { REST_PLUGIN_ID } from "constants/ApiEditorConstants";
 
 export interface DatasourceDataState {
   list: Datasource[];

@@ -1,8 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { Intent } from "@blueprintjs/core";
-import SpinnerComponent from "../components/designSystems/blueprint/SpinnerComponent";
+import SpinnerComponent from "components/designSystems/blueprint/SpinnerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 

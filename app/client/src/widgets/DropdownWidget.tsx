@@ -1,8 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import { ActionPayload } from "../constants/ActionConstants";
-import DropDownComponent from "../components/designSystems/blueprint/DropdownComponent";
+import { WidgetType } from "constants/WidgetConstants";
+import { ActionPayload } from "constants/ActionConstants";
+import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";

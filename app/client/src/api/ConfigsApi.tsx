@@ -1,6 +1,6 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
-import { PropertyConfig } from "../reducers/entityReducers/propertyPaneConfigReducer";
+import { PropertyConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { AxiosPromise } from "axios";
 
 export interface PropertyPaneConfigsResponse extends ApiResponse {

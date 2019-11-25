@@ -1,10 +1,10 @@
-import { ControlType } from "../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import {
   ControlBuilder,
   ControlProps,
   ControlData,
   ControlFunctions,
-} from "../components/propertyControls/BaseControl";
+} from "components/propertyControls/BaseControl";
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();

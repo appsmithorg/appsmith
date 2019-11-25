@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import StyledHeader from "../../../components/designSystems/appsmith/StyledHeader";
+import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 
 const HeaderWrapper = styled(StyledHeader)`
   position: fixed;

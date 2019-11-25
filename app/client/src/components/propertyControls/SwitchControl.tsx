@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledSwitch } from "./StyledControls";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {

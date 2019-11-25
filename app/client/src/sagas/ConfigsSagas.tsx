@@ -2,9 +2,9 @@ import { all, call, put, takeLatest } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
-import ConfigsApi, { PropertyPaneConfigsResponse } from "../api/ConfigsApi";
+import ConfigsApi, { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 import { validateResponse } from "./ErrorSagas";
 

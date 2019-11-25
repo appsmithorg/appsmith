@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import { createPortal } from "react-dom";
 import PopperJS from "popper.js";
-import PaneWrapper from "../common/PaneWrapper";
+import PaneWrapper from "pages/common/PaneWrapper";
 
 type PopperProps = {
   isOpen: boolean;

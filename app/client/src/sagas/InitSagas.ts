@@ -5,11 +5,11 @@ import {
   InitializeEditorPayload,
 } from "constants/ReduxActionConstants";
 
-import { fetchEditorConfigs } from "../actions/configsActions";
-import { fetchPageList } from "../actions/pageActions";
-import { fetchActions } from "../actions/actionActions";
-import { fetchDatasources } from "../actions/datasourcesActions";
-import { initBindingMapListener } from "../actions/bindingActions";
+import { fetchEditorConfigs } from "actions/configsActions";
+import { fetchPageList } from "actions/pageActions";
+import { fetchActions } from "actions/actionActions";
+import { fetchDatasources } from "actions/datasourcesActions";
+import { initBindingMapListener } from "actions/bindingActions";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,

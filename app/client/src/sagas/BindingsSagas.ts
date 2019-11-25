@@ -1,7 +1,7 @@
 import { all, select, takeLatest, put, call, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
-import { AppState } from "../reducers";
-import { bindingsMapSuccess } from "../actions/bindingActions";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { AppState } from "reducers";
+import { bindingsMapSuccess } from "actions/bindingActions";
 
 function* createUpdateBindingsMapData() {
   const data: AppState = yield select();

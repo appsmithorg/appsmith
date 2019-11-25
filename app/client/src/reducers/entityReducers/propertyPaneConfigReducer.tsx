@@ -1,12 +1,9 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { InputControlProps } from "../../components/propertyControls/InputTextControl";
-import { DropDownControlProps } from "../../components/propertyControls/DropDownControl";
-import { ControlProps } from "../../components/propertyControls/BaseControl";
-import { WidgetType } from "../../constants/WidgetConstants";
+import { createReducer } from "utils/AppsmithUtils";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { InputControlProps } from "components/propertyControls/InputTextControl";
+import { DropDownControlProps } from "components/propertyControls/DropDownControl";
+import { ControlProps } from "components/propertyControls/BaseControl";
+import { WidgetType } from "constants/WidgetConstants";
 
 const initialState: PropertyPaneConfigState = {
   configVersion: 0,

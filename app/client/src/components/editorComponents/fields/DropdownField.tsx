@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import { BaseDropdown } from "../../designSystems/appsmith/Dropdown";
+import { BaseDropdown } from "components/designSystems/appsmith/Dropdown";
 import { Field } from "redux-form";
 
 interface DropdownFieldProps {
