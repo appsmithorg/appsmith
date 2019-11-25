@@ -1,7 +1,7 @@
 import { createSelector } from "reselect";
-import { AppState } from "../reducers";
-import { ApplicationsReduxState } from "../reducers/uiReducers/applicationsReducer";
-import { ApplicationPayload } from "../constants/ReduxActionConstants";
+import { AppState } from "reducers";
+import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const getApplicationsState = (state: AppState) => state.ui.applications;
 

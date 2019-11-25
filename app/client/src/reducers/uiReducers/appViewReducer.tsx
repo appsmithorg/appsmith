@@ -1,11 +1,11 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
+import { createReducer } from "utils/AppsmithUtils";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import {
   ReduxAction,
   ReduxActionTypes,
   PageListPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,

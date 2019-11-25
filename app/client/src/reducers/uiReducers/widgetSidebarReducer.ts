@@ -1,11 +1,11 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import { WidgetCardProps } from "../../widgets/BaseWidget";
-import WidgetSidebarResponse from "../../mockResponses/WidgetSidebarResponse";
+import { createReducer } from "utils/AppsmithUtils";
+import { WidgetCardProps } from "widgets/BaseWidget";
+import WidgetSidebarResponse from "mockResponses/WidgetSidebarResponse";
 import {
   LoadWidgetSidebarPayload,
   ReduxAction,
   ReduxActionTypes,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { EditorReduxState } from "./editorReducer";
 
 export interface WidgetSidebarReduxState {

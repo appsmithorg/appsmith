@@ -4,7 +4,7 @@ import {
   ValidationResponse,
   ValidationType,
   Validator,
-} from "../constants/WidgetValidation";
+} from "constants/WidgetValidation";
 
 // TODO: need to be strict about what the key can be
 export type WidgetPropertyValidationType = Record<string, ValidationType>;

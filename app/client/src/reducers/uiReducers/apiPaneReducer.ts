@@ -1,8 +1,8 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
 const initialState: ApiPaneReduxState = {
   isFetching: false,

@@ -1,14 +1,14 @@
 import React, { Component, ReactNode } from "react";
 import styled from "styled-components";
 import { MenuItem, Menu, ControlGroup, InputGroup } from "@blueprintjs/core";
-import { BaseButton } from "../designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import {
   ItemRenderer,
   Select,
   ItemListRenderer,
   IItemListRendererProps,
 } from "@blueprintjs/select";
-import { DropdownOption } from "../../widgets/DropdownWidget";
+import { DropdownOption } from "widgets/DropdownWidget";
 
 const Dropdown = Select.ofType<DropdownOption>();
 const StyledDropdown = styled(Dropdown)``;

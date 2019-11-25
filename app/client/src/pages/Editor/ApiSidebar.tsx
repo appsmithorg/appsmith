@@ -2,20 +2,20 @@ import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "../../reducers";
-import { ActionDataState } from "../../reducers/entityReducers/actionsReducer";
+import { AppState } from "reducers";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
   APIEditorRouteParams,
-} from "../../constants/routes";
-import { BaseButton } from "../../components/designSystems/blueprint/ButtonComponent";
-import { FormIcons } from "../../icons/FormIcons";
+} from "constants/routes";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { FormIcons } from "icons/FormIcons";
 import { Spinner } from "@blueprintjs/core";
-import { ApiPaneReduxState } from "../../reducers/uiReducers/apiPaneReducer";
-import { BaseTextInput } from "../../components/designSystems/appsmith/TextInputComponent";
+import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
+import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { TICK } from "@blueprintjs/icons/lib/esm/generated/iconNames";
-import { createActionRequest } from "../../actions/actionActions";
+import { createActionRequest } from "actions/actionActions";
 import { RestAction } from "api/ActionAPI";
 import Fuse from "fuse.js";
 

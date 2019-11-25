@@ -1,5 +1,5 @@
 import { all, spawn } from "redux-saga/effects";
-import pageSagas from "../sagas/PageSagas";
+import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";

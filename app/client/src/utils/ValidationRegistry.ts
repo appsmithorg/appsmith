@@ -1,5 +1,5 @@
 import ValidationFactory from "./ValidationFactory";
-import { VALIDATION_TYPES } from "../constants/WidgetValidation";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { VALIDATORS } from "./Validators";
 
 class ValidationRegistry {

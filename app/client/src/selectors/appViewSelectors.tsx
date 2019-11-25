@@ -1,12 +1,12 @@
 import { createSelector } from "reselect";
-import { AppState, DataTree } from "../reducers";
-import { AppViewReduxState } from "../reducers/uiReducers/appViewReducer";
+import { AppState, DataTree } from "reducers";
+import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { getDataTree } from "./entitiesSelector";
 import createCachedSelector from "re-reselect";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { getValidatedDynamicProps } from "./editorSelectors";
-import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>

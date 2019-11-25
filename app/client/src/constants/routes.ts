@@ -1,4 +1,4 @@
-import { MenuIcons } from "../icons/MenuIcons";
+import { MenuIcons } from "icons/MenuIcons";
 export const BASE_URL = "/";
 export const LOGIN_URL = "/login";
 export const APPLICATIONS_URL = `/applications`;

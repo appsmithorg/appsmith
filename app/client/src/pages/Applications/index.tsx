@@ -1,17 +1,17 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { AppState } from "../../reducers";
+import { AppState } from "reducers";
 import {
   getApplicationList,
   getIsFetchingApplications,
   getIsCreatingApplication,
   getCreateApplicationError,
-} from "../../selectors/applicationSelectors";
+} from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
   ApplicationPayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import { Divider } from "@blueprintjs/core";
 import ApplicationsHeader from "./ApplicationsHeader";
 import SubHeader from "pages/common/SubHeader";

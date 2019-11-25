@@ -1,6 +1,6 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { APIRequest } from "../constants/ApiConstants";
+import { APIRequest } from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
 import { Datasource } from "./DatasourcesApi";
 

@@ -2,13 +2,13 @@ import React from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import FormRow from "./FormRow";
-import { BaseText } from "../designSystems/blueprint/TextComponent";
-import { BaseTabbedView } from "../designSystems/appsmith/TabbedView";
+import { BaseText } from "components/designSystems/blueprint/TextComponent";
+import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";
-import { AppState } from "../../reducers";
+import { AppState } from "reducers";
 import CodeEditor from "./CodeEditor";
-import { ActionResponse } from "../../api/ActionAPI";
-import { formatBytes } from "../../utils/helpers";
+import { ActionResponse } from "api/ActionAPI";
+import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 
 const ResponseWrapper = styled.div`

@@ -1,6 +1,6 @@
 import React from "react";
 import { Field } from "redux-form";
-import CodeEditor from "../CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 
 const JSONEditorField = (props: { name: string }) => {
   return (

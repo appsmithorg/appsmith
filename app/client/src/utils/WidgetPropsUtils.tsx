@@ -1,15 +1,15 @@
-import { FetchPageResponse } from "../api/PageApi";
+import { FetchPageResponse } from "api/PageApi";
 import { XYCoord } from "react-dnd";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
-import { WidgetConfigProps } from "../reducers/entityReducers/widgetConfigReducer";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetProps,
   WidgetOperations,
   WidgetOperation,
-} from "../widgets/BaseWidget";
-import { WidgetType, RenderModes } from "../constants/WidgetConstants";
-import { generateReactKey } from "../utils/generators";
-import { GridDefaults, WidgetTypes } from "../constants/WidgetConstants";
+} from "widgets/BaseWidget";
+import { WidgetType, RenderModes } from "constants/WidgetConstants";
+import { generateReactKey } from "utils/generators";
+import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 

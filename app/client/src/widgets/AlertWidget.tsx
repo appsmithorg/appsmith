@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import { ActionPayload } from "constants/ActionConstants";
 
 class AlertWidget extends Component {
   getPageView() {

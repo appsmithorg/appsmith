@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledTimeZonePicker } from "./StyledControls";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { ControlType } from "constants/PropertyControlConstants";
 import moment from "moment-timezone";
 import "../../../node_modules/@blueprintjs/timezone/lib/css/blueprint-timezone.css";
 

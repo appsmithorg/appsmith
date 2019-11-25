@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Text, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ComponentProps } from "../appsmith/BaseComponent";
-import { TextStyle } from "../../../widgets/TextWidget";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
+import { TextStyle } from "widgets/TextWidget";
 
 type TextStyleProps = {
   styleName: "primary" | "secondary" | "error";

@@ -1,27 +1,27 @@
 import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import { AppState } from "../../reducers";
-import PropertyControlFactory from "../../utils/PropertyControlFactory";
+import { AppState } from "reducers";
+import PropertyControlFactory from "utils/PropertyControlFactory";
 import _ from "lodash";
-import { PropertySection } from "../../reducers/entityReducers/propertyPaneConfigReducer";
-import { updateWidgetProperty } from "../../actions/controlActions";
+import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { updateWidgetProperty } from "actions/controlActions";
 import {
   getCurrentWidgetId,
   getCurrentReferenceNode,
   getPropertyConfig,
   getIsPropertyPaneVisible,
   getWidgetPropsWithValidations,
-} from "../../selectors/propertyPaneSelectors";
+} from "selectors/propertyPaneSelectors";
 import { Divider } from "@blueprintjs/core";
 
 import Popper from "./Popper";
-import { ControlProps } from "../../components/propertyControls/BaseControl";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { ControlProps } from "components/propertyControls/BaseControl";
+import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
-import { theme } from "../../constants/DefaultTheme";
-import { WidgetProps } from "../../widgets/BaseWidget";
+import { theme } from "constants/DefaultTheme";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;

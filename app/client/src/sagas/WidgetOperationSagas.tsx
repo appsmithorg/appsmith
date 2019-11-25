@@ -2,24 +2,24 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 import {
   WidgetAddChild,
   WidgetResize,
   WidgetMove,
   WidgetDelete,
-} from "../actions/pageActions";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+} from "actions/pageActions";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets, getWidget, getDefaultWidgetConfig } from "./selectors";
 import {
   generateWidgetProps,
   updateWidgetPosition,
-} from "../utils/WidgetPropsUtils";
+} from "utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
-import { getNextWidgetName } from "../utils/AppsmithUtils";
-import { UpdateWidgetPropertyPayload } from "../actions/controlActions";
-import { isDynamicValue } from "../utils/DynamicBindingUtils";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { getNextWidgetName } from "utils/AppsmithUtils";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {

@@ -1,5 +1,5 @@
 import { getFormValues, isDirty, isValid } from "redux-form";
-import { AppState } from "../reducers";
+import { AppState } from "reducers";
 
 type GetFormData = (
   state: AppState,

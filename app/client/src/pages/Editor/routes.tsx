@@ -13,7 +13,7 @@ import {
   BUILDER_BASE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
-} from "../../constants/routes";
+} from "constants/routes";
 import styled from "styled-components";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`

@@ -1,9 +1,9 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import SidebarComponent from "../../components/editorComponents/Sidebar";
-import NavBarItem from "../../components/editorComponents/NavBarItem";
-import { EDITOR_ROUTES, BuilderRouteParams } from "../../constants/routes";
+import SidebarComponent from "components/editorComponents/Sidebar";
+import NavBarItem from "components/editorComponents/NavBarItem";
+import { EDITOR_ROUTES, BuilderRouteParams } from "constants/routes";
 
 const Wrapper = styled.div`
   display: grid;

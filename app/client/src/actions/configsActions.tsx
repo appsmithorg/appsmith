@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "../constants/ReduxActionConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export type EditorConfigIdsType = {
   widgetCardsPaneId?: string;

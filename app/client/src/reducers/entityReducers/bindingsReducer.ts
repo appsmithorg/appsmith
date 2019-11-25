@@ -1,9 +1,6 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { NamePathBindingMap } from "../../constants/BindingsConstants";
+import { createReducer } from "utils/AppsmithUtils";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { NamePathBindingMap } from "constants/BindingsConstants";
 
 export type BindingsDataState = NamePathBindingMap;
 

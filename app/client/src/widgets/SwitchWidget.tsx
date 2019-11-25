@@ -1,6 +1,6 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getPageView() {

@@ -1,8 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import ButtonComponent from "../components/designSystems/blueprint/ButtonComponent";
-import { ActionPayload } from "../constants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import ButtonComponent from "components/designSystems/blueprint/ButtonComponent";
+import { ActionPayload } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 

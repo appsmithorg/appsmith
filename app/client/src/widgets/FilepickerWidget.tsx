@@ -1,12 +1,12 @@
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import FilePickerComponent from "../components/designSystems/appsmith/FilePickerComponent";
+import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 

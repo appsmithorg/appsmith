@@ -1,10 +1,10 @@
 import React from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import { Icon } from "@blueprintjs/core";
-import { FormIcons } from "../../../icons/FormIcons";
+import { FormIcons } from "icons/FormIcons";
 import TextField from "./TextField";
-import FormRow from "../FormRow";
-import FormLabel from "../FormLabel";
+import FormRow from "components/editorComponents/FormRow";
+import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
 
 const FormRowWithLabel = styled(FormRow)`

@@ -1,9 +1,9 @@
-import { createReducer } from "../../utils/AppsmithUtils";
+import { createReducer } from "utils/AppsmithUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
   ShowPropertyPanePayload,
-} from "../../constants/ReduxActionConstants";
+} from "constants/ReduxActionConstants";
 
 const initialState: PropertyPaneReduxState = {
   isVisible: false,

@@ -1,6 +1,6 @@
-import { FetchPageRequest } from "../api/PageApi";
-import { WidgetProps, WidgetOperation } from "../widgets/BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
+import { FetchPageRequest } from "api/PageApi";
+import { WidgetProps, WidgetOperation } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -8,8 +8,8 @@ import {
   SavePagePayload,
   SavePageSuccessPayload,
   FetchPageListPayload,
-} from "../constants/ReduxActionConstants";
-import { ContainerWidgetProps } from "../widgets/ContainerWidget";
+} from "constants/ReduxActionConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
 export const fetchPageList = (
   applicationId: string,

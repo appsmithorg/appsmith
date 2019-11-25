@@ -1,8 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledInputGroup } from "./StyledControls";
-import { InputType } from "../../widgets/InputWidget";
-import { ControlType } from "../../constants/PropertyControlConstants";
+import { InputType } from "widgets/InputWidget";
+import { ControlType } from "constants/PropertyControlConstants";
 import { Intent } from "@blueprintjs/core";
 
 class InputTextControl extends BaseControl<InputControlProps> {

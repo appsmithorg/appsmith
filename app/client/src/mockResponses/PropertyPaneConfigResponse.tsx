@@ -1,4 +1,4 @@
-import { PropertyPaneConfigState } from "../reducers/entityReducers/propertyPaneConfigReducer";
+import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 
 const PropertyPaneConfigResponse = {
   config: {

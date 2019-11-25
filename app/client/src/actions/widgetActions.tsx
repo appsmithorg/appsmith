@@ -1,8 +1,5 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../constants/ReduxActionConstants";
-import { ActionPayload } from "../constants/ActionConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { ActionPayload } from "constants/ActionConstants";
 
 export const executeAction = (
   actionPayloads?: ActionPayload[],

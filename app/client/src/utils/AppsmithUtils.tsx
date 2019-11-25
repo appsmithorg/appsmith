@@ -1,18 +1,18 @@
-import { ReduxAction } from "../constants/ReduxActionConstants";
+import { ReduxAction } from "constants/ReduxActionConstants";
 import {
   SENTRY_PROD_CONFIG,
   SENTRY_STAGE_CONFIG,
   HOTJAR_PROD_HJID,
   HOTJAR_PROD_HJSV,
-} from "../constants/ThirdPartyConstants";
+} from "constants/ThirdPartyConstants";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import netlifyIdentity from "netlify-identity-widget";
 import FontFaceObserver from "fontfaceobserver";
 import PropertyControlRegistry from "./PropertyControlRegistry";
 import WidgetBuilderRegistry from "./WidgetRegistry";
-import { Property } from "../api/ActionAPI";
-import { FlattenedWidgetProps } from "../reducers/entityReducers/canvasWidgetsReducer";
+import { Property } from "api/ActionAPI";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import _ from "lodash";
 import moment from "moment-timezone";
 import ValidationRegistry from "./ValidationRegistry";

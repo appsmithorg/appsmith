@@ -1,7 +1,7 @@
 import BaseTable, { Column } from "react-base-table";
 import styled from "styled-components";
 import React from "react";
-import { noop } from "../../../utils/AppsmithUtils";
+import { noop } from "utils/AppsmithUtils";
 
 const RowLoader = styled.div`
   height: 16px !important;

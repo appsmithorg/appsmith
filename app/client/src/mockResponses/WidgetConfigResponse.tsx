@@ -1,4 +1,4 @@
-import { WidgetConfigReducerState } from "../reducers/entityReducers/widgetConfigReducer";
+import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {

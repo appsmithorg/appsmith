@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
-import { noCollision } from "../../utils/WidgetPropsUtils";
+import { noCollision } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
 import DropTargetMask from "./DropTargetMask";
 

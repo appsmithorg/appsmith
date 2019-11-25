@@ -1,4 +1,4 @@
-import { WidgetProps, WidgetCardProps } from "../widgets/BaseWidget";
+import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
 import { RefObject } from "react";
 
 export const ReduxActionTypes: { [key: string]: string } = {

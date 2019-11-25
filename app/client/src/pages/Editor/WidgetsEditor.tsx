@@ -4,16 +4,16 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Canvas from "./Canvas";
 import PropertyPane from "./PropertyPane";
-import { AppState } from "../../reducers";
-import { WidgetProps } from "../../widgets/BaseWidget";
-import { savePage } from "../../actions/pageActions";
+import { AppState } from "reducers";
+import { WidgetProps } from "widgets/BaseWidget";
+import { savePage } from "actions/pageActions";
 import {
   getDenormalizedDSL,
   getIsFetchingPage,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { ContainerWidgetProps } from "../../widgets/ContainerWidget";
-import { ReduxActionTypes } from "../../constants/ReduxActionConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { BuilderRouteParams } from "constants/routes";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";

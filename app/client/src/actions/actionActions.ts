@@ -1,8 +1,5 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../constants/ReduxActionConstants";
-import { RestAction } from "../api/ActionAPI";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { RestAction } from "api/ActionAPI";
 import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {

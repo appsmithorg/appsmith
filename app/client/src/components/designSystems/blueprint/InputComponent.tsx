@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "../appsmith/BaseComponent";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
   NumericInput,
@@ -10,7 +10,7 @@ import {
   Label,
   Text,
 } from "@blueprintjs/core";
-import { InputType } from "../../../widgets/InputWidget";
+import { InputType } from "widgets/InputWidget";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a sperarate numeric input and text input so switching between them goes here

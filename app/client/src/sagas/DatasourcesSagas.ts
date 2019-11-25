@@ -4,13 +4,13 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "../constants/ReduxActionConstants";
-import { GenericApiResponse } from "../api/ApiResponses";
+} from "constants/ReduxActionConstants";
+import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, {
   CreateDatasourceConfig,
   Datasource,
-} from "../api/DatasourcesApi";
-import { API_EDITOR_FORM_NAME } from "../constants/forms";
+} from "api/DatasourcesApi";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 
 function* fetchDatasourcesSaga() {

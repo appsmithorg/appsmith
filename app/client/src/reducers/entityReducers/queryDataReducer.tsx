@@ -1,9 +1,6 @@
-import { createReducer } from "../../utils/AppsmithUtils";
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../../constants/ReduxActionConstants";
-import { ExecuteActionResponse } from "../../api/ActionAPI";
+import { createReducer } from "utils/AppsmithUtils";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { ExecuteActionResponse } from "api/ActionAPI";
 
 const initialState: QueryDataState = {};
 

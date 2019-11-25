@@ -1,8 +1,5 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "../constants/ReduxActionConstants";
-import { RenderMode } from "../constants/WidgetConstants";
+import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { RenderMode } from "constants/WidgetConstants";
 
 export const updateWidgetProperty = (
   widgetId: string,

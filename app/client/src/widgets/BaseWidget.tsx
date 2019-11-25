@@ -8,7 +8,7 @@ import {
   RenderMode,
   RenderModes,
   CSSUnits,
-} from "../constants/WidgetConstants";
+} from "constants/WidgetConstants";
 import React, { Component } from "react";
 import { PositionType, CSSUnit } from "constants/WidgetConstants";
 import _ from "lodash";
@@ -21,8 +21,8 @@ import shallowequal from "shallowequal";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
 
-import ErrorBoundary from "../components/editorComponents/ErrorBoundry";
-import { WidgetPropertyValidationType } from "../utils/ValidationFactory";
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 /***
  * BaseWidget
  *

@@ -1,9 +1,9 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "../constants/WidgetConstants";
-import TextComponent from "../components/designSystems/blueprint/TextComponent";
-import { VALIDATION_TYPES } from "../constants/WidgetValidation";
-import { WidgetPropertyValidationType } from "../utils/ValidationFactory";
+import { WidgetType } from "constants/WidgetConstants";
+import TextComponent from "components/designSystems/blueprint/TextComponent";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
