@@ -34,7 +34,7 @@ export const PositionTypes: { [id: string]: string } = {
   ABSOLUTE: "ABSOLUTE",
   CONTAINER_DIREACTION: "CONTAINER_DIRECTION",
 };
-export type PositionType = (typeof PositionTypes)[keyof typeof PositionTypes];
+export type PositionType = typeof PositionTypes[keyof typeof PositionTypes];
 
 export type CSSUnit =
   | "px"

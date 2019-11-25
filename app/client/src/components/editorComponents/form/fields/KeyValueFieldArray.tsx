@@ -23,8 +23,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       {props.fields.map((field: any, index: number) => (
         <FormRowWithLabel key={index}>
           {index === 0 && <FormLabel>{props.label}</FormLabel>}
-          <TextField name={`${field}.key`} placeholderMessage="Key" />
-          <TextField name={`${field}.value`} placeholderMessage="Value" />
+          <TextField name={`${field}.key`} placeholder="Key" />
+          <TextField name={`${field}.value`} placeholder="Value" />
           {index === props.fields.length - 1 ? (
             <Icon
               icon="plus"

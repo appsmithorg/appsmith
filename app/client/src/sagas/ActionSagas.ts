@@ -31,13 +31,11 @@ import {
   deleteActionSuccess,
   updateActionSuccess,
 } from "actions/actionActions";
-import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
 import {
   extractDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
 import {
@@ -47,7 +45,7 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 
-const getAction = (
+export const getAction = (
   state: AppState,
   actionId: string,
 ): RestAction | undefined => {
@@ -225,7 +223,6 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
         intent: Intent.SUCCESS,
       });
       yield put(createActionSuccess(response.data));
-      history.push(API_EDITOR_ID_URL(response.data.id));
     }
   } catch (error) {
     yield put({
@@ -289,7 +286,6 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         intent: Intent.SUCCESS,
       });
       yield put(deleteActionSuccess({ id }));
-      history.push(API_EDITOR_URL);
     }
   } catch (error) {
     yield put({

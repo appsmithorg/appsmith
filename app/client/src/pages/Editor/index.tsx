@@ -28,6 +28,8 @@ import {
 } from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
+import { updateRouteParams } from "actions/routeParamsActions";
+import { RoutesParamsReducerState } from "reducers/uiReducers/routesParamsReducer";
 
 type EditorProps = {
   currentPageName?: string;
@@ -39,6 +41,7 @@ type EditorProps = {
   previewPage: Function;
   initEditor: Function;
   createPage: Function;
+  updateRouteParams: (params: RoutesParamsReducerState) => void;
   pages: PageListPayload;
   switchPage: (pageId: string) => void;
   isPublishing: boolean;
@@ -60,30 +63,7 @@ class Editor extends Component<EditorProps> {
     }
   }
   componentDidUpdate(previously: EditorProps) {
-    // const currently = this.props;
-    // if (currently.publishedTime !== previously.publishedTime) {
-    //   this.setState({
-    //     isDialogOpen: true,
-    //   });
-    // }
-    // if (
-    //   currently.currentPageId &&
-    //   previously.currentPageId !== currently.currentPageId &&
-    //   currently.currentApplicationId
-    // ) {
-    //   this.props.history.replace(
-    //     BUILDER_PAGE_URL(
-    //       currently.currentApplicationId,
-    //       currently.currentPageId,
-    //     ),
-    //   );
-    // }
-    // if (
-    //   previously.match.params.pageId !== currently.match.params.pageId &&
-    //   currently.currentPageId !== currently.match.params.pageId
-    // ) {
-    //   this.props.switchPage(currently.match.params.pageId);
-    // }
+    this.props.updateRouteParams(this.props.match.params);
   }
 
   handleDialogClose = () => {
@@ -207,6 +187,8 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       });
     },
+    updateRouteParams: (params: RoutesParamsReducerState) =>
+      dispatch(updateRouteParams(params)),
   };
 };
 

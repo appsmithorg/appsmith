@@ -12,6 +12,7 @@ import bindingsSagas from "./BindingsSagas";
 import watchActionWidgetMapSagas, {
   watchPropertyAndBindingUpdate,
 } from "./ActionWidgetMapSagas";
+import apiPaneSagas from "./ApiPaneSagas";
 
 export function* rootSaga() {
   yield all([
@@ -27,5 +28,6 @@ export function* rootSaga() {
     spawn(bindingsSagas),
     spawn(watchActionWidgetMapSagas),
     spawn(watchPropertyAndBindingUpdate),
+    spawn(apiPaneSagas),
   ]);
 }
