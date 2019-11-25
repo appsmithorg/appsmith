@@ -1,10 +1,5 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
-import {
-  SENTRY_PROD_CONFIG,
-  SENTRY_STAGE_CONFIG,
-  HOTJAR_PROD_HJID,
-  HOTJAR_PROD_HJSV,
-} from "constants/ThirdPartyConstants";
+import { ReduxAction } from "../constants/ReduxActionConstants";
+import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import netlifyIdentity from "netlify-identity-widget";
@@ -36,19 +31,16 @@ export const appInitializer = () => {
   ValidationRegistry.registerInternalValidators();
   netlifyIdentity.init();
   moment.tz.setDefault(moment.tz.guess());
-  switch (process.env.REACT_APP_ENVIRONMENT) {
-    case "PRODUCTION":
-      Sentry.init(SENTRY_PROD_CONFIG);
-      AnalyticsUtil.initializeHotjar(HOTJAR_PROD_HJID, HOTJAR_PROD_HJSV);
-      AnalyticsUtil.initializeSegment();
-      break;
-    case "STAGING":
-      Sentry.init(SENTRY_STAGE_CONFIG);
-      break;
-    case "DEVELOPMENT":
-      break;
-    case "LOCAL":
-      break;
+  const appsmithConfigs = getAppsmithConfigs();
+  if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
+    Sentry.init(appsmithConfigs.sentry.config);
+  }
+  if (appsmithConfigs.hotjar.enabled && appsmithConfigs.hotjar.config) {
+    const { id, sv } = appsmithConfigs.hotjar.config;
+    AnalyticsUtil.initializeHotjar(id, sv);
+  }
+  if (appsmithConfigs.segment.enabled) {
+    AnalyticsUtil.initializeSegment();
   }
 
   const textFont = new FontFaceObserver("DM Sans");

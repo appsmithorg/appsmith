@@ -79,7 +79,7 @@
     "typescript": "^3.6.3"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
