@@ -19,7 +19,12 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Void> deleteAll();
 
+    @Deprecated
     Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId);
 
+    Flux<PageNameIdDTO> findNamesByApplicationName(String applicationName);
+
     Mono<Page> getPage(String pageId, Boolean viewMode);
+
+    Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode);
 }
