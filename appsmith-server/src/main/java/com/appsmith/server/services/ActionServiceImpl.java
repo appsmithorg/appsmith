@@ -37,6 +37,7 @@ import javax.validation.constraints.NotNull;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -296,6 +297,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         Action actionFromDto = executeActionDTO.getAction();
+        final int[] timeoutDuration = new int[1];
 
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
@@ -365,7 +367,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 .getParams()
                                 .stream()
                                 .collect(Collectors.toMap(Param::getKey, Param::getValue,
-                                        // Incase there's a conflict, we pick the older value
+                                        // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
                         datasourceConfiguration = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
@@ -374,6 +376,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfiguration = datasource.getDatasourceConfiguration();
                         actionConfiguration = action.getActionConfiguration();
                     }
+                    timeoutDuration[0] = actionConfiguration.getTimeoutInMillisecond();
                     return datasourceContextService
                             .getDatasourceContext(datasource)
                             //Now that we have the context (connection details, execute the action
@@ -382,8 +385,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     datasourceConfiguration,
                                     actionConfiguration));
                 }))
-//                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))
-                .flatMap(obj -> obj);
+                .flatMap(obj -> obj)
+                .timeout(Duration.ofMillis(timeoutDuration[0]));
     }
 
     @Override

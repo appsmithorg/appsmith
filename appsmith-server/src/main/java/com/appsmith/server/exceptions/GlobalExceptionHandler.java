@@ -48,12 +48,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchException(org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<ErrorDTO>> catchDuplicateKeyException(org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
         log.error("", e);
         rollbar.log(e);
         return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.DUPLICATE_KEY.getHttpErrorCode(),
                 AppsmithError.DUPLICATE_KEY.getMessage())));
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchTimeoutException(java.util.concurrent.TimeoutException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.GATEWAY_TIMEOUT);
+        log.error("", e);
+        rollbar.log(e);
+        return Mono.just(new ResponseDTO<>(HttpStatus.GATEWAY_TIMEOUT.value(), new ErrorDTO(AppsmithError.PLUGIN_EXECUTION_TIMEOUT.getHttpErrorCode(),
+                AppsmithError.PLUGIN_EXECUTION_TIMEOUT.getMessage())));
     }
 
     /**

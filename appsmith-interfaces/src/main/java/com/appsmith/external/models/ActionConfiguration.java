@@ -25,6 +25,8 @@ public class ActionConfiguration {
      * action execution.
      */
 
+    int timeoutInMillisecond = 10000;
+
     // API fields
     String path;
     List<Property> headers;
