@@ -30,17 +30,26 @@ export const FocusContext: Context<{
 
 const Canvas = (props: CanvasProps) => {
   const [isFocused, setFocus] = useState("");
-  return (
-    <FocusContext.Provider
-      value={{ isFocused, setFocus, showPropertyPane: props.showPropertyPane }}
-    >
-      <PropertyPane />
-      <ArtBoard>
-        {props.dsl.widgetId &&
-          WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-      </ArtBoard>
-    </FocusContext.Provider>
-  );
+  try {
+    return (
+      <FocusContext.Provider
+        value={{
+          isFocused,
+          setFocus,
+          showPropertyPane: props.showPropertyPane,
+        }}
+      >
+        <PropertyPane />
+        <ArtBoard>
+          {props.dsl.widgetId &&
+            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+        </ArtBoard>
+      </FocusContext.Provider>
+    );
+  } catch (error) {
+    console.log("Error rendering DSL", error);
+    return null;
+  }
 };
 
 export default Canvas;

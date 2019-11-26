@@ -48,7 +48,7 @@ type EditorProps = {
   isEditorLoading: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
-  publishedTime: string | boolean;
+  publishedTime?: string;
   isPageSwitching: boolean;
 } & RouteComponentProps<BuilderRouteParams>;
 
@@ -64,6 +64,14 @@ class Editor extends Component<EditorProps> {
   }
   componentDidUpdate(previously: EditorProps) {
     this.props.updateRouteParams(this.props.match.params);
+    if (
+      previously.isPublishing &&
+      !(this.props.isPublishing && this.props.errorPublishing)
+    ) {
+      this.setState({
+        isDialogOpen: true,
+      });
+    }
   }
 
   handleDialogClose = () => {
@@ -101,6 +109,7 @@ class Editor extends Component<EditorProps> {
           currentPageId={this.props.currentPageId}
           switchToPage={this.redirectToPage}
           isPublishing={this.props.isPublishing}
+          publishedTime={this.props.publishedTime}
         />
         <MainContainer />
         <Dialog
