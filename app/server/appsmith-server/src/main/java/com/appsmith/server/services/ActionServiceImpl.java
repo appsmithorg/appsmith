@@ -297,7 +297,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         Action actionFromDto = executeActionDTO.getAction();
-        final int[] timeoutDuration = new int[1];
 
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
@@ -376,17 +375,18 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfiguration = datasource.getDatasourceConfiguration();
                         actionConfiguration = action.getActionConfiguration();
                     }
-                    timeoutDuration[0] = actionConfiguration.getTimeoutInMillisecond();
+                    Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
+                    log.debug("Got the timeoutDuration to be: {} ms for action: {}", timeoutDuration, action.getName());
                     return datasourceContextService
                             .getDatasourceContext(datasource)
                             //Now that we have the context (connection details, execute the action
                             .flatMap(resourceContext -> pluginExecutor.execute(
                                     resourceContext.getConnection(),
                                     datasourceConfiguration,
-                                    actionConfiguration));
+                                    actionConfiguration))
+                            .timeout(Duration.ofMillis(timeoutDuration));
                 }))
-                .flatMap(obj -> obj)
-                .timeout(Duration.ofMillis(timeoutDuration[0]));
+                .flatMap(obj -> obj);
     }
 
     @Override
