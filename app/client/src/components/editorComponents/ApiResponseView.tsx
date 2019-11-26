@@ -148,13 +148,14 @@ const ApiResponseView = (props: Props) => {
             panelComponent: (
               <CodeEditor
                 theme={"LIGHT"}
-                height={500}
+                height={600}
                 language={"json"}
                 input={{
                   value: response.body
                     ? JSON.stringify(response.body, null, 2)
                     : "",
                 }}
+                lineNumbersMinChars={2}
               />
             ),
           },

@@ -6,7 +6,6 @@ import { editor } from "monaco-editor";
 
 const Wrapper = styled.div<{ height: number }>`
   height: ${props => props.height}px;
-  overflow: auto;
   color: white;
 `;
 
@@ -36,6 +35,8 @@ const CodeEditor = (props: Props) => {
     lineNumbers: props.lineNumbers,
     glyphMargin: props.glyphMargin,
     folding: props.folding,
+    contextmenu: false,
+    scrollBeyondLastLine: false,
     // // Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
     lineDecorationsWidth: props.lineDecorationsWidth,
     lineNumbersMinChars: props.lineNumbersMinChars,

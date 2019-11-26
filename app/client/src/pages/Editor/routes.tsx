@@ -5,7 +5,7 @@ import {
   withRouter,
   RouteComponentProps,
 } from "react-router-dom";
-import ApiEditor from "./ApiEditor";
+import ApiEditor from "./APIEditor";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,

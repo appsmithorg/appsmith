@@ -5,7 +5,7 @@ import {
   CreateApplicationFormValues,
   createApplicationFormSubmitHandler,
 } from "utils/formhelpers";
-import TextField from "components/editorComponents/fields/TextField";
+import TextField from "components/editorComponents/form/fields/TextField";
 import { required } from "utils/validation/common";
 import { FormGroup } from "@blueprintjs/core";
 
@@ -18,7 +18,7 @@ export const CreateApplicationForm = (
       <FormGroup intent={error ? "danger" : "none"} helperText={error}>
         <TextField
           name="applicationName"
-          placeholderMessage="Name"
+          placeholder="Name"
           validate={required}
         />
       </FormGroup>

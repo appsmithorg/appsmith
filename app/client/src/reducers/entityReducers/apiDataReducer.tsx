@@ -2,6 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { ActionResponse } from "api/ActionAPI";
 import { ActionDataState } from "./actionsReducer";
+import _ from "lodash";
 
 const initialState: APIDataState = {};
 
@@ -16,6 +17,10 @@ const apiDataReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => ({ ...state, ...action.payload }),
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ) => _.omit(state, action.payload.id),
 });
 
 export default apiDataReducer;

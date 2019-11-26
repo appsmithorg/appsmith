@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { submit, initialize, getFormValues, destroy } from "redux-form";
-import ApiEditorForm from "./APIEditor/ApiEditorForm";
+import { submit, getFormValues } from "redux-form";
+import ApiEditorForm from "./Form";
 import {
   createActionRequest,
   runApiAction,
@@ -11,17 +11,17 @@ import {
 import { RestAction } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
-import { API_EDITOR_URL } from "constants/routes";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import styled from "styled-components";
-import { FORM_INITIAL_VALUES } from "constants/ApiEditorConstants";
+import { HTTP_METHODS } from "constants/ApiEditorConstants";
+import _ from "lodash";
 
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
-  formData: any;
+  formData: RestAction;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -29,8 +29,6 @@ interface ReduxActionProps {
   runAction: () => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
-  initialize: (formName: string, data?: Partial<RestAction>) => void;
-  destroy: (formName: string) => void;
 }
 
 type Props = ReduxActionProps &
@@ -46,42 +44,6 @@ const EmptyStateContainer = styled.div`
 `;
 
 class ApiEditor extends React.Component<Props> {
-  componentDidMount(): void {
-    const currentApiId = this.props.match.params.apiId;
-    const currentApplicationId = this.props.match.params.applicationId;
-    const currentPageId = this.props.match.params.pageId;
-
-    if (!currentApiId) return;
-    if (!this.props.actions.data.length) {
-      this.props.history.push(
-        API_EDITOR_URL(currentApplicationId, currentPageId),
-      );
-      return;
-    }
-    const data = this.props.actions.data.filter(
-      action => action.id === currentApiId,
-    )[0];
-    this.props.initialize(API_EDITOR_FORM_NAME, data);
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    const currentId = this.props.match.params.apiId;
-    if (currentId && currentId !== prevProps.match.params.apiId) {
-      const data = this.props.actions.data.filter(
-        action => action.id === currentId,
-      )[0];
-      this.props.destroy(API_EDITOR_FORM_NAME);
-      let initialData = data;
-      if (!initialData.actionConfiguration) {
-        initialData = {
-          ...data,
-          ...FORM_INITIAL_VALUES,
-        };
-      }
-      this.props.initialize(API_EDITOR_FORM_NAME, initialData);
-    }
-  }
-
   handleSubmit = (values: RestAction) => {
     const { formData } = this.props;
     if (formData.id) {
@@ -103,15 +65,19 @@ class ApiEditor extends React.Component<Props> {
 
   render() {
     const {
-      apiPane: { isSaving, isRunning, isDeleting },
+      apiPane: { isSaving, isRunning, isDeleting, drafts },
       match: {
         params: { apiId },
       },
+      formData,
     } = this.props;
+    const httpMethod = _.get(formData, "actionConfiguration.httpMethod");
     return (
       <React.Fragment>
         {apiId ? (
           <ApiEditorForm
+            allowSave={apiId in drafts}
+            allowPostBody={httpMethod && httpMethod !== HTTP_METHODS[0]}
             isSaving={isSaving}
             isRunning={isRunning}
             isDeleting={isDeleting}
@@ -133,7 +99,7 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
-  formData: getFormValues(API_EDITOR_FORM_NAME)(state),
+  formData: getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction,
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
@@ -142,9 +108,6 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   runAction: () => dispatch(runApiAction()),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
-  initialize: (formName: string, data?: Partial<RestAction>) =>
-    dispatch(initialize(formName, data)),
-  destroy: (formName: string) => dispatch(destroy(formName)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);
