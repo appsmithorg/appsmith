@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
+
 @Getter
 @Setter
 @ToString
@@ -25,7 +27,7 @@ public class ActionConfiguration {
      * action execution.
      */
 
-    int timeoutInMillisecond = 10000;
+    Integer timeoutInMillisecond;
 
     // API fields
     String path;
@@ -52,4 +54,9 @@ public class ActionConfiguration {
      * understands what the keys stand for.
      */
     List<Property> pluginSpecifiedTemplates;
+
+    public Integer getTimeoutInMillisecond() {
+        return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
+                DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;
+    }
 }
