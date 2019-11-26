@@ -1,6 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
+import moment from "moment";
+import {
+  Breadcrumbs,
+  IBreadcrumbProps,
+  Tooltip,
+  Position,
+} from "@blueprintjs/core";
 import DropdownComponent from "components/editorComponents/DropdownComponent";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
@@ -46,6 +52,7 @@ type EditorHeaderProps = {
   currentPageId?: string;
   switchToPage: (selectedPage: string) => void;
   isPublishing: boolean;
+  publishedTime?: string;
 };
 
 export const EditorHeader = (props: EditorHeaderProps) => {
@@ -90,13 +97,23 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         {props.isSaving ? "Saving..." : "All changed Saved"}
       </LoadingContainer>
       <PreviewPublishSection>
-        <BaseButton
-          onClick={props.onPublish}
-          text="Publish"
-          loading={props.isPublishing}
-          styleName="primary"
-          filled
-        />
+        <Tooltip
+          disabled={!props.publishedTime}
+          content={
+            props.publishedTime
+              ? `Last published ${moment(props.publishedTime).fromNow()}`
+              : ""
+          }
+          position={Position.LEFT}
+        >
+          <BaseButton
+            onClick={props.onPublish}
+            text="Publish"
+            loading={props.isPublishing}
+            styleName="primary"
+            filled
+          />
+        </Tooltip>
       </PreviewPublishSection>
     </StyledHeader>
   );

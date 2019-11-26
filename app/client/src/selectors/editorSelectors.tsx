@@ -37,7 +37,8 @@ export const getIsFetchingPage = createSelector(
 
 export const getPublishedTime = createSelector(
   getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.published,
+  (editor: EditorReduxState): string | undefined =>
+    editor.loadingStates.published,
 );
 
 export const getLoadingError = createSelector(
