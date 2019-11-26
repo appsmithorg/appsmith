@@ -26,6 +26,7 @@ public class PageController extends BaseController<PageService, Page, String> {
         super(service);
     }
 
+    @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationId(@PathVariable String applicationId) {
         return service.findNamesByApplicationId(applicationId)
@@ -33,9 +34,22 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @GetMapping("/application/name/{applicationName}")
+    public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationName(@PathVariable String applicationName) {
+        return service.findNamesByApplicationName(applicationName)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
     @GetMapping("/{pageId}/view")
     public Mono<ResponseDTO<Page>> getPageView(@PathVariable String pageId) {
         return service.getPage(pageId, true)
+                .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+    }
+
+    @GetMapping("{pageName}/application/{applicationName}/view")
+    public Mono<ResponseDTO<Page>> getPageViewByName(@PathVariable String applicationName, @PathVariable String pageName) {
+        return service.getPageByName(applicationName, pageName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 }
