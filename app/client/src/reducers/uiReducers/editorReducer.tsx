@@ -15,7 +15,6 @@ const initialState: EditorReduxState = {
   loadingStates: {
     publishing: false,
     publishingError: false,
-    published: false,
     saving: false,
     savingError: false,
     loading: false,
@@ -123,7 +122,7 @@ export interface EditorReduxState {
     saving: boolean;
     savingError: boolean;
     publishing: boolean;
-    published: string | boolean;
+    published?: string;
     publishingError: boolean;
     loading: boolean;
     loadingError: boolean;
