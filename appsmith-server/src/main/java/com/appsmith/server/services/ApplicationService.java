@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Page;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationService extends CrudService<Application, String> {
@@ -13,6 +12,6 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Boolean> publish(String applicationId);
 
-    Mono<Application> addPageToApplication(String applicationId, Page page);
+    Mono<Application> save(Application application);
 
 }
