@@ -39,7 +39,7 @@ public enum AppsmithError {
     private Integer appErrorCode;
     private String message;
 
-    private AppsmithError(Integer httpErrorCode, Integer appErrorCode, String message, Object... args) {
+    AppsmithError(Integer httpErrorCode, Integer appErrorCode, String message, Object... args) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         MessageFormat fmt = new MessageFormat(message);

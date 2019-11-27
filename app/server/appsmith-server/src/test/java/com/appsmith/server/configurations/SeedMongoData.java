@@ -49,8 +49,8 @@ public class SeedMongoData {
                 {"validPageName"}
         };
         Object[][] pluginData = {
-                {"Installed Plugin Name", PluginType.REST, "installed-plugin"},
-                {"Not Installed Plugin Name", PluginType.REST, "not-installed-plugin"}
+                {"Installed Plugin Name", PluginType.API, "installed-plugin"},
+                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
         return args -> {
             organizationRepository.deleteAll()

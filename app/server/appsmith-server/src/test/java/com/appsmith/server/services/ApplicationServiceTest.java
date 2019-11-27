@@ -121,5 +121,5 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
-    
+
 }

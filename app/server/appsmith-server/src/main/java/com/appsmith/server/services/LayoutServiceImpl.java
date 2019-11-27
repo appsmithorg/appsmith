@@ -88,7 +88,7 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
-        List<String> mustacheKeys = new ArrayList<>();;
+        List<String> mustacheKeys = new ArrayList<>();
         //Extract the mustache keys and find all keys which match actions
         JSONObject dsl = layout.getDsl();
         try {
@@ -101,7 +101,7 @@ public class LayoutServiceImpl implements LayoutService {
 
         Mono<Set<String>> actionsInPage = Flux.fromIterable(mustacheKeys)
                 .map(mustacheKey -> {
-                    String subStrings[] = mustacheKey.split(Pattern.quote("."));
+                    String[] subStrings = mustacheKey.split(Pattern.quote("."));
                     // Assumption here is that the action name would always be the first substring here.
                     // If we start referring to actions from another page via <PageName>.<ActionName> format, this
                     // would break.
