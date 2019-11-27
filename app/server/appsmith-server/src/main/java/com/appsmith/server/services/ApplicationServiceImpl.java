@@ -4,7 +4,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -12,9 +11,11 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -49,29 +50,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> create(Application application) {
-        if (application.getName() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
+    public Flux<Application> get(MultiValueMap<String, String> params) {
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .map(orgId -> {
-                    application.setOrganizationId(orgId);
-                    return application;
-                })
-                .flatMap(super::create);
-    }
-
-    @Override
-    public Flux<Application> get() {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        return userMono
-                .map(user -> user.getCurrentOrganizationId())
-                .flatMapMany(orgId -> repository.findByOrganizationId(orgId));
+                .flatMapMany(orgId -> {
+                    Application applicationExample = new Application();
+                    applicationExample.setOrganizationId(orgId);
+                    return repository.findAll(Example.of(applicationExample));
+                });
     }
 
     @Override
@@ -103,31 +91,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.findByName(name);
     }
 
-    /**
-     * This function is called during page create in Page Service. It adds the newly created
-     * page to its ApplicationPages list.
-     *
-     * @param applicationId
-     * @param page
-     * @return Updated application
-     */
     @Override
-    public Mono<Application> addPageToApplication(String applicationId, Page page) {
-        Mono<Application> applicationMono = findById(applicationId);
-
-        return applicationMono
-                .map(application -> {
-                    List<ApplicationPage> applicationPages = application.getPages();
-                    if (applicationPages == null) {
-                        applicationPages = new ArrayList<>();
-                    }
-                    ApplicationPage applicationPage = new ApplicationPage();
-                    applicationPage.setId(page.getId());
-                    applicationPages.add(applicationPage);
-                    application.setPages(applicationPages);
-                    return application;
-                })
-                .flatMap(repository::save);
+    public Mono<Application> save(Application application) {
+        return repository.save(application);
     }
 
     /**
@@ -162,6 +128,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                             List<Layout> layoutList = page.getLayouts();
                             for (Layout layout : layoutList) {
                                 layout.setPublishedDsl(layout.getDsl());
+                                layout.setPublishedDslActionIds(layout.getDslActionIds());
                             }
                             return page;
                         })

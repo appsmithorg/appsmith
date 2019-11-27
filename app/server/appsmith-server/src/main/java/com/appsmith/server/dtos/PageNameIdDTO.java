@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
 public interface PageNameIdDTO {
-    public String getId();
+    String getId();
 
-    public String getName();
+    String getName();
 }

@@ -31,6 +31,9 @@ public class PageServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    ApplicationPageService applicationPageService;
+
     Mono<Application> applicationMono;
 
     @Before
@@ -39,7 +42,7 @@ public class PageServiceTest {
         purgeAllPages();
         Application application = new Application();
         application.setName("PageAPI-Test-Application");
-        applicationMono = applicationService.create(application);
+        applicationMono = applicationPageService.createApplication(application);
     }
 
     @Test
@@ -47,7 +50,7 @@ public class PageServiceTest {
     public void createPageWithNullName() {
         Page page = new Page();
         Mono<Page> pageMono = Mono.just(page)
-                .flatMap(pageService::create);
+                .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -61,7 +64,7 @@ public class PageServiceTest {
         Page page = new Page();
         page.setName("Page without application");
         Mono<Page> pageMono = Mono.just(page)
-                .flatMap(pageService::create);
+                .flatMap(applicationPageService::createPage);
         StepVerifier
                 .create(pageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -77,10 +80,10 @@ public class PageServiceTest {
 
         Mono<Page> pageMono = applicationMono
                 .map(application -> {
-                    testPage.setApplicationId(application.getOrganizationId());
+                    testPage.setApplicationId(application.getId());
                     return testPage;
                 })
-                .flatMap(pageService::create);
+                .flatMap(applicationPageService::createPage);
 
         StepVerifier
                 .create(pageMono)
@@ -99,3 +102,4 @@ public class PageServiceTest {
     }
 
 }
+    

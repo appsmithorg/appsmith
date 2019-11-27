@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -67,7 +68,9 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
     }
 
     @Override
-    public Flux<T> get() {
+    public Flux<T> get(MultiValueMap<String, String> params) {
+        // In the base service we aren't handling the query parameters. In order to filter records using the query params,
+        // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
         return repository.findAll();
     }
 

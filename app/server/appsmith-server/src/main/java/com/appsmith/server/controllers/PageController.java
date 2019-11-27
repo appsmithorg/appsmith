@@ -4,28 +4,45 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping(Url.PAGE_URL)
 @Slf4j
 public class PageController extends BaseController<PageService, Page, String> {
+    private final ApplicationPageService applicationPageService;
 
     @Autowired
-    public PageController(PageService service) {
+    public PageController(PageService service, ApplicationPageService applicationPageService) {
         super(service);
+        this.applicationPageService = applicationPageService;
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Page>> create(@Valid @RequestBody Page resource) throws AppsmithException {
+        log.debug("Going to create resource {}", resource.getClass().getName());
+        return applicationPageService.createPage(resource)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationId(@PathVariable String applicationId) {
         return service.findNamesByApplicationId(applicationId)
@@ -33,9 +50,22 @@ public class PageController extends BaseController<PageService, Page, String> {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @GetMapping("/application/name/{applicationName}")
+    public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationName(@PathVariable String applicationName) {
+        return service.findNamesByApplicationName(applicationName)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
     @GetMapping("/{pageId}/view")
     public Mono<ResponseDTO<Page>> getPageView(@PathVariable String pageId) {
-        return service.getPage(pageId, true)
+        return applicationPageService.getPage(pageId, true)
+                .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+    }
+
+    @GetMapping("{pageName}/application/{applicationName}/view")
+    public Mono<ResponseDTO<Page>> getPageViewByName(@PathVariable String applicationName, @PathVariable String pageName) {
+        return applicationPageService.getPageByName(applicationName, pageName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 }
