@@ -3,21 +3,40 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(Url.APPLICATION_URL)
+@Slf4j
 public class ApplicationController extends BaseController<ApplicationService, Application, String> {
+    private final ApplicationPageService applicationPageService;
+
     @Autowired
-    public ApplicationController(ApplicationService service) {
+    public ApplicationController(ApplicationService service, ApplicationPageService applicationPageService) {
         super(service);
+        this.applicationPageService = applicationPageService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Application>> create(@Valid @RequestBody Application resource) throws AppsmithException {
+        log.debug("Going to create resource {}", resource.getClass().getName());
+        return applicationPageService.createApplication(resource)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping("/publish/{applicationId}")
