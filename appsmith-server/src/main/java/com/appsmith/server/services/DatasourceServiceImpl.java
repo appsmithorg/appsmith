@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -166,4 +168,25 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
         return new HashSet<>();
     }
+
+    @Override
+    public Flux<Datasource> get(MultiValueMap<String, String> params) {
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMapMany(user -> repository.findAllByOrganizationId(user.getCurrentOrganizationId()));
+    }
+
+    @Override
+    public Mono<Datasource> getById(String id) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> repository.findByIdAndOrganizationId(id, user.getCurrentOrganizationId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+    }
+
 }

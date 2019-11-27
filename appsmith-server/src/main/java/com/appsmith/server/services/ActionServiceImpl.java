@@ -24,9 +24,13 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -37,6 +41,7 @@ import javax.validation.constraints.NotNull;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -365,7 +370,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 .getParams()
                                 .stream()
                                 .collect(Collectors.toMap(Param::getKey, Param::getValue,
-                                        // Incase there's a conflict, we pick the older value
+                                        // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
                         datasourceConfiguration = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
@@ -374,21 +379,28 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfiguration = datasource.getDatasourceConfiguration();
                         actionConfiguration = action.getActionConfiguration();
                     }
+                    Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
+                    log.debug("Got the timeoutDuration to be: {} ms for action: {}", timeoutDuration, action.getName());
                     return datasourceContextService
                             .getDatasourceContext(datasource)
                             //Now that we have the context (connection details, execute the action
                             .flatMap(resourceContext -> pluginExecutor.execute(
                                     resourceContext.getConnection(),
                                     datasourceConfiguration,
-                                    actionConfiguration));
+                                    actionConfiguration))
+                            .timeout(Duration.ofMillis(timeoutDuration));
                 }))
-//                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.PLUGIN_RUN_FAILED, e.getMessage())))
                 .flatMap(obj -> obj);
     }
 
     @Override
     public Mono<Action> save(Action action) {
         return repository.save(action);
+    }
+
+    @Override
+    public Mono<Action> findByName(String name) {
+        return repository.findByName(name);
     }
 
 
@@ -455,7 +467,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> get() {
-        return repository.findAllByOrderByName();
+    public Flux<Action> get(MultiValueMap<String, String> params) {
+        Action actionExample = new Action();
+        if (params.getFirst(FieldName.NAME) != null) {
+            actionExample.setName(params.getFirst(FieldName.NAME));
+        }
+        Sort sort = new Sort(Direction.ASC, FieldName.NAME );
+        return repository.findAll(Example.of(actionExample), sort);
     }
 }
