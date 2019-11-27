@@ -1,12 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.BaseDomain;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface CrudService<T extends BaseDomain, ID> {
 
-    Flux<T> get();
+    Flux<T> get(MultiValueMap<String, String> params);
 
     Mono<T> create(T resource);
 

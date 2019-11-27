@@ -13,17 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 @RunWith(Suite.class)
 @SpringBootTest
 @Suite.SuiteClasses({
-		OrganizationServiceTest.class,
-		ApplicationServiceTest.class,
-		LayoutServiceTest.class,
-		UserServiceTest.class,
-		PageServiceTest.class,
+        OrganizationServiceTest.class,
+        ApplicationServiceTest.class,
+        LayoutServiceTest.class,
+        UserServiceTest.class,
+        PageServiceTest.class,
 })
 public class ServerApplicationTests {
 
-	@Test
-	public void contextLoads() {
-		assert(true);
-	}
+    @Test
+    public void contextLoads() {
+        assert (true);
+    }
 
 }

@@ -11,9 +11,11 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -48,12 +50,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Flux<Application> get() {
+    public Flux<Application> get(MultiValueMap<String, String> params) {
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .flatMapMany(orgId -> repository.findByOrganizationId(orgId));
+                .flatMapMany(orgId -> {
+                    Application applicationExample = new Application();
+                    applicationExample.setOrganizationId(orgId);
+                    return repository.findAll(Example.of(applicationExample));
+                });
     }
 
     @Override

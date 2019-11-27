@@ -29,7 +29,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     public Mono<Page> createPage(Page page) {
         if (page.getId() != null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));    
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         } else if (page.getName() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         } else if (page.getApplicationId() == null) {

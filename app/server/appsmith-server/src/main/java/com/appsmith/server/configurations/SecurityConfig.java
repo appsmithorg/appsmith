@@ -41,7 +41,7 @@ public class SecurityConfig {
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
      * hence using RouterFunctions to implement this feature.
-     *
+     * <p>
      * Future folks: Please check out links:
      * - https://www.baeldung.com/spring-webflux-static-content
      * - https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources
@@ -80,7 +80,7 @@ public class SecurityConfig {
         user.setEmail("api_user");
         user.setName("api_user");
         user.setPassword(passwordEncoder().encode("8uA@;&mB:cnvN~{#"));
-        user.setRoles(Set.of(new Role(Security.USER_ROLE.toString())));
+        user.setRoles(Set.of(new Role(Security.USER_ROLE)));
 
         return new MapReactiveUserDetailsService(user);
     }

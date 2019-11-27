@@ -24,9 +24,13 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -463,7 +467,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> get() {
-        return repository.findAllByOrderByName();
+    public Flux<Action> get(MultiValueMap<String, String> params) {
+        Action actionExample = new Action();
+        if (params.getFirst(FieldName.NAME) != null) {
+            actionExample.setName(params.getFirst(FieldName.NAME));
+        }
+        Sort sort = new Sort(Direction.ASC, FieldName.NAME );
+        return repository.findAll(Example.of(actionExample), sort);
     }
 }
