@@ -18,6 +18,7 @@ public class Plugin extends BaseDomain {
 
     String name;
 
+    @Indexed
     PluginType type;
 
     @Indexed(unique = true)

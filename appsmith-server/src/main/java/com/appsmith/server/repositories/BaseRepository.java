@@ -1,11 +1,11 @@
 package com.appsmith.server.repositories;
 
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 import java.io.Serializable;
 
 @NoRepositoryBean
-public interface BaseRepository<T, ID extends Serializable> extends ReactiveCrudRepository<T, ID> {
+public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
 
 }

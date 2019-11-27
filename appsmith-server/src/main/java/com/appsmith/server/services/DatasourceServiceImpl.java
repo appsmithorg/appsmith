@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -169,7 +170,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Flux<Datasource> get() {
+    public Flux<Datasource> get(MultiValueMap<String, String> params) {
+
         return sessionUserService
                 .getCurrentUser()
                 .flatMapMany(user -> repository.findAllByOrganizationId(user.getCurrentOrganizationId()));

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
@@ -18,11 +19,14 @@ import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -72,15 +76,20 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         this.sessionUserService = sessionUserService;
     }
 
-    public OldPluginExecutor getPluginExecutor(PluginType pluginType, String className) {
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-            return (OldPluginExecutor) applicationContext.getBean(clazz);
-        } catch (ClassNotFoundException e) {
-            log.error("Unable to find class {}. ", className, e);
+    @Override
+    public Flux<Plugin> get(MultiValueMap<String, String> params) {
+        log.debug("Going to filter plugins by params: {}", params);
+        Plugin examplePlugin = new Plugin();
+        if (params.getFirst(FieldName.TYPE) != null) {
+            try {
+                PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
+                examplePlugin.setType(pluginType);
+            } catch(IllegalArgumentException e) {
+                log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
+                return Flux.empty();
+            }
         }
-        return null;
+        return repository.findAll(Example.of(examplePlugin));
     }
 
     @Override

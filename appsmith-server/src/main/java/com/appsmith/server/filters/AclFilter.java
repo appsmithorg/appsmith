@@ -30,10 +30,10 @@ public class AclFilter implements WebFilter {
      * The parameters are:
      * 1. HTTP Method - GET, POST etc.
      * 2. Resource being accessed - layouts, pages , etc
-     *
+     * <p>
      * The ACL policy filters user access based on the permissions that the user has and the resource they are trying
      * to access
-     *
+     * <p>
      * Check @see src/main/resources/acl.rego for details of a sample ACL policy
      *
      * @param exchange
