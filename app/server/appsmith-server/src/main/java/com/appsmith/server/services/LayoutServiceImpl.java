@@ -28,12 +28,17 @@ import static java.util.stream.Collectors.toSet;
 @Service
 public class LayoutServiceImpl implements LayoutService {
 
+    private final ApplicationPageService applicationPageService;
     private final PageService pageService;
     private final ObjectMapper objectMapper;
     private final ActionService actionService;
 
     @Autowired
-    public LayoutServiceImpl(PageService pageService, ObjectMapper objectMapper, ActionService actionService) {
+    public LayoutServiceImpl(ApplicationPageService applicationPageService,
+                             PageService pageService,
+                             ObjectMapper objectMapper,
+                             ActionService actionService) {
+        this.applicationPageService = applicationPageService;
         this.pageService = pageService;
         this.objectMapper = objectMapper;
         this.actionService = actionService;
@@ -70,7 +75,7 @@ public class LayoutServiceImpl implements LayoutService {
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
-                .flatMap(pageService::doesPageBelongToCurrentUserOrganization)
+                .flatMap(applicationPageService::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
@@ -116,7 +121,7 @@ public class LayoutServiceImpl implements LayoutService {
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
-                .flatMap(pageService::doesPageBelongToCurrentUserOrganization)
+                .flatMap(applicationPageService::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
                 .zipWith(actionsInPage)
                 .map(tuple -> {

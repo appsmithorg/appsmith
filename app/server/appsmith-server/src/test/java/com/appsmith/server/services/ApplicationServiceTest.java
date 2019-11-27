@@ -26,12 +26,15 @@ public class ApplicationServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    ApplicationPageService applicationPageService;
+
     @Test
     @WithMockUser(username = "api_user")
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(applicationService::create);
+                .flatMap(applicationPageService::createApplication);
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -44,7 +47,7 @@ public class ApplicationServiceTest {
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> applicationMono = applicationService.create(testApplication);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication);
 
         StepVerifier
                 .create(applicationMono)
@@ -81,7 +84,7 @@ public class ApplicationServiceTest {
     public void validGetApplicationByName() {
         Application application = new Application();
         application.setName("validGetApplicationByName-Test");
-        Mono<Application> createApplication = applicationService.create(application);
+        Mono<Application> createApplication = applicationPageService.createApplication(application);
         Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
@@ -100,8 +103,8 @@ public class ApplicationServiceTest {
         application.setName("validUpdateApplication-Test");
 
         Mono<Application> createApplication =
-                applicationService
-                        .create(application);
+                applicationPageService
+                        .createApplication(application);
         Mono<Application> updateApplication = createApplication
                 .map(t -> {
                     t.setName("NewValidUpdateApplication-Test");

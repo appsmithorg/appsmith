@@ -10,4 +10,5 @@ public class FieldName {
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
     public static String PLUGIN = "plugin";
+    public static String DEFAULT_PAGE_NAME = "Home";
 }
