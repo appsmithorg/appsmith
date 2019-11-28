@@ -121,6 +121,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_PAGE_LIST_ERROR: "FETCH_PAGE_LIST_ERROR",
   FETCH_APPLICATION_LIST_ERROR: "FETCH_APPLICATION_LIST_ERROR",
   CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
+  SAVE_JS_EXECUTION_RECORD: "SAVE_JS_EXECUTION_RECORD",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

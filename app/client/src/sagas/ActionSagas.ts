@@ -12,7 +12,11 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { ActionPayload, PageAction } from "constants/ActionConstants";
+import {
+  ActionPayload,
+  PageAction,
+  ExecuteJSActionPayload,
+} from "constants/ActionConstants";
 import ActionAPI, {
   ActionApiResponse,
   ActionCreateUpdateResponse,
@@ -35,6 +39,7 @@ import {
   extractDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
+  NameBindingsWithData,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
@@ -44,6 +49,8 @@ import {
 } from "constants/messages";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
+import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
+import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 
 export const getAction = (
   state: AppState,
@@ -88,6 +95,23 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
     dynamicBindings[key] = values[i];
   });
   return mapToPropList(dynamicBindings);
+}
+
+function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
+  const nameBindingsWithData: NameBindingsWithData = yield select(
+    getNameBindingsWithData,
+  );
+  const result = JSExecutionManagerSingleton.evaluateSync(
+    jsAction.jsFunction,
+    nameBindingsWithData,
+  );
+
+  yield put({
+    type: ReduxActionTypes.SAVE_JS_EXECUTION_RECORD,
+    payload: {
+      [jsAction.jsFunctionId]: result,
+    },
+  });
 }
 
 export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
@@ -193,6 +217,11 @@ export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
           return call(executeAPIQueryActionSaga, actionPayload);
         case "QUERY":
           return call(executeAPIQueryActionSaga, actionPayload);
+        case "JS_FUNCTION":
+          return call(
+            executeJSActionSaga,
+            actionPayload as ExecuteJSActionPayload,
+          );
         default:
           return undefined;
       }

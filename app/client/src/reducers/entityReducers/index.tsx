@@ -8,6 +8,7 @@ import propertyPaneConfigReducer from "./propertyPaneConfigReducer";
 import datasourceReducer from "./datasourceReducer";
 import bindingsReducer from "./bindingsReducer";
 import pageListReducer from "./pageListReducer";
+import jsExecutionsReducer from "./jsExecutionsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
@@ -19,6 +20,7 @@ const entityReducer = combineReducers({
   datasources: datasourceReducer,
   nameBindings: bindingsReducer,
   pageList: pageListReducer,
+  jsExecutions: jsExecutionsReducer,
 });
 
 export default entityReducer;

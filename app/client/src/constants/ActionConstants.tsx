@@ -27,7 +27,7 @@ export const PropertyPaneActionDropdownOptions: DropdownOption[] = [
   // { label: "Run Query", value: "QUERY" },
 ];
 
-export interface ActionPayload {
+export interface BaseActionPayload {
   actionId: string;
   actionType: ActionType;
   contextParams: Record<string, string>;
@@ -35,34 +35,42 @@ export interface ActionPayload {
   onError?: ActionPayload[];
 }
 
+export type ActionPayload =
+  | NavigateActionPayload
+  | SetValueActionPayload
+  | ExecuteJSActionPayload
+  | DownloadDataActionPayload
+  | SetValueActionPayload;
+
 export type NavigationType = "NEW_TAB" | "INLINE";
 
-export interface NavigateActionPayload extends ActionPayload {
+export interface NavigateActionPayload extends BaseActionPayload {
   pageUrl: string;
   navigationType: NavigationType;
 }
 
-export interface ShowAlertActionPayload extends ActionPayload {
+export interface ShowAlertActionPayload extends BaseActionPayload {
   header: string;
   message: string;
   alertType: AlertType;
   intent: MessageIntent;
 }
 
-export interface SetValueActionPayload extends ActionPayload {
+export interface SetValueActionPayload extends BaseActionPayload {
   header: string;
   message: string;
   alertType: AlertType;
   intent: MessageIntent;
 }
 
-export interface ExecuteJSActionPayload extends ActionPayload {
+export interface ExecuteJSActionPayload extends BaseActionPayload {
   jsFunctionId: string;
+  jsFunction: string;
 }
 
 export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT";
 
-export interface DownloadDataActionPayload extends ActionPayload {
+export interface DownloadDataActionPayload extends BaseActionPayload {
   data: JSON;
   fileName: string;
   fileType: DownloadFiletype;
