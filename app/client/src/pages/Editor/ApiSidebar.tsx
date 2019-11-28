@@ -277,7 +277,7 @@ class ApiSidebar extends React.Component<Props, State> {
                 />
                 <BaseButton
                   icon={TICK}
-                  styleName="primary"
+                  accent="primary"
                   text=""
                   onClick={this.saveAction}
                   filled

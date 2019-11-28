@@ -102,19 +102,19 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <ActionButtons>
             <ActionButton
               text="Delete"
-              styleName="error"
+              accent="error"
               onClick={onDeleteClick}
               loading={isDeleting}
             />
             <ActionButton
               text="Run"
-              styleName="secondary"
+              accent="secondary"
               onClick={onRunClick}
               loading={isRunning}
             />
             <ActionButton
               text="Save"
-              styleName="primary"
+              accent="primary"
               filled
               onClick={onSaveClick}
               loading={isSaving}
