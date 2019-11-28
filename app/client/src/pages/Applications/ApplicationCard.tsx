@@ -194,7 +194,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               <BaseButton
                 icon="edit"
                 text="Edit"
-                styleName="primary"
+                accent="primary"
                 filled={true}
               />
             </Tooltip>
