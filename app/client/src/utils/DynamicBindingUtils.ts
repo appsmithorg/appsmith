@@ -121,7 +121,6 @@ export const enhanceWithDynamicValuesAndValidations = (
   if (!widget) return widget;
   const properties = { ...widget };
   const invalidProps: Record<string, boolean> = {};
-  const t0 = performance.now();
 
   Object.keys(widget).forEach((property: string) => {
     let value = widget[property];
@@ -140,14 +139,5 @@ export const enhanceWithDynamicValuesAndValidations = (
     // Replace if flag is turned on
     if (replaceWithParsed) properties[property] = parsed;
   });
-  const t1 = performance.now();
-  console.log(
-    "Evaluations for " +
-      widget.widgetName +
-      " took " +
-      (t1 - t0) +
-      " milliseconds.",
-  );
-  console.trace();
   return { ...properties, invalidProps };
 };
