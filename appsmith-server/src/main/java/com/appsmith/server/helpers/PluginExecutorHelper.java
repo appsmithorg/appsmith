@@ -23,9 +23,9 @@ public class PluginExecutorHelper {
 
     public Mono<PluginExecutor> getPluginExecutor(Mono<Plugin> pluginMono) {
         return pluginMono.flatMap(plugin -> {
-                    List<PluginExecutor> executorList = pluginManager.getExtensions(PluginExecutor.class, plugin.getExecutorClass());
+                    List<PluginExecutor> executorList = pluginManager.getExtensions(PluginExecutor.class, plugin.getPackageName());
                     if (executorList.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getExecutorClass()));
+                        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "plugin", plugin.getPackageName()));
                     }
                     return Mono.just(executorList.get(0));
                 }

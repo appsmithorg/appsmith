@@ -61,7 +61,7 @@ public class SeedMongoData {
                                         Plugin plugin = new Plugin();
                                         plugin.setName((String) array[0]);
                                         plugin.setType((PluginType) array[1]);
-                                        plugin.setExecutorClass((String) array[2]);
+                                        plugin.setPackageName((String) array[2]);
                                         return plugin;
                                     }).flatMap(pluginRepository::save)
                     )
