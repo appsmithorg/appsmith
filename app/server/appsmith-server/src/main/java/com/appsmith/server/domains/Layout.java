@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.dtos.DslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,10 +26,10 @@ public class Layout extends BaseDomain {
     @JsonIgnore
     JSONObject publishedDsl;
 
-    Set<String> dslActionIds;
+    Set<DslActionDTO> dslActions;
 
     @JsonIgnore
-    Set<String> publishedDslActionIds;
+    Set<DslActionDTO> publishedDslActions;
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
@@ -38,7 +39,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedDsl : dsl;
     }
 
-    public Set<String> getDslActionIds() {
-        return viewMode ? publishedDslActionIds : dslActionIds;
+    public Set<DslActionDTO> getDslActions() {
+        return viewMode ? publishedDslActions : dslActions;
     }
 }
