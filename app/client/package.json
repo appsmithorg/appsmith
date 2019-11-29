@@ -83,7 +83,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "flow": "flow"
+    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start"
   },
   "resolution": {
     "jest": "24.8.0"

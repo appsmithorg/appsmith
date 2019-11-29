@@ -31,4 +31,4 @@ export const FORM_INITIAL_VALUES = {
   },
 };
 
-export const REST_PLUGIN_ID = "5ca385dc81b37f0004b4db85";
+export const PLUGIN_NAME = "RestTemplatePluginExecutor";

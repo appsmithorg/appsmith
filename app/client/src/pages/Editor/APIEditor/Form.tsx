@@ -69,6 +69,7 @@ const JSONEditorFieldWrapper = styled.div`
 `;
 
 interface APIFormProps {
+  pluginId: string;
   allowSave: boolean;
   allowPostBody: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
@@ -84,6 +85,7 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
+    pluginId,
     allowSave,
     allowPostBody,
     onSaveClick,
@@ -128,7 +130,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <DatasourcesField name="datasource.id" />
+          <DatasourcesField name="datasource.id" pluginId={pluginId} />
           <TextField
             placeholder="API Path"
             name="actionConfiguration.path"

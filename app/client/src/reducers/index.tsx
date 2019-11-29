@@ -19,6 +19,7 @@ import { BindingsDataState } from "./entityReducers/bindingsReducer";
 import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { RoutesParamsReducerState } from "reducers/uiReducers/routesParamsReducer";
+import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -49,6 +50,7 @@ export interface AppState {
     datasources: DatasourceDataState;
     nameBindings: BindingsDataState;
     pageList: PageListReduxState;
+    plugins: PluginDataState;
   };
 }
 
