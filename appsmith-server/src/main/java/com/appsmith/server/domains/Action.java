@@ -35,6 +35,8 @@ public class Action extends BaseDomain {
 
     ActionConfiguration actionConfiguration;
 
+    PluginType pluginType;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isValid;
 
