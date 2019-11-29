@@ -9,8 +9,6 @@ import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PageAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -42,7 +40,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -220,13 +217,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 //Set plugin in the action before saving.
                 .map(tuple -> {
                     Plugin plugin = tuple.getT1();
-                    if (plugin.getId() == null) {
-                        log.debug("Plugin not found in the datasource.");
-                    }
                     Datasource datasource = tuple.getT2();
                     action.setDatasource(datasource);
                     action.setDatasourceId(datasource.getId());
                     action.setInvalids(invalids);
+                    action.setPluginType(plugin.getType());
                     return action;
                 }).map(act -> extractAndSetJsonPathKeys(act))
                 .flatMap(super::create)
@@ -271,31 +266,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         }};
         action.setJsonPathKeys(keys);
         return action;
-    }
-
-    public Mono<Page> bindPageToAction(Action action, String pageId) {
-        Mono<Page> pageMono = pageService.findById(pageId);
-        action.setPageId(pageId);
-        return pageMono
-                //If page exists, then continue forward
-                .then(repository.save(action))
-                .flatMap(action1 -> pageMono
-                        .map(page -> {
-                            PageAction pageAction = new PageAction();
-                            pageAction.setId(action1.getId());
-
-                            List<PageAction> actions = page.getActions();
-
-                            if (actions == null) {
-                                actions = new ArrayList<>();
-                            }
-
-                            actions.add(pageAction);
-                            page.setActions(actions);
-                            return page;
-                        })
-                        .flatMap(pageService::save)
-                );
     }
 
     @Override
@@ -441,24 +411,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Action> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
         return actionMono
-                .map(action -> {
-                    if (action.getPageId() == null) {
-                        //No page id implies that the action is not bound to a page yet. Safe to delete it
-                        return action;
-                    }
-                    Mono<Page> pageMono = pageService.findById(action.getPageId());
-                    return pageMono
-                            .map(page -> {
-                                List<PageAction> actions = page.getActions();
-                                actions = actions.stream().filter(a -> a.getId() != action.getId()).collect(Collectors.toList());
-                                page.setActions(actions);
-                                return page;
-                            })
-                            .flatMap(pageService::save)
-                            .thenReturn(action);
-                })
                 .flatMap(toDelete ->
-                        repository.delete((Action) toDelete)
+                        repository.delete(toDelete)
                                 .thenReturn(toDelete))
                 .map(deletedObj -> {
                     analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Action) deletedObj);
