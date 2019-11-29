@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -99,7 +100,7 @@ public class LayoutServiceImpl implements LayoutService {
             log.error("Exception caught during mustache extraction from the dsl in Layout. ", e);
         }
 
-        Mono<Set<String>> actionsInPage = Flux.fromIterable(mustacheKeys)
+        Mono<Set<DslActionDTO>> actionsInPage = Flux.fromIterable(mustacheKeys)
                 .map(mustacheKey -> {
                     String[] subStrings = mustacheKey.split(Pattern.quote("."));
                     // Assumption here is that the action name would always be the first substring here.
@@ -116,7 +117,15 @@ public class LayoutServiceImpl implements LayoutService {
                     return action;
                 })
                 .flatMap(actionService::save)
-                .map(action -> action.getId())
+                .map(action -> {
+                    DslActionDTO newAction = new DslActionDTO();
+                    newAction.setId(action.getId());
+                    newAction.setPluginType(action.getPluginType());
+                    newAction.setJsonPathKeys(action.getJsonPathKeys());
+                    newAction.setName(action.getName());
+                    return newAction;
+                })
+                .distinct(action -> action.getId())
                 .collect(toSet());
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
@@ -126,23 +135,23 @@ public class LayoutServiceImpl implements LayoutService {
                 .zipWith(actionsInPage)
                 .map(tuple -> {
                     Page page = tuple.getT1();
-                    Set<String> actions = tuple.getT2();
+                    Set<DslActionDTO> actions = tuple.getT2();
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
                     for (Layout storedLayout : layoutList) {
                         if (storedLayout.getId().equals(layoutId)) {
                             //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            Set<String> publishedDslActionIds = storedLayout.getPublishedDslActionIds();
+                            Set<DslActionDTO> publishedDslActionIds = storedLayout.getPublishedDslActions();
 
                             //Update
-                            layout.setDslActionIds(actions);
+                            layout.setDslActions(actions);
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
 
                             //Copy back the conserved variables.
                             storedLayout.setPublishedDsl(publishedDsl);
-                            storedLayout.setPublishedDslActionIds(publishedDslActionIds);
+                            storedLayout.setPublishedDslActions(publishedDslActionIds);
                             break;
                         }
                     }
