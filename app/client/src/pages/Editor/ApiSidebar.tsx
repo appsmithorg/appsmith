@@ -16,6 +16,8 @@ import { changeApi, initApiPane } from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Fuse from "fuse.js";
+import { getPluginIdOfName } from "selectors/entitiesSelector";
+import { PLUGIN_NAME } from "constants/ApiEditorConstants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -133,6 +135,7 @@ const CreateApiWrapper = styled.div`
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
+  pluginId: string | undefined;
 }
 
 interface ReduxDispatchProps {
@@ -226,7 +229,9 @@ class ApiSidebar extends React.Component<Props, State> {
       apiPane: { isFetching, isSaving, drafts },
       match,
       actions: { data },
+      pluginId,
     } = this.props;
+    if (!pluginId) return null;
     const { isCreating, search, name } = this.state;
     const activeActionId = match.params.apiId;
     const fuse = new Fuse(data, fuseOptions);
@@ -303,6 +308,7 @@ class ApiSidebar extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
+  pluginId: getPluginIdOfName(state, PLUGIN_NAME),
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
 });
