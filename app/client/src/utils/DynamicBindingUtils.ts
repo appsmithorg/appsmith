@@ -68,7 +68,7 @@ export const getDynamicBindings = (
 };
 
 // Paths are expected to have "{name}.{path}" signature
-export const extractDynamicBoundValue = (
+export const evaluateDynamicBoundValue = (
   data: NameBindingsWithData,
   path: string,
 ): any => {
@@ -102,7 +102,7 @@ export const getDynamicValue = (
   if (bindings.length) {
     // Get the Data Tree value of those "binding "paths
     const values = paths.map((p, i) => {
-      return p ? extractDynamicBoundValue(data, p) : bindings[i];
+      return p ? evaluateDynamicBoundValue(data, p) : bindings[i];
     });
 
     // if it is just one binding, no need to create template string

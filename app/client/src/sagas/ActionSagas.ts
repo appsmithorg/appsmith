@@ -36,7 +36,7 @@ import {
   updateActionSuccess,
 } from "actions/actionActions";
 import {
-  extractDynamicBoundValue,
+  evaluateDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
   NameBindingsWithData,
@@ -78,7 +78,7 @@ const createActionErrorResponse = (
 
 export function* evaluateJSONPathSaga(path: string): any {
   const dataTree = yield select(getDataTree);
-  return extractDynamicBoundValue(dataTree, path);
+  return evaluateDynamicBoundValue(dataTree, path);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
