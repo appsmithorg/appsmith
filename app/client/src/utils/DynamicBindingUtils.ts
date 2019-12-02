@@ -9,7 +9,7 @@ export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
-function parseDynamicString(dynamicString: string): string[] {
+export function parseDynamicString(dynamicString: string): string[] {
   let parsedDynamicValues = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
   if (indexOfDoubleParanStart === -1) {
