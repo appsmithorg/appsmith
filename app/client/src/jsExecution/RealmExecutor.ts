@@ -35,7 +35,7 @@ export default class RealmExecutor implements JSExecutor {
     try {
       result = this.rootRealm.evaluate(sourceText, safeData);
     } catch (e) {
-      result = `Error: ${e}`;
+      //TODO(Satbir): Return an object with an error message.
     }
     return result;
   }
