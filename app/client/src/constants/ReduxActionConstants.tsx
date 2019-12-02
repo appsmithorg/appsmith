@@ -87,6 +87,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_API_DRAFT: "UPDATE_API_DRAFT",
   DELETE_API_DRAFT: "DELETE_API_DRAFT",
   UPDATE_ROUTES_PARAMS: "UPDATE_ROUTES_PARAMS",
+  FETCH_PLUGINS_REQUEST: "FETCH_PLUGINS_REQUEST",
+  FETCH_PLUGINS_SUCCESS: "FETCH_PLUGINS_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -122,6 +124,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_APPLICATION_LIST_ERROR: "FETCH_APPLICATION_LIST_ERROR",
   CREATE_APPLICATION_ERROR: "CREATE_APPLICATION_ERROR",
   SAVE_JS_EXECUTION_RECORD: "SAVE_JS_EXECUTION_RECORD",
+  FETCH_PLUGINS_ERROR: "FETCH_PLUGINS_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

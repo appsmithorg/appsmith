@@ -46,7 +46,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       const displayMode = (
         <BaseButton
           icon-right="plus"
-          styleName="primary"
+          accent="primary"
           filled={true}
           text={this.props.addItem.displayText}
           onClick={this.showTextBox}
@@ -130,7 +130,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       >
         {this.props.toggle || (
           <BaseButton
-            styleName="secondary"
+            accent="secondary"
             text={this.getSelectedDisplayText()}
             rightIcon="chevron-down"
           />

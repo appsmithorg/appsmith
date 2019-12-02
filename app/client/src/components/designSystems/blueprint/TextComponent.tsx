@@ -5,7 +5,7 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import { TextStyle } from "widgets/TextWidget";
 
 type TextStyleProps = {
-  styleName: "primary" | "secondary" | "error";
+  accent: "primary" | "secondary" | "error";
 };
 
 export const BaseText = styled(Text)<TextStyleProps>``;

@@ -15,13 +15,15 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import styled from "styled-components";
-import { HTTP_METHODS } from "constants/ApiEditorConstants";
+import { HTTP_METHODS, PLUGIN_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
+import { getPluginIdOfName } from "selectors/entitiesSelector";
 
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
   formData: RestAction;
+  pluginId: string | undefined;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -70,12 +72,19 @@ class ApiEditor extends React.Component<Props> {
         params: { apiId },
       },
       formData,
+      pluginId,
     } = this.props;
     const httpMethod = _.get(formData, "actionConfiguration.httpMethod");
+    if (!pluginId) {
+      return (
+        <EmptyStateContainer>{"Plugin is not installed"}</EmptyStateContainer>
+      );
+    }
     return (
       <React.Fragment>
         {apiId ? (
           <ApiEditorForm
+            pluginId={pluginId}
             allowSave={apiId in drafts}
             allowPostBody={httpMethod && httpMethod !== HTTP_METHODS[0]}
             isSaving={isSaving}
@@ -97,6 +106,7 @@ class ApiEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
+  pluginId: getPluginIdOfName(state, PLUGIN_NAME),
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction,

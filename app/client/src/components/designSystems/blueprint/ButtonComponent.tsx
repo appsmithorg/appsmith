@@ -4,14 +4,15 @@ import styled, { css } from "styled-components";
 import { TextComponentProps } from "./TextComponent";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme } from "constants/DefaultTheme";
+import _ from "lodash";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
-  if (props.styleName) {
-    if (props.styleName === "secondary") {
+  if (props.accent) {
+    if (props.accent === "secondary") {
       return props.theme.colors.OXFORD_BLUE;
     }
-    return props.theme.colors[props.styleName];
+    return props.theme.colors[props.accent];
   }
 };
 
@@ -22,18 +23,20 @@ const ButtonColorStyles = css<ButtonStyleProps>`
   }
 `;
 
-const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
+const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
+  <AnchorButton {..._.omit(props, ["accent", "filled"])} />
+))<ButtonStyleProps>`
   && {
     ${ButtonColorStyles};
     width: 100%;
     height: 100%;
     transition: background-color 0.2s;
     background-color: ${props =>
-      props.filled && props.styleName && props.theme.colors[props.styleName]};
+      props.filled && props.accent && props.theme.colors[props.accent]};
     border: 1px solid
       ${props =>
-        props.styleName
-          ? props.theme.colors[props.styleName]
+        props.accent
+          ? props.theme.colors[props.accent]
           : props.theme.colors.secondary};
     border-radius: 4px;
     font-weight: ${props => props.theme.fontWeights[2]};
@@ -44,14 +47,14 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarker;
-        if (props.styleName !== "secondary") {
-          return props.theme.colors[`${props.styleName}Darker`];
+        if (props.accent !== "secondary") {
+          return props.theme.colors[`${props.accent}Darker`];
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.styleName !== "secondary") {
-          return props.theme.colors[`${props.styleName}Darker`];
+        if (props.accent !== "secondary") {
+          return props.theme.colors[`${props.accent}Darker`];
         }
       }};
     }
@@ -59,14 +62,14 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarkest;
-        if (props.styleName !== "secondary") {
-          return props.theme.colors[`${props.styleName}Darkest`];
+        if (props.accent !== "secondary") {
+          return props.theme.colors[`${props.accent}Darkest`];
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.styleName !== "secondary") {
-          return props.theme.colors[`${props.styleName}Darkest`];
+        if (props.accent !== "secondary") {
+          return props.theme.colors[`${props.accent}Darkest`];
         }
       }};
     }
@@ -79,7 +82,7 @@ const ButtonWrapper = styled(AnchorButton)<ButtonStyleProps>`
 export type ButtonStyleName = "primary" | "secondary" | "error";
 
 type ButtonStyleProps = {
-  styleName?: ButtonStyleName;
+  accent?: ButtonStyleName;
   filled?: boolean;
 };
 
@@ -89,7 +92,7 @@ export const BaseButton = (props: IButtonProps & ButtonStyleProps) => {
 };
 
 BaseButton.defaultProps = {
-  styleName: "secondary",
+  accent: "secondary",
   disabled: false,
   text: "Button Text",
   minimal: true,
@@ -122,7 +125,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       icon={props.icon}
       text={props.text}
       filled={props.buttonStyle === "PRIMARY_BUTTON"}
-      styleName={mapButtonStyleToStyleName(props.buttonStyle)}
+      accent={mapButtonStyleToStyleName(props.buttonStyle)}
       onClick={props.onClick}
       disabled={props.disabled}
     />

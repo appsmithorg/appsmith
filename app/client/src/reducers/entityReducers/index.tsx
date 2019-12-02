@@ -9,6 +9,7 @@ import datasourceReducer from "./datasourceReducer";
 import bindingsReducer from "./bindingsReducer";
 import pageListReducer from "./pageListReducer";
 import jsExecutionsReducer from "./jsExecutionsReducer";
+import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
@@ -21,6 +22,7 @@ const entityReducer = combineReducers({
   nameBindings: bindingsReducer,
   pageList: pageListReducer,
   jsExecutions: jsExecutionsReducer,
+  plugins: pluginsReducer,
 });
 
 export default entityReducer;

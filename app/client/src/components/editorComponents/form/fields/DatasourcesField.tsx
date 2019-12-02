@@ -6,7 +6,6 @@ import { AppState } from "reducers";
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import _ from "lodash";
 import { createDatasource } from "actions/datasourcesActions";
-import { REST_PLUGIN_ID } from "constants/ApiEditorConstants";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
@@ -17,12 +16,14 @@ interface ReduxActionProps {
 
 interface ComponentProps {
   name: string;
+  pluginId: string;
 }
 
 const DatasourcesField = (
   props: ReduxActionProps & ReduxStateProps & ComponentProps,
 ) => {
   const options = props.datasources.list
+    .filter(r => r.pluginId === props.pluginId)
     .filter(r => r.datasourceConfiguration !== null)
     .map(r => ({
       label: r.datasourceConfiguration.url.endsWith("/")
@@ -49,7 +50,10 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   datasources: state.entities.datasources,
 });
 
-const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
+const mapDispatchToProps = (
+  dispatch: any,
+  ownProps: ComponentProps,
+): ReduxActionProps => ({
   createDatasource: (value: string) =>
     dispatch(
       createDatasource({
@@ -59,7 +63,7 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
           // Datasource url should end with /
           url: value.endsWith("/") ? value : `${value}/`,
         },
-        pluginId: REST_PLUGIN_ID,
+        pluginId: ownProps.pluginId,
       }),
     ),
 });
