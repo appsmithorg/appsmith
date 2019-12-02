@@ -1,12 +1,12 @@
 import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { DATA_BIND_JS_REGEX } from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 
 export type NameBindingsWithData = Record<string, object>;
 export const isDynamicValue = (value: string): boolean =>
-  DATA_BIND_JS_REGEX.test(value);
+  DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
 function parseDynamicString(dynamicString: string): string[] {
@@ -58,7 +58,7 @@ export const getDynamicBindings = (
   // Get the "binding" path values
   const paths = bindings.map(binding => {
     const length = binding.length;
-    const matches = binding.match(DATA_BIND_JS_REGEX);
+    const matches = binding.match(DATA_BIND_REGEX);
     if (matches) {
       return binding.substring(2, length - 2);
     }
