@@ -7,6 +7,8 @@ import {
   Tooltip,
   Position,
 } from "@blueprintjs/core";
+import { BASE_URL, APPLICATIONS_URL } from "constants/routes";
+
 import DropdownComponent from "components/editorComponents/DropdownComponent";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
@@ -57,8 +59,8 @@ type EditorHeaderProps = {
 
 export const EditorHeader = (props: EditorHeaderProps) => {
   const navigation: IBreadcrumbProps[] = [
-    { href: "#", icon: "folder-close", text: "appsmith-dev" },
-    { href: "#", icon: "folder-close", text: "application" },
+    { href: BASE_URL, icon: "home", text: "Home" },
+    { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
     { icon: "page-layout", text: "", current: true },
   ];
 
