@@ -76,7 +76,7 @@ const createActionErrorResponse = (
   size: "0",
 });
 
-export function* evaluateJSONPathSaga(path: string): any {
+export function* evaluateDynamicBoundValueSaga(path: string): any {
   const dataTree = yield select(getDataTree);
   return evaluateDynamicBoundValue(dataTree, path);
 }
@@ -86,7 +86,7 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
   const values: any = _.flatten(
     yield all(
       jsonPathKeys.map((jsonPath: string) => {
-        return call(evaluateJSONPathSaga, jsonPath);
+        return call(evaluateDynamicBoundValueSaga, jsonPath);
       }),
     ),
   );
