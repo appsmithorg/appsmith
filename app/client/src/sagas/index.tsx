@@ -13,6 +13,7 @@ import watchActionWidgetMapSagas, {
   watchPropertyAndBindingUpdate,
 } from "./ActionWidgetMapSagas";
 import apiPaneSagas from "./ApiPaneSagas";
+import pluginSagas from "./PluginSagas";
 
 export function* rootSaga() {
   yield all([
@@ -29,5 +30,6 @@ export function* rootSaga() {
     spawn(watchActionWidgetMapSagas),
     spawn(watchPropertyAndBindingUpdate),
     spawn(apiPaneSagas),
+    spawn(pluginSagas),
   ]);
 }

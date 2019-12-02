@@ -110,7 +110,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             onClick={props.onPublish}
             text="Publish"
             loading={props.isPublishing}
-            styleName="primary"
+            accent="primary"
             filled
           />
         </Tooltip>

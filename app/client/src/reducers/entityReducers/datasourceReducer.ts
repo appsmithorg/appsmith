@@ -1,7 +1,6 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
-import { REST_PLUGIN_ID } from "constants/ApiEditorConstants";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -27,8 +26,7 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
-      // TODO(hetu) Once plugins are being pulled get Ids from there
-      list: action.payload.filter(r => r.pluginId === REST_PLUGIN_ID),
+      list: action.payload,
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (

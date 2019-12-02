@@ -120,7 +120,7 @@ const ApiResponseView = (props: Props) => {
         <React.Fragment>
           {response.statusCode && (
             <StatusCodeText
-              styleName="secondary"
+              accent="secondary"
               code={response.statusCode.toString()}
             >
               Status: {response.statusCode}
@@ -128,12 +128,12 @@ const ApiResponseView = (props: Props) => {
           )}
           <ResponseMetaInfo>
             {response.duration && (
-              <BaseText styleName="secondary">
+              <BaseText accent="secondary">
                 Time: {response.duration} ms
               </BaseText>
             )}
             {response.size && (
-              <BaseText styleName="secondary">
+              <BaseText accent="secondary">
                 Size: {formatBytes(parseInt(response.size))}
               </BaseText>
             )}
