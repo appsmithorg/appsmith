@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
 import { withRouter, RouteComponentProps } from "react-router-dom";
@@ -100,6 +101,10 @@ class Editor extends Component<EditorProps> {
     }
     return (
       <div>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Editor | Appsmith</title>
+        </Helmet>
         <EditorHeader
           isSaving={this.props.isSaving}
           pageName={this.props.currentPageName}

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -65,6 +66,10 @@ class Applications extends Component<ApplicationProps> {
       : this.props.applicationList;
     return (
       <ApplicationsPageWrapper>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>Applications | Appsmith</title>
+        </Helmet>
         <ApplicationsHeader />
         <ApplicationsBody>
           <SubHeader
