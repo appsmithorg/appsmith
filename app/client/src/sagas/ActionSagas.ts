@@ -77,8 +77,8 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const dataTree = yield select(getDataTree);
-  return evaluateDynamicBoundValue(dataTree, path);
+  const nameBindingsWithData = yield select(getNameBindingsWithData);
+  return evaluateDynamicBoundValue(nameBindingsWithData, path);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
