@@ -25,6 +25,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         key={this.props.widgetId}
         isDisabled={this.props.isDisabled}
         onCheckChange={this.onCheckChange}
+        isLoading={this.props.isLoading}
       />
     );
   }

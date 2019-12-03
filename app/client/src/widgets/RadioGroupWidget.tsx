@@ -23,6 +23,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         label={this.props.label}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
+        isLoading={this.props.isLoading}
       />
     );
   }

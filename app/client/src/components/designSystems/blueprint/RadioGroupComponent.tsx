@@ -13,7 +13,12 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
       >
         {this.props.options.map(option => {
           return (
-            <Radio label={option.label} value={option.value} key={option.id} />
+            <Radio
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              label={option.label}
+              value={option.value}
+              key={option.id}
+            />
           );
         })}
       </RadioGroup>
@@ -30,6 +35,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   options: RadioOption[];
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
+  isLoading: boolean;
 }
 
 export default RadioGroupComponent;
