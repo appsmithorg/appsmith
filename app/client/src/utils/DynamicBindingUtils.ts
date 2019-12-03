@@ -1,40 +1,78 @@
 import _ from "lodash";
-import { DataTree } from "reducers";
-import { JSONPath } from "jsonpath-plus";
 import { WidgetProps } from "widgets/BaseWidget";
-import { DATA_BIND_REGEX, DATA_PATH_REGEX } from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
+import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 
+export type NameBindingsWithData = Record<string, object>;
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
+
+//{{}}{{}}}
+export function parseDynamicString(dynamicString: string): string[] {
+  let parsedDynamicValues = [];
+  const indexOfDoubleParanStart = dynamicString.indexOf("{{");
+  if (indexOfDoubleParanStart === -1) {
+    return [dynamicString];
+  }
+  //{{}}{{}}}
+  const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
+  firstString && parsedDynamicValues.push(firstString);
+  let rest = dynamicString.substring(
+    indexOfDoubleParanStart,
+    dynamicString.length,
+  );
+  //{{}}{{}}}
+  let sum = 0;
+  for (let i = 0; i <= rest.length - 1; i++) {
+    const char = rest[i];
+    const prevChar = rest[i - 1];
+
+    if (char === "{") {
+      sum++;
+    } else if (char === "}") {
+      sum--;
+      if (prevChar === "}" && sum === 0) {
+        parsedDynamicValues.push(rest.substring(0, i + 1));
+        rest = rest.substring(i + 1, rest.length);
+        if (rest) {
+          parsedDynamicValues = parsedDynamicValues.concat(
+            parseDynamicString(rest),
+          );
+          break;
+        }
+      }
+    }
+  }
+  if (sum !== 0 && dynamicString !== "") {
+    return [dynamicString];
+  }
+  return parsedDynamicValues;
+}
 
 export const getDynamicBindings = (
   dynamicString: string,
 ): { bindings: string[]; paths: string[] } => {
   // Get the {{binding}} bound values
-  const bindings = dynamicString.match(DATA_BIND_REGEX) || [];
+  const bindings = parseDynamicString(dynamicString);
   // Get the "binding" path values
-  const paths = bindings.map(p => {
-    const matches = p.match(DATA_PATH_REGEX);
-    if (matches) return matches[0];
+  const paths = bindings.map(binding => {
+    const length = binding.length;
+    const matches = binding.match(DATA_BIND_REGEX);
+    if (matches) {
+      return binding.substring(2, length - 2);
+    }
     return "";
   });
   return { bindings, paths };
 };
 
 // Paths are expected to have "{name}.{path}" signature
-export const extractDynamicBoundValue = (
-  dataTree: DataTree,
+export const evaluateDynamicBoundValue = (
+  data: NameBindingsWithData,
   path: string,
 ): any => {
-  // Remove the name in the binding
-  const splitPath = path.split(".");
-  // Find the dataTree path of the name
-  const bindingPath = dataTree.nameBindings[splitPath[0]];
-  // Create the full path
-  const fullPath = `${bindingPath}.${splitPath.slice(1).join(".")}`;
-  // Search with JSONPath
-  return JSONPath({ path: fullPath, json: dataTree })[0];
+  return JSExecutionManagerSingleton.evaluateSync(path, data);
 };
 
 // For creating a final value where bindings could be in a template format
@@ -57,13 +95,16 @@ export const createDynamicValueString = (
 
 export const getDynamicValue = (
   dynamicBinding: string,
-  dataTree: DataTree,
+  data: NameBindingsWithData,
 ): any => {
   // Get the {{binding}} bound values
   const { bindings, paths } = getDynamicBindings(dynamicBinding);
   if (bindings.length) {
     // Get the Data Tree value of those "binding "paths
-    const values = paths.map(p => extractDynamicBoundValue(dataTree, p));
+    const values = paths.map((p, i) => {
+      return p ? evaluateDynamicBoundValue(data, p) : bindings[i];
+    });
+
     // if it is just one binding, no need to create template string
     if (bindings.length === 1) return values[0];
     // else return a string template with bindings
@@ -74,17 +115,18 @@ export const getDynamicValue = (
 
 export const enhanceWithDynamicValuesAndValidations = (
   widget: WidgetProps,
-  entities: DataTree,
+  nameBindingsWithData: NameBindingsWithData,
   replaceWithParsed: boolean,
 ): WidgetProps => {
   if (!widget) return widget;
   const properties = { ...widget };
   const invalidProps: Record<string, boolean> = {};
+
   Object.keys(widget).forEach((property: string) => {
     let value = widget[property];
     // Check for dynamic bindings
     if (widget.dynamicBindings && property in widget.dynamicBindings) {
-      value = getDynamicValue(value, entities);
+      value = getDynamicValue(value, nameBindingsWithData);
     }
     // Pass it through validation and parse
     const { isValid, parsed } = ValidationFactory.validateWidgetProperty(

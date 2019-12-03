@@ -1,12 +1,15 @@
 import { createSelector } from "reselect";
-import { AppState, DataTree } from "reducers";
+import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import { getDataTree } from "./entitiesSelector";
-import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
+import {
+  enhanceWithDynamicValuesAndValidations,
+  NameBindingsWithData,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getNameBindingsWithData } from "./nameBindingsWithDataSelector";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -35,10 +38,17 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsWithValidations = createSelector(
   getCurrentWidgetProperties,
-  getDataTree,
-  (widget: WidgetProps | undefined, dataTree: DataTree) => {
+  getNameBindingsWithData,
+  (
+    widget: WidgetProps | undefined,
+    nameBindigsWithData: NameBindingsWithData,
+  ) => {
     if (!widget) return undefined;
-    return enhanceWithDynamicValuesAndValidations(widget, dataTree, false);
+    return enhanceWithDynamicValuesAndValidations(
+      widget,
+      nameBindigsWithData,
+      false,
+    );
   },
 );
 
