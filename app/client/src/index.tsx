@@ -1,12 +1,11 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
+import Loader from "pages/common/Loader";
+import "normalize.css/normalize.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import "@blueprintjs/core/lib/css/blueprint.css";
 import "./index.css";
-import App from "./App";
-import Editor from "./pages/Editor";
-import PageNotFound from "./pages/common/PageNotFound";
-import LoginPage from "./pages/common/LoginPage";
-import AppViewer from "./pages/AppViewer";
 import * as serviceWorker from "./serviceWorker";
 import { Router, Route, Switch } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
@@ -29,7 +28,14 @@ import {
   APP_VIEW_URL,
   APPLICATIONS_URL,
 } from "./constants/routes";
-import Applications from "./pages/Applications";
+
+const loadingIndicator = <Loader />;
+const App = lazy(() => import("./App"));
+const Editor = lazy(() => import("./pages/Editor"));
+const Applications = lazy(() => import("./pages/Applications"));
+const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
+const LoginPage = lazy(() => import("./pages/common/LoginPage"));
+const AppViewer = lazy(() => import("./pages/AppViewer"));
 
 appInitializer();
 
@@ -45,18 +51,20 @@ ReactDOM.render(
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <Router history={history}>
-          <Switch>
-            <Route exact path={BASE_URL} component={App} />
-            <ProtectedRoute path={BUILDER_URL} component={Editor} />
-            <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
-            <ProtectedRoute
-              exact
-              path={APPLICATIONS_URL}
-              component={Applications}
-            />
-            <Route exact path={LOGIN_URL} component={LoginPage} />
-            <Route component={PageNotFound} />
-          </Switch>
+          <Suspense fallback={loadingIndicator}>
+            <Switch>
+              <Route exact path={BASE_URL} component={App} />
+              <ProtectedRoute path={BUILDER_URL} component={Editor} />
+              <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
+              <ProtectedRoute
+                exact
+                path={APPLICATIONS_URL}
+                component={Applications}
+              />
+              <Route exact path={LOGIN_URL} component={LoginPage} />
+              <Route component={PageNotFound} />
+            </Switch>
+          </Suspense>
         </Router>
       </ThemeProvider>
     </Provider>

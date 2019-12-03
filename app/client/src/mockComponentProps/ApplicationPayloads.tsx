@@ -1,11 +1,13 @@
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import faker from "faker";
+import Chance from "chance";
+
+const chance = new Chance();
 
 export const getApplicationPayload = (): ApplicationPayload => ({
-  id: faker.random.uuid(),
-  name: faker.random.word(),
-  organizationId: faker.random.uuid(),
-  pageCount: faker.random.number(),
+  id: chance.guid(),
+  name: chance.word(),
+  organizationId: chance.guid(),
+  pageCount: chance.natural(),
 });
 
 export const getApplicationPayloads = (count: number): ApplicationPayload[] => {
