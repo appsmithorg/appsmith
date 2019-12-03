@@ -79,6 +79,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
+        isLoading={this.props.isLoading}
       />
     );
   }

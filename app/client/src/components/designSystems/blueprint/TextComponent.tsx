@@ -14,20 +14,26 @@ export interface TextComponentProps extends ComponentProps {
   text?: string;
   ellipsize?: boolean;
   textStyle?: TextStyle;
+  isLoading: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
   getTextClass(textStyle?: TextStyle) {
+    let className = this.props.isLoading ? "bp3-skeleton " : "";
     switch (textStyle) {
       case "HEADING":
-        return Classes.TEXT_LARGE;
-      case "LABEL":
-        return undefined;
+        className += Classes.TEXT_LARGE;
+        break;
       case "BODY":
-        return Classes.TEXT_SMALL;
+        className += Classes.TEXT_SMALL;
+        break;
+      case "LABEL":
+        break;
       default:
-        return undefined;
+        break;
     }
+
+    return className;
   }
 
   render() {

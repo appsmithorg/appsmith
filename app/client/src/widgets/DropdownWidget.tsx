@@ -30,6 +30,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectedIndex={this.props.selectedIndex || 0}
         selectedIndexArr={this.props.selectedIndexArr || []}
         label={this.props.label}
+        isLoading={this.props.isLoading}
       />
     );
   }

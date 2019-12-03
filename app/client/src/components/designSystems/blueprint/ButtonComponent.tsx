@@ -103,6 +103,7 @@ interface ButtonContainerProps extends TextComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   buttonStyle?: ButtonStyle;
+  isLoading: boolean;
 }
 
 const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
@@ -122,6 +123,7 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
 const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
     <BaseButton
+      className={props.isLoading ? "bp3-skeleton" : ""}
       icon={props.icon}
       text={props.text}
       filled={props.buttonStyle === "PRIMARY_BUTTON"}

@@ -75,6 +75,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
         placeholder={this.props.placeholderText}
+        isLoading={this.props.isLoading}
         stepSize={1}
       />
     );

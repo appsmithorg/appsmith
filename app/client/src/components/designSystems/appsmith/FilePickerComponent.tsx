@@ -24,7 +24,11 @@ class FilePickerComponent extends React.Component<
   render() {
     return (
       <React.Fragment>
-        <BaseButton text={"Upload files"} onClick={this.openModal} />
+        <BaseButton
+          className={this.props.isLoading ? "bp3-skeleton" : ""}
+          text={"Upload files"}
+          onClick={this.openModal}
+        />
         <DashboardModal
           open={this.state.isOpen}
           target={document.body}
@@ -45,6 +49,7 @@ export interface FilePickerComponentState {
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;
+  isLoading: boolean;
 }
 
 export default FilePickerComponent;

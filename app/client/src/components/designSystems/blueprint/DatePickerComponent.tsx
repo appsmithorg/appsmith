@@ -9,6 +9,7 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
     return this.props.datePickerType === "DATE_PICKER" ? (
       <DateInput
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
         formatDate={this.formatDate}
         parseDate={this.parseDate}
         placeholder={this.props.dateFormat}
@@ -29,6 +30,7 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
       />
     ) : (
       <DateRangeInput
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
         allowSingleDayRange={true}
         disabled={this.props.isDisabled}
         contiguousCalendarMonths={false}
@@ -74,6 +76,7 @@ export interface DatePickerComponentProps extends ComponentProps {
   timezone?: string;
   datePickerType: DatePickerType;
   onDateSelected: (date: Date) => void;
+  isLoading: boolean;
 }
 
 export default DatePickerComponent;
