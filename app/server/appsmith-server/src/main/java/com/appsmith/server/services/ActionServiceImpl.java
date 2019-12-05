@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -185,8 +186,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         }
 
         if (action.getDatasource() == null) {
-            action.setIsValid(false);
-            invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
+            if (action.getPluginType() != PluginType.JS) {
+                // This action isn't of type JS functions which requires that the pluginType be set by the client. Hence,
+                // datasource is very much required for such an action.
+                action.setIsValid(false);
+                invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
+            }
             action.setInvalids(invalids);
             return super.create(action);
         }
@@ -303,6 +308,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Datasource> datasourceMono = actionMono
                 .flatMap(action -> {
+                    if (action.getPluginType() == PluginType.JS) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
                     if (action.getDatasourceId() != null) {
                         return datasourceService.findById(action.getDatasourceId());
                     } else if (action.getDatasource() != null && action.getDatasource().getId() != null) {

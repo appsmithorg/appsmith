@@ -1,5 +1,5 @@
 package com.appsmith.server.domains;
 
 public enum PluginType {
-    DB, API
+    DB, API, JS
 }

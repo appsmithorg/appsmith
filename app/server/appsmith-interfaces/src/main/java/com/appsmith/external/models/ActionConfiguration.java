@@ -48,6 +48,10 @@ public class ActionConfiguration {
      */
     Map<String, Object> query;
 
+    // JS action fields
+
+    String jsFunction;
+
     /*
      * Future plugins could require more fields that are not covered above.
      * They will have to represented in a key-value format where the plugin
