@@ -27,3 +27,4 @@ yarn-error.log*
 /public/fonts/*
 /src/assets/icons/fonts/*
 .idea
+.storybook-out/

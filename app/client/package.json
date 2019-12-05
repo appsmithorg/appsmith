@@ -87,7 +87,9 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start"
+    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
+    "storybook": "start-storybook",
+    "build-storybook": "build-storybook -c .storybook -o .storybook-out"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -102,21 +104,33 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/core": "^7.7.4",
+    "@storybook/addon-contexts": "^5.2.6",
+    "@storybook/addon-docs": "^5.2.8",
+    "@storybook/addon-knobs": "^5.2.6",
+    "@storybook/addon-notes": "^5.2.6",
+    "@storybook/addons": "^5.2.6",
+    "@storybook/preset-create-react-app": "^1.3.1",
+    "@storybook/react": "^5.2.6",
     "@types/jest": "^24.0.22",
     "@types/react-select": "^3.0.5",
     "@types/react-tabs": "^2.3.1",
     "@types/redux-form": "^8.1.9",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
+    "babel-loader": "^8.0.6",
     "dotenv": "^8.1.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.1.0",
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
+    "react-docgen-typescript-loader": "^3.6.0",
+    "react-is": "^16.12.0",
     "react-test-renderer": "^16.11.0",
     "redux-devtools": "^3.5.0",
-    "redux-devtools-extension": "^2.13.8"
+    "redux-devtools-extension": "^2.13.8",
+    "storybook-addon-designs": "^5.1.1"
   },
   "husky": {
     "hooks": {
