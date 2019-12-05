@@ -55,11 +55,14 @@ const ErrorText = styled.span`
 `;
 
 export interface TextInputProps {
+  /** TextInput Placeholder */
   placeholder?: string;
   input?: Partial<WrappedFieldInputProps>;
-  meta?: WrappedFieldMetaProps;
+  meta?: Partial<WrappedFieldMetaProps>;
   icon?: IconName | MaybeElement;
+  /** Should show error when defined */
   showError?: boolean;
+  /** Additional classname */
   className?: string;
 }
 
@@ -82,6 +85,10 @@ export const BaseTextInput = (props: TextInputProps) => {
   );
 };
 
+/**
+ * Text Input Component
+ * Has Icon, placholder, errors, etc.
+ */
 const TextInputComponent = (props: TextInputProps & ComponentProps) => {
   return <BaseTextInput {...props} />;
 };
