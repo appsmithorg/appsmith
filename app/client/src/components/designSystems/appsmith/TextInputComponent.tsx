@@ -1,7 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { IconName, InputGroup, MaybeElement } from "@blueprintjs/core";
+import {
+  IconName,
+  IInputGroupProps,
+  IIntentProps,
+  InputGroup,
+  MaybeElement,
+} from "@blueprintjs/core";
 import { ComponentProps } from "./BaseComponent";
 
 export const TextInput = styled(InputGroup)`
@@ -45,6 +51,7 @@ const InputContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  position: relative;
 `;
 
 const ErrorText = styled.span`
@@ -54,9 +61,10 @@ const ErrorText = styled.span`
   color: ${props => props.theme.colors.error};
 `;
 
-export interface TextInputProps {
+export interface TextInputProps extends IInputGroupProps {
   /** TextInput Placeholder */
   placeholder?: string;
+  intent?: IIntentProps["intent"];
   input?: Partial<WrappedFieldInputProps>;
   meta?: Partial<WrappedFieldMetaProps>;
   icon?: IconName | MaybeElement;
@@ -64,17 +72,18 @@ export interface TextInputProps {
   showError?: boolean;
   /** Additional classname */
   className?: string;
+  refHandler?: (ref: HTMLInputElement | null) => void;
 }
 
 export const BaseTextInput = (props: TextInputProps) => {
-  const { placeholder, input, meta, icon, showError, className } = props;
+  const { input, meta, showError, className, ...rest } = props;
   return (
     <InputContainer className={className}>
       <TextInput
+        inputRef={props.refHandler}
         {...input}
-        placeholder={placeholder}
-        leftIcon={icon}
         autoComplete={"off"}
+        {...rest}
       />
       {showError && (
         <ErrorText>

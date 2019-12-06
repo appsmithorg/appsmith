@@ -2,6 +2,9 @@ import { AppState, DataTree } from "reducers";
 
 export const getDataTree = (state: AppState): DataTree => state.entities;
 
+export const getDynamicNames = (state: AppState): DataTree["nameBindings"] =>
+  state.entities.nameBindings;
+
 export const getPluginIdOfName = (
   state: AppState,
   name: string,

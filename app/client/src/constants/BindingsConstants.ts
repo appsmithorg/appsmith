@@ -3,4 +3,5 @@
 export type NamePathBindingMap = Record<string, string>;
 export const DATA_BIND_REGEX = /(.*?){{(\s*(.*?)\s*)}}(.*?)/g;
 export const DATA_PATH_REGEX = /[\w\.\[\]\d]+/;
+export const DATA_BIND_AUTOCOMPLETE = /({{)(.*)(}{0,2}?)/;
 /* eslint-enable no-useless-escape */

@@ -7,6 +7,7 @@ import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { RestAction } from "api/ActionAPI";
 import TextField from "components/editorComponents/form/fields/TextField";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -131,7 +132,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourcesField name="datasource.id" pluginId={pluginId} />
-          <TextField
+          <DynamicTextField
             placeholder="API Path"
             name="actionConfiguration.path"
             icon="slash"

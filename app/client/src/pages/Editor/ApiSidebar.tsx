@@ -153,11 +153,12 @@ type State = {
   search: string;
 };
 
-const fuseOptions = {
+const FUSE_OPTIONS = {
   shouldSort: true,
-  threshold: 0.1,
+  threshold: 0.5,
   location: 0,
   minMatchCharLength: 3,
+  findAllMatches: true,
   keys: ["name"],
 };
 
@@ -234,7 +235,7 @@ class ApiSidebar extends React.Component<Props, State> {
     if (!pluginId) return null;
     const { isCreating, search, name } = this.state;
     const activeActionId = match.params.apiId;
-    const fuse = new Fuse(data, fuseOptions);
+    const fuse = new Fuse(data, FUSE_OPTIONS);
     const actions: RestAction[] = search ? fuse.search(search) : data;
     return (
       <React.Fragment>
