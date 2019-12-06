@@ -5,12 +5,15 @@ import reactor.core.publisher.Mono;
 
 public interface UserService extends CrudService<User, String> {
 
-    Mono<User> findByUsername(String name);
-
     Mono<User> findByEmail(String email);
 
     Mono<User> switchCurrentOrganization(String orgId);
 
     Mono<User> addUserToOrganization(String orgId);
 
+    Mono<Boolean> forgotPasswordTokenGenerate(String email);
+
+    Mono<Boolean> verifyPasswordResetToken(String email, String token);
+
+    Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 }

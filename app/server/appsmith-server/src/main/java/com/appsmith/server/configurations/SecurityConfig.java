@@ -1,9 +1,6 @@
 package com.appsmith.server.configurations;
 
 
-import com.appsmith.server.constants.Security;
-import com.appsmith.server.domains.Role;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
@@ -23,7 +17,6 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import java.util.Arrays;
-import java.util.Set;
 
 @EnableWebFluxSecurity
 public class SecurityConfig {
@@ -75,22 +68,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MapReactiveUserDetailsService userDetailsService() {
-        User user = new com.appsmith.server.domains.User();
-        user.setEmail("api_user");
-        user.setName("api_user");
-        user.setPassword(passwordEncoder().encode("8uA@;&mB:cnvN~{#"));
-        user.setRoles(Set.of(new Role(Security.USER_ROLE)));
-
-        return new MapReactiveUserDetailsService(user);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
@@ -106,4 +83,5 @@ public class SecurityConfig {
                 .and().formLogin()
                 .and().build();
     }
+
 }
