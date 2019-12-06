@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -48,7 +49,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createLayoutWithNullPageId() {
         Layout layout = new Layout();
         Mono<Layout> layoutMono = layoutService.createLayout(null, layout);
@@ -60,7 +61,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createLayoutWithInvalidPageID() {
         Layout layout = new Layout();
         String pageId = "Some random ID which can never be a page's ID";
@@ -73,7 +74,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createValidLayout() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
@@ -104,7 +105,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void updateLayoutInvalidPageId() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
@@ -144,7 +145,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void updateLayoutValidPageId() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();

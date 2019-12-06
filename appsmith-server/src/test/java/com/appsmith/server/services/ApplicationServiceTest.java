@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -30,7 +31,7 @@ public class ApplicationServiceTest {
     ApplicationPageService applicationPageService;
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
@@ -43,7 +44,7 @@ public class ApplicationServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
@@ -62,6 +63,7 @@ public class ApplicationServiceTest {
     /* Tests for Get Application Flow */
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getApplicationInvalidId() {
         Mono<Application> applicationMono = applicationService.getById("random-id");
         StepVerifier.create(applicationMono)
@@ -71,6 +73,7 @@ public class ApplicationServiceTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getApplicationNullId() {
         Mono<Application> applicationMono = applicationService.getById(null);
         StepVerifier.create(applicationMono)
@@ -80,7 +83,7 @@ public class ApplicationServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void validGetApplicationByName() {
         Application application = new Application();
         application.setName("validGetApplicationByName-Test");
@@ -97,7 +100,7 @@ public class ApplicationServiceTest {
 
     /* Tests for Update Application Flow */
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void validUpdateApplication() {
         Application application = new Application();
         application.setName("validUpdateApplication-Test");
