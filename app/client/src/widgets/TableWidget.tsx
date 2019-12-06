@@ -2,7 +2,7 @@ import React from "react";
 import _ from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload } from "constants/ActionConstants";
+import { ActionPayload, TableAction } from "constants/ActionConstants";
 import { AutoResizer } from "react-base-table";
 import "react-base-table/styles.css";
 import { forIn } from "lodash";
@@ -93,10 +93,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 }
 
 export type PaginationType = "PAGES" | "INFINITE_SCROLL";
-
-export interface TableAction extends ActionPayload {
-  actionName: string;
-}
 
 type RowData = {
   rowIndex: number;

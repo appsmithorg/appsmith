@@ -7,6 +7,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
       <Checkbox
         label={this.props.label}
         large={true}
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
         defaultIndeterminate={this.props.defaultCheckedState}
         onChange={this.onCheckChange}
         disabled={this.props.isDisabled}
@@ -23,6 +24,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   label: string;
   defaultCheckedState: boolean;
   onCheckChange: (isChecked: boolean) => void;
+  isLoading: boolean;
 }
 
 export default CheckboxComponent;

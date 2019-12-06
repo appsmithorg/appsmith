@@ -20,6 +20,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         key={this.props.widgetId}
         textStyle={this.props.textStyle}
         text={this.props.text}
+        isLoading={this.props.isLoading}
       />
     );
   }
@@ -34,6 +35,7 @@ export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
 export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle: TextStyle;
+  isLoading: boolean;
 }
 
 export default TextWidget;

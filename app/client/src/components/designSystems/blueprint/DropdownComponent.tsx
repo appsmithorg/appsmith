@@ -20,6 +20,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       <div style={{ textAlign: "center" }}>
         {this.props.selectionType === "SINGLE_SELECT" ? (
           <SingleDropDown
+            className={this.props.isLoading ? "bp3-skeleton" : ""}
             items={this.props.options}
             filterable={false}
             itemRenderer={this.renderItem}
@@ -37,6 +38,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
           </SingleDropDown>
         ) : (
           <MultiDropDown
+            className={this.props.isLoading ? "bp3-skeleton" : ""}
             items={this.props.options}
             placeholder={this.props.placeholder}
             tagRenderer={this.renderTag}
@@ -104,6 +106,7 @@ export interface DropDownComponentProps extends ComponentProps {
   selectedIndex: number;
   selectedIndexArr: number[];
   options: DropdownOption[];
+  isLoading: boolean;
 }
 
 export default DropDownComponent;

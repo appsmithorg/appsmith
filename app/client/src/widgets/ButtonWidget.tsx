@@ -37,6 +37,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
         text={this.props.text}
         disabled={this.props.isDisabled}
         onClick={this.onButtonClickBound}
+        isLoading={this.props.isLoading}
       />
     );
   }

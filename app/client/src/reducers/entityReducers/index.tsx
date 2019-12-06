@@ -8,6 +8,7 @@ import propertyPaneConfigReducer from "./propertyPaneConfigReducer";
 import datasourceReducer from "./datasourceReducer";
 import bindingsReducer from "./bindingsReducer";
 import pageListReducer from "./pageListReducer";
+import jsExecutionsReducer from "./jsExecutionsReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 
 const entityReducer = combineReducers({
@@ -20,6 +21,7 @@ const entityReducer = combineReducers({
   datasources: datasourceReducer,
   nameBindings: bindingsReducer,
   pageList: pageListReducer,
+  jsExecutions: jsExecutionsReducer,
   plugins: pluginsReducer,
 });
 

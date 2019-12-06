@@ -18,13 +18,21 @@ export const StyledImage = styled(StyledContainer)<StyledImageProps>`
 
 class ImageComponent extends React.Component<ImageComponentProps> {
   render() {
-    return <StyledImage {...this.props}>{}</StyledImage>;
+    return (
+      <StyledImage
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
+        {...this.props}
+      >
+        {}
+      </StyledImage>
+    );
   }
 }
 
 export interface ImageComponentProps extends ComponentProps {
   imageUrl: string;
   defaultImageUrl: string;
+  isLoading: boolean;
 }
 
 export default ImageComponent;

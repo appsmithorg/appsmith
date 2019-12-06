@@ -19,6 +19,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         imageUrl={this.props.image}
         defaultImageUrl={this.props.defaultImage}
+        isLoading={this.props.isLoading}
       />
     );
   }

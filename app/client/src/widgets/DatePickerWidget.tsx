@@ -32,6 +32,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
+        isLoading={this.props.isLoading}
       />
     );
   }

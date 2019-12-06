@@ -81,7 +81,9 @@ class InputComponent extends React.Component<
     return (
       <InputComponentWrapper>
         <Label className={"bp3-inline"}>
-          {this.props.label}
+          <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
+            {this.props.label}
+          </span>
           {this.isNumberInputType(this.props.inputType) ? (
             <NumericInput
               placeholder={this.props.placeholder}
@@ -90,6 +92,7 @@ class InputComponent extends React.Component<
               maxLength={this.props.maxChars}
               disabled={this.props.disabled}
               intent={this.props.intent}
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
               defaultValue={this.props.defaultValue}
               onValueChange={this.onNumberChange}
               leftIcon={
@@ -109,6 +112,7 @@ class InputComponent extends React.Component<
               intent={this.props.intent}
               onChange={this.onTextChange}
               defaultValue={this.props.defaultValue}
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
               rightElement={
                 this.props.inputType === "PASSWORD" ? (
                   <Button
@@ -152,6 +156,7 @@ export interface InputComponentProps extends ComponentProps {
   onValueChange: (valueAsString: string) => void;
   stepSize?: number;
   placeholder?: string;
+  isLoading: boolean;
 }
 
 export default InputComponent;
