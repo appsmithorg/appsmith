@@ -1,22 +1,27 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledInputGroup } from "./StyledControls";
+import { ControlWrapper, StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { Intent } from "@blueprintjs/core";
+import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     return (
       <ControlWrapper>
         <label>{this.props.label}</label>
-        <StyledInputGroup
-          intent={this.props.isValid ? Intent.NONE : Intent.DANGER}
-          type={this.isNumberType() ? "number" : "text"}
-          onChange={this.onTextChange}
-          placeholder={this.props.placeholderText}
-          defaultValue={this.props.propertyValue}
-        />
+        <StyledDynamicInput>
+          <DynamicAutocompleteInput
+            intent={this.props.isValid ? Intent.NONE : Intent.DANGER}
+            type={this.isNumberType() ? "number" : "text"}
+            input={{
+              value: this.props.propertyValue,
+              onChange: this.onTextChange,
+            }}
+            placeholder={this.props.placeholderText}
+          />
+        </StyledDynamicInput>
       </ControlWrapper>
     );
   }
@@ -34,8 +39,11 @@ class InputTextControl extends BaseControl<InputControlProps> {
     }
   }
 
-  onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value: string = event.target.value;
+  onTextChange = (event: React.ChangeEvent<HTMLInputElement> | string) => {
+    let value = event;
+    if (typeof event !== "string") {
+      value = event.target.value;
+    }
     this.updateProperty(this.props.propertyName, value);
   };
 

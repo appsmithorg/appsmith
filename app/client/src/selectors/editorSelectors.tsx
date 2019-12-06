@@ -7,10 +7,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  enhanceWithDynamicValuesAndValidations,
-  NameBindingsWithData,
-} from "utils/DynamicBindingUtils";
+import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
 import { getDataTree } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
@@ -20,7 +17,10 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { getNameBindingsWithData } from "./nameBindingsWithDataSelector";
+import {
+  getNameBindingsWithData,
+  NameBindingsWithData,
+} from "./nameBindingsWithDataSelector";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;

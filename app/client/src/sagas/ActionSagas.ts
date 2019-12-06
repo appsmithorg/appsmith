@@ -39,7 +39,6 @@ import {
   evaluateDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
-  NameBindingsWithData,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
@@ -50,7 +49,10 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
-import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
+import {
+  getNameBindingsWithData,
+  NameBindingsWithData,
+} from "selectors/nameBindingsWithDataSelector";
 
 export const getAction = (
   state: AppState,

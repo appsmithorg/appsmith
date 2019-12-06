@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Canvas from "./Canvas";
-import PropertyPane from "./PropertyPane";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { savePage } from "actions/pageActions";
@@ -84,7 +83,6 @@ const WidgetsEditor = (props: EditorProps) => {
     <EditorContextProvider>
       <EditorWrapper>
         <CanvasContainer>{node}</CanvasContainer>
-        <PropertyPane />
       </EditorWrapper>
     </EditorContextProvider>
   );

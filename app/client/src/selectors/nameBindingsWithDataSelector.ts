@@ -1,9 +1,9 @@
 import { DataTree } from "reducers";
-import { NameBindingsWithData } from "utils/DynamicBindingUtils";
 import { JSONPath } from "jsonpath-plus";
 import { createSelector } from "reselect";
 import { getDataTree } from "./entitiesSelector";
 
+export type NameBindingsWithData = Record<string, object>;
 export const getNameBindingsWithData = createSelector(
   getDataTree,
   (dataTree: DataTree): NameBindingsWithData => {

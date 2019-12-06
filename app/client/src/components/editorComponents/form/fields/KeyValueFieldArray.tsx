@@ -2,7 +2,7 @@ import React from "react";
 import { FieldArray, WrappedFieldArrayProps } from "redux-form";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";
-import TextField from "./TextField";
+import DynamicTextField from "./DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
@@ -23,8 +23,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       {props.fields.map((field: any, index: number) => (
         <FormRowWithLabel key={index}>
           {index === 0 && <FormLabel>{props.label}</FormLabel>}
-          <TextField name={`${field}.key`} placeholder="Key" />
-          <TextField name={`${field}.value`} placeholder="Value" />
+          <DynamicTextField name={`${field}.key`} placeholder="Key" />
+          <DynamicTextField name={`${field}.value`} placeholder="Value" />
           {index === props.fields.length - 1 ? (
             <Icon
               icon="plus"
