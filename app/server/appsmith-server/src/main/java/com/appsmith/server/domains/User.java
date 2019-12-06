@@ -1,7 +1,8 @@
 package com.appsmith.server.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @Document
 public class User extends BaseDomain implements UserDetails {
 
@@ -31,7 +31,11 @@ public class User extends BaseDomain implements UserDetails {
     //TODO: This is deprecated in favour of groups
     private Set<Role> roles;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    @JsonIgnore
+    private Boolean passwordResetInitiated = false;
 
     private LoginSource source;
 
