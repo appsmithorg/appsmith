@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -74,7 +75,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user", roles = "USER")
+    @WithUserDetails(value = "api_user")
     public void createDatasourceWithNullPluginId() {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
@@ -92,7 +93,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user", roles = "USER")
+    @WithUserDetails(value = "api_user")
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
@@ -106,7 +107,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user", roles = "USER")
+    @WithUserDetails(value = "api_user")
     public void createDatasourceNotInstalledPlugin() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
 
@@ -135,7 +136,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user", roles = "USER")
+    @WithUserDetails(value = "api_user")
     public void createDatasourceValid() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));

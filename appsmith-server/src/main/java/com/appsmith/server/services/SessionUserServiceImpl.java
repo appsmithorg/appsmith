@@ -27,10 +27,9 @@ public class SessionUserServiceImpl implements SessionUserService {
                 .map(Authentication::getPrincipal)
                 .flatMap(principal -> {
                     String email;
-                    if (principal instanceof org.springframework.security.core.userdetails.User) {
-                        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) principal;
+                    if (principal instanceof User) {
                         //Assumption that the user has inputted an email as username during user creation and not english passport name
-                        email = user.getUsername();
+                        email = ((User) principal).getUsername();
                     } else {
                         DefaultOidcUser defaultOidcUser = (DefaultOidcUser) principal;
                         email = defaultOidcUser.getEmail();

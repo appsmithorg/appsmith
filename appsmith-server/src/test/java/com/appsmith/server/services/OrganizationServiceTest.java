@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
@@ -38,7 +39,7 @@ public class OrganizationServiceTest {
     /* Tests for the Create Organization Flow */
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void nullCreateOrganization() {
         Mono<Organization> organizationResponse = organizationService.create(null);
         StepVerifier.create(organizationResponse)
@@ -48,7 +49,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void nullName() {
         organization.setName(null);
         Mono<Organization> organizationResponse = organizationService.create(organization);
@@ -59,7 +60,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void validCreateOrganizationTest() {
         Mono<Organization> organizationResponse = organizationService.create(organization)
                 .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
@@ -73,7 +74,7 @@ public class OrganizationServiceTest {
     /* Tests for Get Organization Flow */
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void getOrganizationInvalidId() {
         Mono<Organization> organizationMono = organizationService.getById("random-id");
         StepVerifier.create(organizationMono)
@@ -93,7 +94,7 @@ public class OrganizationServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void validGetOrganizationByName() {
         Organization organization = new Organization();
         organization.setName("Test For Get Name");
@@ -111,7 +112,7 @@ public class OrganizationServiceTest {
 
     /* Tests for Update Organization Flow */
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void validUpdateOrganization() {
         Organization organization = new Organization();
         organization.setName("Test Update Name");
