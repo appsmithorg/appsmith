@@ -18,7 +18,6 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Void> deleteAll();
 
-    @Deprecated
     Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId);
 
     Layout createDefaultLayout();

@@ -431,10 +431,29 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> get(MultiValueMap<String, String> params) {
         Action actionExample = new Action();
+        Sort sort = new Sort(Direction.ASC, FieldName.NAME );
+
         if (params.getFirst(FieldName.NAME) != null) {
             actionExample.setName(params.getFirst(FieldName.NAME));
         }
-        Sort sort = new Sort(Direction.ASC, FieldName.NAME );
+
+        if (params.getFirst(FieldName.PAGEID) != null) {
+            actionExample.setPageId(params.getFirst(FieldName.PAGEID));
+        }
+
+        if (params.getFirst(FieldName.APPLICATIONID) != null) {
+            return pageService
+                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATIONID))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATIONID)))
+                    )
+                    .map(pageNameIdDTO -> {
+                        Action example = new Action();
+                        example.setPageId(pageNameIdDTO.getId());
+                        return example;
+                    })
+                    .flatMap(exampleAction -> repository.findAll(Example.of(exampleAction), sort));
+        }
         return repository.findAll(Example.of(actionExample), sort);
     }
 }
