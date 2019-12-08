@@ -437,15 +437,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             actionExample.setName(params.getFirst(FieldName.NAME));
         }
 
-        if (params.getFirst(FieldName.PAGEID) != null) {
-            actionExample.setPageId(params.getFirst(FieldName.PAGEID));
+        if (params.getFirst(FieldName.PAGE_ID) != null) {
+            actionExample.setPageId(params.getFirst(FieldName.PAGE_ID));
         }
 
-        if (params.getFirst(FieldName.APPLICATIONID) != null) {
+        if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             return pageService
-                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATIONID))
+                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATIONID)))
+                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
                     )
                     .map(pageNameIdDTO -> {
                         Action example = new Action();
