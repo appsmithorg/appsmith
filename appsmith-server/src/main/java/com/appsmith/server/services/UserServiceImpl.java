@@ -5,6 +5,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
+import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final SessionUserService sessionUserService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSender emailSender;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -46,7 +48,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            AnalyticsService analyticsService,
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           EmailSender emailSender) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -54,6 +57,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailSender = emailSender;
     }
 
     @Override
@@ -137,8 +141,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
      * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
      *
-     * TODO: Create a URL and send the token to the user via email
-     *
      * @param email The email ID of the user initiating the password reset request
      * @return
      */
@@ -148,15 +150,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         passwordResetToken.setEmail(email);
         // Create a random token to be sent out.
         String token = UUID.randomUUID().toString();
-        log.debug("Token is : {}", token);
-        /*
-        TODO: Create a URL here to send via Email to the user. Send the email after saving the password reset token
-         in the PasswordResetTokenRepository
-         */
+        log.debug("Password reset Token: {} for email: {}", token, email);
 
         passwordResetToken.setTokenHash(passwordEncoder.encode(token));
         return passwordResetTokenRepository
                 .save(passwordResetToken)
+                .map(obj -> {
+                    emailSender.sendMail(email, "Appsmith Password Reset", "Token: " + token);
+                    return Mono.empty();
+                })
                 .thenReturn(true);
     }
 
