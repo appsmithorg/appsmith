@@ -56,7 +56,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(layoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGEID)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
                 .verify();
     }
 
@@ -69,7 +69,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(layoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGEID)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
                 .verify();
     }
 
@@ -140,7 +140,7 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(updatedLayoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGEID + " or " + FieldName.LAYOUTID)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .verify();
     }
 

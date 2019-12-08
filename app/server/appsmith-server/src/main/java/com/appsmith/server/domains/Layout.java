@@ -26,10 +26,15 @@ public class Layout extends BaseDomain {
     @JsonIgnore
     JSONObject publishedDsl;
 
-    Set<DslActionDTO> dslActions;
+    Set<DslActionDTO> layoutActions;
+
+    Set<DslActionDTO> layoutOnLoadActions;
 
     @JsonIgnore
-    Set<DslActionDTO> publishedDslActions;
+    Set<DslActionDTO> publishedLayoutActions;
+
+    @JsonIgnore
+    Set<DslActionDTO> publishedLayoutOnLoadActions;
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
@@ -39,7 +44,11 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedDsl : dsl;
     }
 
-    public Set<DslActionDTO> getDslActions() {
-        return viewMode ? publishedDslActions : dslActions;
+    public Set<DslActionDTO> getLayoutActions() {
+        return viewMode ? publishedLayoutActions : layoutActions;
+    }
+
+    public Set<DslActionDTO> getLayoutOnLoadActions() {
+        return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 }
