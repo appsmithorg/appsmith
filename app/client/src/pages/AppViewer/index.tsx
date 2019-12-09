@@ -19,7 +19,8 @@ import {
 } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ActionPayload } from "constants/ActionConstants";
-import SideNav, { SideNavItem } from "./viewer/SideNav";
+import SideNav from "./viewer/SideNav";
+import { SideNavItemProps } from "./viewer/SideNavItem";
 import AppViewerHeader from "./viewer/AppViewerHeader";
 import { updateWidgetProperty } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
@@ -63,7 +64,7 @@ class AppViewer extends Component<
     }
   }
   public render() {
-    const items: SideNavItem[] | undefined =
+    const items: SideNavItemProps[] | undefined =
       this.props.pages &&
       this.props.pages.map(page => ({
         text: page.pageName,
@@ -73,6 +74,7 @@ class AppViewer extends Component<
           this.props.match.params.applicationId,
           page.pageId,
         ),
+        loading: false,
       }));
 
     return (
