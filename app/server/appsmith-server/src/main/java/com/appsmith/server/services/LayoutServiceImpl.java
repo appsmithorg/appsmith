@@ -142,9 +142,13 @@ public class LayoutServiceImpl implements LayoutService {
                     List<Layout> layoutList = page.getLayouts();
                     Set<DslActionDTO> pageLoadActions = new HashSet<>();
 
+
+                    // Find the top nodes in the graph : These are the nodes which are not dependent on any other node in the graph
                     ArrayList<String> rootNodesOfGraph = getRootNodesOfGraph(graph);
 
-                    //Since we are only interested in top nodes which are actions, compare with actions set and discard widgets to create page load actions.
+                    // The vertices of the graph currently contain both the actions and the widgets to show their dependency relationship
+                    // Since we are only interested in top nodes which are actions, compare with actions set and
+                    // add these actions to the array list to create page load actions.
                     actions.forEach(action -> {
                         if(rootNodesOfGraph.contains(action.getName())) {
                             pageLoadActions.add(action);
@@ -156,8 +160,8 @@ public class LayoutServiceImpl implements LayoutService {
                         if (storedLayout.getId().equals(layoutId)) {
                             //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            Set<DslActionDTO> publishedDslActions = storedLayout.getPublishedLayoutActions();
-                            Set<DslActionDTO> publishedPageLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
+                            Set<DslActionDTO> publishedLayoutActions = storedLayout.getPublishedLayoutActions();
+                            Set<DslActionDTO> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
 
                             //Update
                             layout.setLayoutActions(actions);
@@ -167,9 +171,8 @@ public class LayoutServiceImpl implements LayoutService {
 
                             //Copy back the conserved variables.
                             storedLayout.setPublishedDsl(publishedDsl);
-                            storedLayout.setPublishedLayoutActions(publishedDslActions);
-                            storedLayout.setPublishedLayoutOnLoadActions(publishedPageLoadActions);
-                            storedLayout.setPublishedLayoutActions(publishedDslActions);
+                            storedLayout.setPublishedLayoutActions(publishedLayoutActions);
+                            storedLayout.setPublishedLayoutOnLoadActions(publishedLayoutOnLoadActions);
                             break;
                         }
                     }
@@ -246,6 +249,14 @@ public class LayoutServiceImpl implements LayoutService {
         }
     }
 
+    /**
+     * This function returns all the nodes which are at the top of the graph.
+     * These nodes are the nodes which are not dependent on any other node. Since the graph displays the dependencies of
+     * different widgets and actions between each other, the root nodes of the graphs are clearly the ones which are
+     * independent of others.
+     * @param graph
+     * @return
+     */
     ArrayList<String> getRootNodesOfGraph(Graph graph) {
         Set vertexSet = graph.vertexSet();
         ArrayList<String> topVertices = new ArrayList<>();
