@@ -10,4 +10,5 @@ public interface ActionRepository extends BaseRepository<Action, String> {
     Mono<Action> findById(String id);
 
     Mono<Action> findByName(String name);
+    
 }

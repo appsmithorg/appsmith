@@ -22,7 +22,7 @@ public class Plugin extends BaseDomain {
     PluginType type;
 
     @Indexed(unique = true)
-    String executorClass;
+    String packageName;
 
     String jarLocation;
 
@@ -35,4 +35,6 @@ public class Plugin extends BaseDomain {
     String maxAppsmithVersionSupported;
 
     String version;
+
+    String uiComponent;
 }
