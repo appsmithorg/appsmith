@@ -128,6 +128,11 @@ class PropertyPane extends Component<
                     config.isValid = widgetProperties.invalidProps
                       ? !(propertyName in widgetProperties.invalidProps)
                       : true;
+                    config.validationMessage = widgetProperties.validationMessages
+                      ? propertyName in widgetProperties.validationMessages
+                        ? widgetProperties.validationMessages[propertyName]
+                        : ""
+                      : "";
                   }
                   return PropertyControlFactory.createControl(config, {
                     onPropertyChange: this.onPropertyChange,
