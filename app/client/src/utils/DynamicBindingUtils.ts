@@ -136,6 +136,7 @@ export const enhanceWithDynamicValuesAndValidations = (
   if (!widget) return widget;
   const properties = { ...widget };
   const invalidProps: Record<string, boolean> = {};
+  const validationMessages: Record<string, string> = {};
 
   Object.keys(widget).forEach((property: string) => {
     let value = widget[property];
@@ -144,15 +145,17 @@ export const enhanceWithDynamicValuesAndValidations = (
       value = getDynamicValue(value, nameBindingsWithData);
     }
     // Pass it through validation and parse
-    const { isValid, parsed } = ValidationFactory.validateWidgetProperty(
-      widget.type,
-      property,
-      value,
-    );
+    const {
+      isValid,
+      parsed,
+      message,
+    } = ValidationFactory.validateWidgetProperty(widget.type, property, value);
     // Store all invalid props
     if (!isValid) invalidProps[property] = true;
+    // Store validation Messages
+    if (message) validationMessages[property] = message;
     // Replace if flag is turned on
     if (replaceWithParsed) properties[property] = parsed;
   });
-  return { ...properties, invalidProps };
+  return { ...properties, invalidProps, validationMessages };
 };

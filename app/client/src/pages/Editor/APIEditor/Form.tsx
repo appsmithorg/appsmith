@@ -135,7 +135,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <DynamicTextField
             placeholder="API Path"
             name="actionConfiguration.path"
-            icon="slash"
+            leftIcon="slash"
             showError
           />
         </FormRow>

@@ -34,7 +34,7 @@ const Wrapper = styled.div`
 const DataTreeWrapper = styled.div`
   position: absolute;
   top: 33px;
-  z-index: 1;
+  z-index: 21;
   padding: 10px;
   max-height: 400px;
   width: 450px;

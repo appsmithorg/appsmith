@@ -8,18 +8,24 @@ import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocom
 
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
+    const { validationMessage, propertyValue, isValid, label } = this.props;
     return (
       <ControlWrapper>
-        <label>{this.props.label}</label>
+        <label>{label}</label>
         <StyledDynamicInput>
           <DynamicAutocompleteInput
-            intent={this.props.isValid ? Intent.NONE : Intent.DANGER}
+            intent={isValid ? Intent.NONE : Intent.DANGER}
             type={this.isNumberType() ? "number" : "text"}
             input={{
-              value: this.props.propertyValue,
+              value: propertyValue,
               onChange: this.onTextChange,
             }}
             placeholder={this.props.placeholderText}
+            meta={{
+              touched: true,
+              error: validationMessage,
+            }}
+            showError
           />
         </StyledDynamicInput>
       </ControlWrapper>
