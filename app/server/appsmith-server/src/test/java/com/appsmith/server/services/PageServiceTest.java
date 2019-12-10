@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
@@ -37,7 +38,7 @@ public class PageServiceTest {
     Mono<Application> applicationMono;
 
     @Before
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
         Application application = new Application();
@@ -46,7 +47,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createPageWithNullName() {
         Page page = new Page();
         Mono<Page> pageMono = Mono.just(page)
@@ -59,7 +60,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createPageWithNullApplication() {
         Page page = new Page();
         page.setName("Page without application");
@@ -68,12 +69,12 @@ public class PageServiceTest {
         StepVerifier
                 .create(pageMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATIONID)))
+                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
                 .verify();
     }
 
     @Test
-    @WithMockUser(username = "api_user")
+    @WithUserDetails(value = "api_user")
     public void createValidPage() {
         Page testPage = new Page();
         testPage.setName("PageServiceTest TestApp");

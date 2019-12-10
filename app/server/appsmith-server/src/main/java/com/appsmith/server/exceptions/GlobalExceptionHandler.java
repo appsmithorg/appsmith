@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 /**
@@ -64,6 +65,16 @@ public class GlobalExceptionHandler {
         rollbar.log(e);
         return Mono.just(new ResponseDTO<>(HttpStatus.GATEWAY_TIMEOUT.value(), new ErrorDTO(AppsmithError.PLUGIN_EXECUTION_TIMEOUT.getHttpErrorCode(),
                 AppsmithError.PLUGIN_EXECUTION_TIMEOUT.getMessage())));
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchServerWebInputException(ServerWebInputException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
+        log.error("", e);
+        rollbar.log(e);
+        return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.GENERIC_BAD_REQUEST.getHttpErrorCode(),
+                AppsmithError.GENERIC_BAD_REQUEST.getMessage(e.getReason()))));
     }
 
     /**

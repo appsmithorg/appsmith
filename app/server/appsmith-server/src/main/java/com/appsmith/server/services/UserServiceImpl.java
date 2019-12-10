@@ -1,17 +1,21 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
+import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -20,15 +24,19 @@ import javax.validation.Validator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Service
-public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService, UserDetailsService {
+public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService, ReactiveUserDetailsService {
 
     private UserRepository repository;
     private final OrganizationService organizationService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailSender emailSender;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -37,17 +45,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
                            OrganizationService organizationService,
-                           AnalyticsService analyticsService, SessionUserService sessionUserService) {
+                           AnalyticsService analyticsService,
+                           SessionUserService sessionUserService,
+                           PasswordResetTokenRepository passwordResetTokenRepository,
+                           PasswordEncoder passwordEncoder,
+                           EmailSender emailSender) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
         this.sessionUserService = sessionUserService;
-    }
-
-    @Override
-    public Mono<User> findByUsername(String name) {
-        return repository.findByName(name);
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailSender = emailSender;
     }
 
     @Override
@@ -55,6 +65,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return repository.findByEmail(email);
     }
 
+    /**
+     * This function switches the user's currentOrganization in the User collection in the DB. This means that on subsequent
+     * logins, the user will see applications for their last used organization.
+     *
+     * @param orgId
+     * @return
+     */
     @Override
     public Mono<User> switchCurrentOrganization(String orgId) {
         if (orgId == null || orgId.isEmpty()) {
@@ -87,6 +104,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 });
     }
 
+    /**
+     * This function adds an organizationId to the user. This will allow users to switch between multiple organizations
+     * and operate inside them independently.
+     *
+     * @param orgId The organizationId being added to the user.
+     * @return
+     */
     @Override
     public Mono<User> addUserToOrganization(String orgId) {
 
@@ -113,23 +137,113 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(repository::save);
     }
 
+    /**
+     * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
+     * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
+     *
+     * @param email The email ID of the user initiating the password reset request
+     * @return
+     */
+    @Override
+    public Mono<Boolean> forgotPasswordTokenGenerate(String email) {
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setEmail(email);
+        // Create a random token to be sent out.
+        String token = UUID.randomUUID().toString();
+        log.debug("Password reset Token: {} for email: {}", token, email);
+
+        passwordResetToken.setTokenHash(passwordEncoder.encode(token));
+        return passwordResetTokenRepository
+                .save(passwordResetToken)
+                .map(obj -> {
+                    emailSender.sendMail(email, "Appsmith Password Reset", "Token: " + token);
+                    return Mono.empty();
+                })
+                .thenReturn(true);
+    }
+
+    /**
+     * This function verifies if the password reset token and email match each other. Should be initiated after the
+     * user has already initiated a password reset request via the 'Forgot Password' link. The tokens are stored in the
+     * DB using BCrypt hash.
+     *
+     * @param email The email of the user whose password is being reset
+     * @param token The one-time token provided to the user for resetting the password
+     * @return
+     */
+    @Override
+    public Mono<Boolean> verifyPasswordResetToken(String email, String token) {
+
+        return passwordResetTokenRepository
+                .findByEmail(email)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", email)))
+                .flatMap(obj -> {
+                    boolean matches = this.passwordEncoder.matches(token, obj.getTokenHash());
+                    if (!matches) {
+                        return Mono.just(false);
+                    }
+
+                    return repository
+                            .findByEmail(email)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", email)))
+                            .map(user -> {
+                                user.setPasswordResetInitiated(true);
+                                return user;
+                            })
+                            .flatMap(repository::save)
+                            // Everything went fine till now. Cheerio!
+                            .thenReturn(true);
+                });
+    }
+
+    /**
+     * This function resets the password using the one-time token & email of the user.
+     * This function can only be called via the forgot password route.
+     *
+     * @param token The one-time token provided to the user for resetting the password
+     * @param user The user object that contains the email & password fields in order to save the new password for the user
+     * @return
+     */
+    @Override
+    public Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user) {
+
+        return repository
+                .findByEmail(user.getEmail())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", user.getEmail())))
+                .flatMap(userFromDb -> {
+                    if (!userFromDb.getPasswordResetInitiated()) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET));
+                    }
+
+                    //User has verified via the forgot password token verfication route. Allow the user to set new password.
+                    userFromDb.setPasswordResetInitiated(false);
+                    userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+                    return passwordResetTokenRepository
+                            .findByEmail(user.getEmail())
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", token)))
+                            .flatMap(passwordResetTokenRepository::delete)
+                            .thenReturn(userFromDb)
+                            .flatMap(repository::save)
+                            .thenReturn(true);
+                });
+    }
+
     @Override
     public Mono<User> create(User user) {
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         Mono<User> savedUserMono = super.create(user);
         return savedUserMono
                 .flatMap(analyticsService::trackNewUser);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return repository.findByName(username)
-                .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
-                .block();
-    }
-
-    @Override
     public Mono<User> update(String id, User userUpdate) {
         Mono<User> userFromRepository = repository.findById(id);
+
+        if(userUpdate.getPassword() != null) {
+            // The password is being updated. Hash it first and then store it
+            userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
+        }
 
         return Mono.just(userUpdate)
                 .flatMap(this::validateUpdate)
@@ -157,4 +271,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .then(Mono.just(updateUser));
     }
 
+    /**
+     * This function is used by {@link ReactiveUserDetailsService} in order to load the user from the DB. Will be used
+     * in cases of username, password logins only. By default, the email ID is the username for the user.
+     *
+     * @param username
+     * @return
+     */
+    @Override
+    public Mono<UserDetails> findByUsername(String username) {
+        return repository.findByEmail(username)
+                .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
+                // This object cast is required to ensure that we send the right object type back to Spring framework.
+                // Doesn't work without this.
+                .map(user -> (UserDetails) user);
+    }
 }

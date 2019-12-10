@@ -33,7 +33,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         } else if (page.getName() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         } else if (page.getApplicationId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATIONID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
         List<Layout> layoutList = page.getLayouts();
@@ -46,7 +46,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<Application> applicationMono = applicationService.findById(page.getApplicationId())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATIONID, page.getApplicationId())));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
         return applicationMono
                 .thenReturn(page)
@@ -98,7 +98,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
         return pageService.findById(pageId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGEID)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
                 .flatMap(this::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {

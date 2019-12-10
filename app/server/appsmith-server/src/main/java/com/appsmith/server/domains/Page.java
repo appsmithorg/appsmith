@@ -23,6 +23,4 @@ public class Page extends BaseDomain {
     String applicationId;
 
     List<Layout> layouts;
-
-    List<PageAction> actions;
 }

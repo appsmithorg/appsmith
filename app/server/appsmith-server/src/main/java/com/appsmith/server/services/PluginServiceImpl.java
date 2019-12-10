@@ -80,6 +80,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
         log.debug("Going to filter plugins by params: {}", params);
         Plugin examplePlugin = new Plugin();
+
         if (params.getFirst(FieldName.TYPE) != null) {
             try {
                 PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
