@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +33,7 @@ public class UserController extends BaseController<UserService, User, String> {
 
     @PutMapping("/addOrganization/{orgId}")
     public Mono<ResponseDTO<User>> addUserToOrganization(@PathVariable String orgId) {
-        return service.addUserToOrganization(orgId)
+        return service.addUserToOrganization(orgId, null)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

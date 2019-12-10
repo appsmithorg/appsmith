@@ -9,7 +9,7 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> switchCurrentOrganization(String orgId);
 
-    Mono<User> addUserToOrganization(String orgId);
+    Mono<User> addUserToOrganization(String orgId, User user);
 
     Mono<Boolean> forgotPasswordTokenGenerate(String email);
 
