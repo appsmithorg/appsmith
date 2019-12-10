@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -109,30 +110,46 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * and operate inside them independently.
      *
      * @param orgId The organizationId being added to the user.
+     * @param user
      * @return
      */
     @Override
-    public Mono<User> addUserToOrganization(String orgId) {
+    public Mono<User> addUserToOrganization(String orgId, User user) {
+
+        Mono<User> currentUserMono;
+        if (user == null) {
+            currentUserMono = sessionUserService.getCurrentUser();
+        } else {
+            currentUserMono = Mono.just(user);
+        }
 
         return organizationService.findById(orgId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization", orgId)))
-                .flatMap(org -> sessionUserService.getCurrentUser())
-                .map(user -> {
-                    Set<String> organizationIds = user.getOrganizationIds();
+                .zipWith(currentUserMono)
+                .map(tuple -> {
+                    Organization organization = tuple.getT1();
+                    User user1 = tuple.getT2();
+                    log.debug("Adding organization {} with id {} to user {}", organization.getName(), organization.getId(), user.getEmail());
+                    return user1;
+                })
+                .map(user1 -> {
+                    Set<String> organizationIds = user1.getOrganizationIds();
                     if (organizationIds == null) {
                         organizationIds = new HashSet<>();
-                        if (user.getCurrentOrganizationId() != null) {
+                        if (user1.getCurrentOrganizationId() != null) {
                             // If the list of organizationIds for a user is null, add the current user org
                             // to the new list as well
-                            organizationIds.add(user.getCurrentOrganizationId());
+                            organizationIds.add(user1.getCurrentOrganizationId());
                         }
                     }
                     if (!organizationIds.contains(orgId)) {
                         // Only add to the organizationIds array if it's not already present
                         organizationIds.add(orgId);
-                        user.setOrganizationIds(organizationIds);
+                        user1.setOrganizationIds(organizationIds);
                     }
-                    return user;
+                    // Set the current organization to the newly added organization
+                    user1.setCurrentOrganizationId(orgId);
+                    return user1;
                 })
                 .flatMap(repository::save);
     }
@@ -231,9 +248,32 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+        Organization personalOrg = new Organization();
+        String name;
+        if (user.getName() != null) {
+            name = user.getName();
+        } else {
+            name = user.getEmail();
+        }
+        personalOrg.setName(name+"'s Personal Workspace");
+
+        Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg);
+
         Mono<User> savedUserMono = super.create(user);
-        return savedUserMono
+
+        return Mono.zip(savedOrganizationMono, savedUserMono)
+                //Once the two monos finish emitting, the user and the organization have been saved to the db
+                .flatMap(tuple -> {
+                    Organization savedOrg = tuple.getT1();
+                    User savedUser = tuple.getT2();
+
+                    // At this point both the user and the organization have been saved. Now add the newly created
+                    // organization to the newly created user.
+                    return addUserToOrganization(savedOrg.getId(), savedUser);
+                })
                 .flatMap(analyticsService::trackNewUser);
+
     }
 
     @Override
