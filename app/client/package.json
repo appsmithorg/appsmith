@@ -72,6 +72,7 @@
     "react-scripts": "^3.1.1",
     "react-select": "^3.0.8",
     "react-simple-tree-menu": "^1.1.9",
+    "react-tabs": "^3.0.0",
     "redux": "^4.0.1",
     "redux-form": "^8.2.6",
     "redux-saga": "^1.0.0",

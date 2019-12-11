@@ -24,7 +24,6 @@ const Form = styled.form`
     padding: ${props => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    flex-wrap: wrap;
     padding: ${props => props.theme.spaces[2]}px;
     & > * {
       margin-right: 5px;
@@ -67,6 +66,11 @@ const JSONEditorFieldWrapper = styled.div`
   margin: 5px;
   border: 1px solid #d0d7dd;
   border-radius: 4px;
+`;
+
+const DatasourceWrapper = styled.div`
+  width: 100%;
+  max-width: 320px;
 `;
 
 interface APIFormProps {
@@ -131,7 +135,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <DatasourcesField name="datasource.id" pluginId={pluginId} />
+          <DatasourceWrapper>
+            <DatasourcesField name="datasource.id" pluginId={pluginId} />
+          </DatasourceWrapper>
           <DynamicTextField
             placeholder="API Path"
             name="actionConfiguration.path"

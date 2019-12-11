@@ -2,18 +2,6 @@ import React from "react";
 import Creatable from "react-select/creatable";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
-import styled from "styled-components";
-
-const Wrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-`;
-
-const Error = styled.span`
-  color: ${props => props.theme.colors.error};
-  fontsize: ${props => props.theme.fontSizes[1]};
-`;
 
 type DropdownProps = {
   options: Array<{
@@ -37,9 +25,9 @@ const selectStyles = {
     padding: "2px 5px",
     fontSize: "14px",
     maxWidth: "95%",
-    // position: "relative",
-    // display: "inline-block",
-    // transform: "none",
+    position: "relative",
+    display: "inline-block",
+    transform: "none",
   }),
   container: (styles: any) => ({
     ...styles,
@@ -51,7 +39,7 @@ const selectStyles = {
     border: state.isFocused
       ? `${theme.colors.secondary} solid 1px`
       : `${theme.colors.inputInactiveBorders} solid 1px`,
-    boxShadow: state.isFocused ? 0 : 0,
+    boxShadow: state.isFocused ? "none" : "none",
     "&:hover": {
       border: `${theme.colors.secondary} solid 1px`,
     },
@@ -78,27 +66,23 @@ class CreatableDropdown extends React.Component<DropdownProps> {
       isLoading,
       onCreateOption,
       input,
-      meta,
       formatCreateLabel,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
     if (formatCreateLabel) optionalProps.formatCreateLabel = formatCreateLabel;
     return (
-      <Wrapper>
-        <Creatable
-          placeholder={placeholder}
-          options={options}
-          styles={selectStyles}
-          isLoading={isLoading}
-          onCreateOption={onCreateOption}
-          {...input}
-          onChange={value => input.onChange(value)}
-          onBlur={() => input.value}
-          isClearable
-          {...optionalProps}
-        />
-        {meta && meta.touched && meta.error && <Error>{meta.error}</Error>}
-      </Wrapper>
+      <Creatable
+        placeholder={placeholder}
+        options={options}
+        styles={selectStyles}
+        isLoading={isLoading}
+        onCreateOption={onCreateOption}
+        {...input}
+        onChange={value => input.onChange(value)}
+        onBlur={() => input.value}
+        isClearable
+        {...optionalProps}
+      />
     );
   }
 }
