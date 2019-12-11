@@ -19,6 +19,8 @@ public class Group extends BaseDomain {
     @NotNull
     private String name;
 
+    private String displayName;
+
     @NotNull
     private String organizationId;
 
@@ -27,4 +29,12 @@ public class Group extends BaseDomain {
      * This is because permissions are global in nature. They are not specific to a particular org/team.
      */
     Set<String> permissions;
+
+    /**
+     * If the display name is null or empty, then just return the actual group name. This is just to ensure that
+     * the client is never sent an empty group name for displaying on the UI.
+     */
+    public String displayName() {
+        return (displayName != null || !displayName.isEmpty()) ? displayName : name;
+    }
 }
