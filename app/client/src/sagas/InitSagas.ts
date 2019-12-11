@@ -7,7 +7,6 @@ import {
 
 import { fetchEditorConfigs } from "actions/configsActions";
 import { fetchPageList } from "actions/pageActions";
-import { fetchActions } from "actions/actionActions";
 import { fetchDatasources } from "actions/datasourcesActions";
 import { initBindingMapListener } from "actions/bindingActions";
 import { fetchPlugins } from "actions/pluginActions";
@@ -22,7 +21,6 @@ function* initializeEditorSaga(
     put(fetchPageList(applicationId)),
     put(fetchEditorConfigs()),
     put(initBindingMapListener()),
-    put(fetchActions()),
     put(fetchDatasources()),
   ]);
   // Step 2: Wait for all data to be in the state
@@ -44,7 +42,7 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId } = action.payload;
   yield put(initBindingMapListener());
-  yield all([put(fetchPageList(applicationId)), put(fetchActions())]);
+  yield all([put(fetchPageList(applicationId))]);
 
   yield all([
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),

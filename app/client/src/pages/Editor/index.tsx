@@ -44,7 +44,6 @@ type EditorProps = {
   createPage: Function;
   updateRouteParams: (params: RoutesParamsReducerState) => void;
   pages: PageListPayload;
-  switchPage: (pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   editorLoadingError: boolean;
@@ -190,14 +189,6 @@ const mapDispatchToProps = (dispatch: any) => {
         payload: {
           applicationId,
           name,
-        },
-      });
-    },
-    switchPage: (pageId: string) => {
-      dispatch({
-        type: ReduxActionTypes.FETCH_PAGE_INIT,
-        payload: {
-          pageId,
         },
       });
     },

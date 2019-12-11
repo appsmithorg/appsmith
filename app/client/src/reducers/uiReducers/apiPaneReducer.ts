@@ -155,6 +155,10 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     lastUsed: action.payload.id,
   }),
+  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    lastUsed: "",
+  }),
 });
 
 export default apiPaneReducer;

@@ -40,8 +40,7 @@ export type ActionPayload =
   | SetValueActionPayload
   | ExecuteJSActionPayload
   | DownloadDataActionPayload
-  | TableAction
-  | SetValueActionPayload;
+  | TableAction;
 
 export type NavigationType = "NEW_TAB" | "INLINE";
 
@@ -79,9 +78,9 @@ export interface DownloadDataActionPayload extends BaseActionPayload {
 
 export interface PageAction {
   id: string;
-  actionType: ActionType;
+  pluginType: ActionType;
   name: string;
-  jsonPathKeys?: string[];
+  jsonPathKeys: string[];
 }
 
 export interface TableAction extends BaseActionPayload {

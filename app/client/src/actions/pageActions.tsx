@@ -26,7 +26,7 @@ export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
-      pageId: pageId,
+      pageId,
     },
   };
 };

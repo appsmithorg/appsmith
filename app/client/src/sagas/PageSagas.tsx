@@ -27,8 +27,11 @@ import {
   call,
   select,
   put,
+  race,
+  delay,
   takeLatest,
   takeEvery,
+  take,
   all,
 } from "redux-saga/effects";
 
@@ -37,6 +40,8 @@ import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { RenderModes } from "constants/WidgetConstants";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { fetchActions } from "actions/actionActions";
+import { executePageLoadActions } from "actions/widgetActions";
 
 export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
@@ -85,6 +90,7 @@ const getCanvasWidgetsPayload = (
     widgets: normalizedResponse.entities.canvasWidgets,
     currentLayoutId: pageResponse.data.layouts[0].id, // TODO(abhinav): Handle for multiple layouts
     currentApplicationId: pageResponse.data.applicationId,
+    pageActions: pageResponse.data.layouts[0].layoutOnLoadActions || [],
   };
 };
 
@@ -99,8 +105,22 @@ export function* fetchPageSaga(
     );
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
+      // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+      // Get actions for the page
+      yield put(fetchActions(pageRequest));
+      // Wait for actions to be fetched
+      const { success } = yield race({
+        success: take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+        timeout: delay(10 * 1000),
+      });
+      if (success) {
+        // Execute page load actions
+        yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      }
+      // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
+      // dispatch fetch page success
       yield put(fetchPageSuccess());
     }
   } catch (error) {
@@ -128,6 +148,17 @@ export function* fetchPublishedPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      // Get actions for the page
+      yield put(fetchActions(request));
+      // Wait for actions to be fetched
+      const { success } = yield race({
+        success: take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+        timeout: delay(10 * 1000),
+      });
+      if (success) {
+        // Execute page load actions
+        yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      }
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
         payload: {

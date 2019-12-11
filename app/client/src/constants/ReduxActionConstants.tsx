@@ -1,5 +1,6 @@
 import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
 import { RefObject } from "react";
+import { PageAction } from "constants/ActionConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
   INITIALIZE_EDITOR: "INITIALIZE_EDITOR",
@@ -89,6 +90,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_ROUTES_PARAMS: "UPDATE_ROUTES_PARAMS",
   FETCH_PLUGINS_REQUEST: "FETCH_PLUGINS_REQUEST",
   FETCH_PLUGINS_SUCCESS: "FETCH_PLUGINS_SUCCESS",
+  EXECUTE_PAGE_LOAD_ACTIONS: "EXECUTE_PAGE_LOAD_ACTIONS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -157,6 +159,7 @@ export interface UpdateCanvasPayload {
   currentPageId: string;
   currentPageName: string;
   currentApplicationId: string;
+  pageActions: PageAction[];
 }
 
 export interface ShowPropertyPanePayload {

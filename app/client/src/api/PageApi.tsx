@@ -2,8 +2,8 @@ import Api from "./Api";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetProps } from "widgets/BaseWidget";
-import { PageAction } from "constants/ActionConstants";
 import { AxiosPromise } from "axios";
+import { PageAction } from "constants/ActionConstants";
 
 export interface FetchPageRequest {
   pageId: string;
@@ -22,7 +22,8 @@ export interface SavePageRequest {
 export interface PageLayout {
   id: string;
   dsl: Partial<ContainerWidgetProps<any>>;
-  actions: PageAction[];
+  layoutOnLoadActions: PageAction[];
+  layoutActions: PageAction[];
 }
 
 export type FetchPageResponse = ApiResponse & {

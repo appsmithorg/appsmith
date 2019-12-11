@@ -16,9 +16,16 @@ export const createActionSuccess = (payload: RestAction) => {
   };
 };
 
-export const fetchActions = () => {
+export type FetchActionsPayload = {
+  pageId: string;
+};
+
+export const fetchActions = (
+  payload: FetchActionsPayload,
+): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
+    payload,
   };
 };
 
