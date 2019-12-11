@@ -149,6 +149,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams>;
 type State = {
   isCreating: boolean;
+  isSaving: boolean;
   name: string;
   search: string;
 };
@@ -167,6 +168,7 @@ class ApiSidebar extends React.Component<Props, State> {
     super(props);
     this.state = {
       isCreating: false,
+      isSaving: false,
       name: "",
       search: "",
     };
@@ -181,6 +183,7 @@ class ApiSidebar extends React.Component<Props, State> {
     if (!prevProps.match.params.apiId && this.props.match.params.apiId) {
       this.setState({
         isCreating: false,
+        isSaving: false,
         name: "",
       });
     }
@@ -193,6 +196,7 @@ class ApiSidebar extends React.Component<Props, State> {
     history.push(API_EDITOR_URL(applicationId, pageId));
     this.setState({
       isCreating: true,
+      isSaving: false,
       name: `action${actions.data.length}`,
     });
   };
@@ -200,6 +204,9 @@ class ApiSidebar extends React.Component<Props, State> {
   saveAction = () => {
     if (this.state.name) {
       this.props.createAction(this.state.name);
+      this.setState({
+        isSaving: true,
+      });
     } else {
       this.setState({
         isCreating: false,
@@ -227,13 +234,13 @@ class ApiSidebar extends React.Component<Props, State> {
 
   render() {
     const {
-      apiPane: { isFetching, isSaving, drafts },
+      apiPane: { isFetching, drafts },
       match,
       actions: { data },
       pluginId,
     } = this.props;
     if (!pluginId) return null;
-    const { isCreating, search, name } = this.state;
+    const { isCreating, isSaving, search, name } = this.state;
     const activeActionId = match.params.apiId;
     const fuse = new Fuse(data, FUSE_OPTIONS);
     const actions: RestAction[] = search ? fuse.search(search) : data;

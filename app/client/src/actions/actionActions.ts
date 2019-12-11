@@ -22,9 +22,10 @@ export const fetchActions = () => {
   };
 };
 
-export const runApiAction = () => {
+export const runApiAction = (id: string) => {
   return {
     type: ReduxActionTypes.RUN_API_REQUEST,
+    payload: id,
   };
 };
 
@@ -52,13 +53,6 @@ export const deleteAction = (payload: { id: string }) => {
 export const deleteActionSuccess = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_SUCCESS,
-    payload,
-  };
-};
-
-export const dryRunAction = (payload: RestAction) => {
-  return {
-    type: ReduxActionTypes.DRY_RUN_ACTION,
     payload,
   };
 };

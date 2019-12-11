@@ -14,6 +14,7 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import JSONEditorField from "components/editorComponents/form/fields/JSONEditorField";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 
 const Form = styled.form`
   display: flex;
@@ -103,6 +104,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   } = props;
   return (
     <Form onSubmit={handleSubmit}>
+      {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
       <MainConfiguration>
         <FormRow>
           <TextField name="name" placeholder="API Name *" showError />
