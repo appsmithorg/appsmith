@@ -30,7 +30,7 @@ public class AnalyticsService<T extends BaseDomain> {
         return Mono.just(user)
                 .map(savedUser -> {
                     Map<String, String> traitsMap = new HashMap<>();
-                    if(savedUser.getName() != null) {
+                    if (savedUser.getName() != null) {
                         traitsMap.put("name", savedUser.getName());
                     }
                     traitsMap.put("email", savedUser.getEmail());

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -26,6 +28,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,6 +41,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
+    private final GroupService groupService;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -50,7 +54,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            PasswordEncoder passwordEncoder,
-                           EmailSender emailSender) {
+                           EmailSender emailSender,
+                           GroupService groupService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -59,6 +64,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
+        this.groupService = groupService;
     }
 
     @Override
@@ -218,7 +224,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * This function can only be called via the forgot password route.
      *
      * @param token The one-time token provided to the user for resetting the password
-     * @param user The user object that contains the email & password fields in order to save the new password for the user
+     * @param user  The user object that contains the email & password fields in order to save the new password for the user
      * @return
      */
     @Override
@@ -256,7 +262,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         } else {
             name = user.getEmail();
         }
-        personalOrg.setName(name+"'s Personal Workspace");
+        personalOrg.setName(name + "'s Personal Workspace");
 
         Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg);
 
@@ -268,19 +274,27 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     Organization savedOrg = tuple.getT1();
                     User savedUser = tuple.getT2();
 
-                    // At this point both the user and the organization have been saved. Now add the newly created
-                    // organization to the newly created user.
-                    return addUserToOrganization(savedOrg.getId(), savedUser);
+                    Flux<Group> groupsFlux = groupService.getByOrganizationId(savedOrg.getId());
+                    return groupsFlux
+                            .collect(Collectors.toSet())
+                            .map(groups -> {
+                                // Set the default group Ids for the user
+                                Set<String> groupIds = groups.stream().map(group -> group.getId()).collect(Collectors.toSet());
+                                savedUser.setGroupIds(groupIds);
+                                return savedUser;
+                            })
+                            // At this point both the user and the organization have been saved. Now add the newly created
+                            // organization to the newly created user.
+                            .flatMap(user1 -> addUserToOrganization(savedOrg.getId(), user1));
                 })
                 .flatMap(analyticsService::trackNewUser);
-
     }
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
         Mono<User> userFromRepository = repository.findById(id);
 
-        if(userUpdate.getPassword() != null) {
+        if (userUpdate.getPassword() != null) {
             // The password is being updated. Hash it first and then store it
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
