@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -15,6 +16,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -97,16 +100,8 @@ public class LayoutServiceImpl implements LayoutService {
         //Walk through the DSL and extract the basic relationship of widgets with actions in the DSL.
         extractWidgetRelationship(dsl, graph);
 
-        Mono<Set<DslActionDTO>> actionsInPage = Flux.fromIterable(graph.vertexSet())
-                /**
-                 * TODO : Instead of finding each action by name, bulk search for actions by Name should be done.
-                 */
-                .flatMap(mustacheKey -> actionService.findByName(mustacheKey))
-                .map(action -> {
-                    action.setPageId(pageId);
-                    return action;
-                })
-                .flatMap(actionService::save)
+        Mono<Set<DslActionDTO>> actionsInPage = updatePageIdsForActionsAndReturnDslActions(graph.vertexSet(), pageId)
+                .flatMapMany(Flux::fromIterable)
                 .map(action -> {
                     //Update the graph here to include action-widget dependecy via dynamic bindings in the action.
                     if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
@@ -269,6 +264,44 @@ public class LayoutServiceImpl implements LayoutService {
             }
         });
         return topVertices;
+    }
+
+    Mono<List<Action>> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.set(FieldName.PAGE_ID, pageId);
+
+        Flux<Action> actionsInPage = actionService.get(params);
+        Flux<Action> actionsInDsl = actionService.findActionsByNameIn(nodes);
+
+        Mono<List<Action>> actionsWithoutPage = actionsInPage
+                .map(action -> {
+                    action.setPageId(null);
+                    return action;
+                }).collectList();
+
+        Mono<List<Action>> actionsWithPage = actionsInDsl
+                .map(action -> {
+                    action.setPageId(pageId);
+                    return action;
+                }).collectList();
+
+        return Mono.zip(actionsWithoutPage, actionsWithPage)
+                .flatMap(tuple -> {
+                    List<Action> olderActions = tuple.getT1();
+                    List<Action> newActions = tuple.getT2();
+                    for (Action oldAction:olderActions) {
+                        for (Action newAction:newActions) {
+                            if (oldAction.getName() == newAction.getName()) {
+                                olderActions.remove(oldAction);
+                            }
+                        }
+                    }
+
+                    newActions.addAll(olderActions);
+                    return actionService.saveAll(newActions)
+                            .collectList()
+                            .then(actionsInDsl.collectList());
+                });
     }
 
 }
