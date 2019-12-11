@@ -28,7 +28,7 @@ interface ReduxStateProps {
 interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
-  runAction: () => void;
+  runAction: (id: string) => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
 }
@@ -48,11 +48,7 @@ const EmptyStateContainer = styled.div`
 class ApiEditor extends React.Component<Props> {
   handleSubmit = (values: RestAction) => {
     const { formData } = this.props;
-    if (formData.id) {
-      this.props.updateAction(formData);
-    } else {
-      this.props.createAction(formData);
-    }
+    this.props.updateAction(formData);
   };
 
   handleSaveClick = () => {
@@ -62,24 +58,25 @@ class ApiEditor extends React.Component<Props> {
     this.props.deleteAction(this.props.match.params.apiId);
   };
   handleRunClick = () => {
-    this.props.runAction();
+    this.props.runAction(this.props.match.params.apiId);
   };
 
   render() {
     const {
-      apiPane: { isSaving, isRunning, isDeleting, drafts },
+      apiPane,
       match: {
         params: { apiId },
       },
       formData,
       pluginId,
     } = this.props;
-    const httpMethod = _.get(formData, "actionConfiguration.httpMethod");
     if (!pluginId) {
       return (
         <EmptyStateContainer>{"Plugin is not installed"}</EmptyStateContainer>
       );
     }
+    const { isSaving, isRunning, isDeleting, drafts } = apiPane;
+    const httpMethod = _.get(formData, "actionConfiguration.httpMethod");
     return (
       <React.Fragment>
         {apiId ? (
@@ -87,9 +84,9 @@ class ApiEditor extends React.Component<Props> {
             pluginId={pluginId}
             allowSave={apiId in drafts}
             allowPostBody={httpMethod && httpMethod !== HTTP_METHODS[0]}
-            isSaving={isSaving}
-            isRunning={isRunning}
-            isDeleting={isDeleting}
+            isSaving={isSaving[apiId]}
+            isRunning={isRunning[apiId]}
+            isDeleting={isDeleting[apiId]}
             onSubmit={this.handleSubmit}
             onSaveClick={this.handleSaveClick}
             onDeleteClick={this.handleDeleteClick}
@@ -115,7 +112,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   createAction: (action: RestAction) => dispatch(createActionRequest(action)),
-  runAction: () => dispatch(runApiAction()),
+  runAction: (id: string) => dispatch(runApiAction(id)),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
 });

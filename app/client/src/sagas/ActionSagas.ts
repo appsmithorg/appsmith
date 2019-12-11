@@ -299,7 +299,7 @@ export function* updateActionSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error },
+      payload: { error, id: actionPayload.payload.data.id },
     });
   }
 }
@@ -321,12 +321,12 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
-      payload: { error },
+      payload: { error, id: actionPayload.payload.id },
     });
   }
 }
 
-export function* runApiActionSaga() {
+export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
   try {
     const {
       values,
@@ -368,10 +368,9 @@ export function* runApiActionSaga() {
       payload: { [id]: payload },
     });
   } catch (error) {
-    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: error,
+      payload: { error, id: action.payload.id },
     });
   }
 }

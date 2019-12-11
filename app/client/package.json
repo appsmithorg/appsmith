@@ -85,7 +85,7 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT HTTPS=true craco start",
+    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
