@@ -27,7 +27,7 @@ public abstract class BaseDomain implements Persistable<String> {
     protected Date createdAt;
 
     @LastModifiedDate
-    protected Date updatedAt = new Date();
+    protected Date updatedAt;
 
     @CreatedBy
     protected String createdBy;
