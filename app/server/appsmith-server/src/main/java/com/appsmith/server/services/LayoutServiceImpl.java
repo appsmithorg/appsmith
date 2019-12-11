@@ -150,7 +150,7 @@ public class LayoutServiceImpl implements LayoutService {
                     // Since we are only interested in top nodes which are actions, compare with actions set and
                     // add these actions to the array list to create page load actions.
                     actions.forEach(action -> {
-                        if(rootNodesOfGraph.contains(action.getName())) {
+                        if (rootNodesOfGraph.contains(action.getName())) {
                             pageLoadActions.add(action);
                         }
                     });
@@ -225,7 +225,7 @@ public class LayoutServiceImpl implements LayoutService {
                     for (String mustacheKey : extractMustacheKeys) {
                         String key = mustacheKey.trim();
                         // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                        String subStrings[] = key.split(Pattern.quote("."));
+                        String[] subStrings = key.split(Pattern.quote("."));
 
                         if (!graph.vertexSet().contains(subStrings[0])) {
                             graph.addVertex(subStrings[0]);
@@ -254,6 +254,7 @@ public class LayoutServiceImpl implements LayoutService {
      * These nodes are the nodes which are not dependent on any other node. Since the graph displays the dependencies of
      * different widgets and actions between each other, the root nodes of the graphs are clearly the ones which are
      * independent of others.
+     *
      * @param graph
      * @return
      */

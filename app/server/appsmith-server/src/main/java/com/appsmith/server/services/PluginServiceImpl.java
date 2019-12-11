@@ -85,7 +85,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             try {
                 PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
                 examplePlugin.setType(pluginType);
-            } catch(IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
                 return Flux.empty();
             }
