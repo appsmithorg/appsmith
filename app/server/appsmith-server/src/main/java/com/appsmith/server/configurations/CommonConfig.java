@@ -18,7 +18,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@EnableMongoAuditing
 @Configuration
 public class CommonConfig {
 
