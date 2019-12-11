@@ -91,7 +91,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     if (input && input.value) {
       value = input.value;
     }
-    if (value) {
+    if (value && typeof value === "string") {
       const { bindings, paths } = getDynamicBindings(value);
       bindings.forEach((binding, i) => {
         if (binding.indexOf("{{") > -1 && paths[i] === "") {

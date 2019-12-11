@@ -40,14 +40,15 @@ const PageMockResponse: FetchPageResponse = {
             },
           ],
         },
-        actions: [
+        layoutActions: [
           {
             id: "5d8082e2795dc6000482bc84",
-            actionType: "API" as ActionType,
-            name: "getUsers",
-            jsonPathKeys: ["$.apiData.0.name"],
+            name: "someActions",
+            jsonPathKeys: [],
+            pluginType: "API" as ActionType,
           },
         ],
+        layoutOnLoadActions: [],
       },
     ],
   },

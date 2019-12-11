@@ -1,5 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { ActionPayload } from "constants/ActionConstants";
+import { ActionPayload, PageAction } from "constants/ActionConstants";
 
 export const executeAction = (
   actionPayloads?: ActionPayload[],
@@ -9,6 +9,13 @@ export const executeAction = (
     payload: actionPayloads,
   };
 };
+
+export const executePageLoadActions = (
+  payload: PageAction[],
+): ReduxAction<PageAction[]> => ({
+  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+  payload,
+});
 
 export const loadingAction = (
   areLoading: boolean,

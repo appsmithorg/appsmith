@@ -41,6 +41,7 @@ const defaultDSL = {
   topRow: 0,
   type: "CONTAINER_WIDGET",
   widgetId: "0",
+  widgetName: "MainContainer",
 };
 
 export const extractCurrentDSL = (

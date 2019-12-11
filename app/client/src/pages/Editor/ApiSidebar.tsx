@@ -139,7 +139,7 @@ interface ReduxStateProps {
 }
 
 interface ReduxDispatchProps {
-  createAction: (name: string) => void;
+  createAction: (name: string, pageId: string) => void;
   onApiChange: (id: string) => void;
   initApiPane: (urlId?: string) => void;
 }
@@ -202,8 +202,9 @@ class ApiSidebar extends React.Component<Props, State> {
   };
 
   saveAction = () => {
+    const { pageId } = this.props.match.params;
     if (this.state.name) {
-      this.props.createAction(this.state.name);
+      this.props.createAction(this.state.name, pageId);
       this.setState({
         isSaving: true,
       });
@@ -322,7 +323,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
-  createAction: (name: string) => dispatch(createActionRequest({ name })),
+  createAction: (name: string, pageId: string) =>
+    dispatch(createActionRequest({ name, pageId })),
   onApiChange: (actionId: string) => dispatch(changeApi(actionId)),
   initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
 });

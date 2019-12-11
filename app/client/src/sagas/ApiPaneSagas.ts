@@ -12,7 +12,11 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
-import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
+import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  APPLICATIONS_URL,
+} from "constants/routes";
 import { destroy, initialize } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
@@ -58,6 +62,10 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const { applicationId, pageId } = yield select(getRouterParams);
+  if (!applicationId || !pageId) {
+    history.push(APPLICATIONS_URL);
+    return;
+  }
   const action = yield select(getAction, id);
   if (!action) {
     history.push(API_EDITOR_URL(applicationId, pageId));

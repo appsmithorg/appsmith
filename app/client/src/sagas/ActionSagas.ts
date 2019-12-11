@@ -33,6 +33,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import {
   createActionSuccess,
   deleteActionSuccess,
+  FetchActionsPayload,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
@@ -48,6 +49,7 @@ import {
 } from "constants/messages";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { executeAction } from "actions/widgetActions";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import {
   getNameBindingsWithData,
@@ -263,9 +265,12 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-export function* fetchActionsSaga() {
+export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   try {
-    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions();
+    const { pageId } = action.payload;
+    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
+      pageId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -375,6 +380,24 @@ export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
   }
 }
 
+function* executePageLoadActionsSaga(action: ReduxAction<PageAction[]>) {
+  const pageActions = action.payload;
+  const apiResponses = yield select(
+    (state: AppState) => state.entities.apiData,
+  );
+  const actionPayloads: ActionPayload[] = pageActions
+    .filter(action => !(action.id in apiResponses))
+    .map(action => ({
+      actionId: action.id,
+      actionType: action.pluginType,
+      contextParams: {},
+      actionName: action.name,
+    }));
+  if (actionPayloads.length) {
+    yield put(executeAction(actionPayloads));
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
@@ -383,5 +406,9 @@ export function* watchActionSagas() {
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+      executePageLoadActionsSaga,
+    ),
   ]);
 }
