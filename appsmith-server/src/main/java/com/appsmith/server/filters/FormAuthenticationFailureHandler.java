@@ -28,15 +28,15 @@ public class FormAuthenticationFailureHandler implements ServerAuthenticationFai
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-        log.debug("In the form auth failure function");
+        log.error("In the login failure handler. Cause: {}", exception.getMessage());
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.setStatusCode(HttpStatus.valueOf(AppsmithError.INVALID_CREDENTIALS.getHttpErrorCode()));
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseDTO<Boolean> responseDTO = new ResponseDTO<>(HttpStatus.UNAUTHORIZED.value(),
-                new ErrorDTO(AppsmithError.UNAUTHORIZED_ACCESS.getHttpErrorCode(),
-                AppsmithError.UNAUTHORIZED_ACCESS.getMessage()));
+        ResponseDTO<Boolean> responseDTO = new ResponseDTO<>(AppsmithError.INVALID_CREDENTIALS.getHttpErrorCode(),
+                new ErrorDTO(AppsmithError.INVALID_CREDENTIALS.getAppErrorCode(),
+                AppsmithError.INVALID_CREDENTIALS.getMessage()));
 
         String responseStr;
         try {

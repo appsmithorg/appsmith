@@ -31,6 +31,7 @@ public enum AppsmithError {
     GENERIC_BAD_REQUEST(401, 4019, "Bad Request: {0}"),
     INVALID_PASSWORD_RESET(400, 4020, "Unable to reset the password. Please initiate a request via 'forgot password' link to reset your password"),
     LOGIN_INTERNAL_ERROR(401, 4021, "Internal error while trying to login"),
+    INVALID_CREDENTIALS(200, 4022, "Invalid credentials provided. Did you input the credentials correctly?"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed"),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Due to error in downloading the plugin from remote repository, plugin installation has failed. Check the jar location and try again"),
