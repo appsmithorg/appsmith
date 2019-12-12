@@ -85,6 +85,8 @@ public class SecurityConfig {
                 .cors().and()
                 .csrf().disable()
                 .authorizeExchange()
+                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"))
+                .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
                 .authenticated()
