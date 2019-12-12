@@ -1,6 +1,5 @@
 package com.appsmith.server.filters;
 
-import com.appsmith.server.constants.Url;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -36,7 +35,14 @@ public class FormAuthenticationSuccessHandler implements ServerAuthenticationSuc
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
-        URI defaultRedirectLocation = URI.create(Url.USER_URL + "/me");
+        // On authentication success, we send a redirect to the client's home page. This ensures that the session
+        // is set in the cookie on the browser.
+        String originHeader = exchange.getRequest().getHeaders().getOrigin();
+        if(originHeader == null || originHeader.isEmpty()) {
+            originHeader = "/";
+        }
+
+        URI defaultRedirectLocation = URI.create(originHeader);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
 
