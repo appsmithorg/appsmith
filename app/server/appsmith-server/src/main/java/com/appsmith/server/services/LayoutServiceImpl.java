@@ -16,8 +16,6 @@ import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -100,8 +98,8 @@ public class LayoutServiceImpl implements LayoutService {
         //Walk through the DSL and extract the basic relationship of widgets with actions in the DSL.
         extractWidgetRelationship(dsl, graph);
 
-        Mono<Set<DslActionDTO>> actionsInPage = updatePageIdsForActionsAndReturnDslActions(graph.vertexSet(), pageId)
-                .flatMapMany(Flux::fromIterable)
+        Mono<Set<DslActionDTO>> actionsInPage =
+                updatePageIdsForActionsAndReturnDslActions(graph.vertexSet(), pageId)
                 .map(action -> {
                     //Update the graph here to include action-widget dependecy via dynamic bindings in the action.
                     if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
@@ -123,7 +121,6 @@ public class LayoutServiceImpl implements LayoutService {
                     newAction.setName(action.getName());
                     return newAction;
                 })
-                .distinct(action -> action.getId())
                 .collect(toSet());
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
@@ -266,42 +263,16 @@ public class LayoutServiceImpl implements LayoutService {
         return topVertices;
     }
 
-    Mono<List<Action>> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.set(FieldName.PAGE_ID, pageId);
+    Flux<Action> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
 
-        Flux<Action> actionsInPage = actionService.get(params);
-        Flux<Action> actionsInDsl = actionService.findActionsByNameIn(nodes);
-
-        Mono<List<Action>> actionsWithoutPage = actionsInPage
-                .map(action -> {
-                    action.setPageId(null);
-                    return action;
-                }).collectList();
-
-        Mono<List<Action>> actionsWithPage = actionsInDsl
+        return actionService
+                .findDistinctActionsByNameIn(nodes)
                 .map(action -> {
                     action.setPageId(pageId);
                     return action;
-                }).collectList();
-
-        return Mono.zip(actionsWithoutPage, actionsWithPage)
-                .flatMap(tuple -> {
-                    List<Action> olderActions = tuple.getT1();
-                    List<Action> newActions = tuple.getT2();
-                    for (Action oldAction:olderActions) {
-                        for (Action newAction:newActions) {
-                            if (oldAction.getName() == newAction.getName()) {
-                                olderActions.remove(oldAction);
-                            }
-                        }
-                    }
-
-                    newActions.addAll(olderActions);
-                    return actionService.saveAll(newActions)
-                            .collectList()
-                            .then(actionsInDsl.collectList());
-                });
+                })
+                .collectList()
+                .flatMapMany(actionService::saveAll);
     }
 
 }
