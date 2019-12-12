@@ -12,15 +12,14 @@ const ProtectedRoute = ({
   component: React.ReactType;
   exact?: boolean;
 }) => {
+  const shouldShowLogin =
+    !_.isNil(netlifyIdentity.currentUser()) ||
+    process.env.REACT_APP_TESTING === "TESTING";
   return (
     <Route
       {...rest}
       render={props =>
-        !_.isNil(netlifyIdentity.currentUser()) ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to={"/login"} />
-        )
+        shouldShowLogin ? <Component {...props} /> : <Redirect to={"/login"} />
       }
     />
   );
