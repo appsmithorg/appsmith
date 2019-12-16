@@ -60,12 +60,18 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
-        return Mono.just(organization)
+        Mono<Organization> organizationMono = Mono.just(organization)
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)
                 //Call the BaseService function to save the updated organization
                 .flatMap(super::create);
+
+        return organizationMono
+                .flatMap(org -> groupService.createDefaultGroupsForOrg(org.getId())
+                        .collectList()
+                        .thenReturn(org)
+                );
     }
 
     private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {
