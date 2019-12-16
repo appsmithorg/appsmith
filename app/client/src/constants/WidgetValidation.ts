@@ -12,6 +12,7 @@ export const VALIDATION_TYPES = {
 export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
+  message?: string;
 };
 
 export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];

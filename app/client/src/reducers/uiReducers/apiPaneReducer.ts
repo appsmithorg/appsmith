@@ -9,20 +9,20 @@ import _ from "lodash";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
-  drafts: {},
   isFetching: false,
-  isRunning: false,
-  isSaving: false,
-  isDeleting: false,
+  drafts: {},
+  isRunning: {},
+  isSaving: {},
+  isDeleting: {},
 };
 
 export interface ApiPaneReduxState {
   lastUsed: string;
-  drafts: Record<string, RestAction>;
   isFetching: boolean;
-  isRunning: boolean;
-  isSaving: boolean;
-  isDeleting: boolean;
+  drafts: Record<string, RestAction>;
+  isRunning: Record<string, boolean>;
+  isSaving: Record<string, boolean>;
+  isDeleting: Record<string, boolean>;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -38,53 +38,98 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isFetching: false,
   }),
-  [ReduxActionTypes.CREATE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.RUN_API_REQUEST]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<string>,
+  ) => ({
     ...state,
-    isSaving: true,
+    isRunning: {
+      ...state.isRunning,
+      [action.payload]: true,
+    },
   }),
-  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.RUN_API_SUCCESS]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ [id: string]: any }>,
+  ) => {
+    const actionId = Object.keys(action.payload)[0];
+    return {
+      ...state,
+      isRunning: {
+        ...state.isRunning,
+        [actionId]: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.RUN_API_ERROR]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
     ...state,
-    isSaving: false,
+    isRunning: {
+      ...state.isRunning,
+      [action.payload.id]: false,
+    },
   }),
-  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.UPDATE_ACTION_INIT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ data: RestAction }>,
+  ) => ({
     ...state,
-    isSaving: false,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.data.id]: true,
+    },
   }),
-  [ReduxActionTypes.RUN_API_REQUEST]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ data: RestAction }>,
+  ) => ({
     ...state,
-    isRunning: true,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.data.id]: false,
+    },
   }),
-  [ReduxActionTypes.RUN_API_SUCCESS]: (state: ApiPaneReduxState) => ({
+  [ReduxActionErrorTypes.UPDATE_ACTION_ERROR]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
     ...state,
-    isRunning: false,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.id]: false,
+    },
   }),
-  [ReduxActionErrorTypes.RUN_API_ERROR]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.DELETE_ACTION_INIT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
     ...state,
-    isRunning: false,
+    isDeleting: {
+      ...state.isDeleting,
+      [action.payload.id]: true,
+    },
   }),
-  [ReduxActionTypes.UPDATE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
     ...state,
-    isSaving: true,
+    isDeleting: {
+      ...state.isDeleting,
+      [action.payload.id]: false,
+    },
   }),
-  [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+  [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
     ...state,
-    isSaving: false,
-  }),
-  [ReduxActionErrorTypes.UPDATE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isSaving: false,
-  }),
-  [ReduxActionTypes.DELETE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isDeleting: true,
-  }),
-  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isDeleting: false,
-  }),
-  [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
-    ...state,
-    isDeleting: false,
+    isDeleting: {
+      ...state.isDeleting,
+      [action.payload.id]: false,
+    },
   }),
   [ReduxActionTypes.UPDATE_API_DRAFT]: (
     state: ApiPaneReduxState,
@@ -109,6 +154,10 @@ const apiPaneReducer = createReducer(initialState, {
   ) => ({
     ...state,
     lastUsed: action.payload.id,
+  }),
+  [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    lastUsed: "",
   }),
 });
 

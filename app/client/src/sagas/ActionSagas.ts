@@ -33,13 +33,13 @@ import { GenericApiResponse } from "api/ApiResponses";
 import {
   createActionSuccess,
   deleteActionSuccess,
+  FetchActionsPayload,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
   evaluateDynamicBoundValue,
   getDynamicBindings,
   isDynamicValue,
-  NameBindingsWithData,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
@@ -49,8 +49,12 @@ import {
 } from "constants/messages";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { executeAction } from "actions/widgetActions";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
-import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
+import {
+  getNameBindingsWithData,
+  NameBindingsWithData,
+} from "selectors/nameBindingsWithDataSelector";
 
 export const getAction = (
   state: AppState,
@@ -261,9 +265,12 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-export function* fetchActionsSaga() {
+export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   try {
-    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions();
+    const { pageId } = action.payload;
+    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
+      pageId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -297,7 +304,7 @@ export function* updateActionSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error },
+      payload: { error, id: actionPayload.payload.data.id },
     });
   }
 }
@@ -319,12 +326,12 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
-      payload: { error },
+      payload: { error, id: actionPayload.payload.id },
     });
   }
 }
 
-export function* runApiActionSaga() {
+export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
   try {
     const {
       values,
@@ -366,11 +373,28 @@ export function* runApiActionSaga() {
       payload: { [id]: payload },
     });
   } catch (error) {
-    console.log({ error });
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: error,
+      payload: { error, id: action.payload.id },
     });
+  }
+}
+
+function* executePageLoadActionsSaga(action: ReduxAction<PageAction[]>) {
+  const pageActions = action.payload;
+  const apiResponses = yield select(
+    (state: AppState) => state.entities.apiData,
+  );
+  const actionPayloads: ActionPayload[] = pageActions
+    .filter(action => !(action.id in apiResponses))
+    .map(action => ({
+      actionId: action.id,
+      actionType: action.pluginType,
+      contextParams: {},
+      actionName: action.name,
+    }));
+  if (actionPayloads.length) {
+    yield put(executeAction(actionPayloads));
   }
 }
 
@@ -382,5 +406,9 @@ export function* watchActionSagas() {
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(
+      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+      executePageLoadActionsSaga,
+    ),
   ]);
 }

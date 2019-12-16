@@ -1,22 +1,33 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledInputGroup } from "./StyledControls";
+import { ControlWrapper, StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { Intent } from "@blueprintjs/core";
+import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
+    const { validationMessage, propertyValue, isValid, label } = this.props;
     return (
       <ControlWrapper>
-        <label>{this.props.label}</label>
-        <StyledInputGroup
-          intent={this.props.isValid ? Intent.NONE : Intent.DANGER}
-          type={this.isNumberType() ? "number" : "text"}
-          onChange={this.onTextChange}
-          placeholder={this.props.placeholderText}
-          defaultValue={this.props.propertyValue}
-        />
+        <label>{label}</label>
+        <StyledDynamicInput>
+          <DynamicAutocompleteInput
+            intent={isValid ? Intent.NONE : Intent.DANGER}
+            type={this.isNumberType() ? "number" : "text"}
+            input={{
+              value: propertyValue,
+              onChange: this.onTextChange,
+            }}
+            placeholder={this.props.placeholderText}
+            meta={{
+              touched: true,
+              error: validationMessage,
+            }}
+            showError
+          />
+        </StyledDynamicInput>
       </ControlWrapper>
     );
   }
@@ -34,8 +45,11 @@ class InputTextControl extends BaseControl<InputControlProps> {
     }
   }
 
-  onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value: string = event.target.value;
+  onTextChange = (event: React.ChangeEvent<HTMLInputElement> | string) => {
+    let value = event;
+    if (typeof event !== "string") {
+      value = event.target.value;
+    }
     this.updateProperty(this.props.propertyName, value);
   };
 

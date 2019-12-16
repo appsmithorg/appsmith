@@ -7,12 +7,14 @@ import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { RestAction } from "api/ActionAPI";
 import TextField from "components/editorComponents/form/fields/TextField";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import JSONEditorField from "components/editorComponents/form/fields/JSONEditorField";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 
 const Form = styled.form`
   display: flex;
@@ -23,7 +25,6 @@ const Form = styled.form`
     padding: ${props => props.theme.spaces[3]}px;
   }
   ${FormRow} {
-    flex-wrap: wrap;
     padding: ${props => props.theme.spaces[2]}px;
     & > * {
       margin-right: 5px;
@@ -68,6 +69,11 @@ const JSONEditorFieldWrapper = styled.div`
   border-radius: 4px;
 `;
 
+const DatasourceWrapper = styled.div`
+  width: 100%;
+  max-width: 320px;
+`;
+
 interface APIFormProps {
   pluginId: string;
   allowSave: boolean;
@@ -98,6 +104,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   } = props;
   return (
     <Form onSubmit={handleSubmit}>
+      {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
       <MainConfiguration>
         <FormRow>
           <TextField name="name" placeholder="API Name *" showError />
@@ -130,11 +137,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <DatasourcesField name="datasource.id" pluginId={pluginId} />
-          <TextField
+          <DatasourceWrapper>
+            <DatasourcesField name="datasource.id" pluginId={pluginId} />
+          </DatasourceWrapper>
+          <DynamicTextField
             placeholder="API Path"
             name="actionConfiguration.path"
-            icon="slash"
+            leftIcon="slash"
             showError
           />
         </FormRow>

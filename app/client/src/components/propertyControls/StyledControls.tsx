@@ -53,6 +53,21 @@ export const StyledSwitch = styled(Switch)`
   }
 `;
 
+export const StyledDynamicInput = styled.div`
+  &&& {
+    input {
+      border: none;
+      color: ${props => props.theme.colors.textOnDarkBG};
+      background: ${props => props.theme.colors.paneInputBG};
+      &:focus {
+        border: none;
+        color: ${props => props.theme.colors.textOnDarkBG};
+        background: ${props => props.theme.colors.paneInputBG};
+      }
+    }
+  }
+`;
+
 export const StyledInputGroup = styled(InputGroup)`
   & > input {
     placeholder-text: ${props => props.placeholder};

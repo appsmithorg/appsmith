@@ -10,6 +10,8 @@ import CodeEditor from "./CodeEditor";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
+import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -46,26 +48,11 @@ const TableWrapper = styled.div`
   }
 `;
 
-const LoadingScreen = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  background-color: rgba(255, 255, 255, 0.6);
-  pointer-events: none;
-  z-index: 1;
-  color: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 interface ReduxStateProps {
   responses: {
     [id: string]: ActionResponse;
   };
-  isRunning: boolean;
+  apiPane: ApiPaneReduxState;
 }
 
 const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
@@ -108,14 +95,19 @@ const ApiResponseView = (props: Props) => {
       params: { apiId },
     },
     responses,
+    apiPane,
   } = props;
   let response: ActionResponse = EMPTY_RESPONSE;
+  let isRunning = false;
   if (apiId && apiId in responses) {
     response = responses[apiId];
+    isRunning = apiPane.isRunning[apiId];
   }
   return (
     <ResponseWrapper>
-      {props.isRunning && <LoadingScreen>Sending Request</LoadingScreen>}
+      {isRunning && (
+        <LoadingOverlayScreen>Sending Request</LoadingOverlayScreen>
+      )}
       <FormRow>
         <React.Fragment>
           {response.statusCode && (
@@ -172,7 +164,7 @@ const ApiResponseView = (props: Props) => {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   responses: state.entities.apiData,
-  isRunning: state.ui.apiPane.isRunning,
+  apiPane: state.ui.apiPane,
 });
 
 export default connect(mapStateToProps)(withRouter(ApiResponseView));

@@ -1,10 +1,25 @@
 import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { DATA_BIND_REGEX } from "constants/BindingsConstants";
+import {
+  DATA_BIND_AUTOCOMPLETE,
+  DATA_BIND_REGEX,
+} from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
+import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 
-export type NameBindingsWithData = Record<string, object>;
+export const isDynamicAutocompleteMatch = (value: string): boolean =>
+  DATA_BIND_AUTOCOMPLETE.test(value);
+
+export const getDynamicAutocompleteSearchTerm = (value: string): string => {
+  const bindings = value.match(DATA_BIND_AUTOCOMPLETE) || [];
+  if (bindings.length > 0) {
+    return bindings[2];
+  } else {
+    return "";
+  }
+};
+
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
@@ -121,6 +136,7 @@ export const enhanceWithDynamicValuesAndValidations = (
   if (!widget) return widget;
   const properties = { ...widget };
   const invalidProps: Record<string, boolean> = {};
+  const validationMessages: Record<string, string> = {};
 
   Object.keys(widget).forEach((property: string) => {
     let value = widget[property];
@@ -129,15 +145,17 @@ export const enhanceWithDynamicValuesAndValidations = (
       value = getDynamicValue(value, nameBindingsWithData);
     }
     // Pass it through validation and parse
-    const { isValid, parsed } = ValidationFactory.validateWidgetProperty(
-      widget.type,
-      property,
-      value,
-    );
+    const {
+      isValid,
+      parsed,
+      message,
+    } = ValidationFactory.validateWidgetProperty(widget.type, property, value);
     // Store all invalid props
     if (!isValid) invalidProps[property] = true;
+    // Store validation Messages
+    if (message) validationMessages[property] = message;
     // Replace if flag is turned on
     if (replaceWithParsed) properties[property] = parsed;
   });
-  return { ...properties, invalidProps };
+  return { ...properties, invalidProps, validationMessages };
 };

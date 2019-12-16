@@ -4,12 +4,12 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import {
-  enhanceWithDynamicValuesAndValidations,
-  NameBindingsWithData,
-} from "utils/DynamicBindingUtils";
+import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getNameBindingsWithData } from "./nameBindingsWithDataSelector";
+import {
+  getNameBindingsWithData,
+  NameBindingsWithData,
+} from "./nameBindingsWithDataSelector";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;

@@ -139,7 +139,7 @@ interface ReduxStateProps {
 }
 
 interface ReduxDispatchProps {
-  createAction: (name: string) => void;
+  createAction: (name: string, pageId: string) => void;
   onApiChange: (id: string) => void;
   initApiPane: (urlId?: string) => void;
 }
@@ -149,15 +149,17 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams>;
 type State = {
   isCreating: boolean;
+  isSaving: boolean;
   name: string;
   search: string;
 };
 
-const fuseOptions = {
+const FUSE_OPTIONS = {
   shouldSort: true,
-  threshold: 0.1,
+  threshold: 0.5,
   location: 0,
   minMatchCharLength: 3,
+  findAllMatches: true,
   keys: ["name"],
 };
 
@@ -166,6 +168,7 @@ class ApiSidebar extends React.Component<Props, State> {
     super(props);
     this.state = {
       isCreating: false,
+      isSaving: false,
       name: "",
       search: "",
     };
@@ -180,6 +183,7 @@ class ApiSidebar extends React.Component<Props, State> {
     if (!prevProps.match.params.apiId && this.props.match.params.apiId) {
       this.setState({
         isCreating: false,
+        isSaving: false,
         name: "",
       });
     }
@@ -192,13 +196,18 @@ class ApiSidebar extends React.Component<Props, State> {
     history.push(API_EDITOR_URL(applicationId, pageId));
     this.setState({
       isCreating: true,
+      isSaving: false,
       name: `action${actions.data.length}`,
     });
   };
 
   saveAction = () => {
+    const { pageId } = this.props.match.params;
     if (this.state.name) {
-      this.props.createAction(this.state.name);
+      this.props.createAction(this.state.name, pageId);
+      this.setState({
+        isSaving: true,
+      });
     } else {
       this.setState({
         isCreating: false,
@@ -226,15 +235,15 @@ class ApiSidebar extends React.Component<Props, State> {
 
   render() {
     const {
-      apiPane: { isFetching, isSaving, drafts },
+      apiPane: { isFetching, drafts },
       match,
       actions: { data },
       pluginId,
     } = this.props;
     if (!pluginId) return null;
-    const { isCreating, search, name } = this.state;
+    const { isCreating, isSaving, search, name } = this.state;
     const activeActionId = match.params.apiId;
-    const fuse = new Fuse(data, fuseOptions);
+    const fuse = new Fuse(data, FUSE_OPTIONS);
     const actions: RestAction[] = search ? fuse.search(search) : data;
     return (
       <React.Fragment>
@@ -314,7 +323,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
-  createAction: (name: string) => dispatch(createActionRequest({ name })),
+  createAction: (name: string, pageId: string) =>
+    dispatch(createActionRequest({ name, pageId })),
   onApiChange: (actionId: string) => dispatch(changeApi(actionId)),
   initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
 });

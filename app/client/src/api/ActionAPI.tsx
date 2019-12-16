@@ -103,8 +103,10 @@ class ActionAPI extends API {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static fetchActions(): AxiosPromise<GenericApiResponse<RestAction[]>> {
-    return API.get(ActionAPI.url);
+  static fetchActions(
+    pageId: string,
+  ): AxiosPromise<GenericApiResponse<RestAction[]>> {
+    return API.get(ActionAPI.url, { pageId });
   }
 
   static updateAPI(

@@ -7,3 +7,4 @@ export const FIELD_REQUIRED_ERROR = "This field is required";
 export const VALID_FUNCTION_NAME_ERROR =
   "Action name is not a valid function name";
 export const UNIQUE_NAME_ERROR = "Action name must be unique";
+export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";

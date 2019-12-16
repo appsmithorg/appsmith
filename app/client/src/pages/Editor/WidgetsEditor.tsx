@@ -3,10 +3,9 @@ import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Canvas from "./Canvas";
-import PropertyPane from "./PropertyPane";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
-import { savePage } from "actions/pageActions";
+import { fetchPage, savePage } from "actions/pageActions";
 import {
   getDenormalizedDSL,
   getIsFetchingPage,
@@ -84,7 +83,6 @@ const WidgetsEditor = (props: EditorProps) => {
     <EditorContextProvider>
       <EditorWrapper>
         <CanvasContainer>{node}</CanvasContainer>
-        <PropertyPane />
       </EditorWrapper>
     </EditorContextProvider>
   );
@@ -115,11 +113,7 @@ const mapDispatchToProps = (dispatch: any) => {
         payload: { widgetId, node, toggle },
       });
     },
-    fetchPage: (pageId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_PAGE_INIT,
-        payload: { pageId },
-      }),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
   };
 };
 
