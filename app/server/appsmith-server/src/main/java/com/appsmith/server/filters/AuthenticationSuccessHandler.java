@@ -1,0 +1,91 @@
+package com.appsmith.server.filters;
+
+import com.appsmith.server.constants.AclConstants;
+import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserState;
+import com.appsmith.server.services.UserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
+import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class AuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
+
+    @Autowired
+    UserService userService;
+
+    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+
+    /**
+     * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
+     * The client browser will follow this redirect and fetch the user's profile JSON from the server.
+     * In the process, the client browser will also set the session ID in the cookie against the server's API domain.
+     *
+     * @param webFilterExchange
+     * @param authentication
+     * @return
+     */
+    @Override
+    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
+                                              Authentication authentication) {
+        log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+        if(authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthAuthentication = (OAuth2AuthenticationToken) authentication;
+            return checkAndCreateUser(oauthAuthentication)
+                    .then(handleRedirect(webFilterExchange));
+        }
+
+        return handleRedirect(webFilterExchange);
+    }
+
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange) {
+        ServerWebExchange exchange = webFilterExchange.getExchange();
+
+        // On authentication success, we send a redirect to the client's home page. This ensures that the session
+        // is set in the cookie on the browser.
+        String originHeader = exchange.getRequest().getHeaders().getOrigin();
+        if(originHeader == null || originHeader.isEmpty()) {
+            originHeader = "/";
+        }
+
+        URI defaultRedirectLocation = URI.create(originHeader);
+        return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
+    }
+
+    private Mono<User> checkAndCreateUser(OAuth2AuthenticationToken authToken) {
+        Map<String, Object> userAttributes = authToken.getPrincipal().getAttributes();
+        User newUser = new User();
+        newUser.setName((String) userAttributes.get("name"));
+        newUser.setEmail((String) userAttributes.get("email"));
+        newUser.setSource(LoginSource.GOOGLE);
+        newUser.setState(UserState.ACTIVATED);
+        newUser.setIsEnabled(true);
+        // TODO: Check if this is a valid permission available in the DB
+        // TODO: Check to see if this user was invited or is it a new sign up
+        Set<String> permissions = new HashSet<>();
+        // Adding the create organization permission because this is a new user and we will have to create an organization
+        // after this for the user.
+        permissions.addAll(AclConstants.PERMISSIONS_CRUD_ORG);
+        newUser.setPermissions(permissions);
+
+        return userService.findByEmail((String) userAttributes.get("email"))
+                .switchIfEmpty(Mono.defer(() -> userService.create(newUser))); //In case the user doesn't exist, create and save the user.
+    }
+}

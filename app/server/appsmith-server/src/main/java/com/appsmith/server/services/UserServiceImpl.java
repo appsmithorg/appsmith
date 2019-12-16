@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Group;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
@@ -253,7 +254,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> create(User user) {
-        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+        // Only encode the password if it's a form signup. For OAuth signups, we don't need password
+        if(LoginSource.FORM.equals(user.getSource())) {
+            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        }
 
         Organization personalOrg = new Organization();
         String name;
