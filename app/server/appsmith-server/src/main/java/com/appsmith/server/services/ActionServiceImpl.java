@@ -441,7 +441,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> get(MultiValueMap<String, String> params) {
         Action actionExample = new Action();
-        Sort sort = new Sort(Direction.ASC, FieldName.NAME );
+        Sort sort = Sort.by(FieldName.NAME );
 
         if (params.getFirst(FieldName.NAME) != null) {
             actionExample.setName(params.getFirst(FieldName.NAME));

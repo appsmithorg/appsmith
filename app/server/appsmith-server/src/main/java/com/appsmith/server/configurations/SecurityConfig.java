@@ -30,16 +30,13 @@ public class SecurityConfig {
     private UserService userService;
 
     @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
     private CommonConfig commonConfig;
 
     @Autowired
-    private ServerAuthenticationSuccessHandler formAuthenticationSuccessHandler;
+    private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
-    private ServerAuthenticationFailureHandler formAuthenticationFailureHandler;
+    private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -92,12 +89,14 @@ public class SecurityConfig {
                 .authenticated()
                 .and().httpBasic()
                 .and().oauth2Login()
-                .authorizedClientRepository(new ClientUserRepository(userService, organizationService, commonConfig))
+                .authenticationSuccessHandler(authenticationSuccessHandler)
+                .authenticationFailureHandler(authenticationFailureHandler)
+                .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
                 .and().formLogin()
                 .authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/login"))
                 .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login"))
-                .authenticationSuccessHandler(formAuthenticationSuccessHandler)
-                .authenticationFailureHandler(formAuthenticationFailureHandler)
+                .authenticationSuccessHandler(authenticationSuccessHandler)
+                .authenticationFailureHandler(authenticationFailureHandler)
                 .and().build();
     }
 
