@@ -1,21 +1,23 @@
 import _ from "lodash";
-import axios from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { getAppsmithConfigs } from "configs";
 import {
   REQUEST_TIMEOUT_MS,
-  REQUEST_HEADERS,
-  AUTH_CREDENTIALS,
+  API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-const { apiUrl } = getAppsmithConfigs();
+import { AUTH_LOGIN_URL } from "constants/routes";
+const { apiUrl, baseUrl } = getAppsmithConfigs();
 
-const axiosInstance = axios.create({
-  baseURL: apiUrl,
+//TODO(abhinav): Refactor this to make more composable.
+export const apiRequestConfig = {
+  baseURL: baseUrl + apiUrl,
   timeout: REQUEST_TIMEOUT_MS,
-  headers: REQUEST_HEADERS,
+  headers: API_REQUEST_HEADERS,
   withCredentials: true,
-  auth: AUTH_CREDENTIALS,
-});
+};
+
+const axiosInstance: AxiosInstance = axios.create();
 
 const executeActionRegex = /actions\/execute/;
 axiosInstance.interceptors.request.use((config: any) => {
@@ -45,9 +47,13 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      console.log(error.response.data);
-      console.log(error.response.status);
-      console.log(error.response.headers);
+      // console.log(error.response.data);
+      // console.log(error.response.status);
+      // console.log(error.response.headers);
+      if (error.response.status === 401) {
+        window.location.href = AUTH_LOGIN_URL;
+      }
+      return Promise.reject(error.response.data);
     } else if (error.request) {
       // The request was made but no response was received
       // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -63,29 +69,51 @@ axiosInstance.interceptors.response.use(
 );
 
 class Api {
-  static get(url: string, queryParams?: any) {
+  static get(
+    url: string,
+    queryParams?: any,
+    config?: Partial<AxiosRequestConfig>,
+  ) {
     return axiosInstance.get(
       url + this.convertObjectToQueryParams(queryParams),
+      _.merge(apiRequestConfig, config),
     );
   }
 
-  static post(url: string, body?: any, queryParams?: any) {
+  static post(
+    url: string,
+    body?: any,
+    queryParams?: any,
+    config?: Partial<AxiosRequestConfig>,
+  ) {
     return axiosInstance.post(
       url + this.convertObjectToQueryParams(queryParams),
       body,
+      _.merge(apiRequestConfig, config),
     );
   }
 
-  static put(url: string, queryParams?: any, body?: any) {
+  static put(
+    url: string,
+    body?: any,
+    queryParams?: any,
+    config?: Partial<AxiosRequestConfig>,
+  ) {
     return axiosInstance.put(
       url + this.convertObjectToQueryParams(queryParams),
       body,
+      _.merge(apiRequestConfig, config),
     );
   }
 
-  static delete(url: string, queryParams?: any) {
+  static delete(
+    url: string,
+    queryParams?: any,
+    config?: Partial<AxiosRequestConfig>,
+  ) {
     return axiosInstance.delete(
       url + this.convertObjectToQueryParams(queryParams),
+      _.merge(apiRequestConfig, config),
     );
   }
 

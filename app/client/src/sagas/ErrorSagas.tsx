@@ -8,9 +8,27 @@ import {
 import AppToaster from "components/editorComponents/ToastComponent";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
-import { put, takeLatest } from "redux-saga/effects";
+import { put, takeLatest, call } from "redux-saga/effects";
+import { ERROR_500 } from "constants/messages";
 
-export function* validateResponse(response: ApiResponse) {
+export function* callAPI(apiCall: any, requestPayload: any) {
+  try {
+    return yield call(apiCall, requestPayload);
+  } catch (error) {
+    return yield error;
+  }
+}
+const getErrorMessage = (code: number) => {
+  switch (code) {
+    case 500:
+      return ERROR_500;
+  }
+};
+
+export function* validateResponse(response: ApiResponse | any) {
+  if (!response.responseMeta && response.status) {
+    throw Error(getErrorMessage(response.status));
+  }
   if (response.responseMeta.success) {
     return true;
   } else {
@@ -22,6 +40,12 @@ export function* validateResponse(response: ApiResponse) {
     });
     return false;
   }
+}
+
+export function getResponseErrorMessage(response: ApiResponse) {
+  return response.responseMeta.error
+    ? response.responseMeta.error.message
+    : undefined;
 }
 
 type ErrorPayloadType = object | { message: string };

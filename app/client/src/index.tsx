@@ -2,9 +2,6 @@ import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
-import "normalize.css/normalize.css";
-import "@blueprintjs/icons/lib/css/blueprint-icons.css";
-import "@blueprintjs/core/lib/css/blueprint.css";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import { Router, Route, Switch } from "react-router-dom";
@@ -24,17 +21,17 @@ import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProductio
 import {
   BASE_URL,
   BUILDER_URL,
-  LOGIN_URL,
   APP_VIEW_URL,
   APPLICATIONS_URL,
+  USER_AUTH_URL,
 } from "./constants/routes";
 
 const loadingIndicator = <Loader />;
 const App = lazy(() => import("./App"));
+const UserAuth = lazy(() => import("./pages/UserAuth"));
 const Editor = lazy(() => import("./pages/Editor"));
 const Applications = lazy(() => import("./pages/Applications"));
 const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
-const LoginPage = lazy(() => import("./pages/common/LoginPage"));
 const AppViewer = lazy(() => import("./pages/AppViewer"));
 
 appInitializer();
@@ -54,6 +51,7 @@ ReactDOM.render(
           <Suspense fallback={loadingIndicator}>
             <Switch>
               <Route exact path={BASE_URL} component={App} />
+              <Route path={USER_AUTH_URL} component={UserAuth} />
               <ProtectedRoute path={BUILDER_URL} component={Editor} />
               <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
               <ProtectedRoute
@@ -61,7 +59,6 @@ ReactDOM.render(
                 path={APPLICATIONS_URL}
                 component={Applications}
               />
-              <Route exact path={LOGIN_URL} component={LoginPage} />
               <Route component={PageNotFound} />
             </Switch>
           </Suspense>

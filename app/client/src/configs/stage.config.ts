@@ -1,5 +1,5 @@
 import { SENTRY_STAGE_CONFIG } from "constants/ThirdPartyConstants";
-import { STAGE_BASE_API_URL } from "constants/ApiConstants";
+import { STAGE_BASE_URL } from "constants/ApiConstants";
 import { AppsmithUIConfigs } from "./types";
 
 const stageConfig: AppsmithUIConfigs = {
@@ -13,7 +13,8 @@ const stageConfig: AppsmithUIConfigs = {
   segment: {
     enabled: false,
   },
-  apiUrl: STAGE_BASE_API_URL,
+  apiUrl: "/api/",
+  baseUrl: STAGE_BASE_URL,
 };
 
 export default stageConfig;

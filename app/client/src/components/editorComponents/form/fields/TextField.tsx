@@ -5,9 +5,21 @@ import {
   TextInputProps,
 } from "components/designSystems/appsmith/TextInputComponent";
 
-class TextField extends React.Component<BaseFieldProps & TextInputProps> {
+type FieldProps = {
+  type?: string;
+};
+
+class TextField extends React.Component<
+  BaseFieldProps & TextInputProps & FieldProps
+> {
   render() {
-    return <Field component={BaseTextInput} {...this.props} />;
+    return (
+      <Field
+        type={this.props.type || "text"}
+        component={BaseTextInput}
+        {...this.props}
+      />
+    );
   }
 }
 

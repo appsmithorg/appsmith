@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { ItemRenderer, Select } from "@blueprintjs/select";
-import { Button, MenuItem } from "@blueprintjs/core";
+import { Button, MenuItem, Intent as BlueprintIntent } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlIconName, ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
@@ -54,7 +54,7 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
         onClick={option.onSelect}
         shouldDismissPopover={true}
         text={option.label || option.value}
-        intent={option.intent as Intent}
+        intent={option.intent as BlueprintIntent}
         popoverProps={{
           minimal: true,
           hoverCloseDelay: 0,
