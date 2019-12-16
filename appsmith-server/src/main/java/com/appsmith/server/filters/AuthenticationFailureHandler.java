@@ -16,7 +16,7 @@ import java.net.URI;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FormAuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
+public class AuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
 
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 

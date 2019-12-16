@@ -57,13 +57,10 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
 
     UserService userService;
 
-    OrganizationService organizationService;
-
     CommonConfig commonConfig;
 
-    public ClientUserRepository(UserService userService, OrganizationService organizationService, CommonConfig commonConfig) {
+    public ClientUserRepository(UserService userService, CommonConfig commonConfig) {
         this.userService = userService;
-        this.organizationService = organizationService;
         this.commonConfig = commonConfig;
     }
 
@@ -108,7 +105,6 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
                  * 1. Clustered environment
                  * 2. Redis saved sessions
                  */
-                .then(checkAndCreateUser((OidcUser) principal.getPrincipal()))
                 .then(Mono.empty());
     }
 
