@@ -17,11 +17,6 @@ import org.springframework.session.data.redis.config.annotation.web.server.Enabl
 @EnableRedisWebSession
 public class RedisConfig {
 
-    @Bean
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        return new ReactiveRedisTemplate<>(factory, RedisSerializationContext.string());
-    }
-
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
      * that we wish to broadcast. Starting with a single one for now.

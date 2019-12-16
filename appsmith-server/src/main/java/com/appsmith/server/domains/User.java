@@ -37,7 +37,7 @@ public class User extends BaseDomain implements UserDetails {
     @JsonIgnore
     private Boolean passwordResetInitiated = false;
 
-    private LoginSource source;
+    private LoginSource source = LoginSource.FORM;
 
     private UserState state;
 
