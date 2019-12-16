@@ -381,6 +381,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return repository.findByName(name);
     }
 
+    @Override
+    public Flux<Action> findDistinctActionsByNameIn(Set<String> names) {
+        return repository.findDistinctActionsByNameIn(names);
+    }
+
+    @Override
+    public Flux<Action> saveAll(List<Action> actions) {
+        return repository.saveAll(actions);
+    }
+
 
     /**
      * This function replaces the variables in the Object with the actual params

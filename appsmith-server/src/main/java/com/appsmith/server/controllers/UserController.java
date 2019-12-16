@@ -4,12 +4,14 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +23,13 @@ import reactor.core.publisher.Mono;
 @RequestMapping(Url.USER_URL)
 public class UserController extends BaseController<UserService, User, String> {
 
+    private final SessionUserService sessionUserService;
+
     @Autowired
-    public UserController(UserService service) {
+    public UserController(UserService service,
+                          SessionUserService sessionUserService) {
         super(service);
+        this.sessionUserService = sessionUserService;
     }
 
     @PutMapping("/switchOrganization/{orgId}")
@@ -34,7 +40,7 @@ public class UserController extends BaseController<UserService, User, String> {
 
     @PutMapping("/addOrganization/{orgId}")
     public Mono<ResponseDTO<User>> addUserToOrganization(@PathVariable String orgId) {
-        return service.addUserToOrganization(orgId)
+        return service.addUserToOrganization(orgId, null)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
@@ -54,5 +60,11 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<Boolean>> resetPasswordAfterForgotPassword(@RequestBody ResetUserPasswordDTO userPasswordDTO) {
         return service.resetPasswordAfterForgotPassword(userPasswordDTO.getToken(), userPasswordDTO.getUser())
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @GetMapping("/me")
+    public Mono<ResponseDTO<User>> getUserProfile() {
+        return sessionUserService.getCurrentUser()
+                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 }

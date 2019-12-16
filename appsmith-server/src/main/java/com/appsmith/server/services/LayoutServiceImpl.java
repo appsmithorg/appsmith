@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -97,16 +98,8 @@ public class LayoutServiceImpl implements LayoutService {
         //Walk through the DSL and extract the basic relationship of widgets with actions in the DSL.
         extractWidgetRelationship(dsl, graph);
 
-        Mono<Set<DslActionDTO>> actionsInPage = Flux.fromIterable(graph.vertexSet())
-                /**
-                 * TODO : Instead of finding each action by name, bulk search for actions by Name should be done.
-                 */
-                .flatMap(mustacheKey -> actionService.findByName(mustacheKey))
-                .map(action -> {
-                    action.setPageId(pageId);
-                    return action;
-                })
-                .flatMap(actionService::save)
+        Mono<Set<DslActionDTO>> actionsInPage =
+                updatePageIdsForActionsAndReturnDslActions(graph.vertexSet(), pageId)
                 .map(action -> {
                     //Update the graph here to include action-widget dependecy via dynamic bindings in the action.
                     if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
@@ -128,7 +121,6 @@ public class LayoutServiceImpl implements LayoutService {
                     newAction.setName(action.getName());
                     return newAction;
                 })
-                .distinct(action -> action.getId())
                 .collect(toSet());
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
@@ -150,7 +142,7 @@ public class LayoutServiceImpl implements LayoutService {
                     // Since we are only interested in top nodes which are actions, compare with actions set and
                     // add these actions to the array list to create page load actions.
                     actions.forEach(action -> {
-                        if(rootNodesOfGraph.contains(action.getName())) {
+                        if (rootNodesOfGraph.contains(action.getName())) {
                             pageLoadActions.add(action);
                         }
                     });
@@ -225,7 +217,7 @@ public class LayoutServiceImpl implements LayoutService {
                     for (String mustacheKey : extractMustacheKeys) {
                         String key = mustacheKey.trim();
                         // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                        String subStrings[] = key.split(Pattern.quote("."));
+                        String[] subStrings = key.split(Pattern.quote("."));
 
                         if (!graph.vertexSet().contains(subStrings[0])) {
                             graph.addVertex(subStrings[0]);
@@ -254,6 +246,7 @@ public class LayoutServiceImpl implements LayoutService {
      * These nodes are the nodes which are not dependent on any other node. Since the graph displays the dependencies of
      * different widgets and actions between each other, the root nodes of the graphs are clearly the ones which are
      * independent of others.
+     *
      * @param graph
      * @return
      */
@@ -268,6 +261,18 @@ public class LayoutServiceImpl implements LayoutService {
             }
         });
         return topVertices;
+    }
+
+    Flux<Action> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
+
+        return actionService
+                .findDistinctActionsByNameIn(nodes)
+                .map(action -> {
+                    action.setPageId(pageId);
+                    return action;
+                })
+                .collectList()
+                .flatMapMany(actionService::saveAll);
     }
 
 }
