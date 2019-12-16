@@ -13,7 +13,37 @@ const {
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
-export type Intent = "primary" | "danger" | "warning" | "none";
+export const IntentColors: Record<string, Color> = {
+  primary: Colors.GREEN,
+  success: Colors.PURPLE,
+  secondary: Colors.GEYSER_LIGHT,
+  danger: Colors.RED,
+  none: Colors.GEYSER_LIGHT,
+  warning: Colors.JAFFA,
+};
+
+export type Intent = typeof IntentColors[keyof typeof IntentColors];
+
+export const BlueprintIntentsCSS = css`
+  &.bp3.minimal.bp3-button {
+    color: ${IntentColors.none};
+  }
+  &.bp3.minimal.bp3-intent-primary {
+    color: ${IntentColors.primary};
+  }
+  &.bp3.minimal.bp3-intent-secondary {
+    color: ${IntentColors.secondary};
+  }
+  &.bp3.minimal.bp3-intent-danger {
+    color: ${IntentColors.danger};
+  }
+  &.bp3.minimal.bp3-intent-warning {
+    color: ${IntentColors.warning};
+  }
+  &.bp3.minimal.bp3-intent-success {
+    color: ${IntentColors.success};
+  }
+`;
 
 export type ThemeBorder = {
   thickness: number;
@@ -55,6 +85,14 @@ export type Theme = {
     divider: ThemeBorder;
     hoverBG: Color;
     hoverBGOpacity: number;
+  };
+  authCard: {
+    width: number;
+    borderRadius: number;
+    background: Color;
+    padding: number;
+    dividerSpacing: number;
+    shadow: string;
   };
   shadows: string[];
   widgets: {
@@ -143,6 +181,11 @@ export const theme: Theme = {
       style: "solid",
       color: Colors.GEYSER_LIGHT,
     },
+    {
+      thickness: 1,
+      style: "solid",
+      color: Colors.FRENCH_PASS,
+    },
   ],
   sidebarWidth: "300px",
   headerHeight: "50px",
@@ -165,6 +208,14 @@ export const theme: Theme = {
     },
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
+  },
+  authCard: {
+    width: 612,
+    borderRadius: 16,
+    background: Colors.WHITE,
+    padding: 40,
+    dividerSpacing: 32,
+    shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
   },
   shadows: ["0px 2px 4px rgba(67, 70, 74, 0.14)"],
   widgets: {

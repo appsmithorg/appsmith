@@ -1,15 +1,13 @@
 import { createReducer } from "utils/AppsmithUtils";
 import {
+  ReduxAction,
+  UpdateCanvasPayload,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
-import {
-  ReduxAction,
-  UpdateCanvasPayload,
-} from "constants/ReduxActionConstants";
 
 const initialState: EditorReduxState = {
   loadingStates: {

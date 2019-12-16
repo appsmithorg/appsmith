@@ -1,25 +1,19 @@
-import { SubmissionError } from "redux-form";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+const PASSWORD_MIN_LENGTH = 6;
 
-export type CreateApplicationFormValues = {
-  applicationName: string;
+export const hashPassword = (password: string) => {
+  return password;
 };
 
-export const createApplicationFormSubmitHandler = (
-  values: CreateApplicationFormValues,
-  dispatch: any,
-): Promise<any> => {
-  const { applicationName } = values;
-  return new Promise((resolve, reject) => {
-    dispatch({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        resolve,
-        reject,
-        applicationName,
-      },
-    });
-  }).catch(error => {
-    throw new SubmissionError(error);
-  });
+export const isEmptyString = (value: string) => {
+  return !value || value.trim().length === 0 || typeof value !== "string";
+};
+
+export const isStrongPassword = (value: string) => {
+  return value.trim().length >= PASSWORD_MIN_LENGTH;
+};
+
+// TODO (abhinav): Use a regex which adheres to standards RFC5322
+export const isEmail = (value: string) => {
+  const re = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+.([A-Za-z]{2,5})$/;
+  return re.test(value);
 };

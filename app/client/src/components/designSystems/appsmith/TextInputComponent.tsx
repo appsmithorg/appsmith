@@ -77,6 +77,7 @@ export interface TextInputProps extends IInputGroupProps {
   showError?: boolean;
   /** Additional classname */
   className?: string;
+  type?: string;
   refHandler?: (ref: HTMLInputElement | null) => void;
 }
 

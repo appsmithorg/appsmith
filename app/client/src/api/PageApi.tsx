@@ -89,7 +89,6 @@ class PageApi extends Api {
         savePageRequest.pageId,
         savePageRequest.layoutId,
       ),
-      undefined,
       body,
     );
   }

@@ -2,7 +2,6 @@ import { ReduxAction } from "../constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
-import netlifyIdentity from "netlify-identity-widget";
 import FontFaceObserver from "fontfaceobserver";
 import PropertyControlRegistry from "./PropertyControlRegistry";
 import WidgetBuilderRegistry from "./WidgetRegistry";
@@ -29,7 +28,6 @@ export const appInitializer = () => {
   WidgetBuilderRegistry.registerWidgetBuilders();
   PropertyControlRegistry.registerPropertyControlBuilders();
   ValidationRegistry.registerInternalValidators();
-  netlifyIdentity.init();
   moment.tz.setDefault(moment.tz.guess());
   const appsmithConfigs = getAppsmithConfigs();
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
@@ -83,4 +81,6 @@ export const getNextWidgetName = (
   return prefix + (lastIndex + 1);
 };
 
-export const noop = () => {};
+export const noop = () => {
+  console.log("noop");
+};
