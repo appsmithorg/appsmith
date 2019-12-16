@@ -87,7 +87,6 @@ public class SecurityConfig {
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
                 .authenticated()
-                .and().httpBasic()
                 .and().oauth2Login()
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
