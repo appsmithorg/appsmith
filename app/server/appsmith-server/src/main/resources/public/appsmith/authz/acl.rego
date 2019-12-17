@@ -5,18 +5,34 @@ default resource_allow = false
 
 # This rule allows the user to access endpoints based on the permissions that they are assigned.
 # The httpMethod and resource are also an integral part of accessing this ACL
+# We overload the rule url_allow thereby making it an OR condition. Either the user is able to access the resource
+# via their authenticated session, or it's a public url that is accessible to everybody.
 url_allow = true {
-    op = allowed_operations[_]
+    op = authenticated_operations[_]
     input.method = op.method
     input.resource = op.resource
     p = input.user.permissions[_]
     p = op.permission
 }
 
+url_allow = true {
+    op = public_operations[_]
+    input.url = op.url
+    input.method = op.method
+}
+
+# All public URLs must go into this list. Anything not in this list requires an authenticated session to access
+public_operations = [
+    {"method" : "POST", "url" : "/api/v1/users/forgotPassword" },
+    {"method" : "POST", "url" : "/api/v1/users" },
+    {"method" : "POST", "url" : "/api/v1/users/verifyPasswordResetToken" },
+    {"method" : "POST", "url" : "/api/v1/users/resetPassword" },
+]
+
 # This is a global list of all the routes for all controllers. Any new controller that is written must
 # carry an entry in this array. OPA performs ACL based on an intersection of these entries and permissions
 # for a user + permissions inherited via the groups that the user is a part of.
-allowed_operations = [
+authenticated_operations = [
     {"method": "POST", "resource": "users", "permission": "create:users"},
     {"method": "GET", "resource": "users", "permission": "read:users"},
     {"method": "PUT", "resource": "users", "permission": "update:users"},

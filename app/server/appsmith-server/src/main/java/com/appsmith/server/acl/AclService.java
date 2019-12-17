@@ -39,20 +39,26 @@ public class AclService {
         this.groupService = groupService;
     }
 
-    public Mono<OpaResponse> evaluateAcl(HttpMethod httpMethod, String resource) {
+    public Mono<OpaResponse> evaluateAcl(HttpMethod httpMethod, String resource, String requestUrl) {
         JSONObject requestBody = new JSONObject();
         JSONObject input = new JSONObject();
         JSONObject jsonUser = new JSONObject();
         input.put("user", jsonUser);
         input.put("method", httpMethod.name());
         input.put("resource", resource);
+        input.put("url", requestUrl); // The url is required for OPA to gate keep only public URLs for anonymous users
 
         requestBody.put("input", input);
 
         Mono<User> user = sessionUserService.getCurrentUser();
 
         return user
-                .map(u -> {
+                // This is when the user doesn't have an existing session. The user is anonymous
+                .switchIfEmpty(Mono.defer(() -> {
+                    User anonymous = new User();
+                    return Mono.just(anonymous);
+                }))
+                .flatMap(u -> {
                     Set<String> globalPermissions = new HashSet<>();
                     Set<String> groupSet = u.getGroupIds();
                     globalPermissions.addAll(u.getPermissions());
@@ -62,7 +68,6 @@ public class AclService {
                             .collectList()
                             .thenReturn(globalPermissions);
                 })
-                .flatMap(obj -> obj)
                 .flatMap(permissions -> {
                     jsonUser.put("permissions", permissions);
                     String finalUrl = url + pkgName;
