@@ -1,4 +1,5 @@
 import RealmExecutor from "./RealmExecutor";
+import moment from "moment-timezone";
 
 export type JSExecutorGlobal = Record<string, object>;
 export interface JSExecutor {
@@ -41,6 +42,7 @@ class JSExecutionManager {
     this.currentExecutor = realmExecutor;
 
     this.registerLibrary("_", window._);
+    this.registerLibrary("moment", moment);
   }
   evaluateSync(jsSrc: string, data: JSExecutorGlobal) {
     return this.currentExecutor.execute(jsSrc, data);
