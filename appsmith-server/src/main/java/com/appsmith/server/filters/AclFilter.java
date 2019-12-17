@@ -44,7 +44,8 @@ public class AclFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         HttpMethod httpMethod = request.getMethod();
-        String[] urlParts = request.getPath().value().split("/");
+        String url = request.getPath().value();
+        String[] urlParts = url.split("/");
 
         // This is because all the urls are of the form /api/v1/{resource}. When we split by "/", the resource is always
         // the 4th element in the result array
@@ -55,7 +56,7 @@ public class AclFilter implements WebFilter {
 
         String resource = urlParts[3];
 
-        Mono<OpaResponse> aclResponse = aclService.evaluateAcl(httpMethod, resource);
+        Mono<OpaResponse> aclResponse = aclService.evaluateAcl(httpMethod, resource, url);
         return aclResponse
                 .map(acl -> {
                     log.debug("Got ACL response: {}", acl);

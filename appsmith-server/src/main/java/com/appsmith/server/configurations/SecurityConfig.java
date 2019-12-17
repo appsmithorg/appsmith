@@ -82,6 +82,8 @@ public class SecurityConfig {
                 .cors().and()
                 .csrf().disable()
                 .authorizeExchange()
+                // All public URLs that should be served to anonymous users should be defined in acl.rego file
+                // This list of matchers is only the list of URLs that shouldn't return 401 unauthorized
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"))
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
