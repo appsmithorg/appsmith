@@ -1,7 +1,6 @@
 package com.appsmith.server.configurations;
 
 
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +21,8 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import java.util.Arrays;
+
+import static com.appsmith.server.constants.Url.USER_URL;
 
 @EnableWebFluxSecurity
 public class SecurityConfig {
@@ -82,9 +83,13 @@ public class SecurityConfig {
                 .cors().and()
                 .csrf().disable()
                 .authorizeExchange()
-                // All public URLs that should be served to anonymous users should be defined in acl.rego file
-                // This list of matchers is only the list of URLs that shouldn't return 401 unauthorized
-                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"))
+                // All public URLs that should be served to anonymous users should also be defined in acl.rego file
+                // This is because the flow enters AclFilter as well and needs to be whitelisted there
+                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/verifyPasswordResetToken"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resetPassword"))
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
