@@ -52,8 +52,8 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction } from "actions/widgetActions";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import {
-  getNameBindingsWithData,
   NameBindingsWithData,
+  getNameBindingsWithDerivedData,
 } from "selectors/nameBindingsWithDataSelector";
 
 export const getAction = (
@@ -81,7 +81,7 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const nameBindingsWithData = yield select(getNameBindingsWithData);
+  const nameBindingsWithData = yield select(getNameBindingsWithDerivedData);
   return evaluateDynamicBoundValue(nameBindingsWithData, path);
 }
 
@@ -103,7 +103,7 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 
 function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
   const nameBindingsWithData: NameBindingsWithData = yield select(
-    getNameBindingsWithData,
+    getNameBindingsWithDerivedData,
   );
   const result = JSExecutionManagerSingleton.evaluateSync(
     jsAction.jsFunction,
