@@ -33,6 +33,12 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     width: fit-content;
   }
 `;
+
+const StyledMultiDropDown = styled(MultiDropDown)`
+  .bp3-multi-select {
+    min-width: 0;
+  }
+`;
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     const selectedItems = this.props.selectedIndexArr
@@ -61,7 +67,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             />
           </StyledSingleDropDown>
         ) : (
-          <MultiDropDown
+          <StyledMultiDropDown
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             items={this.props.options}
             fill={true}
@@ -71,7 +77,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             selectedItems={selectedItems}
             tagInputProps={{ onRemove: this.onItemRemoved }}
             onItemSelect={this.onItemSelect}
-          ></MultiDropDown>
+          ></StyledMultiDropDown>
         )}
       </div>
     );
