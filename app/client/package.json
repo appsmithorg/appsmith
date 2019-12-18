@@ -87,7 +87,7 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
     "build": "craco build",
-    "test": "craco test",
+    "test": "CI=true craco test",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "storybook": "start-storybook",
@@ -138,7 +138,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn run test"
     }
   }
 }
