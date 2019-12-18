@@ -6,7 +6,12 @@ import DropDownComponent from "components/designSystems/blueprint/DropdownCompon
 import _ from "lodash";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
+export interface DropDownDerivedProps {
+  selectedOption?: DropdownOption;
+  selectedOptionArr?: DropdownOption[];
+}
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -16,6 +21,23 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
+    };
+  }
+  static getDerivedPropertiesMap() {
+    return {
+      selectedOption: (widgetData: FlattenedWidgetProps) => {
+        return widgetData.selectionType === "SINGLE_SELECT"
+          ? widgetData.options[widgetData.selectedIndex]
+          : undefined;
+      },
+      selectedOptionArr: (widgetData: FlattenedWidgetProps) => {
+        const options = widgetData.options || [];
+        return widgetData.selectionType === "MULTI_SELECT"
+          ? options.filter((opt: DropdownOption, index: number) =>
+              _.includes(widgetData.selectedIndexArr, index),
+            )
+          : undefined;
+      },
     };
   }
   getPageView() {

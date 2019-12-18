@@ -31,6 +31,7 @@ class WidgetBuilderRegistry {
         },
       },
       ContainerWidget.getPropertyValidationMap(),
+      ContainerWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -41,6 +42,7 @@ class WidgetBuilderRegistry {
         },
       },
       TextWidget.getPropertyValidationMap(),
+      TextWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -51,6 +53,7 @@ class WidgetBuilderRegistry {
         },
       },
       ButtonWidget.getPropertyValidationMap(),
+      ButtonWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -61,6 +64,7 @@ class WidgetBuilderRegistry {
         },
       },
       SpinnerWidget.getPropertyValidationMap(),
+      SpinnerWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -71,6 +75,7 @@ class WidgetBuilderRegistry {
         },
       },
       InputWidget.getPropertyValidationMap(),
+      InputWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -81,6 +86,7 @@ class WidgetBuilderRegistry {
         },
       },
       CheckboxWidget.getPropertyValidationMap(),
+      CheckboxWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -91,6 +97,7 @@ class WidgetBuilderRegistry {
         },
       },
       DropdownWidget.getPropertyValidationMap(),
+      DropdownWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -101,6 +108,7 @@ class WidgetBuilderRegistry {
         },
       },
       RadioGroupWidget.getPropertyValidationMap(),
+      RadioGroupWidget.getDerivedPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -111,6 +119,7 @@ class WidgetBuilderRegistry {
         },
       },
       ImageWidget.getPropertyValidationMap(),
+      ImageWidget.getDerivedPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABLE_WIDGET",
@@ -120,6 +129,7 @@ class WidgetBuilderRegistry {
         },
       },
       TableWidget.getPropertyValidationMap(),
+      TableWidget.getDerivedPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "FILE_PICKER_WIDGET",
@@ -129,6 +139,7 @@ class WidgetBuilderRegistry {
         },
       },
       FilePickerWidget.getPropertyValidationMap(),
+      FilePickerWidget.getDerivedPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
@@ -138,6 +149,7 @@ class WidgetBuilderRegistry {
         },
       },
       DatePickerWidget.getPropertyValidationMap(),
+      DatePickerWidget.getDerivedPropertiesMap(),
     );
   }
 }
