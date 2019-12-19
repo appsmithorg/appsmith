@@ -21,4 +21,5 @@ export type AppsmithUIConfigs = {
     enabled: boolean;
   };
   apiUrl: string;
+  baseUrl: string;
 };

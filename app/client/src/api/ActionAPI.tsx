@@ -112,7 +112,7 @@ class ActionAPI extends API {
   static updateAPI(
     apiConfig: Partial<RestAction>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
-    return API.put(`${ActionAPI.url}/${apiConfig.id}`, null, apiConfig);
+    return API.put(`${ActionAPI.url}/${apiConfig.id}`, apiConfig);
   }
 
   static deleteAction(id: string) {

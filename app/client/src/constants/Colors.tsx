@@ -31,6 +31,8 @@ export const Colors: Record<string, string> = {
   OXFORD_BLUE: "#2E3D49",
   FRENCH_PASS: "#BBE8FE",
   CADET_BLUE: "#A3B3BF",
+  JAFFA: "#F2994A",
+  BLUE_BAYOUX: "#4E5D78",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

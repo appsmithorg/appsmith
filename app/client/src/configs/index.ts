@@ -13,7 +13,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       return devConfig;
     default:
       console.log(
-        "Unknow environment set: ",
+        "Unknown environment set: ",
         process.env.REACT_APP_ENVIRONMENT,
       );
       devConfig.apiUrl = "";

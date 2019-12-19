@@ -5,6 +5,41 @@ import { Button } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { generateReactKey } from "utils/generators";
+import styled from "constants/DefaultTheme";
+import { FormIcons } from "icons/FormIcons";
+import { AnyStyledComponent } from "styled-components";
+
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+  padding: 5px 5px;
+  position: absolute;
+  right: -13px;
+  cursor: pointer;
+`;
+
+const StyledAddOptionButton = styled(Button)`
+  &&&& {
+    background-color: ${props => props.theme.colors.info};
+    color: #ffffff;
+    .bp3-icon {
+      color: #ffffff;
+      margin-right: 4px;
+    }
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+`;
+
+const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+  margin-right: 2px;
+`;
+
+const StyledOptionControlWrapper = styled(ControlWrapper)`
+  display: flex;
+  justify-content: flex-start;
+  padding-right: 16px;
+`;
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
@@ -14,8 +49,11 @@ class OptionControl extends BaseControl<ControlProps> {
         <label>{this.props.label}</label>
         {options.map((option, index) => {
           return (
-            <ControlWrapper orientation={"HORIZONTAL"} key={option.id}>
-              <StyledInputGroup
+            <StyledOptionControlWrapper
+              orientation={"HORIZONTAL"}
+              key={option.id}
+            >
+              <StyledOptionControlInputGroup
                 type={"text"}
                 placeholder={"Name"}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +61,7 @@ class OptionControl extends BaseControl<ControlProps> {
                 }}
                 defaultValue={option.label}
               />
-              <StyledInputGroup
+              <StyledOptionControlInputGroup
                 type={"text"}
                 placeholder={"Value"}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,17 +69,23 @@ class OptionControl extends BaseControl<ControlProps> {
                 }}
                 defaultValue={option.value}
               />
-              <Button
-                color={"#A3B3BF"}
-                icon={"delete"}
+              <StyledDeleteIcon
+                height={20}
+                width={20}
                 onClick={() => {
                   this.deleteOption(index);
                 }}
-              ></Button>
-            </ControlWrapper>
+              />
+            </StyledOptionControlWrapper>
           );
         })}
-        <Button text={"Option"} icon={"add"} onClick={this.addOption} />
+        <StyledAddOptionButton
+          text={"Option"}
+          icon={"plus"}
+          color={"#FFFFFF"}
+          minimal={true}
+          onClick={this.addOption}
+        />
       </ControlWrapper>
     );
   }

@@ -6,9 +6,10 @@ import { DraggableComponentContext } from "components/editorComponents/Draggable
 const PositionStyle = styled.div`
   position: absolute;
   top: -${props => props.theme.spaces[10]}px;
-  left: ${props => props.theme.spaces[6]}px;
-  font-size: ${props => props.theme.fontSizes[2]}px;
-  color: ${props => props.theme.colors.containerBorder};
+  left: ${props => props.theme.spaces[6] * 2}px;
+  font-size: ${props => props.theme.fontSizes[3]}px;
+  font-weight: ${props => props.theme.fontWeights[2]};
+  color: ${props => props.theme.colors.widgetName};
   text-align: left;
   width: 100%;
   z-index: 1;

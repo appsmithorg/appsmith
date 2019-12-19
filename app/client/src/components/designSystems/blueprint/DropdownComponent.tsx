@@ -5,10 +5,40 @@ import { SelectionType, DropdownOption } from "widgets/DropdownWidget";
 import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
+import styled from "constants/DefaultTheme";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
 
+const StyledSingleDropDown = styled(SingleDropDown)`
+  width: 100%;
+  div {
+    width: 100%;
+  }
+  span {
+    width: 100%;
+  }
+  .bp3-button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bp3-button-text {
+    text-overflow: ellipsis;
+    text-align: center;
+    overflow: hidden;
+  }
+  .bp3-icon {
+    width: fit-content;
+  }
+`;
+
+const StyledMultiDropDown = styled(MultiDropDown)`
+  .bp3-multi-select {
+    min-width: 0;
+  }
+`;
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     const selectedItems = this.props.selectedIndexArr
@@ -17,9 +47,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         })
       : [];
     return (
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: "center", width: "100%" }}>
         {this.props.selectionType === "SINGLE_SELECT" ? (
-          <SingleDropDown
+          <StyledSingleDropDown
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             items={this.props.options}
             filterable={false}
@@ -35,18 +65,19 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                   : "Add options"
               }
             />
-          </SingleDropDown>
+          </StyledSingleDropDown>
         ) : (
-          <MultiDropDown
+          <StyledMultiDropDown
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             items={this.props.options}
+            fill={true}
             placeholder={this.props.placeholder}
             tagRenderer={this.renderTag}
             itemRenderer={this.renderItem}
             selectedItems={selectedItems}
             tagInputProps={{ onRemove: this.onItemRemoved }}
             onItemSelect={this.onItemSelect}
-          ></MultiDropDown>
+          ></StyledMultiDropDown>
         )}
       </div>
     );

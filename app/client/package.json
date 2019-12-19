@@ -19,7 +19,6 @@
     "@types/lodash": "^4.14.120",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
-    "@types/netlify-identity-widget": "^1.4.1",
     "@types/node": "^10.12.18",
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
@@ -27,6 +26,7 @@
     "@types/react-redux": "^7.0.1",
     "@types/react-router-dom": "^5.1.2",
     "@types/styled-components": "^4.1.8",
+    "@types/tinycolor2": "^1.4.2",
     "@uppy/core": "^1.5.1",
     "@uppy/file-input": "^1.3.1",
     "@uppy/google-drive": "^1.3.2",
@@ -50,7 +50,6 @@
     "monaco-editor": "^0.15.1",
     "monaco-editor-webpack-plugin": "^1.7.0",
     "nanoid": "^2.0.4",
-    "netlify-identity-widget": "^1.5.5",
     "node-sass": "^4.11.0",
     "normalizr": "^3.3.0",
     "popper.js": "^1.15.0",
@@ -64,13 +63,13 @@
     "react-dom": "^16.7.0",
     "react-helmet": "^5.2.1",
     "react-monaco-editor": "^0.31.1",
-    "react-netlify-identity": "^0.1.9",
     "react-redux": "^6.0.0",
     "react-rnd": "^10.1.1",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.1.1",
     "react-select": "^3.0.8",
+    "react-transition-group": "^4.3.0",
     "react-simple-tree-menu": "^1.1.9",
     "react-tabs": "^3.0.0",
     "redux": "^4.0.1",
@@ -80,6 +79,7 @@
     "shallowequal": "^1.1.0",
     "source-map-explorer": "^2.1.1",
     "styled-components": "^4.1.3",
+    "tinycolor2": "^1.4.1",
     "ts-loader": "^6.0.4",
     "typescript": "^3.6.3"
   },
@@ -87,7 +87,7 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
     "build": "craco build",
-    "test": "craco test",
+    "test": "CI=true craco test",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "storybook": "start-storybook",
@@ -138,7 +138,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn run test"
     }
   }
 }

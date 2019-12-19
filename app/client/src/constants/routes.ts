@@ -1,8 +1,8 @@
 import { MenuIcons } from "icons/MenuIcons";
 export const BASE_URL = "/";
-export const LOGIN_URL = "/login";
 export const APPLICATIONS_URL = `/applications`;
 export const BUILDER_URL = "/applications/:applicationId/pages/:pageId/edit";
+export const USER_AUTH_URL = "/user";
 
 export type BuilderRouteParams = {
   applicationId: string;
@@ -67,3 +67,8 @@ export const EDITOR_ROUTES = [
     exact: false,
   },
 ];
+
+export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
+export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
+export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
+export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;

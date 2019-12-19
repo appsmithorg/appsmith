@@ -5,6 +5,11 @@ import {
   WidgetDataProps,
 } from "widgets/BaseWidget";
 import { WidgetPropertyValidationType } from "./ValidationFactory";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+
+type WidgetDerivedPropertyType = any;
+type DerivedPropertyGetter = (widgetData: FlattenedWidgetProps) => {};
+export type DerivedPropertiesMap = Record<string, DerivedPropertyGetter>;
 
 class WidgetFactory {
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();
@@ -12,14 +17,24 @@ class WidgetFactory {
     WidgetType,
     WidgetPropertyValidationType
   > = new Map();
+  static widgetDerivedPropertiesGetterMap: Map<
+    WidgetType,
+    WidgetDerivedPropertyType
+  > = new Map();
+  static derivedPropertiesMap: Map<
+    WidgetType,
+    DerivedPropertiesMap
+  > = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps>,
     widgetPropertyValidation: WidgetPropertyValidationType,
+    derivedPropertiesMap: DerivedPropertiesMap,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
+    this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
   }
 
   static createWidget(
@@ -54,6 +69,17 @@ class WidgetFactory {
     widgetType: WidgetType,
   ): WidgetPropertyValidationType {
     const map = this.widgetPropValidationMap.get(widgetType);
+    if (!map) {
+      console.error("Widget type validation is not defined");
+      return {};
+    }
+    return map;
+  }
+
+  static getWidgetDerivedPropertiesMap(
+    widgetType: WidgetType,
+  ): DerivedPropertiesMap {
+    const map = this.derivedPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
       return {};

@@ -18,8 +18,8 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import {
-  getNameBindingsWithData,
   NameBindingsWithData,
+  getNameBindingsWithDerivedData,
 } from "./nameBindingsWithDataSelector";
 
 const getEditorState = (state: AppState) => state.ui.editor;
@@ -116,7 +116,7 @@ export const getWidgetCards = createSelector(
 
 export const getValidatedDynamicProps = createSelector(
   getDataTree,
-  getNameBindingsWithData,
+  getNameBindingsWithDerivedData,
   (entities: DataTree, nameBindingsWithData: NameBindingsWithData) => {
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
