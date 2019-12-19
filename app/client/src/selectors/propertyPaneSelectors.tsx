@@ -7,8 +7,8 @@ import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReduc
 import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
+  getNameBindingsWithData,
   NameBindingsWithData,
-  getNameBindingsWithDerivedData,
 } from "./nameBindingsWithDataSelector";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
@@ -38,7 +38,7 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsWithValidations = createSelector(
   getCurrentWidgetProperties,
-  getNameBindingsWithDerivedData,
+  getNameBindingsWithData,
   (
     widget: WidgetProps | undefined,
     nameBindigsWithData: NameBindingsWithData,

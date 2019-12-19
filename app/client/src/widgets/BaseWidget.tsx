@@ -23,8 +23,6 @@ import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 /***
  * BaseWidget
  *
@@ -57,10 +55,6 @@ abstract class BaseWidget<
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {};
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
 

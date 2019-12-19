@@ -12,7 +12,8 @@ const PositionStyle = styled.div`
   color: ${props => props.theme.colors.widgetName};
   text-align: left;
   width: 100%;
-  z-index: 1;
+  z-index: 0;
+  display: inline-block;
 `;
 
 type WidgetNameComponentProps = {

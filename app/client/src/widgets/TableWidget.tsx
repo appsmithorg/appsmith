@@ -11,7 +11,6 @@ import SelectableTable, {
 } from "components/designSystems/appsmith/TableComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 function constructColumns(data: object[]): Column[] {
   const cols: Column[] = [];
@@ -37,15 +36,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       nextPageKey: VALIDATION_TYPES.TEXT,
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      selectedRowIndex: VALIDATION_TYPES.NUMBER,
-    };
-  }
-
-  static getDerivedPropertiesMap() {
-    return {
-      selectedRow: (widgetData: FlattenedWidgetProps) => {
-        return widgetData.tableData[widgetData.selectedRowIndex];
-      },
+      selectedRow: VALIDATION_TYPES.OBJECT,
     };
   }
 
@@ -62,10 +53,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             data={tableData}
             maxHeight={height}
             isLoading={this.props.isLoading}
-            selectedRowIndex={this.props.selectedRowIndex}
+            selectedRowIndex={
+              this.props.selectedRow && this.props.selectedRow.rowIndex
+            }
             onRowClick={(rowData: object, index: number) => {
               const { onRowSelected } = this.props;
-              this.updateSelectedRowProperty(index);
+              this.updateSelectedRowProperty(rowData, index);
               super.executeAction(onRowSelected);
             }}
           />
@@ -73,10 +66,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </AutoResizer>
     );
   }
+  componentDidUpdate(prevProps: TableWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      !_.isEqual(prevProps.tableData, this.props.tableData) &&
+      prevProps.selectedRow
+    ) {
+      this.updateSelectedRowProperty(
+        this.props.tableData[prevProps.selectedRow.rowIndex],
+        prevProps.selectedRow.rowIndex,
+      );
+    }
+  }
 
-  updateSelectedRowProperty(index: number) {
+  updateSelectedRowProperty(rowData: object, index: number) {
     const { widgetId } = this.props;
-    this.updateWidgetProperty(widgetId, "selectedRowIndex", index);
+    this.updateWidgetProperty(widgetId, "selectedRow", {
+      ...rowData,
+      rowIndex: index,
+    });
   }
 
   getWidgetType(): WidgetType {
@@ -99,7 +107,7 @@ export interface TableWidgetProps extends WidgetProps {
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  selectedRowIndex?: number;
+  selectedRow?: SelectedRow;
 }
 
 export default TableWidget;
