@@ -170,15 +170,22 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<Boolean> forgotPasswordTokenGenerate(String email) {
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
-        passwordResetToken.setEmail(email);
         // Create a random token to be sent out.
         String token = UUID.randomUUID().toString();
         log.debug("Password reset Token: {} for email: {}", token, email);
 
-        passwordResetToken.setTokenHash(passwordEncoder.encode(token));
-        return passwordResetTokenRepository
-                .save(passwordResetToken)
+        Mono<PasswordResetToken> passwordResetTokenMono = passwordResetTokenRepository.findByEmail(email)
+                .switchIfEmpty(Mono.defer(() -> {
+                    PasswordResetToken passwordResetToken = new PasswordResetToken();
+                    passwordResetToken.setEmail(email);
+                    return Mono.just(passwordResetToken);
+                }))
+                .map(resetToken -> {
+                    resetToken.setTokenHash(passwordEncoder.encode(token));
+                    return resetToken;
+                });
+        return passwordResetTokenMono
+                .map(resetToken -> passwordResetTokenRepository.save(resetToken))
                 .map(obj -> {
                     emailSender.sendMail(email, "Appsmith Password Reset", "Token: " + token);
                     return Mono.empty();
