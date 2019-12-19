@@ -266,13 +266,7 @@ public class LayoutServiceImpl implements LayoutService {
     Flux<Action> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
 
         return actionService
-                .findDistinctActionsByNameIn(nodes)
-                .map(action -> {
-                    action.setPageId(pageId);
-                    return action;
-                })
-                .collectList()
-                .flatMapMany(actionService::saveAll);
+                .findDistinctActionsByNameInAndPageId(nodes, pageId);
     }
 
 }

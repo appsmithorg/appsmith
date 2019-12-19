@@ -382,8 +382,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> findDistinctActionsByNameIn(Set<String> names) {
-        return repository.findDistinctActionsByNameIn(names);
+    public Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId) {
+        return repository.findDistinctActionsByNameInAndPageId(names, pageId);
     }
 
     @Override
