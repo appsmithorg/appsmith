@@ -13,7 +13,6 @@ import blankImage from "assets/images/blank.png";
 import { FocusContext } from "pages/Editor/Canvas";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
-import { theme } from "constants/DefaultTheme";
 import { ResizingContext } from "./DropTargetComponent";
 import { Tooltip } from "@blueprintjs/core";
 
@@ -33,8 +32,8 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
 
 const DragHandle = styled.div`
   position: absolute;
-  left: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  left: 0px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
   cursor: move;
   display: none;
   cursor: grab;
@@ -43,15 +42,15 @@ const DragHandle = styled.div`
 const DeleteControl = styled.div`
   position: absolute;
   right: ${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
   display: none;
   cursor: pointer;
 `;
 
 const EditControl = styled.div`
   position: absolute;
-  right: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX] / 2}px;
+  right: 0;
+  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
   display: none;
   cursor: pointer;
 `;
@@ -65,19 +64,21 @@ const DraggableMask = styled.div`
   z-index: -1;
 `;
 
+const CONTROL_ICON_SIZE = 20;
+
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
-  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
-  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  width: CONTROL_ICON_SIZE,
+  height: CONTROL_ICON_SIZE,
 });
 
 const deleteControlIcon = ControlIcons.DELETE_CONTROL({
-  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
-  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  width: CONTROL_ICON_SIZE,
+  height: CONTROL_ICON_SIZE,
 });
 
 const editControlIcon = ControlIcons.EDIT_CONTROL({
-  width: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
-  height: theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX],
+  width: CONTROL_ICON_SIZE,
+  height: CONTROL_ICON_SIZE,
 });
 
 type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;

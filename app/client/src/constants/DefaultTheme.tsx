@@ -158,6 +158,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetName: Colors.BLUE_BAYOUX,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
