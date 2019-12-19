@@ -5,7 +5,6 @@ import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupCo
 import { ActionPayload } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -13,23 +12,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.ARRAY,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
-    };
-  }
-  static getDerivedProperties(widgetData: FlattenedWidgetProps) {
-    return {
-      selectedOption: widgetData.options.find(
-        (opt: RadioOption) =>
-          opt.value.toString() === widgetData.selectedOptionValue.toString(),
-      ),
-    };
-  }
-  static getDerivedPropertiesMap() {
-    return {
-      selectedOption: (widgetData: FlattenedWidgetProps) =>
-        widgetData.options.find(
-          (opt: RadioOption) =>
-            opt.value.toString() === widgetData.selectedOptionValue.toString(),
-        ),
     };
   }
   getPageView() {

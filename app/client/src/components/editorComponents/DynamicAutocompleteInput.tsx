@@ -12,8 +12,8 @@ import {
   TextInputProps,
 } from "components/designSystems/appsmith/TextInputComponent";
 import {
+  getNameBindingsWithData,
   NameBindingsWithData,
-  getNameBindingsWithDerivedData,
 } from "selectors/nameBindingsWithDataSelector";
 import TreeMenu, {
   MatchSearchFunction,
@@ -218,7 +218,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getNameBindingsWithDerivedData(state),
+  dynamicData: getNameBindingsWithData(state),
 });
 
 export default connect(mapStateToProps)(DynamicAutocompleteInput);
