@@ -23,10 +23,10 @@ url_allow = true {
 
 # All public URLs must go into this list. Anything not in this list requires an authenticated session to access
 public_operations = [
-    {"method" : "POST", "url" : "/api/v1/users/forgotPassword" },
+    {"method" : "GET", "url" : "/api/v1/users/forgotPassword" },
     {"method" : "POST", "url" : "/api/v1/users" },
-    {"method" : "POST", "url" : "/api/v1/users/verifyPasswordResetToken" },
-    {"method" : "POST", "url" : "/api/v1/users/resetPassword" },
+    {"method" : "GET", "url" : "/api/v1/users/verifyPasswordResetToken" },
+    {"method" : "PUT", "url" : "/api/v1/users/resetPassword" },
 ]
 
 # This is a global list of all the routes for all controllers. Any new controller that is written must
