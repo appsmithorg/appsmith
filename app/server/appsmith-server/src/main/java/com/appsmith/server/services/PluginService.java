@@ -4,9 +4,12 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginOrgDTO;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface PluginService extends CrudService<Plugin, String> {
+
+    Flux<Plugin> getDefaultPlugins();
 
     Mono<Organization> installPlugin(PluginOrgDTO plugin);
 

@@ -12,5 +12,7 @@ public interface PluginRepository extends BaseRepository<Plugin, String> {
 
     Mono<Plugin> findById(String id);
 
+    Flux<Plugin> findByDefaultInstall(Boolean isDefaultInstall);
+
     Flux<Plugin> findByType(PluginType pluginType);
 }
