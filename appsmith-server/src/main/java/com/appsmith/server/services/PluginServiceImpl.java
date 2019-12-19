@@ -19,9 +19,10 @@ import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -78,19 +80,38 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
-        log.debug("Going to filter plugins by params: {}", params);
-        Plugin examplePlugin = new Plugin();
 
-        if (params.getFirst(FieldName.TYPE) != null) {
-            try {
-                PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
-                examplePlugin.setType(pluginType);
-            } catch (IllegalArgumentException e) {
-                log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
-                return Flux.empty();
-            }
-        }
-        return repository.findAll(Example.of(examplePlugin));
+        return sessionUserService.getCurrentUser()
+                .flatMapMany(user -> {
+                    log.debug("Going to filter plugin params for user: {}", user.getEmail());
+                    return organizationService.findById(user.getCurrentOrganizationId())
+                            .flatMapMany(org -> {
+                                log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
+                                if(org.getPlugins() == null) {
+                                    log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
+                                    return Flux.fromIterable(new ArrayList<>());
+                                }
+
+                                List<String> pluginIds = org.getPlugins()
+                                        .stream()
+                                        .map(obj -> obj.getPluginId())
+                                        .collect(Collectors.toList());
+                                Query query = new Query();
+                                query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
+
+                                if (params.getFirst(FieldName.TYPE) != null) {
+                                    try {
+                                        PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
+                                        query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
+                                    } catch (IllegalArgumentException e) {
+                                        log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
+                                        List<Plugin> emptyPlugins = new ArrayList<>();
+                                        return Flux.fromIterable(emptyPlugins);
+                                    }
+                                }
+                                return mongoTemplate.find(query, Plugin.class);
+                            });
+                });
     }
 
     @Override
@@ -101,6 +122,11 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         plugin.setDeleted(false);
         return super.create(plugin);
+    }
+
+    @Override
+    public Flux<Plugin> getDefaultPlugins() {
+        return repository.findByDefaultInstall(true);
     }
 
     @Override
