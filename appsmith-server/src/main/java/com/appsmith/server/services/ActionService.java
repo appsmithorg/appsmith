@@ -17,7 +17,7 @@ public interface ActionService extends CrudService<Action, String> {
 
     Mono<Action> findByName(String name);
 
-    Flux<Action> findDistinctActionsByNameIn(Set<String> names);
+    Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId);
 
     Flux<Action> saveAll(List<Action> actions);
 }
