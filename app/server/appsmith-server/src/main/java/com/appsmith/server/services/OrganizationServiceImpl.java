@@ -2,11 +2,14 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
+import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -27,6 +30,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final OrganizationRepository repository;
     private final SettingService settingService;
     private final GroupService groupService;
+    private final PluginRepository pluginRepository;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -36,11 +40,13 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    OrganizationRepository repository,
                                    SettingService settingService,
                                    AnalyticsService analyticsService,
-                                   GroupService groupService) {
+                                   GroupService groupService,
+                                   PluginRepository pluginRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
         this.groupService = groupService;
+        this.pluginRepository = pluginRepository;
     }
 
     @Override
@@ -64,6 +70,18 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)
+                // Install all the default plugins when the org is created
+                /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
+                    Not using it right now because of circular dependency b/w organizationService and pluginService
+                    Also, since all our deployments are single node, this logic will still work
+                 */
+                .flatMap(org -> pluginRepository.findByDefaultInstall(true)
+                        .map(obj -> new OrganizationPlugin(obj.getId(), OrganizationPluginStatus.FREE))
+                        .collectList()
+                        .map(pluginList -> {
+                            org.setPlugins(pluginList);
+                            return org;
+                        }))
                 //Call the BaseService function to save the updated organization
                 .flatMap(super::create);
 
