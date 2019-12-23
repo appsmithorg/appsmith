@@ -14,7 +14,8 @@ import org.springframework.session.data.redis.config.annotation.web.server.Enabl
 
 @Configuration
 @Slf4j
-@EnableRedisWebSession
+// Setting the maxInactiveInterval to 1 day
+@EnableRedisWebSession(maxInactiveIntervalInSeconds = 86400)
 public class RedisConfig {
 
     /**

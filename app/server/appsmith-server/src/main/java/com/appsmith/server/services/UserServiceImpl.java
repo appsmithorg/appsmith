@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Group;
+import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -9,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.InviteUserRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final GroupService groupService;
+    private final InviteUserRepository inviteUserRepository;
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -56,7 +59,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
-                           GroupService groupService) {
+                           GroupService groupService,
+                           InviteUserRepository inviteUserRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -66,6 +70,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.groupService = groupService;
+        this.inviteUserRepository = inviteUserRepository;
     }
 
     @Override
@@ -207,7 +212,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return passwordResetTokenRepository
                 .findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "token", email)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", email)))
                 .flatMap(obj -> {
                     boolean matches = this.passwordEncoder.matches(token, obj.getTokenHash());
                     if (!matches) {
@@ -259,6 +264,115 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 });
     }
 
+    /**
+     * This function creates an invite for a user by generating a unique token and then sending him/her a notification
+     * requesting them to sign in.
+     *
+     * @param user
+     * @return
+     */
+    @Override
+    public Mono<User> inviteUser(User user) {
+        // Create an invite token for the user. This token is linked to the email ID and the organization to which the user was invited.
+        String token = UUID.randomUUID().toString();
+
+        return sessionUserService.getCurrentUser()
+                .map(reqUser -> {
+                    log.debug("Got request to invite user {} by user: {} for org: {}",
+                            user.getEmail(), reqUser.getEmail(), reqUser.getCurrentOrganizationId());
+
+                    InviteUser inviteUser = new InviteUser();
+                    inviteUser.setEmail(user.getEmail());
+                    inviteUser.setCurrentOrganizationId(reqUser.getCurrentOrganizationId());
+                    inviteUser.setToken(passwordEncoder.encode(token));
+                    inviteUser.setGroupIds(user.getGroupIds());
+                    inviteUser.setPermissions(user.getPermissions());
+                    inviteUser.setInviterUserId(reqUser.getId());
+                    return inviteUser;
+                })
+                // Save the invited user in the DB
+                .flatMap(inviteUserRepository::save)
+                // Send an email to the invited user with the token
+                .map(inviteUser -> {
+                    String emailBody = "Invite Token: " + token;
+                    log.debug("Going to send email for invite user to {} with token {}", inviteUser.getEmail(), token);
+                    emailSender.sendMail(inviteUser.getEmail(), "Welcome to Appsmith", emailBody);
+                    return inviteUser;
+                });
+
+    }
+
+    /**
+     * This function checks if the inviteToken is valid for the user. If the token is incorrect or it as expired,
+     * the client should show the appropriate message to the user
+     *
+     * @param email
+     * @param token
+     * @return
+     */
+    @Override
+    public Mono<Boolean> verifyInviteToken(String email, String token) {
+        log.debug("Verifying token: {} for email: {}", token, email);
+        return inviteUserRepository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", email)))
+                .flatMap(inviteUser -> passwordEncoder.matches(token, inviteUser.getToken()) ?
+                        Mono.just(true) : Mono.just(false));
+    }
+
+    /**
+     * This function confirms the signup for a new invited user. Primarily it will be used to set the password
+     * for the user
+     *
+     * @param inviteUser
+     * @return
+     */
+    @Override
+    public Mono<Boolean> confirmInviteUser(InviteUser inviteUser) {
+        if(inviteUser.getToken() == null || inviteUser.getToken().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "token"));
+        }
+
+        if(inviteUser.getEmail() == null || inviteUser.getEmail().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "email"));
+        }
+
+        if(inviteUser.getPassword() == null || inviteUser.getPassword().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
+        }
+
+        log.debug("Confirming the signup for the user: {} and token: {}", inviteUser.getEmail(), inviteUser.getToken());
+
+        Mono<InviteUser> inviteUserMono = inviteUserRepository.findByEmail(inviteUser.getEmail())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", inviteUser.getEmail())));
+
+        // If the email Id is not found in the users collection, it means this is a new user. We still want the mono to emit
+        // so that the flow can continue. Hence, returning empty user object.
+        Mono<User> userMono = repository.findByEmail(inviteUser.getEmail())
+                .switchIfEmpty(Mono.just(new User()));
+
+        return Mono.zip(inviteUserMono, userMono, (newUser, user) -> {
+            if (user.getId() != null) {
+                // The user already exists in the system. We simply need to append to their current user object
+                log.debug("The user already exists in the system with id: {}", user.getId());
+                user.getGroupIds().addAll(newUser.getGroupIds());
+                user.getPermissions().addAll(newUser.getPermissions());
+                return repository.save(user)
+                        .flatMap(savedUser -> addUserToOrganization(newUser.getCurrentOrganizationId(), savedUser))
+                        .thenReturn(newUser)
+                        .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
+                        .thenReturn(true);
+            }
+            log.debug("The user doesn't exist in the system. Creating a new one");
+            // The user doesn't exist in the system. Create a new user object
+            newUser.setPassword(passwordEncoder.encode(inviteUser.getPassword()));
+            return this.create(newUser)
+                    .flatMap(createdUser -> addUserToOrganization(newUser.getCurrentOrganizationId(), createdUser))
+                    .thenReturn(newUser)
+                    .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
+                    .thenReturn(true);
+        }).flatMap(result -> result);
+    }
+
     @Override
     public Mono<User> create(User user) {
 
@@ -292,7 +406,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             .map(groups -> {
                                 // Set the default group Ids for the user
                                 Set<String> groupIds = groups.stream().map(group -> group.getId()).collect(Collectors.toSet());
-                                savedUser.setGroupIds(groupIds);
+                                // Append the new organization's default groups to the existing ones belonging to the user
+                                savedUser.getGroupIds().addAll(groupIds);
                                 return savedUser;
                             })
                             // At this point both the user and the organization have been saved. Now add the newly created
