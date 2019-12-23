@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,5 +68,23 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<User>> getUserProfile() {
         return sessionUserService.getCurrentUser()
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+    }
+
+    @PostMapping("/invite")
+    public Mono<ResponseDTO<User>> inviteUser(@RequestBody User user) {
+        return service.inviteUser(user)
+                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
+    }
+
+    @GetMapping("/invite/verify")
+    public Mono<ResponseDTO<Boolean>> verifyInviteToken(@RequestParam String email, @RequestParam String token) {
+        return service.verifyInviteToken(email, token)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @PutMapping("/invite/confirm")
+    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody InviteUser inviteUser) {
+        return service.confirmInviteUser(inviteUser)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
