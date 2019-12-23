@@ -27,6 +27,8 @@ public_operations = [
     {"method" : "POST", "url" : "/api/v1/users" },
     {"method" : "GET", "url" : "/api/v1/users/verifyPasswordResetToken" },
     {"method" : "PUT", "url" : "/api/v1/users/resetPassword" },
+    {"method" : "GET", "url" : "/api/v1/users/invite/verify" },
+    {"method" : "PUT", "url" : "/api/v1/users/invite/confirm" },
 ]
 
 # This is a global list of all the routes for all controllers. Any new controller that is written must
