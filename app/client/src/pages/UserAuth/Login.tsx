@@ -27,8 +27,8 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
 } from "constants/messages";
 import Divider from "components/editorComponents/Divider";
-import MessageTag from "components/editorComponents/form/MessageTag";
-import FormGroup from "components/editorComponents/FormGroup";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import FormGroup from "components/editorComponents/form/FormGroup";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormButton from "components/editorComponents/FormButton";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
@@ -85,7 +85,7 @@ export const Login = (props: LoginFormProps) => {
   return (
     <AuthCardContainer>
       {showError && pristine && (
-        <MessageTag
+        <FormMessage
           intent="danger"
           message={LOGIN_PAGE_INVALID_CREDS_ERROR}
           actions={[

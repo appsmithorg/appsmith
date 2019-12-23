@@ -82,3 +82,20 @@ export const ERROR_401 =
 export const ERROR_403 =
   "Permission Denied. Please contact your admin to gain access.";
 export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";
+
+export const INVITE_USERS_VALIDATION_EMAIL_LIST =
+  "Invalid Email address(es) found:";
+export const INVITE_USERS_VALIDATION_ROLE_EMPTY = "Please select a role";
+
+export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = "Comma separated emails";
+export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = "Select Role";
+export const INVITE_USERS_ROLE_SELECT_LABEL = "Role";
+export const INVITE_USERS_EMAIL_LIST_LABEL = "User emails";
+export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = "Add more";
+export const INVITE_USERS_SUBMIT_BUTTON_TEXT = "Invite Users";
+export const INVITE_USERS_SUBMIT_ERROR =
+  "We were unable to invite the users, please try again later";
+export const INVITE_USERS_SUBMIT_SUCCESS =
+  "The users have been invited successfully";
+export const INVITE_USERS_VALIDATION_EMAILS_EMPTY =
+  "Please enter the user emails";

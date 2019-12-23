@@ -8,13 +8,13 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
 import TextField from "components/editorComponents/form/fields/TextField";
-import MessageTag, {
-  MessageTagProps,
+import FormMessage, {
+  FormMessageProps,
   MessageAction,
-} from "components/editorComponents/form/MessageTag";
+} from "components/editorComponents/form/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
 import FormButton from "components/editorComponents/FormButton";
-import FormGroup from "components/editorComponents/FormGroup";
+import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 
@@ -126,7 +126,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
     message = error;
   }
 
-  const messageTagProps: MessageTagProps = {
+  const messageTagProps: FormMessageProps = {
     intent:
       showInvalidMessage || showExpiredMessage || showFailureMessage
         ? "danger"
@@ -136,7 +136,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
   };
 
   if (showInvalidMessage || showExpiredMessage) {
-    return <MessageTag {...messageTagProps} />;
+    return <FormMessage {...messageTagProps} />;
   }
 
   if (!isTokenValid && validatingToken) {
@@ -145,7 +145,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
   return (
     <AuthCardContainer>
       {(showSuccessMessage || showFailureMessage) && (
-        <MessageTag {...messageTagProps} />
+        <FormMessage {...messageTagProps} />
       )}
       <AuthCardHeader>
         <h1>{RESET_PASSWORD_PAGE_TITLE}</h1>

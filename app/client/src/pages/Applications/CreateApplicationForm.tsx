@@ -6,7 +6,7 @@ import {
   createApplicationFormSubmitHandler,
 } from "./helpers";
 import TextField from "components/editorComponents/form/fields/TextField";
-import { FormGroup } from "@blueprintjs/core";
+import FormGroup from "components/editorComponents/form/FormGroup";
 
 export const CreateApplicationForm = (
   props: InjectedFormProps<CreateApplicationFormValues>,

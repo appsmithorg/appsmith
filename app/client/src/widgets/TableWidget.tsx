@@ -1,11 +1,10 @@
 import React from "react";
-import _ from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionPayload, TableAction } from "constants/ActionConstants";
 import { AutoResizer } from "react-base-table";
 import "react-base-table/styles.css";
-import { forIn } from "lodash";
+import _, { forIn } from "lodash";
 import SelectableTable, {
   Column,
 } from "components/designSystems/appsmith/TableComponent";

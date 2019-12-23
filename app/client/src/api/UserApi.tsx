@@ -34,11 +34,28 @@ export interface ResetPasswordVerifyTokenRequest {
   token: string;
 }
 
+export interface FetchUserResponse extends ApiResponse {
+  id: string;
+}
+
+export interface FetchUserRequest {
+  id: string;
+}
+
+export interface InviteUserRequest {
+  email: string;
+  groupIds: string[];
+  status?: string;
+}
+
 class UserApi extends Api {
+  //TODO(abhinav): make a baseURL, to which the other paths are added.
   static createURL = "v1/users";
   static forgotPasswordURL = "v1/users/forgotPassword";
   static verifyResetPasswordTokenURL = "v1/users/verifyPasswordResetToken";
   static resetPasswordURL = "v1/users/resetPassword";
+  static fetchUserURL = "v1/users";
+  static inviteUserURL = "v1/users/invite";
   static createUser(
     request: CreateUserRequest,
   ): AxiosPromise<CreateUserResponse> {
@@ -61,6 +78,15 @@ class UserApi extends Api {
     request: ResetPasswordVerifyTokenRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.verifyResetPasswordTokenURL, request);
+  }
+
+  static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {
+    return Api.get(UserApi.fetchUserURL + "/" + request.id);
+  }
+
+  static inviteUser(request: InviteUserRequest): AxiosPromise<ApiResponse> {
+    request.status = "INVITED";
+    return Api.post(UserApi.inviteUserURL, request);
   }
 }
 

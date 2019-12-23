@@ -25,3 +25,12 @@ export const getAbsolutePixels = (size?: string | null) => {
   if (_dex === -1) return 0;
   return parseInt(size.slice(0, _dex), 10);
 };
+
+export const Directions: { [id: string]: string } = {
+  UP: "up",
+  DOWN: "down",
+  LEFT: "left",
+  RIGHT: "right",
+};
+
+export type Direction = typeof Directions[keyof typeof Directions];

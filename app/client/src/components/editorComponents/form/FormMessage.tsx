@@ -6,7 +6,7 @@ import {
   AnchorButton,
   Button,
 } from "@blueprintjs/core";
-import { Intent, BlueprintIntentsCSS } from "constants/DefaultTheme";
+import { Intent, BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
 
 export type MessageAction = {
   url?: string;
@@ -34,7 +34,7 @@ const ActionsContainer = styled.div`
   align-items: center;
   & .appsmith-message-action-button {
     border: none;
-    ${BlueprintIntentsCSS}
+    ${BlueprintButtonIntentsCSS}
   }
 `;
 
@@ -63,14 +63,14 @@ const ActionButton = (props: MessageAction) => {
   return null;
 };
 
-export type MessageTagProps = {
+export type FormMessageProps = {
   intent: Intent;
   message: string;
   title?: string;
   actions?: MessageAction[];
 };
 
-export const MessageTag = (props: MessageTagProps) => {
+export const FormMessage = (props: FormMessageProps) => {
   const actions =
     props.actions &&
     props.actions.map(action => <ActionButton key={action.text} {...action} />);
@@ -83,4 +83,4 @@ export const MessageTag = (props: MessageTagProps) => {
   );
 };
 
-export default MessageTag;
+export default FormMessage;

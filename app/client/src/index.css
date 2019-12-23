@@ -22,9 +22,16 @@ code {
     monospace;
 }
 
+* {
+  outline: none !important;
+}
 
 div.bp3-select-popover .bp3-popover-content {
   padding: 0;
+}
+
+span.bp3-popover-target {
+  display: block;
 }
 
 div.bp3-popover-arrow {

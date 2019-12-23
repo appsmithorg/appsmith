@@ -181,6 +181,8 @@ abstract class BaseWidget<
     return <ErrorBoundary>{this.getPageView()}</ErrorBoundary>;
   }
 
+  // TODO(Nikhil): Revisit the inclusion of another library for shallowEqual.
+  // `react-redux` provides shallowEqual natively
   shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
     const isNotEqual =
       !shallowequal(nextProps, this.props) ||
