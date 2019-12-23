@@ -2,8 +2,8 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,19 +14,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
 public class RestApiPlugin extends BasePlugin {
-
+    private static int MAX_REDIRECTS = 5;
     private static ObjectMapper objectMapper;
 
     public RestApiPlugin(PluginWrapper wrapper) {
@@ -71,12 +71,8 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
-            return webClientBuilder
-                    .build()
-                    .method(httpMethod)
-                    .uri(uri)
-                    .body(BodyInserters.fromObject(requestBody))
-                    .exchange()
+            WebClient client = webClientBuilder.build();
+            return httpCall(client, httpMethod, uri, requestBody, 0)
                     .flatMap(clientResponse -> clientResponse.toEntity(String.class))
                     .map(stringResponseEntity -> {
                         /**TODO
@@ -101,6 +97,31 @@ public class RestApiPlugin extends BasePlugin {
                         }
 
                         return result;
+                    });
+        }
+
+        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
+            if (iteration == MAX_REDIRECTS) {
+                System.out.println("Exceeded the http redirect limits. Returning error");
+                return Mono.error(new Exception("Exceeded the http redirect limits"));
+            }
+            return webClient
+                    .method(httpMethod)
+                    .uri(uri)
+                    .body(BodyInserters.fromObject(requestBody))
+                    .exchange()
+                    .flatMap(response -> {
+                        if (response.statusCode().is3xxRedirection()) {
+                            String redirectUrl = response.headers().header("Location").get(0);
+                            URI redirectUri = null;
+                            try {
+                                redirectUri = new URI(redirectUrl);
+                            } catch (URISyntaxException e) {
+                                e.printStackTrace();
+                            }
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration+1);
+                        }
+                        return Mono.just(response);
                     });
         }
 
