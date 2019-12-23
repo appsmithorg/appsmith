@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -38,6 +38,9 @@ public class SecurityConfig {
 
     @Autowired
     private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+    @Autowired
+    private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -82,7 +85,10 @@ public class SecurityConfig {
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()
                 .csrf().disable()
-                .authorizeExchange()
+                // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
+                // The client will redirect to the login page if we return 401 as Http status response
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+                .and().authorizeExchange()
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
                 // This is because the flow enters AclFilter as well and needs to be whitelisted there
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"),
@@ -96,15 +102,14 @@ public class SecurityConfig {
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
                 .authenticated()
+                .and().formLogin()
+                .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login"))
+                .authenticationSuccessHandler(authenticationSuccessHandler)
+                .authenticationFailureHandler(authenticationFailureHandler)
                 .and().oauth2Login()
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
-                .and().formLogin()
-                .authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/login"))
-                .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login"))
-                .authenticationSuccessHandler(authenticationSuccessHandler)
-                .authenticationFailureHandler(authenticationFailureHandler)
                 .and().build();
     }
 
