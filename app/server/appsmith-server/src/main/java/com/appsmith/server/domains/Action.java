@@ -49,6 +49,8 @@ public class Action extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> jsonPathKeys;
 
+    String cacheResponse;
+
     public Datasource getDatasource() {
         if (this.datasource != null) {
             //The action object has been created from JSON.

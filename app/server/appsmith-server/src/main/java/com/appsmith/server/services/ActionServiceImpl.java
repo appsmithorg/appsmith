@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -368,7 +367,25 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     actionConfiguration))
                             .timeout(Duration.ofMillis(timeoutDuration));
                 }))
-                .flatMap(obj -> obj);
+                .flatMap(obj -> obj)
+                .flatMap(result -> {
+                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                    Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
+                            //If the action is found in the db (i.e. it is not a dry run, save the cached response
+                            .flatMap(action -> {
+                                if (result.getStatusCode().charAt(0) == '2') {
+                                    //If the status code is 2xx, then save the cached response (aka the body) and return.
+                                    action.setCacheResponse(result.getBody().toString());
+                                    return repository.save(action);
+                                }
+                                return Mono.just(action);
+                            });
+                    return actionFromDbMono.zipWith(resultMono)
+                            .map(tuple -> {
+                                ActionExecutionResult executionResult = tuple.getT2();
+                                return executionResult;
+                            });
+                });
     }
 
     @Override
