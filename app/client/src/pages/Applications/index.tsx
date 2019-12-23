@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -13,32 +12,14 @@ import {
   ReduxActionTypes,
   ApplicationPayload,
 } from "constants/ReduxActionConstants";
-import { Divider } from "@blueprintjs/core";
-import ApplicationsHeader from "./ApplicationsHeader";
+import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
+import PageSectionDivider from "pages/common/PageSectionDivider";
 import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { noop } from "utils/AppsmithUtils";
-
-const ApplicationsPageWrapper = styled.section`
-  width: 100vw;
-`;
-const SectionDivider = styled(Divider)`
-  margin: ${props => props.theme.spaces[11]}px auto;
-  width: 100%;
-`;
-const ApplicationsBody = styled.div`
-  width: 1224px;
-  min-height: calc(100vh - ${props => props.theme.headerHeight});
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  margin: ${props => props.theme.spaces[12]}px auto;
-  background: ${props => props.theme.colors.bodyBG};
-`;
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
@@ -65,47 +46,40 @@ class Applications extends Component<ApplicationProps> {
       ? getApplicationPayloads(4)
       : this.props.applicationList;
     return (
-      <ApplicationsPageWrapper>
-        <Helmet>
-          <meta charSet="utf-8" />
-          <title>Applications | Appsmith</title>
-        </Helmet>
-        <ApplicationsHeader />
-        <ApplicationsBody>
-          <SubHeader
-            add={{
-              form: <CreateApplicationForm />,
-              title: "Create New App",
-              formName: CREATE_APPLICATION_FORM_NAME,
-              formSubmitIntent: "primary",
-              isAdding:
-                this.props.isCreatingApplication ||
-                !!this.props.createApplicationError,
-              errorAdding: this.props.createApplicationError,
-            }}
-            search={{
-              placeholder: "Search",
-            }}
-          />
-          <SectionDivider />
-          <ApplicationCardsWrapper>
-            {applicationList.map((application: ApplicationPayload) => {
-              return (
-                application.pageCount > 0 && (
-                  <ApplicationCard
-                    key={application.id}
-                    loading={this.props.isFetchingApplications}
-                    application={application}
-                    share={noop}
-                    duplicate={noop}
-                    delete={noop}
-                  />
-                )
-              );
-            })}
-          </ApplicationCardsWrapper>
-        </ApplicationsBody>
-      </ApplicationsPageWrapper>
+      <PageWrapper displayName="Applications">
+        <SubHeader
+          add={{
+            form: <CreateApplicationForm />,
+            title: "Create New App",
+            formName: CREATE_APPLICATION_FORM_NAME,
+            formSubmitIntent: "primary",
+            isAdding:
+              this.props.isCreatingApplication ||
+              !!this.props.createApplicationError,
+            errorAdding: this.props.createApplicationError,
+          }}
+          search={{
+            placeholder: "Search",
+          }}
+        />
+        <PageSectionDivider />
+        <ApplicationCardsWrapper>
+          {applicationList.map((application: ApplicationPayload) => {
+            return (
+              application.pageCount > 0 && (
+                <ApplicationCard
+                  key={application.id}
+                  loading={this.props.isFetchingApplications}
+                  application={application}
+                  share={noop}
+                  duplicate={noop}
+                  delete={noop}
+                />
+              )
+            );
+          })}
+        </ApplicationCardsWrapper>
+      </PageWrapper>
     );
   }
 }

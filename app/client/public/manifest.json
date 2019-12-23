@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Appsmith App",
+  "name": "Appsmith Client Web UI",
   "icons": [
     {
       "src": "favicon.ico",

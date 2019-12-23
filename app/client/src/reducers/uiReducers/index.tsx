@@ -8,6 +8,8 @@ import { widgetSidebarReducer } from "./widgetSidebarReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import routesParamsReducer from "reducers/uiReducers/routesParamsReducer";
 import authReducer from "./authReducer";
+import orgReducer from "./orgReducer";
+import usersReducer from "./usersReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -19,5 +21,7 @@ const uiReducer = combineReducers({
   apiPane: apiPaneReducer,
   routesParams: routesParamsReducer,
   auth: authReducer,
+  orgs: orgReducer,
+  users: usersReducer,
 });
 export default uiReducer;
