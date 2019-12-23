@@ -17,11 +17,10 @@ import {
   API_EDITOR_URL,
   APPLICATIONS_URL,
 } from "constants/routes";
-import { destroy, initialize } from "redux-form";
+import { destroy, initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
-import { RestAction } from "api/ActionAPI";
-import { FORM_INITIAL_VALUES } from "constants/ApiEditorConstants";
+import { Property, RestAction } from "api/ActionAPI";
 import { changeApi } from "actions/apiPaneActions";
 import {
   API_PATH_START_WITH_SLASH_ERROR,
@@ -59,6 +58,58 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   yield put(changeApi(id));
 }
 
+function* syncApiParamsSaga(
+  actionPayload: ReduxActionWithMeta<string, { field: string }>,
+) {
+  const field = actionPayload.meta.field;
+  const value = actionPayload.payload;
+  if (field === "actionConfiguration.path") {
+    if (value.indexOf("?") > -1) {
+      const paramsString = value.substr(value.indexOf("?") + 1);
+      const params = paramsString.split("&").map(p => {
+        const keyValue = p.split("=");
+        return { key: keyValue[0], value: keyValue[1] || "" };
+      });
+      yield put(
+        autofill(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.queryParameters",
+          params,
+        ),
+      );
+    } else {
+      yield put(
+        autofill(
+          API_EDITOR_FORM_NAME,
+          "actionConfiguration.queryParameters",
+          [],
+        ),
+      );
+    }
+  } else if (field.includes("actionConfiguration.queryParameters")) {
+    const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+    const path = values.actionConfiguration.path;
+    const pathHasParams = path.indexOf("?") > -1;
+    const currentPath = values.actionConfiguration.path.substring(
+      0,
+      pathHasParams ? path.indexOf("?") : undefined,
+    );
+    const paramsString = values.actionConfiguration.queryParameters
+      .filter((p: Property) => p.key)
+      .map(
+        (p: Property, i: number) => `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
+      )
+      .join("");
+    yield put(
+      autofill(
+        API_EDITOR_FORM_NAME,
+        "actionConfiguration.path",
+        `${currentPath}${paramsString}`,
+      ),
+    );
+  }
+}
+
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const { applicationId, pageId } = yield select(getRouterParams);
@@ -76,6 +127,14 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const data = _.isEmpty(draft) ? action : draft;
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+  // Sync the api params my mocking a change action
+  yield call(syncApiParamsSaga, {
+    type: ReduxFormActionTypes.ARRAY_REMOVE,
+    payload: data.actionConfiguration.queryParameters,
+    meta: {
+      field: "actionConfiguration.queryParameters",
+    },
+  });
 }
 
 function* updateDraftsSaga() {
@@ -136,21 +195,22 @@ function* validateInputSaga(
     },
   });
 }
-
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
-  yield all([call(validateInputSaga, actionPayload), call(updateDraftsSaga)]);
+  yield all([
+    call(validateInputSaga, actionPayload),
+    call(updateDraftsSaga),
+    call(syncApiParamsSaga, actionPayload),
+  ]);
 }
+
 function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
-  const data = {
-    ...action,
-    ...FORM_INITIAL_VALUES,
-  };
+  const data = { ...action };
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   const { applicationId, pageId } = yield select(getRouterParams);
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
@@ -180,10 +240,11 @@ export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
-    // Intercepting the redux-form change actionType
-    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, handleActionUpdatedSaga),
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
+    // Intercepting the redux-form change actionType
+    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

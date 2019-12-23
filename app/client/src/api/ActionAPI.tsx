@@ -53,7 +53,7 @@ export interface RestAction {
   id: string;
   name: string;
   datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
-  pluginId: string;
+  pluginType?: string;
   pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;
   jsonPathKeys: string[];
