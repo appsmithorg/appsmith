@@ -55,6 +55,7 @@ import {
   getNameBindingsWithData,
   NameBindingsWithData,
 } from "selectors/nameBindingsWithDataSelector";
+import { transformRestAction } from "transformers/RestActionTransformer";
 
 export const getAction = (
   state: AppState,
@@ -290,8 +291,10 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
+    const { data } = actionPayload.payload;
+    const action = transformRestAction(data);
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
-      actionPayload.payload.data,
+      action,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -331,7 +334,7 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
+export function* runApiActionSaga(action: ReduxAction<string>) {
   try {
     const {
       values,
@@ -348,7 +351,7 @@ export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
       return;
     }
     if (dirty) {
-      action = _.omit(values, "id");
+      action = _.omit(transformRestAction(values), "id");
       const actionString = JSON.stringify(action);
       if (isDynamicValue(actionString)) {
         const { paths } = getDynamicBindings(actionString);
@@ -375,7 +378,7 @@ export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: action.payload.id },
+      payload: { error, id: action.payload },
     });
   }
 }

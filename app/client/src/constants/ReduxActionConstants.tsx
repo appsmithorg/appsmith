@@ -148,6 +148,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
 export const ReduxFormActionTypes: { [key: string]: string } = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   UPDATE_FIELD_ERROR: "@@redux-form/UPDATE_SYNC_ERRORS",
+  ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
 };
 
 export type ReduxActionErrorType = typeof ReduxActionErrorTypes[keyof typeof ReduxActionErrorTypes];
