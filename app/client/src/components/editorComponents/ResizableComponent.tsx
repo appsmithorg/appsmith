@@ -4,9 +4,8 @@ import { XYCoord } from "react-dnd";
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/Canvas";
 import { DraggableComponentContext } from "./DraggableComponent";
-import { ResizingContext } from "./DropTargetComponent";
 import { generateClassName } from "utils/generators";
 
 import ResizableContainer, {

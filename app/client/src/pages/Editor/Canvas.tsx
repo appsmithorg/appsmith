@@ -25,26 +25,34 @@ export const FocusContext: Context<{
   ) => void;
 }> = createContext({});
 
+export const ResizingContext: Context<{
+  isResizing?: boolean;
+  setIsResizing?: Function;
+}> = createContext({});
+
 /* eslint-disable react/display-name */
 /* eslint-disable react/prop-types */
 
 const Canvas = (props: CanvasProps) => {
   const [isFocused, setFocus] = useState("");
+  const [isResizing, setIsResizing] = useState(false);
   try {
     return (
-      <FocusContext.Provider
-        value={{
-          isFocused,
-          setFocus,
-          showPropertyPane: props.showPropertyPane,
-        }}
-      >
-        <PropertyPane />
-        <ArtBoard>
-          {props.dsl.widgetId &&
-            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-        </ArtBoard>
-      </FocusContext.Provider>
+      <ResizingContext.Provider value={{ isResizing, setIsResizing }}>
+        <FocusContext.Provider
+          value={{
+            isFocused,
+            setFocus,
+            showPropertyPane: props.showPropertyPane,
+          }}
+        >
+          <PropertyPane />
+          <ArtBoard>
+            {props.dsl.widgetId &&
+              WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+          </ArtBoard>
+        </FocusContext.Provider>
+      </ResizingContext.Provider>
     );
   } catch (error) {
     console.log("Error rendering DSL", error);

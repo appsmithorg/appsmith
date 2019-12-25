@@ -10,10 +10,9 @@ import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/Canvas";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
-import { ResizingContext } from "./DropTargetComponent";
 import { Tooltip } from "@blueprintjs/core";
 
 // FontSizes array in DefaultTheme.tsx
@@ -139,7 +138,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       }
     },
     canDrag: () => {
-      return !isResizing && !!isFocused && isFocused === props.widgetId;
+      return !isResizing;
     },
   });
 
