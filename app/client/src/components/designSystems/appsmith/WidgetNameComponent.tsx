@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext } from "pages/Editor/CanvasContexts";
 import { DraggableComponentContext } from "components/editorComponents/DraggableComponent";
 
 const PositionStyle = styled.div`

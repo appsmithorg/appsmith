@@ -13,6 +13,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsWithValidations,
 } from "selectors/propertyPaneSelectors";
+import { FocusContext } from "pages/Editor/CanvasContexts";
 import { Divider } from "@blueprintjs/core";
 
 import Popper from "./Popper";
@@ -55,12 +56,16 @@ class PropertyPane extends Component<
     this.onPropertyChange = this.onPropertyChange.bind(this);
   }
 
+  static contextType = FocusContext;
+
   render() {
     if (this.props.isVisible) {
       const content = this.renderPropertyPane(this.props.propertySections);
-
       return (
-        <Popper isOpen={true} targetRefNode={this.props.targetNode}>
+        <Popper
+          isOpen={true && this.context.isFocused === this.props.widgetId}
+          targetRefNode={this.props.targetNode}
+        >
           {content}
         </Popper>
       );

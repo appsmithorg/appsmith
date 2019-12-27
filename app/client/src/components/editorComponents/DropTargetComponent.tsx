@@ -5,7 +5,7 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import WidgetFactory from "utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "utils/WidgetPropsUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext, ResizingContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 
 import DragLayerComponent from "./DragLayerComponent";
 
@@ -46,7 +46,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       if (isExactlyOver) {
         const updateWidgetParams = widgetOperationParams(
           widget,
-          monitor.getClientOffset() as XYCoord,
+          monitor.getSourceClientOffset() as XYCoord,
           dropTargetOffset,
           props.snapColumnSpace,
           props.snapRowSpace,
@@ -78,7 +78,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       // Check if the draggable is the same as the dropTarget
       if (isExactlyOver) {
         const hasCollision = !noCollision(
-          monitor.getClientOffset() as XYCoord,
+          monitor.getSourceClientOffset() as XYCoord,
           props.snapColumnSpace,
           props.snapRowSpace,
           widget,

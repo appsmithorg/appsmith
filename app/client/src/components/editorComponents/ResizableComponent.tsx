@@ -4,7 +4,7 @@ import { XYCoord } from "react-dnd";
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext, ResizingContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 import { DraggableComponentContext } from "./DraggableComponent";
 import { generateClassName } from "utils/generators";
 
@@ -111,7 +111,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
-
+    // Clear border styles
+    setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
     setIsResizing && setIsResizing(false);
     // Tell the Canvas to put the focus back to this widget

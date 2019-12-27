@@ -26,7 +26,12 @@ export default (props: PopperProps) => {
     //TODO(abhinav): optimize this, remove previous Popper instance.
     const parentElement =
       props.targetRefNode && props.targetRefNode.parentElement;
-    if (parentElement && parentElement.parentElement && props.targetRefNode) {
+    if (
+      parentElement &&
+      parentElement.parentElement &&
+      props.targetRefNode &&
+      props.isOpen
+    ) {
       new PopperJS(
         props.targetRefNode,
         (contentRef.current as unknown) as Element,
@@ -46,7 +51,7 @@ export default (props: PopperProps) => {
         },
       );
     }
-  }, [props.targetRefNode]);
+  }, [props.targetRefNode, props.isOpen]);
   return createPortal(
     <PopperWrapper ref={contentRef}>{props.children}</PopperWrapper>,
     document.body,

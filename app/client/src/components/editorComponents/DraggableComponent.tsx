@@ -10,7 +10,7 @@ import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext, ResizingContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
@@ -88,9 +88,6 @@ export const DraggableComponentContext: Context<{
 }> = createContext({});
 /* eslint-disable react/display-name */
 
-//TODO(abhinav): the contexts and states are getting out of hand.
-// Refactor here and in ResizableComponent
-
 const DraggableComponent = (props: DraggableComponentProps) => {
   const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
   const { updateWidget } = useContext(EditorContext);
@@ -146,15 +143,24 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     <DraggableComponentContext.Provider
       value={{ isDragging, widgetNode: currentNode }}
     >
-      <DragPreviewImage src={blankImage} connect={preview} />
+      <DragPreviewImage connect={preview} src={blankImage} />
       <DraggableWrapper
         ref={drag}
-        onClick={(e: any) => {
-          if (setFocus && showPropertyPane) {
+        onMouseOver={(e: any) => {
+          if (setFocus) {
             setFocus(props.widgetId);
-            showPropertyPane(props.widgetId, currentNode);
             e.stopPropagation();
           }
+        }}
+        onMouseLeave={(e: any) => {
+          setFocus && setFocus(null);
+          showPropertyPane && showPropertyPane(props.widgetId);
+          e.stopPropagation();
+        }}
+        onDoubleClick={(e: any) => {
+          setFocus && setFocus(props.widgetId);
+          showPropertyPane && showPropertyPane(props.widgetId, currentNode);
+          e.stopPropagation();
         }}
         show={props.widgetId === isFocused && !isResizing}
         style={{

@@ -1,10 +1,11 @@
-import React, { createContext, useState, Context } from "react";
+import React, { useState } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
+import { ResizingContext, FocusContext } from "./CanvasContexts";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
@@ -14,21 +15,6 @@ interface CanvasProps {
     toggle?: boolean,
   ) => void;
 }
-
-export const FocusContext: Context<{
-  isFocused?: string;
-  setFocus?: Function;
-  showPropertyPane?: (
-    widgetId?: string,
-    node?: HTMLDivElement,
-    toggle?: boolean,
-  ) => void;
-}> = createContext({});
-
-export const ResizingContext: Context<{
-  isResizing?: boolean;
-  setIsResizing?: Function;
-}> = createContext({});
 
 /* eslint-disable react/display-name */
 /* eslint-disable react/prop-types */
