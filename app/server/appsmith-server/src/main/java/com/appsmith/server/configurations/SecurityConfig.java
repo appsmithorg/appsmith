@@ -1,6 +1,7 @@
 package com.appsmith.server.configurations;
 
 
+import com.appsmith.server.filters.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
@@ -41,6 +43,9 @@ public class SecurityConfig {
 
     @Autowired
     private ServerAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -107,6 +112,7 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .and().oauth2Login()
+                .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository))
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
