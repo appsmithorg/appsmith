@@ -13,6 +13,7 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+
 import FilePickerWidget, {
   FilePickerWidgetProps,
 } from "widgets/FilepickerWidget";
