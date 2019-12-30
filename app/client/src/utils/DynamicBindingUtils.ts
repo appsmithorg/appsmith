@@ -117,7 +117,26 @@ export const getDynamicValue = (
   if (bindings.length) {
     // Get the Data Tree value of those "binding "paths
     const values = paths.map((p, i) => {
-      return p ? evaluateDynamicBoundValue(data, p) : bindings[i];
+      if (p) {
+        const value = evaluateDynamicBoundValue(data, p);
+        // Check if the result is a dynamic value, if so get the value again
+        if (isDynamicValue(value)) {
+          // Check for the paths of this dynamic value
+          const { paths } = getDynamicBindings(value);
+          // If it is the same as it came in, log an error
+          // and return the same value back
+          if (paths.length === 1 && paths[0] === p) {
+            console.error("Binding not correct");
+            return value;
+          }
+          // Evaluate the value again
+          return getDynamicValue(value, data);
+        } else {
+          return value;
+        }
+      } else {
+        return bindings[i];
+      }
     });
 
     // if it is just one binding, no need to create template string
