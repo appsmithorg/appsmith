@@ -88,9 +88,9 @@ function* syncApiParamsSaga(
     }
   } else if (field.includes("actionConfiguration.queryParameters")) {
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-    const path = values.actionConfiguration.path;
+    const path = values.actionConfiguration.path || "";
     const pathHasParams = path.indexOf("?") > -1;
-    const currentPath = values.actionConfiguration.path.substring(
+    const currentPath = path.substring(
       0,
       pathHasParams ? path.indexOf("?") : undefined,
     );
@@ -127,14 +127,16 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const data = _.isEmpty(draft) ? action : draft;
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
-  // Sync the api params my mocking a change action
-  yield call(syncApiParamsSaga, {
-    type: ReduxFormActionTypes.ARRAY_REMOVE,
-    payload: data.actionConfiguration.queryParameters,
-    meta: {
-      field: "actionConfiguration.queryParameters",
-    },
-  });
+  if (data.actionConfiguration && data.actionConfiguration.queryParameters) {
+    // Sync the api params my mocking a change action
+    yield call(syncApiParamsSaga, {
+      type: ReduxFormActionTypes.ARRAY_REMOVE,
+      payload: data.actionConfiguration.queryParameters,
+      meta: {
+        field: "actionConfiguration.queryParameters",
+      },
+    });
+  }
 }
 
 function* updateDraftsSaga() {
