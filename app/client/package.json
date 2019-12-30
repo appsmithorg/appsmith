@@ -14,6 +14,7 @@
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.6.1",
     "@sentry/browser": "^5.6.3",
+    "@syncfusion/ej2-react-grids": "^17.4.40",
     "@types/chance": "^1.0.7",
     "@types/fontfaceobserver": "^0.0.6",
     "@types/lodash": "^4.14.120",
@@ -85,7 +86,7 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
-    "build": "craco build",
+    "build": "craco  --max-old-space-size=2048 build",
     "test": "CI=true craco test",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
