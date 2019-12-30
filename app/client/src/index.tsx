@@ -6,10 +6,10 @@ import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import { Router, Route, Switch } from "react-router-dom";
 import history from "./utils/history";
-import { ThemeProvider, theme } from "./constants/DefaultTheme";
+import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
-import { appInitializer } from "./utils/AppsmithUtils";
+import { appInitializer } from "utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
 import store from "./store";
 import {
@@ -19,7 +19,7 @@ import {
   APPLICATIONS_URL,
   ORG_URL,
   USER_AUTH_URL,
-} from "./constants/routes";
+} from "constants/routes";
 
 const loadingIndicator = <Loader />;
 const App = lazy(() => import("./App"));
