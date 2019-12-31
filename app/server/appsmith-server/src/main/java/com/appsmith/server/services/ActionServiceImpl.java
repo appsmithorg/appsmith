@@ -370,6 +370,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(obj -> obj)
                 .flatMap(result -> {
                     Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                    if (actionFromDto.getId() == null) {
+                        // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
+                        return resultMono;
+                    }
+
                     Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
                             //If the action is found in the db (i.e. it is not a dry run, save the cached response
                             .flatMap(action -> {
@@ -458,7 +463,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> get(MultiValueMap<String, String> params) {
         Action actionExample = new Action();
-        Sort sort = Sort.by(FieldName.NAME );
+        Sort sort = Sort.by(FieldName.NAME);
 
         if (params.getFirst(FieldName.NAME) != null) {
             actionExample.setName(params.getFirst(FieldName.NAME));
