@@ -1,7 +1,8 @@
 package com.appsmith.server.configurations;
 
 
-import com.appsmith.server.filters.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
+import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -116,6 +117,8 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
+                .and().logout()
+                .logoutSuccessHandler(new LogoutSuccessHandler())
                 .and().build();
     }
 
