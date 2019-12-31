@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -22,6 +23,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -31,6 +33,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final SettingService settingService;
     private final GroupService groupService;
     private final PluginRepository pluginRepository;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -41,12 +44,27 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    SettingService settingService,
                                    AnalyticsService analyticsService,
                                    GroupService groupService,
-                                   PluginRepository pluginRepository) {
+                                   PluginRepository pluginRepository,
+                                   SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
         this.groupService = groupService;
         this.pluginRepository = pluginRepository;
+        this.sessionUserService = sessionUserService;
+    }
+
+    @Override
+    public Flux<Organization> get(MultiValueMap<String, String> params) {
+        return sessionUserService.getCurrentUser()
+                .flatMapMany(user -> {
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    if (organizationIds == null || organizationIds.isEmpty()) {
+                        log.error("No organization set for user: {}. Returning empty list of organizations", user.getEmail());
+                        return Flux.empty();
+                    }
+                    return repository.findAllById(organizationIds);
+                });
     }
 
     @Override
