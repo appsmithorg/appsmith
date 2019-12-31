@@ -1,4 +1,4 @@
-package com.appsmith.server.filters;
+package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.AclConstants;
 import com.appsmith.server.constants.Security;
@@ -73,7 +73,6 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String originHeader = "/";
         if (state != null && !state.isEmpty()) {
-            String line;
             String[] stateArray = state.split(",");
             for (int i = 0; i < stateArray.length; i++) {
                 String stateVar = stateArray[i];
