@@ -1,4 +1,4 @@
-package com.appsmith.server.filters;
+package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.Security;
 import lombok.extern.slf4j.Slf4j;
