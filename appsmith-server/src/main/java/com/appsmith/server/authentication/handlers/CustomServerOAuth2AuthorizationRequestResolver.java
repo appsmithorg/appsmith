@@ -43,7 +43,6 @@ import java.util.Map;
  * The only 2 functions that have been overriden from the base class are: {@link #generateKey(HttpHeaders)} and
  * {@link #authorizationRequest(ServerWebExchange, ClientRegistration)}.
  * We couldn't simply extend the base class because of the use of private variables and methods to invoke these functions.
- *
  */
 @Slf4j
 public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAuth2AuthorizationRequestResolver {
@@ -70,6 +69,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     /**
      * Creates a new instance
+     *
      * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      */
     public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository) {
@@ -79,12 +79,13 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     /**
      * Creates a new instance
+     *
      * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
-     * @param authorizationRequestMatcher the matcher that determines if the request is a match and extracts the
-     * {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
+     * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
+     *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      */
     public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                           ServerWebExchangeMatcher authorizationRequestMatcher) {
+                                                          ServerWebExchangeMatcher authorizationRequestMatcher) {
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
         this.clientRegistrationRepository = clientRegistrationRepository;
@@ -163,9 +164,9 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
     private String generateKey(HttpHeaders httpHeaders) {
         String stateKey = this.stateGenerator.generateKey();
         String originHeader = httpHeaders.getOrigin();
-        if(originHeader == null || originHeader.isBlank()) {
+        if (originHeader == null || originHeader.isBlank()) {
             String refererHeader = httpHeaders.getFirst(Security.REFERER_HEADER);
-            if(refererHeader != null && !refererHeader.isBlank()) {
+            if (refererHeader != null && !refererHeader.isBlank()) {
                 URI uri = null;
                 try {
                     uri = new URI(refererHeader);
@@ -238,11 +239,10 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
     /**
      * Creates nonce and its hash for use in OpenID Connect 1.0 Authentication Requests.
      *
-     * @param attributes where the {@link OidcParameterNames#NONCE} is stored for the authentication request
+     * @param attributes           where the {@link OidcParameterNames#NONCE} is stored for the authentication request
      * @param additionalParameters where the {@link OidcParameterNames#NONCE} hash is added for the authentication request
-     *
-     * @since 5.2
      * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.  Authentication Request</a>
+     * @since 5.2
      */
     private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
         try {
@@ -250,20 +250,20 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
             String nonceHash = createHash(nonce);
             attributes.put(OidcParameterNames.NONCE, nonce);
             additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
-        } catch (NoSuchAlgorithmException e) { }
+        } catch (NoSuchAlgorithmException e) {
+        }
     }
 
     /**
      * Creates and adds additional PKCE parameters for use in the OAuth 2.0 Authorization and Access Token Requests
      *
-     * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the token request
+     * @param attributes           where {@link PkceParameterNames#CODE_VERIFIER} is stored for the token request
      * @param additionalParameters where {@link PkceParameterNames#CODE_CHALLENGE} and, usually,
-     * {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in the authorization request.
-     *
-     * @since 5.2
+     *                             {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in the authorization request.
      * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-1.1">1.1.  Protocol Flow</a>
      * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.1">4.1.  Client Creates a Code Verifier</a>
      * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.  Client Creates the Code Challenge</a>
+     * @since 5.2
      */
     private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
         String codeVerifier = this.secureKeyGenerator.generateKey();

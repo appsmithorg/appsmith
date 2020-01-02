@@ -329,15 +329,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<Boolean> confirmInviteUser(InviteUser inviteUser) {
-        if(inviteUser.getToken() == null || inviteUser.getToken().isEmpty()) {
+        if (inviteUser.getToken() == null || inviteUser.getToken().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "token"));
         }
 
-        if(inviteUser.getEmail() == null || inviteUser.getEmail().isEmpty()) {
+        if (inviteUser.getEmail() == null || inviteUser.getEmail().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "email"));
         }
 
-        if(inviteUser.getPassword() == null || inviteUser.getPassword().isEmpty()) {
+        if (inviteUser.getPassword() == null || inviteUser.getPassword().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "password"));
         }
 
@@ -378,7 +378,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<User> create(User user) {
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
-        if(LoginSource.FORM.equals(user.getSource())) {
+        if (LoginSource.FORM.equals(user.getSource())) {
             user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         }
 
