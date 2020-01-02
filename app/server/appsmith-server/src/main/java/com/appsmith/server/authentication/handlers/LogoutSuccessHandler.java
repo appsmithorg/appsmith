@@ -1,34 +1,46 @@
 package com.appsmith.server.authentication.handlers;
 
+import com.appsmith.server.dtos.ResponseDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.DefaultServerRedirectStrategy;
-import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-
 @Slf4j
 public class LogoutSuccessHandler implements ServerLogoutSuccessHandler {
 
-    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    private final ObjectMapper objectMapper;
+
+    public LogoutSuccessHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Mono<Void> onLogoutSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+        log.debug("In the logout success handler");
+
         ServerWebExchange exchange = webFilterExchange.getExchange();
-
-        // On logout success, we send a redirect to the client's home page. This ensures that the user is redirected
-        // to the login page directly.
-        String originHeader = exchange.getRequest().getHeaders().getOrigin();
-        if (originHeader == null || originHeader.isEmpty()) {
-            originHeader = "/";
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.OK);
+        try {
+            ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
+            String responseStr = objectMapper.writeValueAsString(responseBody);
+            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+            return response.writeWith(Mono.just(buffer));
+        } catch (JsonProcessingException e) {
+            log.error("Unable to write to response json. Cause: ", e);
+            // Returning a hard-coded failure json
+            String responseStr = "{\"responseMeta\":{\"status\":500,\"success\":false},\"data\":false}";
+            DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
+            return response.writeWith(Mono.just(buffer));
         }
-
-        URI defaultRedirectLocation = URI.create(originHeader);
-        return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
     }
 
 }
