@@ -4,6 +4,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -47,6 +48,9 @@ public class SecurityConfig {
 
     @Autowired
     private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -118,7 +122,7 @@ public class SecurityConfig {
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
                 .and().logout()
-                .logoutSuccessHandler(new LogoutSuccessHandler())
+                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
                 .and().build();
     }
 
