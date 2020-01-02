@@ -37,11 +37,12 @@ const DatasourcesField = (
       component={CreatableDropdown}
       isLoading={props.datasources.loading}
       options={options}
-      placeholder="Data Source"
+      placeholder="https://<base-url>.com"
       onCreateOption={props.createDatasource}
       format={(value: string) => _.find(options, { value })}
       parse={(option: { value: string }) => (option ? option.value : null)}
       formatCreateLabel={(value: string) => `Create data source "${value}"`}
+      noOptionsMessage={() => "No data sources created"}
     />
   );
 };

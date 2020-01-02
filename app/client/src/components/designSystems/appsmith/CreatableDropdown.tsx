@@ -14,9 +14,14 @@ type DropdownProps = {
   meta: WrappedFieldMetaProps;
   onCreateOption: (inputValue: string) => void;
   formatCreateLabel?: (value: string) => React.ReactNode;
+  noOptionsMessage?: (obj: { inputValue: string }) => string;
 };
 
 const selectStyles = {
+  placeholder: (provided: any) => ({
+    ...provided,
+    color: "#a3b3bf",
+  }),
   singleValue: (provided: any) => ({
     ...provided,
     backgroundColor: "rgba(104,113,239,0.1)",
@@ -67,9 +72,11 @@ class CreatableDropdown extends React.Component<DropdownProps> {
       onCreateOption,
       input,
       formatCreateLabel,
+      noOptionsMessage,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
     if (formatCreateLabel) optionalProps.formatCreateLabel = formatCreateLabel;
+    if (noOptionsMessage) optionalProps.noOptionsMessage = noOptionsMessage;
     return (
       <Creatable
         placeholder={placeholder}

@@ -101,7 +101,7 @@ const PropertyPaneConfigResponse = {
             controlType: "INPUT_TEXT",
           },
           {
-            id: "4.1",
+            id: "4.2",
             propertyName: "defaultImage",
             label: "Default Image",
             placeholderText: "Enter URL",
@@ -412,18 +412,12 @@ const PropertyPaneConfigResponse = {
         children: [
           {
             id: "12.1",
-            propertyName: "tableActions",
-            label: "Record action",
-            controlType: "RECORD_ACTION_SELECTOR",
-          },
-          {
-            id: "12.2",
             propertyName: "onRowSelected",
             label: "onRowSelected",
             controlType: "ACTION_SELECTOR",
           },
           {
-            id: "12.3",
+            id: "12.2",
             propertyName: "onPageChange",
             label: "onPageChange",
             controlType: "ACTION_SELECTOR",

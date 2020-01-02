@@ -11,10 +11,10 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
-import JSONEditorField from "components/editorComponents/form/fields/JSONEditorField";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import { FormIcons } from "icons/FormIcons";
 
 const Form = styled.form`
   display: flex;
@@ -65,8 +65,6 @@ const ActionButton = styled(BaseButton)`
 
 const JSONEditorFieldWrapper = styled.div`
   margin: 5px;
-  border: 1px solid #d0d7dd;
-  border-radius: 4px;
 `;
 
 const DatasourceWrapper = styled.div`
@@ -141,10 +139,10 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <DatasourcesField name="datasource.id" pluginId={pluginId} />
           </DatasourceWrapper>
           <DynamicTextField
-            placeholder="API Path"
+            placeholder="v1/method"
             name="actionConfiguration.path"
-            leftIcon="slash"
-            showError
+            leftIcon={FormIcons.SLASH_ICON}
+            initialHeight={32}
           />
         </FormRow>
       </MainConfiguration>
@@ -162,7 +160,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <React.Fragment>
               <FormLabel>{"Post Body"}</FormLabel>
               <JSONEditorFieldWrapper>
-                <JSONEditorField name="actionConfiguration.body" />
+                <DynamicTextField
+                  name="actionConfiguration.body"
+                  initialHeight={300}
+                  showLineNumbers
+                  allowTabIndent
+                />
               </JSONEditorFieldWrapper>
             </React.Fragment>
           )}
