@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 /**
  * This class returns 401 unauthorized for all unauthenticated requests that require authentication. The client will
  * redirect to the login page when it receives this response header.
- * 
+ * <p>
  * This class is invoked via the ExceptionHandlingSpec configured in the `SecurityConfig.configure()` function.
  * In future, we can append to this response object to return other custom headers as required for any unauthenticated
  * requests.

@@ -22,7 +22,7 @@ public class EmailSender {
 
     public void sendMail(String to, String subject, String text) throws MailException {
         // Don't send an email for local, dev or test environments
-        if(!emailConfig.isEmailEnabled()) {
+        if (!emailConfig.isEmailEnabled()) {
             return;
         }
 

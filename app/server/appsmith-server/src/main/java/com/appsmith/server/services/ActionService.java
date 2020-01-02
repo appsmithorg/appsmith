@@ -19,5 +19,7 @@ public interface ActionService extends CrudService<Action, String> {
 
     Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId);
 
+    Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod);
+
     Flux<Action> saveAll(List<Action> actions);
 }

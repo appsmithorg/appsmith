@@ -100,28 +100,53 @@ public class LayoutServiceImpl implements LayoutService {
 
         Mono<Set<DslActionDTO>> actionsInPage =
                 updatePageIdsForActionsAndReturnDslActions(graph.vertexSet(), pageId)
-                .map(action -> {
-                    //Update the graph here to include action-widget dependecy via dynamic bindings in the action.
-                    if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
-                        Set<String> jsonPathKeys = action.getJsonPathKeys();
-                        for (String jsonPathKey : jsonPathKeys) {
-                            String[] substrings = jsonPathKey.split(Pattern.quote("."));
-                            if (!graph.vertexSet().contains(substrings[0])) {
-                                graph.addVertex(substrings[0]);
-                            }
-                            graph.addEdge(substrings[0], action.getName());
-                        }
-                    }
+                        .map(action -> {
+                            // Since we are only interested in few fields, prepare the DslActionDTO that needs to be stored in
+                            // the layout and return it to be collected in to a set.
+                            DslActionDTO newAction = new DslActionDTO();
+                            newAction.setId(action.getId());
+                            newAction.setPluginType(action.getPluginType());
+                            newAction.setJsonPathKeys(action.getJsonPathKeys());
+                            newAction.setName(action.getName());
+                            return newAction;
+                        })
+                        .collect(toSet())
+                        .map(actions -> {
+                            Set<String> actionVertices = new HashSet<>();
 
-                    //Prepare the DslActionDTO that needs to be stored in the layout and return it to be collected in to a set.
-                    DslActionDTO newAction = new DslActionDTO();
-                    newAction.setId(action.getId());
-                    newAction.setPluginType(action.getPluginType());
-                    newAction.setJsonPathKeys(action.getJsonPathKeys());
-                    newAction.setName(action.getName());
-                    return newAction;
-                })
-                .collect(toSet());
+                            // We are only interested in the action-action relationship via dynamic binding. Action-widget relationship
+                            // is to be ignored and handled by the front-end. So add actions to vertices set if it exists in the
+                            // graph.
+                            actions.forEach(action -> {
+                                if (graph.vertexSet().contains(action.getName())) {
+                                    actionVertices.add(action.getName());
+                                }
+                            });
+
+                            // Now only add edges in the graph to include action-action relationship
+                            actions.forEach(action -> {
+                                Set<String> jsonPathKeys = action.getJsonPathKeys();
+                                if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
+                                    for (String jsonPathKey : jsonPathKeys) {
+
+                                        // Split the json path keys using '.' and extract the first string of the array
+                                        String[] substrings = jsonPathKey.split(Pattern.quote("."));
+
+                                        // We are only interested in dependencies which are actions aka
+                                        if (actionVertices.contains(substrings[0])) {
+                                            if (!graph.vertexSet().contains(substrings[0])) {
+                                                graph.addVertex(substrings[0]);
+                                            }
+                                            // Since the graph was created using widget and action names, we are already guaranteed
+                                            // to find the action name in the graph.
+                                            graph.addEdge(substrings[0], action.getName());
+                                        }
+
+                                    }
+                                }
+                            });
+                            return actions;
+                        });
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
@@ -265,8 +290,9 @@ public class LayoutServiceImpl implements LayoutService {
 
     Flux<Action> updatePageIdsForActionsAndReturnDslActions(Set<String> nodes, String pageId) {
 
+        // Find all the actions from the vertices which belong to the page and are of HTTP type "GET"
         return actionService
-                .findDistinctActionsByNameInAndPageId(nodes, pageId);
+                .findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(nodes, pageId, "GET");
     }
 
 }

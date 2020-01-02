@@ -4,8 +4,6 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 public interface UserService extends CrudService<User, String> {
 
     Mono<User> findByEmail(String email);
