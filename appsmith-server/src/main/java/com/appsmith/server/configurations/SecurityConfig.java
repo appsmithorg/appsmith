@@ -113,6 +113,7 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and().formLogin()
+                .authenticationEntryPoint(authenticationEntryPoint)
                 .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login"))
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
