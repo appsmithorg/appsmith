@@ -20,4 +20,5 @@ public interface Url {
     String PERMISSION_URL = BASE_URL + VERSION + "/permissions";
     String SIGNUP_URL = BASE_URL + VERSION + "/signup";
     String COLLECTION_URL = BASE_URL + VERSION + "/collections";
+    String IMPORT_URL = BASE_URL + VERSION + "/import";
 }
