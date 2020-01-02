@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

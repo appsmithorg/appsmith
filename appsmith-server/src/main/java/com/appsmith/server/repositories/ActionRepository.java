@@ -17,6 +17,8 @@ public interface ActionRepository extends BaseRepository<Action, String> {
 
     Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId);
 
+    Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names, String pageId, String httpMethod);
+
     Flux<Action> saveAll(List<Action> actions);
-    
+
 }
