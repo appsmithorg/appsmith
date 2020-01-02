@@ -14,6 +14,7 @@ interface CanvasProps {
     node?: HTMLDivElement,
     toggle?: boolean,
   ) => void;
+  propertyPaneWidgetId?: string;
 }
 
 /* eslint-disable react/display-name */
@@ -30,6 +31,7 @@ const Canvas = (props: CanvasProps) => {
             isFocused,
             setFocus,
             showPropertyPane: props.showPropertyPane,
+            propertyPaneWidgetId: props.propertyPaneWidgetId,
           }}
         >
           <PropertyPane />

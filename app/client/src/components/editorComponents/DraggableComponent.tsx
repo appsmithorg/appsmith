@@ -89,8 +89,14 @@ export const DraggableComponentContext: Context<{
 /* eslint-disable react/display-name */
 
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
+  const {
+    isFocused,
+    setFocus,
+    showPropertyPane,
+    propertyPaneWidgetId,
+  } = useContext(FocusContext);
   const { updateWidget } = useContext(EditorContext);
+
   const [currentNode, setCurrentNode] = useState<HTMLDivElement>();
   const referenceRef = useCallback(
     node => {
@@ -123,13 +129,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
-      if (isFocused === props.widgetId && showPropertyPane && currentNode) {
+      if (showPropertyPane && currentNode) {
         showPropertyPane(props.widgetId, undefined);
       }
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
-        if (isFocused === props.widgetId && showPropertyPane && currentNode) {
+        if (showPropertyPane && currentNode) {
           showPropertyPane(props.widgetId, currentNode);
         }
       }
@@ -145,6 +151,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     >
       <DragPreviewImage connect={preview} src={blankImage} />
       <DraggableWrapper
+        className={props.widgetId}
         ref={drag}
         onMouseOver={(e: any) => {
           if (setFocus) {
@@ -154,7 +161,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }}
         onMouseLeave={(e: any) => {
           setFocus && setFocus(null);
-          showPropertyPane && showPropertyPane(props.widgetId);
+          e.stopPropagation();
+        }}
+        onClick={(e: any) => {
+          if (propertyPaneWidgetId && propertyPaneWidgetId !== props.widgetId) {
+            showPropertyPane && showPropertyPane();
+          }
           e.stopPropagation();
         }}
         onDoubleClick={(e: any) => {

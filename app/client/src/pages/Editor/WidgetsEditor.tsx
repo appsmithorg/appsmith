@@ -11,6 +11,7 @@ import {
   getIsFetchingPage,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { BuilderRouteParams } from "constants/routes";
@@ -54,6 +55,7 @@ type EditorProps = {
   fetchPage: (pageId: string) => void;
   currentPageId?: string;
   isFetchingPage: boolean;
+  propertyPaneWidgetId?: string;
 };
 
 const WidgetsEditor = (props: EditorProps) => {
@@ -77,7 +79,13 @@ const WidgetsEditor = (props: EditorProps) => {
     node = pageLoading;
   }
   if (!props.isFetchingPage && props.dsl) {
-    node = <Canvas dsl={props.dsl} showPropertyPane={props.showPropertyPane} />;
+    node = (
+      <Canvas
+        dsl={props.dsl}
+        showPropertyPane={props.showPropertyPane}
+        propertyPaneWidgetId={props.propertyPaneWidgetId}
+      />
+    );
   }
   return (
     <EditorContextProvider>
@@ -93,6 +101,7 @@ const mapStateToProps = (state: AppState) => {
     dsl: getDenormalizedDSL(state),
     isFetchingPage: getIsFetchingPage(state),
     currentPageId: getCurrentPageId(state),
+    propertyPaneWidgetId: getCurrentWidgetId(state),
   };
 };
 
