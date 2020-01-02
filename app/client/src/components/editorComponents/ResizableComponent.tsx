@@ -23,7 +23,7 @@ import {
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // Fetch information from the context
-  const { isDragging, widgetNode } = useContext(DraggableComponentContext);
+  const { isDragging } = useContext(DraggableComponentContext);
   const { setIsResizing } = useContext(ResizingContext);
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { showPropertyPane, isFocused, setFocus } = useContext(FocusContext);
@@ -121,7 +121,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, widgetNode);
+    showPropertyPane && showPropertyPane(props.widgetId);
   };
   const style = getBorderStyles(
     isWidgetFocused,

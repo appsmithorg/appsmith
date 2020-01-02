@@ -182,6 +182,7 @@ export const widgetOperationParams = (
     widgetId: parentWidgetId,
     payload: {
       type: widget.type,
+      newWidgetId: generateReactKey(),
       leftColumn,
       topRow,
       ...widgetDimensions,
@@ -239,7 +240,7 @@ export const generateWidgetProps = (
   parentColumnSpace: number,
   widgetName: string,
   widgetConfig: Partial<WidgetProps>,
-): ContainerWidgetProps<WidgetProps> => {
+): Partial<ContainerWidgetProps<WidgetProps>> => {
   if (parent && parent.snapColumns && parent.snapRows) {
     const sizes = {
       leftColumn,
@@ -259,7 +260,6 @@ export const generateWidgetProps = (
     return {
       ...widgetConfig,
       type,
-      widgetId: generateReactKey(),
       widgetName: widgetName,
       isVisible: true,
       isLoading: false,

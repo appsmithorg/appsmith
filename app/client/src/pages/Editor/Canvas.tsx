@@ -9,11 +9,7 @@ import { ResizingContext, FocusContext } from "./CanvasContexts";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
-  showPropertyPane: (
-    widgetId?: string,
-    node?: HTMLDivElement,
-    toggle?: boolean,
-  ) => void;
+  showPropertyPane: (widgetId?: string, toggle?: boolean) => void;
   propertyPaneWidgetId?: string;
 }
 
