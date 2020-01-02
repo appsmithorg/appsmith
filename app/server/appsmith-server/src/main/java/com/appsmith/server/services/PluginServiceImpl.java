@@ -87,7 +87,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     return organizationService.findById(user.getCurrentOrganizationId())
                             .flatMapMany(org -> {
                                 log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
-                                if(org.getPlugins() == null) {
+                                if (org.getPlugins() == null) {
                                     log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
                                     return Flux.fromIterable(new ArrayList<>());
                                 }

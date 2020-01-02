@@ -280,8 +280,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         List<Param> params = executeActionDTO.getParams();
         if (params != null && !params.isEmpty()) {
             for (Param param : params) {
+
+                // In case the parameter values turn out to be null, set it to empty string instead to allow the
+                // the execution to go through no matter what.
                 if (param.getValue() == null) {
-                    return Mono.error(new AppsmithException(AppsmithError.ACTION_RUN_KEY_VALUE_INVALID, param.getKey(), param.getValue()));
+                    param.setValue("");
                 }
             }
         }
@@ -406,6 +409,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId) {
         return repository.findDistinctActionsByNameInAndPageId(names, pageId);
+    }
+
+    @Override
+    public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
+        return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, httpMethod);
     }
 
     @Override

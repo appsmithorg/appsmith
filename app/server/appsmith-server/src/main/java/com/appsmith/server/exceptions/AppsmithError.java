@@ -15,7 +15,6 @@ public enum AppsmithError {
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Pleaes input correct page id"),
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} organization"),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation"),
-    ACTION_RUN_KEY_VALUE_INVALID(400, 4008, "Invalid template param key value pair: {0}:{1}"),
     USER_DOESNT_BELONG_ANY_ORGANIZATION(400, 4009, "User {0} does not belong to any organization"),
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}"),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "Datasource without any configuration is invalid. Please try again with datasourceConfiguration"),

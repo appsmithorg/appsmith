@@ -28,7 +28,7 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
         // login page again with an error message shown to the user.
         String originHeader = exchange.getRequest().getHeaders().getOrigin();
-        if(originHeader == null || originHeader.isEmpty()) {
+        if (originHeader == null || originHeader.isEmpty()) {
             originHeader = "/";
         }
 
