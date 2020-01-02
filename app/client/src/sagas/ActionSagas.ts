@@ -34,6 +34,7 @@ import {
   createActionSuccess,
   deleteActionSuccess,
   FetchActionsPayload,
+  runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
@@ -303,6 +304,7 @@ export function* updateActionSaga(
         intent: Intent.SUCCESS,
       });
       yield put(updateActionSuccess({ data: response.data }));
+      yield put(runApiAction(data.id));
     }
   } catch (error) {
     yield put({

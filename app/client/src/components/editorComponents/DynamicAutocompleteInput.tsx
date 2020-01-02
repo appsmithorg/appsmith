@@ -9,7 +9,7 @@ import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
 import {
-  getNameBindingsWithData,
+  getNameBindingsForAutocomplete,
   NameBindingsWithData,
 } from "selectors/nameBindingsWithDataSelector";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
@@ -265,7 +265,7 @@ class DynamicAutocompleteInput extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getNameBindingsWithData(state),
+  dynamicData: getNameBindingsForAutocomplete(state),
 });
 
 export default connect(mapStateToProps)(DynamicAutocompleteInput);

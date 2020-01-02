@@ -1,4 +1,5 @@
 import { AppState, DataTree } from "reducers";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 export const getDataTree = (state: AppState): DataTree => state.entities;
 
@@ -15,3 +16,6 @@ export const getPluginIdOfName = (
   if (!plugin) return undefined;
   return plugin.id;
 };
+
+export const getActions = (state: AppState): ActionDataState["data"] =>
+  state.entities.actions.data;
