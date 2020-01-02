@@ -86,7 +86,9 @@ authenticated_operations = [
 
     {"method": "GET", "resource": "configs", "permission": "read:configs"},
     {"method": "POST", "resource": "configs", "permission": "create:configs"},
-    {"method": "PUT", "resource": "configs", "permission": "update:configs"}
+    {"method": "PUT", "resource": "configs", "permission": "update:configs"},
+
+    {"method": "POST", "resource": "import", "permission": "create:import"}
 
 ]
 
