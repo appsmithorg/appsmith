@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.mail.MailException;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -388,7 +389,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         } else {
             name = user.getEmail();
         }
-        personalOrg.setName(name + "'s Personal Workspace");
+        String personalWorkspaceName = name + "'s Personal Workspace";
+        personalOrg.setName(personalWorkspaceName);
 
         Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg);
 
@@ -413,6 +415,18 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             // At this point both the user and the organization have been saved. Now add the newly created
                             // organization to the newly created user.
                             .flatMap(user1 -> addUserToOrganization(savedOrg.getId(), user1));
+                })
+                .map(savedUser -> {
+                    // Send an email to the user welcoming them to the Appsmith platform
+                    try {
+                        emailSender.sendMail(savedUser.getEmail(), "Welcome to Appsmith",
+                                "Thank you for signing up for the Appsmith platform.\n Your personal workspace is: "
+                                        + personalWorkspaceName);
+                    } catch(MailException e) {
+                        // Catching and swallowing this exception because we don't want this to affect the rest of the flow
+                        log.error("Unable to send email to the user {}. Cause: ", savedUser.getEmail(), e);
+                    }
+                    return savedUser;
                 })
                 .flatMap(analyticsService::trackNewUser);
     }
