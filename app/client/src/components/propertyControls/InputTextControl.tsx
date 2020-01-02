@@ -8,12 +8,7 @@ import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocom
 
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
-    const {
-      // validationMessage,
-      propertyValue,
-      // isValid,
-      label,
-    } = this.props;
+    const { validationMessage, propertyValue, isValid, label } = this.props;
     return (
       <ControlWrapper>
         <label>{label}</label>
@@ -23,7 +18,12 @@ class InputTextControl extends BaseControl<InputControlProps> {
               value: propertyValue,
               onChange: this.onTextChange,
             }}
+            meta={{
+              error: isValid ? "" : validationMessage,
+              touched: true,
+            }}
             theme={"DARK"}
+            initialHeight={32}
           />
         </StyledDynamicInput>
       </ControlWrapper>

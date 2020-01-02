@@ -3,8 +3,10 @@ import { Popover } from "@blueprintjs/core";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
+  flex: 1;
   .bp3-popover-target {
     width: 100%;
+    height: 100%;
   }
   .bp3-popover {
     .bp3-popover-arrow {

@@ -11,7 +11,7 @@ import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import CodeEditor from "components/editorComponents/CodeEditor";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -138,12 +138,13 @@ const ApiResponseView = (props: Props) => {
             key: "body",
             title: "Response Body",
             panelComponent: (
-              <DynamicAutocompleteInput
+              <CodeEditor
                 input={{
                   value: response.body
                     ? JSON.stringify(response.body, null, 2)
                     : "",
                 }}
+                height={700}
               />
             ),
           },
