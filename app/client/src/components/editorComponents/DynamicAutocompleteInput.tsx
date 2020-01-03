@@ -172,6 +172,7 @@ class DynamicAutocompleteInput extends Component<Props> {
         completeSingle: false,
         globalScope: this.props.dynamicData,
       });
+      this.editor.setSize(0, this.props.initialHeight);
       this.editor.eachLine(this.highlightBindings);
     }
   }
@@ -183,8 +184,9 @@ class DynamicAutocompleteInput extends Component<Props> {
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
-      if (!!inputValue && inputValue !== editorValue) {
+      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
         this.editor.setValue(inputValue);
+        this.editor.setCursor(this.editor.lineCount(), 0);
       }
     }
   }
@@ -245,8 +247,12 @@ class DynamicAutocompleteInput extends Component<Props> {
   render() {
     const { input, meta, theme } = this.props;
     const hasError = !!(meta && meta.error);
+    let showError = false;
+    if (this.editor) {
+      showError = hasError && this.editor.hasFocus();
+    }
     return (
-      <ErrorTooltip message={meta ? meta.error : ""} isOpen={hasError}>
+      <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
         <Wrapper borderStyle={theme} hasError={hasError}>
           <HintStyles />
           <IconContainer>

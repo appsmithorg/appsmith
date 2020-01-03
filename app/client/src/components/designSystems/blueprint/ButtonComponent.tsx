@@ -1,10 +1,10 @@
 import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
-import { TextComponentProps } from "./TextComponent";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme } from "constants/DefaultTheme";
 import _ from "lodash";
+import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 
 const getButtonColorStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   if (props.filled) return props.theme.colors.textOnDarkBG;
@@ -98,7 +98,8 @@ BaseButton.defaultProps = {
   minimal: true,
 };
 
-interface ButtonContainerProps extends TextComponentProps {
+interface ButtonContainerProps extends ComponentProps {
+  text?: string;
   icon?: MaybeElement;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;

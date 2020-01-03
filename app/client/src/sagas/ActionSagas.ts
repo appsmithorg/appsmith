@@ -38,8 +38,8 @@ import {
   updateActionSuccess,
 } from "actions/actionActions";
 import {
-  evaluateDynamicBoundValue,
   getDynamicBindings,
+  getDynamicValue,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
@@ -84,7 +84,7 @@ const createActionErrorResponse = (
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   const nameBindingsWithData = yield select(getNameBindingsWithData);
-  return evaluateDynamicBoundValue(nameBindingsWithData, path);
+  return getDynamicValue(`{{${path}}}`, nameBindingsWithData);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
@@ -98,7 +98,9 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
   );
   const dynamicBindings: Record<string, string> = {};
   jsonPathKeys.forEach((key, i) => {
-    dynamicBindings[key] = values[i];
+    let value = values[i];
+    if (typeof value === "object") value = JSON.stringify(value);
+    dynamicBindings[key] = value;
   });
   return mapToPropList(dynamicBindings);
 }
@@ -346,8 +348,9 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
       getFormData,
       API_EDITOR_FORM_NAME,
     );
+    const actionObject: PageAction = yield select(getAction, values.id);
     let action: ExecuteActionRequest["action"] = { id: values.id };
-    let jsonPathKeys = values.jsonPathKeys;
+    let jsonPathKeys = actionObject.jsonPathKeys;
     if (!valid) {
       console.error("Form error");
       return;
@@ -358,7 +361,7 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
       if (isDynamicValue(actionString)) {
         const { paths } = getDynamicBindings(actionString);
         // Replace cause the existing keys could have been updated
-        jsonPathKeys = paths;
+        jsonPathKeys = paths.filter(path => !!path);
       } else {
         jsonPathKeys = [];
       }

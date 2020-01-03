@@ -20,13 +20,18 @@ const PropertyPaneConfigResponse = {
             label: "Button Style",
             controlType: "DROP_DOWN",
             options: [
-              { id: "1.2.1", label: "Primary Button", value: "PRIMARY_BUTTON" },
               {
-                id: "1.2.2",
+                label: "Primary Button",
+                value: "PRIMARY_BUTTON",
+              },
+              {
                 label: "Secondary Button",
                 value: "SECONDARY_BUTTON",
               },
-              { id: "1.2.3", label: "Danger Button", value: "DANGER_BUTTON" },
+              {
+                label: "Danger Button",
+                value: "DANGER_BUTTON",
+              },
             ],
           },
           {
@@ -74,13 +79,28 @@ const PropertyPaneConfigResponse = {
             label: "Text Style",
             controlType: "DROP_DOWN",
             options: [
-              { id: "3.2.1", label: "Heading", value: "HEADING" },
-              { id: "3.2.2", label: "Label", value: "LABEL" },
-              { id: "3.2.3", label: "Body", value: "BODY" },
+              {
+                label: "Heading",
+                value: "HEADING",
+              },
+              {
+                label: "Label",
+                value: "LABEL",
+              },
+              {
+                label: "Body",
+                value: "BODY",
+              },
             ],
           },
           {
             id: "3.3",
+            propertyName: "allowHtml",
+            label: "Allow HTML",
+            controlType: "SWITCH",
+          },
+          {
+            id: "3.4",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
@@ -97,15 +117,15 @@ const PropertyPaneConfigResponse = {
             id: "4.1",
             propertyName: "image",
             label: "Image",
-            placeholderText: "Enter URL",
             controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL",
           },
           {
-            id: "4.2",
+            id: "4.1",
             propertyName: "defaultImage",
             label: "Default Image",
-            placeholderText: "Enter URL",
             controlType: "INPUT_TEXT",
+            placeholderText: "Enter URL",
           },
           {
             id: "4.3",
@@ -132,8 +152,8 @@ const PropertyPaneConfigResponse = {
             propertyName: "label",
             label: "Label",
             controlType: "INPUT_TEXT",
-            inputType: "TEXT",
             placeholderText: "Label the widget",
+            inputType: "TEXT",
           },
           {
             id: "5.2",
@@ -141,11 +161,26 @@ const PropertyPaneConfigResponse = {
             label: "Data Type",
             controlType: "DROP_DOWN",
             options: [
-              { id: "5.2.1", label: "Text", value: "TEXT" },
-              { id: "5.2.2", label: "Number", value: "NUMBER" },
-              { id: "5.2.3", label: "Password", value: "PASSWORD" },
-              { id: "5.2.4", label: "Phone Number", value: "PHONE_NUMBER" },
-              { id: "5.2.5", label: "Email", value: "EMAIL" },
+              {
+                label: "Text",
+                value: "TEXT",
+              },
+              {
+                label: "Number",
+                value: "NUMBER",
+              },
+              {
+                label: "Password",
+                value: "PASSWORD",
+              },
+              {
+                label: "Phone Number",
+                value: "PHONE_NUMBER",
+              },
+              {
+                label: "Email",
+                value: "EMAIL",
+              },
             ],
           },
           {
@@ -167,24 +202,24 @@ const PropertyPaneConfigResponse = {
             propertyName: "maxChars",
             label: "Max Chars",
             controlType: "INPUT_TEXT",
-            inputType: "INTEGER",
             placeholderText: "Enter the max length",
+            inputType: "INTEGER",
           },
           {
             id: "5.6",
             propertyName: "regex",
             label: "Regex",
             controlType: "INPUT_TEXT",
-            inputType: "TEXT",
             placeholderText: "Enter the regex",
+            inputType: "TEXT",
           },
           {
             id: "5.7",
             propertyName: "errorMessage",
             label: "Error Message",
             controlType: "INPUT_TEXT",
-            inputType: "TEXT",
             placeholderText: "Enter the message",
+            inputType: "TEXT",
           },
           {
             id: "5.8",
@@ -223,8 +258,8 @@ const PropertyPaneConfigResponse = {
             propertyName: "label",
             label: "Label",
             controlType: "INPUT_TEXT",
-            inputType: "TEXT",
             placeholderText: "Label the widget",
+            inputType: "TEXT",
           },
           {
             id: "6.2",
@@ -248,10 +283,10 @@ const PropertyPaneConfigResponse = {
       },
       {
         sectionName: "Actions",
-        id: "5.1.1",
+        id: "6.1.1",
         children: [
           {
-            id: "5.1.2",
+            id: "6.1.2",
             propertyName: "onToggle",
             label: "onToggle",
             controlType: "ACTION_SELECTOR",
@@ -271,7 +306,7 @@ const PropertyPaneConfigResponse = {
             controlType: "COLOR_PICKER",
           },
           {
-            id: "6.3",
+            id: "7.2",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
@@ -298,36 +333,26 @@ const PropertyPaneConfigResponse = {
         sectionName: "General",
         id: "9",
         children: [
-          // {
-          //   id: "9.1",
-          //   propertyName: "datePickerType",
-          //   label: "Picker Type",
-          //   controlType: "DROP_DOWN",
-          //   options: [
-          //     { label: "Date Picker", value: "DATE_PICKER" },
-          //     { label: "Date Range Picker", value: "DATE_RANGE_PICKER" },
-          //   ],
-          // },
           {
             id: "9.2",
             propertyName: "label",
             label: "Label",
-            placeholderText: "Enter Label",
             controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label",
           },
           {
             id: "9.3",
             propertyName: "defaultDate",
             label: "Default Date",
-            placeholderText: "Enter Default Date",
             controlType: "DATE_PICKER",
+            placeholderText: "Enter Default Date",
           },
           {
             id: "9.5",
-            label: "Timezone",
-            placeholderText: "Select Timezone",
             propertyName: "timezone",
+            label: "Timezone",
             controlType: "TIMEZONE_PICKER",
+            placeholderText: "Select Timezone",
           },
           {
             id: "9.6",
@@ -373,12 +398,6 @@ const PropertyPaneConfigResponse = {
             label: "Enter Table Label",
             controlType: "INPUT_TEXT",
           },
-          // {
-          //   id: "11.2",
-          //   propertyName: "tableData",
-          //   label: "Enter data array",
-          //   controlType: "INPUT_TEXT",
-          // },
           {
             id: "11.2",
             propertyName: "tableData",
@@ -411,13 +430,13 @@ const PropertyPaneConfigResponse = {
         id: "12",
         children: [
           {
-            id: "12.1",
+            id: "12.2",
             propertyName: "onRowSelected",
             label: "onRowSelected",
             controlType: "ACTION_SELECTOR",
           },
           {
-            id: "12.2",
+            id: "12.3",
             propertyName: "onPageChange",
             label: "onPageChange",
             controlType: "ACTION_SELECTOR",
@@ -436,8 +455,14 @@ const PropertyPaneConfigResponse = {
             label: "Selection Type",
             controlType: "DROP_DOWN",
             options: [
-              { id: "13.1.1", label: "Single Select", value: "SINGLE_SELECT" },
-              { id: "13.1.2", label: "Multi Select", value: "MULTI_SELECT" },
+              {
+                label: "Single Select",
+                value: "SINGLE_SELECT",
+              },
+              {
+                label: "Multi Select",
+                value: "MULTI_SELECT",
+              },
             ],
           },
           {
@@ -573,65 +598,57 @@ const PropertyPaneConfigResponse = {
             id: "18.1",
             propertyName: "label",
             label: "Label",
-            inputType: "INTEGER",
-            placeholderText: "Enter Label",
             controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label",
+            inputType: "INTEGER",
           },
           {
             id: "18.2",
             propertyName: "maxNumFiles",
             label: "No. of files",
-            placeholderText: "Enter No. of files",
             controlType: "INPUT_TEXT",
+            placeholderText: "Enter No. of files",
           },
           {
             id: "18.3",
             propertyName: "allowedFileTypes",
             label: "Allowed File Types",
+            controlType: "MULTI_SELECT",
             placeholderText: "Enter No. of files",
             options: [
               {
-                id: "18.3.1",
                 label: "Any File",
                 value: "*",
               },
               {
-                id: "18.3.2",
                 label: "Images",
                 value: "image/*",
               },
               {
-                id: "18.3.3",
                 label: "Videos",
                 value: "video/*",
               },
               {
-                id: "18.3.4",
                 label: "Audio",
                 value: "audio/*",
               },
               {
-                id: "18.3.5",
                 label: "Text",
                 value: "text/*",
               },
               {
-                id: "18.3.6",
                 label: "JPEG",
                 value: "image/jpeg",
               },
               {
-                id: "18.3.7",
                 label: "PNG",
                 value: "*.png",
               },
               {
-                id: "18.3.8",
                 label: "GIF",
                 value: "*.gif",
               },
             ],
-            controlType: "MULTI_SELECT",
           },
           {
             id: "18.4",
@@ -643,7 +660,7 @@ const PropertyPaneConfigResponse = {
       },
     ],
   },
-  configVersion: 1,
+  name: "propertyPane",
 };
 
 export default PropertyPaneConfigResponse;
