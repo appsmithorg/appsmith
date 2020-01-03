@@ -22,6 +22,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -281,9 +282,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (params != null && !params.isEmpty()) {
             for (Param param : params) {
 
+                if (param.getKey() == null || param.getKey().isEmpty()) {
+                    continue;
+                }
+
                 // In case the parameter values turn out to be null, set it to empty string instead to allow the
                 // the execution to go through no matter what.
-                if (param.getValue() == null) {
+                else if (param.getValue() == null) {
                     param.setValue("");
                 }
             }
@@ -355,6 +360,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 );
                         datasourceConfiguration = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+
+                        // If the action has a body (for RestAPI), then unescape HTML in the string.
+                        if (actionConfiguration.getBody() != null) {
+                            actionConfiguration.setBody(StringEscapeUtils.unescapeHtml(actionConfiguration.getBody()));
+                        }
                     } else {
                         datasourceConfiguration = datasource.getDatasourceConfiguration();
                         actionConfiguration = action.getActionConfiguration();
