@@ -105,7 +105,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
       <MainConfiguration>
         <FormRow>
-          <TextField name="name" placeholder="API Name *" showError />
+          <TextField
+            name="name"
+            placeholder="API name (camel case)"
+            showError
+          />
           <ActionButtons>
             <ActionButton
               text="Delete"

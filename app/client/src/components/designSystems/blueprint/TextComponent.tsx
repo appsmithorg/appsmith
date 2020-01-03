@@ -15,6 +15,7 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
+  allowHtml: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -37,14 +38,22 @@ class TextComponent extends React.Component<TextComponentProps> {
   }
 
   render() {
-    return (
-      <Text
-        className={this.getTextClass(this.props.textStyle)}
-        ellipsize={this.props.ellipsize}
-      >
-        {this.props.text}
-      </Text>
-    );
+    const { allowHtml, textStyle, text, ellipsize } = this.props;
+    if (allowHtml && text) {
+      const markup = { __html: text };
+      return (
+        <div
+          dangerouslySetInnerHTML={markup}
+          className={this.getTextClass(textStyle)}
+        />
+      );
+    } else {
+      return (
+        <Text className={this.getTextClass(textStyle)} ellipsize={ellipsize}>
+          {text}
+        </Text>
+      );
+    }
   }
 }
 
