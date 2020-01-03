@@ -1,11 +1,13 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
@@ -17,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.mail.MailException;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,7 +29,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -47,6 +50,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final EmailSender emailSender;
     private final GroupService groupService;
     private final InviteUserRepository inviteUserRepository;
+
+    private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
+    private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
+    private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/createPassword?token=%s&email=%s";
+    private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -171,11 +180,22 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
      * collection with an expiry time of 1 hour. The user must provide this one-time token when updating with the new password.
      *
-     * @param email The email ID of the user initiating the password reset request
+     * @param resetUserPasswordDTO
      * @return
      */
     @Override
-    public Mono<Boolean> forgotPasswordTokenGenerate(String email) {
+    public Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO) {
+        if (resetUserPasswordDTO.getEmail() == null
+                || resetUserPasswordDTO.getEmail().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
+        if (resetUserPasswordDTO.getBaseUrl() == null || resetUserPasswordDTO.getBaseUrl().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
+        String email = resetUserPasswordDTO.getEmail();
+
         // Create a random token to be sent out.
         String token = UUID.randomUUID().toString();
         log.debug("Password reset Token: {} for email: {}", token, email);
@@ -193,7 +213,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return passwordResetTokenMono
                 .map(resetToken -> passwordResetTokenRepository.save(resetToken))
                 .map(obj -> {
-                    emailSender.sendMail(email, "Appsmith Password Reset", "Token: " + token);
+                    String resetUrl = String.format(FORGOT_PASSWORD_CLIENT_URL_FORMAT,
+                            resetUserPasswordDTO.getBaseUrl(), token, email);
+                    Map<String, String> params = Map.of("resetUrl", resetUrl);
+                    try {
+                        String emailTemplate = emailSender.replaceEmailTemplate(FORGOT_PASSWORD_EMAIL_TEMPLATE, params);
+                        emailSender.sendMail(email, "Appsmith Password Reset", emailTemplate);
+                    } catch (IOException e) {
+                        log.error("Unable to send email because the template replacement failed. Cause: ", e);
+                    }
                     return Mono.empty();
                 })
                 .thenReturn(true);
@@ -273,7 +301,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<User> inviteUser(User user) {
+    public Mono<User> inviteUser(User user, String originHeader) {
+        if (originHeader == null || originHeader.isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
         // Create an invite token for the user. This token is linked to the email ID and the organization to which the user was invited.
         String token = UUID.randomUUID().toString();
 
@@ -295,9 +327,17 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(inviteUserRepository::save)
                 // Send an email to the invited user with the token
                 .map(inviteUser -> {
-                    String emailBody = "Invite Token: " + token;
                     log.debug("Going to send email for invite user to {} with token {}", inviteUser.getEmail(), token);
-                    emailSender.sendMail(inviteUser.getEmail(), "Welcome to Appsmith", emailBody);
+                    try {
+                        String inviteUrl = String.format(INVITE_USER_CLIENT_URL_FORMAT, originHeader, token, inviteUser.getEmail());
+                        Map<String, String> params = Map.of(
+                                "token", token,
+                                "inviteUrl", inviteUrl);
+                        String emailBody = emailSender.replaceEmailTemplate(INVITE_USER_EMAIL_TEMPLATE, params);
+                        emailSender.sendMail(inviteUser.getEmail(), "Invite for Appsmith", emailBody);
+                    } catch (IOException e) {
+                        log.error("Unable to send invite user email to {}. Cause: ", inviteUser.getEmail(), e);
+                    }
                     return inviteUser;
                 });
 
@@ -419,12 +459,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .map(savedUser -> {
                     // Send an email to the user welcoming them to the Appsmith platform
                     try {
-                        emailSender.sendMail(savedUser.getEmail(), "Welcome to Appsmith",
-                                "Thank you for signing up for the Appsmith platform.\n Your personal workspace is: "
-                                        + personalWorkspaceName);
-                    } catch(MailException e) {
+                        Map<String, String> params = Map.of("personalWorkspaceName", personalWorkspaceName);
+                        String emailBody = emailSender.replaceEmailTemplate(WELCOME_USER_EMAIL_TEMPLATE, params);
+                        emailSender.sendMail(savedUser.getEmail(), "Welcome to Appsmith", emailBody);
+                    } catch (IOException e) {
                         // Catching and swallowing this exception because we don't want this to affect the rest of the flow
-                        log.error("Unable to send email to the user {}. Cause: ", savedUser.getEmail(), e);
+                        log.error("Unable to send welcome email to the user {}. Cause: ", savedUser.getEmail(), e);
                     }
                     return savedUser;
                 })
