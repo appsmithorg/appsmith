@@ -107,25 +107,6 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
                 .then(Mono.empty());
     }
 
-    public Mono<User> checkAndCreateUser(OidcUser user) {
-        User newUser = new User();
-        newUser.setName(user.getFullName());
-        newUser.setEmail(user.getEmail());
-        newUser.setSource(LoginSource.GOOGLE);
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        // TODO: Check if this is a valid permission available in the DB
-        // TODO: Check to see if this user was invited or is it a new sign up
-        Set<String> permissions = new HashSet<>();
-        // Adding the create organization permission because this is a new user and we will have to create an organization
-        // after this for the user.
-        permissions.addAll(AclConstants.PERMISSIONS_CRUD_ORG);
-        newUser.setPermissions(permissions);
-
-        return userService.findByEmail(user.getEmail())
-                .switchIfEmpty(Mono.defer(() -> userService.create(newUser))); //In case the user doesn't exist, create and save the user.
-    }
-
     @Override
     public Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
                                              ServerWebExchange exchange) {
