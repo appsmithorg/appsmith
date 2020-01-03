@@ -55,6 +55,7 @@ public class GroupServiceImpl extends BaseService<GroupRepository, Group, String
                     newGroup.setDisplayName(group.getDisplayName());
                     newGroup.setOrganizationId(organizationId);
                     newGroup.setPermissions(group.getPermissions());
+                    newGroup.setIsDefault(group.getIsDefault());
                     log.debug("Creating group {} for org: {}", group.getName(), organizationId);
                     return create(newGroup);
                 });
