@@ -19,6 +19,7 @@ import java.util.Set;
 public class GroupServiceImpl extends BaseService<GroupRepository, Group, String> implements GroupService {
 
     private final GroupRepository repository;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public GroupServiceImpl(Scheduler scheduler,
@@ -26,14 +27,20 @@ public class GroupServiceImpl extends BaseService<GroupRepository, Group, String
                             MongoConverter mongoConverter,
                             ReactiveMongoTemplate reactiveMongoTemplate,
                             GroupRepository repository,
-                            AnalyticsService analyticsService) {
+                            AnalyticsService analyticsService,
+                            SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
     public Flux<Group> getAllById(Set<String> ids) {
-        return this.repository.findAllById(ids);
+        return sessionUserService.getCurrentUser()
+                .flatMapMany(user -> {
+                    String organizationId = user.getCurrentOrganizationId();
+                    return repository.getAllByOrganizationId(organizationId);
+                });
     }
 
     /**
