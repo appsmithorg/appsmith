@@ -2,19 +2,14 @@ import React from "react";
 import { Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { hasAuthExpired } from "utils/storage";
 import { User } from "constants/userConstants";
+import { setCurrentUserDetails } from "actions/userActions";
 
 export const checkAuth = (dispatch: any, currentUser?: User) => {
   return hasAuthExpired().then(hasExpired => {
     if (!currentUser || hasExpired) {
-      dispatch({
-        type: ReduxActionTypes.SET_CURRENT_USER_INIT,
-        payload: {
-          id: "me",
-        },
-      });
+      dispatch(setCurrentUserDetails());
     }
   });
 };
