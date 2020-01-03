@@ -4,3 +4,7 @@ export type User = {
   currentOrganizationId: string;
   organizationIds: string[];
 };
+
+export const CurrentUserDetailsRequestPayload = {
+  id: "me",
+};

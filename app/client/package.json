@@ -85,7 +85,7 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT craco start",
+    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
     "build": "craco  --max-old-space-size=2048 build",
     "test": "CI=true craco test",
     "eject": "react-scripts eject",

@@ -23,6 +23,11 @@ import {
 import { fetchOrgsSaga } from "./OrgSagas";
 
 import { resetAuthExpiration } from "utils/storage";
+import {
+  logoutUserSuccess,
+  fetchCurrentUser,
+  logoutUserError,
+} from "actions/userActions";
 
 export function* createUserSaga(
   action: ReduxAction<{
@@ -255,6 +260,20 @@ export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
   }
 }
 
+export function* logoutSaga() {
+  try {
+    const response: ApiResponse = yield call(UserApi.logoutUser);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(logoutUserSuccess());
+      yield put(fetchCurrentUser());
+    }
+  } catch (error) {
+    console.log(error);
+    yield put(logoutUserError(error));
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -267,5 +286,6 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
     takeLatest(ReduxActionTypes.FETCH_USER_INIT, fetchUserSaga),
     takeLatest(ReduxActionTypes.SET_CURRENT_USER_INIT, setCurrentUserSaga),
+    takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
   ]);
 }
