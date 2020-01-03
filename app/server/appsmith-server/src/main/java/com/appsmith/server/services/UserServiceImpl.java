@@ -423,13 +423,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         Organization personalOrg = new Organization();
-        String name;
+        String firstName;
         if (user.getName() != null) {
-            name = user.getName();
+            // Get the first word from the full name and assume that that's the user's first name
+            firstName = user.getName().split(" ")[0];
         } else {
-            name = user.getEmail();
+            user.setName(user.getEmail());
+            firstName = user.getEmail().split("@")[0];
         }
-        String personalWorkspaceName = name + "'s Personal Workspace";
+
+        String personalWorkspaceName = firstName + "'s Personal Workspace";
         personalOrg.setName(personalWorkspaceName);
 
         Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg);
