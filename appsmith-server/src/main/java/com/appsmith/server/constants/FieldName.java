@@ -1,8 +1,8 @@
 package com.appsmith.server.constants;
 
 public class FieldName {
+    public static final String EMAIL = "email";
     public static String ORGANIZATION = "organization";
-    public static String ORGANIZATION_ID = "organizationId";
     public static String ID = "id";
     public static String NAME = "name";
     public static String PAGE_ID = "pageId";
@@ -16,4 +16,6 @@ public class FieldName {
     public static String WIDGET_NAME = "widgetName";
     public static String DYNAMIC_BINDINGS = "dynamicBindings";
     public static String CHILDREN = "children";
+    public static String ORIGIN = "origin";
+    public static String USER = "user";
 }
