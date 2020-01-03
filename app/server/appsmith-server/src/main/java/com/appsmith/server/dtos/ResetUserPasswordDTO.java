@@ -8,11 +8,10 @@ import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
-public class ResetUserPasswordDTO {
+public class ResetUserPasswordDTO extends User {
+
+    String baseUrl;
 
     @NotEmpty
     String token;
-
-    @NotEmpty
-    User user;
 }
