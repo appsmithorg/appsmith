@@ -50,6 +50,8 @@ let res = [
         "_id": ObjectId("5da151714a020300041ae8ff"),
         "name": "org-admin",
         "organizationId": "5da151714a020300041ae8fd",
+        "displayName": "Org Admin Group",
+        "isDefault": true,
         "permissions": [
             "read:groups",
             "read:organizations",
@@ -78,7 +80,42 @@ let res = [
         ],
         "deleted": false,
         "_class": "com.appsmith.server.domains.Group"
-    }),
+    },
+    {
+            "_id": ObjectId("5df8c1e0078d501fc3f4491b"),
+            "name": "org-admin",
+            "organizationId": "default-org",
+            "displayName": "Org Admin Group",
+            "isDefault": true,
+            "permissions": [
+                "read:groups",
+                "read:organizations",
+                "create:users",
+                "create:groups",
+                "create:organizations",
+                "read:users",
+                "read:pages",
+                "create:pages",
+                "update:pages",
+                "read:layouts",
+                "create:layouts",
+                "update:layouts",
+                "read:properties",
+                "create:properties",
+                "update:properties",
+                "read:actions",
+                "create:actions",
+                "update:actions",
+                "read:resources",
+                "create:resources",
+                "update:resources",
+                "read:plugins",
+                "create:plugins",
+                "update:plugins"
+            ],
+            "deleted": false,
+            "_class": "com.appsmith.server.domains.Group"
+        }),
 
     db.user.insert({
         "name": "Admin User",

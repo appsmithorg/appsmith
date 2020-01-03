@@ -30,6 +30,8 @@ public class Group extends BaseDomain {
      */
     Set<String> permissions;
 
+    private Boolean isDefault = false;
+
     /**
      * If the display name is null or empty, then just return the actual group name. This is just to ensure that
      * the client is never sent an empty group name for displaying on the UI.
