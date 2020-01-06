@@ -129,7 +129,7 @@ interface ReduxStateProps {
 export type DynamicAutocompleteInputProps = {
   placeholder?: string;
   leftIcon?: Function;
-  initialHeight: number;
+  height?: number;
   theme?: THEME;
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
@@ -172,7 +172,9 @@ class DynamicAutocompleteInput extends Component<Props> {
         completeSingle: false,
         globalScope: this.props.dynamicData,
       });
-      this.editor.setSize(0, this.props.initialHeight);
+      if (this.props.height) {
+        this.editor.setSize(0, this.props.height);
+      }
       this.editor.eachLine(this.highlightBindings);
     }
   }

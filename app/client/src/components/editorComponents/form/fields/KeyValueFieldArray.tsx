@@ -32,16 +32,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       {props.fields.map((field: any, index: number) => (
         <FormRowWithLabel key={index}>
           {index === 0 && <FormLabel>{props.label}</FormLabel>}
-          <DynamicTextField
-            name={`${field}.key`}
-            placeholder="Key"
-            initialHeight={32}
-          />
-          <DynamicTextField
-            name={`${field}.value`}
-            placeholder="Value"
-            initialHeight={32}
-          />
+          <DynamicTextField name={`${field}.key`} placeholder="Key" />
+          <DynamicTextField name={`${field}.value`} placeholder="Value" />
           {index === props.fields.length - 1 ? (
             <Icon
               icon="plus"
