@@ -46,11 +46,7 @@ const CanvasContainer = styled.section`
 type EditorProps = {
   dsl?: ContainerWidgetProps<WidgetProps>;
   savePageLayout: Function;
-  showPropertyPane: (
-    widgetId?: string,
-    node?: HTMLDivElement,
-    toggle?: boolean,
-  ) => void;
+  showPropertyPane: (widgetId?: string, toggle?: boolean) => void;
   fetchPage: (pageId: string) => void;
   currentPageId?: string;
   isFetchingPage: boolean;
@@ -103,14 +99,10 @@ const mapDispatchToProps = (dispatch: any) => {
       layoutId: string,
       dsl: ContainerWidgetProps<WidgetProps>,
     ) => dispatch(savePage(pageId, layoutId, dsl)),
-    showPropertyPane: (
-      widgetId?: string,
-      node?: HTMLDivElement,
-      toggle = false,
-    ) => {
+    showPropertyPane: (widgetId?: string, toggle = false) => {
       dispatch({
         type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-        payload: { widgetId, node, toggle },
+        payload: { widgetId, toggle },
       });
     },
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),

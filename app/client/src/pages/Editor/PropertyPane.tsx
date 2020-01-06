@@ -8,7 +8,6 @@ import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReduc
 import { updateWidgetProperty } from "actions/controlActions";
 import {
   getCurrentWidgetId,
-  getCurrentReferenceNode,
   getPropertyConfig,
   getIsPropertyPaneVisible,
   getWidgetPropsWithValidations,
@@ -17,7 +16,10 @@ import { Divider } from "@blueprintjs/core";
 
 import Popper from "./Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WIDGET_CLASSNAME_PREFIX,
+} from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { theme } from "constants/DefaultTheme";
@@ -58,9 +60,11 @@ class PropertyPane extends Component<
   render() {
     if (this.props.isVisible) {
       const content = this.renderPropertyPane(this.props.propertySections);
-
+      const el = document.getElementsByClassName(
+        WIDGET_CLASSNAME_PREFIX + this.props.widgetId,
+      )[0];
       return (
-        <Popper isOpen={true} targetRefNode={this.props.targetNode}>
+        <Popper isOpen={true} targetNode={el}>
           {content}
         </Popper>
       );
@@ -163,7 +167,6 @@ const mapStateToProps = (state: AppState): PropertyPaneProps => {
     widgetId: getCurrentWidgetId(state),
     widgetProperties: getWidgetPropsWithValidations(state),
     isVisible: getIsPropertyPaneVisible(state),
-    targetNode: getCurrentReferenceNode(state),
   };
 };
 
@@ -194,7 +197,6 @@ export interface PropertyPaneProps {
   widgetId?: string;
   widgetProperties?: WidgetProps; //TODO(abhinav): Secure type definition
   isVisible: boolean;
-  targetNode?: HTMLDivElement;
 }
 
 export interface PropertyPaneFunctions {

@@ -6,7 +6,7 @@ import PaneWrapper from "pages/common/PaneWrapper";
 
 type PopperProps = {
   isOpen: boolean;
-  targetRefNode?: HTMLDivElement;
+  targetNode?: Element;
   children: JSX.Element;
 };
 
@@ -24,11 +24,15 @@ export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
     //TODO(abhinav): optimize this, remove previous Popper instance.
-    const parentElement =
-      props.targetRefNode && props.targetRefNode.parentElement;
-    if (parentElement && parentElement.parentElement && props.targetRefNode) {
+    const parentElement = props.targetNode && props.targetNode.parentElement;
+    if (
+      parentElement &&
+      parentElement.parentElement &&
+      props.targetNode &&
+      props.isOpen
+    ) {
       new PopperJS(
-        props.targetRefNode,
+        props.targetNode,
         (contentRef.current as unknown) as Element,
         {
           placement: "right-start",
@@ -46,7 +50,7 @@ export default (props: PopperProps) => {
         },
       );
     }
-  }, [props.targetRefNode]);
+  }, [props.targetNode, props.isOpen]);
   return createPortal(
     <PopperWrapper ref={contentRef}>{props.children}</PopperWrapper>,
     document.body,

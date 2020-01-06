@@ -8,7 +8,6 @@ import {
 const initialState: PropertyPaneReduxState = {
   isVisible: false,
   widgetId: undefined,
-  node: undefined,
 };
 
 const propertyPaneReducer = createReducer(initialState, {
@@ -16,15 +15,8 @@ const propertyPaneReducer = createReducer(initialState, {
     state: PropertyPaneReduxState,
     action: ReduxAction<ShowPropertyPanePayload>,
   ) => {
-    let isVisible = true;
-    const { widgetId, node, toggle } = action.payload;
-    if (state.widgetId === action.payload.widgetId) {
-      isVisible = state.isVisible;
-    }
-    if (toggle) {
-      isVisible = !state.isVisible;
-    }
-    return { ...state, widgetId, node, isVisible };
+    const { widgetId } = action.payload;
+    return { ...state, widgetId, isVisible: true };
   },
   [ReduxActionTypes.HIDE_PROPERTY_PANE]: (state: PropertyPaneReduxState) => {
     return { ...state, isVisible: false };
@@ -34,7 +26,6 @@ const propertyPaneReducer = createReducer(initialState, {
 export interface PropertyPaneReduxState {
   widgetId?: string;
   isVisible: boolean;
-  node?: HTMLDivElement;
 }
 
 export default propertyPaneReducer;

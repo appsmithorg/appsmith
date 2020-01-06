@@ -4,9 +4,8 @@ import { XYCoord } from "react-dnd";
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 import { DraggableComponentContext } from "./DraggableComponent";
-import { ResizingContext } from "./DropTargetComponent";
 import { generateClassName } from "utils/generators";
 
 import ResizableContainer, {
@@ -24,10 +23,15 @@ import {
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // Fetch information from the context
-  const { isDragging, widgetNode } = useContext(DraggableComponentContext);
+  const { isDragging } = useContext(DraggableComponentContext);
   const { setIsResizing } = useContext(ResizingContext);
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
-  const { showPropertyPane, isFocused, setFocus } = useContext(FocusContext);
+  const {
+    showPropertyPane,
+    selectedWidget,
+    focusedWidget,
+    selectWidget,
+  } = useContext(FocusContext);
   const occupiedSpacesBySiblingWidgets =
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
@@ -36,7 +40,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const [isColliding, setIsColliding] = useState(false);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
-  const isWidgetFocused = isFocused === props.widgetId;
+  const isWidgetFocused =
+    focusedWidget === props.widgetId || selectedWidget === props.widgetId;
 
   // Widget can be resized if
   // The widget is focused, and
@@ -112,16 +117,17 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
-
+    // Clear border styles
+    setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
     setIsResizing && setIsResizing(false);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
-    setFocus && setFocus(props.widgetId);
+    selectWidget && selectWidget(props.widgetId);
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, widgetNode);
+    showPropertyPane && showPropertyPane(props.widgetId);
   };
   const style = getBorderStyles(
     isWidgetFocused,
@@ -144,7 +150,8 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       onResize={checkForCollision}
       onResizeStart={() => {
         setIsResizing && setIsResizing(true);
-        showPropertyPane && showPropertyPane(props.widgetId);
+        selectWidget && selectWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}

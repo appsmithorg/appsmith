@@ -33,6 +33,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       rows,
       parentRowSpace,
       parentColumnSpace,
+      newWidgetId,
     } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
@@ -49,6 +50,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       getNextWidgetName(defaultWidgetConfig.widgetName, widgets),
       defaultWidgetConfig,
     );
+    childWidget.widgetId = newWidgetId;
     widgets[childWidget.widgetId] = childWidget;
     if (widget && widget.children) {
       widget.children.push(childWidget.widgetId);

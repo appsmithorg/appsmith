@@ -33,10 +33,10 @@ const DragLayerComponent = (props: DragLayerProps) => {
   const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
     monitor => ({
       isDragging: monitor.isDragging(),
-      currentOffset: monitor.getClientOffset(),
+      currentOffset: monitor.getSourceClientOffset(),
       widget: monitor.getItem(),
       canDrop: noCollision(
-        monitor.getClientOffset() as XYCoord,
+        monitor.getSourceClientOffset() as XYCoord,
         props.parentColumnWidth,
         props.parentRowHeight,
         monitor.getItem(),

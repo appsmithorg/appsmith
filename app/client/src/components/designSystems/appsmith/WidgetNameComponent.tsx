@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext } from "pages/Editor/CanvasContexts";
 import { DraggableComponentContext } from "components/editorComponents/DraggableComponent";
 
 const PositionStyle = styled.div`
@@ -22,10 +22,12 @@ type WidgetNameComponentProps = {
 };
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
-  const { isFocused } = useContext(FocusContext);
+  const { focusedWidget, selectedWidget } = useContext(FocusContext);
   const { isDragging } = useContext(DraggableComponentContext);
 
-  return isFocused === props.widgetId && !isDragging ? (
+  return (focusedWidget === props.widgetId ||
+    selectedWidget === props.widgetId) &&
+    !isDragging ? (
     <PositionStyle>{props.widgetName}</PositionStyle>
   ) : null;
 };

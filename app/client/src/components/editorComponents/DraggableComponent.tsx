@@ -1,20 +1,18 @@
-import React, {
-  useContext,
-  createContext,
-  useState,
-  Context,
-  useCallback,
-} from "react";
+import React, { useContext, createContext, Context } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext } from "pages/Editor/Canvas";
+import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
-import { ResizingContext } from "./DropTargetComponent";
 import { Tooltip } from "@blueprintjs/core";
+import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
+import { IntentColors } from "constants/DefaultTheme";
+import { useSelector } from "react-redux";
+import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import { AppState } from "reducers";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -55,15 +53,6 @@ const EditControl = styled.div`
   cursor: pointer;
 `;
 
-const DraggableMask = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: -1;
-`;
-
 const CONTROL_ICON_SIZE = 20;
 
 const moveControlIcon = ControlIcons.MOVE_CONTROL({
@@ -76,34 +65,38 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
   height: CONTROL_ICON_SIZE,
 });
 
-const editControlIcon = ControlIcons.EDIT_CONTROL({
-  width: CONTROL_ICON_SIZE,
-  height: CONTROL_ICON_SIZE,
-});
-
 type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 
 export const DraggableComponentContext: Context<{
   isDragging?: boolean;
-  widgetNode?: HTMLDivElement;
 }> = createContext({});
 /* eslint-disable react/display-name */
 
-//TODO(abhinav): the contexts and states are getting out of hand.
-// Refactor here and in ResizableComponent
-
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const { isFocused, setFocus, showPropertyPane } = useContext(FocusContext);
-  const { updateWidget } = useContext(EditorContext);
-  const [currentNode, setCurrentNode] = useState<HTMLDivElement>();
-  const referenceRef = useCallback(
-    node => {
-      if (node !== null && node !== currentNode) {
-        setCurrentNode(node);
-      }
-    },
-    [setCurrentNode, currentNode],
+  const {
+    focusedWidget,
+    selectedWidget,
+    focusWidget,
+    selectWidget,
+    showPropertyPane,
+  } = useContext(FocusContext);
+
+  const propertyPaneState: PropertyPaneReduxState = useSelector(
+    (state: AppState) => state.ui.propertyPane,
   );
+
+  const editControlIcon = ControlIcons.EDIT_CONTROL({
+    width: CONTROL_ICON_SIZE,
+    height: CONTROL_ICON_SIZE,
+    background:
+      propertyPaneState.widgetId === props.widgetId &&
+      propertyPaneState.isVisible
+        ? IntentColors.primary
+        : "auto",
+  });
+
+  const { updateWidget } = useContext(EditorContext);
+
   const { isResizing } = useContext(ResizingContext);
 
   const deleteWidget = () => {
@@ -115,8 +108,8 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   };
 
   const togglePropertyEditor = (e: any) => {
-    if (showPropertyPane && props.widgetId && currentNode) {
-      showPropertyPane(props.widgetId, currentNode, true);
+    if (showPropertyPane && props.widgetId) {
+      showPropertyPane(props.widgetId, true);
     }
     e.stopPropagation();
   };
@@ -127,37 +120,52 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
-      if (isFocused === props.widgetId && showPropertyPane && currentNode) {
-        showPropertyPane(props.widgetId, undefined);
-      }
+      showPropertyPane && showPropertyPane();
+      selectWidget && selectWidget(props.widgetId);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
-        if (isFocused === props.widgetId && showPropertyPane && currentNode) {
-          showPropertyPane(props.widgetId, currentNode);
-        }
+        showPropertyPane && showPropertyPane(props.widgetId);
       }
     },
     canDrag: () => {
-      return !isResizing && !!isFocused && isFocused === props.widgetId;
+      return !isResizing;
     },
   });
 
   return (
-    <DraggableComponentContext.Provider
-      value={{ isDragging, widgetNode: currentNode }}
-    >
-      <DragPreviewImage src={blankImage} connect={preview} />
+    <DraggableComponentContext.Provider value={{ isDragging }}>
+      <DragPreviewImage connect={preview} src={blankImage} />
       <DraggableWrapper
+        className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
         ref={drag}
-        onClick={(e: any) => {
-          if (setFocus && showPropertyPane) {
-            setFocus(props.widgetId);
-            showPropertyPane(props.widgetId, currentNode);
-            e.stopPropagation();
-          }
+        onMouseOver={(e: any) => {
+          focusWidget && focusWidget(props.widgetId);
+          e.stopPropagation();
         }}
-        show={props.widgetId === isFocused && !isResizing}
+        onMouseLeave={(e: any) => {
+          focusWidget && focusWidget(null);
+          e.stopPropagation();
+        }}
+        onClick={(e: any) => {
+          selectWidget && selectWidget(props.widgetId);
+          if (
+            propertyPaneState.widgetId &&
+            propertyPaneState.widgetId !== props.widgetId
+          ) {
+            showPropertyPane && showPropertyPane();
+          }
+          e.stopPropagation();
+        }}
+        onDoubleClick={(e: any) => {
+          showPropertyPane && showPropertyPane(props.widgetId);
+          e.stopPropagation();
+        }}
+        show={
+          (props.widgetId === focusedWidget ||
+            props.widgetId === selectedWidget) &&
+          !isResizing
+        }
         style={{
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
@@ -169,7 +177,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           userSelect: "none",
         }}
       >
-        <DraggableMask ref={referenceRef} />
         {props.children}
         <DragHandle className="control" ref={drag}>
           <Tooltip content="Move" hoverOpenDelay={500}>
@@ -182,7 +189,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           </Tooltip>
         </DeleteControl>
         <EditControl className="control" onClick={togglePropertyEditor}>
-          <Tooltip content="Toggle props" hoverOpenDelay={500}>
+          <Tooltip content="Show props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
         </EditControl>
