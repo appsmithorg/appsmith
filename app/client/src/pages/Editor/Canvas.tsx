@@ -17,17 +17,19 @@ interface CanvasProps {
 /* eslint-disable react/prop-types */
 
 const Canvas = (props: CanvasProps) => {
-  const [isFocused, setFocus] = useState("");
+  const [selectedWidget, selectWidget] = useState();
+  const [focusedWidget, focusWidget] = useState();
   const [isResizing, setIsResizing] = useState(false);
   try {
     return (
       <ResizingContext.Provider value={{ isResizing, setIsResizing }}>
         <FocusContext.Provider
           value={{
-            isFocused,
-            setFocus,
+            selectedWidget,
+            selectWidget,
+            focusedWidget,
+            focusWidget,
             showPropertyPane: props.showPropertyPane,
-            propertyPaneWidgetId: props.propertyPaneWidgetId,
           }}
         >
           <PropertyPane />

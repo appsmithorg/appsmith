@@ -1,9 +1,10 @@
 import { Context, createContext } from "react";
 
 export const FocusContext: Context<{
-  isFocused?: string;
-  setFocus?: Function;
-  propertyPaneWidgetId?: string;
+  selectedWidget?: string;
+  focusedWidget?: string;
+  selectWidget?: Function;
+  focusWidget?: Function;
   showPropertyPane?: (widgetId?: string, toggle?: boolean) => void;
 }> = createContext({});
 

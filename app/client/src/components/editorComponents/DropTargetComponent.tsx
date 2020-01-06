@@ -32,7 +32,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
-  const { setFocus, showPropertyPane } = useContext(FocusContext);
+  const { selectWidget, showPropertyPane } = useContext(FocusContext);
   const { isResizing } = useContext(ResizingContext);
   const spacesOccupiedBySiblingWidgets =
     occupiedSpaces && occupiedSpaces[props.widgetId]
@@ -107,7 +107,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
   const handleFocus = () => {
     if (!props.parentId) {
-      setFocus && setFocus(props.widgetId);
+      selectWidget && selectWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
   };

@@ -10,6 +10,9 @@ import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
 import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
 import { IntentColors } from "constants/DefaultTheme";
+import { useSelector } from "react-redux";
+import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import { AppState } from "reducers";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -71,16 +74,25 @@ export const DraggableComponentContext: Context<{
 
 const DraggableComponent = (props: DraggableComponentProps) => {
   const {
-    isFocused,
-    setFocus,
+    focusedWidget,
+    selectedWidget,
+    focusWidget,
+    selectWidget,
     showPropertyPane,
-    propertyPaneWidgetId,
   } = useContext(FocusContext);
+
+  const propertyPaneState: PropertyPaneReduxState = useSelector(
+    (state: AppState) => state.ui.propertyPane,
+  );
+
   const editControlIcon = ControlIcons.EDIT_CONTROL({
     width: CONTROL_ICON_SIZE,
     height: CONTROL_ICON_SIZE,
     background:
-      propertyPaneWidgetId === props.widgetId ? IntentColors.primary : "auto",
+      propertyPaneState.widgetId === props.widgetId &&
+      propertyPaneState.isVisible
+        ? IntentColors.primary
+        : "auto",
   });
 
   const { updateWidget } = useContext(EditorContext);
@@ -108,15 +120,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
-      if (showPropertyPane) {
-        showPropertyPane(props.widgetId);
-      }
+      showPropertyPane && showPropertyPane();
+      selectWidget && selectWidget(props.widgetId);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
-        if (showPropertyPane) {
-          showPropertyPane(props.widgetId);
-        }
+        showPropertyPane && showPropertyPane(props.widgetId);
       }
     },
     canDrag: () => {
@@ -131,27 +140,32 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
         ref={drag}
         onMouseOver={(e: any) => {
-          if (setFocus) {
-            setFocus(props.widgetId);
-            e.stopPropagation();
-          }
+          focusWidget && focusWidget(props.widgetId);
+          e.stopPropagation();
         }}
         onMouseLeave={(e: any) => {
-          setFocus && setFocus(null);
+          focusWidget && focusWidget(null);
           e.stopPropagation();
         }}
         onClick={(e: any) => {
-          if (propertyPaneWidgetId && propertyPaneWidgetId !== props.widgetId) {
+          selectWidget && selectWidget(props.widgetId);
+          if (
+            propertyPaneState.widgetId &&
+            propertyPaneState.widgetId !== props.widgetId
+          ) {
             showPropertyPane && showPropertyPane();
           }
           e.stopPropagation();
         }}
         onDoubleClick={(e: any) => {
-          setFocus && setFocus(props.widgetId);
           showPropertyPane && showPropertyPane(props.widgetId);
           e.stopPropagation();
         }}
-        show={props.widgetId === isFocused && !isResizing}
+        show={
+          (props.widgetId === focusedWidget ||
+            props.widgetId === selectedWidget) &&
+          !isResizing
+        }
         style={{
           display: isDragging ? "none" : "flex",
           flexDirection: "column",
@@ -175,7 +189,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           </Tooltip>
         </DeleteControl>
         <EditControl className="control" onClick={togglePropertyEditor}>
-          <Tooltip content="Toggle props" hoverOpenDelay={500}>
+          <Tooltip content="Show props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
         </EditControl>
