@@ -2,6 +2,7 @@ package com.appsmith.server.constants;
 
 public class FieldName {
     public static final String EMAIL = "email";
+    public static final String ORGANIZATION_ID = "organizationId";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
     public static String NAME = "name";
