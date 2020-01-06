@@ -1,8 +1,9 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import { ControlWrapper } from "./StyledControls";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     return (
@@ -16,7 +17,9 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     );
   }
 
-  onChange = (value: string) => {
+  onChange: EventOrValueHandler<ChangeEvent<any>> = (
+    value: string | ChangeEvent,
+  ) => {
     this.updateProperty(this.props.propertyName, value);
   };
 

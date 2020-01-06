@@ -106,8 +106,6 @@ export const ReduxActionTypes: { [key: string]: string } = {
   EXECUTE_PAGE_LOAD_ACTIONS: "EXECUTE_PAGE_LOAD_ACTIONS",
   SWITCH_ORGANIZATION_INIT: "SWITCH_ORGANIZATION_INIT",
   SWITCH_ORGANIZATION_SUCCESS: "SWITCH_ORGANIZATION_SUCCESS",
-  LOGOUT_USER_INIT: "LOGOUT_USER_INIT",
-  LOGOUT_USER_SUCCESS: "LOGOUT_USER_SUCCESS",
   FETCH_ORG_ROLES_INIT: "FETCH_ORG_ROLES_INIT",
   FETCH_ORG_ROLES_SUCCESS: "FETCH_ORG_ROLES_SUCCESS",
   FETCH_ORG_INIT: "FETCH_ORG_INIT",
@@ -119,6 +117,12 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_USER_SUCCESS: "FETCH_USER_SUCCESS",
   SET_CURRENT_USER_INIT: "SET_CURRENT_USER_INIT",
   SET_CURRENT_USER_SUCCESS: "SET_CURRENT_USER_SUCCESS",
+  LOGOUT_USER_INIT: "LOGOUT_USER_INIT",
+  LOGOUT_USER_SUCCESS: "LOGOUT_USER_SUCCESS",
+  VERIFY_INVITE_INIT: "VERIFY_INVITE_INIT",
+  VERIFY_INVITE_SUCCESS: "VERIFY_INVITE_SUCCESS",
+  INVITED_USER_SIGNUP_SUCCESS: "INVITED_USER_SIGNUP_SUCCESS",
+  INVITED_USER_SIGNUP_INIT: "INVITED_USER_SIGNUP_INIT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -162,7 +166,6 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SWITCH_ORGANIZATION_ERROR: "SWITCH_ORGANIZATION_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
-  LOGOUT_USER_ERROR: "LOGOUT_USER_ERROR",
   FETCH_ORG_ROLES_ERROR: "FETCH_ORG_ROLES_ERROR",
   INVITE_USERS_TO_ORG_ERROR: "INVITE_USERS_TO_ORG_ERROR",
   SAVE_ORG_ERROR: "SAVE_ORG_ERROR",
@@ -170,6 +173,8 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   FETCH_ORGS_ERROR: "FETCH_ORGS_ERROR",
   FETCH_USER_ERROR: "FETCH_USER_ERROR",
   SET_CURRENT_USER_ERROR: "SET_CURRENT_USER_ERROR",
+  LOGOUT_USER_ERROR: "LOGOUT_USER_ERROR",
+  VERIFY_INVITE_ERROR: "VERIFY_INVITE_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {
@@ -189,6 +194,13 @@ export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
   meta: M;
+}
+export interface PromisePayload {
+  reject: any;
+  resolve: any;
+}
+export interface ReduxActionWithPromise<T> extends ReduxAction<T> {
+  payload: T & PromisePayload;
 }
 
 export interface ReduxActionErrorPayload {

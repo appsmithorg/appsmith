@@ -1,24 +1,9 @@
 import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  DATA_BIND_AUTOCOMPLETE,
-  DATA_BIND_REGEX,
-} from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
-
-export const isDynamicAutocompleteMatch = (value: string): boolean =>
-  DATA_BIND_AUTOCOMPLETE.test(value);
-
-export const getDynamicAutocompleteSearchTerm = (value: string): string => {
-  const bindings = value.match(DATA_BIND_AUTOCOMPLETE) || [];
-  if (bindings.length > 0) {
-    return bindings[2];
-  } else {
-    return "";
-  }
-};
 
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);

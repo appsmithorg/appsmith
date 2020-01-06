@@ -57,6 +57,7 @@ export interface RestAction {
   pageId?: string;
   actionConfiguration: Partial<APIConfigRequest>;
   jsonPathKeys: string[];
+  cacheResponse?: string;
 }
 
 export interface ExecuteActionRequest extends APIRequest {

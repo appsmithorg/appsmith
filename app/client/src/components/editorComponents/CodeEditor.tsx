@@ -21,19 +21,19 @@ interface Props {
 class CodeEditor extends React.Component<Props> {
   textArea = React.createRef<HTMLTextAreaElement>();
   editor: any;
-  constructor(props: Props) {
-    super(props);
-  }
   componentDidMount(): void {
     if (this.textArea.current) {
+      const readOnly = !this.props.input.onChange;
       this.editor = cm.fromTextArea(this.textArea.current, {
         mode: { name: "javascript", json: true },
         value: this.props.input.value,
+        readOnly,
         lineNumbers: true,
         tabSize: 2,
         indentWithTabs: true,
         lineWrapping: true,
       });
+      this.editor.setSize(null, this.props.height);
     }
   }
 
