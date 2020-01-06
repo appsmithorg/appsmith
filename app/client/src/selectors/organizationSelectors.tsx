@@ -20,3 +20,7 @@ export const getCurrentOrg = createSelector(
 export const getRoles = (state: AppState): OrgRole[] | undefined => {
   return state.ui.orgs.roles;
 };
+
+export const getDefaultRole = (state: AppState): OrgRole | undefined => {
+  return state.ui.orgs.roles?.find(role => role.isDefault);
+};

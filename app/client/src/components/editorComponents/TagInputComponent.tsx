@@ -58,16 +58,24 @@ const TagInputComponent = (props: TagInputProps) => {
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
   };
+
   const onTagsChange = (values: React.ReactNode[]) => {
     const _values = values as string[];
     commitValues(_values);
   };
 
   const onKeyDown = (e: any) => {
-    if (e.key === "," || e.key === "Enter" || e.key === " ") {
+    // Add new values to the tags on comma, return key, space and Tab press.
+    if (
+      e.key === "," ||
+      e.key === "Enter" ||
+      e.key === " " ||
+      e.key === "Tab"
+    ) {
       const newValues = [...values, e.target.value];
       commitValues(newValues);
       setCurrentValue("");
+      e.preventDefault();
     } else if (e.key === "Backspace") {
       if (e.target.value.length === 0) {
         const newValues = values.slice(0, -1);
@@ -76,9 +84,13 @@ const TagInputComponent = (props: TagInputProps) => {
     }
   };
 
+  // The input text field where the user can type in needs to handle the scenario where
+  // The input field is reset on adding tag.
   const handleInputChange = (e: any) => {
     if ([",", " ", "Enter"].indexOf(e.target.value) === -1) {
       setCurrentValue(e.target.value);
+    } else {
+      setCurrentValue("");
     }
   };
 
@@ -90,7 +102,6 @@ const TagInputComponent = (props: TagInputProps) => {
         placeholder={props.placeholder}
         values={_values || [""]}
         separator={props.separator || ","}
-        addOnBlur
         addOnPaste
         onChange={onTagsChange}
         onKeyDown={onKeyDown}
