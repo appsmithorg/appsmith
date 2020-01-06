@@ -23,7 +23,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
               touched: true,
             }}
             theme={"DARK"}
-            initialHeight={32}
           />
         </StyledDynamicInput>
       </ControlWrapper>

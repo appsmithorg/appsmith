@@ -146,7 +146,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}
-            initialHeight={32}
           />
         </FormRow>
       </MainConfiguration>
@@ -166,7 +165,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               <JSONEditorFieldWrapper>
                 <DynamicTextField
                   name="actionConfiguration.body"
-                  initialHeight={300}
+                  height={300}
                   showLineNumbers
                   allowTabIndent
                 />
