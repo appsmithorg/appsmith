@@ -7,6 +7,7 @@ import {
   Inject,
   Resize,
   Page,
+  SelectionSettingsModel,
 } from "@syncfusion/ej2-react-grids";
 import * as React from "react";
 import styled from "constants/DefaultTheme";
@@ -26,6 +27,9 @@ const StyledGridComponent = styled(GridComponent)`
     background-color: #fafafa;
   }
 `;
+const settings: SelectionSettingsModel = {
+  type: "Multiple",
+};
 
 export default class TableComponent extends React.Component<
   TableComponentProps,
@@ -62,6 +66,15 @@ export default class TableComponent extends React.Component<
       this.grid.autoFitColumns();
     }
   };
+
+  shouldComponentUpdate(nextProps: TableComponentProps) {
+    const propsNotEqual =
+      JSON.stringify(nextProps.data) !== JSON.stringify(this.props.data) ||
+      nextProps.height !== this.props.height ||
+      nextProps.width !== this.props.width;
+
+    return propsNotEqual;
+  }
   componentDidUpdate(prevProps: TableComponentProps) {
     if (prevProps.height !== this.props.height) {
       this.reCalculatePageSize();
@@ -70,8 +83,8 @@ export default class TableComponent extends React.Component<
   render() {
     return (
       <StyledGridComponent
+        selectionSettings={settings}
         dataSource={this.props.data}
-        selectedRowIndex={this.props.selectedRowIndex}
         rowSelected={this.rowSelected}
         ref={(g: GridComponent) => (this.grid = g)}
         width={this.props.width - 16}
