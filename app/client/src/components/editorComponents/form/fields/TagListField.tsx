@@ -19,7 +19,11 @@ const renderComponent = (
       <TagInputComponent {...componentProps} />
 
       <FormFieldError
-        error={componentProps.meta.touched && componentProps.meta.error}
+        error={
+          componentProps.meta.touched &&
+          !componentProps.meta.pristine &&
+          componentProps.meta.error
+        }
       />
     </React.Fragment>
   );

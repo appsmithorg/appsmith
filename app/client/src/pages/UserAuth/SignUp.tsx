@@ -65,6 +65,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
     submitFailed,
     submitSucceeded,
     pristine,
+    valid,
   } = props;
   return (
     <AuthCardContainer>
@@ -113,7 +114,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
           <FormActions>
             <FormButton
               type="submit"
-              disabled={pristine}
+              disabled={pristine || !valid}
               loading={submitting}
               text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
               intent="primary"

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
@@ -37,7 +37,7 @@ import FormGroup from "components/editorComponents/form/FormGroup";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import { getRoles } from "selectors/organizationSelectors";
+import { getRoles, getDefaultRole } from "selectors/organizationSelectors";
 import { OrgRole } from "constants/orgConstants";
 import { isEmail } from "utils/formhelpers";
 
@@ -110,9 +110,10 @@ const StyledInviteFieldGroup = styled.div`
 const renderInviteUsersByRoleForm = (
   renderer: WrappedFieldArrayProps<InviteUsersToOrgByRoleValues> & {
     roles?: OrgRole[];
+    role?: OrgRole;
   },
 ) => {
-  const { fields, roles } = renderer;
+  const { fields, roles, role } = renderer;
   return (
     <React.Fragment>
       {fields.map((field, index) => {
@@ -148,7 +149,12 @@ const renderInviteUsersByRoleForm = (
         );
       })}
       <FormActionButton
-        onClick={() => fields.push({ id: generateReactKey() })}
+        onClick={() =>
+          fields.push({
+            id: generateReactKey(),
+            role: !!role ? role.id : undefined,
+          })
+        }
         text={INVITE_USERS_ADD_EMAIL_LIST_FIELD}
         large
         icon="plus"
@@ -162,10 +168,12 @@ type InviteUsersFormProps = InjectedFormProps<
   {
     fetchRoles: () => void;
     roles?: OrgRole[];
+    defaultRole?: OrgRole;
   }
 > & {
   fetchRoles: () => void;
   roles?: OrgRole[];
+  defaultRole?: OrgRole;
 };
 
 export const InviteUsersForm = (props: InviteUsersFormProps) => {
@@ -177,13 +185,27 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
     error,
     fetchRoles,
     roles,
+    initialize,
+    defaultRole,
+    pristine,
   } = props;
   const history = useHistory();
-  useLayoutEffect(() => {
+
+  useEffect(() => {
     if (!roles) {
       fetchRoles();
+    } else {
+      initialize({
+        usersByRole: [
+          {
+            id: generateReactKey(),
+            role: !!defaultRole ? defaultRole.id : undefined,
+          },
+        ],
+      });
     }
-  }, [fetchRoles, roles]);
+  }, [fetchRoles, roles, defaultRole, initialize]);
+
   return (
     <StyledForm>
       {submitSucceeded && (
@@ -210,6 +232,7 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
       <FormFooter
         divider
         onSubmit={handleSubmit(inviteUsersToOrgSubmitHandler)}
+        canSubmit={!pristine}
         submitting={submitting && !submitFailed}
         onCancel={() => history.goBack()}
         submitOnEnter={false}
@@ -223,6 +246,7 @@ export default connect(
   (state: AppState) => {
     return {
       roles: getRoles(state),
+      defaultRole: getDefaultRole(state),
     };
   },
   (dispatch: any) => ({
@@ -231,16 +255,9 @@ export default connect(
 )(
   reduxForm<
     InviteUsersToOrgFormValues,
-    { fetchRoles: () => void; roles?: OrgRole[] }
+    { fetchRoles: () => void; roles?: OrgRole[]; defaultRole?: OrgRole }
   >({
     form: INVITE_USERS_TO_ORG_FORM,
     validate,
-    initialValues: {
-      usersByRole: [
-        {
-          id: generateReactKey(),
-        },
-      ],
-    },
   })(InviteUsersForm),
 );

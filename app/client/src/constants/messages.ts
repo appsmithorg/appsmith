@@ -99,3 +99,21 @@ export const INVITE_USERS_SUBMIT_SUCCESS =
   "The users have been invited successfully";
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY =
   "Please enter the user emails";
+
+export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = "New Password";
+export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER = "New Password";
+export const CREATE_PASSWORD_LOGIN_LINK_TEXT =
+  "Already know the password? Login";
+export const CREATE_PASSWORD_PAGE_TITLE = "Set Password";
+export const CREATE_PASSWORD_SUBMIT_BUTTON_TEXT = "Create";
+export const CREATE_PASSWORD_PAGE_SUBTITLE =
+  "Set a new password for your account ";
+
+export const CREATE_PASSWORD_RESET_SUCCESS =
+  "Your password has been set. Please";
+export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "login";
+
+export const CREATE_PASSWORD_EXPIRED_TOKEN =
+  "The invite link has expired. Please try requesting a new invite";
+export const CREATE_PASSWORD_INVALID_TOKEN =
+  "The invite link is invalid. Please try request a new invite";

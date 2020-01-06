@@ -19,6 +19,8 @@ export type ResetPasswordFormValues = {
   email?: string;
 };
 
+export type CreatePasswordFormValues = ResetPasswordFormValues;
+
 export type ForgotPasswordFormValues = {
   email?: string;
 };
@@ -51,6 +53,27 @@ export const resetPasswordSubmitHandler = (
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.RESET_USER_PASSWORD_INIT,
+      payload: {
+        resolve,
+        reject,
+        token,
+        email,
+        password,
+      },
+    });
+  }).catch(error => {
+    throw new SubmissionError(error);
+  });
+};
+
+export const createPasswordSubmitHandler = (
+  values: CreatePasswordFormValues,
+  dispatch: any,
+): Promise<any> => {
+  const { token, email, password } = values;
+  return new Promise((resolve, reject) => {
+    dispatch({
+      type: ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
       payload: {
         resolve,
         reject,

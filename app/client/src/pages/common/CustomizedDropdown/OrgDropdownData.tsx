@@ -61,6 +61,9 @@ export const options = (
           content: <Link to="/org/settings">Organization Settings</Link>,
         },
         {
+          content: <Link to="/applications">Applications</Link>,
+        },
+        {
           content: <Link to="/org/users">Members</Link>,
         },
         {
