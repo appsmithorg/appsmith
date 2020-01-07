@@ -100,8 +100,16 @@ const mapDispatchToProps = (dispatch: any) => {
       dsl: ContainerWidgetProps<WidgetProps>,
     ) => dispatch(savePage(pageId, layoutId, dsl)),
     showPropertyPane: (widgetId?: string, toggle = false) => {
+      // If widgetId is not provided, we don't show the property pane.
+      // However, if toggle is provided, it will be a start or end of an action
+      // toggle payload is handled in SHOW_PROPERTY_PANE action.
+      // Ergo, when eithter widgetId or toggle are provided, SHOW_PROPERTY_PANE
+      // Else, HIDE_PROPERTY_PANE
       dispatch({
-        type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+        type:
+          widgetId || toggle
+            ? ReduxActionTypes.SHOW_PROPERTY_PANE
+            : ReduxActionTypes.HIDE_PROPERTY_PANE,
         payload: { widgetId, toggle },
       });
     },

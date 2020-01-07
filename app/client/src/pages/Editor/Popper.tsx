@@ -23,7 +23,6 @@ const PopperWrapper = styled(PaneWrapper)`
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
-    //TODO(abhinav): optimize this, remove previous Popper instance.
     const parentElement = props.targetNode && props.targetNode.parentElement;
     if (
       parentElement &&
@@ -31,7 +30,7 @@ export default (props: PopperProps) => {
       props.targetNode &&
       props.isOpen
     ) {
-      new PopperJS(
+      const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,
         {
@@ -49,6 +48,10 @@ export default (props: PopperProps) => {
           },
         },
       );
+      _popper.disableEventListeners();
+      return () => {
+        _popper.destroy();
+      };
     }
   }, [props.targetNode, props.isOpen]);
   return createPortal(

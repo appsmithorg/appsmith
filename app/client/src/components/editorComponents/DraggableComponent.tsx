@@ -127,12 +127,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
-      showPropertyPane && showPropertyPane();
+      showPropertyPane && showPropertyPane(undefined, true);
       selectWidget && selectWidget(props.widgetId);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
-        showPropertyPane && showPropertyPane(props.widgetId);
+        showPropertyPane && showPropertyPane(props.widgetId, true);
       }
     },
     canDrag: () => {

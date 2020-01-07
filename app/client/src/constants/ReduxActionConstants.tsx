@@ -1,5 +1,4 @@
 import { WidgetProps, WidgetCardProps } from "widgets/BaseWidget";
-import { RefObject } from "react";
 import { PageAction } from "constants/ActionConstants";
 
 export const ReduxActionTypes: { [key: string]: string } = {
@@ -220,7 +219,6 @@ export interface UpdateCanvasPayload {
 
 export interface ShowPropertyPanePayload {
   widgetId: string;
-  node: RefObject<HTMLDivElement>;
   toggle: boolean;
 }
 
