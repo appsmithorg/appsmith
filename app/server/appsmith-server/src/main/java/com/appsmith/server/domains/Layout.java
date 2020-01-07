@@ -26,10 +26,12 @@ public class Layout extends BaseDomain {
     @JsonIgnore
     JSONObject publishedDsl;
 
+    @Deprecated
     Set<DslActionDTO> layoutActions;
 
     Set<DslActionDTO> layoutOnLoadActions;
 
+    @Deprecated
     @JsonIgnore
     Set<DslActionDTO> publishedLayoutActions;
 
@@ -44,6 +46,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedDsl : dsl;
     }
 
+    @Deprecated
     public Set<DslActionDTO> getLayoutActions() {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
