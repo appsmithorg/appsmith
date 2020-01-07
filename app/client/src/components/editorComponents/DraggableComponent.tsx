@@ -9,10 +9,11 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
 import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
-import { IntentColors } from "constants/DefaultTheme";
 import { useSelector } from "react-redux";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
+import { theme } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -26,6 +27,7 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
   display: block;
   position: relative;
   z-index: 1;
+  cursor: grab;
 `;
 
 const DragHandle = styled.div`
@@ -88,11 +90,16 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   const editControlIcon = ControlIcons.EDIT_CONTROL({
     width: CONTROL_ICON_SIZE,
     height: CONTROL_ICON_SIZE,
+    color:
+      propertyPaneState.widgetId === props.widgetId &&
+      propertyPaneState.isVisible
+        ? theme.colors.textDefault
+        : theme.colors.textOnDarkBG,
     background:
       propertyPaneState.widgetId === props.widgetId &&
       propertyPaneState.isVisible
-        ? IntentColors.primary
-        : "auto",
+        ? Colors.HIT_GRAY
+        : Colors.SHARK,
   });
 
   const { updateWidget } = useContext(EditorContext);
@@ -175,6 +182,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           width: "100%",
           height: "100%",
           userSelect: "none",
+          cursor: "drag",
         }}
       >
         {props.children}

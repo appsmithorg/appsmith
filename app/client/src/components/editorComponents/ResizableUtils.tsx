@@ -127,7 +127,7 @@ export const getBorderStyles = (
   isColliding: boolean,
   padding: number,
 ): CSSProperties => {
-  const selectedColor = theme.colors.containerBorder;
+  const selectedColor = theme.colors.widgetBorder;
   const collisionColor = theme.colors.error;
 
   // To fix the widget select/unselect size descripancy: Issue #127
