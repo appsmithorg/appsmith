@@ -115,9 +115,12 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   };
 
   const togglePropertyEditor = (e: any) => {
-    if (showPropertyPane && props.widgetId) {
-      showPropertyPane(props.widgetId, true);
+    if (!propertyPaneState.isVisible) {
+      showPropertyPane && showPropertyPane(props.widgetId);
+    } else {
+      showPropertyPane && showPropertyPane();
     }
+    e.preventDefault();
     e.stopPropagation();
   };
 
@@ -183,6 +186,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           height: "100%",
           userSelect: "none",
           cursor: "drag",
+          zIndex: props.widgetId === selectedWidget ? 3 : 1,
         }}
       >
         {props.children}

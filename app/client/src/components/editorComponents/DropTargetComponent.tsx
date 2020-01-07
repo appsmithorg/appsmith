@@ -52,6 +52,10 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           updateWidgetParams.payload.newWidgetId &&
           showPropertyPane(updateWidgetParams.payload.newWidgetId);
 
+        selectWidget &&
+          updateWidgetParams.payload.newWidgetId &&
+          selectWidget(updateWidgetParams.payload.newWidgetId);
+
         updateWidget &&
           updateWidget(
             updateWidgetParams.operation,
