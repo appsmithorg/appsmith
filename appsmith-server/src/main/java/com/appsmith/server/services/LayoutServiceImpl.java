@@ -119,7 +119,7 @@ public class LayoutServiceImpl implements LayoutService {
         if (!dynamicBindings.isEmpty()) {
             for (String mustacheKey : dynamicBindings) {
                 String key = mustacheKey.trim();
-                log.debug("Mustache key extracted from dsl for pageid {} is {}", pageId, key);
+
                 // Extract all the words in the dynamic bindings
                 Matcher matcher = pattern.matcher(key);
 
@@ -127,9 +127,10 @@ public class LayoutServiceImpl implements LayoutService {
                     String word = matcher.group();
 
                     String[] subStrings = word.split(Pattern.quote("."));
-                    log.debug("After splitting mustache key, the substrings for key {} are {}", key, subStrings);
-                    // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                    dynamicBindingNames.add(subStrings[0]);
+                    if (subStrings.length > 0 ) {
+                        // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
+                        dynamicBindingNames.add(subStrings[0]);
+                    }
                 }
             }
         }
