@@ -3,6 +3,8 @@ import { Text, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { TextStyle } from "widgets/TextWidget";
+import Interweave from "interweave";
+import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -15,7 +17,6 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
-  allowHtml: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -38,22 +39,15 @@ class TextComponent extends React.Component<TextComponentProps> {
   }
 
   render() {
-    const { allowHtml, textStyle, text, ellipsize } = this.props;
-    if (allowHtml && text) {
-      const markup = { __html: text };
-      return (
-        <div
-          dangerouslySetInnerHTML={markup}
-          className={this.getTextClass(textStyle)}
+    const { textStyle, text, ellipsize } = this.props;
+    return (
+      <Text className={this.getTextClass(textStyle)} ellipsize={ellipsize}>
+        <Interweave
+          content={text}
+          matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
         />
-      );
-    } else {
-      return (
-        <Text className={this.getTextClass(textStyle)} ellipsize={ellipsize}>
-          {text}
-        </Text>
-      );
-    }
+      </Text>
+    );
   }
 }
 
