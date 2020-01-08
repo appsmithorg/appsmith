@@ -99,7 +99,7 @@ const IconContainer = styled.div`
   .bp3-icon {
     border-radius: 4px 0 0 4px;
     margin: 0;
-    height: 32px;
+    height: 30px;
     width: 30px;
     display: flex;
     align-items: center;
@@ -166,7 +166,7 @@ class DynamicAutocompleteInput extends Component<Props> {
         extraKeys,
         ...options,
       });
-      this.editor.on("change", _.debounce(this.handleChange, 200));
+      this.editor.on("change", _.debounce(this.handleChange, 100));
       this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
       this.editor.setOption("hintOptions", {
         completeSingle: false,
@@ -187,15 +187,17 @@ class DynamicAutocompleteInput extends Component<Props> {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
       if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
+        const cursor = this.editor.getCursor();
         this.editor.setValue(inputValue);
-        this.editor.setCursor(this.editor.lineCount(), 0);
+        this.editor.setCursor(cursor);
       }
     }
   }
 
   handleChange = () => {
     const value = this.editor.getValue();
-    if (this.props.input.onChange) {
+    const inputValue = this.props.input.value;
+    if (this.props.input.onChange && value !== inputValue) {
       this.props.input.onChange(value);
     }
     this.editor.eachLine(this.highlightBindings);
