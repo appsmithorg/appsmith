@@ -19,7 +19,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         textStyle={this.props.textStyle}
-        allowHtml={this.props.allowHtml}
         text={this.props.text}
         isLoading={this.props.isLoading}
       />
@@ -37,7 +36,6 @@ export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle: TextStyle;
   isLoading: boolean;
-  allowHtml: boolean;
 }
 
 export default TextWidget;

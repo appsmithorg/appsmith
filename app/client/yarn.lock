@@ -8034,6 +8034,23 @@ interpret@^1.0.0, interpret@^1.2.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.2.0.tgz#d5061a6224be58e8083985f5014d844359576296"
   integrity sha512-mT34yGKMNceBQUoVn7iCDKDntA7SC6gycMAWzGx1z/CMCTV7b2AAtXlo3nRyHZ1FelRkQbQjprHSYGwzLtkVbw==
 
+interweave-autolink@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/interweave-autolink/-/interweave-autolink-4.0.1.tgz#b2751736f85ee429fc3bb6b9b0a5c73c73783374"
+  integrity sha512-wdsAi8O4DBojZj685zLVOd5VJ5Yy+nbS2XdmjPknjBx3h8Suuw67ptjUHJ+DPvBJziYA+GwaPED7giM4gtgIAg==
+  dependencies:
+    "@types/react" "*"
+    prop-types "^15.7.2"
+
+interweave@^12.1.1:
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/interweave/-/interweave-12.1.1.tgz#b5d919ec7e9ba067fbcdc041e2167ae999b56a40"
+  integrity sha512-PSW9/wYsJ1A5SyvJajxeOWM8UO0ctvXBiD6zV02+W5JdXr6xUh/efaQtL5+g9VBKSNClBu/SmeTu5h4eSGnGqA==
+  dependencies:
+    "@types/react" "*"
+    escape-html "^1.0.3"
+    prop-types "^15.7.2"
+
 invariant@^2.2.2, invariant@^2.2.3, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
