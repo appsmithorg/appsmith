@@ -81,7 +81,8 @@
     "styled-components": "^4.1.3",
     "tinycolor2": "^1.4.1",
     "ts-loader": "^6.0.4",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "unescape-js": "^1.1.4"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
