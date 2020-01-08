@@ -5,7 +5,7 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import WidgetFactory from "utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "utils/WidgetPropsUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
+import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 
 import DragLayerComponent from "./DragLayerComponent";
 
@@ -27,7 +27,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { selectWidget, showPropertyPane } = useContext(FocusContext);
-  const { isResizing } = useContext(ResizingContext);
+  const { isResizing } = useContext(DragResizeContext);
   const spacesOccupiedBySiblingWidgets =
     occupiedSpaces && occupiedSpaces[props.widgetId]
       ? occupiedSpaces[props.widgetId]

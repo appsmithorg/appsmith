@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
-import { DraggableComponentContext } from "components/editorComponents/DraggableComponent";
+import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 
 const PositionStyle = styled.div<{ selected?: boolean }>`
   position: absolute;
@@ -30,8 +29,8 @@ type WidgetNameComponentProps = {
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   const { focusedWidget, selectedWidget } = useContext(FocusContext);
-  const { isDragging } = useContext(DraggableComponentContext);
-  const { isResizing } = useContext(ResizingContext);
+  const { isResizing, isDragging } = useContext(DragResizeContext);
+
   const showWidgetName =
     (focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&
     !isDragging &&
