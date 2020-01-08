@@ -30,6 +30,8 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -211,10 +213,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return resetToken;
                 });
         return passwordResetTokenMono
-                .map(resetToken -> passwordResetTokenRepository.save(resetToken))
+                .flatMap(resetToken -> passwordResetTokenRepository.save(resetToken))
                 .map(obj -> {
                     String resetUrl = String.format(FORGOT_PASSWORD_CLIENT_URL_FORMAT,
-                            resetUserPasswordDTO.getBaseUrl(), token, email);
+                            resetUserPasswordDTO.getBaseUrl(),
+                            URLEncoder.encode(token, StandardCharsets.UTF_8),
+                            URLEncoder.encode(email, StandardCharsets.UTF_8));
                     Map<String, String> params = Map.of("resetUrl", resetUrl);
                     try {
                         String emailTemplate = emailSender.replaceEmailTemplate(FORGOT_PASSWORD_EMAIL_TEMPLATE, params);
@@ -329,7 +333,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .map(inviteUser -> {
                     log.debug("Going to send email for invite user to {} with token {}", inviteUser.getEmail(), token);
                     try {
-                        String inviteUrl = String.format(INVITE_USER_CLIENT_URL_FORMAT, originHeader, token, inviteUser.getEmail());
+                        String inviteUrl = String.format(INVITE_USER_CLIENT_URL_FORMAT, originHeader,
+                                URLEncoder.encode(token, StandardCharsets.UTF_8),
+                                URLEncoder.encode(inviteUser.getEmail(), StandardCharsets.UTF_8));
                         Map<String, String> params = Map.of(
                                 "token", token,
                                 "inviteUrl", inviteUrl);
