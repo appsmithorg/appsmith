@@ -1,10 +1,10 @@
-import React, { useContext, createContext, Context } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
+import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
@@ -12,7 +12,7 @@ import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
-import { theme } from "constants/DefaultTheme";
+import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 
 // FontSizes array in DefaultTheme.tsx
@@ -28,6 +28,17 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
   position: relative;
   z-index: 1;
   cursor: grab;
+`;
+
+const WidgetBoundaries = styled.div`
+  left: 0;
+  right: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: 1px dashed
+    ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
+  position: absolute;
 `;
 
 const DragHandle = styled.div`
@@ -69,9 +80,6 @@ const deleteControlIcon = ControlIcons.DELETE_CONTROL({
 
 type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 
-export const DraggableComponentContext: Context<{
-  isDragging?: boolean;
-}> = createContext({});
 /* eslint-disable react/display-name */
 
 const DraggableComponent = (props: DraggableComponentProps) => {
@@ -104,7 +112,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const { updateWidget } = useContext(EditorContext);
 
-  const { isResizing } = useContext(ResizingContext);
+  const { isResizing, setIsDragging, isDragging } = useContext(
+    DragResizeContext,
+  );
 
   const deleteWidget = () => {
     showPropertyPane && showPropertyPane();
@@ -124,28 +134,34 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     e.stopPropagation();
   };
 
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [{ isCurrentWidgetDragging }, drag, preview] = useDrag({
     item: props as WidgetProps,
     collect: (monitor: DragSourceMonitor) => ({
-      isDragging: monitor.isDragging(),
+      isCurrentWidgetDragging: monitor.isDragging(),
     }),
     begin: () => {
       showPropertyPane && showPropertyPane(undefined, true);
       selectWidget && selectWidget(props.widgetId);
+      setIsDragging && setIsDragging(props.widgetId);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
+      setIsDragging && setIsDragging(undefined);
     },
     canDrag: () => {
       return !isResizing;
     },
   });
 
+  const isResizingOrDragging =
+    selectedWidget !== props.widgetId && (!!isResizing || !!isDragging);
+
   return (
-    <DraggableComponentContext.Provider value={{ isDragging }}>
+    <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
+
       <DraggableWrapper
         className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
         ref={drag}
@@ -177,7 +193,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           !isResizing
         }
         style={{
-          display: isDragging ? "none" : "flex",
+          display: isCurrentWidgetDragging ? "none" : "flex",
           flexDirection: "column",
           position: "absolute",
           left: 0,
@@ -189,6 +205,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           zIndex: props.widgetId === selectedWidget ? 3 : 1,
         }}
       >
+        <WidgetBoundaries
+          style={{ display: isResizingOrDragging ? "block" : "none" }}
+        />
         {props.children}
         <DragHandle className="control" ref={drag}>
           <Tooltip content="Move" hoverOpenDelay={500}>
@@ -206,7 +225,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           </Tooltip>
         </EditControl>
       </DraggableWrapper>
-    </DraggableComponentContext.Provider>
+    </React.Fragment>
   );
 };
 

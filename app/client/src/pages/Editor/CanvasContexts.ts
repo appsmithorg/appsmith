@@ -8,7 +8,9 @@ export const FocusContext: Context<{
   showPropertyPane?: (widgetId?: string, toggle?: boolean) => void;
 }> = createContext({});
 
-export const ResizingContext: Context<{
+export const DragResizeContext: Context<{
   isResizing?: boolean;
   setIsResizing?: Function;
+  isDragging?: boolean;
+  setIsDragging?: Function;
 }> = createContext({});

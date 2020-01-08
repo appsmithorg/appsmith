@@ -5,7 +5,7 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
-import { ResizingContext, FocusContext } from "./CanvasContexts";
+import { DragResizeContext, FocusContext } from "./CanvasContexts";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
@@ -20,9 +20,12 @@ const Canvas = (props: CanvasProps) => {
   const [selectedWidget, selectWidget] = useState();
   const [focusedWidget, focusWidget] = useState();
   const [isResizing, setIsResizing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   try {
     return (
-      <ResizingContext.Provider value={{ isResizing, setIsResizing }}>
+      <DragResizeContext.Provider
+        value={{ isResizing, setIsResizing, isDragging, setIsDragging }}
+      >
         <FocusContext.Provider
           value={{
             selectedWidget,
@@ -38,7 +41,7 @@ const Canvas = (props: CanvasProps) => {
               WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
           </ArtBoard>
         </FocusContext.Provider>
-      </ResizingContext.Provider>
+      </DragResizeContext.Provider>
     );
   } catch (error) {
     console.log("Error rendering DSL", error);
