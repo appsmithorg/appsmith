@@ -120,14 +120,16 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     // Clear border styles
     setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
-    setIsResizing && setIsResizing(false);
+    setTimeout(() => {
+      setIsResizing && setIsResizing(false);
+    }, 300);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
     selectWidget && selectWidget(props.widgetId);
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId);
+    showPropertyPane && showPropertyPane(props.widgetId, true);
   };
   const style = getBorderStyles(
     isWidgetFocused,
@@ -148,10 +150,10 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       style={style}
       onResizeStop={updateSize}
       onResize={checkForCollision}
-      onResizeStart={() => {
+      onResizeStart={(e: any) => {
         setIsResizing && setIsResizing(true);
         selectWidget && selectWidget(props.widgetId);
-        showPropertyPane && showPropertyPane();
+        showPropertyPane && showPropertyPane(undefined, true);
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}

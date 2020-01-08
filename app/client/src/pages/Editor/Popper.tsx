@@ -23,7 +23,6 @@ const PopperWrapper = styled(PaneWrapper)`
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
-    //TODO(abhinav): optimize this, remove previous Popper instance.
     const parentElement = props.targetNode && props.targetNode.parentElement;
     if (
       parentElement &&
@@ -31,7 +30,12 @@ export default (props: PopperProps) => {
       props.targetNode &&
       props.isOpen
     ) {
-      new PopperJS(
+      // TODO: To further optimize this, we can go through the popper API
+      // and figure out a way to keep an app instance level popper instance
+      // which we can update to have different references when called here.
+      // However, the performance benefit gained by such an optimization
+      // remaines to be discovered.
+      const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,
         {
@@ -49,6 +53,10 @@ export default (props: PopperProps) => {
           },
         },
       );
+      _popper.disableEventListeners();
+      return () => {
+        _popper.destroy();
+      };
     }
   }, [props.targetNode, props.isOpen]);
   return createPortal(

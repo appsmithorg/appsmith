@@ -9,12 +9,6 @@ import { FocusContext, ResizingContext } from "pages/Editor/CanvasContexts";
 
 import DragLayerComponent from "./DragLayerComponent";
 
-/*
-TODO(abhinav):
-  1) Drag collision is not working
-  2) Dragging into a new container does not work
-*/
-
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
   snapColumnSpace: number;
@@ -52,9 +46,15 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           props.snapRowSpace,
           props.widgetId,
         );
-
+        // Only show propertypane if this is a new widget.
+        // If it is not a new widget, then let the DraggableComponent handle it.
         showPropertyPane &&
+          updateWidgetParams.payload.newWidgetId &&
           showPropertyPane(updateWidgetParams.payload.newWidgetId);
+
+        selectWidget &&
+          updateWidgetParams.payload.newWidgetId &&
+          selectWidget(updateWidgetParams.payload.newWidgetId);
 
         updateWidget &&
           updateWidget(
@@ -106,7 +106,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   const handleFocus = () => {
-    if (!props.parentId) {
+    if (!props.parentId && !isResizing) {
       selectWidget && selectWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
