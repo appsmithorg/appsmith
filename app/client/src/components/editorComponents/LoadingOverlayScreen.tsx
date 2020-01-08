@@ -8,7 +8,7 @@ export default styled.div`
   left: 0;
   background-color: rgba(255, 255, 255, 0.6);
   pointer-events: none;
-  z-index: 1;
+  z-index: 10;
   color: black;
   display: flex;
   align-items: center;
