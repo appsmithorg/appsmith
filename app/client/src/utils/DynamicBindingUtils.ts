@@ -4,6 +4,7 @@ import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
+import unescapeJS from "unescape-js";
 
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -72,7 +73,8 @@ export const evaluateDynamicBoundValue = (
   data: NameBindingsWithData,
   path: string,
 ): any => {
-  return JSExecutionManagerSingleton.evaluateSync(path, data);
+  const unescapedInput = unescapeJS(path);
+  return JSExecutionManagerSingleton.evaluateSync(unescapedInput, data);
 };
 
 // For creating a final value where bindings could be in a template format
