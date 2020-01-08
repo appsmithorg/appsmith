@@ -154,8 +154,6 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         setIsResizing && setIsResizing(true);
         selectWidget && selectWidget(props.widgetId);
         showPropertyPane && showPropertyPane(undefined, true);
-        e.preventDefault();
-        e.stopPropagation();
       }}
       resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
       bounds={bounds}

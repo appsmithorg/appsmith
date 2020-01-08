@@ -219,7 +219,7 @@ export interface UpdateCanvasPayload {
 
 export interface ShowPropertyPanePayload {
   widgetId: string;
-  toggle: boolean;
+  callForDragOrResize: boolean;
 }
 
 export type PageListPayload = Array<{

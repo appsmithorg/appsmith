@@ -30,6 +30,11 @@ export default (props: PopperProps) => {
       props.targetNode &&
       props.isOpen
     ) {
+      // TODO: To further optimize this, we can go through the popper API
+      // and figure out a way to keep an app instance level popper instance
+      // which we can update to have different references when called here.
+      // However, the performance benefit gained by such an optimization
+      // remaines to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,

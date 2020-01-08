@@ -46,7 +46,7 @@ const CanvasContainer = styled.section`
 type EditorProps = {
   dsl?: ContainerWidgetProps<WidgetProps>;
   savePageLayout: Function;
-  showPropertyPane: (widgetId?: string, toggle?: boolean) => void;
+  showPropertyPane: (widgetId?: string, callForDragOrResize?: boolean) => void;
   fetchPage: (pageId: string) => void;
   currentPageId?: string;
   isFetchingPage: boolean;
@@ -99,18 +99,18 @@ const mapDispatchToProps = (dispatch: any) => {
       layoutId: string,
       dsl: ContainerWidgetProps<WidgetProps>,
     ) => dispatch(savePage(pageId, layoutId, dsl)),
-    showPropertyPane: (widgetId?: string, toggle = false) => {
+    showPropertyPane: (widgetId?: string, callForDragOrResize = false) => {
       // If widgetId is not provided, we don't show the property pane.
-      // However, if toggle is provided, it will be a start or end of an action
-      // toggle payload is handled in SHOW_PROPERTY_PANE action.
-      // Ergo, when eithter widgetId or toggle are provided, SHOW_PROPERTY_PANE
+      // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
+      // callForDragOrResize payload is handled in SHOW_PROPERTY_PANE action.
+      // Ergo, when eithter widgetId or callForDragOrResize are provided, SHOW_PROPERTY_PANE
       // Else, HIDE_PROPERTY_PANE
       dispatch({
         type:
-          widgetId || toggle
+          widgetId || callForDragOrResize
             ? ReduxActionTypes.SHOW_PROPERTY_PANE
             : ReduxActionTypes.HIDE_PROPERTY_PANE,
-        payload: { widgetId, toggle },
+        payload: { widgetId, callForDragOrResize },
       });
     },
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
