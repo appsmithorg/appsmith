@@ -116,6 +116,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     DragResizeContext,
   );
 
+  const disableWidgetDrag: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragging.disable,
+  );
+
   const deleteWidget = () => {
     showPropertyPane && showPropertyPane();
     updateWidget &&
@@ -151,7 +155,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       setIsDragging && setIsDragging(undefined);
     },
     canDrag: () => {
-      return !isResizing;
+      return !isResizing && !disableWidgetDrag;
     },
   });
 

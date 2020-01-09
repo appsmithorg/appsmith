@@ -10,6 +10,7 @@ import routesParamsReducer from "reducers/uiReducers/routesParamsReducer";
 import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
 import usersReducer from "./usersReducer";
+import { widgetDraggingReducer } from "./widgetDraggingReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -23,5 +24,6 @@ const uiReducer = combineReducers({
   auth: authReducer,
   orgs: orgReducer,
   users: usersReducer,
+  widgetDragging: widgetDraggingReducer,
 });
 export default uiReducer;

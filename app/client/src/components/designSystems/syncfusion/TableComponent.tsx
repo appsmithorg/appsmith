@@ -8,8 +8,17 @@ import {
   Resize,
   Page,
   SelectionSettingsModel,
+  Reorder,
+  ColumnMenu,
+  Filter,
 } from "@syncfusion/ej2-react-grids";
-import React, { useEffect, useRef, MutableRefObject, memo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  MutableRefObject,
+  memo,
+  useState,
+} from "react";
 import styled from "constants/DefaultTheme";
 
 export interface TableComponentProps {
@@ -20,6 +29,7 @@ export interface TableComponentProps {
   isLoading: boolean;
   height: number;
   width: number;
+  disableDrag: (disable: boolean) => void;
 }
 
 const StyledGridComponent = styled(GridComponent)`
@@ -62,6 +72,55 @@ const TableComponent = memo(
       }
     }
 
+    const [position, setPosition] = useState({
+      x: 0,
+      y: 0,
+    });
+    let longPressed = false;
+
+    function onMouseDown(e: any) {
+      longPressed = true;
+      setPosition({
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
+
+    function onMouseMove(e: any) {
+      if (
+        (position.x !== e.clientX || position.y !== e.clientY) &&
+        longPressed
+      ) {
+        props.disableDrag(true);
+      }
+    }
+
+    function onMouseUp(e: any) {
+      longPressed = false;
+      props.disableDrag(false);
+    }
+
+    useEffect(() => {
+      if (grid.current && grid.current.element) {
+        const header = grid.current.element.getElementsByClassName(
+          "e-gridheader",
+        )[0];
+        header.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+      }
+      return () => {
+        if (grid.current && grid.current.element) {
+          const header = grid.current.element.getElementsByClassName(
+            "e-gridheader",
+          )[0];
+          header.removeEventListener("mousedown", onMouseDown);
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+        }
+      };
+    }, [grid.current]);
+
     function rowSelected() {
       if (grid.current) {
         /** Get the selected row indexes */
@@ -84,8 +143,12 @@ const TableComponent = memo(
         height={props.height - 107}
         dataBound={dataBound}
         allowPaging={true}
+        allowReordering={true}
+        allowResizing={true}
+        showColumnMenu={true}
+        allowFiltering={true}
       >
-        <Inject services={[Resize, Page]} />
+        <Inject services={[Resize, Page, Reorder, ColumnMenu]} />
         <ColumnsDirective>
           {props.columns.map(col => {
             return <ColumnDirective key={col.field} field={col.field} />;

@@ -6,7 +6,7 @@ import { AppState } from "reducers";
 import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
-import { executeAction } from "actions/widgetActions";
+import { executeAction, disableDragAction } from "actions/widgetActions";
 import { updateWidgetProperty } from "actions/controlActions";
 
 import { ActionPayload } from "constants/ActionConstants";
@@ -27,6 +27,7 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  disableDrag?: (disable: boolean) => void;
   occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
@@ -41,6 +42,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     updateWidget,
     updateWidgetProperty,
     occupiedSpaces,
+    disableDrag,
     children,
   } = props;
   return (
@@ -50,6 +52,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidget,
         updateWidgetProperty,
         occupiedSpaces,
+        disableDrag,
       }}
     >
       {children}
@@ -85,6 +88,9 @@ const mapDispatchToProps = (dispatch: any) => {
       widgetId: string,
       payload: any,
     ) => dispatch(updateWidget(operation, widgetId, payload)),
+    disableDrag: (disable: boolean) => {
+      dispatch(disableDragAction(disable));
+    },
   };
 };
 

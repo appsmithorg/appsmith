@@ -49,6 +49,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndex={
           this.props.selectedRow && this.props.selectedRow.rowIndex
         }
+        disableDrag={(disable: boolean) => {
+          this.disableDrag(disable);
+        }}
         onRowClick={(rowData: object, index: number) => {
           const { onRowSelected } = this.props;
           this.updateSelectedRowProperty(rowData, index);

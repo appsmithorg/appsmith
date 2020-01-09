@@ -77,6 +77,11 @@ abstract class BaseWidget<
     executeAction && !_.isNil(actionPayloads) && executeAction(actionPayloads);
   }
 
+  disableDrag(disable: boolean) {
+    const { disableDrag } = this.context;
+    disableDrag && disable !== undefined && disableDrag(disable);
+  }
+
   updateWidgetProperty(
     widgetId: string,
     propertyName: string,
