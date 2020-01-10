@@ -1,5 +1,6 @@
 package com.appsmith.server.authentication.handlers;
 
+import com.appsmith.server.constants.Security;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
@@ -12,6 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 @Slf4j
 @Component
@@ -29,7 +31,21 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
         // login page again with an error message shown to the user.
         String originHeader = exchange.getRequest().getHeaders().getOrigin();
         if (originHeader == null || originHeader.isEmpty()) {
-            originHeader = "/";
+            // Check the referer header if the origin is not available
+            String refererHeader = exchange.getRequest().getHeaders().getFirst(Security.REFERER_HEADER);
+            if (refererHeader != null && !refererHeader.isBlank()) {
+                URI uri = null;
+                try {
+                    uri = new URI(refererHeader);
+                    String authority = uri.getAuthority();
+                    String scheme = uri.getScheme();
+                    originHeader = scheme + "://" + authority;
+                } catch (URISyntaxException e) {
+                    originHeader = "/";
+                }
+            } else {
+                originHeader = "/";
+            }
         }
 
         URI defaultRedirectLocation = URI.create(originHeader + "/user/login?error=true");
