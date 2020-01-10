@@ -6,7 +6,6 @@ import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
@@ -53,9 +52,6 @@ public class SecurityConfig {
     @Autowired
     ObjectMapper objectMapper;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirectUriTemplate}")
-    private String oAuth2RedirectUri;
-
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -95,8 +91,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        System.out.println("Got the google redirect Uri as: " + oAuth2RedirectUri);
-        
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()

@@ -202,8 +202,6 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      */
     private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
         Map<String, String> uriVariables = new HashMap<>();
-        log.debug("In the CustomServerOAuth2AuthorizationRequestResolver, got registration ID as: {}", clientRegistration.getRegistrationId());
-
         uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
         UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
