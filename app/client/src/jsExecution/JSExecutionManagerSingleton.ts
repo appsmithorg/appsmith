@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 
 export type JSExecutorGlobal = Record<string, object>;
 export interface JSExecutor {
-  execute: (src: string, data: JSExecutorGlobal) => string;
+  execute: (src: string, data: JSExecutorGlobal) => any;
   registerLibrary: (accessor: string, lib: any) => void;
   unRegisterLibrary: (accessor: string) => void;
 }

@@ -6,7 +6,7 @@ import PaneWrapper from "pages/common/PaneWrapper";
 
 type PopperProps = {
   isOpen: boolean;
-  targetRefNode?: HTMLDivElement;
+  targetNode?: Element;
   children: JSX.Element;
 };
 
@@ -23,12 +23,20 @@ const PopperWrapper = styled(PaneWrapper)`
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
   useEffect(() => {
-    //TODO(abhinav): optimize this, remove previous Popper instance.
-    const parentElement =
-      props.targetRefNode && props.targetRefNode.parentElement;
-    if (parentElement && parentElement.parentElement && props.targetRefNode) {
-      new PopperJS(
-        props.targetRefNode,
+    const parentElement = props.targetNode && props.targetNode.parentElement;
+    if (
+      parentElement &&
+      parentElement.parentElement &&
+      props.targetNode &&
+      props.isOpen
+    ) {
+      // TODO: To further optimize this, we can go through the popper API
+      // and figure out a way to keep an app instance level popper instance
+      // which we can update to have different references when called here.
+      // However, the performance benefit gained by such an optimization
+      // remaines to be discovered.
+      const _popper = new PopperJS(
+        props.targetNode,
         (contentRef.current as unknown) as Element,
         {
           placement: "right-start",
@@ -45,8 +53,12 @@ export default (props: PopperProps) => {
           },
         },
       );
+      _popper.disableEventListeners();
+      return () => {
+        _popper.destroy();
+      };
     }
-  }, [props.targetRefNode]);
+  }, [props.targetNode, props.isOpen]);
   return createPortal(
     <PopperWrapper ref={contentRef}>{props.children}</PopperWrapper>,
     document.body,

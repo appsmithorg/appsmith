@@ -1,224 +1,281 @@
-import React, { ChangeEvent, Component, KeyboardEvent } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import styled from "styled-components";
-import _ from "lodash";
+import styled, { createGlobalStyle } from "styled-components";
+import CodeMirror, { EditorConfiguration, LineHandle } from "codemirror";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/monokai.css";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/javascript-hint";
+import "codemirror/addon/display/placeholder";
 import {
-  getDynamicAutocompleteSearchTerm,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
-import {
-  BaseTextInput,
-  TextInputProps,
-} from "components/designSystems/appsmith/TextInputComponent";
-import {
-  getNameBindingsWithData,
+  getNameBindingsForAutocomplete,
   NameBindingsWithData,
 } from "selectors/nameBindingsWithDataSelector";
-import TreeMenu, {
-  MatchSearchFunction,
-  TreeMenuItem,
-  TreeNodeInArray,
-} from "react-simple-tree-menu";
-import { DATA_BIND_AUTOCOMPLETE } from "constants/BindingsConstants";
-import DataTreeNode from "components/editorComponents/DataTreeNode";
-import { transformToTreeStructure } from "utils/DynamicTreeAutoCompleteUtils";
+import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import _ from "lodash";
+import { parseDynamicString } from "utils/DynamicBindingUtils";
+require("codemirror/mode/javascript/javascript");
 
-const Wrapper = styled.div`
+const HintStyles = createGlobalStyle`
+  .CodeMirror-hints {
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+    font-size: 90%;
+    font-family: monospace;
+    max-height: 20em;
+    width: 200px;
+    overflow-y: auto;
+    background: #FFFFFF;
+    border: 1px solid #EBEFF2;
+    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
+    border-radius: 4px;
+  }
+
+  .CodeMirror-hint {
+    height: 32px;
+    padding: 3px;
+    margin: 0;
+    white-space: pre;
+    color: #2E3D49;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  li.CodeMirror-hint-active {
+    background: #E9FAF3;
+    border-radius: 4px;
+  }
+`;
+
+const Wrapper = styled.div<{
+  borderStyle?: THEME;
+  hasError: boolean;
+}>`
+  border: 1px solid;
+  border-color: ${props =>
+    props.hasError
+      ? props.theme.colors.error
+      : props.borderStyle !== THEMES.DARK
+      ? "#d0d7dd"
+      : "transparent"};
+  border-radius: 4px;
   display: flex;
   flex: 1;
-  flex-direction: column;
+  flex-direction: row;
   position: relative;
-`;
-
-const DataTreeWrapper = styled.div`
-  position: absolute;
-  top: 33px;
-  z-index: 21;
-  padding: 10px;
-  max-height: 400px;
-  width: 450px;
-  overflow-y: auto;
-  background-color: white;
-  border: 1px solid #ebeff2;
-  box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-  border-radius: 4px;
-  font-size: 14px;
   text-transform: none;
+  min-height: 32px;
+  overflow: hidden;
+  height: auto;
+  && {
+    .binding-highlight {
+      color: ${props =>
+        props.borderStyle === THEMES.DARK ? "#f7c75b" : "#ffb100"};
+      font-weight: 700;
+    }
+    .CodeMirror {
+      flex: 1;
+      line-height: 21px;
+      z-index: 0;
+      border-radius: 4px;
+      height: auto;
+    }
+    .CodeMirror pre.CodeMirror-placeholder {
+      color: #a3b3bf;
+    }
+  }
 `;
 
-const NoResultsMessage = styled.p`
-  color: ${props => props.theme.colors.textDefault};
+const IconContainer = styled.div`
+  .bp3-icon {
+    border-radius: 4px 0 0 4px;
+    margin: 0;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eef2f5;
+    svg {
+      height: 20px;
+      width: 20px;
+      path {
+        fill: #979797;
+      }
+    }
+  }
 `;
+
+const THEMES = {
+  LIGHT: "LIGHT",
+  DARK: "DARK",
+};
+
+type THEME = "LIGHT" | "DARK";
 
 interface ReduxStateProps {
   dynamicData: NameBindingsWithData;
 }
 
-type Props = ReduxStateProps & TextInputProps;
-
-type State = {
-  tree: TreeNodeInArray[];
-  showTree: boolean;
-  focusedNode: string;
+export type DynamicAutocompleteInputProps = {
+  placeholder?: string;
+  leftIcon?: Function;
+  height?: number;
+  theme?: THEME;
+  meta?: Partial<WrappedFieldMetaProps>;
+  showLineNumbers?: boolean;
+  allowTabIndent?: boolean;
 };
 
-class DynamicAutocompleteInput extends Component<Props, State> {
-  private input: HTMLInputElement | null = null;
-  private search: Function | undefined;
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      tree: [],
-      showTree: true,
-      focusedNode: "",
-    };
-  }
+type Props = ReduxStateProps &
+  DynamicAutocompleteInputProps & {
+    input: Partial<WrappedFieldInputProps>;
+  };
+
+class DynamicAutocompleteInput extends Component<Props> {
+  textArea = React.createRef<HTMLTextAreaElement>();
+  editor: any;
+
   componentDidMount(): void {
-    this.updateTree();
-  }
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (prevProps.dynamicData !== this.props.dynamicData) {
-      this.updateTree();
-    }
-    this.updateTreeVisibility();
-  }
-  updateTreeVisibility = () => {
-    const { showTree } = this.state;
-    const { input } = this.props;
-    let value;
-    let hasIncomplete = 0;
-    if (input && input.value) {
-      value = input.value;
-    }
-    if (value && typeof value === "string") {
-      const { bindings, paths } = getDynamicBindings(value);
-      bindings.forEach((binding, i) => {
-        if (binding.indexOf("{{") > -1 && paths[i] === "") {
-          hasIncomplete++;
-        }
+    if (this.textArea.current) {
+      const options: EditorConfiguration = {};
+      if (this.props.theme === "DARK") options.theme = "monokai";
+      if (!this.props.input.onChange) options.readOnly = true;
+      if (this.props.showLineNumbers) options.lineNumbers = true;
+      const extraKeys: Record<string, any> = {
+        "Ctrl-Space": "autocomplete",
+      };
+      if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
+      this.editor = CodeMirror.fromTextArea(this.textArea.current, {
+        mode: { name: "javascript", globalVars: true },
+        viewportMargin: 10,
+        value: this.props.input.value,
+        tabSize: 2,
+        indentWithTabs: true,
+        lineWrapping: true,
+        showHint: true,
+        extraKeys,
+        ...options,
       });
+      this.editor.on("change", _.debounce(this.handleChange, 100));
+      this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
+      this.editor.setOption("hintOptions", {
+        completeSingle: false,
+        globalScope: this.props.dynamicData,
+      });
+      if (this.props.height) {
+        this.editor.setSize(0, this.props.height);
+      }
+      this.editor.eachLine(this.highlightBindings);
     }
+  }
 
-    if (showTree) {
-      if (hasIncomplete === 0) {
-        this.setState({ showTree: false });
+  componentDidUpdate(): void {
+    if (this.editor) {
+      const editorValue = this.editor.getValue();
+      let inputValue = this.props.input.value;
+      if (typeof inputValue === "object") {
+        inputValue = JSON.stringify(inputValue, null, 2);
       }
-    } else {
-      if (hasIncomplete > 0) {
-        this.setState({ showTree: true });
+      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
+        const cursor = this.editor.getCursor();
+        this.editor.setValue(inputValue);
+        this.editor.setCursor(cursor);
       }
     }
-  };
-  handleNodeSearch: MatchSearchFunction = ({ path, searchTerm }) => {
-    const lowerCasePath = path.toLowerCase();
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    const matchPath = lowerCasePath.substr(0, searchTerm.length);
-    return matchPath === lowerCaseSearchTerm;
-  };
-  updateTree = () => {
-    const { dynamicData } = this.props;
-    const filters = Object.keys(dynamicData).map(name => ({ name }));
-    const tree = transformToTreeStructure(
-      dynamicData,
-      filters.map(f => f.name),
-    );
-    this.setState({ tree });
-  };
-  handleNodeSelected = (node: any) => {
-    if (this.props.input && this.props.input.value) {
-      const currentValue = String(this.props.input.value);
-      const path = node.path;
-      const { bindings, paths } = getDynamicBindings(currentValue);
-      const autoComplete = bindings.map((binding, i) => {
-        if (binding.indexOf("{{") > -1 && paths[i] === "") {
-          return binding.replace(DATA_BIND_AUTOCOMPLETE, `{{${path}}}`);
-        }
-        return binding;
-      });
-      this.props.input.onChange &&
-        this.props.input.onChange(autoComplete.join(""));
-      this.input && this.input.focus();
+  }
+
+  handleChange = () => {
+    const value = this.editor.getValue();
+    const inputValue = this.props.input.value;
+    if (this.props.input.onChange && value !== inputValue) {
+      this.props.input.onChange(value);
     }
-  };
-  setInputRef = (ref: HTMLInputElement | null) => {
-    if (ref) {
-      this.input = ref;
-    }
-  };
-  handleInputChange = (e: ChangeEvent<{ value: string }>) => {
-    if (this.props.input && this.props.input.onChange) {
-      this.props.input.onChange(e);
-    }
-    const value = e.target.value;
-    if (this.search) {
-      const { bindings, paths } = getDynamicBindings(value);
-      bindings.forEach((binding, i) => {
-        if (binding.indexOf("{{") > -1 && paths[i] === "") {
-          const query = getDynamicAutocompleteSearchTerm(binding);
-          this.search && this.search(query);
-        }
-      });
-    }
+    this.editor.eachLine(this.highlightBindings);
   };
 
-  handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "ArrowDown") {
+  handleAutocompleteVisibility = (cm: any) => {
+    let cursorBetweenBinding = false;
+    const cursor = this.editor.getCursor();
+    const value = this.editor.getValue();
+    let cumulativeCharCount = 0;
+    parseDynamicString(value).forEach(segment => {
+      const start = cumulativeCharCount;
+      const dynamicStart = segment.indexOf("{{");
+      const dynamicDoesStart = dynamicStart > -1;
+      const dynamicEnd = segment.indexOf("}}");
+      const dynamicDoesEnd = dynamicEnd > -1;
+      const dynamicStartIndex = dynamicStart + start + 1;
+      const dynamicEndIndex = dynamicEnd + start + 1;
       if (
-        document.activeElement &&
-        document.activeElement.tagName === "INPUT"
+        dynamicDoesStart &&
+        cursor.ch > dynamicStartIndex &&
+        ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
+          (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
       ) {
-        const tree = document.getElementById("tree");
-        const container =
-          tree && tree.closest<HTMLDivElement>("[tabindex='0']");
-        if (container) {
-          container.focus();
-        }
+        cursorBetweenBinding = true;
       }
+      cumulativeCharCount = start + segment.length;
+    });
+    const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
+    if (shouldShow) {
+      cm.showHint(cm);
+    }
+  };
+
+  highlightBindings = (line: LineHandle) => {
+    const lineNo = this.editor.getLineNumber(line);
+    let match;
+    while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {
+      const start = match.index;
+      const end = AUTOCOMPLETE_MATCH_REGEX.lastIndex;
+      this.editor.markText(
+        { ch: start, line: lineNo },
+        { ch: end, line: lineNo },
+        {
+          className: "binding-highlight",
+        },
+      );
     }
   };
 
   render() {
-    const { input, ...rest } = this.props;
+    const { input, meta, theme } = this.props;
+    const hasError = !!(meta && meta.error);
+    let showError = false;
+    if (this.editor) {
+      showError = hasError && this.editor.hasFocus();
+    }
     return (
-      <Wrapper onKeyDown={this.handleKeyDown}>
-        <BaseTextInput
-          refHandler={this.setInputRef}
-          input={{
-            ...input,
-            onChange: this.handleInputChange,
-          }}
-          {..._.omit(rest, ["dynamicData", "dispatch"])}
-        />
-        {this.state.showTree && this.state.tree.length && (
-          <TreeMenu
-            data={this.state.tree}
-            matchSearch={this.handleNodeSearch}
-            onClickItem={this.handleNodeSelected}
-            initialFocusKey={this.state.tree[0].key}
-            disableKeyboard={false}
-          >
-            {({ search, items }) => (
-              <DataTreeWrapper id="tree">
-                {items.length === 0 ? (
-                  <NoResultsMessage>No results found</NoResultsMessage>
-                ) : (
-                  items.map((item: TreeMenuItem) => {
-                    this.search = search;
-                    return <DataTreeNode key={item.key} item={item} />;
-                  })
-                )}
-              </DataTreeWrapper>
-            )}
-          </TreeMenu>
-        )}
-      </Wrapper>
+      <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
+        <Wrapper borderStyle={theme} hasError={hasError}>
+          <HintStyles />
+          <IconContainer>
+            {this.props.leftIcon && <this.props.leftIcon />}
+          </IconContainer>
+          <textarea
+            ref={this.textArea}
+            {..._.omit(this.props.input, ["onChange", "value"])}
+            defaultValue={input.value}
+            placeholder={this.props.placeholder}
+          />
+        </Wrapper>
+      </ErrorTooltip>
     );
   }
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getNameBindingsWithData(state),
+  dynamicData: getNameBindingsForAutocomplete(state),
 });
 
 export default connect(mapStateToProps)(DynamicAutocompleteInput);

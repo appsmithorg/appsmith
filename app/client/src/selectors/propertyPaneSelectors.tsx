@@ -52,13 +52,6 @@ export const getWidgetPropsWithValidations = createSelector(
   },
 );
 
-export const getCurrentReferenceNode = createSelector(
-  getPropertyPaneState,
-  (pane: PropertyPaneReduxState) => {
-    return pane.widgetId && pane.node ? pane.node : undefined;
-  },
-);
-
 export const getPropertyConfig = createSelector(
   getPropertyPaneConfig,
   getPropertyPaneState,
@@ -84,5 +77,5 @@ export const getIsPropertyPaneVisible = createSelector(
   getPropertyPaneState,
   getPropertyConfig,
   (pane: PropertyPaneReduxState, content?: PropertySection[]) =>
-    !!(pane.isVisible && pane.widgetId && pane.node && content),
+    !!(pane.isVisible && pane.widgetId && content),
 );

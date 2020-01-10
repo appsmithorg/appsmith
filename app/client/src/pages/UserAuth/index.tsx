@@ -8,6 +8,7 @@ import { AuthContainer, AuthCard } from "./StyledComponents";
 import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
+import CreatePassword from "./CreatePassword";
 
 export const UserAuth = () => {
   const { path } = useRouteMatch();
@@ -30,6 +31,11 @@ export const UserAuth = () => {
                   exact
                   path={`${path}/forgotPassword`}
                   component={ForgotPassword}
+                />
+                <Route
+                  exact
+                  path={`${path}/createPassword`}
+                  component={CreatePassword}
                 />
               </Switch>
             </CSSTransition>

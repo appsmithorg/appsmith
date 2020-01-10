@@ -21,6 +21,9 @@ import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { RoutesParamsReducerState } from "reducers/uiReducers/routesParamsReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
+import { OrgReduxState } from "reducers/uiReducers/orgReducer";
+import { UsersReduxState } from "reducers/uiReducers/usersReducer";
+import { WidgetDraggingState } from "actions/widgetActions";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -41,6 +44,9 @@ export interface AppState {
     apiPane: ApiPaneReduxState;
     routesParams: RoutesParamsReducerState;
     auth: AuthState;
+    orgs: OrgReduxState;
+    users: UsersReduxState;
+    widgetDragging: WidgetDraggingState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

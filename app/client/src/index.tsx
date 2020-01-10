@@ -5,26 +5,21 @@ import Loader from "pages/common/Loader";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
 import { Router, Route, Switch } from "react-router-dom";
-import { createStore, applyMiddleware } from "redux";
 import history from "./utils/history";
-import appReducer from "./reducers";
-import { ThemeProvider, theme } from "./constants/DefaultTheme";
-import createSagaMiddleware from "redux-saga";
-import { rootSaga } from "./sagas";
+import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { DndProvider } from "react-dnd";
-// import TouchBackend from "react-dnd-touch-backend";
 import HTML5Backend from "react-dnd-html5-backend";
-import { appInitializer } from "./utils/AppsmithUtils";
+import { appInitializer } from "utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
-import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
-
+import store from "./store";
 import {
   BASE_URL,
   BUILDER_URL,
   APP_VIEW_URL,
   APPLICATIONS_URL,
+  ORG_URL,
   USER_AUTH_URL,
-} from "./constants/routes";
+} from "constants/routes";
 
 const loadingIndicator = <Loader />;
 const App = lazy(() => import("./App"));
@@ -33,15 +28,9 @@ const Editor = lazy(() => import("./pages/Editor"));
 const Applications = lazy(() => import("./pages/Applications"));
 const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
 const AppViewer = lazy(() => import("./pages/AppViewer"));
+const Organization = lazy(() => import("./pages/organization"));
 
 appInitializer();
-
-const sagaMiddleware = createSagaMiddleware();
-const store = createStore(
-  appReducer,
-  composeWithDevTools(applyMiddleware(sagaMiddleware)),
-);
-sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
   <DndProvider backend={HTML5Backend}>
@@ -50,15 +39,16 @@ ReactDOM.render(
         <Router history={history}>
           <Suspense fallback={loadingIndicator}>
             <Switch>
-              <Route exact path={BASE_URL} component={App} />
+              <ProtectedRoute exact path={BASE_URL} component={App} />
+              <ProtectedRoute path={ORG_URL} component={Organization} />
               <Route path={USER_AUTH_URL} component={UserAuth} />
-              <ProtectedRoute path={BUILDER_URL} component={Editor} />
-              <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
               <ProtectedRoute
                 exact
                 path={APPLICATIONS_URL}
                 component={Applications}
               />
+              <ProtectedRoute path={BUILDER_URL} component={Editor} />
+              <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
               <Route component={PageNotFound} />
             </Switch>
           </Suspense>

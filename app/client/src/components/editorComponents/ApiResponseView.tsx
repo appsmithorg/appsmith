@@ -6,12 +6,12 @@ import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import styled from "styled-components";
 import { AppState } from "reducers";
-import CodeEditor from "./CodeEditor";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import CodeEditor from "components/editorComponents/CodeEditor";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -139,15 +139,12 @@ const ApiResponseView = (props: Props) => {
             title: "Response Body",
             panelComponent: (
               <CodeEditor
-                theme={"LIGHT"}
-                height={600}
-                language={"json"}
                 input={{
                   value: response.body
                     ? JSON.stringify(response.body, null, 2)
                     : "",
                 }}
-                lineNumbersMinChars={2}
+                height={700}
               />
             ),
           },

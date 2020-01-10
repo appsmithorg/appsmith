@@ -3,7 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
 import { Icon } from "@blueprintjs/core";
-import { LOGIN_FORM_NAME } from "constants/forms";
+import {
+  LOGIN_FORM_NAME,
+  LOGIN_FORM_EMAIL_FIELD_NAME,
+  LOGIN_FORM_PASSWORD_FIELD_NAME,
+} from "constants/forms";
 import { getAppsmithConfigs } from "configs";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
@@ -27,8 +31,8 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
 } from "constants/messages";
 import Divider from "components/editorComponents/Divider";
-import MessageTag from "components/editorComponents/form/MessageTag";
-import FormGroup from "components/editorComponents/FormGroup";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import FormGroup from "components/editorComponents/form/FormGroup";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormButton from "components/editorComponents/FormButton";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
@@ -47,15 +51,17 @@ import {
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
-  if (!values.password || isEmptyString(values.password)) {
-    errors.password = FORM_VALIDATION_EMPTY_PASSWORD;
-  } else if (!isStrongPassword(values.password)) {
-    errors.password = FORM_VALIDATION_INVALID_PASSWORD;
+  const email = values[LOGIN_FORM_EMAIL_FIELD_NAME];
+  const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
+  if (!password || isEmptyString(password)) {
+    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_EMPTY_PASSWORD;
+  } else if (!isStrongPassword(password)) {
+    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_INVALID_PASSWORD;
   }
-  if (!values.username || isEmptyString(values.username)) {
-    errors.username = FORM_VALIDATION_EMPTY_EMAIL;
-  } else if (!isEmail(values.username)) {
-    errors.username = FORM_VALIDATION_INVALID_EMAIL;
+  if (!email || isEmptyString(email)) {
+    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_EMPTY_EMAIL;
+  } else if (!isEmail(email)) {
+    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
   }
   return errors;
 };
@@ -66,7 +72,7 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
 >;
 
 export const Login = (props: LoginFormProps) => {
-  const { error, pristine } = props;
+  const { error, pristine, valid } = props;
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -85,7 +91,7 @@ export const Login = (props: LoginFormProps) => {
   return (
     <AuthCardContainer>
       {showError && pristine && (
-        <MessageTag
+        <FormMessage
           intent="danger"
           message={LOGIN_PAGE_INVALID_CREDS_ERROR}
           actions={[
@@ -108,7 +114,7 @@ export const Login = (props: LoginFormProps) => {
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
           >
             <TextField
-              name="username"
+              name={LOGIN_FORM_EMAIL_FIELD_NAME}
               type="email"
               placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
               showError
@@ -120,7 +126,7 @@ export const Login = (props: LoginFormProps) => {
           >
             <TextField
               type="password"
-              name="password"
+              name={LOGIN_FORM_PASSWORD_FIELD_NAME}
               placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
               showError
             />
@@ -129,6 +135,7 @@ export const Login = (props: LoginFormProps) => {
           <FormActions>
             <FormButton
               type="submit"
+              disabled={pristine || !valid}
               text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
               intent="primary"
             />
@@ -153,7 +160,7 @@ export const Login = (props: LoginFormProps) => {
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
 export default connect(state => ({
-  emailValue: selector(state, "email"),
+  emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
 }))(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,

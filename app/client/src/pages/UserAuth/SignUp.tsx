@@ -32,8 +32,8 @@ import {
   SIGNUP_PAGE_SUCCESS,
   SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
 } from "constants/messages";
-import MessageTag from "components/editorComponents/form/MessageTag";
-import FormGroup from "components/editorComponents/FormGroup";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import FormGroup from "components/editorComponents/form/FormGroup";
 import TextField from "components/editorComponents/form/fields/TextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import FormButton from "components/editorComponents/FormButton";
@@ -65,11 +65,12 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
     submitFailed,
     submitSucceeded,
     pristine,
+    valid,
   } = props;
   return (
     <AuthCardContainer>
       {submitSucceeded && (
-        <MessageTag
+        <FormMessage
           intent="success"
           message={SIGNUP_PAGE_SUCCESS}
           actions={[
@@ -81,7 +82,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
           ]}
         />
       )}
-      {submitFailed && error && <MessageTag intent="danger" message={error} />}
+      {submitFailed && error && <FormMessage intent="danger" message={error} />}
       <AuthCardHeader>
         <h1>{SIGNUP_PAGE_TITLE}</h1>
         <h5>{SIGNUP_PAGE_SUBTITLE}</h5>
@@ -113,7 +114,7 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
           <FormActions>
             <FormButton
               type="submit"
-              disabled={pristine}
+              disabled={pristine || !valid}
               loading={submitting}
               text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
               intent="primary"

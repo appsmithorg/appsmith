@@ -20,10 +20,10 @@ import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
 } from "constants/messages";
 
-import MessageTag from "components/editorComponents/form/MessageTag";
+import FormMessage from "components/editorComponents/form/FormMessage";
 
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
-import FormGroup from "components/editorComponents/FormGroup";
+import FormGroup from "components/editorComponents/form/FormGroup";
 import FormButton from "components/editorComponents/FormButton";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { isEmail, isEmptyString } from "utils/formhelpers";
@@ -62,12 +62,12 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   return (
     <AuthCardContainer>
       {submitSucceeded && (
-        <MessageTag
+        <FormMessage
           intent="success"
           message={`${FORGOT_PASSWORD_SUCCESS_TEXT} ${props.emailValue}`}
         />
       )}
-      {submitFailed && error && <MessageTag intent="danger" message={error} />}
+      {submitFailed && error && <FormMessage intent="danger" message={error} />}
       <AuthCardHeader>
         <h1>{FORGOT_PASSWORD_PAGE_TITLE}</h1>
         <h5>{FORGOT_PASSWORD_PAGE_SUBTITLE}</h5>

@@ -1,5 +1,6 @@
 import React from "react";
 import Select from "react-select";
+
 import { WrappedFieldInputProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
 
@@ -13,6 +14,10 @@ type DropdownProps = {
 };
 
 const selectStyles = {
+  placeholder: (provided: any) => ({
+    ...provided,
+    color: "#a3b3bf",
+  }),
   control: (styles: any, state: any) => ({
     ...styles,
     width: 100,

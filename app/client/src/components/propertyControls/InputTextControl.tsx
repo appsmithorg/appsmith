@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
-import { Intent } from "@blueprintjs/core";
+// import { Intent } from "@blueprintjs/core";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
 class InputTextControl extends BaseControl<InputControlProps> {
@@ -14,18 +14,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
         <label>{label}</label>
         <StyledDynamicInput>
           <DynamicAutocompleteInput
-            intent={isValid ? Intent.NONE : Intent.DANGER}
-            type={this.isNumberType() ? "number" : "text"}
             input={{
               value: propertyValue,
               onChange: this.onTextChange,
             }}
-            placeholder={this.props.placeholderText}
             meta={{
+              error: isValid ? "" : validationMessage,
               touched: true,
-              error: validationMessage,
             }}
-            showError
+            theme={"DARK"}
           />
         </StyledDynamicInput>
       </ControlWrapper>
@@ -45,7 +42,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     }
   }
 
-  onTextChange = (event: React.ChangeEvent<HTMLInputElement> | string) => {
+  onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = event;
     if (typeof event !== "string") {
       value = event.target.value;

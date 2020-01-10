@@ -25,4 +25,13 @@ export const FormIcons: {
       <Icon icon={IconNames.PLUS} color={props.color} iconSize={props.height} />
     </IconWrapper>
   ),
+  SLASH_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <Icon
+        icon={IconNames.SLASH}
+        color={props.color}
+        iconSize={props.height}
+      />
+    </IconWrapper>
+  ),
 };

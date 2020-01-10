@@ -34,11 +34,12 @@ import {
   createActionSuccess,
   deleteActionSuccess,
   FetchActionsPayload,
+  runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
-  evaluateDynamicBoundValue,
   getDynamicBindings,
+  getDynamicValue,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
@@ -55,6 +56,7 @@ import {
   getNameBindingsWithData,
   NameBindingsWithData,
 } from "selectors/nameBindingsWithDataSelector";
+import { transformRestAction } from "transformers/RestActionTransformer";
 
 export const getAction = (
   state: AppState,
@@ -82,7 +84,7 @@ const createActionErrorResponse = (
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   const nameBindingsWithData = yield select(getNameBindingsWithData);
-  return evaluateDynamicBoundValue(nameBindingsWithData, path);
+  return getDynamicValue(`{{${path}}}`, nameBindingsWithData);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
@@ -96,7 +98,9 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
   );
   const dynamicBindings: Record<string, string> = {};
   jsonPathKeys.forEach((key, i) => {
-    dynamicBindings[key] = values[i];
+    let value = values[i];
+    if (typeof value === "object") value = JSON.stringify(value);
+    dynamicBindings[key] = value;
   });
   return mapToPropList(dynamicBindings);
 }
@@ -290,8 +294,10 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
+    const { data } = actionPayload.payload;
+    const action = transformRestAction(data);
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
-      actionPayload.payload.data,
+      action,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -300,6 +306,7 @@ export function* updateActionSaga(
         intent: Intent.SUCCESS,
       });
       yield put(updateActionSuccess({ data: response.data }));
+      yield put(runApiAction(data.id));
     }
   } catch (error) {
     yield put({
@@ -331,7 +338,7 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
+export function* runApiActionSaga(action: ReduxAction<string>) {
   try {
     const {
       values,
@@ -341,19 +348,20 @@ export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
       getFormData,
       API_EDITOR_FORM_NAME,
     );
+    const actionObject: PageAction = yield select(getAction, values.id);
     let action: ExecuteActionRequest["action"] = { id: values.id };
-    let jsonPathKeys = values.jsonPathKeys;
+    let jsonPathKeys = actionObject.jsonPathKeys;
     if (!valid) {
       console.error("Form error");
       return;
     }
     if (dirty) {
-      action = _.omit(values, "id");
+      action = _.omit(transformRestAction(values), "id");
       const actionString = JSON.stringify(action);
       if (isDynamicValue(actionString)) {
         const { paths } = getDynamicBindings(actionString);
         // Replace cause the existing keys could have been updated
-        jsonPathKeys = paths;
+        jsonPathKeys = paths.filter(path => !!path);
       } else {
         jsonPathKeys = [];
       }
@@ -375,7 +383,7 @@ export function* runApiActionSaga(action: ReduxAction<{ id: string }>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: action.payload.id },
+      payload: { error, id: action.payload },
     });
   }
 }

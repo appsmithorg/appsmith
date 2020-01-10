@@ -80,3 +80,5 @@ export const GridDefaults = {
   DEFAULT_GRID_ROWS: 32,
   DEFAULT_GRID_ROW_HEIGHT: 40,
 };
+
+export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";

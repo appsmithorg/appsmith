@@ -1,50 +1,47 @@
-import React, { createContext, useState, Context } from "react";
+import React, { useState } from "react";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "./PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
+import { DragResizeContext, FocusContext } from "./CanvasContexts";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
-  showPropertyPane: (
-    widgetId?: string,
-    node?: HTMLDivElement,
-    toggle?: boolean,
-  ) => void;
+  showPropertyPane: (widgetId?: string, toggle?: boolean) => void;
+  propertyPaneWidgetId?: string;
 }
-
-export const FocusContext: Context<{
-  isFocused?: string;
-  setFocus?: Function;
-  showPropertyPane?: (
-    widgetId?: string,
-    node?: HTMLDivElement,
-    toggle?: boolean,
-  ) => void;
-}> = createContext({});
 
 /* eslint-disable react/display-name */
 /* eslint-disable react/prop-types */
 
 const Canvas = (props: CanvasProps) => {
-  const [isFocused, setFocus] = useState("");
+  const [selectedWidget, selectWidget] = useState();
+  const [focusedWidget, focusWidget] = useState();
+  const [isResizing, setIsResizing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   try {
     return (
-      <FocusContext.Provider
-        value={{
-          isFocused,
-          setFocus,
-          showPropertyPane: props.showPropertyPane,
-        }}
+      <DragResizeContext.Provider
+        value={{ isResizing, setIsResizing, isDragging, setIsDragging }}
       >
-        <PropertyPane />
-        <ArtBoard>
-          {props.dsl.widgetId &&
-            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-        </ArtBoard>
-      </FocusContext.Provider>
+        <FocusContext.Provider
+          value={{
+            selectedWidget,
+            selectWidget,
+            focusedWidget,
+            focusWidget,
+            showPropertyPane: props.showPropertyPane,
+          }}
+        >
+          <PropertyPane />
+          <ArtBoard>
+            {props.dsl.widgetId &&
+              WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+          </ArtBoard>
+        </FocusContext.Provider>
+      </DragResizeContext.Provider>
     );
   } catch (error) {
     console.log("Error rendering DSL", error);

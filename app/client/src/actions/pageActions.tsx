@@ -98,6 +98,7 @@ export type WidgetAddChild = {
   rows: number;
   parentRowSpace: number;
   parentColumnSpace: number;
+  newWidgetId: string;
 };
 
 export type WidgetMove = {

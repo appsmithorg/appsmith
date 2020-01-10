@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export default styled.header`
   display: flex;
-  width: 100vw;
+  width: 100%;
   justify-content: space-around;
   align-items: center;
   height: ${props => props.theme.headerHeight};

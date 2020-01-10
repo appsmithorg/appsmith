@@ -1,17 +1,13 @@
 import React from "react";
 import { Field } from "redux-form";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import DynamicAutocompleteInput, {
+  DynamicAutocompleteInputProps,
+} from "components/editorComponents/DynamicAutocompleteInput";
 
-const JSONEditorField = (props: { name: string }) => {
-  return (
-    <Field
-      name={props.name}
-      component={CodeEditor}
-      height={500}
-      language={"json"}
-      placeholder="Input post body here"
-    />
-  );
+type Props = { name: string } & DynamicAutocompleteInputProps;
+
+const JSONEditorField = (props: Props) => {
+  return <Field name={props.name} component={DynamicAutocompleteInput} />;
 };
 
 export default JSONEditorField;

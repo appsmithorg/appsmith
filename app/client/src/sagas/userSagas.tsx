@@ -1,6 +1,7 @@
 import { call, takeLatest, put, all } from "redux-saga/effects";
 import {
   ReduxAction,
+  ReduxActionWithPromise,
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
@@ -8,8 +9,10 @@ import UserApi, {
   CreateUserRequest,
   CreateUserResponse,
   ForgotPasswordRequest,
-  ResetPasswordRequest,
-  ResetPasswordVerifyTokenRequest,
+  VerifyTokenRequest,
+  TokenPasswordUpdateRequest,
+  FetchUserRequest,
+  FetchUserResponse,
 } from "api/UserApi";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -18,13 +21,21 @@ import {
   callAPI,
 } from "./ErrorSagas";
 
+import { fetchOrgsSaga } from "./OrgSagas";
+
+import { resetAuthExpiration } from "utils/storage";
+import {
+  logoutUserSuccess,
+  fetchCurrentUser,
+  logoutUserError,
+  verifyInviteSuccess,
+  verifyInviteError,
+  invitedUserSignupError,
+  invitedUserSignupSuccess,
+} from "actions/userActions";
+
 export function* createUserSaga(
-  action: ReduxAction<{
-    resolve: any;
-    reject: any;
-    email: string;
-    password: string;
-  }>,
+  action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
   const { email, password, resolve, reject } = action.payload;
   try {
@@ -62,7 +73,7 @@ export function* createUserSaga(
 }
 
 export function* forgotPasswordSaga(
-  action: ReduxAction<{ resolve: any; reject: any; email: string }>,
+  action: ReduxActionWithPromise<ForgotPasswordRequest>,
 ) {
   const { email, resolve, reject } = action.payload;
 
@@ -92,21 +103,13 @@ export function* forgotPasswordSaga(
 }
 
 export function* resetPasswordSaga(
-  action: ReduxAction<{
-    resolve: any;
-    reject: any;
-    email: string;
-    token: string;
-    password: string;
-  }>,
+  action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
   const { email, token, password, resolve, reject } = action.payload;
   try {
-    const request: ResetPasswordRequest = {
-      user: {
-        email,
-        password,
-      },
+    const request: TokenPasswordUpdateRequest = {
+      email,
+      password,
       token,
     };
     const response: ApiResponse = yield callAPI(UserApi.resetPassword, request);
@@ -132,12 +135,97 @@ export function* resetPasswordSaga(
   }
 }
 
-export function* verifyResetPasswordTokenSaga(
-  action: ReduxAction<{ token: string; email: string }>,
+export function* invitedUserSignupSaga(
+  action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
+) {
+  const { email, token, password, resolve, reject } = action.payload;
+  try {
+    const request: TokenPasswordUpdateRequest = { email, password, token };
+    const response: ApiResponse = yield callAPI(
+      UserApi.confirmInvitedUserSignup,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (!isValidResponse) {
+      const errorMessage = yield getResponseErrorMessage(response);
+      yield call(reject, { _error: errorMessage });
+    } else {
+      yield put(invitedUserSignupSuccess());
+      yield call(resolve);
+    }
+  } catch (error) {
+    console.log(error);
+    yield call(reject, { _error: error.message });
+    yield put(invitedUserSignupError(error));
+  }
+}
+
+type InviteUserPayload = {
+  email: string;
+  groupIds: string[];
+};
+
+export function* inviteUser(payload: InviteUserPayload, reject: any) {
+  const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
+  const isValidResponse = yield validateResponse(response);
+  if (!isValidResponse) {
+    let errorMessage = `${payload.email}:  `;
+    errorMessage += getResponseErrorMessage(response);
+    yield call(reject, { _error: errorMessage });
+  }
+  yield;
+}
+
+export function* inviteUsers(
+  action: ReduxActionWithPromise<{
+    data: Array<{ roleId: string; emails: string[] }>;
+  }>,
 ) {
   try {
-    const request: ResetPasswordVerifyTokenRequest = action.payload;
-    const response: ApiResponse = yield callAPI(
+    const { data, resolve, reject } = action.payload;
+    const sagasToCall = [];
+    const emailSet: Record<string, string[]> = {};
+    data.forEach((groupSet: { roleId: string; emails: string[] }) => {
+      const { emails, roleId } = groupSet;
+      emails.forEach((email: string) => {
+        if (emailSet.hasOwnProperty(email)) {
+          emailSet[email].push(roleId);
+        } else {
+          emailSet[email] = [roleId];
+        }
+      });
+    });
+
+    for (const email in emailSet) {
+      sagasToCall.push(
+        call(inviteUser, { email, groupIds: emailSet[email] }, reject),
+      );
+    }
+    yield all(sagasToCall);
+    yield put({
+      type: ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS,
+      payload: {
+        inviteCount: sagasToCall.length,
+      },
+    });
+    yield call(resolve);
+  } catch (error) {
+    console.log(error);
+    yield put({
+      type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* verifyResetPasswordTokenSaga(
+  action: ReduxAction<VerifyTokenRequest>,
+) {
+  try {
+    const request: VerifyTokenRequest = action.payload;
+    const response: ApiResponse = yield call(
       UserApi.verifyResetPasswordToken,
       request,
     );
@@ -155,6 +243,67 @@ export function* verifyResetPasswordTokenSaga(
   }
 }
 
+export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
+  try {
+    const request: VerifyTokenRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.verifyUserInvite, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(verifyInviteSuccess());
+    }
+  } catch (error) {
+    console.log(error);
+    yield put(verifyInviteError(error));
+  }
+}
+
+export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
+  try {
+    const request: FetchUserRequest = action.payload;
+    const response: FetchUserResponse = yield call(UserApi.fetchUser, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_SUCCESS,
+        payload: response.data,
+      });
+      return yield response.data;
+    }
+    return yield false;
+  } catch (error) {
+    console.log(error);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_ERROR,
+    });
+  }
+}
+
+export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
+  const me = yield call(fetchUserSaga, action);
+  if (me) {
+    resetAuthExpiration();
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,
+      payload: me,
+    });
+    yield call(fetchOrgsSaga);
+  }
+}
+
+export function* logoutSaga() {
+  try {
+    const response: ApiResponse = yield call(UserApi.logoutUser);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(logoutUserSuccess());
+      yield put(fetchCurrentUser());
+    }
+  } catch (error) {
+    console.log(error);
+    yield put(logoutUserError(error));
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -163,6 +312,15 @@ export default function* userSagas() {
     takeLatest(
       ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
       verifyResetPasswordTokenSaga,
+    ),
+    takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
+    takeLatest(ReduxActionTypes.FETCH_USER_INIT, fetchUserSaga),
+    takeLatest(ReduxActionTypes.SET_CURRENT_USER_INIT, setCurrentUserSaga),
+    takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
+    takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
+    takeLatest(
+      ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
+      invitedUserSignupSaga,
     ),
   ]);
 }

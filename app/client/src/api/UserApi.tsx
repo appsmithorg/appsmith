@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
+import { getAppsmithConfigs } from "configs";
 
 export interface LoginUserRequest {
   email: string;
@@ -21,46 +22,92 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
-export interface ResetPasswordRequest {
+export interface TokenPasswordUpdateRequest {
   token: string;
-  user: {
-    password: string;
-    email: string;
-  };
+  password: string;
+  email: string;
 }
 
-export interface ResetPasswordVerifyTokenRequest {
+export interface VerifyTokenRequest {
   email: string;
   token: string;
 }
 
+export interface FetchUserResponse extends ApiResponse {
+  id: string;
+}
+
+export interface FetchUserRequest {
+  id: string;
+}
+
+export interface InviteUserRequest {
+  email: string;
+  groupIds: string[];
+  status?: string;
+}
+
 class UserApi extends Api {
-  static createURL = "v1/users";
-  static forgotPasswordURL = "v1/users/forgotPassword";
-  static verifyResetPasswordTokenURL = "v1/users/verifyPasswordResetToken";
-  static resetPasswordURL = "v1/users/resetPassword";
+  static usersURL = "v1/users";
+  static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
+  static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
+  static resetPasswordURL = `${UserApi.usersURL}/resetPassword`;
+  static inviteUserURL = "v1/users/invite";
+  static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
+  static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
+  static logoutURL = "/logout";
+
   static createUser(
     request: CreateUserRequest,
   ): AxiosPromise<CreateUserResponse> {
-    return Api.post(UserApi.createURL, request);
+    return Api.post(UserApi.usersURL, request);
+  }
+
+  static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {
+    return Api.get(UserApi.usersURL + "/" + request.id);
   }
 
   static forgotPassword(
     request: ForgotPasswordRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.get(UserApi.forgotPasswordURL, request);
+    return Api.post(UserApi.forgotPasswordURL, request);
+  }
+
+  static verifyResetPasswordToken(
+    request: VerifyTokenRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.verifyResetPasswordTokenURL, request);
   }
 
   static resetPassword(
-    request: ResetPasswordRequest,
+    request: TokenPasswordUpdateRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(UserApi.resetPasswordURL, request);
   }
 
-  static verifyResetPasswordToken(
-    request: ResetPasswordVerifyTokenRequest,
+  static inviteUser(request: InviteUserRequest): AxiosPromise<ApiResponse> {
+    request.status = "INVITED";
+    return Api.post(UserApi.inviteUserURL, request);
+  }
+
+  static verifyUserInvite(
+    request: VerifyTokenRequest,
   ): AxiosPromise<ApiResponse> {
-    return Api.get(UserApi.verifyResetPasswordTokenURL, request);
+    return Api.get(UserApi.verifyInviteTokenURL, request);
+  }
+
+  static confirmInvitedUserSignup(
+    request: TokenPasswordUpdateRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.confirmUserInviteURL, request);
+  }
+
+  static logoutUser(): AxiosPromise<ApiResponse> {
+    const { baseUrl } = getAppsmithConfigs();
+    return Api.post(UserApi.logoutURL, undefined, undefined, {
+      baseURL: baseUrl,
+      withCredentials: true,
+    });
   }
 }
 

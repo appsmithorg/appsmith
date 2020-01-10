@@ -1,24 +1,10 @@
 import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  DATA_BIND_AUTOCOMPLETE,
-  DATA_BIND_REGEX,
-} from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
-
-export const isDynamicAutocompleteMatch = (value: string): boolean =>
-  DATA_BIND_AUTOCOMPLETE.test(value);
-
-export const getDynamicAutocompleteSearchTerm = (value: string): string => {
-  const bindings = value.match(DATA_BIND_AUTOCOMPLETE) || [];
-  if (bindings.length > 0) {
-    return bindings[2];
-  } else {
-    return "";
-  }
-};
+import unescapeJS from "unescape-js";
 
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -87,7 +73,8 @@ export const evaluateDynamicBoundValue = (
   data: NameBindingsWithData,
   path: string,
 ): any => {
-  return JSExecutionManagerSingleton.evaluateSync(path, data);
+  const unescapedInput = unescapeJS(path);
+  return JSExecutionManagerSingleton.evaluateSync(unescapedInput, data);
 };
 
 // For creating a final value where bindings could be in a template format
@@ -117,7 +104,26 @@ export const getDynamicValue = (
   if (bindings.length) {
     // Get the Data Tree value of those "binding "paths
     const values = paths.map((p, i) => {
-      return p ? evaluateDynamicBoundValue(data, p) : bindings[i];
+      if (p) {
+        const value = evaluateDynamicBoundValue(data, p);
+        // Check if the result is a dynamic value, if so get the value again
+        if (isDynamicValue(value)) {
+          // Check for the paths of this dynamic value
+          const { paths } = getDynamicBindings(value);
+          // If it is the same as it came in, log an error
+          // and return the same value back
+          if (paths.length === 1 && paths[0] === p) {
+            console.error("Binding not correct");
+            return value;
+          }
+          // Evaluate the value again
+          return getDynamicValue(value, data);
+        } else {
+          return value;
+        }
+      } else {
+        return bindings[i];
+      }
     });
 
     // if it is just one binding, no need to create template string

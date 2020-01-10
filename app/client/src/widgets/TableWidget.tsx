@@ -1,29 +1,25 @@
 import React from "react";
-import _ from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionPayload, TableAction } from "constants/ActionConstants";
-import { AutoResizer } from "react-base-table";
-import "react-base-table/styles.css";
-import { forIn } from "lodash";
-import SelectableTable, {
-  Column,
-} from "components/designSystems/appsmith/TableComponent";
+import _, { forIn } from "lodash";
+import TableComponent from "components/designSystems/syncfusion/TableComponent";
+
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { ColumnModel } from "@syncfusion/ej2-grids";
+import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 
-function constructColumns(data: object[]): Column[] {
-  const cols: Column[] = [];
+function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
+  const cols: ColumnModel[] | ColumnDirTypecast[] = [];
   const listItemWithAllProperties = {};
   data.forEach(dataItem => {
     Object.assign(listItemWithAllProperties, dataItem);
   });
-  forIn(listItemWithAllProperties, (value, key) => {
+  forIn(listItemWithAllProperties, (value: any, key: string) => {
     cols.push({
-      key: key,
-      dataKey: key,
+      field: key,
       width: 200,
-      title: key,
     });
   });
   return cols;
@@ -44,28 +40,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { tableData } = this.props;
     const columns = constructColumns(tableData);
     return (
-      <AutoResizer>
-        {({ width, height }: { width: number; height: number }) => (
-          <SelectableTable
-            width={width}
-            height={height}
-            columns={columns}
-            data={tableData}
-            maxHeight={height}
-            isLoading={this.props.isLoading}
-            selectedRowIndex={
-              this.props.selectedRow && this.props.selectedRow.rowIndex
-            }
-            onRowClick={(rowData: object, index: number) => {
-              const { onRowSelected } = this.props;
-              this.updateSelectedRowProperty(rowData, index);
-              super.executeAction(onRowSelected);
-            }}
-          />
-        )}
-      </AutoResizer>
+      <TableComponent
+        data={this.props.tableData}
+        columns={columns}
+        isLoading={this.props.isLoading}
+        height={this.state.componentHeight}
+        width={this.state.componentWidth}
+        selectedRowIndex={
+          this.props.selectedRow && this.props.selectedRow.rowIndex
+        }
+        disableDrag={(disable: boolean) => {
+          this.disableDrag(disable);
+        }}
+        onRowClick={(rowData: object, index: number) => {
+          const { onRowSelected } = this.props;
+          this.updateSelectedRowProperty(rowData, index);
+          super.executeAction(onRowSelected);
+        }}
+      ></TableComponent>
     );
   }
+
   componentDidUpdate(prevProps: TableWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (

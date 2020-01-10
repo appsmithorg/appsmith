@@ -1,6 +1,7 @@
 import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
+import tinycolor from "tinycolor2";
 import _ from "lodash";
 
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
@@ -16,7 +17,7 @@ const {
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
   success: Colors.PURPLE,
-  secondary: Colors.GEYSER_LIGHT,
+  secondary: Colors.BLACK_PEARL,
   danger: Colors.RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
@@ -24,24 +25,99 @@ export const IntentColors: Record<string, Color> = {
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
 
-export const BlueprintIntentsCSS = css`
-  &.bp3.minimal.bp3-button {
-    color: ${IntentColors.none};
-  }
-  &.bp3.minimal.bp3-intent-primary {
-    color: ${IntentColors.primary};
-  }
-  &.bp3.minimal.bp3-intent-secondary {
+export const darken = (color: Color, intensity: number) => {
+  return new tinycolor(color).darken(intensity).toString();
+};
+
+export const darkenHover = (color: Color) => {
+  return darken(color, 8);
+};
+
+export const darkenActive = (color: Color) => {
+  return darken(color, 16);
+};
+
+const getHoverAndActiveStyles = (color: Color, filled = true) => {
+  return css`
+    background: ${color};
+    border-color: ${filled ? color : "auto"};
+    color: ${filled ? Colors.WHITE : "auto"};
+    &:hover {
+      background: ${darkenHover(color)};
+      border-color: ${darkenHover(color)};
+      box-shadow: none;
+    }
+    &:active {
+      background: ${darkenActive(color)};
+      border-color: ${darkenActive(color)};
+      box-shadow: none;
+    }
+  `;
+};
+
+export const BlueprintButtonIntentsCSS = css`
+  &&&.bp3-button {
+    box-shadow: none;
+    display: flex;
+    border-width: 1px;
+    border-style: solid;
+    outline: none;
+    min-width: 100px;
     color: ${IntentColors.secondary};
+    border-color: ${IntentColors.none};
+    & span.bp3-icon {
+      color: ${IntentColors.none};
+    }
+    background: ${Colors.WHITE};
   }
-  &.bp3.minimal.bp3-intent-danger {
+  &&&.bp3-button.bp3-intent-primary:not(.bp3-minimal) {
+    background: ${IntentColors.primary};
+    ${getHoverAndActiveStyles(IntentColors.primary)}
+  }
+  &&&.bp3-button.bp3-intent-secondary:not(.bp3-minimal) {
+    background: ${IntentColors.secondary};
+    ${getHoverAndActiveStyles(IntentColors.secondary)}
+  }
+  &&&.bp3-button.bp3-intent-danger:not(.bp3-minimal) {
+    background: ${IntentColors.danger};
+    ${getHoverAndActiveStyles(IntentColors.danger)}
+  }
+  &&&.bp3-button.bp3-intent-success:not(.bp3-minimal) {
+    background: ${IntentColors.success};
+    ${getHoverAndActiveStyles(IntentColors.success)}
+  }
+  &&&.bp3-button.bp3-intent-warning:not(.bp3-minimal) {
+    background: ${IntentColors.warning};
+    ${getHoverAndActiveStyles(IntentColors.warning)}
+  }
+
+  &&&.bp3-minimal.bp3-button {
+    color: ${IntentColors.secondary};
+    border: none;
+    border-color: ${IntentColors.none};
+    & span.bp3-icon {
+      color: ${IntentColors.none};
+    }
+  }
+  &&&.bp3-minimal.bp3-intent-primary {
+    color: ${IntentColors.primary};
+    border-color: ${IntentColors.primary};
+  }
+  &&&.bp3-minimal.bp3-intent-secondary {
+    color: ${IntentColors.secondary};
+    border-color: ${IntentColors.secondary};
+  }
+  &&&.bp3-minimal.bp3-intent-danger {
     color: ${IntentColors.danger};
+    border-color: ${IntentColors.danger};
   }
-  &.bp3.minimal.bp3-intent-warning {
+  &&&.bp3-minimal.bp3-intent-warning {
     color: ${IntentColors.warning};
+    border-color: ${IntentColors.warning};
   }
-  &.bp3.minimal.bp3-intent-success {
+  &&&.bp3-minimal.bp3-intent-success {
     color: ${IntentColors.success};
+    border-color: ${IntentColors.success};
   }
 `;
 
@@ -100,6 +176,7 @@ export type Theme = {
       selectHighlightColor: Color;
     };
   };
+  pageContentWidth: number;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -158,7 +235,8 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
-    widgetName: Colors.BLUE_BAYOUX,
+    widgetBorder: Colors.MINT_TULIP,
+    widgetSecondaryBorder: Colors.MERCURY,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -224,6 +302,7 @@ export const theme: Theme = {
       selectHighlightColor: Colors.GEYSER_LIGHT,
     },
   },
+  pageContentWidth: 1224,
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
