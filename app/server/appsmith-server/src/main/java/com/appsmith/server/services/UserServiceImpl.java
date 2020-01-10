@@ -202,6 +202,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         String token = UUID.randomUUID().toString();
         log.debug("Password reset Token: {} for email: {}", token, email);
 
+        // Check if the user exists in our DB. If not, we will not send a password reset link to the user
+        Mono<User> userMono = repository.findByEmail(email)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
+
+        // Generate the password reset link for the user
         Mono<PasswordResetToken> passwordResetTokenMono = passwordResetTokenRepository.findByEmail(email)
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
@@ -212,8 +217,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     resetToken.setTokenHash(passwordEncoder.encode(token));
                     return resetToken;
                 });
-        return passwordResetTokenMono
-                .flatMap(resetToken -> passwordResetTokenRepository.save(resetToken))
+
+        // Save the password reset link and send an email to the user
+        Mono<Boolean> resetFlowMono = passwordResetTokenMono
+                .map(resetToken -> passwordResetTokenRepository.save(resetToken))
                 .map(obj -> {
                     String resetUrl = String.format(FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
@@ -229,6 +236,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.empty();
                 })
                 .thenReturn(true);
+
+        // Connect the components to first find a valid user and then initiate the password reset flow
+        return userMono.then(resetFlowMono);
     }
 
     /**
