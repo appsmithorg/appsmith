@@ -24,7 +24,7 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-        log.error("In the login failure handler. Cause: {}", exception.getMessage());
+        log.error("In the login failure handler. Cause: {}", exception.getMessage(), exception);
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
