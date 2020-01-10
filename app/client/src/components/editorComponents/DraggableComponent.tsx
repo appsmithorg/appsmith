@@ -39,6 +39,7 @@ const WidgetBoundaries = styled.div`
   border: 1px dashed
     ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   position: absolute;
+  pointer-events: none;
 `;
 
 const DragHandle = styled.div`

@@ -10,6 +10,10 @@
   [context.develop.environment]
     REACT_APP_ENVIRONMENT = "DEVELOPMENT"
 
-[context.deploy-preview]
-  [context.deploy-preview.environment]
-    REACT_APP_ENVIRONMENT = "DEVELOPMENT"
+[context.a]
+  [context.a.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+
+[context.b]
+  [context.b.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
