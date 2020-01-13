@@ -106,7 +106,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         User newUser = new User();
         newUser.setName((String) userAttributes.get("name"));
         newUser.setEmail((String) userAttributes.get("email"));
-        newUser.setSource(LoginSource.GOOGLE);
+        newUser.setSource(LoginSource.fromString(authToken.getAuthorizedClientRegistrationId()));
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
         // TODO: Check if this is a valid permission available in the DB

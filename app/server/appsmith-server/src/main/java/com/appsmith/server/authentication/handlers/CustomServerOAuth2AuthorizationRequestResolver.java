@@ -1,6 +1,9 @@
 package com.appsmith.server.authentication.handlers;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
@@ -67,14 +71,17 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
+    private final CommonConfig commonConfig;
+
     /**
      * Creates a new instance
      *
      * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     * @param commonConfig
      */
-    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+    public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository, CommonConfig commonConfig) {
         this(clientRegistrationRepository, new PathPatternParserServerWebExchangeMatcher(
-                DEFAULT_AUTHORIZATION_REQUEST_PATTERN));
+                DEFAULT_AUTHORIZATION_REQUEST_PATTERN), commonConfig);
     }
 
     /**
@@ -85,11 +92,12 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      */
     public CustomServerOAuth2AuthorizationRequestResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-                                                          ServerWebExchangeMatcher authorizationRequestMatcher) {
+                                                          ServerWebExchangeMatcher authorizationRequestMatcher, CommonConfig commonConfig) {
         Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
         Assert.notNull(authorizationRequestMatcher, "authorizationRequestMatcher cannot be null");
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.authorizationRequestMatcher = authorizationRequestMatcher;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -135,6 +143,17 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
             if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
                 addPkceParameters(attributes, additionalParameters);
             }
+            if (!commonConfig.getAllowedDomains().isEmpty()) {
+                if (commonConfig.getAllowedDomains().size() == 1) {
+                    // Incase there's only 1 domain, we can do a further optimization to let the user select a specific one
+                    // from the list
+                    additionalParameters.put("hd", commonConfig.getAllowedDomains().get(0));
+                } else {
+                    // Add multiple domains to the list of allowed domains
+                    additionalParameters.put("hd", commonConfig.getAllowedDomains());
+                }
+            }
+
             builder.additionalParameters(additionalParameters);
         } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.implicit();
@@ -143,6 +162,8 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                     "Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
                             + ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
         }
+
+
         return builder
                 .clientId(clientRegistration.getClientId())
                 .authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
