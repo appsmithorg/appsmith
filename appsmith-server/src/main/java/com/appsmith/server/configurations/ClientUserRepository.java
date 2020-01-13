@@ -85,9 +85,12 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         // This is to provide more control over which accounts can be used to access the application.
         // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list relevant accounts only
         if (!commonConfig.getAllowedDomains().isEmpty()) {
-            DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
-            String domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
-            if (!commonConfig.getAllowedDomains().contains(domain)) {
+            String domain = null;
+            if (principal.getPrincipal() instanceof DefaultOidcUser) {
+                DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
+                domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
+            }
+            if (domain != null && !commonConfig.getAllowedDomains().contains(domain)) {
                 return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
             }
         }
