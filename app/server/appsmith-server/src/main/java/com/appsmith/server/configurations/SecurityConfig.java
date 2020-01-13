@@ -118,7 +118,7 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .and().oauth2Login()
-                .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository))
+                .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig))
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
