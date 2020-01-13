@@ -50,7 +50,7 @@ public class UserController extends BaseController<UserService, User, String> {
      * in order to construct client facing URLs that will be sent to the user over email.
      *
      * @param userPasswordDTO
-     * @param originHeader The Origin header in the request. This is a mandatory parameter.
+     * @param originHeader    The Origin header in the request. This is a mandatory parameter.
      * @return
      */
     @PostMapping("/forgotPassword")
@@ -83,7 +83,7 @@ public class UserController extends BaseController<UserService, User, String> {
      * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
      * in order to construct client facing URLs that will be sent to the user via email.
      *
-     * @param user The user object for the new user being invited to the Appsmith platform
+     * @param user         The user object for the new user being invited to the Appsmith platform
      * @param originHeader Origin header in the request
      * @return
      */
