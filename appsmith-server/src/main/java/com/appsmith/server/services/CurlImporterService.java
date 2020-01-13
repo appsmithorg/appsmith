@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
-public class CurlImporterService extends BaseApiImporter{
+public class CurlImporterService extends BaseApiImporter {
 
     private static final String headerRegex = "\\-H\\s+\\'(.+?)\\'";
     private static final String methodRegex = "\\-X\\s+(.+?)\\b";
@@ -56,21 +56,21 @@ public class CurlImporterService extends BaseApiImporter{
         // Find all the headers here
         List<Property> headers = actionConfiguration.getHeaders();
         while (headerMatcher.find()) {
-                String headerString = headerMatcher.group();
-                String[] splitHeader = headerString.split("'");
+            String headerString = headerMatcher.group();
+            String[] splitHeader = headerString.split("'");
 
-                String header = splitHeader[1];
-                String[] keyValuePairInString = header.split(":");
+            String header = splitHeader[1];
+            String[] keyValuePairInString = header.split(":");
 
-                Property property = new Property();
-                property.setKey(keyValuePairInString[0]);
-                property.setValue(keyValuePairInString[1]);
+            Property property = new Property();
+            property.setKey(keyValuePairInString[0]);
+            property.setValue(keyValuePairInString[1]);
 
-                if (headers == null) {
-                    headers = new ArrayList<>();
-                }
-                
-                headers.add(property);
+            if (headers == null) {
+                headers = new ArrayList<>();
+            }
+
+            headers.add(property);
         }
         actionConfiguration.setHeaders(headers);
 
@@ -93,7 +93,7 @@ public class CurlImporterService extends BaseApiImporter{
         Boolean urlFound = false;
         // Find the URL now
         //Ignoring the first word which is "curl"
-        for (int i = 1; i< cmdSplit.length; i++) {
+        for (int i = 1; i < cmdSplit.length; i++) {
             try {
                 // If the string doesnt throw an exception when being converted to a URI, its a valid URL.
                 URI uri = new URL(cmdSplit[i]).toURI();

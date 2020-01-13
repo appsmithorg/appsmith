@@ -37,7 +37,7 @@ public class RestApiImportController {
         ApiImporter service;
 
         switch (type) {
-            case CURL :
+            case CURL:
                 service = curlImporterService;
                 break;
             default:
