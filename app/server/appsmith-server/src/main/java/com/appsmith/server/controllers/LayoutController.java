@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,10 +23,13 @@ import javax.validation.Valid;
 public class LayoutController {
 
     private final LayoutService service;
+    private final LayoutActionService layoutActionService;
 
     @Autowired
-    public LayoutController(LayoutService layoutService) {
+    public LayoutController(LayoutService layoutService,
+                            LayoutActionService layoutActionService) {
         this.service = layoutService;
+        this.layoutActionService = layoutActionService;
     }
 
     @PostMapping("/pages/{pageId}")
@@ -42,7 +46,7 @@ public class LayoutController {
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<Layout>> updateLayout(@PathVariable String pageId, @PathVariable String layoutId, @RequestBody Layout layout) {
-        return service.updateLayout(pageId, layoutId, layout)
+        return layoutActionService.updateLayout(pageId, layoutId, layout)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

@@ -3,11 +3,13 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ActionService;
+import com.appsmith.server.services.LayoutActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,12 +30,15 @@ import javax.validation.Valid;
 public class ActionController extends BaseController<ActionService, Action, String> {
 
     private final ActionCollectionService actionCollectionService;
+    private final LayoutActionService layoutActionService;
 
     @Autowired
     public ActionController(ActionService service,
-                            ActionCollectionService actionCollectionService) {
+                            ActionCollectionService actionCollectionService,
+                            LayoutActionService layoutActionService) {
         super(service);
         this.actionCollectionService = actionCollectionService;
+        this.layoutActionService = layoutActionService;
     }
 
     @PostMapping
@@ -55,5 +60,12 @@ public class ActionController extends BaseController<ActionService, Action, Stri
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody ExecuteActionDTO executeActionDTO) {
         return service.executeAction(executeActionDTO)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @PutMapping("/move")
+    public Mono<ResponseDTO<Action>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO) {
+        log.debug("Going to move action {} from page {} to page {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId());
+        return layoutActionService.moveAction(actionMoveDTO)
+                .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
     }
 }

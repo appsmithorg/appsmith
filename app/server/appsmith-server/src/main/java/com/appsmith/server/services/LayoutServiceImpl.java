@@ -1,27 +1,20 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -37,7 +29,6 @@ public class LayoutServiceImpl implements LayoutService {
 
     private final ApplicationPageService applicationPageService;
     private final PageService pageService;
-    private final ActionService actionService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
      * e.g. for the given JS function using action with name "fetchUsers"
@@ -45,17 +36,12 @@ public class LayoutServiceImpl implements LayoutService {
      * This pattern should return ["JSON.stringify", "fetchUsers"]
      */
     private final Pattern pattern = Pattern.compile("[a-zA-Z0-9._]+");
-    private final ObjectMapper objectMapper;
 
     @Autowired
     public LayoutServiceImpl(ApplicationPageService applicationPageService,
-                             PageService pageService,
-                             ActionService actionService,
-                             ObjectMapper objectMapper) {
+                             PageService pageService) {
         this.applicationPageService = applicationPageService;
         this.pageService = pageService;
-        this.actionService = actionService;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -100,111 +86,6 @@ public class LayoutServiceImpl implements LayoutService {
                 });
     }
 
-    @Override
-    public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
-        Set<String> dynamicBindingNames = new HashSet<>();
-        String dslString = "";
-
-        // Convert the DSL into a String
-        JSONObject dsl = layout.getDsl();
-        try {
-            dslString = objectMapper.writeValueAsString(dsl);
-        } catch (JsonProcessingException e) {
-            log.debug("Exception caught during conversion of DSL Json object to String. ", e);
-        }
-
-        // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
-        Set<String> dynamicBindings = extractMustacheKeys(dslString);
-
-        if (!dynamicBindings.isEmpty()) {
-            for (String mustacheKey : dynamicBindings) {
-                String key = mustacheKey.trim();
-
-                // Extract all the words in the dynamic bindings
-                Matcher matcher = pattern.matcher(key);
-
-                while (matcher.find()) {
-                    String word = matcher.group();
-
-                    String[] subStrings = word.split(Pattern.quote("."));
-                    if (subStrings.length > 0 ) {
-                        // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                        dynamicBindingNames.add(subStrings[0]);
-                    }
-                }
-            }
-        }
-
-        Mono<Set<DslActionDTO>> onLoadActionsMono = findRestApiActionsByPageIdAndHTTPMethodGET(dynamicBindingNames, pageId)
-                .map(action -> {
-                    // Since we are only interested in few fields, prepare the DslActionDTO that needs to be stored in
-                    // the layout and return it to be collected in to a set.
-                    DslActionDTO newAction = new DslActionDTO();
-                    newAction.setId(action.getId());
-                    newAction.setPluginType(action.getPluginType());
-                    newAction.setJsonPathKeys(action.getJsonPathKeys());
-                    newAction.setName(action.getName());
-                    return newAction;
-                })
-                .collect(toSet());
-
-        return pageService.findByIdAndLayoutsId(pageId, layoutId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
-                .flatMap(applicationPageService::doesPageBelongToCurrentUserOrganization)
-                //The pageId given is correct and belongs to the current user's organization.
-                .zipWith(onLoadActionsMono)
-                .map(tuple -> {
-                    Page page = tuple.getT1();
-                    Set<DslActionDTO> onLoadActions = tuple.getT2();
-
-                    List<Layout> layoutList = page.getLayouts();
-
-                    //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            //Copy the variables to conserve before update
-                            JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            Set<DslActionDTO> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
-
-                            //Update
-                            layout.setLayoutOnLoadActions(onLoadActions);
-                            BeanUtils.copyProperties(layout, storedLayout);
-                            storedLayout.setId(layoutId);
-
-                            //Copy back the conserved variables.
-                            storedLayout.setPublishedDsl(publishedDsl);
-                            storedLayout.setPublishedLayoutOnLoadActions(publishedLayoutOnLoadActions);
-                            break;
-                        }
-                    }
-                    page.setLayouts(layoutList);
-                    return page;
-                })
-                .flatMap(pageService::save)
-                .flatMap(page -> {
-                    List<Layout> layoutList = page.getLayouts();
-                    for (Layout storedLayout : layoutList) {
-                        if (storedLayout.getId().equals(layoutId)) {
-                            return Mono.just(storedLayout);
-                        }
-                    }
-                    return Mono.empty();
-                });
-    }
-
-    /**
-     * Given a list of names of actions (nodes) and pageId, it hits the database and returns all the actions matching
-     * this criteria of name and pageId with http method 'GET'
-     *
-     * @param nodes
-     * @param pageId
-     * @return
-     */
-    Flux<Action> findRestApiActionsByPageIdAndHTTPMethodGET(Set<String> nodes, String pageId) {
-
-        return actionService
-                .findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(nodes, pageId, "GET");
-    }
 
     /**
      * Walks the DSL and extracts all the widget names from it and adds it to the graph.
