@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -136,5 +137,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         .flatMap(pageRepository::save))
                 .collectList()
                 .map(pages -> true);
+    }
+
+    @Override
+    public Mono<Application> delete(String id) {
+        Mono<Application> applicationMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)));
+        return applicationMono
+                .map(deletedObj -> {
+                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj);
+                    return (Application) deletedObj;
+                });
     }
 }
