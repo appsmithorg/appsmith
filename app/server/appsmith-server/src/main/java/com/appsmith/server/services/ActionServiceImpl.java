@@ -430,8 +430,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     public Flux<Action> saveAll(List<Action> actions) {
         return repository.saveAll(actions);
     }
-
-
+    
     /**
      * This function replaces the variables in the Object with the actual params
      */

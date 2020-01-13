@@ -38,6 +38,9 @@ public class LayoutServiceTest {
     @Autowired
     PageService pageService;
 
+    @Autowired
+    LayoutActionService layoutActionService;
+
     Mono<Layout> layoutMono;
 
     Mono<Application> applicationMono;
@@ -134,7 +137,7 @@ public class LayoutServiceTest {
         obj.put("key", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
+        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
 
         StepVerifier
                 .create(updatedLayoutMono)
@@ -164,7 +167,7 @@ public class LayoutServiceTest {
         obj1.put("key1", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
 
         StepVerifier
                 .create(updatedLayoutMono)
