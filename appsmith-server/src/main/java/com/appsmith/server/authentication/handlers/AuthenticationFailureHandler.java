@@ -29,24 +29,19 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
 
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
         // login page again with an error message shown to the user.
-        String originHeader = exchange.getRequest().getHeaders().getOrigin();
-        if (originHeader == null || originHeader.isEmpty()) {
-            // Check the referer header if the origin is not available
-            String refererHeader = exchange.getRequest().getHeaders().getFirst(Security.REFERER_HEADER);
-            if (refererHeader != null && !refererHeader.isBlank()) {
-                URI uri = null;
-                try {
-                    uri = new URI(refererHeader);
-                    String authority = uri.getAuthority();
-                    String scheme = uri.getScheme();
-                    originHeader = scheme + "://" + authority;
-                } catch (URISyntaxException e) {
-                    originHeader = "/";
+        String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
+        String originHeader = "";
+        if (state != null && !state.isEmpty()) {
+            String[] stateArray = state.split(",");
+            for (int i = 0; i < stateArray.length; i++) {
+                String stateVar = stateArray[i];
+                if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN) && stateVar.contains("=")) {
+                    // This is the origin of the request that we want to redirect to
+                    originHeader = stateVar.split("=")[1];
                 }
-            } else {
-                originHeader = "/";
             }
         }
+
 
         URI defaultRedirectLocation = URI.create(originHeader + "/user/login?error=true");
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
