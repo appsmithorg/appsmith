@@ -1,9 +1,5 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.constants.AclConstants;
-import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserService;
@@ -13,7 +9,6 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -21,9 +16,7 @@ import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -86,12 +79,13 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         // TODO: This is not a good way to do this. Ideally, we should pass "hd=example.com" to OAuth2 provider to list relevant accounts only
         if (!commonConfig.getAllowedDomains().isEmpty()) {
             String domain = null;
+            log.debug("Got the principal class as: {}", principal.getPrincipal().getClass().getName());
             if (principal.getPrincipal() instanceof DefaultOidcUser) {
                 DefaultOidcUser userPrincipal = (DefaultOidcUser) principal.getPrincipal();
                 domain = (String) userPrincipal.getAttributes().getOrDefault("hd", "");
-            }
-            if (domain != null && !commonConfig.getAllowedDomains().contains(domain)) {
-                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
+                if (!commonConfig.getAllowedDomains().contains(domain)) {
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_DOMAIN));
+                }
             }
         }
 
