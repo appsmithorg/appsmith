@@ -10,7 +10,6 @@ import {
   SelectionSettingsModel,
   Reorder,
   ColumnMenu,
-  Filter,
 } from "@syncfusion/ej2-react-grids";
 import React, {
   useEffect,
@@ -43,11 +42,11 @@ const settings: SelectionSettingsModel = {
 
 type GridRef = MutableRefObject<Grid | undefined>;
 
-function reCalculatePageSize(grid: GridRef) {
+function reCalculatePageSize(grid: GridRef, height: number) {
   if (grid.current) {
     const rowHeight: number = grid.current.getRowHeight();
     /** Grid height */
-    const gridHeight: number = grid.current.height as number;
+    const gridHeight: number = height - 107;
     /** initial page size */
     const pageSize: number = grid.current.pageSettings.pageSize as number;
     /** new page size is obtained here */
@@ -62,7 +61,7 @@ const TableComponent = memo(
 
     // componentDidUpdate start
     useEffect(() => {
-      props.height && reCalculatePageSize(grid);
+      props.height && reCalculatePageSize(grid, props.height);
     }, [props.height]);
     // componentDidUpdate end
 
@@ -139,14 +138,13 @@ const TableComponent = memo(
         dataSource={props.data}
         rowSelected={rowSelected}
         ref={grid}
-        width={props.width - 16}
-        height={props.height - 107}
+        width={"100%"}
+        height={"100%"}
         dataBound={dataBound}
         allowPaging={true}
         allowReordering={true}
         allowResizing={true}
         showColumnMenu={true}
-        allowFiltering={true}
       >
         <Inject services={[Resize, Page, Reorder, ColumnMenu]} />
         <ColumnsDirective>
