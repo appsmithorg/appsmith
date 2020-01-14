@@ -30,8 +30,10 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
         // On authentication failure, we send a redirect to the client's login error page. The browser will re-load the
         // login page again with an error message shown to the user.
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
-        String originHeader = "";
+        String originHeader = "/";
         if (state != null && !state.isEmpty()) {
+            // This is valid for OAuth2 login failures. We derive the client login URL from the state query parameter
+            // that would have been set when we initiated the OAuth2 request.
             String[] stateArray = state.split(",");
             for (int i = 0; i < stateArray.length; i++) {
                 String stateVar = stateArray[i];
@@ -40,8 +42,25 @@ public class AuthenticationFailureHandler implements ServerAuthenticationFailure
                     originHeader = stateVar.split("=")[1];
                 }
             }
+        } else {
+            // This is a form login authentication failure
+            originHeader = exchange.getRequest().getHeaders().getOrigin();
+            if (originHeader == null || originHeader.isEmpty()) {
+                // Check the referer header if the origin is not available
+                String refererHeader = exchange.getRequest().getHeaders().getFirst(Security.REFERER_HEADER);
+                if (refererHeader != null && !refererHeader.isBlank()) {
+                    URI uri = null;
+                    try {
+                        uri = new URI(refererHeader);
+                        String authority = uri.getAuthority();
+                        String scheme = uri.getScheme();
+                        originHeader = scheme + "://" + authority;
+                    } catch (URISyntaxException e) {
+                        originHeader = "/";
+                    }
+                }
+            }
         }
-
 
         URI defaultRedirectLocation = URI.create(originHeader + "/user/login?error=true");
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
