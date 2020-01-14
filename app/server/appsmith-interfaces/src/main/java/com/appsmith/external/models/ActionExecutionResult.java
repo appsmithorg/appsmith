@@ -14,5 +14,5 @@ public class ActionExecutionResult {
 
     String statusCode;
     JsonNode headers;
-    JsonNode body;
+    Object body;
 }
