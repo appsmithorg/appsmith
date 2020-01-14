@@ -105,18 +105,10 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         Map<String, Object> userAttributes = authToken.getPrincipal().getAttributes();
         User newUser = new User();
         newUser.setName((String) userAttributes.get("name"));
-        String username = null;
+        String username = authToken.getName();
+        newUser.setEmail(username);
         LoginSource loginSource = LoginSource.fromString(authToken.getAuthorizedClientRegistrationId());
         newUser.setSource(loginSource);
-        switch (loginSource) {
-            case GOOGLE:
-                username = (String) userAttributes.get("email");
-                break;
-            case GITHUB:
-                username = (String) userAttributes.get("login");
-                break;
-        }
-        newUser.setEmail(username);
         newUser.setState(UserState.ACTIVATED);
         newUser.setIsEnabled(true);
         // TODO: Check if this is a valid permission available in the DB
