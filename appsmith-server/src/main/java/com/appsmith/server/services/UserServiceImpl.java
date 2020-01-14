@@ -220,7 +220,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Save the password reset link and send an email to the user
         Mono<Boolean> resetFlowMono = passwordResetTokenMono
-                .map(resetToken -> passwordResetTokenRepository.save(resetToken))
+                .flatMap(resetToken -> passwordResetTokenRepository.save(resetToken))
                 .map(obj -> {
                     String resetUrl = String.format(FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
