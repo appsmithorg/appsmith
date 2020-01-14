@@ -42,6 +42,11 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     font-weight: ${props => props.theme.fontWeights[2]};
     font-family: "DM Sans";
     outline: none;
+    && .bp3-button-text {
+      max-width: 90%;
+      max-height: 90%;
+      overflow: hidden;
+    }
     &&:hover,
     &&:focus {
       ${ButtonColorStyles};
@@ -127,7 +132,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       className={props.isLoading ? "bp3-skeleton" : ""}
       icon={props.icon}
       text={props.text}
-      filled={props.buttonStyle === "PRIMARY_BUTTON"}
+      filled={props.buttonStyle !== "SECONDARY_BUTTON"}
       accent={mapButtonStyleToStyleName(props.buttonStyle)}
       onClick={props.onClick}
       disabled={props.disabled}

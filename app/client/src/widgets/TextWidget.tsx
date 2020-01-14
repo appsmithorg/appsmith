@@ -5,6 +5,14 @@ import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 
+const LINE_HEIGHTS: { [key in TextStyle]: number } = {
+  // The following values are arrived at by multiplying line-height with font-size
+  BODY: 1.5 * 14,
+  HEADING: 1.28581 * 16,
+  LABEL: 1.28581 * 14,
+  SUB_TEXT: 1.28581 * 12,
+};
+
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -13,7 +21,14 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
+  getNumberOfLines() {
+    const height = (this.props.bottomRow - this.props.topRow) * 40;
+    const lineHeight = LINE_HEIGHTS[this.props.textStyle];
+    return Math.floor(height / lineHeight);
+  }
+
   getPageView() {
+    const lines = this.getNumberOfLines();
     return (
       <TextComponent
         widgetId={this.props.widgetId}
@@ -21,6 +36,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         textStyle={this.props.textStyle}
         text={this.props.text}
         isLoading={this.props.isLoading}
+        lines={lines}
       />
     );
   }
