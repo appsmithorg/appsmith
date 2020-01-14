@@ -11,7 +11,7 @@ type FormFooterProps = {
   submitText?: string;
   cancelText?: string;
   submitOnEnter?: boolean;
-  canSubmit: boolean;
+  canSubmit?: boolean;
 };
 
 const FooterActions = styled.div`
@@ -47,7 +47,7 @@ export const FormFooter = (props: FormFooterProps) => {
             type={props.submitOnEnter ? "submit" : "button"}
             intent="primary"
             onClick={props.onSubmit}
-            disabled={!props.canSubmit}
+            disabled={props.canSubmit === false}
             loading={props.submitting}
             large
           />
