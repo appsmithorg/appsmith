@@ -396,6 +396,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     action.setCacheResponse(result.getBody().toString());
                                     return repository.save(action);
                                 }
+                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
                                 return Mono.just(action);
                             });
                     return actionFromDbMono.zipWith(resultMono)
