@@ -9,6 +9,7 @@ import {
   Button,
   Label,
   Text,
+  Classes,
 } from "@blueprintjs/core";
 import { InputType } from "widgets/InputWidget";
 /**
@@ -19,9 +20,14 @@ import { InputType } from "widgets/InputWidget";
  */
 
 const InputComponentWrapper = styled.div`
-  &&&& div.bp3-input-group {
-    display: block;
-    margin: 0;
+  &&&& {
+    div.bp3-input-group {
+      display: block;
+      margin: 0;
+    }
+    .bp3-control-group {
+      justify-content: flex-start;
+    }
   }
 `;
 
@@ -45,7 +51,6 @@ class InputComponent extends React.Component<
   isNumberInputType(inputType: InputType) {
     return (
       inputType === "INTEGER" ||
-      inputType === "PHONE_NUMBER" ||
       inputType === "NUMBER" ||
       inputType === "CURRENCY"
     );
@@ -67,7 +72,7 @@ class InputComponent extends React.Component<
   getType(inputType: InputType) {
     switch (inputType) {
       case "PASSWORD":
-        return this.state.showPassword ? "password" : "text";
+        return this.state.showPassword ? "text" : "password";
       case "EMAIL":
         return "email";
       case "SEARCH":
@@ -80,7 +85,7 @@ class InputComponent extends React.Component<
   render() {
     return (
       <InputComponentWrapper>
-        <Label className={"bp3-inline"}>
+        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
           <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
             {this.props.label}
           </span>
@@ -92,7 +97,7 @@ class InputComponent extends React.Component<
               maxLength={this.props.maxChars}
               disabled={this.props.disabled}
               intent={this.props.intent}
-              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
               defaultValue={this.props.defaultValue}
               onValueChange={this.onNumberChange}
               leftIcon={
@@ -101,7 +106,7 @@ class InputComponent extends React.Component<
                   : this.props.leftIcon
               }
               type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-              allowNumericCharactersOnly={true}
+              allowNumericCharactersOnly
               stepSize={this.props.stepSize}
             />
           ) : (
