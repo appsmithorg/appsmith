@@ -187,10 +187,9 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
     roles,
     initialize,
     defaultRole,
-    pristine,
+    anyTouched,
   } = props;
   const history = useHistory();
-
   useEffect(() => {
     if (!roles) {
       fetchRoles();
@@ -232,8 +231,7 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
       <FormFooter
         divider
         onSubmit={handleSubmit(inviteUsersToOrgSubmitHandler)}
-        canSubmit={!pristine}
-        submitting={submitting && !submitFailed}
+        submitting={submitting && !(submitFailed && !anyTouched)}
         onCancel={() => history.goBack()}
         submitOnEnter={false}
         submitText={INVITE_USERS_SUBMIT_BUTTON_TEXT}

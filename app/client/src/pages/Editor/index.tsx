@@ -103,7 +103,6 @@ class Editor extends Component<EditorProps> {
         <Helmet>
           <meta charSet="utf-8" />
           <title>Editor | Appsmith</title>
-          <link rel="shortcut icon" href="/favicon-orange.ico" />
         </Helmet>
         <EditorHeader
           isSaving={this.props.isSaving}

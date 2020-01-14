@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from "react";
+import { Helmet } from "react-helmet";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
@@ -36,6 +37,10 @@ ReactDOM.render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <link rel="shortcut icon" href="/favicon-orange.ico" />
+        </Helmet>
         <Router history={history}>
           <Suspense fallback={loadingIndicator}>
             <Switch>
