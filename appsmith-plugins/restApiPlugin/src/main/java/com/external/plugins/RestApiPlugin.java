@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -13,6 +14,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -76,7 +78,8 @@ public class RestApiPlugin extends BasePlugin {
                     .flatMap(clientResponse -> clientResponse.toEntity(String.class))
                     .map(stringResponseEntity -> {
                         /**TODO
-                         * Handle XML response. Currently we only handle JSON responses.
+                         * Handle XML response. Currently we only handle JSON responses. The other kind of responses are
+                         * kept as is and returned as a string.
                          */
                         HttpHeaders headers = stringResponseEntity.getHeaders();
                         String body = stringResponseEntity.getBody();
@@ -84,18 +87,44 @@ public class RestApiPlugin extends BasePlugin {
 
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
-                        try {
-                            if (body != null) {
-                                result.setBody(objectMapper.readTree(body));
+                        Boolean isBodyJson = false;
+                        if (headers != null) {
+                            // Convert the headers into json tree to store in the results
+                            String headerInJsonString = null;
+                            try {
+                                headerInJsonString = objectMapper.writeValueAsString(headers);
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
                             }
-                            if (headers != null) {
-                                String headerInJsonString = objectMapper.writeValueAsString(headers);
+                            try {
+                                // Set headers in the result now
                                 result.setHeaders(objectMapper.readTree(headerInJsonString));
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+                            // Find the media type of the response to parse the body as required. Currently only JSON
+                            // responses are parsed. The rest kind of responses are kept as is.
+                            MediaType contentType = headers.getContentType();
+                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
+                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType) ||
+                                    MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
+                                isBodyJson = true;
+                            }
                         }
 
+                        if (body != null) {
+                            if (isBodyJson) {
+                                try {
+                                    result.setBody(objectMapper.readTree(body));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                // If the body is not of JSON type, just set it as is.
+                                result.setBody(body.trim());
+                            }
+                        }
                         return result;
                     });
         }
