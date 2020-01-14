@@ -19,7 +19,7 @@ const DropdownField = (props: DropdownFieldProps) => {
       component={BaseDropdown}
       options={props.options}
       placeholder={props.placeholder}
-      format={(value: string) => _.find(props.options, { value })}
+      format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
     />
   );
