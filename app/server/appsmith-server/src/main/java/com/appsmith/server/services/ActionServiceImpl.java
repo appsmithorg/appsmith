@@ -370,7 +370,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         actionConfiguration = action.getActionConfiguration();
                     }
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
-                    log.debug("Got the timeoutDuration to be: {} ms for action: {}", timeoutDuration, action.getName());
+
+                    log.debug("Execute Action called in Page {}, for action id : {}  action name : {}, {}, {}",
+                            action.getPageId(), action.getId(), action.getName(), datasourceConfiguration,
+                            actionConfiguration);
+
                     return datasourceContextService
                             .getDatasourceContext(datasource)
                             //Now that we have the context (connection details, execute the action
@@ -381,7 +385,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             .timeout(Duration.ofMillis(timeoutDuration));
                 }))
                 .flatMap(obj -> obj)
-                .flatMap(result -> {
+                .flatMap(res -> {
+                    ActionExecutionResult result = (ActionExecutionResult) res;
                     Mono<ActionExecutionResult> resultMono = Mono.just(result);
                     if (actionFromDto.getId() == null) {
                         // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
