@@ -45,9 +45,9 @@ public class MongoPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Object> execute(Object connection,
+                                    DatasourceConfiguration datasourceConfiguration,
+                                    ActionConfiguration actionConfiguration) {
 
             ActionExecutionResult result = new ActionExecutionResult();
             MongoClient mongoClient = (MongoClient) connection;

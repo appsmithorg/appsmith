@@ -1,5 +1,6 @@
 package com.appsmith.server.exceptions;
 
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.rollbar.notifier.Rollbar;
 import com.segment.analytics.Analytics;
@@ -75,6 +76,16 @@ public class GlobalExceptionHandler {
         rollbar.log(e);
         return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.GENERIC_BAD_REQUEST.getHttpErrorCode(),
                 AppsmithError.GENERIC_BAD_REQUEST.getMessage(e.getReason()))));
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchPluginException(AppsmithPluginException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("", e);
+        rollbar.log(e);
+        return Mono.just(new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDTO(AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode(),
+                e.getLocalizedMessage())));
     }
 
     /**
