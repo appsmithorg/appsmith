@@ -53,7 +53,7 @@ public class RestApiPlugin extends BasePlugin {
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
-                return Mono.error(new Exception("HttpMethod must not be null"));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "HTTPMethod must be set."));
             }
 
             WebClient.Builder webClientBuilder = WebClient.builder();
@@ -138,7 +138,7 @@ public class RestApiPlugin extends BasePlugin {
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
             if (iteration == MAX_REDIRECTS) {
                 System.out.println("Exceeded the http redirect limits. Returning error");
-                return Mono.error(new Exception("Exceeded the http redirect limits"));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Exceeded the HTTO redirect limits of "+MAX_REDIRECTS));
             }
             return webClient
                     .method(httpMethod)
