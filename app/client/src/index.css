@@ -48,6 +48,10 @@ div.bp3-popover-arrow {
   display:none;
 }
 
+.bp3-button.bp3-loading{
+  cursor: wait !important;
+}
+
 .pace {
   -webkit-pointer-events: none;
   pointer-events: none;

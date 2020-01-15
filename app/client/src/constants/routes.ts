@@ -71,7 +71,9 @@ export const EDITOR_ROUTES = [
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
+export const BASE_SIGNUP_URL = `/signup`;
 export const SIGN_UP_URL = `${USER_AUTH_URL}/signup`;
+export const BASE_LOGIN_URL = `/login`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;
 
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
