@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
-import { Router, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { DndProvider } from "react-dnd";
@@ -20,6 +20,10 @@ import {
   APPLICATIONS_URL,
   ORG_URL,
   USER_AUTH_URL,
+  AUTH_LOGIN_URL,
+  SIGN_UP_URL,
+  BASE_LOGIN_URL,
+  BASE_SIGNUP_URL,
 } from "constants/routes";
 
 const loadingIndicator = <Loader />;
@@ -47,6 +51,8 @@ ReactDOM.render(
               <ProtectedRoute exact path={BASE_URL} component={App} />
               <ProtectedRoute path={ORG_URL} component={Organization} />
               <Route path={USER_AUTH_URL} component={UserAuth} />
+              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
               <ProtectedRoute
                 exact
                 path={APPLICATIONS_URL}

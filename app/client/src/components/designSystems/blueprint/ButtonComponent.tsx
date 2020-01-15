@@ -2,7 +2,7 @@ import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 
@@ -52,14 +52,14 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarker;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darker`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenHover(props.theme.colors[props.accent]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darker`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenHover(props.theme.colors[props.accent]);
         }
       }};
     }
@@ -67,14 +67,14 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarkest;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darkest`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenActive(props.theme.colors[props.accent]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darkest`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenActive(props.theme.colors[props.accent]);
         }
       }};
     }

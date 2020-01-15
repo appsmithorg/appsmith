@@ -12,7 +12,7 @@ type PopperProps = {
 
 const PopperWrapper = styled(PaneWrapper)`
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
   margin: ${props => props.theme.spaces[6]}px;
@@ -49,6 +49,10 @@ export default (props: PopperProps) => {
             },
             arrow: {
               enabled: false,
+            },
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: "viewport",
             },
           },
         },
