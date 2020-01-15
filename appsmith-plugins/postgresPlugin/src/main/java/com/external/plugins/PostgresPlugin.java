@@ -47,9 +47,9 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Object> execute(Object connection,
+                                    DatasourceConfiguration datasourceConfiguration,
+                                    ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
             Assert.notNull(conn);

@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
@@ -44,7 +43,7 @@ public class DatasourceServiceTest {
     class TestPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             System.out.println("In the execute");
             return null;
         }

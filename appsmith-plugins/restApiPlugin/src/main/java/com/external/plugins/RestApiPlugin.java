@@ -4,6 +4,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,9 +43,9 @@ public class RestApiPlugin extends BasePlugin {
     public static class RestApiPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<Object> execute(Object connection,
+                                    DatasourceConfiguration datasourceConfiguration,
+                                    ActionConfiguration actionConfiguration) {
 
             String requestBody = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -70,7 +72,7 @@ public class RestApiPlugin extends BasePlugin {
                 uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
-                return Mono.error(e);
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
             }
 
             WebClient client = webClientBuilder.build();
@@ -95,12 +97,14 @@ public class RestApiPlugin extends BasePlugin {
                                 headerInJsonString = objectMapper.writeValueAsString(headers);
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();
+                                return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
                             }
                             try {
                                 // Set headers in the result now
                                 result.setHeaders(objectMapper.readTree(headerInJsonString));
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
                             }
 
                             // Find the media type of the response to parse the body as required. Currently only JSON
@@ -119,6 +123,7 @@ public class RestApiPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(body));
                                 } catch (IOException e) {
                                     e.printStackTrace();
+                                    return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
                                 }
                             } else {
                                 // If the body is not of JSON type, just set it as is.
@@ -126,7 +131,8 @@ public class RestApiPlugin extends BasePlugin {
                             }
                         }
                         return result;
-                    });
+                    })
+                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
         }
 
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
@@ -139,7 +145,9 @@ public class RestApiPlugin extends BasePlugin {
                     .uri(uri)
                     .body(BodyInserters.fromObject(requestBody))
                     .exchange()
-                    .flatMap(response -> {
+                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                    .flatMap(res -> {
+                        ClientResponse response = (ClientResponse) res;
                         if (response.statusCode().is3xxRedirection()) {
                             String redirectUrl = response.headers().header("Location").get(0);
                             URI redirectUri = null;
