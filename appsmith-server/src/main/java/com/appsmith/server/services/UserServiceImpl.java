@@ -419,9 +419,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
                         .thenReturn(true);
             }
-            log.debug("The user doesn't exist in the system. Creating a new one");
+            log.debug("The invited user {} doesn't exist in the system. Creating a new record", inviteUser.getEmail());
             // The user doesn't exist in the system. Create a new user object
-            newUser.setPassword(passwordEncoder.encode(inviteUser.getPassword()));
+            newUser.setPassword(inviteUser.getPassword());
             return this.create(newUser)
                     .flatMap(createdUser -> addUserToOrganization(newUser.getCurrentOrganizationId(), createdUser))
                     .thenReturn(newUser)
