@@ -1,18 +1,19 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
-import { noCollision } from "utils/WidgetPropsUtils";
+import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
 import DropTargetMask from "./DropTargetMask";
-
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { DropTargetContext } from "./DropTargetComponent";
 const WrappedDragLayer = styled.div`
   position: absolute;
   pointer-events: none;
   left: 0;
+  right: 0;
+  bottom: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
 `;
 
 type DragLayerProps = {
@@ -27,9 +28,11 @@ type DragLayerProps = {
   parentRows?: number;
   parentCols?: number;
   isResizing?: boolean;
+  parentWidgetId: string;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
+  const { updateDropTargetRows } = useContext(DropTargetContext);
   const { isDragging, currentOffset, widget, canDrop } = useDragLayer(
     monitor => ({
       isDragging: monitor.isDragging(),
@@ -48,6 +51,22 @@ const DragLayerComponent = (props: DragLayerProps) => {
     }),
   );
 
+  if (
+    props.visible &&
+    props.parentWidgetId === MAIN_CONTAINER_WIDGET_ID &&
+    currentOffset &&
+    props.parentRows
+  ) {
+    const row = currentDropRow(
+      props.parentRowHeight,
+      props.parentOffset.y,
+      currentOffset.y,
+      widget,
+    );
+
+    updateDropTargetRows && updateDropTargetRows(row);
+  }
+
   let widgetWidth = 0;
   let widgetHeight = 0;
   if (widget) {
@@ -59,14 +78,15 @@ const DragLayerComponent = (props: DragLayerProps) => {
   if ((!isDragging || !props.visible) && !props.isResizing) {
     return null;
   }
+
   return (
     <WrappedDragLayer>
       <DropTargetMask
         rowHeight={props.parentRowHeight}
         columnWidth={props.parentColumnWidth}
         setBounds={props.onBoundsUpdate}
-        showGrid={(isDragging && props.isOver) || props.isResizing}
       />
+
       <DropZone
         {...props}
         visible={props.visible && props.isOver}

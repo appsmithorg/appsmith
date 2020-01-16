@@ -4,8 +4,8 @@ export const snapToGrid = (
   x: number,
   y: number,
 ) => {
-  const snappedX = Math.floor(x / columnWidth);
-  const snappedY = Math.floor(y / rowHeight);
+  const snappedX = Math.round(x / columnWidth);
+  const snappedY = Math.round(y / rowHeight);
   return [snappedX, snappedY];
 };
 

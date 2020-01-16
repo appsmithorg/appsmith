@@ -10,7 +10,12 @@ import {
   CSSUnits,
 } from "constants/WidgetConstants";
 import React, { Component } from "react";
-import { PositionType, CSSUnit } from "constants/WidgetConstants";
+import {
+  PositionType,
+  CSSUnit,
+  CONTAINER_GRID_PADDING,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -126,6 +131,7 @@ abstract class BaseWidget<
       componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
+
     if (
       _.isNil(this.state) ||
       widgetState.componentHeight !== this.state.componentHeight ||
@@ -161,15 +167,17 @@ abstract class BaseWidget<
             </PositionedContainer>
           );
         }
-        return (
-          <PositionedContainer style={style}>
-            {this.getCanvasView()}
-          </PositionedContainer>
-        );
+        return this.getCanvasView();
       case RenderModes.PAGE:
         if (this.props.isVisible) {
           return (
-            <PositionedContainer style={this.getPositionStyle()}>
+            <PositionedContainer
+              style={this.getPositionStyle()}
+              isMainContainer={
+                this.props.type === WidgetTypes.CONTAINER_WIDGET &&
+                this.props.widgetId === "0"
+              }
+            >
               {this.getPageView()}
             </PositionedContainer>
           );
@@ -200,8 +208,11 @@ abstract class BaseWidget<
       positionType: PositionTypes.ABSOLUTE,
       componentHeight: this.state.componentHeight,
       componentWidth: this.state.componentWidth,
-      yPosition: this.props.topRow * this.props.parentRowSpace,
-      xPosition: this.props.leftColumn * this.props.parentColumnSpace,
+      yPosition:
+        this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
+      xPosition:
+        this.props.leftColumn * this.props.parentColumnSpace +
+        CONTAINER_GRID_PADDING,
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
     };

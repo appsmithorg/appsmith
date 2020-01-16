@@ -5,6 +5,7 @@ import { theme } from "constants/DefaultTheme";
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export type UIElementSize = { height: number; width: number };
 
@@ -75,13 +76,22 @@ export const computeUpdatedRowCols = (
 ): WidgetRowCols | false => {
   if (isColliding) return false;
   const newRowCols: WidgetRowCols = {
-    leftColumn: props.leftColumn + position.x / props.parentColumnSpace,
-    topRow: props.topRow + position.y / props.parentRowSpace,
+    leftColumn: Math.max(
+      Math.round(props.leftColumn + position.x / props.parentColumnSpace),
+      0,
+    ),
+    topRow: Math.round(props.topRow + position.y / props.parentRowSpace),
 
-    rightColumn:
-      props.rightColumn + (delta.width + position.x) / props.parentColumnSpace,
-    bottomRow:
+    rightColumn: Math.min(
+      Math.round(
+        props.rightColumn +
+          (delta.width + position.x) / props.parentColumnSpace,
+      ),
+      GridDefaults.DEFAULT_GRID_COLUMNS,
+    ),
+    bottomRow: Math.round(
       props.bottomRow + (delta.height + position.y) / props.parentRowSpace,
+    ),
   };
 
   if (

@@ -5,11 +5,11 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
-const PageView = styled.div`
-  flex-grow: 1;
+const PageView = styled.div<{ width: number }>`
   height: 100%;
-  margin-top: ${props => props.theme.spaces[1]}px;
   position: relative;
+  width: ${props => props.width}px;
+  margin: 0 auto;
 `;
 
 type AppPageProps = {
@@ -18,7 +18,7 @@ type AppPageProps = {
 
 export const AppPage = (props: AppPageProps) => {
   return (
-    <PageView>
+    <PageView width={props.dsl.rightColumn}>
       {props.dsl.widgetId &&
         WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>
