@@ -229,7 +229,7 @@ export const theme: Theme = {
     paneText: Colors.GRAY_CHATEAU,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.GEYSER,
+    grid: Colors.GEYSER_LIGHT,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
@@ -269,7 +269,7 @@ export const theme: Theme = {
   sidebarWidth: "300px",
   headerHeight: "50px",
   sideNav: {
-    maxWidth: 250,
+    maxWidth: 300,
     minWidth: 50,
     bgColor: Colors.OXFORD_BLUE,
     fontColor: Colors.WHITE,

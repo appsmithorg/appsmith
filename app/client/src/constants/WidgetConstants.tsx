@@ -77,8 +77,14 @@ export const GridDefaults = {
   DEFAULT_WIDGET_WIDTH: 200,
   DEFAULT_WIDGET_HEIGHT: 100,
   DEFAULT_GRID_COLUMNS: 16,
-  DEFAULT_GRID_ROWS: 32,
   DEFAULT_GRID_ROW_HEIGHT: 40,
 };
 
+export const CONTAINER_GRID_PADDING =
+  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.6;
+
+export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.4;
+
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
+export const MAIN_CONTAINER_WIDGET_ID = "0";
+export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";

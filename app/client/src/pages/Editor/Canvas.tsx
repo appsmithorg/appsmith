@@ -36,7 +36,7 @@ const Canvas = (props: CanvasProps) => {
           }}
         >
           <PropertyPane />
-          <ArtBoard>
+          <ArtBoard width={props.dsl.rightColumn}>
             {props.dsl.widgetId &&
               WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
           </ArtBoard>

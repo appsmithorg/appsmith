@@ -9,7 +9,6 @@ const StyledContainerComponent = styled.div<ContainerComponentProps>`
     props.containerStyle !== "none"
       ? `
   border: ${getBorderCSSShorthand(props.theme.borders[2])};
-  box-shadow: ${props.theme.shadows[0]};
   border-radius: ${
     props.containerStyle === "card" || props.containerStyle === "rounded-border"
       ? props.theme.radii[1]
@@ -19,7 +18,7 @@ const StyledContainerComponent = styled.div<ContainerComponentProps>`
   height: 100%;
   width: 100%;
   background: ${props => props.backgroundColor};
-  padding: ${props => props.theme.spaces[1]}px;
+  position: relative;
 }`;
 
 /* eslint-disable react/display-name */

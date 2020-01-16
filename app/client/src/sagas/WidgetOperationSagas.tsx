@@ -21,6 +21,7 @@ import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
+import { WidgetTypes } from "constants/WidgetConstants";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -111,7 +112,7 @@ export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
     // Get parent from DSL/Redux Store
     const parent = yield select(getWidget, parentId);
     // Update position of widget
-    widget = updateWidgetPosition(widget, leftColumn, topRow, parent);
+    widget = updateWidgetPosition(widget, leftColumn, topRow);
     // Replace widget with update widget props
     widgets[widgetId] = widget;
     // If the parent has changed i.e parentWidgetId is not parent.widgetId
@@ -152,6 +153,10 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
+    if (widget.type === WidgetTypes.CONTAINER_WIDGET) {
+      console.log(resizeAction.payload);
+      widget.snapRows = bottomRow - topRow - 1;
+    }
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
 

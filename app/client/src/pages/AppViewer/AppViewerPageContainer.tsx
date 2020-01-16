@@ -6,6 +6,7 @@ import {
   getIsFetchingPage,
   getCurrentPageLayoutDSL,
 } from "selectors/appViewSelectors";
+import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import { AppViewerRouteParams } from "constants/routes";
@@ -15,6 +16,14 @@ import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 
+const Section = styled.section`
+  background: ${props => props.theme.colors.bodyBG};
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: auto;
+`;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
   dsl?: ContainerWidgetProps<WidgetProps>;
@@ -69,7 +78,11 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     } else if (!this.props.isFetchingPage && !this.props.dsl) {
       return pageNotFound;
     } else if (!this.props.isFetchingPage && this.props.dsl) {
-      return <AppPage dsl={this.props.dsl} />;
+      return (
+        <Section>
+          <AppPage dsl={this.props.dsl} />
+        </Section>
+      );
     }
   }
 }

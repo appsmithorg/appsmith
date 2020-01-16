@@ -1,12 +1,13 @@
 import React, { useContext, useState, memo } from "react";
 import { ResizeDirection } from "re-resizable";
 import { XYCoord } from "react-dnd";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import { generateClassName } from "utils/generators";
-
+import { DropTargetContext } from "./DropTargetComponent";
 import ResizableContainer, {
   ResizeBorderDotDiv,
   ResizableComponentProps,
@@ -24,6 +25,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // Fetch information from the context
   const { isDragging, setIsResizing } = useContext(DragResizeContext);
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
+  const { updateDropTargetRows, persistDropTargetRows } = useContext(
+    DropTargetContext,
+  );
   const {
     showPropertyPane,
     selectedWidget,
@@ -72,14 +76,24 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     delta: UIElementSize,
     position: XYCoord,
   ) => {
-    const isResizePossible = !hasCollision(
-      delta,
-      position,
-      props,
-      occupiedSpacesBySiblingWidgets,
-    );
-    if (isResizePossible === isColliding) {
-      setIsColliding(!isColliding);
+    const bottom =
+      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
+
+    // Make sure to calculate collision IF we don't update the main container's rows
+    let updated = false;
+    if (updateDropTargetRows && props.parentId === MAIN_CONTAINER_WIDGET_ID)
+      updated = updateDropTargetRows(bottom);
+
+    if (!updated) {
+      const isResizePossible = !hasCollision(
+        delta,
+        position,
+        props,
+        occupiedSpacesBySiblingWidgets,
+      );
+      if (isResizePossible === isColliding) {
+        setIsColliding(!isColliding);
+      }
     }
   };
 
@@ -112,6 +126,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     );
 
     if (newRowCols) {
+      persistDropTargetRows &&
+        props.parentId === MAIN_CONTAINER_WIDGET_ID &&
+        persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
@@ -132,7 +149,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const style = getBorderStyles(
     isWidgetFocused,
     isColliding,
-    props.paddingOffset,
+    props.paddingOffset - 2,
   );
   return (
     <ResizableContainer

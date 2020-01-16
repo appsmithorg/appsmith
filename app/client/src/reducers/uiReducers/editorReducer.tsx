@@ -116,6 +116,8 @@ export interface EditorReduxState {
   currentPageId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
+  selectedWidget?: string;
+  focusedWidget?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

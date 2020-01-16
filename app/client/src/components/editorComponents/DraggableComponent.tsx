@@ -33,7 +33,7 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
 const WidgetBoundaries = styled.div`
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 0;
   width: 100%;
   height: 100%;
   border: 1px dashed
@@ -160,6 +160,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     },
   });
 
+  let stackingContext = 0;
+  if (props.widgetId === selectedWidget) {
+    stackingContext = 1;
+  }
+  if (props.widgetId === focusedWidget) {
+    stackingContext = 2;
+  }
   const isResizingOrDragging =
     selectedWidget !== props.widgetId && (!!isResizing || !!isDragging);
 
@@ -207,13 +214,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           height: "100%",
           userSelect: "none",
           cursor: "drag",
-          zIndex: props.widgetId === selectedWidget ? 3 : 1,
+          zIndex: stackingContext,
         }}
       >
-        <WidgetBoundaries
-          style={{ display: isResizingOrDragging ? "block" : "none" }}
-        />
         {props.children}
+
         <DragHandle className="control" ref={drag}>
           <Tooltip content="Move" hoverOpenDelay={500}>
             {moveControlIcon}
@@ -229,6 +234,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             {editControlIcon}
           </Tooltip>
         </EditControl>
+        <WidgetBoundaries
+          style={{ display: isResizingOrDragging ? "block" : "none" }}
+        />
       </DraggableWrapper>
     </React.Fragment>
   );
