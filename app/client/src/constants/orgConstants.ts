@@ -1,6 +1,7 @@
 export type OrgRole = {
   id: string;
   name: string;
+  displayName?: string;
   isDefault?: boolean;
 };
 

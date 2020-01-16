@@ -12,22 +12,41 @@ type TextStyleProps = {
 
 export const BaseText = styled(Text)<TextStyleProps>``;
 
+/*
+  Note:
+  -webkit-line-clamp may seem like a wierd way to doing this
+  however, it is getting more and more useful with more browser support.
+  It suffices for our target browsers
+  More info: https://css-tricks.com/line-clampin/
+*/
+export const StyledText = styled(Text)<{ lines: number }>`
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: ${props => props.lines};
+  overflow: hidden;
+`;
+
 export interface TextComponentProps extends ComponentProps {
   text?: string;
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
+  lines: number;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
   getTextClass(textStyle?: TextStyle) {
-    let className = this.props.isLoading ? "bp3-skeleton " : "";
+    const className = [];
+
+    if (this.props.isLoading) {
+      className.push("bp3-skeleton");
+    }
     switch (textStyle) {
       case "HEADING":
-        className += Classes.TEXT_LARGE;
+        className.push(Classes.TEXT_LARGE);
         break;
       case "BODY":
-        className += Classes.TEXT_SMALL;
+        className.push(Classes.RUNNING_TEXT);
         break;
       case "LABEL":
         break;
@@ -35,18 +54,22 @@ class TextComponent extends React.Component<TextComponentProps> {
         break;
     }
 
-    return className;
+    return className.join(" ");
   }
 
   render() {
     const { textStyle, text, ellipsize } = this.props;
     return (
-      <Text className={this.getTextClass(textStyle)} ellipsize={ellipsize}>
+      <StyledText
+        className={this.getTextClass(textStyle)}
+        ellipsize={ellipsize}
+        lines={this.props.lines}
+      >
         <Interweave
           content={text}
           matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
         />
-      </Text>
+      </StyledText>
     );
   }
 }

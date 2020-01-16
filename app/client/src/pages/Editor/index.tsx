@@ -103,7 +103,6 @@ class Editor extends Component<EditorProps> {
         <Helmet>
           <meta charSet="utf-8" />
           <title>Editor | Appsmith</title>
-          <link rel="shortcut icon" href="/favicon-orange.ico" />
         </Helmet>
         <EditorHeader
           isSaving={this.props.isSaving}
@@ -135,7 +134,7 @@ class Editor extends Component<EditorProps> {
           <div className={Classes.DIALOG_FOOTER}>
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <AnchorButton
-                target="_blank"
+                target={this.props.currentApplicationId}
                 href={getApplicationViewerPageURL(
                   this.props.currentApplicationId,
                   this.props.currentPageId,

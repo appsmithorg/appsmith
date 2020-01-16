@@ -49,9 +49,7 @@ type PageWrapperProps = {
 export const PageWrapper = (props: PageWrapperProps) => (
   <Wrapper>
     <Helmet>
-      <meta charSet="utf-8" />
       <title>{`${props.displayName} | Appsmith`}</title>
-      <link rel="shortcut icon" href="/favicon-black.ico" />
     </Helmet>
     <PageHeader />
     <PageBody>{props.children}</PageBody>

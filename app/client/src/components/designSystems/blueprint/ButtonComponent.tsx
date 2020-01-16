@@ -2,7 +2,7 @@ import React from "react";
 import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 
@@ -42,19 +42,24 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     font-weight: ${props => props.theme.fontWeights[2]};
     font-family: "DM Sans";
     outline: none;
+    && .bp3-button-text {
+      max-width: 90%;
+      max-height: 90%;
+      overflow: hidden;
+    }
     &&:hover,
     &&:focus {
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarker;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darker`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenHover(props.theme.colors[props.accent]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darker`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenHover(props.theme.colors[props.accent]);
         }
       }};
     }
@@ -62,14 +67,14 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
       ${ButtonColorStyles};
       background-color: ${props => {
         if (!props.filled) return props.theme.colors.secondaryDarkest;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darkest`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenActive(props.theme.colors[props.accent]);
         }
       }};
       border-color: ${props => {
         if (!props.filled) return;
-        if (props.accent !== "secondary") {
-          return props.theme.colors[`${props.accent}Darkest`];
+        if (props.accent !== "secondary" && props.accent) {
+          return darkenActive(props.theme.colors[props.accent]);
         }
       }};
     }
@@ -127,7 +132,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       className={props.isLoading ? "bp3-skeleton" : ""}
       icon={props.icon}
       text={props.text}
-      filled={props.buttonStyle === "PRIMARY_BUTTON"}
+      filled={props.buttonStyle !== "SECONDARY_BUTTON"}
       accent={mapButtonStyleToStyleName(props.buttonStyle)}
       onClick={props.onClick}
       disabled={props.disabled}
