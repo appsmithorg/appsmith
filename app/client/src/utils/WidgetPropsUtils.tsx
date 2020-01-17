@@ -21,6 +21,7 @@ import {
   WidgetTypes,
   MAIN_CONTAINER_WIDGET_ID,
   MAIN_CONTAINER_WIDGET_NAME,
+  CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
@@ -85,8 +86,8 @@ export const getDropZoneOffsets = (
   return snapToGrid(
     colWidth,
     rowHeight,
-    dragOffset.x - parentOffset.x,
-    dragOffset.y - parentOffset.y,
+    dragOffset.x - parentOffset.x - CONTAINER_GRID_PADDING,
+    dragOffset.y - parentOffset.y - CONTAINER_GRID_PADDING,
   );
 };
 
