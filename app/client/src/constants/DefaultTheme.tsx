@@ -265,6 +265,11 @@ export const theme: Theme = {
       style: "solid",
       color: Colors.FRENCH_PASS,
     },
+    {
+      thickness: 3,
+      style: "solid",
+      color: Colors.MYSTIC,
+    },
   ],
   sidebarWidth: "300px",
   headerHeight: "50px",
@@ -296,7 +301,10 @@ export const theme: Theme = {
     dividerSpacing: 32,
     shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
   },
-  shadows: ["0px 2px 4px rgba(67, 70, 74, 0.14)"],
+  shadows: [
+    "0px 2px 4px rgba(67, 70, 74, 0.14)",
+    `0px 2px 4px ${Colors.MYSTIC}`,
+  ],
   widgets: {
     tableWidget: {
       selectHighlightColor: Colors.GEYSER_LIGHT,

@@ -1,7 +1,12 @@
 import React, { useContext, useState, memo } from "react";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
 import { ResizeDirection } from "re-resizable";
 import { XYCoord } from "react-dnd";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -28,6 +33,14 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
   );
+  const defaultWidgetConfig = useSelector(
+    (state: AppState) => state.entities.widgetConfig.config[props.type],
+  );
+  const minRowCols = defaultWidgetConfig && {
+    rows: defaultWidgetConfig.rows,
+    cols: defaultWidgetConfig.columns,
+  };
+
   const {
     showPropertyPane,
     selectedWidget,
@@ -38,6 +51,20 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
       : undefined;
+
+  let maxBottomRowOfChildWidgets: number | undefined;
+  if (props.type === WidgetTypes.CONTAINER_WIDGET) {
+    const occupiedSpacesByChildren =
+      occupiedSpaces && occupiedSpaces[props.widgetId];
+    maxBottomRowOfChildWidgets = occupiedSpacesByChildren?.reduce(
+      (prev: number, next) => {
+        if (next.bottom > prev) return next.bottom;
+        return prev;
+      },
+      0,
+    );
+  }
+
   // Use state flag - isColliding - use to figure out if resize is possible at the current size.
   const [isColliding, setIsColliding] = useState(false);
 
@@ -89,7 +116,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         delta,
         position,
         props,
+        minRowCols,
         occupiedSpacesBySiblingWidgets,
+        maxBottomRowOfChildWidgets,
       );
       if (isResizePossible === isColliding) {
         setIsColliding(!isColliding);
@@ -135,9 +164,10 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     // Clear border styles
     setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
+    // Put it laster in the stack so that other updates like click, are not propagated to the parent container
     setTimeout(() => {
       setIsResizing && setIsResizing(false);
-    }, 300);
+    }, 0);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
     selectWidget && selectWidget(props.widgetId);

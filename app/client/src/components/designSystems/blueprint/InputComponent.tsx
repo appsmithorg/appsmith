@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
@@ -21,6 +22,14 @@ import { InputType } from "widgets/InputWidget";
 
 const InputComponentWrapper = styled.div`
   &&&& {
+    .bp3-input {
+      box-shadow: none;
+      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+    }
+    .bp3-input:focus {
+      border: ${props => getBorderCSSShorthand(props.theme.borders[4])};
+      box-shadow: none;
+    }
     div.bp3-input-group {
       display: block;
       margin: 0;
