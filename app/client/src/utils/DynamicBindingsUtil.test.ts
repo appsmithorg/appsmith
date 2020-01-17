@@ -8,7 +8,11 @@ jest.mock("jsExecution/RealmExecutor", () => {
     return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
   });
 });
-import { getDynamicValue, parseDynamicString } from "./DynamicBindingUtils";
+import {
+  dependencySortedEvaluateDataTree,
+  getDynamicValue,
+  parseDynamicString,
+} from "./DynamicBindingUtils";
 import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 import { AppState, DataTree } from "reducers";
 
@@ -120,4 +124,44 @@ it("Parse the dynamic string", () => {
   const value = getDynamicValue(dynamicBinding, nameBindingsWithData);
 
   expect(value).toEqual(actualValue);
+});
+
+it("evaluates the data tree", () => {
+  const input = {
+    widget1: {
+      displayValue: "{{widget2.computedProperty}}",
+    },
+    widget2: {
+      computedProperty: "{{ widget2.data[widget2.index] }}",
+      data: "{{ apiData.node }}",
+      index: 2,
+    },
+    apiData: {
+      node: ["wrong value", "still wrong", "correct"],
+    },
+  };
+
+  const dynamicBindings = [
+    ["widget1.displayValue", "widget2.computedProperty"],
+    ["widget2.computedProperty", "widget2.data"],
+    ["widget2.computedProperty", "widget2.index"],
+    ["widget2.data", "apiData.node"],
+  ];
+
+  const output = {
+    widget1: {
+      displayValue: "correct",
+    },
+    widget2: {
+      computedProperty: "correct",
+      data: ["wrong value", "still wrong", "correct"],
+      index: 2,
+    },
+    apiData: {
+      node: ["wrong value", "still wrong", "correct"],
+    },
+  };
+
+  const result = dependencySortedEvaluateDataTree(input, dynamicBindings);
+  expect(result).toEqual(output);
 });

@@ -14,7 +14,7 @@ import {
   WidgetOperations,
   WidgetOperation,
 } from "widgets/BaseWidget";
-import { WidgetType, RenderModes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
@@ -25,6 +25,7 @@ import {
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
+import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -289,17 +290,26 @@ export const generateWidgetProps = (
         children: [],
       };
     }
+    const derivedProperties = DerivedPropFactory.getDerivedPropertiesOfWidgetType(
+      type,
+      widgetName,
+    );
+    const dynamicBindings: Record<string, true> = {};
+    Object.keys(derivedProperties).forEach(prop => {
+      dynamicBindings[prop] = true;
+    });
     return {
       ...widgetConfig,
       type,
-      widgetName: widgetName,
+      widgetName,
       isVisible: true,
       isLoading: false,
       parentColumnSpace,
       parentRowSpace,
-      renderMode: RenderModes.CANVAS,
+      dynamicBindings,
       ...sizes,
       ...others,
+      ...derivedProperties,
     };
   } else {
     if (parent) {
