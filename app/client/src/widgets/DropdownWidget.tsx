@@ -7,6 +7,10 @@ import _ from "lodash";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
+export interface DropDownDerivedProps {
+  selectedOption?: DropdownOption;
+  selectedOptionArr?: DropdownOption[];
+}
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -16,6 +20,23 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
+    };
+  }
+  static getDerivedPropertiesMap() {
+    return {
+      selectedOption: `{{
+        this.selectionType === 'SINGLE_SELECT'
+          ? this.options[this.selectedIndex]
+          : undefined
+      }}`,
+      selectedOptionArr: `{{
+        const options = this.options || [];
+        this.selectionType === "MULTI_SELECT"
+          ? options.filter((opt, index) =>
+              _.includes(this.selectedIndexArr, index),
+            )
+          : undefined
+      }}`,
     };
   }
   getPageView() {

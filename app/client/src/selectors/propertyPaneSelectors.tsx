@@ -4,12 +4,16 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
+import {
+  enhanceWidgetWithValidations,
+  getEvaluatedDataTree,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
-  getNameBindingsWithData,
   NameBindingsWithData,
+  getNameBindingsWithData,
 } from "./nameBindingsWithDataSelector";
+import _ from "lodash";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -41,14 +45,23 @@ export const getWidgetPropsWithValidations = createSelector(
   getNameBindingsWithData,
   (
     widget: WidgetProps | undefined,
-    nameBindigsWithData: NameBindingsWithData,
+    nameBindingsWithData: NameBindingsWithData,
   ) => {
     if (!widget) return undefined;
-    return enhanceWithDynamicValuesAndValidations(
-      widget,
-      nameBindigsWithData,
-      false,
+    const tree = getEvaluatedDataTree(nameBindingsWithData, false);
+    const evaluatedWidget = _.find(tree, { widgetId: widget.widgetId });
+    const validations = enhanceWidgetWithValidations(
+      evaluatedWidget as WidgetProps,
     );
+    if (validations) {
+      const { invalidProps, validationMessages } = validations;
+      return {
+        ...widget,
+        invalidProps,
+        validationMessages,
+      };
+    }
+    return widget;
   },
 );
 

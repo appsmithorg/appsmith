@@ -11,14 +11,14 @@ export default class RealmExecutor implements JSExecutor {
   constructor() {
     this.rootRealm = Realm.makeRootRealm();
     this.createSafeFunction = this.rootRealm.evaluate(`
-      (function createSafeFunction(unsafeFn) { 
+      (function createSafeFunction(unsafeFn) {
         return function safeFn(...args) {
           unsafeFn(...args);
         }
       })
     `);
     this.createSafeObject = this.rootRealm.evaluate(`
-      (function creaetSafeObject(unsafeObject) { 
+      (function creaetSafeObject(unsafeObject) {
         return JSON.parse(JSON.stringify(unsafeObject));
       })
     `);
@@ -44,7 +44,7 @@ export default class RealmExecutor implements JSExecutor {
     try {
       result = this.rootRealm.evaluate(sourceText, safeData);
     } catch (e) {
-      //TODO(Satbir): Return an object with an error message.
+      console.error(`Error: "${e.message}" when evaluating {{${sourceText}}}`);
     }
     return this.convertToMainScope(result);
   }

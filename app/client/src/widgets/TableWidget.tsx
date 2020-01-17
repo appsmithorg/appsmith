@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionPayload, TableAction } from "constants/ActionConstants";
-import _, { forIn } from "lodash";
+import { forIn } from "lodash";
 import TableComponent from "components/designSystems/syncfusion/TableComponent";
 
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -32,7 +32,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       nextPageKey: VALIDATION_TYPES.TEXT,
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      selectedRow: VALIDATION_TYPES.OBJECT,
+      selectedRowIndex: VALIDATION_TYPES.NUMBER,
+    };
+  }
+  static getDerivedPropertiesMap() {
+    return {
+      selectedRow: "{{this.tableData[this.selectedRowIndex]}}",
     };
   }
 
@@ -46,40 +51,36 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         height={this.state.componentHeight}
         width={this.state.componentWidth}
-        selectedRowIndex={
-          this.props.selectedRow && this.props.selectedRow.rowIndex
-        }
+        selectedRowIndex={this.props.selectedRowIndex}
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
         onRowClick={(rowData: object, index: number) => {
           const { onRowSelected } = this.props;
-          this.updateSelectedRowProperty(rowData, index);
+          this.updateSelectedRowProperty(index);
+
           super.executeAction(onRowSelected);
         }}
-      ></TableComponent>
+      />
     );
   }
 
-  componentDidUpdate(prevProps: TableWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      !_.isEqual(prevProps.tableData, this.props.tableData) &&
-      prevProps.selectedRow
-    ) {
-      this.updateSelectedRowProperty(
-        this.props.tableData[prevProps.selectedRow.rowIndex],
-        prevProps.selectedRow.rowIndex,
-      );
-    }
-  }
+  // componentDidUpdate(prevProps: TableWidgetProps) {
+  //   super.componentDidUpdate(prevProps);
+  //   if (
+  //     !_.isEqual(prevProps.tableData, this.props.tableData) &&
+  //     prevProps.selectedRow
+  //   ) {
+  //     this.updateSelectedRowProperty(
+  //       this.props.tableData[prevProps.selectedRow.rowIndex],
+  //       prevProps.selectedRow.rowIndex,
+  //     );
+  //   }
+  // }
 
-  updateSelectedRowProperty(rowData: object, index: number) {
+  updateSelectedRowProperty(index: number) {
     const { widgetId } = this.props;
-    this.updateWidgetProperty(widgetId, "selectedRow", {
-      ...rowData,
-      rowIndex: index,
-    });
+    this.updateWidgetProperty(widgetId, "selectedRowIndex", index);
   }
 
   getWidgetType(): WidgetType {
@@ -102,7 +103,7 @@ export interface TableWidgetProps extends WidgetProps {
   recordActions?: TableAction[];
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
-  selectedRow?: SelectedRow;
+  selectedRowIndex?: number;
 }
 
 export default TableWidget;

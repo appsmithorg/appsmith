@@ -7,7 +7,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { enhanceWithDynamicValuesAndValidations } from "utils/DynamicBindingUtils";
+import { getEvaluatedDataTree, getParsedTree } from "utils/DynamicBindingUtils";
 import { getDataTree } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
@@ -18,9 +18,11 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import {
-  getNameBindingsWithData,
   NameBindingsWithData,
+  getNameBindingsWithData,
+  getParsedDataTree,
 } from "./nameBindingsWithDataSelector";
+import _ from "lodash";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -116,15 +118,14 @@ export const getWidgetCards = createSelector(
 
 export const getValidatedDynamicProps = createSelector(
   getDataTree,
-  getNameBindingsWithData,
-  (entities: DataTree, nameBindingsWithData: NameBindingsWithData) => {
+  getParsedDataTree,
+  (entities: DataTree, tree) => {
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
-      widgets[widgetKey] = enhanceWithDynamicValuesAndValidations(
-        widgets[widgetKey],
-        nameBindingsWithData,
-        true,
-      );
+      const evaluatedWidget = _.find(tree, { widgetId: widgetKey });
+      if (evaluatedWidget) {
+        widgets[widgetKey] = evaluatedWidget;
+      }
     });
     return widgets;
   },

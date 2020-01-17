@@ -14,6 +14,12 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       selectedOptionValue: VALIDATION_TYPES.TEXT,
     };
   }
+  static getDerivedPropertiesMap() {
+    return {
+      selectedOption:
+        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
+    };
+  }
   getPageView() {
     return (
       <RadioGroupComponent

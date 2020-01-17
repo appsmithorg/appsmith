@@ -52,10 +52,7 @@ import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction } from "actions/widgetActions";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
-import {
-  getNameBindingsWithData,
-  NameBindingsWithData,
-} from "selectors/nameBindingsWithDataSelector";
+import { getParsedDataTree } from "selectors/nameBindingsWithDataSelector";
 import { transformRestAction } from "transformers/RestActionTransformer";
 
 export const getAction = (
@@ -83,8 +80,8 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const nameBindingsWithData = yield select(getNameBindingsWithData);
-  return getDynamicValue(`{{${path}}}`, nameBindingsWithData);
+  const tree = yield select(getParsedDataTree);
+  return getDynamicValue(`{{${path}}}`, tree);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
@@ -106,12 +103,10 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 }
 
 function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
-  const nameBindingsWithData: NameBindingsWithData = yield select(
-    getNameBindingsWithData,
-  );
+  const tree = yield select(getParsedDataTree);
   const result = JSExecutionManagerSingleton.evaluateSync(
     jsAction.jsFunction,
-    nameBindingsWithData,
+    tree,
   );
 
   yield put({
