@@ -154,7 +154,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = yield select(getWidgets);
 
     if (widget.type === WidgetTypes.CONTAINER_WIDGET) {
-      console.log(resizeAction.payload);
       widget.snapRows = bottomRow - topRow - 1;
     }
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };

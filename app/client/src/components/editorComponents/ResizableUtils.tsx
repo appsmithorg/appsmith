@@ -109,7 +109,9 @@ export const hasCollision = (
   delta: UIElementSize,
   position: XYCoord,
   props: WidgetProps,
+  minRowCols?: { rows: number; cols: number },
   occupiedSpaces?: OccupiedSpace[],
+  maxBottomRow?: number,
 ): boolean => {
   const left = props.leftColumn + position.x / props.parentColumnSpace;
   const top = props.topRow + position.y / props.parentRowSpace;
@@ -119,6 +121,15 @@ export const hasCollision = (
   const bottom =
     props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
 
+  if (
+    minRowCols &&
+    (bottom - top < minRowCols.rows || right - left < minRowCols.cols)
+  ) {
+    return true;
+  }
+  if (maxBottomRow && bottom - top - 1 < maxBottomRow) {
+    return true;
+  }
   return isDropZoneOccupied(
     {
       left,
