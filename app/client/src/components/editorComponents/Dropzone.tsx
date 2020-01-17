@@ -81,8 +81,8 @@ export const DropZone = (props: DropZoneProps) => {
     const [leftColumn, topRow] = snapToGrid(
       props.parentColumnWidth,
       props.parentRowHeight,
-      props.currentOffset.x - props.parentOffset.x,
-      props.currentOffset.y - props.parentOffset.y,
+      props.currentOffset.x - props.parentOffset.x - CONTAINER_GRID_PADDING,
+      props.currentOffset.y - props.parentOffset.y - CONTAINER_GRID_PADDING,
     );
     wrapperPropsWithSnap = {
       visible: true,
