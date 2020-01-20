@@ -1,6 +1,4 @@
 import React, { useContext, useState, memo } from "react";
-import { useSelector } from "react-redux";
-import { AppState } from "reducers";
 import { ResizeDirection } from "re-resizable";
 import { XYCoord } from "react-dnd";
 import {
@@ -33,13 +31,6 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
   );
-  const defaultWidgetConfig = useSelector(
-    (state: AppState) => state.entities.widgetConfig.config[props.type],
-  );
-  const minRowCols = defaultWidgetConfig && {
-    rows: defaultWidgetConfig.rows,
-    cols: defaultWidgetConfig.columns,
-  };
 
   const {
     showPropertyPane,
@@ -116,7 +107,6 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         delta,
         position,
         props,
-        minRowCols,
         occupiedSpacesBySiblingWidgets,
         maxBottomRowOfChildWidgets,
       );
