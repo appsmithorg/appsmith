@@ -262,7 +262,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      * @param action
      * @return
      */
-    private Action extractAndSetJsonPathKeys(Action action) {
+    public Action extractAndSetJsonPathKeys(Action action) {
         Set<String> actionKeys = extractKeysFromAction(action);
         Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource());
         Set<String> keys = new HashSet<String>() {{
@@ -418,8 +418,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Mono<Action> findByName(String name) {
-        return repository.findByName(name);
+    public Mono<Action> findByNameAndPageId(String name, String pageId) {
+        return repository.findByNameAndPageId(name, pageId);
     }
 
     @Override
@@ -436,7 +436,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     public Flux<Action> saveAll(List<Action> actions) {
         return repository.saveAll(actions);
     }
-    
+
     /**
      * This function replaces the variables in the Object with the actual params
      */
