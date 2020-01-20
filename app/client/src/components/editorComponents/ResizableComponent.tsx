@@ -10,7 +10,6 @@ import {
 import { getAbsolutePixels } from "utils/helpers";
 import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import { generateClassName } from "utils/generators";
 import { DropTargetContext } from "./DropTargetComponent";
 import ResizableContainer, {
@@ -24,11 +23,15 @@ import {
   hasCollision,
   getBorderStyles,
 } from "./ResizableUtils";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // Fetch information from the context
-  const { isDragging, setIsResizing } = useContext(DragResizeContext);
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
     DropTargetContext,
@@ -41,12 +44,20 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     cols: defaultWidgetConfig.columns,
   };
 
-  const {
-    showPropertyPane,
-    selectedWidget,
-    focusedWidget,
-    selectWidget,
-  } = useContext(FocusContext);
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget } = useWidgetSelection();
+  const { setIsResizing } = useWidgetDragResize();
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.editor.focusedWidget,
+  );
+
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+
   const occupiedSpacesBySiblingWidgets =
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]

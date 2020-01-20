@@ -13,7 +13,6 @@ import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import WidgetFactory from "utils/WidgetFactory";
 import { widgetOperationParams, noCollision } from "utils/WidgetPropsUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
@@ -23,6 +22,10 @@ import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
 import { theme } from "constants/DefaultTheme";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -53,6 +56,9 @@ export const DropTargetContext: Context<{
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget } = useWidgetSelection();
+
   const [rows, setRows] = useState(props.snapRows);
   useEffect(() => {
     setRows(props.snapRows);
@@ -60,10 +66,13 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const { updateWidget, occupiedSpaces, updateWidgetProperty } = useContext(
     EditorContext,
   );
-  const { selectWidget, showPropertyPane, selectedWidget } = useContext(
-    FocusContext,
+
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
   );
-  const { isResizing } = useContext(DragResizeContext);
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
 
   const spacesOccupiedBySiblingWidgets =
     occupiedSpaces && occupiedSpaces[props.widgetId]
