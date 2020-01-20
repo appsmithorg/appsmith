@@ -4,7 +4,6 @@ import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
@@ -14,6 +13,11 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { AppState } from "reducers";
 import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  useWidgetSelection,
+  useShowPropertyPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -84,16 +88,25 @@ type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 /* eslint-disable react/display-name */
 
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const {
-    focusedWidget,
-    selectedWidget,
-    focusWidget,
-    selectWidget,
-    showPropertyPane,
-  } = useContext(FocusContext);
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { setIsDragging } = useWidgetDragResize();
 
   const propertyPaneState: PropertyPaneReduxState = useSelector(
     (state: AppState) => state.ui.propertyPane,
+  );
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.editor.focusedWidget,
+  );
+
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
   const editControlIcon = ControlIcons.EDIT_CONTROL({
@@ -113,12 +126,8 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const { updateWidget } = useContext(EditorContext);
 
-  const { isResizing, setIsDragging, isDragging } = useContext(
-    DragResizeContext,
-  );
-
-  const disableWidgetDrag: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragging.disable,
+  const isDraggingDisabled: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
   const deleteWidget = () => {
@@ -147,16 +156,16 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     begin: () => {
       showPropertyPane && showPropertyPane(undefined, true);
       selectWidget && selectWidget(props.widgetId);
-      setIsDragging && setIsDragging(props.widgetId);
+      setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
-      setIsDragging && setIsDragging(undefined);
+      setIsDragging && setIsDragging(false);
     },
     canDrag: () => {
-      return !isResizing && !disableWidgetDrag;
+      return !isResizing && !isDraggingDisabled;
     },
   });
 
@@ -182,7 +191,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           e.stopPropagation();
         }}
         onMouseLeave={(e: any) => {
-          focusWidget && focusWidget(null);
+          focusWidget && focusWidget();
           e.stopPropagation();
         }}
         onClick={(e: any) => {

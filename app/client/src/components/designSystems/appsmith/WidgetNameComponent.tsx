@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
 
 const PositionStyle = styled.div<{ selected?: boolean }>`
   position: absolute;
@@ -28,8 +29,19 @@ type WidgetNameComponentProps = {
 };
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
-  const { focusedWidget, selectedWidget } = useContext(FocusContext);
-  const { isResizing, isDragging } = useContext(DragResizeContext);
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.editor.focusedWidget,
+  );
+
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const showWidgetName =
     (focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&

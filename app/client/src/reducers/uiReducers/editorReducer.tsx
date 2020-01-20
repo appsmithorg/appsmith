@@ -108,6 +108,18 @@ const editorReducer = createReducer(initialState, {
       currentApplicationId,
     };
   },
+  [ReduxActionTypes.SELECT_WIDGET]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, selectedWidget: action.payload.widgetId };
+  },
+  [ReduxActionTypes.FOCUS_WIDGET]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, focusedWidget: action.payload.widgetId };
+  },
 });
 
 export interface EditorReduxState {
