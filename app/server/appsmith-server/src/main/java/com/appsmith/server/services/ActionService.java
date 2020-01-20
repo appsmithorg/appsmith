@@ -15,11 +15,13 @@ public interface ActionService extends CrudService<Action, String> {
 
     Mono<Action> save(Action action);
 
-    Mono<Action> findByName(String name);
+    Mono<Action> findByNameAndPageId(String name, String pageId);
 
     Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId);
 
     Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod);
 
     Flux<Action> saveAll(List<Action> actions);
+
+    public Action extractAndSetJsonPathKeys(Action action);
 }

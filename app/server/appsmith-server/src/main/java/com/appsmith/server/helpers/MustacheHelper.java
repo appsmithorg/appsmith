@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class MustacheHelper {
 
     // This regex matches mustache template keys of the form {{somekey}}
-    private static Pattern pattern = Pattern.compile("\\{\\{\\s*([^{}]+)\\s*}}");
+    private static Pattern pattern = Pattern.compile("\\{\\{([\\s\\S]*?)}}");
 
     public static Set<String> extractMustacheKeys(String template) {
         if (template == null || template.isEmpty()) {
