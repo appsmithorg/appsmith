@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -86,38 +85,6 @@ public class LayoutServiceImpl implements LayoutService {
                 });
     }
 
-
-    /**
-     * Walks the DSL and extracts all the widget names from it and adds it to the graph.
-     *
-     * @param dsl
-     * @param graph
-     */
-    @Deprecated
-    private void extractAllWidgetNamesAndAddThemAsVerticesToTheGraph(JSONObject dsl, Graph<String, DefaultEdge> graph) {
-        if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            //This isnt a valid widget configuration. No need to traverse this.
-            return;
-        }
-
-        String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
-
-        //Since we are parsing this widget in this, add it to the graph as a vertex.
-        if (!graph.vertexSet().contains(widgetName)) {
-            graph.addVertex(widgetName);
-        }
-
-        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
-        if (children != null) {
-            for (int i = 0; i < children.size(); i++) {
-                Map data = (Map) children.get(i);
-                JSONObject object = new JSONObject();
-                object.putAll(data);
-                extractAllWidgetNamesAndAddThemAsVerticesToTheGraph(object, graph);
-            }
-        }
-
-    }
 
     /**
      * Walks the DSL and adds relationship between widgets and actions. Widgets have at this point already been added

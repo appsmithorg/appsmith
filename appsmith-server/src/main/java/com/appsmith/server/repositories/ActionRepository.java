@@ -13,7 +13,7 @@ public interface ActionRepository extends BaseRepository<Action, String> {
 
     Mono<Action> findById(String id);
 
-    Mono<Action> findByName(String name);
+    Mono<Action> findByNameAndPageId(String name, String pageId);
 
     Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId);
 
