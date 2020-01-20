@@ -3,8 +3,10 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
+import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ActionCollectionService;
@@ -67,5 +69,11 @@ public class ActionController extends BaseController<ActionService, Action, Stri
         log.debug("Going to move action {} from page {} to page {}", actionMoveDTO.getAction().getName(), actionMoveDTO.getAction().getPageId(), actionMoveDTO.getDestinationPageId());
         return layoutActionService.moveAction(actionMoveDTO)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
+    }
+
+    @PutMapping("/refactor")
+    public Mono<ResponseDTO<Layout>> refactorActionName(@RequestBody RefactorNameDTO refactorNameDTO) {
+        return layoutActionService.refactorActionName(refactorNameDTO)
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 }
