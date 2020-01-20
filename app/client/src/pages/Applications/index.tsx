@@ -35,6 +35,7 @@ type ApplicationProps = {
   isCreatingApplication: boolean;
   isFetchingApplications: boolean;
   createApplicationError?: string;
+  searchApplications?: (keyword: string) => void;
 };
 
 class Applications extends Component<ApplicationProps> {
@@ -43,7 +44,7 @@ class Applications extends Component<ApplicationProps> {
   }
   public render() {
     const applicationList = this.props.isFetchingApplications
-      ? getApplicationPayloads(4)
+      ? getApplicationPayloads(8)
       : this.props.applicationList;
     return (
       <PageWrapper displayName="Applications">
@@ -60,6 +61,7 @@ class Applications extends Component<ApplicationProps> {
           }}
           search={{
             placeholder: "Search",
+            queryFn: this.props.searchApplications,
           }}
         />
         <PageSectionDivider />
@@ -99,6 +101,14 @@ const mapDispatchToProps = (dispatch: any) => ({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
         name: appName,
+      },
+    });
+  },
+  searchApplications: (keyword: string) => {
+    dispatch({
+      type: ReduxActionTypes.SEARCH_APPLICATIONS,
+      payload: {
+        keyword,
       },
     });
   },

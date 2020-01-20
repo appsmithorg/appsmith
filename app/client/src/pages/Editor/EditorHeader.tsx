@@ -11,7 +11,7 @@ import { BASE_URL, APPLICATIONS_URL } from "constants/routes";
 
 import DropdownComponent from "components/editorComponents/DropdownComponent";
 import { PageListPayload } from "constants/ReduxActionConstants";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import { DropdownOption } from "widgets/DropdownWidget";
 
@@ -50,7 +50,7 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 type EditorHeaderProps = {
   isSaving?: boolean;
   pageName?: string;
-  onPublish: React.FormEventHandler;
+  onPublish: () => void;
   onCreatePage: (name: string) => void;
   pages?: PageListPayload;
   currentPageId?: string;
@@ -110,12 +110,13 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           }
           position={Position.LEFT}
         >
-          <BaseButton
+          <Button
             onClick={props.onPublish}
             text="Publish"
             loading={props.isPublishing}
-            accent="primary"
+            intent="primary"
             filled
+            large={false}
           />
         </Tooltip>
       </PreviewPublishSection>

@@ -123,6 +123,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   INVITED_USER_SIGNUP_SUCCESS: "INVITED_USER_SIGNUP_SUCCESS",
   INVITED_USER_SIGNUP_INIT: "INVITED_USER_SIGNUP_INIT",
   DISABLE_WIDGET_DRAG: "DISABLE_WIDGET_DRAG",
+  SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

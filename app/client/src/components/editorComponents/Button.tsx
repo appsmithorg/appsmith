@@ -57,6 +57,9 @@ export type ButtonProps = {
   href?: string;
   icon?: string;
   iconAlignment?: Direction;
+  loading?: boolean;
+  disabled?: boolean;
+  large?: boolean;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -77,7 +80,9 @@ export const Button = (props: ButtonProps) => {
     outline: props.outline ? props.outline.toString() : undefined,
     filled: props.filled ? props.filled.toString() : undefined,
     intent: props.intent as BlueprintIntent,
-    large: true,
+    large: props.large === undefined ? true : props.large,
+    loading: props.loading,
+    disabled: props.disabled,
   };
   if (props.href) {
     return (

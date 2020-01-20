@@ -51,10 +51,20 @@ const applicationsReducer = createReducer(initialState, {
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
+  [ReduxActionTypes.SEARCH_APPLICATIONS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ keyword?: string }>,
+  ) => {
+    return {
+      ...state,
+      searchKeyword: action.payload.keyword,
+    };
+  },
 });
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
+  searchKeyword?: string;
   isFetchingApplications: boolean;
   creatingApplication: boolean;
   createApplicationError?: string;

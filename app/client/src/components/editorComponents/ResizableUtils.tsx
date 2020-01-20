@@ -120,7 +120,6 @@ export const hasCollision = (
     props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
   const bottom =
     props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-
   if (
     minRowCols &&
     (bottom - top < minRowCols.rows || right - left < minRowCols.cols)
