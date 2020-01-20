@@ -7,7 +7,7 @@ import {
 } from "constants/routes";
 import { Card, Tooltip, Classes } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button from "components/editorComponents/Button";
 import {
   theme,
   getBorderCSSShorthand,
@@ -28,7 +28,16 @@ const Wrapper = styled(Card)`
   border-radius: ${props => props.theme.radii[1]}px;
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
-  &:hover {
+  a {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    width: 100%;
+  }
+  a:hover {
+    text-decoration: none;
     &:after {
       left: 0;
       top: 0;
@@ -70,7 +79,6 @@ const ApplicationTitle = styled.div`
       display: inline-block;
     }
     .control {
-      display: none;
       z-index: 1;
       position: absolute;
       right: ${props => props.theme.spaces[5] * 3}px;
@@ -87,10 +95,7 @@ const ApplicationTitle = styled.div`
 `;
 
 const ApplicationImage = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: calc(100% - ${props => props.theme.card.titleHeight}px);
+  height: 100%;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -187,20 +192,19 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <ApplicationImage className="image-container">
-        <Control className="control">
-          <Link to={editApplicationURL}>
-            <Tooltip content="Edit Application" hoverOpenDelay={500}>
-              <BaseButton
-                icon="edit"
-                text="Edit"
-                accent="primary"
-                filled={true}
-              />
-            </Tooltip>
-          </Link>
-        </Control>
-      </ApplicationImage>
+      <Link to={editApplicationURL}>
+        <ApplicationImage className="image-container">
+          <Control className="control">
+            <Button
+              filled
+              text="Edit"
+              intent="primary"
+              icon="edit"
+              iconAlignment="left"
+            />
+          </Control>
+        </ApplicationImage>
+      </Link>
     </Wrapper>
   );
 };

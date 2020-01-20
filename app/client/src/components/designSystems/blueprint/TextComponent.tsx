@@ -20,10 +20,12 @@ export const BaseText = styled(Text)<TextStyleProps>``;
   More info: https://css-tricks.com/line-clampin/
 */
 export const StyledText = styled(Text)<{ lines: number }>`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: ${props => props.lines};
-  overflow: hidden;
+  span {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: ${props => props.lines - 1};
+    overflow: hidden;
+  }
 `;
 
 export interface TextComponentProps extends ComponentProps {

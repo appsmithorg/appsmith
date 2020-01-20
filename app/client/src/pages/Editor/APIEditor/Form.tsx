@@ -59,8 +59,11 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  max-width: 72px;
-  margin: 0 5px;
+  &&& {
+    max-width: 72px;
+    margin: 0 5px;
+    min-height: 30px;
+  }
 `;
 
 const JSONEditorFieldWrapper = styled.div`
