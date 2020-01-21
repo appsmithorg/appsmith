@@ -1,17 +1,34 @@
-import * as React from "react";
+import React from "react";
+import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { Checkbox } from "@blueprintjs/core";
+import { Checkbox, Classes } from "@blueprintjs/core";
+
+const CheckboxContainer = styled.div`
+  && {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    label {
+      margin: 0;
+    }
+  }
+`;
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
     return (
-      <Checkbox
-        label={this.props.label}
-        large={true}
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
-        defaultIndeterminate={this.props.defaultCheckedState}
-        onChange={this.onCheckChange}
-        disabled={this.props.isDisabled}
-      />
+      <CheckboxContainer>
+        <Checkbox
+          label={this.props.label}
+          className={
+            this.props.isLoading ? "bp3-skeleton" : Classes.RUNNING_TEXT
+          }
+          defaultIndeterminate={this.props.defaultCheckedState}
+          onChange={this.onCheckChange}
+          disabled={this.props.isDisabled}
+        />
+      </CheckboxContainer>
     );
   }
 
