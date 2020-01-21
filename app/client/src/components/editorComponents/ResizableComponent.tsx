@@ -26,6 +26,8 @@ import {
   useWidgetSelection,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
 
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
