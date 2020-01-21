@@ -71,8 +71,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
         String dslString = "";
 
-        // Convert the DSL into a String
         JSONObject dsl = layout.getDsl();
+        if (dsl == null) {
+            // There is no DSL here. No need to process anything. Return as is.
+            return Mono.just(layout);
+        }
+
+        // Convert the DSL into a String
         try {
             dslString = objectMapper.writeValueAsString(dsl);
         } catch (JsonProcessingException e) {
@@ -199,7 +204,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .save(action)
                 .flatMap(savedAction -> pageService
                         .findById(oldPageId)
-                        .map(page -> page.getLayouts()
+                        .map(page -> {
+                                if (page.getLayouts() == null) {
+                                    return Mono.empty();
+                                }
+
+                                return page.getLayouts()
                                 .stream()
                                 /*
                                  * subscribe() is being used here because within a stream, the master subscriber provided
@@ -207,12 +217,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                  * emitting. The same is true for the updateLayout call for the new page.
                                  */
                                 .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
-                                .collect(toSet()))
+                                .collect(toSet());
+                        })
                         .then(pageService.findById(actionMoveDTO.getDestinationPageId()))
-                        .map(page -> page.getLayouts()
+                        .map(page -> {
+                            if (page.getLayouts() == null) {
+                                return Mono.empty();
+                            }
+
+                            return page.getLayouts()
                                 .stream()
                                 .map(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout).subscribe())
-                                .collect(toSet()))
+                                .collect(toSet());
+                        })
                         .thenReturn(savedAction));
     }
 
