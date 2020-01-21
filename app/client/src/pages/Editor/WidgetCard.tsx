@@ -68,9 +68,11 @@ const WidgetCard = (props: CardProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
-      console.log("begun!");
       showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
+    },
+    end: () => {
+      setIsDragging && setIsDragging(false);
     },
   });
 
