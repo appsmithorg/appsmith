@@ -1,7 +1,6 @@
 import { AxiosPromise } from "axios";
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
-import { getAppsmithConfigs } from "configs";
 
 export interface LoginUserRequest {
   email: string;
@@ -55,7 +54,7 @@ class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static logoutURL = "/logout";
+  static logoutURL = "v1/logout";
 
   static createUser(
     request: CreateUserRequest,
@@ -103,11 +102,7 @@ class UserApi extends Api {
   }
 
   static logoutUser(): AxiosPromise<ApiResponse> {
-    const { baseUrl } = getAppsmithConfigs();
-    return Api.post(UserApi.logoutURL, undefined, undefined, {
-      baseURL: baseUrl,
-      withCredentials: true,
-    });
+    return Api.post(UserApi.logoutURL);
   }
 }
 
