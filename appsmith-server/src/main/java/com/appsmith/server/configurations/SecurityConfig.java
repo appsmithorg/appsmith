@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class SecurityConfig {
                 .and().authorizeExchange()
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
                 // This is because the flow enters AclFilter as well and needs to be whitelisted there
-                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/login"),
+                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/verifyPasswordResetToken"),
@@ -113,8 +114,9 @@ public class SecurityConfig {
                 .anyExchange()
                 .authenticated()
                 .and().formLogin()
+                .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)
-                .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/login"))
+                .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .and().oauth2Login()
@@ -123,6 +125,7 @@ public class SecurityConfig {
                 .authenticationFailureHandler(authenticationFailureHandler)
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
                 .and().logout()
+                .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
                 .and().build();
     }

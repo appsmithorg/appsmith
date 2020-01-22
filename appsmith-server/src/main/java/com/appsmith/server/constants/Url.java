@@ -3,6 +3,8 @@ package com.appsmith.server.constants;
 public interface Url {
     String BASE_URL = "/api";
     String VERSION = "/v1";
+    String LOGIN_URL= BASE_URL + VERSION + "/login";
+    String LOGOUT_URL= BASE_URL + VERSION + "/logout";
     String WIDGET_URL = BASE_URL + VERSION + "/widgets";
     String ORGANIZATION_URL = BASE_URL + VERSION + "/organizations";
     String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
