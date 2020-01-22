@@ -7,7 +7,7 @@ import {
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
-const { apiUrl, baseUrl } = getAppsmithConfigs();
+const { baseUrl, apiUrl } = getAppsmithConfigs();
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {

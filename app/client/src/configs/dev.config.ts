@@ -1,8 +1,7 @@
 import { SENTRY_STAGE_CONFIG } from "constants/ThirdPartyConstants";
-import { STAGE_BASE_URL } from "constants/ApiConstants";
 import { AppsmithUIConfigs } from "./types";
 
-const devConfig: AppsmithUIConfigs = {
+const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
   sentry: {
     enabled: false,
     config: SENTRY_STAGE_CONFIG,
@@ -14,7 +13,7 @@ const devConfig: AppsmithUIConfigs = {
     enabled: false,
   },
   apiUrl: "/api/",
-  baseUrl: STAGE_BASE_URL,
-};
+  baseUrl,
+});
 
 export default devConfig;
