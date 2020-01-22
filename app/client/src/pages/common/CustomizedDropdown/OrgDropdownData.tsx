@@ -66,24 +66,24 @@ export const options = (
         {
           content: <Link to="/org/users">Members</Link>,
         },
-        {
-          content: <Link to="/org/biling">Usage & Billing</Link>,
-        },
-        {
-          content: <Link to="/org/support">Support</Link>,
-        },
-        {
-          content: <DropdownComponent {...switchdropdown(orgs)} />,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "Switch To Personal Workspace",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-              type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-              payload: { organizationId: currentOrg.id },
-            }),
-        },
+        // {
+        //   content: <Link to="/org/biling">Usage & Billing</Link>,
+        // },
+        // {
+        //   content: <Link to="/org/support">Support</Link>,
+        // },
+        // {
+        //   content: <DropdownComponent {...switchdropdown(orgs)} />,
+        //   shouldCloseDropdown: false,
+        // },
+        // {
+        //   content: "Switch To Personal Workspace",
+        //   onSelect: () =>
+        //     getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+        //       type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
+        //       payload: { organizationId: currentOrg.id },
+        //     }),
+        // },
       ],
     },
     {
@@ -98,14 +98,14 @@ export const options = (
           ),
           active: false,
         },
-        {
-          content: "Settings",
-          onSelect: () =>
-            getOnSelectAction(
-              DropdownOnSelectActions.REDIRECT,
-              "/org/settings",
-            ),
-        },
+        // {
+        //   content: "Settings",
+        //   onSelect: () =>
+        //     getOnSelectAction(
+        //       DropdownOnSelectActions.REDIRECT,
+        //       "/org/settings",
+        //     ),
+        // },
         {
           content: "Sign Out",
           onSelect: () =>
