@@ -17,4 +17,5 @@ export type ControlType =
   | "VALIDATION_INPUT"
   | "ZOOM"
   | "TIME_ZONE"
-  | "CODE_EDITOR";
+  | "CODE_EDITOR"
+  | "COLUMN_ACTION_SELECTOR";

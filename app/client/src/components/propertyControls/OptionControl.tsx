@@ -1,7 +1,10 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledInputGroup } from "./StyledControls";
-import { Button } from "@blueprintjs/core";
+import {
+  ControlWrapper,
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+} from "./StyledControls";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { generateReactKey } from "utils/generators";
@@ -14,21 +17,6 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: absolute;
   right: -13px;
   cursor: pointer;
-`;
-
-const StyledAddOptionButton = styled(Button)`
-  &&&& {
-    background-color: ${props => props.theme.colors.info};
-    color: #ffffff;
-    .bp3-icon {
-      color: #ffffff;
-      margin-right: 4px;
-    }
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
 `;
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
@@ -79,7 +67,7 @@ class OptionControl extends BaseControl<ControlProps> {
             </StyledOptionControlWrapper>
           );
         })}
-        <StyledAddOptionButton
+        <StyledPropertyPaneButton
           text={"Option"}
           icon={"plus"}
           color={"#FFFFFF"}

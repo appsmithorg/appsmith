@@ -21,7 +21,8 @@ import DatePickerControl, {
 import TimeZoneControl, {
   TimeZoneControlProps,
 } from "components/propertyControls/TimezoneControl";
-import ActionSelectorControl from "components/propertyControls/ActionSelector";
+import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
+import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 
 class PropertyControlRegistry {
   static registerPropertyControlBuilders() {
@@ -68,6 +69,15 @@ class PropertyControlRegistry {
     PropertyControlFactory.registerControlBuilder("ACTION_SELECTOR", {
       buildPropertyControl(controlProps: ControlProps): JSX.Element {
         return <ActionSelectorControl {...controlProps} />;
+      },
+    });
+    PropertyControlFactory.registerControlBuilder("COLUMN_ACTION_SELECTOR", {
+      buildPropertyControl(controlProps: ControlProps): JSX.Element {
+        return (
+          <ColumnActionSelectorControl
+            {...controlProps}
+          ></ColumnActionSelectorControl>
+        );
       },
     });
   }

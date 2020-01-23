@@ -3,31 +3,30 @@ import {
   ColumnsDirective,
   GridComponent,
   ColumnModel,
-  Grid,
   Inject,
   Resize,
   Page,
   SelectionSettingsModel,
   Reorder,
   ColumnMenu,
+  CommandColumn,
+  CommandModel,
+  CommandClickEventArgs,
 } from "@syncfusion/ej2-react-grids";
-import React, {
-  useEffect,
-  useRef,
-  MutableRefObject,
-  memo,
-  useState,
-} from "react";
+import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { ActionPayload } from "constants/ActionConstants";
 
 export interface TableComponentProps {
   data: object[];
   columns: ColumnModel[];
-  selectedRowIndex?: number;
   onRowClick: (rowData: object, rowIndex: number) => void;
   isLoading: boolean;
   height: number;
   width: number;
+  columnActions?: ColumnAction[];
+  onCommandClick: (actions: ActionPayload[]) => void;
   disableDrag: (disable: boolean) => void;
 }
 
@@ -40,7 +39,7 @@ const settings: SelectionSettingsModel = {
   type: "Multiple",
 };
 
-type GridRef = MutableRefObject<Grid | undefined>;
+type GridRef = MutableRefObject<GridComponent | null>;
 
 function reCalculatePageSize(grid: GridRef, height: number) {
   if (grid.current) {
@@ -57,7 +56,7 @@ function reCalculatePageSize(grid: GridRef, height: number) {
 /* eslint-disable react/display-name */
 const TableComponent = memo(
   (props: TableComponentProps) => {
-    const grid: GridRef = useRef();
+    const grid: GridRef = useRef(null);
 
     // componentDidUpdate start
     useEffect(() => {
@@ -65,57 +64,32 @@ const TableComponent = memo(
     }, [props.height]);
     // componentDidUpdate end
 
-    function dataBound() {
-      if (grid.current) {
-        grid.current.autoFitColumns();
-      }
-    }
-
-    const [position, setPosition] = useState({
-      x: 0,
-      y: 0,
-    });
-    let longPressed = false;
-
-    function onMouseDown(e: any) {
-      longPressed = true;
-      setPosition({
-        x: e.clientX,
-        y: e.clientY,
-      });
-    }
-
-    function onMouseMove(e: any) {
-      if (
-        (position.x !== e.clientX || position.y !== e.clientY) &&
-        longPressed
-      ) {
-        props.disableDrag(true);
-      }
-    }
-
-    function onMouseUp(e: any) {
-      longPressed = false;
-      props.disableDrag(false);
+    function disableBubbling(e: any) {
+      e.preventDefault();
+      e.stopPropagation();
     }
 
     useEffect(() => {
-      if (grid.current && grid.current.element) {
-        const header = grid.current.element.getElementsByClassName(
-          "e-gridheader",
-        )[0];
-        header.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("mouseup", onMouseUp);
+      if (
+        grid.current &&
+        grid.current.element &&
+        props.data &&
+        props.height &&
+        props.width &&
+        props.columns
+      ) {
+        const header = grid.current.getHeaderContent();
+        header.addEventListener("mousedown", disableBubbling);
       }
       return () => {
         if (grid.current && grid.current.element) {
-          const header = grid.current.element.getElementsByClassName(
+          const headers = grid.current.element.getElementsByClassName(
             "e-gridheader",
-          )[0];
-          header.removeEventListener("mousedown", onMouseDown);
-          document.removeEventListener("mousemove", onMouseMove);
-          document.removeEventListener("mouseup", onMouseUp);
+          );
+          for (let i = 0; i < headers.length; i++) {
+            const header = headers[i];
+            header.removeEventListener("mousedown", disableBubbling);
+          }
         }
       };
     }, [grid.current]);
@@ -131,6 +105,35 @@ const TableComponent = memo(
         }
       }
     }
+    function columnDrop() {
+      props.disableDrag(false);
+    }
+    function columnDragStart() {
+      props.disableDrag(true);
+    }
+
+    const commands: CommandModel[] = (props.columnActions || []).map(action => {
+      return {
+        buttonOption: { content: action.label },
+        data: action.actionPayloads,
+      };
+    });
+
+    function onCommandClick(args: CommandClickEventArgs | undefined) {
+      if (args) {
+        const _target = args.target;
+        if (props.columnActions && _target) {
+          props.columnActions
+            .filter(
+              action =>
+                action.label.toLowerCase() === _target.title.toLowerCase(),
+            )
+            .forEach(action => {
+              props.onCommandClick(action.actionPayloads);
+            });
+        }
+      }
+    }
 
     return (
       <StyledGridComponent
@@ -140,17 +143,24 @@ const TableComponent = memo(
         ref={grid}
         width={"100%"}
         height={"100%"}
-        dataBound={dataBound}
         allowPaging={true}
         allowReordering={true}
         allowResizing={true}
         showColumnMenu={true}
+        columnDragStart={columnDragStart}
+        columnDrop={columnDrop}
+        commandClick={onCommandClick}
       >
-        <Inject services={[Resize, Page, Reorder, ColumnMenu]} />
+        <Inject services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]} />
         <ColumnsDirective>
           {props.columns.map(col => {
-            return <ColumnDirective key={col.field} field={col.field} />;
+            return (
+              <ColumnDirective key={col.field} field={col.field} width={200} />
+            );
           })}
+          {commands.length > 0 && (
+            <ColumnDirective headerText="Commands" commands={commands} />
+          )}
         </ColumnsDirective>
       </StyledGridComponent>
     );
@@ -159,7 +169,8 @@ const TableComponent = memo(
     const propsNotEqual =
       JSON.stringify(nextProps.data) !== JSON.stringify(prevProps.data) ||
       nextProps.height !== prevProps.height ||
-      nextProps.width !== prevProps.width;
+      JSON.stringify(nextProps.columnActions) !==
+        JSON.stringify(prevProps.columnActions);
 
     return !propsNotEqual;
   },
