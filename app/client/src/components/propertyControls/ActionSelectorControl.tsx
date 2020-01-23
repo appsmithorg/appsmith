@@ -175,7 +175,7 @@ export function FinalActionSelector(props: FinalActionSelectorProps) {
             actionTypeOptions={actionTypeOptions}
             selectedActionType={selectedErrorActionType}
             selectedActionLabel={selectedErrorActionLabel}
-            identifier={"On SucceErrorss"}
+            identifier={"On Error"}
             label={"On Error"}
             actionResolutionType={ACTION_RESOLUTION_TYPE.ERROR}
             updateActions={props.updateActions}

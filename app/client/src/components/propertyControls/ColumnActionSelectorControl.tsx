@@ -123,7 +123,7 @@ class ColumnActionSelectorControl extends BaseControl<
     const columnActions = this.props.propertyValue || [];
     const columnActionsClone = columnActions.slice();
     columnActionsClone.push({
-      label: "newColumnAction",
+      label: "Action",
       id: generateReactKey(),
       actionPayloads: [],
     });
