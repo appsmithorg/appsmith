@@ -1,7 +1,14 @@
 package com.appsmith.server.dtos;
 
-public interface PageNameIdDTO {
-    String getId();
+import lombok.Getter;
+import lombok.Setter;
 
-    String getName();
+@Getter
+@Setter
+public class PageNameIdDTO {
+    String id;
+
+    String name;
+
+    Boolean isDefault;
 }
