@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.dtos.PageNameIdDTO;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,7 +13,7 @@ public interface PageRepository extends BaseRepository<Page, String> {
 
     Mono<Void> deleteAll();
 
-    Flux<PageNameIdDTO> findByApplicationId(String applicationId);
+    Flux<Page> findByApplicationId(String applicationId);
 
     Mono<Page> findByNameAndApplicationId(String name, String applicationId);
 }

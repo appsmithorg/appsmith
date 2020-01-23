@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 public interface ApplicationPageService {
     Mono<Page> createPage(Page page);
 
-    Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page);
+    Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page, Boolean isDefault);
 
     Mono<Page> doesPageBelongToCurrentUserOrganization(Page page);
 
@@ -16,4 +16,6 @@ public interface ApplicationPageService {
     Mono<Application> createApplication(Application application);
 
     Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode);
+
+    Mono<Application> makePageDefault(String applicationId, String pageId);
 }

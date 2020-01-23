@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,6 +44,12 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<Boolean>> publish(@PathVariable String applicationId) {
         return service.publish(applicationId)
                 .map(published -> new ResponseDTO<>(HttpStatus.OK.value(), published, null));
+    }
+
+    @PutMapping("/{applicationId}/page/{pageId}/makeDefault")
+    public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String applicationId, @PathVariable String pageId) {
+        return applicationPageService.makePageDefault(applicationId, pageId)
+                .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
 }
