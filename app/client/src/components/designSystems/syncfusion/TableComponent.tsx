@@ -12,6 +12,7 @@ import {
   CommandColumn,
   CommandModel,
   CommandClickEventArgs,
+  PageSettingsModel,
 } from "@syncfusion/ej2-react-grids";
 import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
@@ -42,6 +43,7 @@ const settings: SelectionSettingsModel = {
 type GridRef = MutableRefObject<GridComponent | null>;
 
 function reCalculatePageSize(grid: GridRef, height: number) {
+  console.log("");
   if (grid.current) {
     const rowHeight: number = grid.current.getRowHeight();
     /** Grid height */
@@ -101,7 +103,18 @@ const TableComponent = memo(
         /** Get the selected records. */
         const selectedrecords: object[] = grid.current.getSelectedRecords();
         if (selectedrecords.length !== 0) {
-          props.onRowClick(selectedrecords[0], selectedrowindex[0]);
+          let index = selectedrowindex[0];
+          const pageSettings: PageSettingsModel = grid.current.pageSettings;
+          if (
+            pageSettings &&
+            pageSettings.currentPage !== undefined &&
+            pageSettings.pageSize !== undefined
+          ) {
+            index =
+              index + (pageSettings.currentPage - 1) * pageSettings.pageSize;
+          }
+
+          props.onRowClick(selectedrecords[0], index);
         }
       }
     }
