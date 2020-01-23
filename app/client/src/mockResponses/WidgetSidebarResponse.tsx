@@ -56,24 +56,24 @@ const WidgetSidebarResponse: {
       widgetCardName: "Radio",
       key: generateReactKey(),
     },
-    {
-      type: "SWITCH_WIDGET",
-      icon: "icon-switch",
-      widgetCardName: "Switch",
-      key: generateReactKey(),
-    },
+    // {
+    //   type: "SWITCH_WIDGET",
+    //   icon: "icon-switch",
+    //   widgetCardName: "Switch",
+    //   key: generateReactKey(),
+    // },
     {
       type: "DATE_PICKER_WIDGET",
       icon: "icon-datepicker",
       widgetCardName: "DatePicker",
       key: generateReactKey(),
     },
-    {
-      type: "FILE_PICKER_WIDGET",
-      icon: "icon-filepicker",
-      widgetCardName: "FilePicker",
-      key: generateReactKey(),
-    },
+    // {
+    //   type: "FILE_PICKER_WIDGET",
+    //   icon: "icon-filepicker",
+    //   widgetCardName: "FilePicker",
+    //   key: generateReactKey(),
+    // },
     {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
@@ -92,12 +92,6 @@ const WidgetSidebarResponse: {
       type: "TEXT_WIDGET",
       icon: "icon-text",
       widgetCardName: "Text",
-      key: generateReactKey(),
-    },
-    {
-      type: "SPINNER_WIDGET",
-      icon: "icon-spinner",
-      widgetCardName: "Spinner",
       key: generateReactKey(),
     },
     {

@@ -28,7 +28,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const lines = this.getNumberOfLines();
+    // const lines = this.getNumberOfLines();
     return (
       <TextComponent
         widgetId={this.props.widgetId}
@@ -36,7 +36,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         textStyle={this.props.textStyle}
         text={this.props.text}
         isLoading={this.props.isLoading}
-        lines={lines}
+        // lines={lines}
       />
     );
   }

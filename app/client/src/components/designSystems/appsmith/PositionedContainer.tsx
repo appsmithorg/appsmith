@@ -23,6 +23,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
           ? theme.spaces[9]
           : props.style.yPosition + (props.style.yPositionUnit || "px"),
         padding: props.isMainContainer ? 0 : WIDGET_PADDING + "px",
+        background: "white",
       }}
     >
       {props.children}

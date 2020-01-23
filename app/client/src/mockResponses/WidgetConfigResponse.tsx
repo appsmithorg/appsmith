@@ -6,7 +6,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Submit",
       buttonStyle: "PRIMARY_BUTTON",
       rows: 1,
-      columns: 2,
+      columns: 5,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -30,8 +30,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       label: "Label me",
-      rows: 2,
-      columns: 5,
+      rows: 1,
+      columns: 8,
       widgetName: "Input",
     },
     SWITCH_WIDGET: {
@@ -57,13 +57,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       dateFormat: "DD/MM/YYYY",
-      columns: 3,
+      columns: 8,
       label: "Date",
       widgetName: "DatePicker",
     },
     TABLE_WIDGET: {
-      rows: 10,
-      columns: 15,
+      rows: 7,
+      columns: 14,
       label: "Data",
       widgetName: "Table",
       tableData: [
@@ -106,7 +106,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1,
-      columns: 3,
+      columns: 8,
       selectionType: "SINGLE_SELECT",
       label: "Select",
       options: [
@@ -124,8 +124,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Checkbox",
     },
     RADIO_GROUP_WIDGET: {
-      rows: 3,
-      columns: 3,
+      rows: 2,
+      columns: 5,
       label: "Labels",
       options: [
         { id: "1", label: "Alpha", value: "1" },

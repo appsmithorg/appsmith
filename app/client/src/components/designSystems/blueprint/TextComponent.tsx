@@ -19,12 +19,24 @@ export const BaseText = styled(Text)<TextStyleProps>``;
   It suffices for our target browsers
   More info: https://css-tricks.com/line-clampin/
 */
-export const StyledText = styled(Text)<{ lines: number }>`
+
+export const TextContainer = styled.div`
+  && {
+    text-overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+`;
+export const StyledText = styled(Text)`
+  height: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+
   span {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: ${props => props.lines - 1};
-    overflow: hidden;
   }
 `;
 
@@ -33,7 +45,6 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
-  lines: number;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -62,16 +73,17 @@ class TextComponent extends React.Component<TextComponentProps> {
   render() {
     const { textStyle, text, ellipsize } = this.props;
     return (
-      <StyledText
-        className={this.getTextClass(textStyle)}
-        ellipsize={ellipsize}
-        lines={this.props.lines}
-      >
-        <Interweave
-          content={text}
-          matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-        />
-      </StyledText>
+      <TextContainer>
+        <StyledText
+          className={this.getTextClass(textStyle)}
+          ellipsize={ellipsize}
+        >
+          <Interweave
+            content={text}
+            matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
+          />
+        </StyledText>
+      </TextContainer>
     );
   }
 }
