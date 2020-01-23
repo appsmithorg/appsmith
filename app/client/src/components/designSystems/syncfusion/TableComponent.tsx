@@ -12,6 +12,8 @@ import {
   CommandColumn,
   CommandModel,
   CommandClickEventArgs,
+  ColumnMenuOpenEventArgs,
+  ColumnMenuItemModel,
   PageSettingsModel,
 } from "@syncfusion/ej2-react-grids";
 import React, { useRef, MutableRefObject, useEffect, memo } from "react";
@@ -148,6 +150,19 @@ const TableComponent = memo(
       }
     }
 
+    function columnMenuOpen(args: ColumnMenuOpenEventArgs) {
+      for (const item of args.items) {
+        if (item.text) {
+          if (item.text === "Autofit all columns") {
+            (item as ColumnMenuItemModel).hide = true;
+          }
+          if (item.text === "Autofit this column") {
+            (item as ColumnMenuItemModel).text = "Autofit column";
+          }
+        }
+      }
+    }
+
     return (
       <StyledGridComponent
         selectionSettings={settings}
@@ -163,6 +178,7 @@ const TableComponent = memo(
         columnDragStart={columnDragStart}
         columnDrop={columnDrop}
         commandClick={onCommandClick}
+        columnMenuOpen={columnMenuOpen}
       >
         <Inject services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]} />
         <ColumnsDirective>
@@ -172,7 +188,7 @@ const TableComponent = memo(
             );
           })}
           {commands.length > 0 && (
-            <ColumnDirective headerText="Commands" commands={commands} />
+            <ColumnDirective headerText="Actions" commands={commands} />
           )}
         </ColumnsDirective>
       </StyledGridComponent>

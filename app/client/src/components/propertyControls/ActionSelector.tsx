@@ -273,11 +273,12 @@ export default function ActionSelector(props: ActionSelectorProps) {
       </div>
       <div hidden={!props.labelEditable}>
         <InputText
-          label={"Name"}
+          label={"Action Name"}
           value={props.label}
           onChange={onTextChange}
           isValid={true}
         ></InputText>
+        <label>{"On Action Click"}</label>
       </div>
 
       <ActionSelectorDropDownContainer>
