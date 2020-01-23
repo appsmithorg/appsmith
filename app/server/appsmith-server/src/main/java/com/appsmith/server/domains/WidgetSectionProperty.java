@@ -12,7 +12,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 public class WidgetSectionProperty {
-    WidgetSectionName sectionName;
+    String sectionName;
     String id;
     List<WidgetChildProperty> children;
 }
