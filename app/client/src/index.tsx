@@ -9,7 +9,8 @@ import { Router, Route, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { DndProvider } from "react-dnd";
-import HTML5Backend from "react-dnd-html5-backend";
+import TouchBackend from "react-dnd-touch-backend";
+
 import { appInitializer } from "utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
 import store from "./store";
@@ -38,7 +39,12 @@ const Organization = lazy(() => import("./pages/organization"));
 appInitializer();
 
 ReactDOM.render(
-  <DndProvider backend={HTML5Backend}>
+  <DndProvider
+    backend={TouchBackend}
+    options={{
+      enableMouseEvents: true,
+    }}
+  >
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <Helmet>

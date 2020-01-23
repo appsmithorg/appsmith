@@ -9,6 +9,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
+import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
 function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
   const cols: ColumnModel[] | ColumnDirTypecast[] = [];
@@ -51,10 +52,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         isLoading={this.props.isLoading}
         height={this.state.componentHeight}
         width={this.state.componentWidth}
-        selectedRowIndex={this.props.selectedRowIndex}
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
+        columnActions={this.props.columnActions}
+        onCommandClick={this.onCommandClick}
         onRowClick={(rowData: object, index: number) => {
           const { onRowSelected } = this.props;
           this.updateSelectedRowProperty(index);
@@ -77,6 +79,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   //     );
   //   }
   // }
+  onCommandClick = (actions: ActionPayload[]) => {
+    super.executeAction(actions);
+  };
 
   updateSelectedRowProperty(index: number) {
     const { widgetId } = this.props;
@@ -104,6 +109,7 @@ export interface TableWidgetProps extends WidgetProps {
   onPageChange?: ActionPayload[];
   onRowSelected?: ActionPayload[];
   selectedRowIndex?: number;
+  columnActions?: ColumnAction[];
 }
 
 export default TableWidget;

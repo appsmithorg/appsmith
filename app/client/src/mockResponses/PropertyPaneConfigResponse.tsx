@@ -389,6 +389,18 @@ const PropertyPaneConfigResponse = {
     ],
     TABLE_WIDGET: [
       {
+        sectionName: "Column Actions",
+        id: "13",
+        children: [
+          {
+            id: "13.1",
+            propertyName: "columnActions",
+            label: "Column Actions",
+            controlType: "COLUMN_ACTION_SELECTOR",
+          },
+        ],
+      },
+      {
         sectionName: "General",
         id: "11",
         children: [

@@ -6,26 +6,45 @@ import { ControlType } from "constants/PropertyControlConstants";
 // import { Intent } from "@blueprintjs/core";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
+export function InputText(props: {
+  label: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  isValid: boolean;
+  validationMessage?: string;
+}) {
+  const { validationMessage, value, isValid, label, onChange } = props;
+  return (
+    <ControlWrapper>
+      <label>{label}</label>
+      <StyledDynamicInput>
+        <DynamicAutocompleteInput
+          input={{
+            value: value,
+            onChange: onChange,
+          }}
+          meta={{
+            error: isValid ? "" : validationMessage,
+            touched: true,
+          }}
+          theme={"DARK"}
+        />
+      </StyledDynamicInput>
+    </ControlWrapper>
+  );
+}
+
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const { validationMessage, propertyValue, isValid, label } = this.props;
     return (
-      <ControlWrapper>
-        <label>{label}</label>
-        <StyledDynamicInput>
-          <DynamicAutocompleteInput
-            input={{
-              value: propertyValue,
-              onChange: this.onTextChange,
-            }}
-            meta={{
-              error: isValid ? "" : validationMessage,
-              touched: true,
-            }}
-            theme={"DARK"}
-          />
-        </StyledDynamicInput>
-      </ControlWrapper>
+      <InputText
+        label={label}
+        value={propertyValue}
+        onChange={this.onTextChange}
+        isValid={isValid}
+        validationMessage={validationMessage}
+      />
     );
   }
 
