@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -71,7 +74,10 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     @Override
     public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
-        return repository.findByApplicationId(applicationId);
+        return applicationService
+                .findById(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .flatMapMany(this::findNamesByApplication);
     }
 
     @Override
@@ -79,8 +85,23 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
         return applicationService
                 .findByName(applicationName)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .map(application -> application.getId())
-                .flatMapMany(id -> repository.findByApplicationId(id));
+                .flatMapMany(this::findNamesByApplication);
+    }
+
+    private Flux<PageNameIdDTO> findNamesByApplication(Application application) {
+        List<ApplicationPage> pages = application.getPages();
+        return repository.findByApplicationId(application.getId())
+                .map(page -> {
+                    PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
+                    pageNameIdDTO.setId(page.getId());
+                    pageNameIdDTO.setName(page.getName());
+                    for (ApplicationPage applicationPage : pages) {
+                        if (applicationPage.getId().equals(page.getId())) {
+                            pageNameIdDTO.setIsDefault(applicationPage.getIsDefault());
+                        }
+                    }
+                    return pageNameIdDTO;
+                });
     }
 
     @Override

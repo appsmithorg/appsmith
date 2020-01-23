@@ -53,7 +53,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(pageService::create)
                 //After the page has been saved, update the application (save the page id inside the application)
                 .flatMap(savedPage ->
-                        addPageToApplication(applicationMono, savedPage)
+                        addPageToApplication(applicationMono, savedPage, false)
                                 .thenReturn(savedPage));
     }
 
@@ -65,7 +65,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @param page
      * @return Updated application
      */
-    public Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page) {
+    public Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page, Boolean isDefault) {
         return applicationMono
                 .map(application -> {
                     List<ApplicationPage> applicationPages = application.getPages();
@@ -74,6 +74,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     }
                     ApplicationPage applicationPage = new ApplicationPage();
                     applicationPage.setId(page.getId());
+                    applicationPage.setIsDefault(isDefault);
                     applicationPages.add(applicationPage);
                     application.setPages(applicationPages);
                     return application;
@@ -132,6 +133,35 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    @Override
+    public Mono<Application> makePageDefault(String applicationId, String pageId) {
+        return pageService.findById(pageId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, pageId)))
+                // Check if the page actually belongs to the application.
+                .flatMap(page -> {
+                    if (page.getApplicationId().equals(applicationId)) {
+                        return Mono.just(page);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION, page.getName(), applicationId));
+                })
+                .then(applicationService.findById(applicationId))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .flatMap(application -> {
+                    List<ApplicationPage> pages = application.getPages();
+
+                    // We are guaranteed to find the pageId in this list.
+                    pages.stream().forEach(page -> {
+                        if (page.getId().equals(pageId)) {
+                            page.setIsDefault(true);
+                        } else {
+                            page.setIsDefault(false);
+                        }
+                    });
+                    application.setPages(pages);
+                    return applicationService.save(application);
+                });
+    }
+
     public Mono<Application> createApplication(Application application) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -155,7 +185,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     page.setLayouts(layoutList);
                     return pageService
                             .create(page)
-                            .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage));
+                            .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
     }
 }
