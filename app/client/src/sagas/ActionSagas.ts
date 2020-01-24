@@ -31,9 +31,13 @@ import { mapToPropList } from "utils/AppsmithUtils";
 import AppToaster from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import {
+  copyActionError,
+  copyActionSuccess,
   createActionSuccess,
   deleteActionSuccess,
   FetchActionsPayload,
+  moveActionError,
+  moveActionSuccess,
   runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
@@ -259,16 +263,16 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
-      payload: { error },
+      payload: actionPayload.payload,
     });
   }
 }
 
 export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   try {
-    const { pageId } = action.payload;
+    const { applicationId } = action.payload;
     const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
-      pageId,
+      applicationId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -401,6 +405,80 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[]>) {
   }
 }
 
+function* moveActionSaga(
+  action: ReduxAction<{
+    id: string;
+    destinationPageId: string;
+    originalPageId: string;
+    name: string;
+  }>,
+) {
+  const drafts = yield select(state => state.ui.apiPane.drafts);
+  const dirty = action.payload.id in drafts;
+  const actionObject: RestAction = dirty
+    ? drafts[action.payload.id]
+    : yield select(getAction, action.payload.id);
+  try {
+    const response = yield ActionAPI.moveAction({
+      action: { ...actionObject, name: action.payload.name },
+      destinationPageId: action.payload.destinationPageId,
+    });
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AppToaster.show({
+        message: `${response.data.name} Action moved`,
+        intent: Intent.SUCCESS,
+      });
+    }
+    yield put(moveActionSuccess(action.payload));
+  } catch (e) {
+    AppToaster.show({
+      message: `Error while moving action ${actionObject.name}`,
+      intent: Intent.DANGER,
+    });
+    yield put(
+      moveActionError({
+        id: action.payload.id,
+        originalPageId: action.payload.originalPageId,
+      }),
+    );
+  }
+}
+
+function* copyActionSaga(
+  action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
+) {
+  const drafts = yield select(state => state.ui.apiPane.drafts);
+  const dirty = action.payload.id in drafts;
+  const actionObject = dirty
+    ? drafts[action.payload.id]
+    : yield select(getAction, action.payload.id);
+  try {
+    const copyAction = {
+      ...(_.omit(actionObject, "id") as RestAction),
+      name: action.payload.name,
+      pageId: action.payload.destinationPageId,
+    };
+    const response = yield ActionAPI.createAPI(copyAction);
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AppToaster.show({
+        message: `${actionObject.name} Action copied`,
+        intent: Intent.SUCCESS,
+      });
+    }
+    yield put(copyActionSuccess(response.data));
+  } catch (e) {
+    AppToaster.show({
+      message: `Error while copying action ${actionObject.name}`,
+      intent: Intent.DANGER,
+    });
+    yield put(copyActionError(action.payload));
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
@@ -413,5 +491,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
+    takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
+    takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
   ]);
 }

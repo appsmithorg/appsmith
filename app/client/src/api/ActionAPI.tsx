@@ -54,7 +54,7 @@ export interface RestAction {
   name: string;
   datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
   pluginType?: string;
-  pageId?: string;
+  pageId: string;
   actionConfiguration: Partial<APIConfigRequest>;
   jsonPathKeys: string[];
   cacheResponse?: string;
@@ -91,6 +91,16 @@ export interface ActionResponse {
   size: string;
 }
 
+export interface MoveActionRequest {
+  action: RestAction;
+  destinationPageId: string;
+}
+
+export interface CopyActionRequest {
+  action: RestAction;
+  pageId: string;
+}
+
 class ActionAPI extends API {
   static url = "v1/actions";
 
@@ -105,9 +115,9 @@ class ActionAPI extends API {
   }
 
   static fetchActions(
-    pageId: string,
+    applicationId: string,
   ): AxiosPromise<GenericApiResponse<RestAction[]>> {
-    return API.get(ActionAPI.url, { pageId });
+    return API.get(ActionAPI.url, { applicationId });
   }
 
   static updateAPI(
@@ -136,6 +146,10 @@ class ActionAPI extends API {
     executeAction: ExecuteActionRequest,
   ): AxiosPromise<ActionApiResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction);
+  }
+
+  static moveAction(moveRequest: MoveActionRequest) {
+    return API.put(ActionAPI.url + "/move", moveRequest);
   }
 }
 

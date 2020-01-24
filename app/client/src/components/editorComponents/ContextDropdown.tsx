@@ -1,7 +1,12 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { ItemRenderer, Select } from "@blueprintjs/select";
-import { Button, MenuItem, Intent as BlueprintIntent } from "@blueprintjs/core";
+import {
+  Button,
+  MenuItem,
+  Intent as BlueprintIntent,
+  PopoverPosition,
+} from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlIconName, ControlIcons } from "icons/ControlIcons";
 import { noop } from "utils/AppsmithUtils";
@@ -10,6 +15,7 @@ import { Intent } from "constants/DefaultTheme";
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   intent?: Intent;
+  children?: ContextDropdownOption[];
 };
 const Dropdown = Select.ofType<ContextDropdownOption>();
 
@@ -35,10 +41,37 @@ type ContextDropdownProps = {
   };
 };
 
+const DropdownItem = (option: ContextDropdownOption) => (
+  <StyledMenuItem
+    key={option.value}
+    onClick={option.onSelect}
+    shouldDismissPopover={true}
+    text={option.label || option.value}
+    intent={option.intent as BlueprintIntent}
+    popoverProps={{
+      minimal: true,
+      hoverCloseDelay: 0,
+      hoverOpenDelay: 0,
+      modifiers: {
+        arrow: {
+          enabled: false,
+        },
+        offset: {
+          enabled: true,
+          offset: "-16px, 0",
+        },
+      },
+    }}
+  >
+    {option.children && option.children.map(DropdownItem)}
+  </StyledMenuItem>
+);
+
 export const ContextDropdown = (props: ContextDropdownProps) => {
   let trigger: ReactNode;
   if (props.toggle.type === "icon" && props.toggle.icon)
     trigger = ControlIcons[props.toggle.icon]({
+      style: { display: "flex" },
       width: props.toggle.iconSize,
       height: props.toggle.iconSize,
     });
@@ -47,33 +80,12 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
 
   const renderer: ItemRenderer<ContextDropdownOption> = (
     option: ContextDropdownOption,
-  ) => {
-    return (
-      <StyledMenuItem
-        key={option.value}
-        onClick={option.onSelect}
-        shouldDismissPopover={true}
-        text={option.label || option.value}
-        intent={option.intent as BlueprintIntent}
-        popoverProps={{
-          minimal: true,
-          hoverCloseDelay: 0,
-          hoverOpenDelay: 0,
-          modifiers: {
-            arrow: {
-              enabled: false,
-            },
-            offset: {
-              enabled: true,
-              offset: "-16px 0",
-            },
-          },
-        }}
-      />
-    );
-  };
+  ) => <DropdownItem {...option} />;
   return (
     <Dropdown
+      popoverProps={{
+        position: PopoverPosition.AUTO_END,
+      }}
       items={props.options}
       itemRenderer={renderer}
       onItemSelect={noop}

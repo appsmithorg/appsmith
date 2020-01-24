@@ -11,7 +11,7 @@ import ApiSidebar from "pages/Editor/ApiSidebar";
 
 const SidebarWrapper = styled.div`
   background-color: ${props => props.theme.colors.paneBG};
-  padding: 5px 10px;
+  padding: 5px 0;
   color: ${props => props.theme.colors.textOnDarkBG};
   overflow-y: auto;
 `;

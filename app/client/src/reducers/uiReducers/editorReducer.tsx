@@ -10,6 +10,7 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
 
 const initialState: EditorReduxState = {
+  initialized: false,
   loadingStates: {
     publishing: false,
     publishingError: false,
@@ -23,6 +24,9 @@ const initialState: EditorReduxState = {
 };
 
 const editorReducer = createReducer(initialState, {
+  [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
+    return { ...state, initialized: true };
+  },
   [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
@@ -44,16 +48,6 @@ const editorReducer = createReducer(initialState, {
       isPageSwitching: false,
     },
   }),
-  [ReduxActionTypes.INIT_EDITOR]: (state: EditorReduxState) => {
-    state.loadingStates.loading = true;
-    state.loadingStates.loadingError = false;
-    return { ...state };
-  },
-  [ReduxActionTypes.INIT_EDITOR_SUCCESS]: (state: EditorReduxState) => {
-    state.loadingStates.loading = false;
-    state.loadingStates.loadingError = false;
-    return { ...state };
-  },
   [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
     state: EditorReduxState,
   ) => {
@@ -123,6 +117,7 @@ const editorReducer = createReducer(initialState, {
 });
 
 export interface EditorReduxState {
+  initialized: boolean;
   dsl?: ContainerWidgetProps<WidgetProps>;
   pageWidgetId?: string;
   currentPageId?: string;

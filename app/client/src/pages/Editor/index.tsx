@@ -22,6 +22,7 @@ import {
   getIsEditorLoading,
   getLoadingError,
   getPublishedTime,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import {
   ReduxActionTypes,
@@ -46,6 +47,7 @@ type EditorProps = {
   pages: PageListPayload;
   isPublishing: boolean;
   isEditorLoading: boolean;
+  isEditorInitialized: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
   publishedTime?: string;
@@ -98,6 +100,7 @@ class Editor extends Component<EditorProps> {
     if (!this.props.match.params.applicationId) {
       return <Redirect to="/applications" />;
     }
+    if (!this.props.isEditorInitialized) return null;
     return (
       <div>
         <Helmet>
@@ -159,6 +162,7 @@ const mapStateToProps = (state: AppState) => ({
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
+  isEditorInitialized: getIsEditorInitialized(state),
   editorLoadingError: getLoadingError(state),
   publishedTime: getPublishedTime(state),
 });

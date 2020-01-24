@@ -16,7 +16,7 @@ import {
   updateWidgetPosition,
 } from "utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
-import { getNextWidgetName } from "utils/AppsmithUtils";
+import { getNextEntityName } from "utils/AppsmithUtils";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -38,6 +38,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
+    const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
     const childWidget = generateWidgetProps(
       widget,
@@ -48,7 +49,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       rows,
       parentRowSpace,
       parentColumnSpace,
-      getNextWidgetName(defaultWidgetConfig.widgetName, widgets),
+      getNextEntityName(defaultWidgetConfig.widgetName, widgetNames),
       defaultWidgetConfig,
     );
     childWidget.widgetId = newWidgetId;

@@ -3,6 +3,7 @@ import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as WidgetsIcon } from "assets/icons/menu/widgets.svg";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api.svg";
 import { ReactComponent as OrgIcon } from "assets/icons/menu/org.svg";
+import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-menu.svg";
 /* eslint-disable react/display-name */
 
 export const MenuIcons: {
