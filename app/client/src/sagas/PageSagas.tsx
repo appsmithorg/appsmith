@@ -159,6 +159,7 @@ export function* fetchPublishedPageSaga(
         // Execute page load actions
         yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       }
+      yield put(updateCanvas(canvasWidgetsPayload));
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
         payload: {
@@ -168,7 +169,6 @@ export function* fetchPublishedPageSaga(
           pageWidgetId: canvasWidgetsPayload.pageWidgetId,
         },
       });
-      yield put(updateCanvas(canvasWidgetsPayload));
     }
   } catch (error) {
     yield put({
