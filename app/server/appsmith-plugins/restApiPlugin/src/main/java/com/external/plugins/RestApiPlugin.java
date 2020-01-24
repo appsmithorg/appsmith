@@ -11,6 +11,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.internal.Base64;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
@@ -77,22 +78,19 @@ public class RestApiPlugin extends BasePlugin {
 
             WebClient client = webClientBuilder.build();
             return httpCall(client, httpMethod, uri, requestBody, 0)
-                    .flatMap(clientResponse -> clientResponse.toEntity(String.class))
+                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
-                        /**TODO
-                         * Handle XML response. Currently we only handle JSON responses. The other kind of responses are
-                         * kept as is and returned as a string.
-                         */
                         HttpHeaders headers = stringResponseEntity.getHeaders();
-                        String body = stringResponseEntity.getBody();
+                        // Find the media type of the response to parse the body as required.
+                        MediaType contentType = headers.getContentType();
+                        byte[] body = stringResponseEntity.getBody();
                         HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
-                        Boolean isBodyJson = false;
                         if (headers != null) {
                             // Convert the headers into json tree to store in the results
-                            String headerInJsonString = null;
+                            String headerInJsonString;
                             try {
                                 headerInJsonString = objectMapper.writeValueAsString(headers);
                             } catch (JsonProcessingException e) {
@@ -106,28 +104,32 @@ public class RestApiPlugin extends BasePlugin {
                                 e.printStackTrace();
                                 return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
                             }
-
-                            // Find the media type of the response to parse the body as required. Currently only JSON
-                            // responses are parsed. The rest kind of responses are kept as is.
-                            MediaType contentType = headers.getContentType();
-                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType) ||
-                                    MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
-                                isBodyJson = true;
-                            }
                         }
 
                         if (body != null) {
-                            if (isBodyJson) {
+                            /**TODO
+                             * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
+                             * are kept as is and returned as a string.
+                             */
+                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
+                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType) ||
+                                    MediaType.APPLICATION_JSON_UTF8_VALUE.equals(contentType)) {
                                 try {
-                                    result.setBody(objectMapper.readTree(body));
+                                    String jsonBody = new String(body);
+                                    result.setBody(objectMapper.readTree(jsonBody));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                     return Mono.defer(() -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
                                 }
+                            } else if (MediaType.IMAGE_GIF.equals(contentType) ||
+                                    MediaType.IMAGE_JPEG.equals(contentType) ||
+                                    MediaType.IMAGE_PNG.equals(contentType)) {
+                                String encode = Base64.encode(body);
+                                result.setBody(encode);
                             } else {
                                 // If the body is not of JSON type, just set it as is.
-                                result.setBody(body.trim());
+                                String bodyString = new String(body);
+                                result.setBody(bodyString.trim());
                             }
                         }
                         return result;
@@ -138,7 +140,7 @@ public class RestApiPlugin extends BasePlugin {
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
             if (iteration == MAX_REDIRECTS) {
                 System.out.println("Exceeded the http redirect limits. Returning error");
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Exceeded the HTTO redirect limits of "+MAX_REDIRECTS));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Exceeded the HTTO redirect limits of " + MAX_REDIRECTS));
             }
             return webClient
                     .method(httpMethod)
@@ -156,7 +158,7 @@ public class RestApiPlugin extends BasePlugin {
                             } catch (URISyntaxException e) {
                                 e.printStackTrace();
                             }
-                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration+1);
+                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1);
                         }
                         return Mono.just(response);
                     });
