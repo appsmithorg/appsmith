@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { ActionPayload } from "constants/ActionConstants";
 import { FinalActionSelector } from "./ActionSelectorControl";
 import { generateReactKey } from "utils/generators";
-import styled, { theme } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 export interface ColumnAction {

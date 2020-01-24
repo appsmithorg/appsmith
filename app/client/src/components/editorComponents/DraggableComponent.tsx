@@ -7,7 +7,10 @@ import blankImage from "assets/images/blank.png";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
-import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
+import {
+  WIDGET_CLASSNAME_PREFIX,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
@@ -44,6 +47,15 @@ const WidgetBoundaries = styled.div`
     ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   position: absolute;
   pointer-events: none;
+`;
+
+const ClickCaptureMask = styled.div`
+  position: absolute;
+  left: 0;
+  top: 5%;
+  width: 100%;
+  height: 95%;
+  z-index: 2;
 `;
 
 const DragHandle = styled.div`
@@ -139,7 +151,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   };
 
   const togglePropertyEditor = (e: any) => {
-    if (!propertyPaneState.isVisible) {
+    if (
+      (!propertyPaneState.isVisible &&
+        props.widgetId === propertyPaneState.widgetId) ||
+      props.widgetId !== propertyPaneState.widgetId
+    ) {
       showPropertyPane && showPropertyPane(props.widgetId);
     } else {
       showPropertyPane && showPropertyPane();
@@ -196,15 +212,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }}
         onClick={(e: any) => {
           selectWidget && selectWidget(props.widgetId);
-          if (
-            propertyPaneState.widgetId &&
-            propertyPaneState.widgetId !== props.widgetId
-          ) {
-            showPropertyPane && showPropertyPane();
-          }
-          e.stopPropagation();
-        }}
-        onDoubleClick={(e: any) => {
           showPropertyPane && showPropertyPane(props.widgetId);
           e.stopPropagation();
         }}
@@ -226,6 +233,18 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           zIndex: stackingContext,
         }}
       >
+        {selectedWidget !== props.widgetId &&
+          props.type !== WidgetTypes.CONTAINER_WIDGET && (
+            <ClickCaptureMask
+              onClick={(e: any) => {
+                selectWidget && selectWidget(props.widgetId);
+                showPropertyPane && showPropertyPane(props.widgetId);
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            />
+          )}
+
         {props.children}
 
         <DragHandle className="control" ref={drag}>
