@@ -49,7 +49,7 @@ div.bp3-popover-arrow {
 }
 
 .bp3-button.bp3-loading{
-  cursor: wait !important;
+  cursor: default !important;
 }
 
 .pace {

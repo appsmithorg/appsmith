@@ -45,7 +45,6 @@ const settings: SelectionSettingsModel = {
 type GridRef = MutableRefObject<GridComponent | null>;
 
 function reCalculatePageSize(grid: GridRef, height: number) {
-  console.log("");
   if (grid.current) {
     const rowHeight: number = grid.current.getRowHeight();
     /** Grid height */
