@@ -7,7 +7,6 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getEvaluatedDataTree, getParsedTree } from "utils/DynamicBindingUtils";
 import { getDataTree } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
@@ -17,11 +16,7 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import {
-  NameBindingsWithData,
-  getNameBindingsWithData,
-  getParsedDataTree,
-} from "./nameBindingsWithDataSelector";
+import { getParsedDataTree } from "./nameBindingsWithDataSelector";
 import _ from "lodash";
 
 const getEditorState = (state: AppState) => state.ui.editor;
@@ -31,6 +26,11 @@ const getPageListState = (state: AppState) => state.entities.pageList;
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+export const getIsEditorInitialized = createSelector(
+  getEditorState,
+  (editor: EditorReduxState) => editor.initialized,
+);
 
 export const getIsEditorLoading = createSelector(
   getEditorState,

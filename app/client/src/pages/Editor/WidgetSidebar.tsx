@@ -12,6 +12,7 @@ type WidgetSidebarProps = {
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
+  padding: 0 10px;
 `;
 
 const CardsWrapper = styled.div`
