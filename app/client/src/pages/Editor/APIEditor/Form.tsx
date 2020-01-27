@@ -110,7 +110,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         <FormRow>
           <TextField
             name="name"
-            placeholder="API name (camel case)"
+            placeholder="nameOfApi (camel case)"
             showError
           />
           <ActionButtons>

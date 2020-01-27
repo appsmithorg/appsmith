@@ -33,6 +33,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1,
       columns: 8,
       widgetName: "Input",
+      text: "",
     },
     SWITCH_WIDGET: {
       isOn: false,
@@ -115,6 +116,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { id: "3", label: "Option 3", value: "3" },
       ],
       widgetName: "Dropdown",
+      selectedIndex: 0,
     },
     CHECKBOX_WIDGET: {
       rows: 1,

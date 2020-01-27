@@ -45,6 +45,7 @@ import {
   getDynamicBindings,
   getDynamicValue,
   isDynamicValue,
+  removeBindingsFromObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
@@ -418,9 +419,13 @@ function* moveActionSaga(
   const actionObject: RestAction = dirty
     ? drafts[action.payload.id]
     : yield select(getAction, action.payload.id);
+  const withoutBindings = removeBindingsFromObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
-      action: { ...actionObject, name: action.payload.name },
+      action: {
+        ...withoutBindings,
+        name: action.payload.name,
+      },
       destinationPageId: action.payload.destinationPageId,
     });
 
@@ -431,7 +436,7 @@ function* moveActionSaga(
         intent: Intent.SUCCESS,
       });
     }
-    yield put(moveActionSuccess(action.payload));
+    yield put(moveActionSuccess(response.data));
   } catch (e) {
     AppToaster.show({
       message: `Error while moving action ${actionObject.name}`,
@@ -451,9 +456,12 @@ function* copyActionSaga(
 ) {
   const drafts = yield select(state => state.ui.apiPane.drafts);
   const dirty = action.payload.id in drafts;
-  const actionObject = dirty
+  let actionObject = dirty
     ? drafts[action.payload.id]
     : yield select(getAction, action.payload.id);
+  if (action.payload.destinationPageId !== actionObject.pageId) {
+    actionObject = removeBindingsFromObject(actionObject);
+  }
   try {
     const copyAction = {
       ...(_.omit(actionObject, "id") as RestAction),

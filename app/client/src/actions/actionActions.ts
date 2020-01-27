@@ -80,10 +80,7 @@ export const moveActionRequest = (payload: {
   };
 };
 
-export const moveActionSuccess = (payload: {
-  id: string;
-  destinationPageId: string;
-}) => {
+export const moveActionSuccess = (payload: RestAction) => {
   return {
     type: ReduxActionTypes.MOVE_ACTION_SUCCESS,
     payload,

@@ -6,6 +6,7 @@ import {
   MenuItem,
   Intent as BlueprintIntent,
   PopoverPosition,
+  PopoverInteractionKind,
 } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlIconName, ControlIcons } from "icons/ControlIcons";
@@ -51,7 +52,9 @@ const DropdownItem = (option: ContextDropdownOption) => (
     popoverProps={{
       minimal: true,
       hoverCloseDelay: 0,
-      hoverOpenDelay: 0,
+      hoverOpenDelay: 300,
+      interactionKind: PopoverInteractionKind.CLICK,
+      position: PopoverPosition.RIGHT,
       modifiers: {
         arrow: {
           enabled: false,
@@ -84,9 +87,6 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
 
   return (
     <Dropdown
-      popoverProps={{
-        position: PopoverPosition.AUTO_END,
-      }}
       items={props.options}
       itemRenderer={renderer}
       onItemSelect={noop}

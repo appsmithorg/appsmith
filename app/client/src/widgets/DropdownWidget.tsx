@@ -16,7 +16,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       placeholderText: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.ARRAY,
+      options: VALIDATION_TYPES.TABLE_DATA,
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,

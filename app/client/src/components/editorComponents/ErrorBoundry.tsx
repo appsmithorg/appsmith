@@ -1,7 +1,13 @@
 import React from "react";
+import styled from "styled-components";
 
 type Props = {};
 type State = { hasError: boolean };
+
+const RetryLink = styled.span`
+  color: ${props => props.theme.colors.primaryDarkest};
+  cursor: pointer;
+`;
 
 class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -20,8 +26,15 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <p>Oops, Something went wrong.</p>;
+      return (
+        <p>
+          Oops, Something went wrong.
+          <br />
+          <RetryLink onClick={() => this.setState({ hasError: false })}>
+            Click here to retry
+          </RetryLink>
+        </p>
+      );
     }
 
     return this.props.children;

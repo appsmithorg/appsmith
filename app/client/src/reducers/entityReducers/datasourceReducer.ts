@@ -1,5 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
 
 export interface DatasourceDataState {
@@ -37,6 +41,14 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       loading: false,
       list: state.list.concat(action.payload),
+    };
+  },
+  [ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loading: false,
     };
   },
 });
