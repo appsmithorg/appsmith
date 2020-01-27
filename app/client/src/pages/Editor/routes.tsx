@@ -24,7 +24,7 @@ const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   height: calc(100vh - ${props => props.theme.headerHeight});
   background-color: ${props =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
-  z-index: ${props => (props.isVisible ? 10 : -1)};
+  z-index: ${props => (props.isVisible ? 2 : -1)};
   transition-property: z-index;
   transition-delay: ${props => (props.isVisible ? "0" : "0.25s")};
 `;
@@ -37,7 +37,6 @@ const DrawerWrapper = styled.div<{
   width: ${props => (props.showOnlySidebar ? "0px" : "75%")};
   height: 100%;
   box-shadow: -1px 2px 3px 0px ${props => props.theme.colors.paneBG};
-  transform: translateX(${props => (props.isVisible ? `0` : `-80vw`)});
   transition: 0.25s;
 `;
 
