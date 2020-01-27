@@ -183,7 +183,7 @@ abstract class BaseWidget<
                 this.props.widgetId === "0"
               }
             >
-              {this.getPageView()}
+              <ErrorBoundary>{this.getPageView()}</ErrorBoundary>
             </PositionedContainer>
           );
         }

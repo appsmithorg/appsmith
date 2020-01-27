@@ -60,29 +60,34 @@ const PageName = styled.h5<{ isMain: boolean }>`
   width: 100%;
   height: 20px;
   padding-left: 5px;
-  font-size: 13px;
+  font-size: 16px;
   color: white;
   border-right: 4px solid;
+  margin: 10px 0;
   border-color: ${props =>
     props.isMain ? props.theme.colors.primary : "transparent"};
 `;
 
-const PageDropContainer = styled.div<{ isActive: boolean }>`
+const PageDropContainer = styled.div`
   min-height: 32px;
   margin: 5px;
-  background-color: ${props =>
-    props.isActive ? props.theme.colors.paneCard : props.theme.colors.paneBG};
+  background-color: ${props => props.theme.colors.paneBG};
 `;
 
 const ItemsWrapper = styled.div`
   flex: 1;
 `;
 
-const ItemRenderContainer = styled.div`
-  flex: 1;
+const NoItemMessage = styled.span`
+  color: #cacaca;
+  padding-left: 12px;
 `;
 
-const ItemContainer = styled.div<{ isSelected: boolean }>`
+const ItemContainer = styled.div<{
+  isSelected: boolean;
+  isDraggingOver: boolean;
+  isBeingDragged: boolean;
+}>`
   height: 32px;
   width: 100%;
   padding: 8px 12px;
@@ -94,9 +99,14 @@ const ItemContainer = styled.div<{ isSelected: boolean }>`
   align-items: center;
   justify-content: space-between;
   background-color: ${props =>
-    props.isSelected ? props.theme.colors.paneCard : props.theme.colors.paneBG}
+    props.isSelected || props.isBeingDragged
+      ? props.theme.colors.paneCard
+      : props.theme.colors.paneBG}
   :hover {
-    background-color: ${props => props.theme.colors.paneCard};
+    background-color: ${props =>
+      props.isDraggingOver
+        ? props.theme.colors.paneBG
+        : props.theme.colors.paneCard};
   }
 `;
 
@@ -299,98 +309,106 @@ class EditorSidebar extends React.Component<Props, State> {
                             <PageDropContainer
                               ref={provided.innerRef}
                               {...provided.droppableProps}
-                              isActive={snapshot.isDraggingOver}
                             >
                               {provided.placeholder}
-                              <div
-                                style={{
-                                  opacity: snapshot.isDraggingOver ? 0 : 1,
-                                }}
-                              >
+                              <div>
+                                {page.items.length === 0 && (
+                                  <NoItemMessage>
+                                    {"No item on this page yet"}
+                                  </NoItemMessage>
+                                )}
                                 {page.items.map((item: Item, index) => (
-                                  <ItemContainer
+                                  <Draggable
                                     key={item.id}
-                                    isSelected={item.id === selectedItemId}
+                                    draggableId={item.id}
+                                    index={index}
                                   >
-                                    <Draggable
-                                      draggableId={item.id}
-                                      index={index}
-                                    >
-                                      {provided => (
-                                        <ItemRenderContainer
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          onClick={() =>
-                                            this.handleItemSelect(item.id)
-                                          }
-                                        >
-                                          {itemRender(item)}
-                                        </ItemRenderContainer>
-                                      )}
-                                    </Draggable>
-                                    {this.state.itemDragging !== item.id && (
-                                      <React.Fragment>
-                                        <DraftIconIndicator
-                                          isHidden={
-                                            draftIds.indexOf(item.id) === -1
-                                          }
-                                        />
-                                        <ContextDropdown
-                                          options={[
-                                            {
-                                              id: "copy",
-                                              value: "copy",
-                                              onSelect: () => null,
-                                              label: "Copy to",
-                                              children: pageWiseList.map(p => ({
-                                                label: p.name,
-                                                id: p.id,
-                                                value: p.name,
-                                                onSelect: () =>
-                                                  this.props.copyItem(
-                                                    item.id,
-                                                    p.id,
+                                    {provided => (
+                                      <ItemContainer
+                                        isSelected={item.id === selectedItemId}
+                                        isDraggingOver={snapshot.isDraggingOver}
+                                        isBeingDragged={
+                                          this.state.itemDragging === item.id
+                                        }
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        onClick={() =>
+                                          this.handleItemSelect(item.id)
+                                        }
+                                      >
+                                        {itemRender(item)}
+                                        {this.state.itemDragging !==
+                                          item.id && (
+                                          <React.Fragment>
+                                            <DraftIconIndicator
+                                              isHidden={
+                                                draftIds.indexOf(item.id) === -1
+                                              }
+                                            />
+                                            <ContextDropdown
+                                              options={[
+                                                {
+                                                  id: "copy",
+                                                  value: "copy",
+                                                  onSelect: () => null,
+                                                  label: "Copy to",
+                                                  children: pageWiseList.map(
+                                                    p => ({
+                                                      label: p.name,
+                                                      id: p.id,
+                                                      value: p.name,
+                                                      onSelect: () =>
+                                                        this.props.copyItem(
+                                                          item.id,
+                                                          p.id,
+                                                        ),
+                                                    }),
                                                   ),
-                                              })),
-                                            },
-                                            {
-                                              id: "move",
-                                              value: "move",
-                                              onSelect: () => null,
-                                              label: "Move to",
-                                              children: pageWiseList
-                                                .filter(p => p.id !== page.id)
-                                                .map(p => ({
-                                                  label: p.name,
-                                                  id: p.id,
-                                                  value: p.name,
+                                                },
+                                                {
+                                                  id: "move",
+                                                  value: "move",
+                                                  onSelect: () => null,
+                                                  label: "Move to",
+                                                  children: pageWiseList
+                                                    .filter(
+                                                      p => p.id !== page.id,
+                                                    )
+                                                    .map(p => ({
+                                                      label: p.name,
+                                                      id: p.id,
+                                                      value: p.name,
+                                                      onSelect: () =>
+                                                        this.props.moveItem(
+                                                          item.id,
+                                                          p.id,
+                                                        ),
+                                                    })),
+                                                },
+                                                {
+                                                  id: "delete",
+                                                  value: "delete",
                                                   onSelect: () =>
-                                                    this.props.moveItem(
+                                                    this.props.deleteItem(
                                                       item.id,
-                                                      p.id,
                                                     ),
-                                                })),
-                                            },
-                                            {
-                                              id: "delete",
-                                              value: "delete",
-                                              onSelect: () =>
-                                                this.props.deleteItem(item.id),
-                                              label: "Delete",
-                                              intent: "danger",
-                                            },
-                                          ]}
-                                          toggle={{
-                                            type: "icon",
-                                            icon: "MORE_HORIZONTAL_CONTROL",
-                                            iconSize: theme.fontSizes[4],
-                                          }}
-                                          className="more"
-                                        />
-                                      </React.Fragment>
+                                                  label: "Delete",
+                                                  intent: "danger",
+                                                },
+                                              ]}
+                                              toggle={{
+                                                type: "icon",
+                                                icon: "MORE_HORIZONTAL_CONTROL",
+                                                iconSize: theme.fontSizes[4],
+                                              }}
+                                              className="more"
+                                            />
+                                          </React.Fragment>
+                                        )}
+                                      </ItemContainer>
                                     )}
-                                  </ItemContainer>
+                                  </Draggable>
                                 ))}
                               </div>
                             </PageDropContainer>

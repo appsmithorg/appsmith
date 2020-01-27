@@ -38,7 +38,8 @@ function* createDatasourceSaga(
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       actionPayload.payload,
     );
-    if (response.responseMeta.success) {
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
@@ -49,7 +50,7 @@ function* createDatasourceSaga(
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.CREATE_DATASOURCE_ERROR,
+      type: ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR,
       payload: { error },
     });
   }

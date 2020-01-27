@@ -112,7 +112,7 @@ class ApiSidebar extends React.Component<Props> {
       .map(a => a.name);
     let name = action.name;
     if (pageApiNames.indexOf(action.name) > -1) {
-      name = getNextEntityName(`${name}-`, pageApiNames);
+      name = getNextEntityName(name, pageApiNames);
     }
     this.props.moveAction(itemId, destinationPageId, name, action.pageId);
   };
@@ -124,7 +124,7 @@ class ApiSidebar extends React.Component<Props> {
       .map(a => a.name);
     let name = `${action.name}Copy`;
     if (pageApiNames.indexOf(name) > -1) {
-      name = getNextEntityName(`${name}`, pageApiNames);
+      name = getNextEntityName(name, pageApiNames);
     }
     this.props.copyAction(itemId, destinationPageId, name);
   };

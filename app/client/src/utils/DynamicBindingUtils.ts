@@ -7,6 +7,12 @@ import unescapeJS from "unescape-js";
 import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 import toposort from "toposort";
 
+export const removeBindingsFromObject = (obj: object) => {
+  const string = JSON.stringify(obj);
+  const withBindings = string.replace(DATA_BIND_REGEX, "{{ }}");
+  return JSON.parse(withBindings);
+};
+
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
@@ -267,7 +273,7 @@ export function dependencySortedEvaluateDataTree(
   dependencyTree: Array<[string, string]>,
   parseValues: boolean,
 ) {
-  const tree = JSON.parse(JSON.stringify(dataTree));
+  const tree = _.cloneDeep(dataTree);
   try {
     // sort dependencies
     const sortedDependencies = toposort(dependencyTree).reverse();

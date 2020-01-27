@@ -105,6 +105,18 @@ const actionsReducer = createReducer(initialState, {
       return restAction;
     }),
   }),
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.map(restAction => {
+      if (restAction.id === action.payload.id) {
+        return action.payload;
+      }
+      return restAction;
+    }),
+  }),
   [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string; originalPageId: string }>,
