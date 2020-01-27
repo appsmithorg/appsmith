@@ -5,9 +5,11 @@ import {
   API_EDITOR_URL,
   BUILDER_URL,
   API_EDITOR_ID_URL,
+  PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import ApiSidebar from "pages/Editor/ApiSidebar";
+import PageListSidebar from "pages/Editor/PageListSidebar";
 
 const SidebarWrapper = styled.div`
   background-color: ${props => props.theme.colors.paneBG};
@@ -23,6 +25,11 @@ export const Sidebar = () => {
         <Route exact path={BUILDER_URL} component={WidgetSidebar} />
         <Route exact path={API_EDITOR_URL()} component={ApiSidebar} />
         <Route exact path={API_EDITOR_ID_URL()} component={ApiSidebar} />
+        <Route
+          exact
+          path={PAGE_LIST_EDITOR_URL()}
+          component={PageListSidebar}
+        />
       </Switch>
     </SidebarWrapper>
   );

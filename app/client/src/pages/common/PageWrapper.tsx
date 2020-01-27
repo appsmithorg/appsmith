@@ -35,7 +35,6 @@ const PageBody = styled.div`
   justify-content: flex-start;
   align-items: flex-start;
   margin: ${props => props.theme.spaces[12]}px auto;
-  background: ${props => props.theme.colors.bodyBG};
   & > * {
     width: 100%;
   }

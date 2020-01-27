@@ -80,7 +80,8 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
 
   const renderer: ItemRenderer<ContextDropdownOption> = (
     option: ContextDropdownOption,
-  ) => <DropdownItem {...option} />;
+  ) => <DropdownItem key={option.id} {...option} />;
+
   return (
     <Dropdown
       popoverProps={{

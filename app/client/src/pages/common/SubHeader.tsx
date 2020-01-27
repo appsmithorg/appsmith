@@ -13,7 +13,8 @@ const SubHeaderWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 ${props => props.theme.spaces[5]}px;
+  padding: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
 `;
 const StyledAddButton = styled(Button)<IIconProps>`
   &&& {

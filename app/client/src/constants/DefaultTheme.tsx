@@ -56,7 +56,7 @@ const getHoverAndActiveStyles = (color: Color, filled = true) => {
 };
 
 export const BlueprintButtonIntentsCSS = css`
-  &&&.bp3-button {
+  &&.bp3-button {
     box-shadow: none;
     display: flex;
     border-width: 1px;
@@ -91,8 +91,7 @@ export const BlueprintButtonIntentsCSS = css`
     ${getHoverAndActiveStyles(IntentColors.warning)}
   }
 
-  &&&.bp3-minimal.bp3-button {
-    color: ${IntentColors.secondary};
+  &&.bp3-minimal.bp3-button {
     border: none;
     border-color: ${IntentColors.none};
     & span.bp3-icon {

@@ -15,7 +15,6 @@ const IconContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
   margin-bottom: 5px;
   background-color: ${props => props.theme.colors.menuButtonBGInactive};
   border-radius: ${props => props.theme.radii[1]}px;
@@ -32,7 +31,7 @@ const ItemContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 70px;
+    padding:${props => props.theme.spaces[5]}px 0;
     color: ${props => props.theme.colors.textOnDarkBG}
     font-size: ${props => props.theme.fontSizes[1]}px;
     cursor: pointer;
@@ -62,7 +61,7 @@ class NavBarItem extends React.Component<Props> {
       <ItemContainer>
         <NavLink exact={exact} to={path}>
           <React.Fragment>
-            <IconContainer>{icon()}</IconContainer>
+            <IconContainer>{icon({ width: 24, height: 24 })}</IconContainer>
             {title}
           </React.Fragment>
         </NavLink>

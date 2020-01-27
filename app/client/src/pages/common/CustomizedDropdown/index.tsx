@@ -31,6 +31,7 @@ export type CustomizedDropdownOption = {
   onSelect?: () => void;
   intent?: Intent;
   shouldCloseDropdown?: boolean;
+  disabled?: boolean;
 };
 
 export type CustomizedDropdownProps = {
@@ -55,7 +56,8 @@ const getContentSection = (section: CustomizedDropdownOptionSection) => {
               key={index}
               className={shouldClose ? Classes.POPOVER_DISMISS : ""}
               onClick={option.onSelect}
-              active={option.active === undefined ? true : option.active}
+              active={!!option.active}
+              disabled={!!option.disabled}
             >
               {option.content}
             </Option>

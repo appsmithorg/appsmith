@@ -13,6 +13,8 @@ export const IconWrapper = styled.div<IconProps>`
     outline: none;
   }
   display: inline-block;
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
   svg {
     width: ${props => props.width || props.theme.fontSizes[7]}px;
     height: ${props => props.height || props.theme.fontSizes[7]}px;
