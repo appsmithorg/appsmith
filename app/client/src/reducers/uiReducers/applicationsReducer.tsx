@@ -14,6 +14,18 @@ const initialState: ApplicationsReduxState = {
 };
 
 const applicationsReducer = createReducer(initialState, {
+  [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationId: string }>,
+  ) => {
+    const _apps = state.applicationList.filter(
+      application => application.id !== action.payload.applicationId,
+    );
+    return {
+      ...state,
+      applicationList: _apps,
+    };
+  },
   [ReduxActionTypes.FETCH_APPLICATION_LIST_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),

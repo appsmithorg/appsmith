@@ -16,7 +16,6 @@ const Wrapper = styled.div`
 const NavBar = styled.div`
   background-color: ${props => props.theme.colors.navBG};
   color: ${props => props.theme.colors.textOnDarkBG};
-  padding: ${props => props.theme.spaces[3]}px 0px;
 `;
 
 const EditorSidebar = styled(SidebarComponent)`

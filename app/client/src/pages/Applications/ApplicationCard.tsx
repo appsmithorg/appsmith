@@ -125,42 +125,48 @@ const viewControlIcon = ControlIcons.VIEW_CONTROL({
 type ApplicationCardProps = {
   application: ApplicationPayload;
   loading: boolean;
-  duplicate: (applicationId: string) => void;
-  share: (applicationId: string) => void;
-  delete: (applicationId: string) => void;
+  duplicate?: (applicationId: string) => void;
+  share?: (applicationId: string) => void;
+  delete?: (applicationId: string) => void;
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const duplicateApp = () => {
-    props.duplicate(props.application.id);
+    props.duplicate && props.duplicate(props.application.id);
   };
   const shareApp = () => {
-    props.share(props.application.id);
+    props.share && props.share(props.application.id);
   };
   const deleteApp = () => {
-    props.delete(props.application.id);
+    props.delete && props.delete(props.application.id);
   };
-  const moreActionItems: ContextDropdownOption[] = [
-    {
-      id: "duplicate",
-      value: "duplicate",
-      onSelect: duplicateApp,
-      label: "Duplicate",
-    },
-    {
+  const moreActionItems: ContextDropdownOption[] = [];
+  if (props.share) {
+    moreActionItems.push({
       id: "share",
       value: "share",
       onSelect: shareApp,
       label: "Share",
-    },
-    {
+    });
+  }
+  if (props.duplicate) {
+    moreActionItems.push({
+      id: "duplicate",
+      value: "duplicate",
+      onSelect: duplicateApp,
+      label: "Duplicate",
+    });
+  }
+  if (props.delete) {
+    moreActionItems.push({
       id: "delete",
       value: "delete",
       onSelect: deleteApp,
       label: "Delete",
       intent: "danger",
-    },
-  ];
+    });
+  }
+
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,
     props.application.defaultPageId,

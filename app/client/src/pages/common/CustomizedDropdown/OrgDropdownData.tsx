@@ -3,41 +3,42 @@ import Badge from "./Badge";
 import { Directions } from "utils/helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import DropdownComponent, { CustomizedDropdownProps } from "./index";
-import { Link } from "react-router-dom";
+import { CustomizedDropdownProps } from "./index";
+
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
+import history from "utils/history";
 
-const switchdropdown = (orgs: Org[]): CustomizedDropdownProps => ({
-  sections: [
-    {
-      isSticky: true,
-      options: [
-        {
-          content: "Create Organization",
-          onSelect: () => getOnSelectAction(DropdownOnSelectActions.FORM, {}),
-        },
-      ],
-    },
-    {
-      options: orgs.map(org => ({
-        content: org.name,
-        onSelect: () =>
-          getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-            type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-            payload: {
-              organizationId: org.id,
-            },
-          }),
-      })),
-    },
-  ],
-  trigger: {
-    text: "Switch Organization",
-  },
-  openDirection: Directions.RIGHT,
-  openOnHover: false,
-});
+// const switchdropdown = (orgs: Org[]): CustomizedDropdownProps => ({
+//   sections: [
+//     {
+//       isSticky: true,
+//       options: [
+//         {
+//           content: "Create Organization",
+//           onSelect: () => getOnSelectAction(DropdownOnSelectActions.FORM, {}),
+//         },
+//       ],
+//     },
+//     {
+//       options: orgs.map(org => ({
+//         content: org.name,
+//         onSelect: () =>
+//           getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+//             type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
+//             payload: {
+//               organizationId: org.id,
+//             },
+//           }),
+//       })),
+//     },
+//   ],
+//   trigger: {
+//     text: "Switch Organization",
+//   },
+//   openDirection: Directions.RIGHT,
+//   openOnHover: false,
+// });
 
 export const options = (
   orgs: Org[],
@@ -51,38 +52,35 @@ export const options = (
           content: (
             <Badge
               text={currentOrg.name}
-              subtext="2 Projects"
               imageURL="https://via.placeholder.com/32"
             />
           ),
-          active: false,
-        },
-        {
-          content: <Link to="/org/settings">Organization Settings</Link>,
-        },
-        {
-          content: <Link to="/applications">Applications</Link>,
-        },
-        {
-          content: <Link to="/org/users">Members</Link>,
-        },
-        {
-          content: <Link to="/org/biling">Usage & Billing</Link>,
-        },
-        {
-          content: <Link to="/org/support">Support</Link>,
-        },
-        {
-          content: <DropdownComponent {...switchdropdown(orgs)} />,
+          disabled: true,
           shouldCloseDropdown: false,
         },
         {
-          content: "Switch To Personal Workspace",
+          content: "Organization Settings",
           onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-              type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-              payload: { organizationId: currentOrg.id },
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: "/org/settings",
             }),
+          active: history.location.pathname === "/org/settings",
+        },
+        {
+          content: "Applications",
+          onSelect: () =>
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: "/applications",
+            }),
+          active: history.location.pathname === "/applications",
+        },
+        {
+          content: "Members",
+          onSelect: () =>
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: "/org/users",
+            }),
+          active: history.location.pathname === "/org/users",
         },
       ],
     },
@@ -96,15 +94,8 @@ export const options = (
               imageURL="https://via.placeholder.com/32"
             />
           ),
-          active: false,
-        },
-        {
-          content: "Settings",
-          onSelect: () =>
-            getOnSelectAction(
-              DropdownOnSelectActions.REDIRECT,
-              "/org/settings",
-            ),
+          disabled: true,
+          shouldCloseDropdown: false,
         },
         {
           content: "Sign Out",

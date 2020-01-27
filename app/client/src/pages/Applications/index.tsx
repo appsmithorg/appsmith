@@ -19,7 +19,6 @@ import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
-import { noop } from "utils/AppsmithUtils";
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
@@ -35,7 +34,8 @@ type ApplicationProps = {
   isCreatingApplication: boolean;
   isFetchingApplications: boolean;
   createApplicationError?: string;
-  searchApplications?: (keyword: string) => void;
+  searchApplications: (keyword: string) => void;
+  deleteApplication: (id: string) => void;
 };
 
 class Applications extends Component<ApplicationProps> {
@@ -73,9 +73,7 @@ class Applications extends Component<ApplicationProps> {
                   key={application.id}
                   loading={this.props.isFetchingApplications}
                   application={application}
-                  share={noop}
-                  duplicate={noop}
-                  delete={noop}
+                  delete={this.props.deleteApplication}
                 />
               )
             );
@@ -111,6 +109,16 @@ const mapDispatchToProps = (dispatch: any) => ({
         keyword,
       },
     });
+  },
+  deleteApplication: (applicationId: string) => {
+    if (applicationId && applicationId.length > 0) {
+      dispatch({
+        type: ReduxActionTypes.DELETE_APPLICATION_INIT,
+        payload: {
+          applicationId,
+        },
+      });
+    }
   },
 });
 

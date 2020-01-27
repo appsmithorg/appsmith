@@ -114,7 +114,7 @@ class Editor extends Component<EditorProps> {
           onCreatePage={this.handleCreatePage}
           pages={this.props.pages}
           currentPageId={this.props.currentPageId}
-          switchToPage={this.redirectToPage}
+          currentApplicationId={this.props.currentApplicationId}
           isPublishing={this.props.isPublishing}
           publishedTime={this.props.publishedTime}
         />

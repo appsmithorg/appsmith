@@ -21,6 +21,8 @@ import PageApi, {
   FetchPublishedPageResponse,
   CreatePageRequest,
   FetchPageListResponse,
+  UpdatePageRequest,
+  DeletePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -38,6 +40,7 @@ import { validateResponse } from "./ErrorSagas";
 import { RenderModes } from "constants/WidgetConstants";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { executePageLoadActions } from "actions/widgetActions";
+import { ApiResponse } from "api/ApiResponses";
 
 export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
@@ -53,6 +56,7 @@ export function* fetchPageListSaga(
       const pages: PageListPayload = response.data.map(page => ({
         pageName: page.name,
         pageId: page.id,
+        isDefault: page.isDefault,
       }));
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
@@ -230,7 +234,6 @@ export function* createPageSaga(
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const canvasPayload = getCanvasWidgetsPayload(response);
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
         payload: {
@@ -239,11 +242,50 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
-      yield put(updateCanvas(canvasPayload));
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
+  try {
+    const request: UpdatePageRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.updatePage, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
+  try {
+    const request: DeletePageRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.deletePage, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_PAGE_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_PAGE_ERROR,
       payload: {
         error,
       },
@@ -266,5 +308,7 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
+    takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
+    takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
   ]);
 }

@@ -52,6 +52,11 @@ export interface CreatePageRequest {
   name: string;
 }
 
+export interface UpdatePageRequest {
+  id: string;
+  name: string;
+}
+
 export interface CreatePageResponse extends ApiResponse {
   data: {};
 }
@@ -60,8 +65,13 @@ export interface FetchPageListResponse extends ApiResponse {
   data: Array<{
     id: string;
     name: string;
+    isDefault: boolean;
     layouts: Array<PageLayout>;
   }>;
+}
+
+export interface DeletePageRequest {
+  pageId: string;
 }
 
 class PageApi extends Api {
@@ -73,6 +83,8 @@ class PageApi extends Api {
   static getPublishedPageURL = (pageId: string) => {
     return `v1/pages/${pageId}/view`;
   };
+
+  static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
 
   static fetchPage(
     pageRequest: FetchPageRequest,
@@ -105,10 +117,18 @@ class PageApi extends Api {
     return Api.post(PageApi.url, createPageRequest);
   }
 
+  static updatePage(request: UpdatePageRequest): AxiosPromise<ApiResponse> {
+    return Api.put(PageApi.updatePageUrl(request.id), request);
+  }
+
   static fetchPageList(
     applicationId: string,
   ): AxiosPromise<FetchPageListResponse> {
     return Api.get(PageApi.url + "/application/" + applicationId);
+  }
+
+  static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
+    return Api.delete(PageApi.url + "/" + request.pageId);
   }
 }
 
