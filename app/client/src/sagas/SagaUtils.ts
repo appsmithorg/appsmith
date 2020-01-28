@@ -4,7 +4,7 @@ export const getDefaultPageId = (
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
   if (pages) {
-    pages.find(page => page.isDefault);
+    defaultPage = pages.find(page => page.isDefault);
     if (!defaultPage) {
       defaultPage = pages[0];
     }

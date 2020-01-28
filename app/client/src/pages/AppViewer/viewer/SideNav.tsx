@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Menu, IconName, Button, Icon } from "@blueprintjs/core";
+import { Menu, Button } from "@blueprintjs/core";
 import SideNavItem, { SideNavItemProps } from "./SideNavItem";
-
+import LetterIcon from "components/editorComponents/LetterIcon";
 type SideNavProps = {
   items?: SideNavItemProps[];
   active?: string;
   headeroffset?: number;
-  iconSize?: number;
 };
 
 /* eslint-disable no-unexpected-multiline */
@@ -21,25 +20,23 @@ const SideNavWrapper = styled.div<{
       props.open
         ? props.theme.sideNav.maxWidth
         : props.theme.sideNav.minWidth}px;
-    transition: width 0.3s ease-in-out;
+    transition: width 0.1s ease-in;
     height: 100%;
     & ul {
       min-width: ${props => props.theme.sideNav.minWidth}px;
       overflow-y: auto;
+      & a {
+        text-decoration: none;
+        color: ${props => props.theme.colors.textOnDarkBG};
+      }
       & li > div {
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0;
+        padding: 0 ${props => (props.open ? props.theme.spaces[6] : 0)}px;
         height: ${props => props.theme.sideNav.navItemHeight}px;
         text-transform: capitalize;
-        & > div {
-          flex-grow: 0;
-          display: inline;
-          width: ${props => (props.open ? 100 : 0)}px;
-          color: ${props => props.theme.sideNav.fontColor};
-        }
         & > span {
           margin-right: ${props => (props.open ? props.theme.spaces[3] : 0)}px;
         }
@@ -64,7 +61,7 @@ const ToggleButton = styled(Button)<{
     height: ${props => props.headeroffset || 50}px;
     justify-content: flex-end;
     padding-right: ${props => props.theme.sideNav.minWidth / 2}px;
-    transition: width 0.3s ease-in-out;
+    transition: width 0.1s ease-in;
   }
 `;
 
@@ -74,16 +71,19 @@ export const SideNav = (props: SideNavProps) => {
     let items = sideNavItems;
     if (!items) {
       items = [
-        { id: "0", text: "", path: "", loading: true },
-        { id: "1", text: "", path: "", loading: true },
-        { id: "2", text: "", path: "", loading: true },
+        { id: "0", text: "", path: "", loading: true, showText: true },
+        { id: "1", text: "", path: "", loading: true, showText: true },
+        { id: "2", text: "", path: "", loading: true, showText: true },
       ];
     }
     return items.map(item => {
-      const icon = (
-        <Icon iconSize={props.iconSize} icon={item.icon as IconName} />
+      const icon =
+        item.text.length > 0 ? (
+          <LetterIcon text={item.text[0].toUpperCase()} />
+        ) : null;
+      return (
+        <SideNavItem key={item.id} showText={open} {...item} icon={icon} />
       );
-      return <SideNavItem key={item.id} {...item} icon={icon} />;
     });
   };
   const toggleCollapse = () => {
