@@ -38,6 +38,7 @@ export type CustomizedDropdownProps = {
   sections: CustomizedDropdownOptionSection[];
   trigger: ButtonProps & {
     content?: ReactNode;
+    size?: "large" | "small";
   };
   openDirection: Direction;
   openOnHover?: boolean;
@@ -84,6 +85,7 @@ export const CustomizedDropdown = (
         <Button
           outline={props.trigger.outline}
           filled={props.trigger.filled}
+          size={props.trigger.size}
           icon={getDirectionBased.ICON_NAME(props.openDirection) as IconName}
           iconAlignment={Directions.RIGHT}
           text={props.trigger.text}
