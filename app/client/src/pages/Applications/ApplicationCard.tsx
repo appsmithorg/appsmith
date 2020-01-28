@@ -95,14 +95,21 @@ const ApplicationTitle = styled.div`
 `;
 
 const ApplicationImage = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  & {
-    .control {
-      display: none;
+  && {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    & {
+      .control {
+        display: none;
+        button {
+          span {
+            font-weight: ${props => props.theme.fontWeights[3]};
+          }
+        }
+      }
     }
   }
 `;
@@ -183,7 +190,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         <span>{props.application.name}</span>
         <Link to={viewApplicationURL}>
           <Control className="control">
-            <Tooltip content="View Application" hoverOpenDelay={500}>
+            <Tooltip content="Launch App" hoverOpenDelay={500}>
               {viewControlIcon}
             </Tooltip>
           </Control>
@@ -207,6 +214,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               intent="primary"
               icon="edit"
               iconAlignment="left"
+              size="small"
             />
           </Control>
         </ApplicationImage>

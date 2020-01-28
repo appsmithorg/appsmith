@@ -10,13 +10,16 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { labelStyle } from "constants/DefaultTheme";
+
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
     & > label {
+      ${labelStyle}
       flex: 0 1 30%;
       align-self: flex-start;
       text-align: right;
-      margin: 0 ${WIDGET_PADDING}px 0 0;
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
     }
   }
 `;

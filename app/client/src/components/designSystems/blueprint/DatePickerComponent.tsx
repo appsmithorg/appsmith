@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { labelStyle } from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
@@ -11,9 +12,10 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
     label {
+      ${labelStyle}
       flex: 0 1 30%;
       text-align: right;
-      margin: 0 ${WIDGET_PADDING}px 0 0;
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
       align-self: center;
     }
   }

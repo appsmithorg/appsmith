@@ -5,9 +5,9 @@ import { AppState } from "reducers";
 
 const PositionStyle = styled.div<{ selected?: boolean }>`
   position: absolute;
-  top: -${props => props.theme.spaces[10]}px;
-  left: ${props => props.theme.spaces[6] * 2}px;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  top: -${props => props.theme.spaces[7]}px;
+  left: ${props => props.theme.spaces[6]}px;
+  font-size: ${props => props.theme.fontSizes[2]}px;
   font-weight: ${props => props.theme.fontWeights[2]};
   text-align: left;
   width: 100%;
@@ -15,7 +15,7 @@ const PositionStyle = styled.div<{ selected?: boolean }>`
   display: inline-block;
   & pre {
     display: inline;
-    padding: 5px;
+    padding: 3px;
     background: ${props =>
       props.selected
         ? props.theme.colors.widgetBorder

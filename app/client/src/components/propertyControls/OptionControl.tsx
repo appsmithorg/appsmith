@@ -15,7 +15,7 @@ import { AnyStyledComponent } from "styled-components";
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 5px 5px;
   position: absolute;
-  right: -13px;
+  right: -4px;
   cursor: pointer;
 `;
 
