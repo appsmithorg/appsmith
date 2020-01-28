@@ -87,14 +87,15 @@ const DragLayerComponent = (props: DragLayerProps) => {
         setBounds={props.onBoundsUpdate}
       />
 
-      <DropZone
-        {...props}
-        visible={props.visible && props.isOver}
-        width={widgetWidth}
-        height={widgetHeight}
-        currentOffset={currentOffset as XYCoord}
-        canDrop={canDrop}
-      />
+      {props.visible && props.isOver && currentOffset && (
+        <DropZone
+          {...props}
+          width={widgetWidth}
+          height={widgetHeight}
+          currentOffset={currentOffset as XYCoord}
+          canDrop={canDrop}
+        />
+      )}
     </WrappedDragLayer>
   );
 };
