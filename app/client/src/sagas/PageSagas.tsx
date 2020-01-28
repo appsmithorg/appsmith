@@ -21,17 +21,16 @@ import PageApi, {
   FetchPublishedPageResponse,
   CreatePageRequest,
   FetchPageListResponse,
+  UpdatePageRequest,
+  DeletePageRequest,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   call,
   select,
   put,
-  race,
-  delay,
   takeLatest,
   takeEvery,
-  take,
   all,
 } from "redux-saga/effects";
 
@@ -40,8 +39,8 @@ import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { RenderModes } from "constants/WidgetConstants";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { fetchActions } from "actions/actionActions";
 import { executePageLoadActions } from "actions/widgetActions";
+import { ApiResponse } from "api/ApiResponses";
 
 export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
@@ -57,6 +56,7 @@ export function* fetchPageListSaga(
       const pages: PageListPayload = response.data.map(page => ({
         pageName: page.name,
         pageId: page.id,
+        isDefault: page.isDefault,
       }));
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
@@ -107,17 +107,8 @@ export function* fetchPageSaga(
     if (isValidResponse) {
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      // Get actions for the page
-      yield put(fetchActions(pageRequest));
-      // Wait for actions to be fetched
-      const { success } = yield race({
-        success: take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
-        timeout: delay(10 * 1000),
-      });
-      if (success) {
-        // Execute page load actions
-        yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
-      }
+      // Execute page load actions
+      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
       // dispatch fetch page success
@@ -148,17 +139,9 @@ export function* fetchPublishedPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
-      // Get actions for the page
-      yield put(fetchActions(request));
-      // Wait for actions to be fetched
-      const { success } = yield race({
-        success: take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
-        timeout: delay(10 * 1000),
-      });
-      if (success) {
-        // Execute page load actions
-        yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
-      }
+      // Execute page load actions
+      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
+      yield put(updateCanvas(canvasWidgetsPayload));
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
         payload: {
@@ -168,7 +151,6 @@ export function* fetchPublishedPageSaga(
           pageWidgetId: canvasWidgetsPayload.pageWidgetId,
         },
       });
-      yield put(updateCanvas(canvasWidgetsPayload));
     }
   } catch (error) {
     yield put({
@@ -252,7 +234,6 @@ export function* createPageSaga(
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const canvasPayload = getCanvasWidgetsPayload(response);
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
         payload: {
@@ -261,11 +242,50 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
         },
       });
-      yield put(updateCanvas(canvasPayload));
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
+  try {
+    const request: UpdatePageRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.updatePage, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
+  try {
+    const request: DeletePageRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.deletePage, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_PAGE_SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_PAGE_ERROR,
       payload: {
         error,
       },
@@ -288,5 +308,7 @@ export default function* pageSagas() {
     ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
+    takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
+    takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
   ]);
 }

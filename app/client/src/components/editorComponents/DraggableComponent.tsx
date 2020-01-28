@@ -4,16 +4,23 @@ import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
 import blankImage from "assets/images/blank.png";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
-import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
+import {
+  WIDGET_CLASSNAME_PREFIX,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
 import { theme, getColorWithOpacity } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import {
+  useWidgetSelection,
+  useShowPropertyPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -33,13 +40,22 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
 const WidgetBoundaries = styled.div`
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 0;
   width: 100%;
   height: 100%;
   border: 1px dashed
     ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   position: absolute;
   pointer-events: none;
+`;
+
+const ClickCaptureMask = styled.div`
+  position: absolute;
+  left: 0;
+  top: 5%;
+  width: 100%;
+  height: 95%;
+  z-index: 2;
 `;
 
 const DragHandle = styled.div`
@@ -84,16 +100,25 @@ type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 /* eslint-disable react/display-name */
 
 const DraggableComponent = (props: DraggableComponentProps) => {
-  const {
-    focusedWidget,
-    selectedWidget,
-    focusWidget,
-    selectWidget,
-    showPropertyPane,
-  } = useContext(FocusContext);
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget, focusWidget } = useWidgetSelection();
+  const { setIsDragging } = useWidgetDragResize();
 
   const propertyPaneState: PropertyPaneReduxState = useSelector(
     (state: AppState) => state.ui.propertyPane,
+  );
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.editor.focusedWidget,
+  );
+
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
   const editControlIcon = ControlIcons.EDIT_CONTROL({
@@ -113,12 +138,8 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
   const { updateWidget } = useContext(EditorContext);
 
-  const { isResizing, setIsDragging, isDragging } = useContext(
-    DragResizeContext,
-  );
-
-  const disableWidgetDrag: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragging.disable,
+  const isDraggingDisabled: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
   const deleteWidget = () => {
@@ -130,7 +151,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   };
 
   const togglePropertyEditor = (e: any) => {
-    if (!propertyPaneState.isVisible) {
+    if (
+      (!propertyPaneState.isVisible &&
+        props.widgetId === propertyPaneState.widgetId) ||
+      props.widgetId !== propertyPaneState.widgetId
+    ) {
       showPropertyPane && showPropertyPane(props.widgetId);
     } else {
       showPropertyPane && showPropertyPane();
@@ -147,19 +172,26 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     begin: () => {
       showPropertyPane && showPropertyPane(undefined, true);
       selectWidget && selectWidget(props.widgetId);
-      setIsDragging && setIsDragging(props.widgetId);
+      setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
-      setIsDragging && setIsDragging(undefined);
+      setIsDragging && setIsDragging(false);
     },
     canDrag: () => {
-      return !isResizing && !disableWidgetDrag;
+      return !isResizing && !isDraggingDisabled;
     },
   });
 
+  let stackingContext = 0;
+  if (props.widgetId === selectedWidget) {
+    stackingContext = 1;
+  }
+  if (props.widgetId === focusedWidget) {
+    stackingContext = 2;
+  }
   const isResizingOrDragging =
     selectedWidget !== props.widgetId && (!!isResizing || !!isDragging);
 
@@ -175,20 +207,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           e.stopPropagation();
         }}
         onMouseLeave={(e: any) => {
-          focusWidget && focusWidget(null);
+          focusWidget && focusWidget();
           e.stopPropagation();
         }}
         onClick={(e: any) => {
           selectWidget && selectWidget(props.widgetId);
-          if (
-            propertyPaneState.widgetId &&
-            propertyPaneState.widgetId !== props.widgetId
-          ) {
-            showPropertyPane && showPropertyPane();
-          }
-          e.stopPropagation();
-        }}
-        onDoubleClick={(e: any) => {
           showPropertyPane && showPropertyPane(props.widgetId);
           e.stopPropagation();
         }}
@@ -207,18 +230,28 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           height: "100%",
           userSelect: "none",
           cursor: "drag",
-          zIndex: props.widgetId === selectedWidget ? 3 : 1,
+          zIndex: stackingContext,
         }}
       >
-        <WidgetBoundaries
-          style={{ display: isResizingOrDragging ? "block" : "none" }}
-        />
+        {selectedWidget !== props.widgetId &&
+          props.type !== WidgetTypes.CONTAINER_WIDGET && (
+            <ClickCaptureMask
+              onClick={(e: any) => {
+                selectWidget && selectWidget(props.widgetId);
+                showPropertyPane && showPropertyPane(props.widgetId);
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            />
+          )}
+
         {props.children}
-        <DragHandle className="control" ref={drag}>
+
+        {/* <DragHandle className="control" ref={drag}>
           <Tooltip content="Move" hoverOpenDelay={500}>
             {moveControlIcon}
           </Tooltip>
-        </DragHandle>
+        </DragHandle> */}
         <DeleteControl className="control" onClick={deleteWidget}>
           <Tooltip content="Delete" hoverOpenDelay={500}>
             {deleteControlIcon}
@@ -229,6 +262,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             {editControlIcon}
           </Tooltip>
         </EditControl>
+        <WidgetBoundaries
+          style={{ display: isResizingOrDragging ? "block" : "none" }}
+        />
       </DraggableWrapper>
     </React.Fragment>
   );

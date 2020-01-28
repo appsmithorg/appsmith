@@ -3,8 +3,15 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
-import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 import unescapeJS from "unescape-js";
+import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
+import toposort from "toposort";
+
+export const removeBindingsFromObject = (obj: object) => {
+  const string = JSON.stringify(obj);
+  const withBindings = string.replace(DATA_BIND_REGEX, "{{ }}");
+  return JSON.parse(withBindings);
+};
 
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -51,11 +58,34 @@ export function parseDynamicString(dynamicString: string): string[] {
   return parsedDynamicValues;
 }
 
+const getAllPaths = (
+  tree: Record<string, any>,
+  prefix = "",
+): Record<string, true> => {
+  return Object.keys(tree).reduce((res: Record<string, true>, el): Record<
+    string,
+    true
+  > => {
+    if (Array.isArray(tree[el])) {
+      const key = `${prefix}${el}`;
+      return { ...res, [key]: true };
+    } else if (typeof tree[el] === "object" && tree[el] !== null) {
+      const key = `${prefix}${el}`;
+      return { ...res, [key]: true, ...getAllPaths(tree[el], `${key}.`) };
+    } else {
+      const key = `${prefix}${el}`;
+      return { ...res, [key]: true };
+    }
+  }, {});
+};
+
 export const getDynamicBindings = (
   dynamicString: string,
 ): { bindings: string[]; paths: string[] } => {
+  if (!dynamicString) return { bindings: [], paths: [] };
+  const sanitisedString = dynamicString.trim();
   // Get the {{binding}} bound values
-  const bindings = parseDynamicString(dynamicString);
+  const bindings = parseDynamicString(sanitisedString);
   // Get the "binding" path values
   const paths = bindings.map(binding => {
     const length = binding.length;
@@ -105,22 +135,7 @@ export const getDynamicValue = (
     // Get the Data Tree value of those "binding "paths
     const values = paths.map((p, i) => {
       if (p) {
-        const value = evaluateDynamicBoundValue(data, p);
-        // Check if the result is a dynamic value, if so get the value again
-        if (isDynamicValue(value)) {
-          // Check for the paths of this dynamic value
-          const { paths } = getDynamicBindings(value);
-          // If it is the same as it came in, log an error
-          // and return the same value back
-          if (paths.length === 1 && paths[0] === p) {
-            console.error("Binding not correct");
-            return value;
-          }
-          // Evaluate the value again
-          return getDynamicValue(value, data);
-        } else {
-          return value;
-        }
+        return evaluateDynamicBoundValue(data, p);
       } else {
         return bindings[i];
       }
@@ -134,34 +149,161 @@ export const getDynamicValue = (
   return undefined;
 };
 
-export const enhanceWithDynamicValuesAndValidations = (
+export const enhanceWidgetWithValidations = (
   widget: WidgetProps,
-  nameBindingsWithData: NameBindingsWithData,
-  replaceWithParsed: boolean,
 ): WidgetProps => {
   if (!widget) return widget;
   const properties = { ...widget };
   const invalidProps: Record<string, boolean> = {};
   const validationMessages: Record<string, string> = {};
-
-  Object.keys(widget).forEach((property: string) => {
-    let value = widget[property];
-    // Check for dynamic bindings
-    if (widget.dynamicBindings && property in widget.dynamicBindings) {
-      value = getDynamicValue(value, nameBindingsWithData);
-    }
+  Object.keys(properties).forEach((property: string) => {
+    const value = properties[property];
     // Pass it through validation and parse
-    const {
-      isValid,
-      parsed,
-      message,
-    } = ValidationFactory.validateWidgetProperty(widget.type, property, value);
+    const { isValid, message } = ValidationFactory.validateWidgetProperty(
+      widget.type,
+      property,
+      value,
+    );
     // Store all invalid props
     if (!isValid) invalidProps[property] = true;
     // Store validation Messages
     if (message) validationMessages[property] = message;
-    // Replace if flag is turned on
-    if (replaceWithParsed) properties[property] = parsed;
   });
-  return { ...properties, invalidProps, validationMessages };
+  return {
+    ...properties,
+    invalidProps,
+    validationMessages,
+  };
 };
+
+export const getParsedTree = (tree: any) => {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
+    const entity = tree[entityKey];
+    if (entity && entity.type) {
+      const parsedEntity = { ...entity };
+      Object.keys(entity).forEach((property: string) => {
+        const value = entity[property];
+        // Pass it through parse
+        const { parsed } = ValidationFactory.validateWidgetProperty(
+          entity.type,
+          property,
+          value,
+        );
+        parsedEntity[property] = parsed;
+      });
+      return { ...tree, [entityKey]: parsedEntity };
+    }
+    return tree;
+  }, tree);
+};
+
+export const getEvaluatedDataTree = (
+  dataTree: NameBindingsWithData,
+  parseValues: boolean,
+) => {
+  const dynamicDependencyMap = createDependencyTree(dataTree);
+  const evaluatedTree = dependencySortedEvaluateDataTree(
+    dataTree,
+    dynamicDependencyMap,
+    parseValues,
+  );
+  if (parseValues) {
+    return getParsedTree(evaluatedTree);
+  } else {
+    return evaluatedTree;
+  }
+};
+
+type DynamicDependencyMap = Record<string, Array<string>>;
+export const createDependencyTree = (
+  dataTree: NameBindingsWithData,
+): Array<[string, string]> => {
+  const dependencyMap: DynamicDependencyMap = {};
+  const allKeys = getAllPaths(dataTree);
+  Object.keys(dataTree).forEach(entityKey => {
+    const entity = dataTree[entityKey] as WidgetProps;
+    if (entity && entity.dynamicBindings) {
+      Object.keys(entity.dynamicBindings).forEach(prop => {
+        const { paths } = getDynamicBindings(entity[prop]);
+        dependencyMap[`${entityKey}.${prop}`] = paths.filter(p => !!p);
+      });
+    }
+  });
+  Object.keys(dependencyMap).forEach(key => {
+    dependencyMap[key] = _.flatten(
+      dependencyMap[key].map(path => calculateSubDependencies(path, allKeys)),
+    );
+  });
+  const dependencyTree: Array<[string, string]> = [];
+  Object.keys(dependencyMap).forEach((key: string) => {
+    dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+  });
+  return dependencyTree;
+};
+
+const calculateSubDependencies = (
+  path: string,
+  all: Record<string, true>,
+): Array<string> => {
+  const subDeps: Array<string> = [];
+  const identifiers = path.match(/[a-zA-Z_$][a-zA-Z_$0-9.]*/g) || [path];
+  identifiers.forEach((identifier: string) => {
+    if (identifier in all) {
+      subDeps.push(identifier);
+    } else {
+      const subIdentifiers =
+        identifier.match(/[a-zA-Z_$][a-zA-Z_$0-9]*/g) || [];
+      let current = "";
+      for (let i = 0; i < subIdentifiers.length; i++) {
+        const key = `${current}${current ? "." : ""}${subIdentifiers[i]}`;
+        if (key in all) {
+          current = key;
+        } else {
+          break;
+        }
+      }
+      if (current) subDeps.push(current);
+    }
+  });
+  return subDeps;
+};
+
+export function dependencySortedEvaluateDataTree(
+  dataTree: NameBindingsWithData,
+  dependencyTree: Array<[string, string]>,
+  parseValues: boolean,
+) {
+  const tree = _.cloneDeep(dataTree);
+  try {
+    // sort dependencies
+    const sortedDependencies = toposort(dependencyTree).reverse();
+    // evaluate and replace values
+    return sortedDependencies.reduce(
+      (currentTree: NameBindingsWithData, path: string) => {
+        const binding = _.get(currentTree as any, path);
+        const widgetType = _.get(
+          currentTree as any,
+          `${path.split(".")[0]}.type`,
+          null,
+        );
+        let result = binding;
+        if (isDynamicValue(binding)) {
+          result = getDynamicValue(binding, currentTree);
+        }
+        if (widgetType && parseValues) {
+          const { parsed } = ValidationFactory.validateWidgetProperty(
+            widgetType,
+            `${path.split(".")[1]}`,
+            result,
+          );
+          result = parsed;
+        }
+        return _.set(currentTree, path, result);
+      },
+      tree,
+    );
+  } catch (e) {
+    console.error(e);
+    return tree;
+  }
+}

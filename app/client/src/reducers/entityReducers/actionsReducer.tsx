@@ -30,12 +30,36 @@ const actionsReducer = createReducer(initialState, {
     ...state,
     data: [],
   }),
-  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
+  [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
   ) => ({
     ...state,
     data: state.data.concat([action.payload]),
+  }),
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.map(a => {
+      if (
+        a.pageId === action.payload.pageId &&
+        a.name === action.payload.name
+      ) {
+        return action.payload;
+      }
+      return a;
+    }),
+  }),
+  [ReduxActionTypes.CREATE_ACTION_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.filter(
+      a => a.name !== action.payload.name && a.pageId !== action.payload.pageId,
+    ),
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ActionDataState,
@@ -60,6 +84,107 @@ const actionsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     actionToWidgetIdMap: action.payload,
+  }),
+  [ReduxActionTypes.MOVE_ACTION_INIT]: (
+    state: ActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ) => ({
+    ...state,
+    data: state.data.map(restAction => {
+      if (restAction.id === action.payload.id) {
+        return {
+          ...restAction,
+          name: action.payload.name,
+          pageId: action.payload.destinationPageId,
+        };
+      }
+      return restAction;
+    }),
+  }),
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.map(restAction => {
+      if (restAction.id === action.payload.id) {
+        return action.payload;
+      }
+      return restAction;
+    }),
+  }),
+  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; originalPageId: string }>,
+  ) => ({
+    ...state,
+    data: state.data.map(restAction => {
+      if (restAction.id === action.payload.id) {
+        return {
+          ...restAction,
+          pageId: action.payload.originalPageId,
+        };
+      }
+      return restAction;
+    }),
+  }),
+  [ReduxActionTypes.COPY_ACTION_INIT]: (
+    state: ActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ) => ({
+    ...state,
+    data: state.data.concat(
+      state.data
+        .filter(a => a.id === action.payload.id)
+        .map(a => ({
+          ...a,
+          name: action.payload.name,
+          pageId: action.payload.destinationPageId,
+        })),
+    ),
+  }),
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction>,
+  ) => ({
+    ...state,
+    data: state.data.map(a => {
+      if (
+        a.pageId === action.payload.pageId &&
+        a.name === action.payload.name
+      ) {
+        return action.payload;
+      }
+      return a;
+    }),
+  }),
+
+  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<{
+      id: string;
+      destinationPageId: string;
+      name: string;
+    }>,
+  ) => ({
+    ...state,
+    data: state.data.filter(a => {
+      if (a.pageId === action.payload.destinationPageId) {
+        if (a.id === action.payload.id) {
+          return a.name !== action.payload.name;
+        }
+        return true;
+      }
+      return true;
+    }),
   }),
 });
 

@@ -7,7 +7,8 @@ import {
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
-const { baseUrl, apiUrl } = getAppsmithConfigs();
+import { setRouteBeforeLogin } from "utils/storage";
+const { apiUrl, baseUrl } = getAppsmithConfigs();
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
@@ -41,6 +42,9 @@ axiosInstance.interceptors.response.use(
     return response.data;
   },
   function(error: any) {
+    if (error.code === "ECONNABORTED") {
+      console.log("CONNECTION TIMEOUT");
+    }
     if (error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
     }
@@ -51,6 +55,7 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.status);
       // console.log(error.response.headers);
       if (error.response.status === 401) {
+        setRouteBeforeLogin(window.location.pathname);
         window.location.href = AUTH_LOGIN_URL;
       }
       return Promise.reject(error.response.data);

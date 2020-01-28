@@ -6,7 +6,6 @@ import FontFaceObserver from "fontfaceobserver";
 import PropertyControlRegistry from "./PropertyControlRegistry";
 import WidgetBuilderRegistry from "./WidgetRegistry";
 import { Property } from "api/ActionAPI";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import _ from "lodash";
 import moment from "moment-timezone";
 import ValidationRegistry from "./ValidationRegistry";
@@ -58,16 +57,10 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
   });
 };
 
-export const getNextWidgetName = (
-  prefix: string,
-  widgets: {
-    [id: string]: FlattenedWidgetProps;
-  },
-) => {
+export const getNextEntityName = (prefix: string, existingNames: string[]) => {
   const regex = new RegExp(`^${prefix}(\\d+)$`);
-  const usedIndices: number[] = Object.values(widgets).map(widget => {
-    if (widget && widget.widgetName && regex.test(widget.widgetName)) {
-      const name = widget.widgetName || "";
+  const usedIndices: number[] = existingNames.map(name => {
+    if (name && regex.test(name)) {
       const matches = name.match(regex);
       const ind =
         matches && Array.isArray(matches) ? parseInt(matches[1], 10) : 0;
@@ -76,7 +69,7 @@ export const getNextWidgetName = (
     return 0;
   }) as number[];
 
-  const lastIndex = Math.max(...usedIndices);
+  const lastIndex = Math.max(...usedIndices, ...[0]);
 
   return prefix + (lastIndex + 1);
 };

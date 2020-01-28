@@ -31,9 +31,13 @@ import { mapToPropList } from "utils/AppsmithUtils";
 import AppToaster from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import {
+  copyActionError,
+  copyActionSuccess,
   createActionSuccess,
   deleteActionSuccess,
   FetchActionsPayload,
+  moveActionError,
+  moveActionSuccess,
   runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
@@ -41,6 +45,7 @@ import {
   getDynamicBindings,
   getDynamicValue,
   isDynamicValue,
+  removeBindingsFromObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { getDataTree } from "selectors/entitiesSelector";
@@ -52,10 +57,7 @@ import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction } from "actions/widgetActions";
 import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
-import {
-  getNameBindingsWithData,
-  NameBindingsWithData,
-} from "selectors/nameBindingsWithDataSelector";
+import { getParsedDataTree } from "selectors/nameBindingsWithDataSelector";
 import { transformRestAction } from "transformers/RestActionTransformer";
 
 export const getAction = (
@@ -83,8 +85,8 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const nameBindingsWithData = yield select(getNameBindingsWithData);
-  return getDynamicValue(`{{${path}}}`, nameBindingsWithData);
+  const tree = yield select(getParsedDataTree);
+  return getDynamicValue(`{{${path}}}`, tree);
 }
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
@@ -106,12 +108,10 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 }
 
 function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
-  const nameBindingsWithData: NameBindingsWithData = yield select(
-    getNameBindingsWithData,
-  );
+  const tree = yield select(getParsedDataTree);
   const result = JSExecutionManagerSingleton.evaluateSync(
     jsAction.jsFunction,
-    nameBindingsWithData,
+    tree,
   );
 
   yield put({
@@ -264,16 +264,16 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACTION_ERROR,
-      payload: { error },
+      payload: actionPayload.payload,
     });
   }
 }
 
 export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   try {
-    const { pageId } = action.payload;
+    const { applicationId } = action.payload;
     const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActions(
-      pageId,
+      applicationId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -406,6 +406,87 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[]>) {
   }
 }
 
+function* moveActionSaga(
+  action: ReduxAction<{
+    id: string;
+    destinationPageId: string;
+    originalPageId: string;
+    name: string;
+  }>,
+) {
+  const drafts = yield select(state => state.ui.apiPane.drafts);
+  const dirty = action.payload.id in drafts;
+  const actionObject: RestAction = dirty
+    ? drafts[action.payload.id]
+    : yield select(getAction, action.payload.id);
+  const withoutBindings = removeBindingsFromObject(actionObject);
+  try {
+    const response = yield ActionAPI.moveAction({
+      action: {
+        ...withoutBindings,
+        name: action.payload.name,
+      },
+      destinationPageId: action.payload.destinationPageId,
+    });
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AppToaster.show({
+        message: `${response.data.name} Action moved`,
+        intent: Intent.SUCCESS,
+      });
+    }
+    yield put(moveActionSuccess(response.data));
+  } catch (e) {
+    AppToaster.show({
+      message: `Error while moving action ${actionObject.name}`,
+      intent: Intent.DANGER,
+    });
+    yield put(
+      moveActionError({
+        id: action.payload.id,
+        originalPageId: action.payload.originalPageId,
+      }),
+    );
+  }
+}
+
+function* copyActionSaga(
+  action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
+) {
+  const drafts = yield select(state => state.ui.apiPane.drafts);
+  const dirty = action.payload.id in drafts;
+  let actionObject = dirty
+    ? drafts[action.payload.id]
+    : yield select(getAction, action.payload.id);
+  if (action.payload.destinationPageId !== actionObject.pageId) {
+    actionObject = removeBindingsFromObject(actionObject);
+  }
+  try {
+    const copyAction = {
+      ...(_.omit(actionObject, "id") as RestAction),
+      name: action.payload.name,
+      pageId: action.payload.destinationPageId,
+    };
+    const response = yield ActionAPI.createAPI(copyAction);
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AppToaster.show({
+        message: `${actionObject.name} Action copied`,
+        intent: Intent.SUCCESS,
+      });
+    }
+    yield put(copyActionSuccess(response.data));
+  } catch (e) {
+    AppToaster.show({
+      message: `Error while copying action ${actionObject.name}`,
+      intent: Intent.DANGER,
+    });
+    yield put(copyActionError(action.payload));
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
@@ -418,5 +499,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
+    takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
+    takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
   ]);
 }

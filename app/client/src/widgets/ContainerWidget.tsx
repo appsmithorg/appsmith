@@ -8,13 +8,16 @@ import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { Color } from "constants/Colors";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  CONTAINER_GRID_PADDING,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 
 import ResizeBoundsContainerComponent from "components/editorComponents/ResizeBoundsContainerComponent";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 
 const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
-
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   ContainerWidgetState
@@ -34,10 +37,10 @@ class ContainerWidget extends BaseWidget<
     super.componentDidUpdate(previousProps);
     let snapColumnSpace = this.state.snapColumnSpace;
     if (this.state.componentWidth)
-      snapColumnSpace = Math.floor(
-        this.state.componentWidth /
-          (this.props.snapColumns || DEFAULT_GRID_COLUMNS),
-      );
+      snapColumnSpace =
+        (this.state.componentWidth -
+          (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
+        (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
     if (this.state.snapColumnSpace !== snapColumnSpace) {
       this.setState({
         snapColumnSpace,
@@ -70,9 +73,7 @@ class ContainerWidget extends BaseWidget<
   getContainerComponentProps = () => {
     const containerProps: ContainerWidgetProps<WidgetProps> = { ...this.props };
     containerProps.backgroundColor = this.props.backgroundColor || "white";
-    if (!this.props.parentId) {
-      containerProps.containerStyle = "none";
-    }
+
     return containerProps;
   };
 

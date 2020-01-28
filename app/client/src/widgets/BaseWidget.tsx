@@ -10,7 +10,12 @@ import {
   CSSUnits,
 } from "constants/WidgetConstants";
 import React, { Component } from "react";
-import { PositionType, CSSUnit } from "constants/WidgetConstants";
+import {
+  PositionType,
+  CSSUnit,
+  CONTAINER_GRID_PADDING,
+  WidgetTypes,
+} from "constants/WidgetConstants";
 import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -23,6 +28,7 @@ import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 /***
  * BaseWidget
  *
@@ -55,6 +61,10 @@ abstract class BaseWidget<
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {};
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
 
@@ -126,6 +136,7 @@ abstract class BaseWidget<
       componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
+
     if (
       _.isNil(this.state) ||
       widgetState.componentHeight !== this.state.componentHeight ||
@@ -161,16 +172,18 @@ abstract class BaseWidget<
             </PositionedContainer>
           );
         }
-        return (
-          <PositionedContainer style={style}>
-            {this.getCanvasView()}
-          </PositionedContainer>
-        );
+        return this.getCanvasView();
       case RenderModes.PAGE:
         if (this.props.isVisible) {
           return (
-            <PositionedContainer style={this.getPositionStyle()}>
-              {this.getPageView()}
+            <PositionedContainer
+              style={this.getPositionStyle()}
+              isMainContainer={
+                this.props.type === WidgetTypes.CONTAINER_WIDGET &&
+                this.props.widgetId === "0"
+              }
+            >
+              <ErrorBoundary>{this.getPageView()}</ErrorBoundary>
             </PositionedContainer>
           );
         }
@@ -200,8 +213,11 @@ abstract class BaseWidget<
       positionType: PositionTypes.ABSOLUTE,
       componentHeight: this.state.componentHeight,
       componentWidth: this.state.componentWidth,
-      yPosition: this.props.topRow * this.props.parentRowSpace,
-      xPosition: this.props.leftColumn * this.props.parentColumnSpace,
+      yPosition:
+        this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
+      xPosition:
+        this.props.leftColumn * this.props.parentColumnSpace +
+        CONTAINER_GRID_PADDING,
       xPositionUnit: CSSUnits.PIXEL,
       yPositionUnit: CSSUnits.PIXEL,
     };

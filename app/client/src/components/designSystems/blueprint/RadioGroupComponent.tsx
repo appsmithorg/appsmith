@@ -1,27 +1,54 @@
 import React from "react";
+import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { RadioOption } from "widgets/RadioGroupWidget";
-import { RadioGroup, Radio } from "@blueprintjs/core";
+import {
+  RadioGroup,
+  Radio,
+  ControlGroup,
+  Label,
+  Classes,
+} from "@blueprintjs/core";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { labelStyle } from "constants/DefaultTheme";
+
+const StyledControlGroup = styled(ControlGroup)`
+  &&& {
+    & > label {
+      ${labelStyle}
+      flex: 0 1 30%;
+      align-self: flex-start;
+      text-align: right;
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
+    }
+  }
+`;
+
+const StyledRadioGroup = styled(RadioGroup)``;
 
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
-      <RadioGroup
-        label={this.props.label}
-        selectedValue={this.props.selectedOptionValue}
-        onChange={this.onRadioSelectionChange}
-      >
-        {this.props.options.map(option => {
-          return (
-            <Radio
-              className={this.props.isLoading ? "bp3-skeleton" : ""}
-              label={option.label}
-              value={option.value}
-              key={option.id}
-            />
-          );
-        })}
-      </RadioGroup>
+      <StyledControlGroup fill>
+        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+          {this.props.label}
+        </Label>
+        <StyledRadioGroup
+          selectedValue={this.props.selectedOptionValue}
+          onChange={this.onRadioSelectionChange}
+        >
+          {this.props.options.map(option => {
+            return (
+              <Radio
+                className={this.props.isLoading ? "bp3-skeleton" : ""}
+                label={option.label}
+                value={option.value}
+                key={option.id}
+              />
+            );
+          })}
+        </StyledRadioGroup>
+      </StyledControlGroup>
     );
   }
 

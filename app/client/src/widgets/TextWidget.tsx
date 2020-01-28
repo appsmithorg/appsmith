@@ -28,7 +28,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const lines = this.getNumberOfLines();
+    // const lines = this.getNumberOfLines();
     return (
       <TextComponent
         widgetId={this.props.widgetId}
@@ -36,7 +36,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         textStyle={this.props.textStyle}
         text={this.props.text}
         isLoading={this.props.isLoading}
-        lines={lines}
+        shouldScroll={this.props.shouldScroll}
+        // lines={lines}
       />
     );
   }
@@ -52,6 +53,7 @@ export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle: TextStyle;
   isLoading: boolean;
+  shouldScroll: boolean;
 }
 
 export default TextWidget;

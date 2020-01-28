@@ -14,6 +14,18 @@ const initialState: ApplicationsReduxState = {
 };
 
 const applicationsReducer = createReducer(initialState, {
+  [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationId: string }>,
+  ) => {
+    const _apps = state.applicationList.filter(
+      application => application.id !== action.payload.applicationId,
+    );
+    return {
+      ...state,
+      applicationList: _apps,
+    };
+  },
   [ReduxActionTypes.FETCH_APPLICATION_LIST_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),
@@ -51,10 +63,20 @@ const applicationsReducer = createReducer(initialState, {
       createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
     };
   },
+  [ReduxActionTypes.SEARCH_APPLICATIONS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ keyword?: string }>,
+  ) => {
+    return {
+      ...state,
+      searchKeyword: action.payload.keyword,
+    };
+  },
 });
 
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
+  searchKeyword?: string;
   isFetchingApplications: boolean;
   creatingApplication: boolean;
   createApplicationError?: string;

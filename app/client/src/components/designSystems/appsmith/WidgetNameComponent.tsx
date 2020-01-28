@@ -1,12 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-import { FocusContext, DragResizeContext } from "pages/Editor/CanvasContexts";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
 
 const PositionStyle = styled.div<{ selected?: boolean }>`
   position: absolute;
-  top: -${props => props.theme.spaces[10]}px;
-  left: ${props => props.theme.spaces[6] * 2}px;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  top: -${props => props.theme.spaces[7]}px;
+  left: ${props => props.theme.spaces[6]}px;
+  font-size: ${props => props.theme.fontSizes[2]}px;
   font-weight: ${props => props.theme.fontWeights[2]};
   text-align: left;
   width: 100%;
@@ -14,7 +15,7 @@ const PositionStyle = styled.div<{ selected?: boolean }>`
   display: inline-block;
   & pre {
     display: inline;
-    padding: 5px;
+    padding: 3px;
     background: ${props =>
       props.selected
         ? props.theme.colors.widgetBorder
@@ -28,8 +29,19 @@ type WidgetNameComponentProps = {
 };
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
-  const { focusedWidget, selectedWidget } = useContext(FocusContext);
-  const { isResizing, isDragging } = useContext(DragResizeContext);
+  const selectedWidget = useSelector(
+    (state: AppState) => state.ui.editor.selectedWidget,
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.editor.focusedWidget,
+  );
+
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const showWidgetName =
     (focusedWidget === props.widgetId || selectedWidget === props.widgetId) &&

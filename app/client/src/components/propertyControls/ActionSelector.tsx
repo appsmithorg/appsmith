@@ -1,21 +1,12 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledDropDown } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
-import {
-  ActionPayload,
-  ActionType,
-  PropertyPaneActionDropdownOptions,
-} from "constants/ActionConstants";
+import { ActionPayload, ActionType } from "constants/ActionConstants";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { MenuItem, Button } from "@blueprintjs/core";
-import { IItemRendererProps } from "@blueprintjs/select";
-import { connect } from "react-redux";
-import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import styled from "styled-components";
-import { theme } from "constants/DefaultTheme";
+import styled, { theme } from "constants/DefaultTheme";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
+import { StyledDropDown } from "./StyledControls";
+import { IItemRendererProps } from "@blueprintjs/select";
+import { InputText } from "./InputTextControl";
 
 const DEFAULT_ACTION_TYPE = "Select Action Type" as ActionType;
 const DEFAULT_ACTION_LABEL = "Select Action";
@@ -23,6 +14,20 @@ enum ACTION_RESOLUTION_TYPE {
   SUCCESS,
   ERROR,
 }
+
+const renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
+  if (!itemProps.modifiers.matchesPredicate) {
+    return null;
+  }
+  return (
+    <MenuItem
+      active={itemProps.modifiers.active}
+      key={option.value}
+      onClick={itemProps.handleClick}
+      text={option.label}
+    />
+  );
+};
 
 const ActionSelectorDropDown = styled(StyledDropDown)`
   &&&&& {
@@ -47,253 +52,30 @@ const ActionSelectorDropDownContainer = styled.div`
   position: relative;
 `;
 
-const ResolutionActionContainer = styled.div`
-  padding: 0px 0px;
-`;
-function getActions(
-  actionPayloads: ActionPayload[] | undefined,
-): {
-  action: ActionPayload | undefined;
-  onSuccessAction: ActionPayload | undefined;
-  onErrorAction: ActionPayload | undefined;
-} {
-  const action: ActionPayload | undefined = actionPayloads && actionPayloads[0];
-  const onSuccessAction: ActionPayload | undefined =
-    action && action.onSuccess && action.onSuccess[0];
-  const onErrorAction: ActionPayload | undefined =
-    action && action.onError && action.onError[0];
-  return {
-    action,
-    onSuccessAction,
-    onErrorAction,
-  };
+interface ActionSelectorProps {
+  allActions: DropdownOption[];
+  actionTypeOptions: DropdownOption[];
+  selectedActionType: ActionType;
+  selectedActionLabel: string;
+  label: string;
+  identifier: string;
+  labelEditable?: boolean;
+  actionResolutionType: ACTION_RESOLUTION_TYPE | string;
+  updateActions: (actions: ActionPayload[], key?: string) => void;
+  updateLabel?: (label: string, key: string) => void;
+  actions: ActionPayload[];
 }
 
-class ActionSelectorControl extends BaseControl<
-  ControlProps & ActionDataState
-> {
-  getSelectionActionType(type: ACTION_RESOLUTION_TYPE | string): ActionType {
-    let selectedActionTypeValue: ActionType | undefined;
-    const { action, onSuccessAction, onErrorAction } = getActions(
-      this.props.propertyValue,
-    );
-
-    switch (type) {
-      case this.props.propertyName:
-        selectedActionTypeValue = action && action.actionType;
-        break;
-      case ACTION_RESOLUTION_TYPE.SUCCESS:
-        selectedActionTypeValue = onSuccessAction && onSuccessAction.actionType;
-        break;
-      case ACTION_RESOLUTION_TYPE.ERROR:
-        selectedActionTypeValue = onErrorAction && onErrorAction.actionType;
-        break;
-      default:
-        break;
-    }
-
-    const foundActionType = PropertyPaneActionDropdownOptions.find(
-      actionType => actionType.value === selectedActionTypeValue,
-    );
-
-    return foundActionType
-      ? (foundActionType.label as ActionType)
-      : DEFAULT_ACTION_TYPE;
-  }
-  getSelectionActionLabel(
-    type: ACTION_RESOLUTION_TYPE | string,
-    allActions: DropdownOption[],
-  ): string {
-    let selectedActionId: string | undefined = "";
-    const { action, onSuccessAction, onErrorAction } = getActions(
-      this.props.propertyValue,
-    );
-
-    switch (type) {
-      case this.props.propertyName:
-        selectedActionId = action && action.actionId;
-        break;
-      case ACTION_RESOLUTION_TYPE.SUCCESS:
-        selectedActionId = onSuccessAction && onSuccessAction.actionId;
-        break;
-      case ACTION_RESOLUTION_TYPE.ERROR:
-        selectedActionId = onErrorAction && onErrorAction.actionId;
-        break;
-      default:
-        break;
-    }
-
-    const foundAction = allActions.find(
-      action => action.value === selectedActionId,
-    );
-
-    return foundAction ? foundAction.label : DEFAULT_ACTION_LABEL;
-  }
-  render() {
-    const actionTypeOptions: DropdownOption[] = PropertyPaneActionDropdownOptions;
-    const allActions = this.props.data.map(action => {
-      return {
-        label: action.name,
-        value: action.id,
-        id: action.id,
-      };
-    });
-    const selectedActionType = this.getSelectionActionType(
-      this.props.propertyName,
-    );
-    const selectedActionLabel = this.getSelectionActionLabel(
-      this.props.propertyName,
-      allActions,
-    );
-
-    const selectedSuccessActionType = this.getSelectionActionType(
-      ACTION_RESOLUTION_TYPE.SUCCESS,
-    );
-    const selectedSuccessActionLabel = this.getSelectionActionLabel(
-      ACTION_RESOLUTION_TYPE.SUCCESS,
-      allActions,
-    );
-
-    const selectedErrorActionType = this.getSelectionActionType(
-      ACTION_RESOLUTION_TYPE.ERROR,
-    );
-    const selectedErrorActionLabel = this.getSelectionActionLabel(
-      ACTION_RESOLUTION_TYPE.ERROR,
-      allActions,
-    );
-    return (
-      <ControlWrapper>
-        {this.renderActionSelector(
-          allActions,
-          actionTypeOptions,
-          selectedActionType,
-          selectedActionLabel,
-          this.props.propertyName,
-          this.props.propertyName,
-        )}
-        {selectedActionLabel !== DEFAULT_ACTION_LABEL && (
-          <ResolutionActionContainer>
-            {this.renderActionSelector(
-              allActions,
-              actionTypeOptions,
-              selectedSuccessActionType,
-              selectedSuccessActionLabel,
-              "On Success",
-              ACTION_RESOLUTION_TYPE.SUCCESS,
-            )}
-            {this.renderActionSelector(
-              allActions,
-              actionTypeOptions,
-              selectedErrorActionType,
-              selectedErrorActionLabel,
-              "On Error",
-              ACTION_RESOLUTION_TYPE.ERROR,
-            )}
-          </ResolutionActionContainer>
-        )}
-      </ControlWrapper>
-    );
-  }
-
-  renderActionSelector(
-    allActions: DropdownOption[],
-    actionTypeOptions: DropdownOption[],
-    selectedActionType: ActionType,
-    selectedActionLabel: string,
-    label: string,
+export default function ActionSelector(props: ActionSelectorProps) {
+  function clearActionSelectorType(
     actionResolutionType: ACTION_RESOLUTION_TYPE | string,
   ) {
-    let onTypeSelect = this.onActionTypeSelect;
-    switch (actionResolutionType) {
-      case ACTION_RESOLUTION_TYPE.SUCCESS:
-        onTypeSelect = this.onSuccessActionTypeSelect;
-        break;
-      case ACTION_RESOLUTION_TYPE.ERROR:
-        onTypeSelect = this.onErrorActionTypeSelect;
-        break;
-    }
-
-    let onActionSelect = this.onActionSelect;
-    switch (actionResolutionType) {
-      case ACTION_RESOLUTION_TYPE.SUCCESS:
-        onActionSelect = this.onSuccessActionSelect;
-        break;
-      case ACTION_RESOLUTION_TYPE.ERROR:
-        onActionSelect = this.onErrorActionSelect;
-        break;
-    }
-
-    const showActionTypeRemoveButton =
-      selectedActionType && selectedActionType !== DEFAULT_ACTION_TYPE;
-    const showActionLabelRemoveButton =
-      selectedActionLabel && selectedActionLabel !== DEFAULT_ACTION_LABEL;
-    return (
-      <div>
-        <div>
-          <label>{label}</label>
-        </div>
-        <ActionSelectorDropDownContainer>
-          <ActionSelectorDropDown
-            items={actionTypeOptions}
-            filterable={false}
-            itemRenderer={this.renderItem}
-            onItemSelect={onTypeSelect}
-            noResults={<MenuItem disabled={true} text="No results." />}
-          >
-            {
-              <Button
-                text={selectedActionType}
-                rightIcon={showActionTypeRemoveButton ? false : "chevron-down"}
-              />
-            }
-          </ActionSelectorDropDown>
-          {showActionTypeRemoveButton && (
-            <CloseButton
-              size={theme.spaces[5]}
-              color={theme.colors.paneSectionLabel}
-              onClick={() => {
-                this.clearActionSelectorType(actionResolutionType);
-              }}
-            ></CloseButton>
-          )}
-        </ActionSelectorDropDownContainer>
-        <ActionSelectorDropDownContainer>
-          {selectedActionType !== DEFAULT_ACTION_TYPE && (
-            <ActionSelectorDropDown
-              items={allActions}
-              filterable={false}
-              itemRenderer={this.renderItem}
-              onItemSelect={onActionSelect}
-              noResults={<MenuItem disabled={true} text="No results." />}
-            >
-              <Button
-                text={selectedActionLabel}
-                rightIcon={showActionLabelRemoveButton ? false : "chevron-down"}
-              />
-            </ActionSelectorDropDown>
-          )}
-          {showActionLabelRemoveButton && (
-            <CloseButton
-              size={theme.spaces[5]}
-              color={theme.colors.paneSectionLabel}
-              onClick={() => {
-                this.clearActionSelectorLabel(actionResolutionType);
-              }}
-            ></CloseButton>
-          )}
-        </ActionSelectorDropDownContainer>
-      </div>
-    );
-  }
-  clearActionSelectorType(
-    actionResolutionType: ACTION_RESOLUTION_TYPE | string,
-  ) {
-    let actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+    let actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
     switch (actionResolutionType) {
-      case this.props.propertyName:
+      case props.identifier:
         actionPayloads = [];
         break;
       case ACTION_RESOLUTION_TYPE.SUCCESS:
@@ -303,47 +85,54 @@ class ActionSelectorControl extends BaseControl<
         actionPayload.onError = undefined;
         break;
     }
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   }
-  clearActionSelectorLabel(
+  function clearActionSelectorLabel(
     actionResolutionType: ACTION_RESOLUTION_TYPE | string,
   ) {
-    let actionPayloads = this.props.propertyValue.slice();
-    const actionPayload = this.props.propertyValue[0];
+    let actionPayloads = props.actions.slice();
+    const actionPayload = (props.actions[0] as any) as ActionPayload;
     switch (actionResolutionType) {
-      case this.props.propertyName:
+      case props.identifier:
         actionPayloads = [];
-        actionPayloads.push({
+        actionPayloads.push(({
           ...actionPayload,
           actionId: undefined,
           onSuccess: undefined,
           onError: undefined,
-        });
+        } as any) as ActionPayload);
         break;
       case ACTION_RESOLUTION_TYPE.SUCCESS:
-        const successActionPayload = actionPayload.onSuccess[0];
+        const successActionPayload =
+          actionPayload.onSuccess !== undefined
+            ? actionPayload.onSuccess[0]
+            : undefined;
         const successActionPayloads = [];
         successActionPayloads.push({
           ...successActionPayload,
           actionId: "",
         });
-        actionPayload.onSuccess = successActionPayloads;
+        actionPayload.onSuccess = successActionPayloads as ActionPayload[];
         break;
       case ACTION_RESOLUTION_TYPE.ERROR:
-        const errorActionPayload = actionPayload.onError[0];
+        const errorActionPayload =
+          actionPayload.onError !== undefined
+            ? actionPayload.onError[0]
+            : undefined;
         const errorActionPayloads = [];
         errorActionPayloads.push({
           ...errorActionPayload,
           actionId: "",
         });
-        actionPayload.onError = errorActionPayloads;
+        actionPayload.onError = errorActionPayloads as ActionPayload[];
         break;
     }
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   }
-  onActionTypeSelect = (item: DropdownOption) => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+
+  const onActionTypeSelect = (item: DropdownOption) => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
 
@@ -357,11 +146,12 @@ class ActionSelectorControl extends BaseControl<
       actionPayloads.push(actionPayload);
     }
 
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
-  onSuccessActionTypeSelect = (item: DropdownOption) => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+
+  const onSuccessActionTypeSelect = (item: DropdownOption) => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
 
@@ -380,11 +170,12 @@ class ActionSelectorControl extends BaseControl<
       }
       actionPayload.onSuccess = successActionPayloads;
     }
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
-  onErrorActionTypeSelect = (item: DropdownOption) => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+
+  const onErrorActionTypeSelect = (item: DropdownOption) => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
 
@@ -402,66 +193,144 @@ class ActionSelectorControl extends BaseControl<
       }
       actionPayload.onError = errorActionPayloads;
     }
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
 
-  onActionSelect = (item: DropdownOption): void => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+  const onActionSelect = (item: DropdownOption): void => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
     actionPayload.actionId = item.value;
 
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
-  onSuccessActionSelect = (item: DropdownOption): void => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+
+  const onSuccessActionSelect = (item: DropdownOption): void => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
     const successActionPayloads: ActionPayload[] = actionPayload.onSuccess as ActionPayload[];
     const successActionPayload = successActionPayloads[0];
     successActionPayload.actionId = item.value;
     actionPayload.onSuccess = successActionPayloads;
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
-  onErrorActionSelect = (item: DropdownOption): void => {
-    const actionPayloads: ActionPayload[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
+  const onErrorActionSelect = (item: DropdownOption): void => {
+    const actionPayloads: ActionPayload[] = props.actions
+      ? props.actions.slice()
       : [];
     const actionPayload = actionPayloads[0];
     const errorActionPayloads: ActionPayload[] = actionPayload.onError as ActionPayload[];
     const errorActionPayload = errorActionPayloads[0];
     errorActionPayload.actionId = item.value;
     actionPayload.onError = errorActionPayloads;
-    this.updateProperty(this.props.propertyName, actionPayloads);
+    props.updateActions(actionPayloads, props.identifier);
   };
 
-  renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
-    if (!itemProps.modifiers.matchesPredicate) {
-      return null;
-    }
-    return (
-      <MenuItem
-        active={itemProps.modifiers.active}
-        key={option.value}
-        onClick={itemProps.handleClick}
-        text={option.label}
-      />
-    );
-  };
-
-  getControlType(): ControlType {
-    return "ACTION_SELECTOR";
+  let onTypeSelect = onActionTypeSelect;
+  switch (props.actionResolutionType) {
+    case ACTION_RESOLUTION_TYPE.SUCCESS:
+      onTypeSelect = onSuccessActionTypeSelect;
+      break;
+    case ACTION_RESOLUTION_TYPE.ERROR:
+      onTypeSelect = onErrorActionTypeSelect;
+      break;
   }
+
+  let onActionSelectHandler = onActionSelect;
+  switch (props.actionResolutionType) {
+    case ACTION_RESOLUTION_TYPE.SUCCESS:
+      onActionSelectHandler = onSuccessActionSelect;
+      break;
+    case ACTION_RESOLUTION_TYPE.ERROR:
+      onActionSelectHandler = onErrorActionSelect;
+      break;
+  }
+
+  const showActionTypeRemoveButton =
+    props.selectedActionType &&
+    props.selectedActionType !== DEFAULT_ACTION_TYPE;
+  const showActionLabelRemoveButton =
+    props.selectedActionLabel &&
+    props.selectedActionLabel !== DEFAULT_ACTION_LABEL;
+  const onTextChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement> | string,
+  ) => {
+    let value = event;
+    if (typeof event !== "string") {
+      value = event.target.value;
+    }
+    !!props.updateLabel &&
+      props.updateLabel((value as any) as string, props.identifier);
+    // props.updateProperty(this.props.propertyName, value);
+  };
+  return (
+    <div>
+      <div hidden={props.labelEditable}>
+        <label>{props.identifier}</label>
+      </div>
+      <div hidden={!props.labelEditable}>
+        <InputText
+          label={"Action Name"}
+          value={props.label}
+          onChange={onTextChange}
+          isValid={true}
+        ></InputText>
+        <label>{"On Action Click"}</label>
+      </div>
+
+      <ActionSelectorDropDownContainer>
+        <ActionSelectorDropDown
+          items={props.actionTypeOptions}
+          filterable={false}
+          itemRenderer={renderItem}
+          onItemSelect={onTypeSelect}
+          noResults={<MenuItem disabled={true} text="No results." />}
+        >
+          {
+            <Button
+              text={props.selectedActionType}
+              rightIcon={showActionTypeRemoveButton ? false : "chevron-down"}
+            />
+          }
+        </ActionSelectorDropDown>
+        {showActionTypeRemoveButton && (
+          <CloseButton
+            size={theme.spaces[5]}
+            color={theme.colors.paneSectionLabel}
+            onClick={() => {
+              clearActionSelectorType(props.actionResolutionType);
+            }}
+          ></CloseButton>
+        )}
+      </ActionSelectorDropDownContainer>
+      <ActionSelectorDropDownContainer>
+        {props.selectedActionType !== DEFAULT_ACTION_TYPE && (
+          <ActionSelectorDropDown
+            items={props.allActions}
+            filterable={false}
+            itemRenderer={renderItem}
+            onItemSelect={onActionSelectHandler}
+            noResults={<MenuItem disabled={true} text="No results." />}
+          >
+            <Button
+              text={props.selectedActionLabel}
+              rightIcon={showActionLabelRemoveButton ? false : "chevron-down"}
+            />
+          </ActionSelectorDropDown>
+        )}
+        {showActionLabelRemoveButton && (
+          <CloseButton
+            size={theme.spaces[5]}
+            color={theme.colors.paneSectionLabel}
+            onClick={() => {
+              clearActionSelectorLabel(props.actionResolutionType);
+            }}
+          ></CloseButton>
+        )}
+      </ActionSelectorDropDownContainer>
+    </div>
+  );
 }
-
-export interface ActionSelectorControlProps extends ControlProps {
-  propertyValue: ActionPayload[];
-}
-
-const mapStateToProps = (state: AppState): ActionDataState => ({
-  ...state.entities.actions,
-});
-
-export default connect(mapStateToProps)(ActionSelectorControl);

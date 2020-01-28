@@ -10,6 +10,7 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import moment from "moment";
 
 const initialState: EditorReduxState = {
+  initialized: false,
   loadingStates: {
     publishing: false,
     publishingError: false,
@@ -19,10 +20,15 @@ const initialState: EditorReduxState = {
     loadingError: false,
     pageSwitchingError: false,
     isPageSwitching: false,
+    creatingPage: false,
+    creatingPageError: false,
   },
 };
 
 const editorReducer = createReducer(initialState, {
+  [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
+    return { ...state, initialized: true };
+  },
   [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
     ...state,
     loadingStates: {
@@ -44,16 +50,6 @@ const editorReducer = createReducer(initialState, {
       isPageSwitching: false,
     },
   }),
-  [ReduxActionTypes.INIT_EDITOR]: (state: EditorReduxState) => {
-    state.loadingStates.loading = true;
-    state.loadingStates.loadingError = false;
-    return { ...state };
-  },
-  [ReduxActionTypes.INIT_EDITOR_SUCCESS]: (state: EditorReduxState) => {
-    state.loadingStates.loading = false;
-    state.loadingStates.loadingError = false;
-    return { ...state };
-  },
   [ReduxActionErrorTypes.INITIALIZE_EDITOR_ERROR]: (
     state: EditorReduxState,
   ) => {
@@ -108,14 +104,43 @@ const editorReducer = createReducer(initialState, {
       currentApplicationId,
     };
   },
+  [ReduxActionTypes.SELECT_WIDGET]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, selectedWidget: action.payload.widgetId };
+  },
+  [ReduxActionTypes.FOCUS_WIDGET]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ widgetId?: string }>,
+  ) => {
+    return { ...state, focusedWidget: action.payload.widgetId };
+  },
+  [ReduxActionTypes.CREATE_PAGE_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.creatingPage = true;
+    state.loadingStates.creatingPageError = false;
+    return { ...state };
+  },
+  [ReduxActionErrorTypes.CREATE_PAGE_ERROR]: (state: EditorReduxState) => {
+    state.loadingStates.creatingPageError = true;
+    state.loadingStates.creatingPage = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.creatingPage = false;
+    return { ...state };
+  },
 });
 
 export interface EditorReduxState {
+  initialized: boolean;
   dsl?: ContainerWidgetProps<WidgetProps>;
   pageWidgetId?: string;
   currentPageId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
+  selectedWidget?: string;
+  focusedWidget?: string;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
@@ -126,6 +151,8 @@ export interface EditorReduxState {
     loadingError: boolean;
     isPageSwitching: boolean;
     pageSwitchingError: boolean;
+    creatingPage: boolean;
+    creatingPageError: boolean;
   };
 }
 

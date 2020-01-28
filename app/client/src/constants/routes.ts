@@ -37,6 +37,11 @@ export const API_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/api`;
 
+export const PAGE_LIST_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
+
 export const API_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -66,6 +71,12 @@ export const EDITOR_ROUTES = [
     path: API_EDITOR_URL,
     title: "APIs",
     exact: false,
+  },
+  {
+    icon: MenuIcons.PAGES_ICON,
+    path: PAGE_LIST_EDITOR_URL,
+    title: "Pages",
+    exact: true,
   },
 ];
 

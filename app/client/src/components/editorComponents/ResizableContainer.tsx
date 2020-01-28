@@ -29,13 +29,13 @@ const borderCSS = css<ResizeBorderDotDivProps>`
 export const ResizeBorderDotDiv = styled.div<ResizeBorderDotDivProps>`
   ${borderCSS}
   &:after {
-    left: -${props => props.theme.spaces[4]}px;
+    left: -${props => props.theme.spaces[2]}px;
     top: calc(50% - ${props => props.theme.spaces[1]}px);
     z-index: 0;
   }
   &:before {
     left: calc(50% - ${props => props.theme.spaces[1]}px);
-    top: -${props => props.theme.spaces[4]}px;
+    top: -${props => props.theme.spaces[2]}px;
     z-index: 1;
   }
 `;

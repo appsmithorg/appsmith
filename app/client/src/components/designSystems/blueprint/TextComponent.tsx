@@ -5,7 +5,7 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import { TextStyle } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-
+import { labelStyle } from "constants/DefaultTheme";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -19,11 +19,28 @@ export const BaseText = styled(Text)<TextStyleProps>``;
   It suffices for our target browsers
   More info: https://css-tricks.com/line-clampin/
 */
-export const StyledText = styled(Text)<{ lines: number }>`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: ${props => props.lines};
-  overflow: hidden;
+
+export const TextContainer = styled.div`
+  && {
+    height: 100%;
+    width: 100%;
+  }
+`;
+export const StyledText = styled(Text)<{ scroll: boolean }>`
+  height: 100%;
+  overflow-y: ${props => (props.scroll ? "auto" : "hidden")};
+  text-overflow: ellipsis;
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  &.bp3-heading {
+    font-weight: ${props => props.theme.fontWeights[3]};
+    font-size: ${props => props.theme.fontSizes[4]}px;
+  }
+  &.bp3-ui-text {
+    ${labelStyle}
+  }
 `;
 
 export interface TextComponentProps extends ComponentProps {
@@ -31,7 +48,7 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
-  lines: number;
+  shouldScroll?: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -43,12 +60,13 @@ class TextComponent extends React.Component<TextComponentProps> {
     }
     switch (textStyle) {
       case "HEADING":
-        className.push(Classes.TEXT_LARGE);
+        className.push(Classes.HEADING);
         break;
       case "BODY":
         className.push(Classes.RUNNING_TEXT);
         break;
       case "LABEL":
+        className.push(Classes.UI_TEXT);
         break;
       default:
         break;
@@ -60,16 +78,18 @@ class TextComponent extends React.Component<TextComponentProps> {
   render() {
     const { textStyle, text, ellipsize } = this.props;
     return (
-      <StyledText
-        className={this.getTextClass(textStyle)}
-        ellipsize={ellipsize}
-        lines={this.props.lines}
-      >
-        <Interweave
-          content={text}
-          matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
-        />
-      </StyledText>
+      <TextContainer>
+        <StyledText
+          scroll={!!this.props.shouldScroll}
+          className={this.getTextClass(textStyle)}
+          ellipsize={ellipsize}
+        >
+          <Interweave
+            content={text}
+            matchers={[new UrlMatcher("url"), new EmailMatcher("email")]}
+          />
+        </StyledText>
+      </TextContainer>
     );
   }
 }

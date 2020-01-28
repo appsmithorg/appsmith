@@ -7,7 +7,7 @@ import {
 } from "constants/routes";
 import { Card, Tooltip, Classes } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import Button from "components/editorComponents/Button";
 import {
   theme,
   getBorderCSSShorthand,
@@ -28,7 +28,16 @@ const Wrapper = styled(Card)`
   border-radius: ${props => props.theme.radii[1]}px;
   margin: ${props => props.theme.spaces[5]}px
     ${props => props.theme.spaces[5]}px;
-  &:hover {
+  a {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    width: 100%;
+  }
+  a:hover {
+    text-decoration: none;
     &:after {
       left: 0;
       top: 0;
@@ -70,7 +79,6 @@ const ApplicationTitle = styled.div`
       display: inline-block;
     }
     .control {
-      display: none;
       z-index: 1;
       position: absolute;
       right: ${props => props.theme.spaces[5] * 3}px;
@@ -87,17 +95,21 @@ const ApplicationTitle = styled.div`
 `;
 
 const ApplicationImage = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: calc(100% - ${props => props.theme.card.titleHeight}px);
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  & {
-    .control {
-      display: none;
+  && {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    & {
+      .control {
+        display: none;
+        button {
+          span {
+            font-weight: ${props => props.theme.fontWeights[3]};
+          }
+        }
+      }
     }
   }
 `;
@@ -120,42 +132,48 @@ const viewControlIcon = ControlIcons.VIEW_CONTROL({
 type ApplicationCardProps = {
   application: ApplicationPayload;
   loading: boolean;
-  duplicate: (applicationId: string) => void;
-  share: (applicationId: string) => void;
-  delete: (applicationId: string) => void;
+  duplicate?: (applicationId: string) => void;
+  share?: (applicationId: string) => void;
+  delete?: (applicationId: string) => void;
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
   const duplicateApp = () => {
-    props.duplicate(props.application.id);
+    props.duplicate && props.duplicate(props.application.id);
   };
   const shareApp = () => {
-    props.share(props.application.id);
+    props.share && props.share(props.application.id);
   };
   const deleteApp = () => {
-    props.delete(props.application.id);
+    props.delete && props.delete(props.application.id);
   };
-  const moreActionItems: ContextDropdownOption[] = [
-    {
-      id: "duplicate",
-      value: "duplicate",
-      onSelect: duplicateApp,
-      label: "Duplicate",
-    },
-    {
+  const moreActionItems: ContextDropdownOption[] = [];
+  if (props.share) {
+    moreActionItems.push({
       id: "share",
       value: "share",
       onSelect: shareApp,
       label: "Share",
-    },
-    {
+    });
+  }
+  if (props.duplicate) {
+    moreActionItems.push({
+      id: "duplicate",
+      value: "duplicate",
+      onSelect: duplicateApp,
+      label: "Duplicate",
+    });
+  }
+  if (props.delete) {
+    moreActionItems.push({
       id: "delete",
       value: "delete",
       onSelect: deleteApp,
       label: "Delete",
       intent: "danger",
-    },
-  ];
+    });
+  }
+
   const viewApplicationURL = getApplicationViewerPageURL(
     props.application.id,
     props.application.defaultPageId,
@@ -172,7 +190,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         <span>{props.application.name}</span>
         <Link to={viewApplicationURL}>
           <Control className="control">
-            <Tooltip content="View Application" hoverOpenDelay={500}>
+            <Tooltip content="Launch App" hoverOpenDelay={500}>
               {viewControlIcon}
             </Tooltip>
           </Control>
@@ -187,20 +205,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <ApplicationImage className="image-container">
-        <Control className="control">
-          <Link to={editApplicationURL}>
-            <Tooltip content="Edit Application" hoverOpenDelay={500}>
-              <BaseButton
-                icon="edit"
-                text="Edit"
-                accent="primary"
-                filled={true}
-              />
-            </Tooltip>
-          </Link>
-        </Control>
-      </ApplicationImage>
+      <Link to={editApplicationURL}>
+        <ApplicationImage className="image-container">
+          <Control className="control">
+            <Button
+              filled
+              text="Edit"
+              intent="primary"
+              icon="edit"
+              iconAlignment="left"
+              size="small"
+            />
+          </Control>
+        </ApplicationImage>
+      </Link>
     </Wrapper>
   );
 };

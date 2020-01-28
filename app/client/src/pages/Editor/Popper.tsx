@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { createPortal } from "react-dom";
 import PopperJS from "popper.js";
 import PaneWrapper from "pages/common/PaneWrapper";
-
+import { getColorWithOpacity } from "constants/DefaultTheme";
 type PopperProps = {
   isOpen: boolean;
   targetNode?: Element;
@@ -15,8 +15,32 @@ const PopperWrapper = styled(PaneWrapper)`
   z-index: 3;
   max-height: ${props => props.theme.propertyPane.height}px;
   width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[6]}px;
+  margin: ${props => props.theme.spaces[2]}px;
+  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
+  border: ${props => props.theme.spaces[5]}px solid
+    ${props => props.theme.colors.paneBG};
+  border-right: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    outline: 1px solid ${props => props.theme.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
 `;
 
 /* eslint-disable react/display-name */

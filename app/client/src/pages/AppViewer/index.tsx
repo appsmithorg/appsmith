@@ -14,8 +14,8 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   getPageList,
-  getIsFetchingPage,
   getCurrentDSLPageId,
+  getIsInitialized,
 } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ActionPayload } from "constants/ActionConstants";
@@ -45,7 +45,7 @@ export type AppViewerProps = {
   currentLayoutId?: string;
   pages?: PageListPayload;
   initializeAppViewer: Function;
-  isFetching: boolean;
+  isInitialized: boolean;
   executeAction: (actionPayloads?: ActionPayload[]) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -64,6 +64,8 @@ class AppViewer extends Component<
     }
   }
   public render() {
+    const { isInitialized } = this.props;
+    if (!isInitialized) return null;
     const items: SideNavItemProps[] | undefined =
       this.props.pages &&
       this.props.pages.map(page => ({
@@ -88,11 +90,7 @@ class AppViewer extends Component<
           <AppViewerHeader />
           <AppViewerBody>
             <AppViewerSideNavWrapper>
-              <SideNav
-                items={items}
-                iconSize={24}
-                active={this.props.currentDSLPageId}
-              />
+              <SideNav items={items} active={this.props.currentDSLPageId} />
             </AppViewerSideNavWrapper>
             <Switch>
               <Route
@@ -111,7 +109,7 @@ class AppViewer extends Component<
 const mapStateToProps = (state: AppState) => ({
   currentDSLPageId: getCurrentDSLPageId(state),
   pages: getPageList(state),
-  isFetching: getIsFetchingPage(state),
+  isInitialized: getIsInitialized(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

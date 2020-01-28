@@ -141,9 +141,20 @@ type Props = ReduxStateProps &
     input: Partial<WrappedFieldInputProps>;
   };
 
-class DynamicAutocompleteInput extends Component<Props> {
+type State = {
+  isFocused: boolean;
+};
+
+class DynamicAutocompleteInput extends Component<Props, State> {
   textArea = React.createRef<HTMLTextAreaElement>();
   editor: any;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isFocused: false,
+    };
+  }
 
   componentDidMount(): void {
     if (this.textArea.current) {
@@ -168,6 +179,8 @@ class DynamicAutocompleteInput extends Component<Props> {
       });
       this.editor.on("change", _.debounce(this.handleChange, 100));
       this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
+      this.editor.on("focus", () => this.setState({ isFocused: true }));
+      this.editor.on("blur", () => this.setState({ isFocused: false }));
       this.editor.setOption("hintOptions", {
         completeSingle: false,
         globalScope: this.props.dynamicData,
@@ -179,10 +192,11 @@ class DynamicAutocompleteInput extends Component<Props> {
     }
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate(prevProps: Props): void {
     if (this.editor) {
       const editorValue = this.editor.getValue();
       let inputValue = this.props.input.value;
+      // Safe update of value of the editor when value updated outside the editor
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
@@ -190,6 +204,13 @@ class DynamicAutocompleteInput extends Component<Props> {
         const cursor = this.editor.getCursor();
         this.editor.setValue(inputValue);
         this.editor.setCursor(cursor);
+      }
+      // Update the dynamic bindings for autocomplete
+      if (prevProps.dynamicData !== this.props.dynamicData) {
+        this.editor.setOption("hintOptions", {
+          completeSingle: false,
+          globalScope: this.props.dynamicData,
+        });
       }
     }
   }
@@ -253,7 +274,7 @@ class DynamicAutocompleteInput extends Component<Props> {
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
-      showError = hasError && this.editor.hasFocus();
+      showError = hasError && this.state.isFocused;
     }
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>

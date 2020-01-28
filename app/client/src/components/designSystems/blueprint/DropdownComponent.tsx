@@ -1,19 +1,25 @@
 import * as React from "react";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { MenuItem, Button } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Button,
+  ControlGroup,
+  Label,
+  Classes,
+} from "@blueprintjs/core";
 import { SelectionType, DropdownOption } from "widgets/DropdownWidget";
 import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
-import styled from "constants/DefaultTheme";
+import styled, { labelStyle } from "constants/DefaultTheme";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
 
 const StyledSingleDropDown = styled(SingleDropDown)`
-  width: 100%;
   div {
-    width: 100%;
+    flex: 1 1 auto;
   }
   span {
     width: 100%;
@@ -34,6 +40,23 @@ const StyledSingleDropDown = styled(SingleDropDown)`
   }
 `;
 
+const StyledControlGroup = styled(ControlGroup)`
+  &&& {
+    label {
+      ${labelStyle}
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
+      align-self: center;
+      flex: 0 1 30%;
+      text-align: right;
+    }
+  }
+`;
+
+const DropdownContainer = styled.div`
+  textalign: center;
+  width: 100%;
+`;
+
 const StyledMultiDropDown = styled(MultiDropDown)`
   .bp3-multi-select {
     min-width: 0;
@@ -47,39 +70,44 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         })
       : [];
     return (
-      <div style={{ textAlign: "center", width: "100%" }}>
-        {this.props.selectionType === "SINGLE_SELECT" ? (
-          <StyledSingleDropDown
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            items={this.props.options}
-            filterable={false}
-            itemRenderer={this.renderItem}
-            onItemSelect={this.onItemSelect}
-          >
-            <Button
-              intent={"primary"}
-              rightIcon="chevron-down"
-              text={
-                !_.isEmpty(this.props.options)
-                  ? this.props.options[this.props.selectedIndex].label
-                  : "Add options"
-              }
-            />
-          </StyledSingleDropDown>
-        ) : (
-          <StyledMultiDropDown
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            items={this.props.options}
-            fill={true}
-            placeholder={this.props.placeholder}
-            tagRenderer={this.renderTag}
-            itemRenderer={this.renderItem}
-            selectedItems={selectedItems}
-            tagInputProps={{ onRemove: this.onItemRemoved }}
-            onItemSelect={this.onItemSelect}
-          ></StyledMultiDropDown>
-        )}
-      </div>
+      <DropdownContainer>
+        <StyledControlGroup fill>
+          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+            {this.props.label}
+          </Label>
+          {this.props.selectionType === "SINGLE_SELECT" ? (
+            <StyledSingleDropDown
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              items={this.props.options}
+              filterable={false}
+              itemRenderer={this.renderItem}
+              onItemSelect={this.onItemSelect}
+            >
+              <Button
+                intent={"primary"}
+                rightIcon="chevron-down"
+                text={
+                  !_.isEmpty(this.props.options)
+                    ? this.props.options[this.props.selectedIndex].label
+                    : "Add options"
+                }
+              />
+            </StyledSingleDropDown>
+          ) : (
+            <StyledMultiDropDown
+              className={this.props.isLoading ? "bp3-skeleton" : ""}
+              items={this.props.options}
+              fill={true}
+              placeholder={this.props.placeholder}
+              tagRenderer={this.renderTag}
+              itemRenderer={this.renderItem}
+              selectedItems={selectedItems}
+              tagInputProps={{ onRemove: this.onItemRemoved }}
+              onItemSelect={this.onItemSelect}
+            ></StyledMultiDropDown>
+          )}
+        </StyledControlGroup>
+      </DropdownContainer>
     );
   }
 

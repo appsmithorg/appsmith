@@ -4,37 +4,42 @@ import { createSelector } from "reselect";
 import { getActions, getDataTree } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import createCachedSelector from "re-reselect";
+import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 
 export type NameBindingsWithData = Record<string, object>;
+
 export const getNameBindingsWithData = createSelector(
   getDataTree,
   (dataTree: DataTree): NameBindingsWithData => {
     const nameBindingsWithData: Record<string, object> = {};
     Object.keys(dataTree.nameBindings).forEach(key => {
       const nameBindings = dataTree.nameBindings[key];
-      const evaluatedValue = JSONPath({
+      nameBindingsWithData[key] = JSONPath({
         path: nameBindings,
         json: dataTree,
       })[0];
-      if (evaluatedValue && key !== "undefined") {
-        nameBindingsWithData[key] = evaluatedValue;
-      }
     });
-
     return nameBindingsWithData;
+  },
+);
+
+export const getParsedDataTree = createSelector(
+  getNameBindingsWithData,
+  (namedBindings: NameBindingsWithData) => {
+    return getEvaluatedDataTree(namedBindings, true);
   },
 );
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getNameBindingsForAutocomplete = createCachedSelector(
-  getNameBindingsWithData,
+  getParsedDataTree,
   getActions,
-  (namedBindings: NameBindingsWithData, actions: ActionDataState["data"]) => {
+  (dataTree: NameBindingsWithData, actions: ActionDataState["data"]) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {
-        if (!(action.name in namedBindings) && action.cacheResponse) {
+        if (!(action.name in dataTree) && action.cacheResponse) {
           try {
             cachedResponses[action.name] = JSON.parse(action.cacheResponse);
           } catch (e) {
@@ -43,6 +48,6 @@ export const getNameBindingsForAutocomplete = createCachedSelector(
         }
       });
     }
-    return { ...namedBindings, ...cachedResponses };
+    return { ...dataTree, ...cachedResponses };
   },
 )((state: AppState) => state.entities.actions.data.length);

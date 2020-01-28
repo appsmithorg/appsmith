@@ -33,6 +33,11 @@ export const getIsFetchingPage = createSelector(
   (view: AppViewReduxState) => view.isFetchingPage,
 );
 
+export const getIsInitialized = createSelector(
+  getAppViewState,
+  (view: AppViewReduxState) => view.initialized,
+);
+
 export const getCurrentDSLPageId = createSelector(
   getAppViewState,
   (view: AppViewReduxState) => view.currentPageId,

@@ -16,7 +16,7 @@ const BadgeWrapper = styled.div`
       flex-basis: 1 0 auto;
       flex-direction: column;
       justify-content: space-around;
-      align-items: flex-start;
+      align-self: center;
       & h3,
       h5 {
         font-weight: ${props => props.theme.fontWeights[1]};
@@ -42,7 +42,7 @@ export const Badge = (props: BadgeProps) => {
       <img src={props.imageURL} alt={props.text}></img>
       <div>
         <h3>{props.text}</h3>
-        <h5>{props.subtext}</h5>
+        {props.subtext && <h5>{props.subtext}</h5>}
       </div>
     </BadgeWrapper>
   );

@@ -25,7 +25,7 @@ export const DropdownTrigger = styled.div`
 `;
 export const DropdownContent = styled.div`
   &&& * {
-    font-size: ${props => props.theme.fontSizes[4]}px;
+    font-size: ${props => props.theme.fontSizes[3]}px;
   }
 `;
 
@@ -55,33 +55,31 @@ export const DropdownContentSection = styled.div<{ stick: boolean }>`
   }
 `;
 
-export const onHover = css<{ intent?: Intent }>`
-  cursor: pointer;
-  &&&&:hover {
-    & * {
-      color: ${props => props.theme.colors.textOnDarkBG};
-      text-decoration: none;
-    }
-    & a:hover {
-      text-decoration: none;
-    }
-    background: ${props =>
-      props.intent ? IntentColors[props.intent] : IntentColors.primary};
+export const highlightOption = css<{ intent?: Intent }>`
+  color: ${props => props.theme.colors.textOnDarkBG};
+  text-decoration: none;
+  background: ${props =>
+    props.intent ? IntentColors[props.intent] : IntentColors.primary};
+  * {
     color: ${props => props.theme.colors.textOnDarkBG};
   }
 `;
 
-export const Option = styled.div<{ intent?: Intent; active?: boolean }>`
+export const Option = styled.div<{
+  intent?: Intent;
+  active?: boolean;
+  disabled?: boolean;
+}>`
   padding: 8px 16px;
-  margin: 4px 0;
+  min-width: 200px;
 
-  & a {
-    color: ${props => props.theme.colors.textDefault};
-    text-decoration: none;
-  }
   &:first-of-type,
   &:last-of-type {
     margin: 0;
   }
-  ${props => (props.active ? onHover : ``)};
+  cursor: pointer;
+  &:hover {
+    ${props => (!props.disabled ? highlightOption : ``)};
+  }
+  ${props => (props.active && !props.disabled ? highlightOption : ``)};
 `;

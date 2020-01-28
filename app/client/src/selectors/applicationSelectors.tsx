@@ -2,13 +2,45 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
+import Fuse from "fuse.js";
+
+const fuzzySearchOptions = {
+  keys: ["name"],
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  distance: 100,
+};
 
 const getApplicationsState = (state: AppState) => state.ui.applications;
+const getApplications = (state: AppState) =>
+  state.ui.applications.applicationList;
+const getApplicationSearchKeyword = (state: AppState) =>
+  state.ui.applications.searchKeyword;
 
 export const getApplicationList = createSelector(
-  getApplicationsState,
-  (applications: ApplicationsReduxState): ApplicationPayload[] =>
-    applications.applicationList,
+  getApplications,
+  getApplicationSearchKeyword,
+  (
+    applications?: ApplicationPayload[],
+    keyword?: string,
+  ): ApplicationPayload[] => {
+    if (
+      applications &&
+      applications.length > 0 &&
+      keyword &&
+      keyword.trim().length > 0
+    ) {
+      const fuzzy = new Fuse(applications, fuzzySearchOptions);
+      return fuzzy.search(keyword) as ApplicationPayload[];
+    } else if (
+      applications &&
+      (keyword === undefined || keyword.trim().length === 0)
+    ) {
+      return applications;
+    }
+    return [];
+  },
 );
 
 export const getIsFetchingApplications = createSelector(

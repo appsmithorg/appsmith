@@ -1,4 +1,8 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { RestAction } from "api/ActionAPI";
 import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
@@ -17,15 +21,15 @@ export const createActionSuccess = (payload: RestAction) => {
 };
 
 export type FetchActionsPayload = {
-  pageId: string;
+  applicationId: string;
 };
 
 export const fetchActions = (
-  payload: FetchActionsPayload,
+  applicationId: string,
 ): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload,
+    payload: { applicationId },
   };
 };
 
@@ -60,6 +64,66 @@ export const deleteAction = (payload: { id: string }) => {
 export const deleteActionSuccess = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const moveActionRequest = (payload: {
+  id: string;
+  destinationPageId: string;
+  originalPageId: string;
+  name: string;
+}) => {
+  return {
+    type: ReduxActionTypes.MOVE_ACTION_INIT,
+    payload,
+  };
+};
+
+export const moveActionSuccess = (payload: RestAction) => {
+  return {
+    type: ReduxActionTypes.MOVE_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const moveActionError = (payload: {
+  id: string;
+  originalPageId: string;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.MOVE_ACTION_ERROR,
+    payload,
+  };
+};
+
+export const copyActionRequest = (payload: {
+  id: string;
+  destinationPageId: string;
+  name: string;
+}) => {
+  return {
+    type: ReduxActionTypes.COPY_ACTION_INIT,
+    payload,
+  };
+};
+
+export const copyActionSuccess = (payload: {
+  id: string;
+  destinationPageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.COPY_ACTION_SUCCESS,
+    payload,
+  };
+};
+
+export const copyActionError = (payload: {
+  id: string;
+  destinationPageId: string;
+}) => {
+  return {
+    type: ReduxActionErrorTypes.COPY_ACTION_ERROR,
     payload,
   };
 };

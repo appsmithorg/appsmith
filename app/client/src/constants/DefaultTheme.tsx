@@ -56,17 +56,20 @@ const getHoverAndActiveStyles = (color: Color, filled = true) => {
 };
 
 export const BlueprintButtonIntentsCSS = css`
-  &&&.bp3-button {
+  &&.bp3-button {
     box-shadow: none;
     display: flex;
     border-width: 1px;
     border-style: solid;
     outline: none;
-    min-width: 100px;
+    min-width: 50px;
     color: ${IntentColors.secondary};
     border-color: ${IntentColors.none};
     & span.bp3-icon {
       color: ${IntentColors.none};
+    }
+    & span {
+      font-weight: ${props => props.theme.fontWeights[3]};
     }
     background: ${Colors.WHITE};
   }
@@ -91,8 +94,7 @@ export const BlueprintButtonIntentsCSS = css`
     ${getHoverAndActiveStyles(IntentColors.warning)}
   }
 
-  &&&.bp3-minimal.bp3-button {
-    color: ${IntentColors.secondary};
+  &&.bp3-minimal.bp3-button {
     border: none;
     border-color: ${IntentColors.none};
     & span.bp3-icon {
@@ -196,13 +198,17 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   return values.join(" ");
 };
 
+export const labelStyle = css`
+  font-weight: ${props => props.theme.fontWeights[3]};
+`;
+
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
   fontWeights: [0, 400, 500, 700],
   propertyPane: {
-    width: 250,
+    width: 270,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -229,7 +235,7 @@ export const theme: Theme = {
     paneText: Colors.GRAY_CHATEAU,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.GEYSER,
+    grid: Colors.GEYSER_LIGHT,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
@@ -265,11 +271,16 @@ export const theme: Theme = {
       style: "solid",
       color: Colors.FRENCH_PASS,
     },
+    {
+      thickness: 3,
+      style: "solid",
+      color: Colors.MYSTIC,
+    },
   ],
   sidebarWidth: "300px",
   headerHeight: "50px",
   sideNav: {
-    maxWidth: 250,
+    maxWidth: 300,
     minWidth: 50,
     bgColor: Colors.OXFORD_BLUE,
     fontColor: Colors.WHITE,
@@ -296,7 +307,10 @@ export const theme: Theme = {
     dividerSpacing: 32,
     shadow: "0px 4px 8px rgba(9, 30, 66, 0.25)",
   },
-  shadows: ["0px 2px 4px rgba(67, 70, 74, 0.14)"],
+  shadows: [
+    "0px 2px 4px rgba(67, 70, 74, 0.14)",
+    `0px 2px 4px ${Colors.MYSTIC}`,
+  ],
   widgets: {
     tableWidget: {
       selectHighlightColor: Colors.GEYSER_LIGHT,

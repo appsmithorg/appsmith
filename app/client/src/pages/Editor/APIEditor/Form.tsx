@@ -59,8 +59,11 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled(BaseButton)`
-  max-width: 72px;
-  margin: 0 5px;
+  &&& {
+    max-width: 72px;
+    margin: 0 5px;
+    min-height: 30px;
+  }
 `;
 
 const JSONEditorFieldWrapper = styled.div`
@@ -107,7 +110,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         <FormRow>
           <TextField
             name="name"
-            placeholder="API name (camel case)"
+            placeholder="nameOfApi (camel case)"
             showError
           />
           <ActionButtons>

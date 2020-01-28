@@ -7,12 +7,14 @@ import {
   IIconProps,
 } from "@blueprintjs/core";
 import styled from "styled-components";
+import _ from "lodash";
 
 const SubHeaderWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 ${props => props.theme.spaces[5]}px;
+  padding: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
 `;
 const StyledAddButton = styled(Button)<IIconProps>`
   &&& {
@@ -36,6 +38,8 @@ type ApplicationsSubHeaderProps = {
   };
   search?: {
     placeholder: string;
+    debounce?: boolean;
+    queryFn?: (keyword: string) => void;
   };
 };
 
@@ -52,6 +56,15 @@ export const ApplicationsSubHeader = (props: ApplicationsSubHeaderProps) => {
       setIsOpen(false);
     }
   }, [props.add]);
+
+  const query =
+    props.search &&
+    props.search.queryFn &&
+    _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
+  const searchQuery = (e: any) => {
+    query && query(e.target.value);
+  };
+
   return (
     <SubHeaderWrapper>
       <SearchContainer>
@@ -60,6 +73,7 @@ export const ApplicationsSubHeader = (props: ApplicationsSubHeaderProps) => {
             <InputGroup
               placeholder={props.search.placeholder}
               leftIcon="search"
+              onChange={searchQuery}
             />
           </ControlGroup>
         )}

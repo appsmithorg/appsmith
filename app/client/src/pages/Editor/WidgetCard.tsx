@@ -4,6 +4,10 @@ import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { WidgetIcons } from "icons/WidgetIcons";
+import {
+  useWidgetDragResize,
+  useShowPropertyPane,
+} from "utils/hooks/dragResizeHooks";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -56,11 +60,20 @@ export const IconLabel = styled.h5`
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
+  const { setIsDragging } = useWidgetDragResize();
+  const showPropertyPane = useShowPropertyPane();
   const [, drag, preview] = useDrag({
     item: props.details,
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    begin: () => {
+      showPropertyPane && showPropertyPane(undefined);
+      setIsDragging && setIsDragging(true);
+    },
+    end: () => {
+      setIsDragging && setIsDragging(false);
+    },
   });
 
   const iconType: string = props.details.type;

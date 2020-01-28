@@ -2,6 +2,7 @@ import store from "store";
 import { IconNames } from "@blueprintjs/icons";
 import { Direction, Directions } from "utils/helpers";
 import { PopoverPosition } from "@blueprintjs/core";
+import history from "utils/history";
 
 export const DropdownOnSelectActions: { [id: string]: string } = {
   REDIRECT: "redirect",
@@ -18,6 +19,11 @@ export const getOnSelectAction = (
   switch (type) {
     case DropdownOnSelectActions.DISPATCH:
       store.dispatch(payload);
+      break;
+    case DropdownOnSelectActions.REDIRECT:
+      if (history.location.pathname !== payload.path) {
+        history.push(payload.path);
+      }
       break;
     default:
       console.log("No such action registered", type);

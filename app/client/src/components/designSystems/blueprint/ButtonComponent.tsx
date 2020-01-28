@@ -42,9 +42,13 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     font-weight: ${props => props.theme.fontWeights[2]};
     font-family: "DM Sans";
     outline: none;
+    &.bp3-button {
+      min-height: auto;
+      padding: 0px 10px;
+    }
     && .bp3-button-text {
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 99%;
+      max-height: 100%;
       overflow: hidden;
     }
     &&:hover,

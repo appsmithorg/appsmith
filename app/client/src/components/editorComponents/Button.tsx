@@ -25,7 +25,7 @@ const buttonStyles = css<{
   &&&& {
     padding: ${props =>
       props.filled || props.outline
-        ? props.theme.spaces[3] + "px " + props.theme.spaces[3] + "px"
+        ? props.theme.spaces[2] + "px " + props.theme.spaces[3] + "px"
         : 0};
     background: ${props =>
       props.filled || props.outline ? "auto" : "transparent"};
@@ -57,6 +57,9 @@ export type ButtonProps = {
   href?: string;
   icon?: string;
   iconAlignment?: Direction;
+  loading?: boolean;
+  disabled?: boolean;
+  size?: "large" | "small";
 };
 
 export const Button = (props: ButtonProps) => {
@@ -77,7 +80,10 @@ export const Button = (props: ButtonProps) => {
     outline: props.outline ? props.outline.toString() : undefined,
     filled: props.filled ? props.filled.toString() : undefined,
     intent: props.intent as BlueprintIntent,
-    large: true,
+    large: props.size === "large",
+    small: props.size === "small",
+    loading: props.loading,
+    disabled: props.disabled,
   };
   if (props.href) {
     return (

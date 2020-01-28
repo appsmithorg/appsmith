@@ -238,6 +238,18 @@ function* handleActionDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
   });
 }
 
+function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
+  const { id } = actionPayload.payload;
+  const action = yield select(getAction, id);
+  const { values }: { values: RestAction } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
+  if (values.id === id) {
+    yield put(initialize(API_EDITOR_FORM_NAME, action));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -245,6 +257,8 @@ export default function* root() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, handleActionUpdatedSaga),
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
+    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),

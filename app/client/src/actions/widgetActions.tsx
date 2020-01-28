@@ -32,17 +32,13 @@ export const loadingAction = (
 
 export const disableDragAction = (
   disable: boolean,
-): ReduxAction<WidgetDraggingState> => {
+): ReduxAction<{ disable: boolean }> => {
   return {
     type: ReduxActionTypes.DISABLE_WIDGET_DRAG,
     payload: {
-      disable: disable,
+      disable,
     },
   };
-};
-
-export type WidgetDraggingState = {
-  disable: boolean;
 };
 
 export type WidgetLoadingState = {

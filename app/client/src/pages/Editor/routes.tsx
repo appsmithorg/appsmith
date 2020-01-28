@@ -16,30 +16,30 @@ import {
 } from "constants/routes";
 import styled from "styled-components";
 
-const Wrapper = styled.div<{ isVisible: boolean }>`
+const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: ${props => (props.showOnlySidebar ? "0px" : "100%")};
   height: calc(100vh - ${props => props.theme.headerHeight});
   background-color: ${props =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
-  z-index: ${props => (props.isVisible ? 10 : -1)};
-  transition-property: z-index;
-  transition-delay: ${props => (props.isVisible ? "0" : "0.25s")};
+  z-index: ${props => (props.isVisible ? 2 : -1)};
 `;
 
-const DrawerWrapper = styled.div<{ isVisible: boolean }>`
+const DrawerWrapper = styled.div<{
+  isVisible: boolean;
+  showOnlySidebar?: boolean;
+}>`
   background-color: white;
-  width: 75%;
+  width: ${props => (props.showOnlySidebar ? "0px" : "75%")};
   height: 100%;
   box-shadow: -1px 2px 3px 0px ${props => props.theme.colors.paneBG};
-  transform: translateX(${props => (props.isVisible ? `0` : `-80vw`)});
-  transition: 0.25s;
 `;
 
 interface RouterState {
   isVisible: boolean;
+  showOnlySidebar: boolean;
 }
 
 class EditorsRouter extends React.Component<
@@ -54,8 +54,13 @@ class EditorsRouter extends React.Component<
         this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
         this.props.location.pathname !==
           BUILDER_PAGE_URL(applicationId, pageId),
+      showOnlySidebar:
+        this.props.location.pathname.indexOf(
+          API_EDITOR_URL(applicationId, pageId),
+        ) === -1,
     };
   }
+
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
       const { applicationId, pageId } = this.props.match.params;
@@ -64,6 +69,10 @@ class EditorsRouter extends React.Component<
           this.props.location.pathname !== BUILDER_BASE_URL(applicationId) &&
           this.props.location.pathname !==
             BUILDER_PAGE_URL(applicationId, pageId),
+        showOnlySidebar:
+          this.props.location.pathname.indexOf(
+            API_EDITOR_URL(applicationId, pageId),
+          ) === -1,
       });
     }
   }
@@ -83,9 +92,16 @@ class EditorsRouter extends React.Component<
 
   render(): React.ReactNode {
     return (
-      <Wrapper isVisible={this.state.isVisible} onClick={this.handleClose}>
+      <Wrapper
+        isVisible={this.state.isVisible}
+        onClick={
+          !this.state.showOnlySidebar ? this.handleClose : this.preventClose
+        }
+        showOnlySidebar={this.state.showOnlySidebar}
+      >
         <DrawerWrapper
           isVisible={this.state.isVisible}
+          showOnlySidebar={this.state.showOnlySidebar}
           onClick={this.preventClose}
         >
           <Switch>

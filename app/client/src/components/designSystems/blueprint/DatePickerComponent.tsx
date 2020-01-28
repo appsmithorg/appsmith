@@ -1,44 +1,66 @@
-import * as React from "react";
+import React from "react";
+import styled from "styled-components";
+import { labelStyle } from "constants/DefaultTheme";
+import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput, DateRangeInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "widgets/DatePickerWidget";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
+const StyledControlGroup = styled(ControlGroup)`
+  &&& {
+    label {
+      ${labelStyle}
+      flex: 0 1 30%;
+      text-align: right;
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
+      align-self: center;
+    }
+  }
+`;
 class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
-    return this.props.datePickerType === "DATE_PICKER" ? (
-      <DateInput
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
-        formatDate={this.formatDate}
-        parseDate={this.parseDate}
-        placeholder={this.props.dateFormat}
-        disabled={this.props.isDisabled}
-        showActionsBar={true}
-        timePickerProps={
-          this.props.enableTimePicker
-            ? {
-                useAmPm: true,
-                value: this.props.selectedDate || this.props.defaultDate,
-                showArrowButtons: true,
-              }
-            : undefined
-        }
-        closeOnSelection={true}
-        onChange={this.onDateSelected}
-        value={this.props.selectedDate || this.props.defaultDate}
-      />
-    ) : (
-      <DateRangeInput
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
-        allowSingleDayRange={true}
-        disabled={this.props.isDisabled}
-        contiguousCalendarMonths={false}
-        formatDate={this.formatDate}
-        minDate={this.props.minDate}
-        maxDate={this.props.maxDate}
-        closeOnSelection={true}
-      />
+    return (
+      <StyledControlGroup fill>
+        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+          {this.props.label}
+        </Label>
+        {this.props.datePickerType === "DATE_PICKER" ? (
+          <DateInput
+            className={this.props.isLoading ? "bp3-skeleton" : ""}
+            formatDate={this.formatDate}
+            parseDate={this.parseDate}
+            placeholder={this.props.dateFormat}
+            disabled={this.props.isDisabled}
+            showActionsBar={true}
+            timePickerProps={
+              this.props.enableTimePicker
+                ? {
+                    useAmPm: true,
+                    value: this.props.selectedDate || this.props.defaultDate,
+                    showArrowButtons: true,
+                  }
+                : undefined
+            }
+            closeOnSelection={true}
+            onChange={this.onDateSelected}
+            value={this.props.selectedDate || this.props.defaultDate}
+          />
+        ) : (
+          <DateRangeInput
+            className={this.props.isLoading ? "bp3-skeleton" : ""}
+            allowSingleDayRange={true}
+            disabled={this.props.isDisabled}
+            contiguousCalendarMonths={false}
+            formatDate={this.formatDate}
+            minDate={this.props.minDate}
+            maxDate={this.props.maxDate}
+            closeOnSelection={true}
+          />
+        )}
+      </StyledControlGroup>
     );
   }
 
