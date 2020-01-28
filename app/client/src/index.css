@@ -52,6 +52,14 @@ div.bp3-popover-arrow {
   cursor: default !important;
 }
 
+.bp3-intent-primary, input:checked ~ span.bp3-control-indicator {
+  background: #29CCA3 !important;
+  box-shadow: none !important;
+}
+.bp3-intent-primary {
+  border-radius: 4px !important;
+}
+
 .pace {
   -webkit-pointer-events: none;
   pointer-events: none;

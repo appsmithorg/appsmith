@@ -47,6 +47,7 @@ const PropertyPaneTitle = styled.div`
 
 const PropertyPaneWrapper = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 class PropertyPane extends Component<

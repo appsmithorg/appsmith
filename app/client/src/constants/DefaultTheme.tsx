@@ -62,11 +62,14 @@ export const BlueprintButtonIntentsCSS = css`
     border-width: 1px;
     border-style: solid;
     outline: none;
-    min-width: 100px;
+    min-width: 50px;
     color: ${IntentColors.secondary};
     border-color: ${IntentColors.none};
     & span.bp3-icon {
       color: ${IntentColors.none};
+    }
+    & span {
+      font-weight: ${props => props.theme.fontWeights[3]};
     }
     background: ${Colors.WHITE};
   }
@@ -195,13 +198,17 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   return values.join(" ");
 };
 
+export const labelStyle = css`
+  font-weight: ${props => props.theme.fontWeights[3]};
+`;
+
 export const theme: Theme = {
   radii: [0, 4, 8, 10, 20, 50],
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36],
   fontWeights: [0, 400, 500, 700],
   propertyPane: {
-    width: 250,
+    width: 270,
     height: 600,
     dividerColor: Colors.MAKO,
   },

@@ -12,7 +12,7 @@ import { Select, MultiSelect, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
-import styled from "constants/DefaultTheme";
+import styled, { labelStyle } from "constants/DefaultTheme";
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
@@ -43,7 +43,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
     label {
-      margin: 0 ${WIDGET_PADDING}px 0 0;
+      ${labelStyle}
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
       align-self: center;
       flex: 0 1 30%;
       text-align: right;

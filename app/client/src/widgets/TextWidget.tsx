@@ -36,6 +36,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         textStyle={this.props.textStyle}
         text={this.props.text}
         isLoading={this.props.isLoading}
+        shouldScroll={this.props.shouldScroll}
         // lines={lines}
       />
     );
@@ -52,6 +53,7 @@ export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle: TextStyle;
   isLoading: boolean;
+  shouldScroll: boolean;
 }
 
 export default TextWidget;

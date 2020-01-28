@@ -5,7 +5,7 @@ import { ComponentProps } from "components/designSystems/appsmith/BaseComponent"
 import { TextStyle } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-
+import { labelStyle } from "constants/DefaultTheme";
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
 };
@@ -22,21 +22,24 @@ export const BaseText = styled(Text)<TextStyleProps>``;
 
 export const TextContainer = styled.div`
   && {
-    text-overflow: hidden;
     height: 100%;
     width: 100%;
   }
 `;
-export const StyledText = styled(Text)`
+export const StyledText = styled(Text)<{ scroll: boolean }>`
   height: 100%;
-  overflow: hidden;
+  overflow-y: ${props => (props.scroll ? "auto" : "hidden")};
   text-overflow: ellipsis;
   display: flex;
   width: 100%;
   justify-content: flex-start;
   align-items: center;
-
-  span {
+  &.bp3-heading {
+    font-weight: ${props => props.theme.fontWeights[3]};
+    font-size: ${props => props.theme.fontSizes[4]}px;
+  }
+  &.bp3-ui-text {
+    ${labelStyle}
   }
 `;
 
@@ -45,6 +48,7 @@ export interface TextComponentProps extends ComponentProps {
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
+  shouldScroll?: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -56,12 +60,13 @@ class TextComponent extends React.Component<TextComponentProps> {
     }
     switch (textStyle) {
       case "HEADING":
-        className.push(Classes.TEXT_LARGE);
+        className.push(Classes.HEADING);
         break;
       case "BODY":
         className.push(Classes.RUNNING_TEXT);
         break;
       case "LABEL":
+        className.push(Classes.UI_TEXT);
         break;
       default:
         break;
@@ -75,6 +80,7 @@ class TextComponent extends React.Component<TextComponentProps> {
     return (
       <TextContainer>
         <StyledText
+          scroll={!!this.props.shouldScroll}
           className={this.getTextClass(textStyle)}
           ellipsize={ellipsize}
         >
