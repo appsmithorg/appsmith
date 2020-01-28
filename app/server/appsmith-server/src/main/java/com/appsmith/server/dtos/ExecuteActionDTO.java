@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.server.domains.Action;
 import lombok.Getter;
@@ -16,4 +17,6 @@ public class ExecuteActionDTO {
     Action action;
 
     List<Param> params;
+
+    PaginationField paginationField;
 }
