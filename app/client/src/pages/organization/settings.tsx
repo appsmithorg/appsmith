@@ -28,7 +28,7 @@ export const OrgSettings = (props: PageProps) => {
   return (
     <React.Fragment>
       <PageSectionHeader>
-        <h1>
+        <h2>
           {props.org && (
             <EditableText
               defaultValue={props.org.name}
@@ -38,11 +38,11 @@ export const OrgSettings = (props: PageProps) => {
               placeholder="Enter Organization Name"
             />
           )}
-        </h1>
+        </h2>
       </PageSectionHeader>
       <PageSectionDivider />
       <PageSectionHeader>
-        <h1>Organization Users</h1>
+        <h2>Users</h2>
         <Button
           intent="primary"
           text="Invite Users"

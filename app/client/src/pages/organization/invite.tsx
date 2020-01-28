@@ -5,7 +5,7 @@ export const Invite = () => {
   // const handleInviteUsersSubmit = (values: InviteUsersFormValues) => {};
   return (
     <React.Fragment>
-      <h1>Invite Users</h1>
+      <h2>Invite Users</h2>
       <InviteUsersForm />
     </React.Fragment>
   );

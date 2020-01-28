@@ -1,19 +1,24 @@
 [context.production]
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
+    REACT_APP_BASE_URL = "https://api.appsmith.com"
 
 [context.release]
   [context.release.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
 
 [context.develop]
   [context.develop.environment]
     REACT_APP_ENVIRONMENT = "DEVELOPMENT"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
 
 [context.a]
   [context.a.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
 
 [context.b]
   [context.b.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"

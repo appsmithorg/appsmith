@@ -90,11 +90,11 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
+    "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
     "build": "craco  --max-old-space-size=2048 build",
     "test": "CI=true craco test",
     "eject": "react-scripts eject",
-    "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
+    "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "storybook": "start-storybook",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "build-storybook": "build-storybook -c .storybook -o .storybook-out"

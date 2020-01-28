@@ -3,10 +3,9 @@ import {
   HOTJAR_PROD_HJID,
   HOTJAR_PROD_HJSV,
 } from "constants/ThirdPartyConstants";
-import { PROD_BASE_URL } from "constants/ApiConstants";
 import { AppsmithUIConfigs } from "./types";
 
-export const prodConfig: AppsmithUIConfigs = {
+export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
   sentry: {
     enabled: true,
     config: SENTRY_PROD_CONFIG,
@@ -22,7 +21,7 @@ export const prodConfig: AppsmithUIConfigs = {
     enabled: true,
   },
   apiUrl: "/api/",
-  baseUrl: PROD_BASE_URL,
-};
+  baseUrl,
+});
 
 export default prodConfig;
