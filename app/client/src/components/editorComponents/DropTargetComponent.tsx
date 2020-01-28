@@ -121,7 +121,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         return true;
         // If the current widget's (dragging/resizing) bottom row has moved back up
       } else if (widgetBottomRow < rows - 2 && rows - props.snapRows >= 2) {
-        setRows(rows - 2);
+        setRows(rows - 1);
         return true;
       }
       return false;

@@ -73,6 +73,7 @@
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.3.0",
     "react-select": "^3.0.8",
+    "react-spring": "^8.0.27",
     "react-tabs": "^3.0.0",
     "react-transition-group": "^4.3.0",
     "redux": "^4.0.1",
