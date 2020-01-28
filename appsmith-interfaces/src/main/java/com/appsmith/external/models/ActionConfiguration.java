@@ -28,6 +28,7 @@ public class ActionConfiguration {
      */
 
     Integer timeoutInMillisecond;
+    Boolean isPaginated;
 
     // API fields
     String path;
@@ -35,6 +36,9 @@ public class ActionConfiguration {
     List<Property> queryParameters;
     String body;
     HttpMethod httpMethod;
+    // Paginated API fields
+    String next;
+    String prev;
 
     // DB action fields
 

@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
@@ -346,8 +347,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         // 4. Execute the query
         return actionMono
                 .flatMap(action -> datasourceMono.zipWith(pluginExecutorMono, (datasource, pluginExecutor) -> {
-                    DatasourceConfiguration datasourceConfiguration;
-                    ActionConfiguration actionConfiguration;
+                    DatasourceConfiguration datasourceConfigurationTemp;
+                    ActionConfiguration actionConfigurationTemp;
                     //Do variable substitution before invoking the plugin
                     //Do this only if params have been provided in the execute command
                     if (executeActionDTO.getParams() != null && !executeActionDTO.getParams().isEmpty()) {
@@ -358,17 +359,29 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
-                        datasourceConfiguration = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
-                        actionConfiguration = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
+                        datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
+                        actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
                         // If the action has a body (for RestAPI), then unescape HTML in the string.
-                        if (actionConfiguration.getBody() != null) {
-                            actionConfiguration.setBody(StringEscapeUtils.unescapeHtml(actionConfiguration.getBody()));
+                        if (actionConfigurationTemp.getBody() != null) {
+                            actionConfigurationTemp.setBody(StringEscapeUtils.unescapeHtml(actionConfigurationTemp.getBody()));
                         }
+
                     } else {
-                        datasourceConfiguration = datasource.getDatasourceConfiguration();
-                        actionConfiguration = action.getActionConfiguration();
+                        datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
+                        actionConfigurationTemp = action.getActionConfiguration();
                     }
+                    DatasourceConfiguration datasourceConfiguration;
+                    ActionConfiguration actionConfiguration;
+                    // If the action is paginated, update the configurations to update the correct URL.
+                    if (action.getActionConfiguration().getIsPaginated() && executeActionDTO.getPaginationField() != null) {
+                        datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfigurationTemp, datasourceConfigurationTemp, executeActionDTO.getPaginationField());
+                        actionConfiguration = updateActionConfigurationForPagination(actionConfigurationTemp, executeActionDTO.getPaginationField());
+                    } else {
+                        datasourceConfiguration = datasourceConfigurationTemp;
+                        actionConfiguration = actionConfigurationTemp;
+                    }
+
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 
                     log.debug("Execute Action called in Page {}, for action id : {}  action name : {}, {}, {}",
@@ -510,5 +523,25 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     .flatMap(exampleAction -> repository.findAll(Example.of(exampleAction), sort));
         }
         return repository.findAll(Example.of(actionExample), sort);
+    }
+
+    private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                       PaginationField paginationField) {
+        if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
+            actionConfiguration.setPath("");
+            actionConfiguration.setQueryParameters(null);
+        }
+        return actionConfiguration;
+    }
+
+    private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                               DatasourceConfiguration datasourceConfiguration,
+                                                                               PaginationField paginationField) {
+        if (PaginationField.NEXT.equals(paginationField)) {
+            datasourceConfiguration.setUrl(actionConfiguration.getNext());
+        } else if (PaginationField.PREV.equals(paginationField)) {
+            datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+        }
+        return datasourceConfiguration;
     }
 }
