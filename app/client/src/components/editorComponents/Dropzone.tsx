@@ -9,6 +9,7 @@ import { useSpring, animated, interpolate, config } from "react-spring";
 const SPRING_CONFIG = {
   ...config.gentle,
   clamp: true,
+  friction: 5,
 };
 const DropZoneWrapper = styled.div<{ width: number; height: number }>`
   width: ${props => props.width}px;

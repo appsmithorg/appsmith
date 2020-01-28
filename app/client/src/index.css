@@ -52,7 +52,7 @@ div.bp3-popover-arrow {
   cursor: default !important;
 }
 
-.bp3-intent-primary, input:checked ~ span.bp3-control-indicator {
+.bp3-intent-primary:not(.bp3-icon), input:checked ~ span.bp3-control-indicator {
   background: #29CCA3 !important;
   box-shadow: none !important;
 }

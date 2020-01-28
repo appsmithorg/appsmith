@@ -10,6 +10,7 @@ type SelectComponentProps = {
   };
   options?: Array<{ id: string; name: string }>;
   placeholder?: string;
+  size?: "large" | "small";
 };
 
 export const SelectComponent = (props: SelectComponentProps) => {
@@ -34,6 +35,7 @@ export const SelectComponent = (props: SelectComponentProps) => {
             .name
         : props.placeholder,
       outline: true,
+      size: props.size,
     },
     openDirection: "down",
   };

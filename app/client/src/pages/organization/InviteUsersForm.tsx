@@ -134,6 +134,7 @@ const renderInviteUsersByRoleForm = (
                   name={`${field}.role`}
                   placeholder={INVITE_USERS_ROLE_SELECT_PLACEHOLDER}
                   options={roles}
+                  size="large"
                 />
               </FormGroup>
             )}
