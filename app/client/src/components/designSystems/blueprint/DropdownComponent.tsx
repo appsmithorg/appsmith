@@ -29,6 +29,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     width: 100%;
     align-items: center;
     justify-content: space-between;
+    ${labelStyle}
   }
   .bp3-button-text {
     text-overflow: ellipsis;
@@ -72,9 +73,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     return (
       <DropdownContainer>
         <StyledControlGroup fill>
-          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-            {this.props.label}
-          </Label>
+          {this.props.label && (
+            <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+              {this.props.label}
+            </Label>
+          )}
           {this.props.selectionType === "SINGLE_SELECT" ? (
             <StyledSingleDropDown
               className={this.props.isLoading ? "bp3-skeleton" : ""}
@@ -89,7 +92,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 text={
                   !_.isEmpty(this.props.options)
                     ? this.props.options[this.props.selectedIndex].label
-                    : "Add options"
+                    : "-- Empty --"
                 }
               />
             </StyledSingleDropDown>

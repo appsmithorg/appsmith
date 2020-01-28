@@ -104,11 +104,13 @@ class InputComponent extends React.Component<
   render() {
     return (
       <InputComponentWrapper fill>
-        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-          <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
-            {this.props.label}
-          </span>
-        </Label>
+        {this.props.label && (
+          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+            <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
+              {this.props.label}
+            </span>
+          </Label>
+        )}
 
         {this.isNumberInputType(this.props.inputType) ? (
           <NumericInput

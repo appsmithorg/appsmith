@@ -33,7 +33,7 @@ export const StyledText = styled(Text)<{ scroll: boolean }>`
   display: flex;
   width: 100%;
   justify-content: flex-start;
-  align-items: center;
+  align-items: ${props => (props.scroll ? "flex-start" : "center")};
   &.bp3-heading {
     font-weight: ${props => props.theme.fontWeights[3]};
     font-size: ${props => props.theme.fontSizes[4]}px;

@@ -94,10 +94,23 @@ const TagInputComponent = (props: TagInputProps) => {
     }
   };
 
+  const handleInputBlur = (e: any) => {
+    if (e.target.value.trim()) {
+      const newValues = [...values, e.target.value];
+      commitValues(newValues);
+      setCurrentValue("");
+      e.preventDefault();
+    }
+  };
+
   return (
     <TagInputWrapper intent={props.intent}>
       <TagInput
-        inputProps={{ type: props.type, value: currentValue }}
+        inputProps={{
+          type: props.type,
+          value: currentValue,
+          onBlur: handleInputBlur,
+        }}
         onInputChange={handleInputChange}
         placeholder={props.placeholder}
         values={_values || [""]}

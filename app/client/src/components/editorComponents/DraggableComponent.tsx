@@ -58,15 +58,6 @@ const ClickCaptureMask = styled.div`
   z-index: 2;
 `;
 
-const DragHandle = styled.div`
-  position: absolute;
-  left: 0px;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
-  cursor: move;
-  display: none;
-  cursor: grab;
-`;
-
 const DeleteControl = styled.div`
   position: absolute;
   right: ${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
@@ -84,11 +75,6 @@ const EditControl = styled.div`
 `;
 
 const CONTROL_ICON_SIZE = 20;
-
-const moveControlIcon = ControlIcons.MOVE_CONTROL({
-  width: CONTROL_ICON_SIZE,
-  height: CONTROL_ICON_SIZE,
-});
 
 const deleteControlIcon = ControlIcons.DELETE_CONTROL({
   width: CONTROL_ICON_SIZE,
