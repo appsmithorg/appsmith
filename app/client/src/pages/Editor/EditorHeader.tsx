@@ -129,7 +129,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       <StretchedBreadCrumb items={navigation} />
       <CustomizedDropdown {...pageSelectorData} />
       <LoadingContainer>
-        {props.isSaving ? "Saving..." : "All changed Saved"}
+        {props.isSaving ? "Saving..." : "All changes saved"}
       </LoadingContainer>
       <PreviewPublishSection>
         <Tooltip
@@ -147,7 +147,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             loading={props.isPublishing}
             intent="primary"
             filled
-            large={false}
+            size="small"
           />
         </Tooltip>
       </PreviewPublishSection>

@@ -25,7 +25,7 @@ export const DropdownTrigger = styled.div`
 `;
 export const DropdownContent = styled.div`
   &&& * {
-    font-size: ${props => props.theme.fontSizes[4]}px;
+    font-size: ${props => props.theme.fontSizes[3]}px;
   }
 `;
 

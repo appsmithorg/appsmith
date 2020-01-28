@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
@@ -42,8 +42,9 @@ const InputComponentWrapper = styled(ControlGroup)`
     }
     align-items: center;
     label {
+      ${labelStyle}
       flex: 0 1 30%;
-      margin: 0 ${WIDGET_PADDING}px 0 0;
+      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
     }
   }

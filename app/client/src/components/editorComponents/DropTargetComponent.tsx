@@ -260,6 +260,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           marginBottom,
           userSelect: "none",
           opacity: 0.99,
+          background: "none",
         }}
       >
         {props.children}

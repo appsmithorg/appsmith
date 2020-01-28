@@ -128,7 +128,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     RADIO_GROUP_WIDGET: {
       rows: 2,
       columns: 5,
-      label: "Labels",
+      label: "Label",
       options: [
         { id: "1", label: "Alpha", value: "1" },
         { id: "2", label: "Bravo", value: "2" },

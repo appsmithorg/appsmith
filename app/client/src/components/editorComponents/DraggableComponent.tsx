@@ -247,11 +247,11 @@ const DraggableComponent = (props: DraggableComponentProps) => {
 
         {props.children}
 
-        <DragHandle className="control" ref={drag}>
+        {/* <DragHandle className="control" ref={drag}>
           <Tooltip content="Move" hoverOpenDelay={500}>
             {moveControlIcon}
           </Tooltip>
-        </DragHandle>
+        </DragHandle> */}
         <DeleteControl className="control" onClick={deleteWidget}>
           <Tooltip content="Delete" hoverOpenDelay={500}>
             {deleteControlIcon}
