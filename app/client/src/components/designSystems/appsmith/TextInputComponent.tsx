@@ -79,6 +79,7 @@ export interface TextInputProps extends IInputGroupProps {
   className?: string;
   type?: string;
   refHandler?: (ref: HTMLInputElement | null) => void;
+  noValidate?: boolean;
 }
 
 interface TextInputState {

@@ -30,9 +30,11 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
       <StyledControlGroup fill>
-        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-          {this.props.label}
-        </Label>
+        {this.props.label && (
+          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+            {this.props.label}
+          </Label>
+        )}
         <StyledRadioGroup
           selectedValue={this.props.selectedOptionValue}
           onChange={this.onRadioSelectionChange}

@@ -24,9 +24,11 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
     return (
       <StyledControlGroup fill>
-        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-          {this.props.label}
-        </Label>
+        {this.props.label && (
+          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+            {this.props.label}
+          </Label>
+        )}
         {this.props.datePickerType === "DATE_PICKER" ? (
           <DateInput
             className={this.props.isLoading ? "bp3-skeleton" : ""}
