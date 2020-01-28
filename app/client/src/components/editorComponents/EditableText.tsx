@@ -38,8 +38,8 @@ export const EditableText = (props: EditableTextProps) => {
     <EditableTextWrapper onDoubleClick={edit} isEditing={isEditing}>
       <BlueprintEditableText
         {...props}
-        disabled={false}
-        isEditing={true}
+        disabled={!isEditing}
+        isEditing={!!isEditing}
         onConfirm={onChange}
         selectAllOnFocus
       />

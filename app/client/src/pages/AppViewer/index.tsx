@@ -90,11 +90,7 @@ class AppViewer extends Component<
           <AppViewerHeader />
           <AppViewerBody>
             <AppViewerSideNavWrapper>
-              <SideNav
-                items={items}
-                iconSize={24}
-                active={this.props.currentDSLPageId}
-              />
+              <SideNav items={items} active={this.props.currentDSLPageId} />
             </AppViewerSideNavWrapper>
             <Switch>
               <Route

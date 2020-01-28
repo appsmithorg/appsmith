@@ -19,13 +19,12 @@ export default styled.div`
       padding: 0;
     }
     & li div.bp3-menu-item {
-      width: 100%;
       font-size: ${props => props.theme.fontSizes[3]}px;
       &.bp3-intent-primary {
         background: ${props => props.theme.sideNav.activeItemBGColor};
       }
-      & div {
-        line-height: ${props => props.theme.lineHeights[6]}px;
+      & > div {
+        display: inline-block;
       }
     }
   }
