@@ -373,8 +373,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     }
                     DatasourceConfiguration datasourceConfiguration;
                     ActionConfiguration actionConfiguration;
+
                     // If the action is paginated, update the configurations to update the correct URL.
-                    if (action.getActionConfiguration().getIsPaginated() && executeActionDTO.getPaginationField() != null) {
+                    if (action.getActionConfiguration() != null &&
+                            action.getActionConfiguration().getIsPaginated() != null &&
+                            action.getActionConfiguration().getIsPaginated() &&
+                            executeActionDTO.getPaginationField() != null) {
                         datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfigurationTemp, datasourceConfigurationTemp, executeActionDTO.getPaginationField());
                         actionConfiguration = updateActionConfigurationForPagination(actionConfigurationTemp, executeActionDTO.getPaginationField());
                     } else {
