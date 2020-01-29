@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
         log.error("", e);
         rollbar.log(e);
-        return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.DUPLICATE_KEY.getHttpErrorCode(),
+        return Mono.just(new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDTO(AppsmithError.DUPLICATE_KEY.getAppErrorCode(),
                 AppsmithError.DUPLICATE_KEY.getMessage())));
     }
 
