@@ -71,6 +71,7 @@ authenticated_operations = [
     {"method": "GET", "resource": "applications", "permission": "read:applications"},
     {"method": "POST", "resource": "applications", "permission": "create:applications"},
     {"method": "PUT", "resource": "applications", "permission": "update:applications"},
+    {"method": "DELETE", "resource": "applications", "permission": "delete:applications"},
 
     {"method": "GET", "resource": "groups", "permission": "read:groups"},
     {"method": "POST", "resource": "groups", "permission": "create:groups"},
