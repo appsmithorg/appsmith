@@ -40,12 +40,16 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -282,7 +286,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         List<Param> params = executeActionDTO.getParams();
         if (params != null && !params.isEmpty()) {
             for (Param param : params) {
-
+                log.debug("param key {}, value {}", param.getKey(), param.getValue());
                 if (param.getKey() == null || param.getKey().isEmpty()) {
                     continue;
                 }
@@ -362,6 +366,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
+                        log.debug("After replacement, datasource is : {}", datasourceConfigurationTemp);
                         // If the action has a body (for RestAPI), then unescape HTML in the string.
                         if (actionConfigurationTemp.getBody() != null) {
                             actionConfigurationTemp.setBody(StringEscapeUtils.unescapeHtml(actionConfigurationTemp.getBody()));
@@ -464,7 +469,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             // Convert the object to String as a preparation to send it to mustacheReplacement
             String objectInJsonString = objectMapper.writeValueAsString(configuration);
             objectInJsonString = mustacheReplacement(objectInJsonString, configuration.getClass().getSimpleName(), replaceParamsMap);
-            return objectMapper.readValue(objectInJsonString, configuration.getClass());
+            Pattern pattern = Pattern.compile("&#61;");
+            Matcher matcher = pattern.matcher(objectInJsonString);
+            String res = matcher.replaceAll("=");
+            log.debug("After replacement, the value is : {}", res);
+            return objectMapper.readValue(res, configuration.getClass());
         } catch (Exception e) {
             log.error("Exception caught while substituting values in mustache template.", e);
         }
@@ -535,17 +544,24 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             actionConfiguration.setPath("");
             actionConfiguration.setQueryParameters(null);
         }
+        log.debug("Action configuration after pagination update is : {}", actionConfiguration);
         return actionConfiguration;
     }
 
     private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
+        log.debug("datasource config before update is : {}", datasourceConfiguration);
         if (PaginationField.NEXT.equals(paginationField)) {
-            datasourceConfiguration.setUrl(actionConfiguration.getNext());
+            try {
+                datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
+        log.debug("datasource config after pagination update is : {}", datasourceConfiguration);
         return datasourceConfiguration;
     }
 }
