@@ -71,6 +71,7 @@ public class RestApiPlugin extends BasePlugin {
             URI uri = null;
             try {
                 uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+                System.out.println("Final URL is : "+ uri.toString());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
