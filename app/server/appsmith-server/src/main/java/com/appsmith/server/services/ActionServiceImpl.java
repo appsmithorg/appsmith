@@ -286,7 +286,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         List<Param> params = executeActionDTO.getParams();
         if (params != null && !params.isEmpty()) {
             for (Param param : params) {
-                log.debug("param key {}, value {}", param.getKey(), param.getValue());
                 if (param.getKey() == null || param.getKey().isEmpty()) {
                     continue;
                 }
@@ -366,7 +365,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
-                        log.debug("After replacement, datasource is : {}", datasourceConfigurationTemp);
                         // If the action has a body (for RestAPI), then unescape HTML in the string.
                         if (actionConfigurationTemp.getBody() != null) {
                             actionConfigurationTemp.setBody(StringEscapeUtils.unescapeHtml(actionConfigurationTemp.getBody()));
@@ -472,7 +470,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             Pattern pattern = Pattern.compile("&#61;");
             Matcher matcher = pattern.matcher(objectInJsonString);
             String res = matcher.replaceAll("=");
-            log.debug("After replacement, the value is : {}", res);
             return objectMapper.readValue(res, configuration.getClass());
         } catch (Exception e) {
             log.error("Exception caught while substituting values in mustache template.", e);
@@ -544,14 +541,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             actionConfiguration.setPath("");
             actionConfiguration.setQueryParameters(null);
         }
-        log.debug("Action configuration after pagination update is : {}", actionConfiguration);
         return actionConfiguration;
     }
 
     private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                                DatasourceConfiguration datasourceConfiguration,
                                                                                PaginationField paginationField) {
-        log.debug("datasource config before update is : {}", datasourceConfiguration);
         if (PaginationField.NEXT.equals(paginationField)) {
             try {
                 datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), "UTF-8"));
@@ -561,7 +556,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         } else if (PaginationField.PREV.equals(paginationField)) {
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
-        log.debug("datasource config after pagination update is : {}", datasourceConfiguration);
         return datasourceConfiguration;
     }
 }
