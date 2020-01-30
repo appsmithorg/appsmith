@@ -82,6 +82,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             dslString = objectMapper.writeValueAsString(dsl);
         } catch (JsonProcessingException e) {
             log.debug("Exception caught during conversion of DSL Json object to String. ", e);
+            Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
         }
 
         Set<String> widgetNames = new HashSet<>();
@@ -95,46 +96,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     Set<String> dynamicBindingNames = new HashSet<>();
                     if (!dynamicBindings.isEmpty()) {
                         for (String mustacheKey : dynamicBindings) {
-                            String key = mustacheKey.trim();
-
                             // Extract all the words in the dynamic bindings
-                            Matcher matcher = pattern.matcher(key);
-
-                            while (matcher.find()) {
-                                String word = matcher.group();
-
-                                String[] subStrings = word.split(Pattern.quote("."));
-                                if (subStrings.length > 0) {
-                                    // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                                    dynamicBindingNames.add(subStrings[0]);
-                                }
-                            }
+                            extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
                         }
                     }
                     return dynamicBindingNames;
                 });
 
-
-        Mono<Set<DslActionDTO>> onLoadActionsMono = dynamicBindingNamesMono
-                .flatMapMany(dynamicBindingNames -> findRestApiActionsByPageIdAndHTTPMethodGET(dynamicBindingNames, pageId))
-                .map(action -> {
-                    // Since we are only interested in few fields, prepare the DslActionDTO that needs to be stored in
-                    // the layout and return it to be collected in to a set.
-                    DslActionDTO newAction = new DslActionDTO();
-                    newAction.setId(action.getId());
-                    newAction.setPluginType(action.getPluginType());
-                    newAction.setJsonPathKeys(action.getJsonPathKeys());
-                    newAction.setName(action.getName());
-                    return newAction;
-                })
-                .collect(toSet());
+        List<Set<DslActionDTO>> onLoadActionsList = new ArrayList<>();
+        Mono<List<Set<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
+                .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(onLoadActionsList, dynamicBindingNames, pageId));
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
                     Page page = tuple.getT1();
-                    Set<DslActionDTO> onLoadActions = tuple.getT2();
+                    List<Set<DslActionDTO>> onLoadActions = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();
 
@@ -143,7 +121,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         if (storedLayout.getId().equals(layoutId)) {
                             //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            Set<DslActionDTO> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
+                            List<Set<DslActionDTO>> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
 
                             //Update
                             layout.setLayoutOnLoadActions(onLoadActions);
@@ -169,6 +147,53 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return Mono.empty();
                 });
+    }
+
+    private Mono<List<Set<DslActionDTO>>> findOnLoadActionsInPage(List<Set<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
+        if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
+            return Mono.just(onLoadActions);
+        }
+        Set<String> bindingNames = new HashSet<>();
+        return findRestApiActionsByPageIdAndHTTPMethodGET(dynamicBindingNames, pageId)
+                .map(action -> {
+                    for (String mustacheKey : action.getJsonPathKeys()) {
+                        extractWordsAndAddToSet(bindingNames, mustacheKey);
+                    }
+                    DslActionDTO newAction = new DslActionDTO();
+                    newAction.setId(action.getId());
+                    newAction.setPluginType(action.getPluginType());
+                    newAction.setJsonPathKeys(action.getJsonPathKeys());
+                    newAction.setName(action.getName());
+                    return newAction;
+                })
+                .collect(toSet())
+                .flatMap(actions -> {
+                    Set<DslActionDTO> onLoadSet = new HashSet<>();
+                    onLoadSet.addAll(actions);
+
+                    // If the resultant set of actions is empty, don't add it to the array list.
+                    if (!onLoadSet.isEmpty()) {
+                        onLoadActions.add(0, onLoadSet);
+                    }
+                    return findOnLoadActionsInPage(onLoadActions, bindingNames, pageId);
+                });
+    }
+
+    private void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
+        String key = mustacheKey.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+
+            String[] subStrings = word.split(Pattern.quote("."));
+            if (subStrings.length > 0) {
+                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
+                bindingNames.add(subStrings[0]);
+            }
+        }
     }
 
     /**
@@ -206,19 +231,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(savedAction -> pageService
                         .findById(oldPageId)
                         .map(page -> {
-                                if (page.getLayouts() == null) {
-                                    return Mono.empty();
-                                }
+                            if (page.getLayouts() == null) {
+                                return Mono.empty();
+                            }
 
-                                return page.getLayouts()
-                                .stream()
-                                /*
-                                 * subscribe() is being used here because within a stream, the master subscriber provided
-                                 * by spring framework does not get attached here leading to the updateLayout mono not
-                                 * emitting. The same is true for the updateLayout call for the new page.
-                                 */
-                                .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
-                                .collect(toSet());
+                            return page.getLayouts()
+                                    .stream()
+                                    /*
+                                     * subscribe() is being used here because within a stream, the master subscriber provided
+                                     * by spring framework does not get attached here leading to the updateLayout mono not
+                                     * emitting. The same is true for the updateLayout call for the new page.
+                                     */
+                                    .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
+                                    .collect(toSet());
                         })
                         .then(pageService.findById(actionMoveDTO.getDestinationPageId()))
                         .map(page -> {
@@ -227,9 +252,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             }
 
                             return page.getLayouts()
-                                .stream()
-                                .map(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout).subscribe())
-                                .collect(toSet());
+                                    .stream()
+                                    .map(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout).subscribe())
+                                    .collect(toSet());
                         })
                         .thenReturn(savedAction));
     }
