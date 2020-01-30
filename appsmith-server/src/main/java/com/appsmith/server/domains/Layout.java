@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,14 +31,14 @@ public class Layout extends BaseDomain {
     @Deprecated
     Set<DslActionDTO> layoutActions;
 
-    List<Set<DslActionDTO>> layoutOnLoadActions;
+    List<HashSet<DslActionDTO>> layoutOnLoadActions;
 
     @Deprecated
     @JsonIgnore
     Set<DslActionDTO> publishedLayoutActions;
 
     @JsonIgnore
-    List<Set<DslActionDTO>> publishedLayoutOnLoadActions;
+    List<HashSet<DslActionDTO>> publishedLayoutOnLoadActions;
 
     @JsonIgnore
     Set<String> widgetNames;
@@ -55,7 +56,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
 
-    public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
+    public List<HashSet<DslActionDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 }
