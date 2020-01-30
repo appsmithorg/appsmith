@@ -11,8 +11,6 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> switchCurrentOrganization(String orgId);
 
-    Mono<User> addUserToOrganization(String orgId, User user);
-
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
     Mono<Boolean> verifyPasswordResetToken(String email, String token);

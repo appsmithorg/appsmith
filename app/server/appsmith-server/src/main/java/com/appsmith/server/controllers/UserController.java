@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,12 +26,15 @@ import reactor.core.publisher.Mono;
 public class UserController extends BaseController<UserService, User, String> {
 
     private final SessionUserService sessionUserService;
+    private final UserOrganizationService userOrganizationService;
 
     @Autowired
     public UserController(UserService service,
-                          SessionUserService sessionUserService) {
+                          SessionUserService sessionUserService,
+                          UserOrganizationService userOrganizationService) {
         super(service);
         this.sessionUserService = sessionUserService;
+        this.userOrganizationService = userOrganizationService;
     }
 
     @PutMapping("/switchOrganization/{orgId}")
@@ -41,7 +45,7 @@ public class UserController extends BaseController<UserService, User, String> {
 
     @PutMapping("/addOrganization/{orgId}")
     public Mono<ResponseDTO<User>> addUserToOrganization(@PathVariable String orgId) {
-        return service.addUserToOrganization(orgId, null)
+        return userOrganizationService.addUserToOrganization(orgId, null)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

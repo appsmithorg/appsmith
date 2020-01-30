@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -34,6 +35,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final GroupService groupService;
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
+    private final UserOrganizationService userOrganizationService;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -45,13 +47,15 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    AnalyticsService analyticsService,
                                    GroupService groupService,
                                    PluginRepository pluginRepository,
-                                   SessionUserService sessionUserService) {
+                                   SessionUserService sessionUserService,
+                                   UserOrganizationService userOrganizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
         this.groupService = groupService;
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
+        this.userOrganizationService = userOrganizationService;
     }
 
     @Override
@@ -72,18 +76,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByName(name);
     }
 
-    /**
-     * Create organization needs to first fetch and embed Setting object in OrganizationSetting
-     * for any settings that may have diverged from the default values. Once the
-     * settings have been embedded in all the organization settings, the library
-     * function is called to store the enhanced organization object back in the organization object.
-     */
-    @Override
-    public Mono<Organization> create(Organization organization) {
+    public Mono<Organization> create(Organization organization, User user) {
         log.debug("Going to create org: {}", organization);
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
+
         Mono<Organization> organizationMono = Mono.just(organization)
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
@@ -101,13 +99,28 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                             return org;
                         }))
                 //Call the BaseService function to save the updated organization
-                .flatMap(super::create);
+                .flatMap(super::create)
+                .flatMap(savedOrganization -> userOrganizationService
+                        .addUserToOrganization(savedOrganization.getId(), user)
+                        .thenReturn(savedOrganization));
 
         return organizationMono
                 .flatMap(org -> groupService.createDefaultGroupsForOrg(org.getId())
                         .collectList()
                         .thenReturn(org)
                 );
+    }
+
+    /**
+     * Create organization needs to first fetch and embed Setting object in OrganizationSetting
+     * for any settings that may have diverged from the default values. Once the
+     * settings have been embedded in all the organization settings, the library
+     * function is called to store the enhanced organization object back in the organization object.
+     */
+    @Override
+    public Mono<Organization> create(Organization organization) {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> create(organization, user));
     }
 
     private Mono<Organization> enhanceOrganizationSettingList(Organization organization) {
