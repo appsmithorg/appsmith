@@ -88,15 +88,15 @@ class ApiSidebar extends React.Component<Props> {
     ) {
       return true;
     }
-    return nextProps.actions.data !== this.props.actions.data;
+    return nextProps.actions !== this.props.actions;
   }
 
   handleCreateNew = () => {
     const { actions } = this.props;
     const { pageId } = this.props.match.params;
-    const pageApiNames = actions.data
-      .filter(a => a.pageId === pageId)
-      .map(a => a.name);
+    const pageApiNames = actions
+      .filter(a => a.config.pageId === pageId)
+      .map(a => a.config.name);
     const newName = getNextEntityName("Api", pageApiNames);
     this.props.createAction({ ...DEFAULT_API_ACTION, name: newName, pageId });
   };
@@ -106,23 +106,28 @@ class ApiSidebar extends React.Component<Props> {
   };
 
   handleMove = (itemId: string, destinationPageId: string) => {
-    const action = this.props.actions.data.filter(a => a.id === itemId)[0];
-    const pageApiNames = this.props.actions.data
-      .filter(a => a.pageId === destinationPageId)
-      .map(a => a.name);
-    let name = action.name;
-    if (pageApiNames.indexOf(action.name) > -1) {
+    const action = this.props.actions.filter(a => a.config.id === itemId)[0];
+    const pageApiNames = this.props.actions
+      .filter(a => a.config.pageId === destinationPageId)
+      .map(a => a.config.name);
+    let name = action.config.name;
+    if (pageApiNames.indexOf(action.config.name) > -1) {
       name = getNextEntityName(name, pageApiNames);
     }
-    this.props.moveAction(itemId, destinationPageId, name, action.pageId);
+    this.props.moveAction(
+      itemId,
+      destinationPageId,
+      name,
+      action.config.pageId,
+    );
   };
 
   handleCopy = (itemId: string, destinationPageId: string) => {
-    const action = this.props.actions.data.filter(a => a.id === itemId)[0];
-    const pageApiNames = this.props.actions.data
-      .filter(a => a.pageId === destinationPageId)
-      .map(a => a.name);
-    let name = `${action.name}Copy`;
+    const action = this.props.actions.filter(a => a.config.id === itemId)[0];
+    const pageApiNames = this.props.actions
+      .filter(a => a.config.pageId === destinationPageId)
+      .map(a => a.config.name);
+    let name = `${action.config.name}Copy`;
     if (pageApiNames.indexOf(name) > -1) {
       name = getNextEntityName(name, pageApiNames);
     }
@@ -154,10 +159,11 @@ class ApiSidebar extends React.Component<Props> {
       match: {
         params: { apiId },
       },
-      actions: { data },
+      actions,
       pluginId,
     } = this.props;
     if (!pluginId) return null;
+    const data = actions.map(a => a.config);
     return (
       <EditorSidebar
         isLoading={isFetching}

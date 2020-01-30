@@ -12,6 +12,7 @@ import { APIEditorRouteParams } from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CodeEditor from "components/editorComponents/CodeEditor";
+import { getActionResponses } from "selectors/entitiesSelector";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -49,9 +50,7 @@ const TableWrapper = styled.div`
 `;
 
 interface ReduxStateProps {
-  responses: {
-    [id: string]: ActionResponse;
-  };
+  responses: Record<string, ActionResponse | undefined>;
   apiPane: ApiPaneReduxState;
 }
 
@@ -100,7 +99,7 @@ const ApiResponseView = (props: Props) => {
   let response: ActionResponse = EMPTY_RESPONSE;
   let isRunning = false;
   if (apiId && apiId in responses) {
-    response = responses[apiId];
+    response = responses[apiId] || EMPTY_RESPONSE;
     isRunning = apiPane.isRunning[apiId];
   }
   return (
@@ -160,7 +159,7 @@ const ApiResponseView = (props: Props) => {
 };
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  responses: state.entities.apiData,
+  responses: getActionResponses(state),
   apiPane: state.ui.apiPane,
 });
 

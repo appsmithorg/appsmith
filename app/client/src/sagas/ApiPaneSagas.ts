@@ -35,7 +35,8 @@ const getApiDraft = (state: AppState, id: string) => {
   return {};
 };
 
-const getActions = (state: AppState) => state.entities.actions.data;
+const getActions = (state: AppState) =>
+  state.entities.actions.map(a => a.config);
 
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
 
