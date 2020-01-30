@@ -25,10 +25,12 @@ public abstract class BaseDomain implements Persistable<String> {
     @Id
     private String id;
 
+    @JsonIgnore
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
+    @JsonIgnore
     @LastModifiedDate
     protected Instant updatedAt;
 
@@ -40,6 +42,7 @@ public abstract class BaseDomain implements Persistable<String> {
 
     protected Boolean deleted = false;
 
+    @JsonIgnore
     @Version
     protected Long documentVersion;
 
