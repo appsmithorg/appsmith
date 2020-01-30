@@ -103,8 +103,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return dynamicBindingNames;
                 });
 
-        List<Set<DslActionDTO>> onLoadActionsList = new ArrayList<>();
-        Mono<List<Set<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
+        List<HashSet<DslActionDTO>> onLoadActionsList = new ArrayList<>();
+        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
                 .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(onLoadActionsList, dynamicBindingNames, pageId));
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
@@ -112,7 +112,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
                     Page page = tuple.getT1();
-                    List<Set<DslActionDTO>> onLoadActions = tuple.getT2();
+                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();
 
@@ -121,7 +121,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         if (storedLayout.getId().equals(layoutId)) {
                             //Copy the variables to conserve before update
                             JSONObject publishedDsl = storedLayout.getPublishedDsl();
-                            List<Set<DslActionDTO>> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
+                            List<HashSet<DslActionDTO>> publishedLayoutOnLoadActions = storedLayout.getPublishedLayoutOnLoadActions();
 
                             //Update
                             layout.setLayoutOnLoadActions(onLoadActions);
@@ -149,15 +149,17 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
-    private Mono<List<Set<DslActionDTO>>> findOnLoadActionsInPage(List<Set<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
+    private Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
         if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
             return Mono.just(onLoadActions);
         }
         Set<String> bindingNames = new HashSet<>();
         return findRestApiActionsByPageIdAndHTTPMethodGET(dynamicBindingNames, pageId)
                 .map(action -> {
-                    for (String mustacheKey : action.getJsonPathKeys()) {
-                        extractWordsAndAddToSet(bindingNames, mustacheKey);
+                    if (action.getJsonPathKeys() != null) {
+                        for (String mustacheKey : action.getJsonPathKeys()) {
+                            extractWordsAndAddToSet(bindingNames, mustacheKey);
+                        }
                     }
                     DslActionDTO newAction = new DslActionDTO();
                     newAction.setId(action.getId());
@@ -168,7 +170,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
-                    Set<DslActionDTO> onLoadSet = new HashSet<>();
+                    HashSet<DslActionDTO> onLoadSet = new HashSet<>();
                     onLoadSet.addAll(actions);
 
                     // If the resultant set of actions is empty, don't add it to the array list.
