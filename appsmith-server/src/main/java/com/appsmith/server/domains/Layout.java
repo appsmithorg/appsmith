@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -29,14 +30,14 @@ public class Layout extends BaseDomain {
     @Deprecated
     Set<DslActionDTO> layoutActions;
 
-    Set<DslActionDTO> layoutOnLoadActions;
+    List<Set<DslActionDTO>> layoutOnLoadActions;
 
     @Deprecated
     @JsonIgnore
     Set<DslActionDTO> publishedLayoutActions;
 
     @JsonIgnore
-    Set<DslActionDTO> publishedLayoutOnLoadActions;
+    List<Set<DslActionDTO>> publishedLayoutOnLoadActions;
 
     @JsonIgnore
     Set<String> widgetNames;
@@ -54,7 +55,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
 
-    public Set<DslActionDTO> getLayoutOnLoadActions() {
+    public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 }
