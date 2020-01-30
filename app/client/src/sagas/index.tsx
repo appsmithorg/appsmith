@@ -8,10 +8,6 @@ import configsSagas from "./ConfigsSagas";
 import applicationSagas from "./ApplicationSagas";
 import { watchDatasourcesSagas } from "./DatasourcesSagas";
 import initSagas from "./InitSagas";
-import bindingsSagas from "./BindingsSagas";
-import watchActionWidgetMapSagas, {
-  watchPropertyAndBindingUpdate,
-} from "./ActionWidgetMapSagas";
 import apiPaneSagas from "./ApiPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
@@ -28,9 +24,6 @@ export function* rootSaga() {
     spawn(configsSagas),
     spawn(watchDatasourcesSagas),
     spawn(applicationSagas),
-    spawn(bindingsSagas),
-    spawn(watchActionWidgetMapSagas),
-    spawn(watchPropertyAndBindingUpdate),
     spawn(apiPaneSagas),
     spawn(userSagas),
     spawn(pluginSagas),

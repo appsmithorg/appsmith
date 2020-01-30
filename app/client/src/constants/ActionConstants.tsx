@@ -86,3 +86,8 @@ export interface PageAction {
 export interface TableAction extends BaseActionPayload {
   actionName: string;
 }
+
+export interface ExecuteErrorPayload {
+  actionId: string;
+  error: any;
+}

@@ -12,6 +12,7 @@ import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
+import { RestAction } from "api/ActionAPI";
 export interface ColumnAction {
   label: string;
   id: string;
@@ -27,7 +28,7 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
 `;
 
 class ColumnActionSelectorControl extends BaseControl<
-  ColumnActionSelectorControlProps & ActionDataState
+  ColumnActionSelectorControlProps & { data: RestAction[] }
 > {
   render() {
     return (
@@ -51,12 +52,12 @@ class ColumnActionSelectorControl extends BaseControl<
                     label={columnAction.label}
                     labelEditable={true}
                     updateLabel={this.updateLabel}
-                  ></FinalActionSelector>
+                  />
                   <StyledDeleteIcon
                     height={20}
                     width={20}
                     onClick={this.removeColumnAction.bind(this, index)}
-                  ></StyledDeleteIcon>
+                  />
                 </div>
               );
             },
@@ -67,7 +68,7 @@ class ColumnActionSelectorControl extends BaseControl<
           color={"#FFFFFF"}
           minimal={true}
           onClick={this.addColumnAction}
-        ></StyledPropertyPaneButton>
+        />
       </ControlWrapper>
     );
   }
@@ -141,8 +142,8 @@ class ColumnActionSelectorControl extends BaseControl<
 
 export type ColumnActionSelectorControlProps = ControlProps;
 
-const mapStateToProps = (state: AppState): ActionDataState => ({
-  ...state.entities.actions,
+const mapStateToProps = (state: AppState): { data: RestAction[] } => ({
+  data: state.entities.actions.map(a => a.config),
 });
 
 export default connect(mapStateToProps)(ColumnActionSelectorControl);

@@ -1,23 +1,33 @@
 import { AppState, DataTree } from "reducers";
-import { JSONPath } from "jsonpath-plus";
 import { createSelector } from "reselect";
 import { getActions, getDataTree } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import createCachedSelector from "re-reselect";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
+import {
+  ENTITY_TYPE_ACTION,
+  ENTITY_TYPE_WIDGET,
+} from "constants/entityConstants";
 
-export type NameBindingsWithData = Record<string, object>;
+export type NameBindingsWithData = { [key: string]: any };
 
 export const getNameBindingsWithData = createSelector(
   getDataTree,
   (dataTree: DataTree): NameBindingsWithData => {
     const nameBindingsWithData: Record<string, object> = {};
-    Object.keys(dataTree.nameBindings).forEach(key => {
-      const nameBindings = dataTree.nameBindings[key];
-      nameBindingsWithData[key] = JSONPath({
-        path: nameBindings,
-        json: dataTree,
-      })[0];
+    dataTree.actions.forEach(a => {
+      nameBindingsWithData[a.config.name] = {
+        ...a,
+        data: a.data ? a.data.body : {},
+        __type: ENTITY_TYPE_ACTION,
+      };
+    });
+    Object.keys(dataTree.canvasWidgets).forEach(w => {
+      const widget = dataTree.canvasWidgets[w];
+      nameBindingsWithData[widget.widgetName] = {
+        ...widget,
+        __type: ENTITY_TYPE_WIDGET,
+      };
     });
     return nameBindingsWithData;
   },
@@ -35,19 +45,21 @@ export const getParsedDataTree = createSelector(
 export const getNameBindingsForAutocomplete = createCachedSelector(
   getParsedDataTree,
   getActions,
-  (dataTree: NameBindingsWithData, actions: ActionDataState["data"]) => {
+  (dataTree: NameBindingsWithData, actions: ActionDataState) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {
-        if (!(action.name in dataTree) && action.cacheResponse) {
+        if (!(action.config.name in dataTree) && action.config.cacheResponse) {
           try {
-            cachedResponses[action.name] = JSON.parse(action.cacheResponse);
+            cachedResponses[action.config.name] = JSON.parse(
+              action.config.cacheResponse,
+            );
           } catch (e) {
-            cachedResponses[action.name] = action.cacheResponse;
+            cachedResponses[action.config.name] = action.config.cacheResponse;
           }
         }
       });
     }
     return { ...dataTree, ...cachedResponses };
   },
-)((state: AppState) => state.entities.actions.data.length);
+)((state: AppState) => state.entities.actions.length);

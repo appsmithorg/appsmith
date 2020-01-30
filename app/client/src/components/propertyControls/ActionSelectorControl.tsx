@@ -155,7 +155,7 @@ export function FinalActionSelector(props: FinalActionSelectorProps) {
         updateLabel={props.updateLabel}
         actions={props.actions}
         labelEditable={props.labelEditable}
-      ></ActionSelector>
+      />
       {selectedActionLabel !== DEFAULT_ACTION_LABEL && (
         <ResolutionActionContainer>
           <ActionSelector
@@ -169,7 +169,7 @@ export function FinalActionSelector(props: FinalActionSelectorProps) {
             updateActions={props.updateActions}
             updateLabel={props.updateLabel}
             actions={props.actions}
-          ></ActionSelector>
+          />
           <ActionSelector
             allActions={allActions}
             actionTypeOptions={actionTypeOptions}
@@ -181,7 +181,7 @@ export function FinalActionSelector(props: FinalActionSelectorProps) {
             updateActions={props.updateActions}
             updateLabel={props.updateLabel}
             actions={props.actions}
-          ></ActionSelector>
+          />
         </ResolutionActionContainer>
       )}
     </ControlWrapper>
@@ -189,7 +189,7 @@ export function FinalActionSelector(props: FinalActionSelectorProps) {
 }
 
 class ActionSelectorControl extends BaseControl<
-  ControlProps & ActionDataState
+  ControlProps & { data: RestAction[] }
 > {
   render() {
     return (
@@ -199,7 +199,7 @@ class ActionSelectorControl extends BaseControl<
         actions={this.props.propertyValue}
         identifier={this.props.propertyName}
         updateActions={this.updateActions}
-      ></FinalActionSelector>
+      />
     );
   }
 
@@ -216,8 +216,8 @@ export interface ActionSelectorControlProps extends ControlProps {
   propertyValue: ActionPayload[];
 }
 
-const mapStateToProps = (state: AppState): ActionDataState => ({
-  ...state.entities.actions,
+const mapStateToProps = (state: AppState): { data: RestAction[] } => ({
+  data: state.entities.actions.map(a => a.config),
 });
 
 export default connect(mapStateToProps)(ActionSelectorControl);

@@ -6,6 +6,7 @@ import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton
 import unescapeJS from "unescape-js";
 import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 import toposort from "toposort";
+import { ENTITY_TYPE_ACTION } from "constants/entityConstants";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
@@ -207,10 +208,11 @@ export const getEvaluatedDataTree = (
     dynamicDependencyMap,
     parseValues,
   );
+  const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
   if (parseValues) {
-    return getParsedTree(evaluatedTree);
+    return getParsedTree(treeWithLoading);
   } else {
-    return evaluatedTree;
+    return treeWithLoading;
   }
 };
 
@@ -266,6 +268,59 @@ const calculateSubDependencies = (
     }
   });
   return subDeps;
+};
+
+export const setTreeLoading = (
+  dataTree: NameBindingsWithData,
+  dependencyMap: Array<[string, string]>,
+) => {
+  const result = _.cloneDeep(dataTree);
+  Object.keys(dataTree)
+    .filter(
+      e => dataTree[e].__type === ENTITY_TYPE_ACTION && dataTree[e].isLoading,
+    )
+    .reduce(
+      (allEntities: string[], curr) =>
+        allEntities.concat(getEntityDependencies(dependencyMap, curr)),
+      [],
+    )
+    .forEach(w => (result[w].isLoading = true));
+  return result;
+};
+
+export const getEntityDependencies = (
+  dependencyMap: Array<[string, string]>,
+  entity: string,
+): Array<string> => {
+  const entityDeps: Record<string, string[]> = dependencyMap
+    .map(d => [d[1].split(".")[0], d[0].split(".")[0]])
+    .filter(d => d[0] !== d[1])
+    .reduce((deps: Record<string, string[]>, dep) => {
+      const key: string = dep[0];
+      const value: string = dep[1];
+      return {
+        ...deps,
+        [key]: deps[key] ? deps[key].concat(value) : [value],
+      };
+    }, {});
+
+  if (entity in entityDeps) {
+    const recFind = (
+      keys: Array<string>,
+      deps: Record<string, string[]>,
+    ): Array<string> => {
+      let allDeps: string[] = [];
+      keys.forEach(e => {
+        allDeps = allDeps.concat([e]);
+        if (e in deps) {
+          allDeps = allDeps.concat([...recFind(deps[e], deps)]);
+        }
+      });
+      return allDeps;
+    };
+    return recFind(entityDeps[entity], entityDeps);
+  }
+  return [];
 };
 
 export function dependencySortedEvaluateDataTree(

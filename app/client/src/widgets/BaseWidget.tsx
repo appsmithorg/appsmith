@@ -256,7 +256,6 @@ export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
   dynamicBindings?: Record<string, boolean>;
-  isLoading: boolean;
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   [key: string]: any;

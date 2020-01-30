@@ -4,7 +4,6 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { RestAction } from "api/ActionAPI";
-import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
@@ -127,13 +126,6 @@ export const copyActionError = (payload: {
     payload,
   };
 };
-
-export const actionToWidgetIdMapSuccess = (
-  map: ActionWidgetIdsMap,
-): ReduxAction<ActionWidgetIdsMap> => ({
-  type: ReduxActionTypes.CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS,
-  payload: map,
-});
 
 export default {
   createAction: createActionRequest,
