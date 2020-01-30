@@ -32,7 +32,6 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -52,6 +51,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final EmailSender emailSender;
     private final GroupService groupService;
     private final InviteUserRepository inviteUserRepository;
+    private final UserOrganizationService userOrganizationService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
@@ -72,7 +72,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
                            GroupService groupService,
-                           InviteUserRepository inviteUserRepository) {
+                           InviteUserRepository inviteUserRepository,
+                           UserOrganizationService userOrganizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -83,6 +84,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.emailSender = emailSender;
         this.groupService = groupService;
         this.inviteUserRepository = inviteUserRepository;
+        this.userOrganizationService = userOrganizationService;
     }
 
     @Override
@@ -129,54 +131,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 });
     }
 
-    /**
-     * This function adds an organizationId to the user. This will allow users to switch between multiple organizations
-     * and operate inside them independently.
-     *
-     * @param orgId The organizationId being added to the user.
-     * @param user
-     * @return
-     */
-    @Override
-    public Mono<User> addUserToOrganization(String orgId, User user) {
 
-        Mono<User> currentUserMono;
-        if (user == null) {
-            currentUserMono = sessionUserService.getCurrentUser();
-        } else {
-            currentUserMono = Mono.just(user);
-        }
-
-        return organizationService.findById(orgId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization", orgId)))
-                .zipWith(currentUserMono)
-                .map(tuple -> {
-                    Organization organization = tuple.getT1();
-                    User user1 = tuple.getT2();
-                    log.debug("Adding organization {} with id {} to user {}", organization.getName(), organization.getId(), user.getEmail());
-                    return user1;
-                })
-                .map(user1 -> {
-                    Set<String> organizationIds = user1.getOrganizationIds();
-                    if (organizationIds == null) {
-                        organizationIds = new HashSet<>();
-                        if (user1.getCurrentOrganizationId() != null) {
-                            // If the list of organizationIds for a user is null, add the current user org
-                            // to the new list as well
-                            organizationIds.add(user1.getCurrentOrganizationId());
-                        }
-                    }
-                    if (!organizationIds.contains(orgId)) {
-                        // Only add to the organizationIds array if it's not already present
-                        organizationIds.add(orgId);
-                        user1.setOrganizationIds(organizationIds);
-                    }
-                    // Set the current organization to the newly added organization
-                    user1.setCurrentOrganizationId(orgId);
-                    return user1;
-                })
-                .flatMap(repository::save);
-    }
 
     /**
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
@@ -414,7 +369,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 user.getGroupIds().addAll(newUser.getGroupIds());
                 user.getPermissions().addAll(newUser.getPermissions());
                 return repository.save(user)
-                        .flatMap(savedUser -> addUserToOrganization(newUser.getCurrentOrganizationId(), savedUser))
+                        .flatMap(savedUser -> userOrganizationService.addUserToOrganization(newUser.getCurrentOrganizationId(), savedUser))
                         .thenReturn(newUser)
                         .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
                         .thenReturn(true);
@@ -423,7 +378,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             // The user doesn't exist in the system. Create a new user object
             newUser.setPassword(inviteUser.getPassword());
             return this.create(newUser)
-                    .flatMap(createdUser -> addUserToOrganization(newUser.getCurrentOrganizationId(), createdUser))
+                    .flatMap(createdUser -> userOrganizationService.addUserToOrganization(newUser.getCurrentOrganizationId(), createdUser))
                     .thenReturn(newUser)
                     .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
                     .thenReturn(true);
@@ -451,7 +406,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         String personalWorkspaceName = firstName + "'s Personal Workspace";
         personalOrg.setName(personalWorkspaceName);
 
-        Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg);
+        Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg, user);
 
         Mono<User> savedUserMono = super.create(user);
 
@@ -473,7 +428,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             })
                             // At this point both the user and the organization have been saved. Now add the newly created
                             // organization to the newly created user.
-                            .flatMap(user1 -> addUserToOrganization(savedOrg.getId(), user1));
+                            .flatMap(user1 -> repository.save(user1));
                 })
                 .map(savedUser -> {
                     // Send an email to the user welcoming them to the Appsmith platform
