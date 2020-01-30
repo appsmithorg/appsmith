@@ -239,7 +239,7 @@ export interface UpdateCanvasPayload {
   currentPageId: string;
   currentPageName: string;
   currentApplicationId: string;
-  pageActions: PageAction[];
+  pageActions: PageAction[][];
 }
 
 export interface ShowPropertyPanePayload {
