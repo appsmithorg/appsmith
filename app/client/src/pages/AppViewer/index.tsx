@@ -46,7 +46,7 @@ export type AppViewerProps = {
   pages?: PageListPayload;
   initializeAppViewer: Function;
   isInitialized: boolean;
-  executeAction: (actionPayloads?: ActionPayload[]) => void;
+  executeAction: (actionPayloads: ActionPayload[]) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -113,7 +113,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayloads?: ActionPayload[]) =>
+  executeAction: (actionPayloads: ActionPayload[]) =>
     dispatch(executeAction(actionPayloads)),
   updateWidgetProperty: (
     widgetId: string,

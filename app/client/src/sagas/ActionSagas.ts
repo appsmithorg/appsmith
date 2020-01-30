@@ -239,7 +239,7 @@ export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
 
 export function* executeReduxActionSaga(action: ReduxAction<ActionPayload[]>) {
   if (!_.isNil(action.payload)) {
-    yield call(executeActionSaga, action.payload);
+    yield* executeActionSaga(action.payload);
   } else {
     yield put({
       type: ReduxActionTypes.EXECUTE_ACTION_ERROR,
@@ -388,21 +388,24 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
   }
 }
 
-function* executePageLoadActionsSaga(action: ReduxAction<PageAction[]>) {
+function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
   const apiResponses = yield select(
     (state: AppState) => state.entities.apiData,
   );
-  const actionPayloads: ActionPayload[] = pageActions
-    .filter(action => !(action.id in apiResponses))
-    .map(action => ({
+  const actionPayloads: ActionPayload[][] = pageActions.map(actionSet =>
+    actionSet.map(action => ({
       actionId: action.id,
       actionType: action.pluginType,
       contextParams: {},
       actionName: action.name,
-    }));
-  if (actionPayloads.length) {
-    yield put(executeAction(actionPayloads));
+    })),
+  );
+  for (const actionSet of actionPayloads) {
+    const filteredSet = actionSet.filter(
+      action => !(action.actionId in apiResponses),
+    );
+    yield* executeReduxActionSaga(executeAction(filteredSet));
   }
 }
 

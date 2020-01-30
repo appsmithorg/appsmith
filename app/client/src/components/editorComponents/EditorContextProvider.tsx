@@ -16,7 +16,7 @@ import { OccupiedSpace } from "constants/editorConstants";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 
 export type EditorContextType = {
-  executeAction?: (actionPayloads?: ActionPayload[]) => void;
+  executeAction?: (actionPayloads: ActionPayload[]) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -81,7 +81,7 @@ const mapDispatchToProps = (dispatch: any) => {
           RenderModes.CANVAS,
         ),
       ),
-    executeAction: (actionPayloads?: ActionPayload[]) =>
+    executeAction: (actionPayloads: ActionPayload[]) =>
       dispatch(executeAction(actionPayloads)),
     updateWidget: (
       operation: WidgetOperation,
