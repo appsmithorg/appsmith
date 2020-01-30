@@ -9,9 +9,11 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.index.Indexed;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -23,11 +25,12 @@ public abstract class BaseDomain implements Persistable<String> {
     @Id
     private String id;
 
+    @Indexed
     @CreatedDate
-    protected Date createdAt;
+    protected Instant createdAt;
 
     @LastModifiedDate
-    protected Date updatedAt;
+    protected Instant updatedAt;
 
     @CreatedBy
     protected String createdBy;
@@ -36,6 +39,9 @@ public abstract class BaseDomain implements Persistable<String> {
     protected String modifiedBy;
 
     protected Boolean deleted = false;
+
+    @Version
+    protected Long documentVersion;
 
     @JsonIgnore
     @Override
