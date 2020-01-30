@@ -29,7 +29,7 @@ public enum AppsmithError {
     NO_RESOURCE_FOUND(404, 4021, "Unable to find {0} with id {1}"),
     UNAUTHORIZED_ACCESS(401, 4022, "Unauthorized access"),
     INVALID_DATASOURCE_NAME(400, 4023, "Datasource name is invalid"),
-    DUPLICATE_KEY(409, 4024, "Duplicate key error"),
+    DUPLICATE_KEY(409, 4024, "Unable to save the object in the database. Detailed error message: {0}"),
     GENERIC_BAD_REQUEST(400, 4025, "Bad Request: {0}"),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Repository save failed"),
