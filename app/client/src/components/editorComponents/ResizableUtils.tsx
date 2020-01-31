@@ -119,16 +119,16 @@ export const hasCollision = (
     props.rightColumn + (delta.width + position.x) / props.parentColumnSpace;
   const bottom =
     props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-
   if (maxBottomRow && bottom - top - 1 < maxBottomRow) {
     return true;
   }
+
   return isDropZoneOccupied(
     {
-      left,
-      top,
-      bottom,
-      right,
+      left: Math.round(left),
+      top: Math.round(top),
+      bottom: Math.round(bottom),
+      right: Math.round(right),
     },
     props.widgetId,
     occupiedSpaces,

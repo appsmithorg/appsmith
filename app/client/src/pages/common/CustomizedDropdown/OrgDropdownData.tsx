@@ -78,9 +78,9 @@ export const options = (
           content: "Members",
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/org/users",
+              path: "/users",
             }),
-          active: history.location.pathname === "/org/users",
+          active: history.location.pathname === "/users",
         },
       ],
     },

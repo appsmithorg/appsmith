@@ -4,6 +4,7 @@ export const ORG_URL = "/org";
 export const APPLICATIONS_URL = `/applications`;
 export const BUILDER_URL = "/applications/:applicationId/pages/:pageId/edit";
 export const USER_AUTH_URL = "/user";
+export const USERS_URL = "/users";
 
 export type BuilderRouteParams = {
   applicationId: string;

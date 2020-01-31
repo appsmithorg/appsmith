@@ -25,6 +25,7 @@ import {
   SIGN_UP_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
+  USERS_URL,
 } from "constants/routes";
 
 const loadingIndicator = <Loader />;
@@ -35,6 +36,7 @@ const Applications = lazy(() => import("./pages/Applications"));
 const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
 const AppViewer = lazy(() => import("./pages/AppViewer"));
 const Organization = lazy(() => import("./pages/organization"));
+const Users = lazy(() => import("./pages/users"));
 
 appInitializer();
 
@@ -56,6 +58,7 @@ ReactDOM.render(
             <Switch>
               <ProtectedRoute exact path={BASE_URL} component={App} />
               <ProtectedRoute path={ORG_URL} component={Organization} />
+              <ProtectedRoute exact path={USERS_URL} component={Users} />
               <Route path={USER_AUTH_URL} component={UserAuth} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />

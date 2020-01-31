@@ -7,7 +7,6 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { WidgetLoadingState } from "actions/widgetActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
