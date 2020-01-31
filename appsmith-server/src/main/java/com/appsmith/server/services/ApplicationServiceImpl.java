@@ -141,9 +141,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> delete(String id) {
+        log.debug("Archiving application with id: {}", id);
         Mono<Application> applicationMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)));
+
         return applicationMono
+                .flatMap(deletedObj -> {
+                    deletedObj.setDeleted(true);
+                    return repository.save(deletedObj);
+                })
                 .map(deletedObj -> {
                     analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj);
                     return (Application) deletedObj;
