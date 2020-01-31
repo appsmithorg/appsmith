@@ -217,7 +217,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<Action> moveAction(ActionMoveDTO actionMoveDTO) {
-        Action action = new Action();
+        Action action = actionMoveDTO.getAction();
 
         String oldPageId = actionMoveDTO.getAction().getPageId();
 
@@ -231,7 +231,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
          * 4. Return the saved action.
          */
         return actionService
-                .update(actionMoveDTO.getAction().getId(), action)
+                .update(action.getId(), action)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
                 .flatMap(savedAction -> pageService
                         .findById(oldPageId)
