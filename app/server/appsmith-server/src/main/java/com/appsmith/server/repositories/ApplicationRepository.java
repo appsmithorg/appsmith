@@ -9,7 +9,5 @@ public interface ApplicationRepository extends BaseRepository<Application, Strin
 
     Mono<Application> findByIdAndOrganizationId(String id, String orgId);
 
-    Mono<Application> findById(String id);
-
     Mono<Application> findByName(String name);
 }

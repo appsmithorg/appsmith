@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -16,6 +17,7 @@ public class SessionUserServiceImpl implements SessionUserService {
 
     private final UserRepository repository;
 
+    @Autowired
     public SessionUserServiceImpl(UserRepository userRepository) {
         this.repository = userRepository;
     }
