@@ -74,7 +74,13 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       <DropdownContainer>
         <StyledControlGroup fill>
           {this.props.label && (
-            <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
+            <Label
+              className={
+                this.props.isLoading
+                  ? Classes.SKELETON
+                  : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }
+            >
               {this.props.label}
             </Label>
           )}

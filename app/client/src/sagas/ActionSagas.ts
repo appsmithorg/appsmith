@@ -11,6 +11,7 @@ import {
   put,
   takeEvery,
   takeLatest,
+  take,
 } from "redux-saga/effects";
 import {
   ActionPayload,
@@ -382,7 +383,6 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
 
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
-  const apiResponses = yield select(getActionResponses);
   const actionPayloads: ActionPayload[][] = pageActions.map(actionSet =>
     actionSet.map(action => ({
       actionId: action.id,
@@ -392,10 +392,14 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     })),
   );
   for (const actionSet of actionPayloads) {
+    const apiResponses = yield select(getActionResponses);
     const filteredSet = actionSet.filter(
-      action => !(action.actionId in apiResponses),
+      action => !apiResponses[action.actionId],
     );
-    yield* executeReduxActionSaga(executeAction(filteredSet));
+    yield put(executeAction(filteredSet));
+    for (const {} of filteredSet) {
+      yield take(ReduxActionTypes.EXECUTE_ACTION_SUCCESS);
+    }
   }
 }
 

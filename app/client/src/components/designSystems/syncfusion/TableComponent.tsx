@@ -20,6 +20,7 @@ import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ActionPayload } from "constants/ActionConstants";
+import { Classes } from "@blueprintjs/core";
 
 export interface TableComponentProps {
   data: object[];
@@ -163,38 +164,48 @@ const TableComponent = memo(
     }
 
     return (
-      <StyledGridComponent
-        selectionSettings={settings}
-        dataSource={props.data}
-        rowSelected={rowSelected}
-        ref={grid}
-        width={"100%"}
-        height={"100%"}
-        allowPaging={true}
-        allowReordering={true}
-        allowResizing={true}
-        showColumnMenu={true}
-        columnDragStart={columnDragStart}
-        columnDrop={columnDrop}
-        commandClick={onCommandClick}
-        columnMenuOpen={columnMenuOpen}
-      >
-        <Inject services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]} />
-        <ColumnsDirective>
-          {props.columns.map(col => {
-            return (
-              <ColumnDirective key={col.field} field={col.field} width={200} />
-            );
-          })}
-          {commands.length > 0 && (
-            <ColumnDirective headerText="Actions" commands={commands} />
-          )}
-        </ColumnsDirective>
-      </StyledGridComponent>
+      <div className={props.isLoading ? Classes.SKELETON : ""}>
+        <StyledGridComponent
+          selectionSettings={settings}
+          dataSource={props.data}
+          rowSelected={rowSelected}
+          ref={grid}
+          width={"100%"}
+          height={"100%"}
+          allowPaging={true}
+          allowReordering={true}
+          allowResizing={true}
+          showColumnMenu={true}
+          columnDragStart={columnDragStart}
+          columnDrop={columnDrop}
+          commandClick={onCommandClick}
+          columnMenuOpen={columnMenuOpen}
+          // queryCellInfo={customizeCell}
+        >
+          <Inject
+            services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]}
+          />
+          <ColumnsDirective>
+            {props.columns.map(col => {
+              return (
+                <ColumnDirective
+                  key={col.field}
+                  field={col.field}
+                  width={200}
+                />
+              );
+            })}
+            {commands.length > 0 && (
+              <ColumnDirective headerText="Actions" commands={commands} />
+            )}
+          </ColumnsDirective>
+        </StyledGridComponent>
+      </div>
     );
   },
   (prevProps, nextProps) => {
     const propsNotEqual =
+      nextProps.isLoading !== prevProps.isLoading ||
       JSON.stringify(nextProps.data) !== JSON.stringify(prevProps.data) ||
       nextProps.height !== prevProps.height ||
       JSON.stringify(nextProps.columnActions) !==
