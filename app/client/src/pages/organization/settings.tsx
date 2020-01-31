@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import { AppState } from "reducers";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
-import EditableText from "components/editorComponents/EditableText";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -17,28 +16,12 @@ export type PageProps = {
 };
 
 export const OrgSettings = (props: PageProps) => {
-  const changeOrgName = (value: string) => {
-    if (props.org && value.trim().length > 0 && value !== props.org.name) {
-      props.changeOrgName(value);
-    }
-  };
-
   const history = useHistory();
 
   return (
     <React.Fragment>
       <PageSectionHeader>
-        <h2>
-          {props.org && (
-            <EditableText
-              defaultValue={props.org.name}
-              type="text"
-              isEditing={false}
-              onTextChanged={changeOrgName}
-              placeholder="Enter Organization Name"
-            />
-          )}
-        </h2>
+        {props.org && <h2>{props.org.name}</h2>}
       </PageSectionHeader>
       <PageSectionDivider />
       <PageSectionHeader>

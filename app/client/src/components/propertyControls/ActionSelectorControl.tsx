@@ -10,7 +10,6 @@ import {
 import { DropdownOption } from "widgets/DropdownWidget";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import styled from "styled-components";
 import ActionSelector from "./ActionSelector";
 import { RestAction } from "api/ActionAPI";

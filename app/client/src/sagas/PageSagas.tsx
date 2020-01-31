@@ -32,6 +32,7 @@ import {
   takeLatest,
   takeEvery,
   all,
+  debounce,
 } from "redux-saga/effects";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -162,7 +163,7 @@ export function* fetchPublishedPageSaga(
   }
 }
 
-export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
+function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   const savePageRequest = savePageAction.payload;
   try {
     const savePageResponse: SavePageResponse = yield call(
@@ -300,7 +301,6 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       fetchPublishedPageSaga,
     ),
-    takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
@@ -310,5 +310,6 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
+    debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
   ]);
 }

@@ -4,7 +4,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { connect } from "react-redux";
 import { ActionPayload } from "constants/ActionConstants";
 import { FinalActionSelector } from "./ActionSelectorControl";
