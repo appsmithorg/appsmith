@@ -105,10 +105,14 @@ class InputComponent extends React.Component<
     return (
       <InputComponentWrapper fill>
         {this.props.label && (
-          <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-            <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
-              {this.props.label}
-            </span>
+          <Label
+            className={
+              this.props.isLoading
+                ? Classes.SKELETON
+                : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }
+          >
+            {this.props.label}
           </Label>
         )}
 
