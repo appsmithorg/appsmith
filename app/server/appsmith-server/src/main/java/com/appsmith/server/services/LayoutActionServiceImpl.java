@@ -160,6 +160,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         for (String mustacheKey : action.getJsonPathKeys()) {
                             extractWordsAndAddToSet(bindingNames, mustacheKey);
                         }
+                        if (bindingNames.contains(action.getName())) {
+                            bindingNames.remove(action.getName());
+                        }
                     }
                     DslActionDTO newAction = new DslActionDTO();
                     newAction.setId(action.getId());
