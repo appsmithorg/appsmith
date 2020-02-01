@@ -61,6 +61,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final ObjectMapper objectMapper;
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -74,7 +75,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              AnalyticsService analyticsService,
                              ObjectMapper objectMapper,
                              DatasourceContextService datasourceContextService,
-                             PluginExecutorHelper pluginExecutorHelper) {
+                             PluginExecutorHelper pluginExecutorHelper,
+                             SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -83,6 +85,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.objectMapper = objectMapper;
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
+        this.sessionUserService = sessionUserService;
     }
 
     /**
@@ -163,7 +166,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
-        return validateAndSaveActionToRepository(action);
+        return sessionUserService.getCurrentUser()
+                .map(user -> user.getCurrentOrganizationId())
+                .map(orgId -> {
+                    action.setOrganizationId(orgId);
+                    return action;
+                })
+                .flatMap(this::validateAndSaveActionToRepository);
     }
 
     private Mono<Action> validateAndSaveActionToRepository(Action action) {
@@ -496,19 +505,29 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             actionExample.setPageId(params.getFirst(FieldName.PAGE_ID));
         }
 
+        Mono<String> orgIdMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getCurrentOrganizationId());
+
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
-            return pageService
-                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
-                    )
-                    .map(pageNameIdDTO -> {
-                        Action example = new Action();
-                        example.setPageId(pageNameIdDTO.getId());
-                        return example;
-                    })
-                    .flatMap(exampleAction -> repository.findAll(Example.of(exampleAction), sort));
+            return orgIdMono
+                    .flatMapMany(orgId -> pageService
+                            .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
+                            )
+                            .map(pageNameIdDTO -> {
+                                Action example = new Action();
+                                example.setPageId(pageNameIdDTO.getId());
+                                example.setOrganizationId(orgId);
+                                return example;
+                            })
+                            .flatMap(example -> repository.findAll(Example.of(example), sort)));
         }
-        return repository.findAll(Example.of(actionExample), sort);
+        return orgIdMono
+                .flatMapMany(orgId -> {
+                    actionExample.setOrganizationId(orgId);
+                    return repository.findAll(Example.of(actionExample), sort);
+                });
     }
 }

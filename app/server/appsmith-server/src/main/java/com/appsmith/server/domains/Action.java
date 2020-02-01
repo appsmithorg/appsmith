@@ -29,6 +29,8 @@ public class Action extends BaseDomain {
     @JsonIgnore
     String datasourceId;
 
+    String organizationId;
+
     String pageId;
 
     String collectionId;
