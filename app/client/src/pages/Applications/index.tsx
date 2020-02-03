@@ -50,14 +50,13 @@ class Applications extends Component<ApplicationProps> {
       <PageWrapper displayName="Applications">
         <SubHeader
           add={{
-            form: <CreateApplicationForm />,
-            title: "Create New App",
+            form: CreateApplicationForm,
+            title: "Create Application",
             formName: CREATE_APPLICATION_FORM_NAME,
             formSubmitIntent: "primary",
-            isAdding:
-              this.props.isCreatingApplication ||
-              !!this.props.createApplicationError,
+            isAdding: this.props.isCreatingApplication,
             errorAdding: this.props.createApplicationError,
+            formSubmitText: "Create",
           }}
           search={{
             placeholder: "Search",

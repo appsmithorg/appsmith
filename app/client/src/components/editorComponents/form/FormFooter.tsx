@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import FormActionButton from "components/editorComponents/form/FormActionButton";
+import Button from "components/editorComponents/Button";
 import Divider from "components/editorComponents/Divider";
 
 type FormFooterProps = {
@@ -12,6 +12,7 @@ type FormFooterProps = {
   cancelText?: string;
   submitOnEnter?: boolean;
   canSubmit?: boolean;
+  size?: "large" | "small";
 };
 
 const FooterActions = styled.div`
@@ -24,9 +25,7 @@ const FooterActions = styled.div`
   }
 `;
 
-const FormFooterContainer = styled.div`
-  padding: 1em 0;
-`;
+const FormFooterContainer = styled.div``;
 
 export const FormFooter = (props: FormFooterProps) => {
   return (
@@ -34,24 +33,24 @@ export const FormFooter = (props: FormFooterProps) => {
       {props.divider && <Divider />}
       <FooterActions>
         {props.onCancel && (
-          <FormActionButton
+          <Button
             text={props.cancelText || "Cancel"}
             type="button"
             onClick={props.onCancel}
-            large
+            size={props.size}
+            filled
           />
         )}
-        {props.onSubmit && (
-          <FormActionButton
-            text={props.submitText || "Submit"}
-            type={props.submitOnEnter ? "submit" : "button"}
-            intent="primary"
-            onClick={props.onSubmit}
-            disabled={props.canSubmit === false}
-            loading={props.submitting}
-            large
-          />
-        )}
+        <Button
+          text={props.submitText || "Submit"}
+          type={props.submitOnEnter ? "submit" : "button"}
+          intent="primary"
+          onClick={props.onSubmit}
+          disabled={props.canSubmit === false}
+          loading={props.submitting}
+          size={props.size}
+          filled
+        />
       </FooterActions>
     </FormFooterContainer>
   );

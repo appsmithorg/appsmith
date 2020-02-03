@@ -9,6 +9,28 @@ export type InviteUsersToOrgFormValues = {
   usersByRole: InviteUsersToOrgByRoleValues[];
 };
 
+export type CreateOrganizationFormValues = {
+  name: string;
+};
+
+export const createOrganizationSubmitHandler = (
+  values: CreateOrganizationFormValues,
+  dispatch: any,
+): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    dispatch({
+      type: ReduxActionTypes.CREATE_ORGANIZATION_INIT,
+      payload: {
+        resolve,
+        reject,
+        name: values.name,
+      },
+    });
+  }).catch(error => {
+    throw new SubmissionError(error);
+  });
+};
+
 export const inviteUsersToOrgSubmitHandler = (
   values: InviteUsersToOrgFormValues,
   dispatch: any,

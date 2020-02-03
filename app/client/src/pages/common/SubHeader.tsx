@@ -1,11 +1,7 @@
-import React, { ReactNode, useState, useEffect } from "react";
-import FormDialogComponent from "components/designSystems/blueprint/FormDialogComponent";
-import {
-  ControlGroup,
-  InputGroup,
-  Button,
-  IIconProps,
-} from "@blueprintjs/core";
+import React, { ReactNode } from "react";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { ControlGroup, InputGroup, IIconProps } from "@blueprintjs/core";
+import Button from "components/editorComponents/Button";
 import styled from "styled-components";
 import _ from "lodash";
 
@@ -18,16 +14,12 @@ const SubHeaderWrapper = styled.div`
 `;
 const StyledAddButton = styled(Button)<IIconProps>`
   &&& {
-    background: ${props => props.theme.colors.primary};
-    span {
-      color: white;
-    }
     outline: none;
   }
 `;
 const SearchContainer = styled.div``;
 
-type ApplicationsSubHeaderProps = {
+type SubHeaderProps = {
   add?: {
     form: ReactNode;
     title: string;
@@ -35,6 +27,7 @@ type ApplicationsSubHeaderProps = {
     isAdding: boolean;
     formSubmitIntent: string;
     errorAdding?: string;
+    formSubmitText: string;
   };
   search?: {
     placeholder: string;
@@ -43,20 +36,7 @@ type ApplicationsSubHeaderProps = {
   };
 };
 
-export const ApplicationsSubHeader = (props: ApplicationsSubHeaderProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const openForm = () => {
-    setIsOpen(true);
-  };
-  const closeForm = () => {
-    setIsOpen(false);
-  };
-  useEffect(() => {
-    if (props.add && !props.add.isAdding) {
-      setIsOpen(false);
-    }
-  }, [props.add]);
-
+export const ApplicationsSubHeader = (props: SubHeaderProps) => {
   const query =
     props.search &&
     props.search.queryFn &&
@@ -64,6 +44,16 @@ export const ApplicationsSubHeader = (props: ApplicationsSubHeaderProps) => {
   const searchQuery = (e: any) => {
     query && query(e.target.value);
   };
+
+  const createTrigger = props.add && (
+    <StyledAddButton
+      text={props.add.title}
+      icon="plus"
+      title={props.add.title}
+      filled
+      intent="primary"
+    />
+  );
 
   return (
     <SubHeaderWrapper>
@@ -78,25 +68,12 @@ export const ApplicationsSubHeader = (props: ApplicationsSubHeaderProps) => {
           </ControlGroup>
         )}
       </SearchContainer>
-      {props.add && (
-        <StyledAddButton
-          text={props.add.title}
-          icon="plus"
-          title={props.add.title}
-          onClick={openForm}
-          minimal
-        />
-      )}
+
       {props.add && (
         <FormDialogComponent
-          isOpen={isOpen}
-          formName={props.add.formName}
-          form={props.add.form}
-          error={props.add.errorAdding}
+          trigger={createTrigger}
+          Form={props.add.form}
           title={props.add.title}
-          isSubmitting={props.add.isAdding}
-          onClose={closeForm}
-          submitIntent={props.add.formSubmitIntent}
         />
       )}
     </SubHeaderWrapper>
