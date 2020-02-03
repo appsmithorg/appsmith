@@ -112,6 +112,7 @@ export const CustomizedDropdown = (
           : PopoverInteractionKind.CLICK
       }
       minimal
+      enforceFocus={false}
     >
       <DropdownTrigger>{trigger}</DropdownTrigger>
       <DropdownContent>{content}</DropdownContent>

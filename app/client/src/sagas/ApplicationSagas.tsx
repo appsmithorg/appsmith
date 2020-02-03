@@ -191,7 +191,7 @@ export function* createApplicationSaga(
         );
         history.push(pageURL);
       } else {
-        yield call(reject, { _error: "Could not create application" });
+        yield call(reject);
       }
     }
   } catch (error) {

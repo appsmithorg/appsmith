@@ -24,6 +24,10 @@ export interface SaveOrgRequest {
   website: string;
 }
 
+export interface CreateOrgRequest {
+  name: string;
+}
+
 class OrgApi extends Api {
   static rolesURL = "v1/groups";
   static orgsURL = "v1/organizations";
@@ -38,6 +42,9 @@ class OrgApi extends Api {
   }
   static saveOrg(request: SaveOrgRequest): AxiosPromise<ApiResponse> {
     return Api.put(OrgApi.orgsURL + "/" + request.id, request);
+  }
+  static createOrg(request: CreateOrgRequest): AxiosPromise<ApiResponse> {
+    return Api.post(OrgApi.orgsURL, request);
   }
 }
 

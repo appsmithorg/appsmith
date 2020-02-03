@@ -27,6 +27,7 @@ const buttonStyles = css<{
       props.filled || props.outline
         ? props.theme.spaces[2] + "px " + props.theme.spaces[3] + "px"
         : 0};
+
     background: ${props =>
       props.filled || props.outline ? "auto" : "transparent"};
   }
@@ -60,6 +61,7 @@ export type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   size?: "large" | "small";
+  type?: "button" | "submit" | "reset";
 };
 
 export const Button = (props: ButtonProps) => {
