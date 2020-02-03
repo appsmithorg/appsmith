@@ -167,6 +167,38 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.OPTIONS_DATA]: (value: any): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+      };
+    }
+    const hasOptions = _.every(
+      parsed,
+      (datum: { label: any; id: any; value: any }) => {
+        if (_.isObject(datum)) {
+          return (
+            _.isString(datum.label) &&
+            _.isString(datum.id) &&
+            _.isString(datum.value)
+          );
+        } else {
+          return false;
+        }
+      },
+    );
+    if (!hasOptions) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Options Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
   [VALIDATION_TYPES.DATE]: (value: any): ValidationResponse => {
     const isValid = moment(value).isValid();
     const parsed = isValid ? moment(value).toDate() : new Date();

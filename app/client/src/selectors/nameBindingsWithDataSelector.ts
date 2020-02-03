@@ -8,6 +8,7 @@ import {
   ENTITY_TYPE_ACTION,
   ENTITY_TYPE_WIDGET,
 } from "constants/entityConstants";
+import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 
 export type NameBindingsWithData = { [key: string]: any };
 
@@ -60,6 +61,10 @@ export const getNameBindingsForAutocomplete = createCachedSelector(
         }
       });
     }
-    return { ...dataTree, ...cachedResponses };
+    const libs: Record<string, any> = {};
+    extraLibraries.forEach(
+      config => (libs[config.accessor] = libs[config.accessor]),
+    );
+    return { ...dataTree, ...cachedResponses, ...libs };
   },
 )((state: AppState) => state.entities.actions.length);

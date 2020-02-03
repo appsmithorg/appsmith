@@ -238,7 +238,12 @@ export const createDependencyTree = (
   });
   const dependencyTree: Array<[string, string]> = [];
   Object.keys(dependencyMap).forEach((key: string) => {
-    dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+    if (dependencyMap[key].length) {
+      dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+    } else {
+      // Set no dependency
+      dependencyTree.push([key, ""]);
+    }
   });
   return dependencyTree;
 };
@@ -330,8 +335,10 @@ export function dependencySortedEvaluateDataTree(
 ) {
   const tree = _.cloneDeep(dataTree);
   try {
-    // sort dependencies
-    const sortedDependencies = toposort(dependencyTree).reverse();
+    // sort dependencies and remove empty dependencies
+    const sortedDependencies = toposort(dependencyTree)
+      .reverse()
+      .filter(d => !!d);
     // evaluate and replace values
     return sortedDependencies.reduce(
       (currentTree: NameBindingsWithData, path: string) => {

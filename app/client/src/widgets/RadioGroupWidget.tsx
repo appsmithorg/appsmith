@@ -10,7 +10,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.ARRAY,
+      options: VALIDATION_TYPES.OPTIONS_DATA,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
     };
   }
