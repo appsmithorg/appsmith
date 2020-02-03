@@ -12,6 +12,17 @@ enum JSExecutorType {
   REALM,
 }
 
+export const extraLibraries = [
+  {
+    accessor: "_",
+    lib: window._,
+  },
+  {
+    accessor: "moment",
+    lib: moment,
+  },
+];
+
 class JSExecutionManager {
   currentExecutor: JSExecutor;
   executors: Record<JSExecutorType, JSExecutor>;
@@ -41,8 +52,9 @@ class JSExecutionManager {
     };
     this.currentExecutor = realmExecutor;
 
-    this.registerLibrary("_", window._);
-    this.registerLibrary("moment", moment);
+    extraLibraries.forEach(config => {
+      this.registerLibrary(config.accessor, config.lib);
+    });
   }
   evaluateSync(jsSrc: string, data: JSExecutorGlobal) {
     return this.currentExecutor.execute(jsSrc, data);

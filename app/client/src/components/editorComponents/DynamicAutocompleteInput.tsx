@@ -225,31 +225,33 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: any) => {
-    let cursorBetweenBinding = false;
-    const cursor = this.editor.getCursor();
-    const value = this.editor.getValue();
-    let cumulativeCharCount = 0;
-    parseDynamicString(value).forEach(segment => {
-      const start = cumulativeCharCount;
-      const dynamicStart = segment.indexOf("{{");
-      const dynamicDoesStart = dynamicStart > -1;
-      const dynamicEnd = segment.indexOf("}}");
-      const dynamicDoesEnd = dynamicEnd > -1;
-      const dynamicStartIndex = dynamicStart + start + 1;
-      const dynamicEndIndex = dynamicEnd + start + 1;
-      if (
-        dynamicDoesStart &&
-        cursor.ch > dynamicStartIndex &&
-        ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
-          (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
-      ) {
-        cursorBetweenBinding = true;
+    if (this.state.isFocused) {
+      let cursorBetweenBinding = false;
+      const cursor = this.editor.getCursor();
+      const value = this.editor.getValue();
+      let cumulativeCharCount = 0;
+      parseDynamicString(value).forEach(segment => {
+        const start = cumulativeCharCount;
+        const dynamicStart = segment.indexOf("{{");
+        const dynamicDoesStart = dynamicStart > -1;
+        const dynamicEnd = segment.indexOf("}}");
+        const dynamicDoesEnd = dynamicEnd > -1;
+        const dynamicStartIndex = dynamicStart + start + 1;
+        const dynamicEndIndex = dynamicEnd + start + 1;
+        if (
+          dynamicDoesStart &&
+          cursor.ch > dynamicStartIndex &&
+          ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
+            (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
+        ) {
+          cursorBetweenBinding = true;
+        }
+        cumulativeCharCount = start + segment.length;
+      });
+      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
+      if (shouldShow) {
+        cm.showHint(cm);
       }
-      cumulativeCharCount = start + segment.length;
-    });
-    const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
-    if (shouldShow) {
-      cm.showHint(cm);
     }
   };
 
