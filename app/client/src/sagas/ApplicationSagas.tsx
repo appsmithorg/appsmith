@@ -126,6 +126,9 @@ export function* deleteApplicationSaga(
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
+        payload: {
+          applicationId: action.payload.applicationId,
+        },
       });
     }
   } catch (error) {

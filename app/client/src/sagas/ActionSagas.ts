@@ -29,7 +29,7 @@ import ActionAPI, {
 import { AppState } from "reducers";
 import _ from "lodash";
 import { mapToPropList } from "utils/AppsmithUtils";
-import AppToaster from "components/editorComponents/ToastComponent";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import {
   copyActionError,
