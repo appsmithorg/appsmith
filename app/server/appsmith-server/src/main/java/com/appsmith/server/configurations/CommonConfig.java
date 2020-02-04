@@ -1,6 +1,5 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,8 +8,6 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -21,9 +18,6 @@ import java.util.List;
 @Getter
 @Setter
 @Configuration
-@EnableMongoAuditing
-@EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
-        basePackages = "com.appsmith.server.repositories")
 public class CommonConfig {
 
     private String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
