@@ -1,9 +1,9 @@
-import { RestAction, PaginationField } from "api/ActionAPI";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { RestAction } from "api/ActionAPI";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
@@ -32,13 +32,10 @@ export const fetchActions = (
   };
 };
 
-export const runApiAction = (id: string, paginationField?: PaginationField) => {
+export const runApiAction = (id: string) => {
   return {
     type: ReduxActionTypes.RUN_API_REQUEST,
-    payload: {
-      id: id,
-      paginationField: paginationField,
-    },
+    payload: id,
   };
 };
 
