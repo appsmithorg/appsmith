@@ -1,31 +1,23 @@
 package com.appsmith.server.configurations;
 
-import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
+import com.appsmith.server.repositories.BaseRepositoryImpl;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
-@EnableReactiveMongoRepositories
-public class MongoConfig extends AbstractReactiveMongoConfiguration {
-
-    @Value("${spring.data.mongodb.database}")
-    private String dbName;
-
-    @Override
-    public MongoClient reactiveMongoClient() {
-        return MongoClients.create();
-    }
-
-    @Bean
-    public ReactiveMongoTemplate reactiveMongoTemplate() throws Exception {
-        return new ReactiveMongoTemplate(reactiveMongoClient(), dbName);
-    }
-
-    @Override
-    protected String getDatabaseName() {
-        return dbName;
-    }
+/**
+ * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
+ * This is required to add default clauses for default JPA queries defined by Spring Data.
+ *
+ * The factoryBean class is also custom defined in order to add default clauses for soft delete for all custom JPA queries.
+ * {@link SoftDeleteMongoRepositoryFactoryBean} for details.
+ */
+@Configuration
+@EnableMongoAuditing
+@EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
+        basePackages = "com.appsmith.server.repositories",
+        repositoryBaseClass = BaseRepositoryImpl.class
+)
+public class MongoConfig {
 }
