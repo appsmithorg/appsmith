@@ -452,18 +452,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> findDistinctActionsByNameInAndPageId(Set<String> names, String pageId) {
-        return repository.findDistinctActionsByNameInAndPageId(names, pageId);
-    }
-
-    @Override
     public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
         return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, httpMethod);
-    }
-
-    @Override
-    public Flux<Action> saveAll(List<Action> actions) {
-        return repository.saveAll(actions);
     }
 
     /**
