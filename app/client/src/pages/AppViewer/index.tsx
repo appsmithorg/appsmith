@@ -27,7 +27,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
-import { PaginationField } from "api/ActionAPI";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -114,10 +113,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (
-    actionPayloads: ActionPayload[],
-    paginationField?: PaginationField,
-  ) => dispatch(executeAction(actionPayloads, paginationField)),
+  executeAction: (actionPayloads: ActionPayload[]) =>
+    dispatch(executeAction(actionPayloads)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
