@@ -38,6 +38,7 @@ export interface APIConfigRequest {
   path: string;
   body: JSON | string | Record<string, any> | null;
   queryParameters: Property[];
+  isPaginated: boolean;
 }
 
 export interface QueryConfig {
@@ -60,9 +61,12 @@ export interface RestAction {
   cacheResponse?: string;
 }
 
+export type PaginationField = "PREV" | "NEXT" | undefined;
+
 export interface ExecuteActionRequest extends APIRequest {
   action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
   params?: Property[];
+  paginationField: PaginationField;
 }
 
 export interface ExecuteActionResponse extends ApiResponse {

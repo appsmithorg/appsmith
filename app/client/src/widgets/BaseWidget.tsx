@@ -29,6 +29,7 @@ import { PositionTypes } from "constants/WidgetConstants";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { PaginationField } from "api/ActionAPI";
 /***
  * BaseWidget
  *
@@ -82,9 +83,14 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayloads?: ActionPayload[]): void {
+  executeAction(
+    actionPayloads?: ActionPayload[],
+    paginationField?: PaginationField,
+  ): void {
     const { executeAction } = this.context;
-    executeAction && !_.isNil(actionPayloads) && executeAction(actionPayloads);
+    executeAction &&
+      !_.isNil(actionPayloads) &&
+      executeAction(actionPayloads, paginationField);
   }
 
   disableDrag(disable: boolean) {

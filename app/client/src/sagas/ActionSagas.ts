@@ -25,6 +25,7 @@ import ActionAPI, {
   ExecuteActionRequest,
   Property,
   RestAction,
+  PaginationField,
 } from "api/ActionAPI";
 import { AppState } from "reducers";
 import _ from "lodash";
@@ -124,7 +125,10 @@ function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
   });
 }
 
-export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
+export function* executeAPIQueryActionSaga(
+  apiAction: ActionPayload,
+  paginationField: PaginationField,
+) {
   try {
     const api: PageAction = yield select(getAction, apiAction.actionId);
     if (!api) {
@@ -140,6 +144,7 @@ export function* executeAPIQueryActionSaga(apiAction: ActionPayload) {
     const executeActionRequest: ExecuteActionRequest = {
       action: { id: apiAction.actionId },
       params,
+      paginationField: paginationField,
     };
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
@@ -202,7 +207,10 @@ function validateActionPayload(actionPayload: ActionPayload) {
   return validation;
 }
 
-export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
+export function* executeActionSaga(
+  actionPayloads: ActionPayload[],
+  paginationField: PaginationField,
+): any {
   yield all(
     _.map(actionPayloads, (actionPayload: ActionPayload) => {
       const actionValidation = validateActionPayload(actionPayload);
@@ -213,9 +221,17 @@ export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
 
       switch (actionPayload.actionType) {
         case "API":
-          return call(executeAPIQueryActionSaga, actionPayload);
+          return call(
+            executeAPIQueryActionSaga,
+            actionPayload,
+            paginationField,
+          );
         case "QUERY":
-          return call(executeAPIQueryActionSaga, actionPayload);
+          return call(
+            executeAPIQueryActionSaga,
+            actionPayload,
+            paginationField,
+          );
         case "JS_FUNCTION":
           return call(
             executeJSActionSaga,
@@ -228,9 +244,17 @@ export function* executeActionSaga(actionPayloads: ActionPayload[]): any {
   );
 }
 
-export function* executeReduxActionSaga(action: ReduxAction<ActionPayload[]>) {
+export function* executeReduxActionSaga(
+  action: ReduxAction<{
+    actions: ActionPayload[];
+    paginationField: PaginationField;
+  }>,
+) {
   if (!_.isNil(action.payload)) {
-    yield* executeActionSaga(action.payload);
+    yield* executeActionSaga(
+      action.payload.actions,
+      action.payload.paginationField,
+    );
   } else {
     yield put(
       executeActionError({
@@ -331,16 +355,22 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-export function* runApiActionSaga(action: ReduxAction<string>) {
+export function* runApiActionSaga(
+  reduxAction: ReduxAction<{
+    id: string;
+    paginationField: PaginationField;
+  }>,
+) {
   try {
     const {
       values,
       dirty,
       valid,
-    }: { values: RestAction; dirty: boolean; valid: boolean } = yield select(
-      getFormData,
-      API_EDITOR_FORM_NAME,
-    );
+    }: {
+      values: RestAction;
+      dirty: boolean;
+      valid: boolean;
+    } = yield select(getFormData, API_EDITOR_FORM_NAME);
     const actionObject: PageAction = yield select(getAction, values.id);
     let action: ExecuteActionRequest["action"] = { id: values.id };
     let jsonPathKeys = actionObject.jsonPathKeys;
@@ -349,7 +379,8 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
       return;
     }
     if (dirty) {
-      action = _.omit(transformRestAction(values), "id");
+      action = _.omit(transformRestAction(values), "id") as RestAction;
+
       const actionString = JSON.stringify(action);
       if (isDynamicValue(actionString)) {
         const { paths } = getDynamicBindings(actionString);
@@ -359,10 +390,13 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
         jsonPathKeys = [];
       }
     }
+    const { paginationField } = reduxAction.payload;
+
     const params = yield call(getActionParams, jsonPathKeys);
     const response: ActionApiResponse = yield ActionAPI.executeAction({
       action,
       params,
+      paginationField,
     });
     let payload = createActionResponse(response);
     if (response.responseMeta && response.responseMeta.error) {
@@ -376,7 +410,7 @@ export function* runApiActionSaga(action: ReduxAction<string>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: action.payload },
+      payload: { error, id: reduxAction.payload },
     });
   }
 }

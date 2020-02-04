@@ -45,6 +45,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getPageView() {
     const { tableData } = this.props;
     const columns = constructColumns(tableData);
+
+    const serverSidePaginationEnabled = this.context.paginatedWidgets.includes(
+      this.props.widgetId,
+    );
     return (
       <TableComponent
         data={this.props.tableData}
@@ -63,22 +67,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
           super.executeAction(onRowSelected);
         }}
+        serverSidePaginationEnabled={serverSidePaginationEnabled}
+        pageNo={1}
+        nextPageClick={() => {
+          super.executeAction(this.props.onPageChange, "NEXT");
+        }}
+        prevPageClick={() => {
+          super.executeAction(this.props.onPageChange, "PREV");
+        }}
       />
     );
   }
 
-  // componentDidUpdate(prevProps: TableWidgetProps) {
-  //   super.componentDidUpdate(prevProps);
-  //   if (
-  //     !_.isEqual(prevProps.tableData, this.props.tableData) &&
-  //     prevProps.selectedRow
-  //   ) {
-  //     this.updateSelectedRowProperty(
-  //       this.props.tableData[prevProps.selectedRow.rowIndex],
-  //       prevProps.selectedRow.rowIndex,
-  //     );
-  //   }
-  // }
   onCommandClick = (actions: ActionPayload[]) => {
     super.executeAction(actions);
   };

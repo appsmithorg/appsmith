@@ -3,6 +3,8 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { PaginationField } from "api/ActionAPI";
+
 import {
   ActionPayload,
   ExecuteErrorPayload,
@@ -11,10 +13,17 @@ import {
 
 export const executeAction = (
   actionPayloads: ActionPayload[],
-): ReduxAction<ActionPayload[]> => {
+  paginationField?: PaginationField,
+): ReduxAction<{
+  actions: ActionPayload[];
+  paginationField: PaginationField;
+}> => {
   return {
     type: ReduxActionTypes.EXECUTE_ACTION,
-    payload: actionPayloads,
+    payload: {
+      actions: actionPayloads,
+      paginationField: paginationField,
+    },
   };
 };
 
