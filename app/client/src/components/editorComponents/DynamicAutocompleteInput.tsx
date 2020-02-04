@@ -8,6 +8,8 @@ import "codemirror/theme/monokai.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
+import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/display/autorefresh";
 import {
   getNameBindingsForAutocomplete,
   NameBindingsWithData,
@@ -174,6 +176,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         lineWrapping: true,
         showHint: true,
         extraKeys,
+        autoCloseBrackets: true,
         ...options,
       });
       this.editor.on("change", _.debounce(this.handleChange, 100));
@@ -189,7 +192,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       }
       this.editor.eachLine(this.highlightBindings);
       // Set value of the editor
-      let inputValue = this.props.input.value;
+      let inputValue = this.props.input.value || "";
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
