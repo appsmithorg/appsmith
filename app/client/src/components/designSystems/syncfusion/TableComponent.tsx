@@ -21,6 +21,7 @@ import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ActionPayload } from "constants/ActionConstants";
 import { Classes } from "@blueprintjs/core";
+import { TablePagination } from "../appsmith/TablePagination";
 
 export interface TableComponentProps {
   data: object[];
@@ -32,12 +33,27 @@ export interface TableComponentProps {
   columnActions?: ColumnAction[];
   onCommandClick: (actions: ActionPayload[]) => void;
   disableDrag: (disable: boolean) => void;
+  nextPageClick: Function;
+  prevPageClick: Function;
+  pageNo: number;
+  serverSidePaginationEnabled: boolean;
 }
 
 const StyledGridComponent = styled(GridComponent)`
-  .e-altrow {
-    background-color: #fafafa;
+  &&& {
+    height: calc(100% - 49px);
+    .e-altrow {
+      background-color: #fafafa;
+    }
+    .e-gridcontent {
+      height: calc(100% - 50px);
+      overflow: auto;
+    }
   }
+`;
+
+const TableContainer = styled.div`
+  height: 100%;
 `;
 const settings: SelectionSettingsModel = {
   type: "Multiple",
@@ -164,15 +180,15 @@ const TableComponent = memo(
     }
 
     return (
-      <div className={props.isLoading ? Classes.SKELETON : ""}>
+      <TableContainer className={props.isLoading ? Classes.SKELETON : ""}>
         <StyledGridComponent
           selectionSettings={settings}
           dataSource={props.data}
           rowSelected={rowSelected}
           ref={grid}
           width={"100%"}
+          allowPaging={!props.serverSidePaginationEnabled}
           height={"100%"}
-          allowPaging={true}
           allowReordering={true}
           allowResizing={true}
           showColumnMenu={true}
@@ -180,7 +196,6 @@ const TableComponent = memo(
           columnDrop={columnDrop}
           commandClick={onCommandClick}
           columnMenuOpen={columnMenuOpen}
-          // queryCellInfo={customizeCell}
         >
           <Inject
             services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]}
@@ -200,7 +215,13 @@ const TableComponent = memo(
             )}
           </ColumnsDirective>
         </StyledGridComponent>
-      </div>
+        <TablePagination
+          visible={props.serverSidePaginationEnabled}
+          pageNo={props.pageNo}
+          prevPageClick={props.prevPageClick}
+          nextPageClick={props.nextPageClick}
+        ></TablePagination>
+      </TableContainer>
     );
   },
   (prevProps, nextProps) => {
@@ -209,7 +230,9 @@ const TableComponent = memo(
       JSON.stringify(nextProps.data) !== JSON.stringify(prevProps.data) ||
       nextProps.height !== prevProps.height ||
       JSON.stringify(nextProps.columnActions) !==
-        JSON.stringify(prevProps.columnActions);
+        JSON.stringify(prevProps.columnActions) ||
+      nextProps.serverSidePaginationEnabled !==
+        prevProps.serverSidePaginationEnabled;
 
     return !propsNotEqual;
   },

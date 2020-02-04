@@ -16,7 +16,7 @@ import { getActionResponses } from "selectors/entitiesSelector";
 
 const ResponseWrapper = styled.div`
   position: relative;
-  flex: 4;
+  flex: 1;
   height: 100%;
   overflow-y: scroll;
 `;

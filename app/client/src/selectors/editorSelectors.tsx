@@ -18,6 +18,7 @@ import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { getParsedDataTree } from "./nameBindingsWithDataSelector";
 import _ from "lodash";
+import { RestAction } from "api/ActionAPI";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -169,6 +170,29 @@ const getOccupiedSpacesForContainer = (
     };
     return occupiedSpace;
   });
+};
+
+export const getPaginatedWidgets = (
+  actions: RestAction[],
+  widgets: Record<string, FlattenedWidgetProps>,
+): string[] => {
+  const paginatedActions = actions.filter(
+    action => action.actionConfiguration.isPaginated,
+  );
+  const paginatedWidgets: string[] = [];
+  Object.keys(widgets).forEach((key: string) => {
+    const widget = widgets[key];
+    if (widget.dynamicBindings) {
+      Object.keys(widget.dynamicBindings).forEach(db => {
+        paginatedActions.forEach(pApi => {
+          if (widget[db].indexOf(pApi.name) !== -1) {
+            paginatedWidgets.push(widget.widgetId);
+          }
+        });
+      });
+    }
+  });
+  return paginatedWidgets;
 };
 
 export const getOccupiedSpaces = createSelector(

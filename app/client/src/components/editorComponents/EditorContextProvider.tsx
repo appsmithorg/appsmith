@@ -13,10 +13,17 @@ import { ActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
-import { getOccupiedSpaces } from "selectors/editorSelectors";
+import {
+  getOccupiedSpaces,
+  getPaginatedWidgets,
+} from "selectors/editorSelectors";
+import { PaginationField, RestAction } from "api/ActionAPI";
 
 export type EditorContextType = {
-  executeAction?: (actionPayloads: ActionPayload[]) => void;
+  executeAction?: (
+    actionPayloads: ActionPayload[],
+    paginationField?: PaginationField,
+  ) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -29,6 +36,7 @@ export type EditorContextType = {
   ) => void;
   disableDrag?: (disable: boolean) => void;
   occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
+  paginatedWidgets?: string[];
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -42,6 +50,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     updateWidget,
     updateWidgetProperty,
     occupiedSpaces,
+    paginatedWidgets,
     disableDrag,
     children,
   } = props;
@@ -52,6 +61,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidget,
         updateWidgetProperty,
         occupiedSpaces,
+        paginatedWidgets,
         disableDrag,
       }}
     >
@@ -62,6 +72,10 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
 
 const mapStateToProps = (state: AppState) => {
   return {
+    paginatedWidgets: getPaginatedWidgets(
+      state.entities.actions.map(action => action.config),
+      state.entities.canvasWidgets,
+    ),
     occupiedSpaces: getOccupiedSpaces(state),
   };
 };
@@ -81,8 +95,10 @@ const mapDispatchToProps = (dispatch: any) => {
           RenderModes.CANVAS,
         ),
       ),
-    executeAction: (actionPayloads: ActionPayload[]) =>
-      dispatch(executeAction(actionPayloads)),
+    executeAction: (
+      actionPayloads: ActionPayload[],
+      paginationField?: PaginationField,
+    ) => dispatch(executeAction(actionPayloads, paginationField)),
     updateWidget: (
       operation: WidgetOperation,
       widgetId: string,

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { RestAction } from "api/ActionAPI";
+import { RestAction, PaginationField } from "api/ActionAPI";
 import TextField from "components/editorComponents/form/fields/TextField";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -15,6 +15,8 @@ import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { FormIcons } from "icons/FormIcons";
+import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
+import Pagination from "./Pagination";
 
 const Form = styled.form`
   display: flex;
@@ -75,13 +77,18 @@ const DatasourceWrapper = styled.div`
   max-width: 320px;
 `;
 
+const TabbedViewContainer = styled.div`
+  flex: 1;
+  padding-top: 12px;
+`;
+
 interface APIFormProps {
   pluginId: string;
   allowSave: boolean;
   allowPostBody: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
   onSaveClick: () => void;
-  onRunClick: () => void;
+  onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
   isSaving: boolean;
   isRunning: boolean;
@@ -123,7 +130,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <ActionButton
               text="Run"
               accent="secondary"
-              onClick={onRunClick}
+              onClick={() => {
+                onRunClick();
+              }}
               loading={isRunning}
             />
             <ActionButton
@@ -153,29 +162,49 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         </FormRow>
       </MainConfiguration>
       <SecondaryWrapper>
-        <RequestParamsWrapper>
-          <KeyValueFieldArray
-            name="actionConfiguration.headers"
-            label="Headers"
-          />
-          <KeyValueFieldArray
-            name="actionConfiguration.queryParameters"
-            label="Params"
-          />
-          {allowPostBody && (
-            <React.Fragment>
-              <FormLabel>{"Post Body"}</FormLabel>
-              <JSONEditorFieldWrapper>
-                <DynamicTextField
-                  name="actionConfiguration.body"
-                  height={300}
-                  showLineNumbers
-                  allowTabIndent
-                />
-              </JSONEditorFieldWrapper>
-            </React.Fragment>
-          )}
-        </RequestParamsWrapper>
+        <TabbedViewContainer>
+          <BaseTabbedView
+            tabs={[
+              {
+                key: "apiInput",
+                title: "API Input",
+                panelComponent: (
+                  <RequestParamsWrapper>
+                    <KeyValueFieldArray
+                      name="actionConfiguration.headers"
+                      label="Headers"
+                    />
+                    <KeyValueFieldArray
+                      name="actionConfiguration.queryParameters"
+                      label="Params"
+                    />
+                    {allowPostBody && (
+                      <React.Fragment>
+                        <FormLabel>{"Post Body"}</FormLabel>
+                        <JSONEditorFieldWrapper>
+                          <DynamicTextField
+                            name="actionConfiguration.body"
+                            height={300}
+                            showLineNumbers
+                            allowTabIndent
+                          />
+                        </JSONEditorFieldWrapper>
+                      </React.Fragment>
+                    )}
+                  </RequestParamsWrapper>
+                ),
+              },
+              {
+                key: "pagination",
+                title: "Pagination",
+                panelComponent: (
+                  <Pagination onTestClick={props.onRunClick}></Pagination>
+                ),
+              },
+            ]}
+          ></BaseTabbedView>
+        </TabbedViewContainer>
+
         <ApiResponseView />
       </SecondaryWrapper>
     </Form>

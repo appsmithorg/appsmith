@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import styled from "styled-components";
 import {
   Checkbox as BlueprintCheckbox,
@@ -13,6 +13,12 @@ import {
 export type CheckboxProps = ICheckboxProps & {
   intent: Intent;
   align: "left" | "right";
+  input?: {
+    onChange?: (value: boolean) => void;
+    value?: boolean;
+    checked?: boolean;
+  };
+  label: string;
 };
 
 export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
@@ -35,7 +41,20 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
 `;
 
 export const Checkbox = (props: CheckboxProps) => {
-  return <StyledCheckbox {...props} alignIndicator={props.align} />;
+  const handleChange = (e: any) => {
+    props.input &&
+      props.input.onChange &&
+      props.input.onChange(e.target.checked);
+  };
+  return (
+    <StyledCheckbox
+      {...props}
+      alignIndicator={props.align}
+      onChange={handleChange}
+      checked={props.input ? !!props.input.checked : false}
+      label={props.label}
+    />
+  );
 };
 
 export default Checkbox;
