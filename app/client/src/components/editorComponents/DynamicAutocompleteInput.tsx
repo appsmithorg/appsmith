@@ -169,7 +169,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       this.editor = CodeMirror.fromTextArea(this.textArea.current, {
         mode: { name: "javascript", globalVars: true },
         viewportMargin: 10,
-        value: this.props.input.value,
         tabSize: 2,
         indentWithTabs: true,
         lineWrapping: true,
@@ -189,6 +188,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         this.editor.setSize(0, this.props.height);
       }
       this.editor.eachLine(this.highlightBindings);
+      // Set value of the editor
+      let inputValue = this.props.input.value;
+      if (typeof inputValue === "object") {
+        inputValue = JSON.stringify(inputValue, null, 2);
+      }
+      this.editor.setValue(inputValue);
     }
   }
 
