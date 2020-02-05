@@ -77,4 +77,9 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 })
                 .flatMap(userRepository::save);
     }
+
+    @Override
+    public Mono<User> saveUser(User user) {
+        return userRepository.save(user);
+    }
 }

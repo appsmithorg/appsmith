@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
@@ -24,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -36,7 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -130,7 +127,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return Mono.error(new AppsmithException(AppsmithError.USER_DOESNT_BELONG_TO_ORGANIZATION, user.getId(), orgId));
                 });
     }
-
 
 
     /**
@@ -385,6 +381,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }).flatMap(result -> result);
     }
 
+    /**
+     * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
+     * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
+     * given admin permissions to the personal workspace.
+     * <p>
+     * For new user invite flow, please {@link UserService#inviteUser(User user, String originHeader)}
+     *
+     * @param user
+     * @return
+     */
     @Override
     public Mono<User> create(User user) {
 
@@ -406,29 +412,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         String personalWorkspaceName = firstName + "'s Personal Workspace";
         personalOrg.setName(personalWorkspaceName);
 
-        Mono<Organization> savedOrganizationMono = organizationService.create(personalOrg, user);
-
+        // Save the new user
         Mono<User> savedUserMono = super.create(user);
 
-        return Mono.zip(savedOrganizationMono, savedUserMono)
-                //Once the two monos finish emitting, the user and the organization have been saved to the db
-                .flatMap(tuple -> {
-                    Organization savedOrg = tuple.getT1();
-                    User savedUser = tuple.getT2();
-
-                    Flux<Group> groupsFlux = groupService.getByOrganizationId(savedOrg.getId());
-                    return groupsFlux
-                            .collect(Collectors.toSet())
-                            .map(groups -> {
-                                // Set the default group Ids for the user
-                                Set<String> groupIds = groups.stream().map(group -> group.getId()).collect(Collectors.toSet());
-                                // Append the new organization's default groups to the existing ones belonging to the user
-                                savedUser.getGroupIds().addAll(groupIds);
-                                return savedUser;
-                            })
-                            // At this point both the user and the organization have been saved. Now add the newly created
-                            // organization to the newly created user.
-                            .flatMap(user1 -> repository.save(user1));
+        return savedUserMono
+                .flatMap(savedUser -> {
+                    // Creating the personal workspace and assigning the default groups to the new user
+                    log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
+                    return organizationService.create(personalOrg, savedUser)
+                            .thenReturn(savedUser);
                 })
                 .map(savedUser -> {
                     // Send an email to the user welcoming them to the Appsmith platform

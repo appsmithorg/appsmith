@@ -5,4 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface UserOrganizationService {
     Mono<User> addUserToOrganization(String orgId, User user);
+
+    Mono<User> saveUser(User user);
 }
