@@ -10,6 +10,8 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Page> findById(String pageId);
 
+    Flux<Page> findByApplicationId(String applicationId);
+
     Mono<Page> save(Page page);
 
     Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId);

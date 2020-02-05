@@ -18,4 +18,6 @@ public interface ApplicationPageService {
     Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode);
 
     Mono<Application> makePageDefault(String applicationId, String pageId);
+
+    Mono<Application> deleteApplication(String id);
 }

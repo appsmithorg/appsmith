@@ -1,12 +1,9 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -103,6 +100,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.save(application);
     }
 
+    @Override
+    public Mono<Application> archive(Application application) {
+        return repository.archive(application);
+    }
+
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
@@ -143,45 +145,5 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         .flatMap(pageRepository::save))
                 .collectList()
                 .map(pages -> true);
-    }
-
-    /**
-     * This function performs a soft delete for the application along with it's associated pages and actions.
-     *
-     * @param id The application id to delete
-     * @return The modified application object with the deleted flag set
-     */
-    @Override
-    public Mono<Application> delete(String id) {
-        log.debug("Archiving application with id: {}", id);
-
-        Mono<Application> applicationMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
-                .flatMap(application -> pageRepository.findByApplicationId(id)
-                        .flatMap(page -> {
-                            log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), id);
-                            Mono<Page> archivedPageMono = pageRepository.archiveById(page);
-                            Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId())
-                                    .flatMap(action -> {
-                                        log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                        return actionRepository.archiveById(action);
-                                    })
-                                    .collectList();
-                            return Mono.zip(archivedPageMono, archivedActionsMono)
-                                    .map(tuple -> {
-                                        Page page1 = tuple.getT1();
-                                        List<Action> actions = tuple.getT2();
-                                        log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), id);
-                                        return page1;
-                                    });
-                        })
-                        .collectList()
-                        .flatMap(pages -> repository.archiveById(application)));
-
-        return applicationMono
-                .map(deletedObj -> {
-                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj);
-                    return (Application) deletedObj;
-                });
     }
 }

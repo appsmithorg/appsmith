@@ -9,6 +9,7 @@ import com.appsmith.server.services.ApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -50,6 +51,13 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     public Mono<ResponseDTO<Application>> makeDefault(@PathVariable String applicationId, @PathVariable String pageId) {
         return applicationPageService.makePageDefault(applicationId, pageId)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
+        log.debug("Going to delete application with id: {}", id);
+        return applicationPageService.deleteApplication(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
 }

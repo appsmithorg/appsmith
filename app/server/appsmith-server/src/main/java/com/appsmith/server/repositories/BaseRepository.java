@@ -16,7 +16,7 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @param T The entity which needs to be archived
      * @return Mono<T>
      */
-    Mono<T> archiveById(T entity);
+    Mono<T> archive(T entity);
 
     /**
      * This function directly updates the document by setting the deleted flag to true for the entity with the given id
