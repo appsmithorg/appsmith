@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import AppToaster from "components/editorComponents/ToastComponent";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest, call } from "redux-saga/effects";

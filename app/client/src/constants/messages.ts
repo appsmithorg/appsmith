@@ -117,3 +117,5 @@ export const CREATE_PASSWORD_EXPIRED_TOKEN =
   "The invite link has expired. Please try requesting a new invite";
 export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
+
+export const DELETING_APPLICATION = "Deleting application...";
