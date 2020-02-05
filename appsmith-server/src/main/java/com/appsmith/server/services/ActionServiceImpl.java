@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
@@ -388,8 +389,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
                     // If the action is paginated, update the configurations to update the correct URL.
                     if (action.getActionConfiguration() != null &&
-                            action.getActionConfiguration().getIsPaginated() != null &&
-                            action.getActionConfiguration().getIsPaginated() &&
+                            action.getActionConfiguration().getPaginationType() != null &&
+                            PaginationType.URL.equals(action.getActionConfiguration().getPaginationType()) &&
                             executeActionDTO.getPaginationField() != null) {
                         datasourceConfiguration = updateDatasourceConfigurationForPagination(actionConfigurationTemp, datasourceConfigurationTemp, executeActionDTO.getPaginationField());
                         actionConfiguration = updateActionConfigurationForPagination(actionConfigurationTemp, executeActionDTO.getPaginationField());
