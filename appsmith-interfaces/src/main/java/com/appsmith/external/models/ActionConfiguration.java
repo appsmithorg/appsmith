@@ -28,7 +28,7 @@ public class ActionConfiguration {
      */
 
     Integer timeoutInMillisecond;
-    Boolean isPaginated;
+    PaginationType paginationType = PaginationType.NONE;
 
     // API fields
     String path;
