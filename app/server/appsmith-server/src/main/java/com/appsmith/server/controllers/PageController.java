@@ -10,6 +10,7 @@ import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,5 +68,12 @@ public class PageController extends BaseController<PageService, Page, String> {
     public Mono<ResponseDTO<Page>> getPageViewByName(@PathVariable String applicationName, @PathVariable String pageName) {
         return applicationPageService.getPageByName(applicationName, pageName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
+    }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<Page>> delete(@PathVariable String id) {
+        log.debug("Going to delete page with id: {}", id);
+        return service.delete(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 }

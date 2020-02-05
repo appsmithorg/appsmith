@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -8,23 +9,30 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
     private final PageService pageService;
     private final SessionUserService sessionUserService;
 
+    private final AnalyticsService analyticsService;
+
     public ApplicationPageServiceImpl(ApplicationService applicationService,
-                                      PageService pageService, SessionUserService sessionUserService) {
+                                      PageService pageService,
+                                      SessionUserService sessionUserService,
+                                      AnalyticsService analyticsService) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
+        this.analyticsService = analyticsService;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -188,4 +196,33 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
     }
+
+    /**
+     * This function performs a soft delete for the application along with it's associated pages and actions.
+     *
+     * @param id The application id to delete
+     * @return The modified application object with the deleted flag set
+     */
+    @Override
+    public Mono<Application> deleteApplication(String id) {
+        log.debug("Archiving application with id: {}", id);
+
+        Mono<Application> applicationMono = applicationService.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
+                .flatMap(application -> {
+                    log.debug("Archiving pages for applicationId: {}", id);
+                    return pageService.findByApplicationId(id)
+                            .flatMap(page -> pageService.delete(page.getId()))
+                            .collectList()
+                            .thenReturn(application);
+                })
+                .flatMap(application -> applicationService.archive(application));
+
+        return applicationMono
+                .map(deletedObj -> {
+                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj);
+                    return (Application) deletedObj;
+                });
+    }
+
 }

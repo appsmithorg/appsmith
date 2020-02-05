@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
@@ -8,6 +10,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -27,6 +30,7 @@ import java.util.List;
 public class PageServiceImpl extends BaseService<PageRepository, Page, String> implements PageService {
 
     private final ApplicationService applicationService;
+    private final ActionRepository actionRepository;
 
     @Autowired
     public PageServiceImpl(Scheduler scheduler,
@@ -35,14 +39,21 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            PageRepository repository,
                            ApplicationService applicationService,
-                           AnalyticsService analyticsService) {
+                           AnalyticsService analyticsService,
+                           ActionRepository actionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
+        this.actionRepository = actionRepository;
     }
 
     @Override
     public Mono<Page> findById(String pageId) {
         return repository.findById(pageId);
+    }
+
+    @Override
+    public Flux<Page> findByApplicationId(String applicationId) {
+        return repository.findByApplicationId(applicationId);
     }
 
     @Override
@@ -70,6 +81,39 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Mono<Void> deleteAll() {
         return repository.deleteAll();
+    }
+
+    /**
+     * This function archives the page and all the actions associated with that page.
+     *
+     * @param id The pageId which needs to be archived.
+     * @return
+     */
+    @Override
+    public Mono<Page> delete(String id) {
+        Mono<Page> pageMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
+                .flatMap(page -> {
+                    log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
+                    Mono<Page> archivedPageMono = repository.archive(page);
+                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId())
+                            .flatMap(action -> {
+                                log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
+                                return actionRepository.archive(action);
+                            }).collectList();
+                    return Mono.zip(archivedPageMono, archivedActionsMono)
+                            .map(tuple -> {
+                                Page page1 = tuple.getT1();
+                                List<Action> actions = tuple.getT2();
+                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), id);
+                                return page1;
+                            });
+                });
+
+        return pageMono.map(deletedObj -> {
+                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Page) deletedObj);
+                    return (Page) deletedObj;
+                });
     }
 
     @Override
