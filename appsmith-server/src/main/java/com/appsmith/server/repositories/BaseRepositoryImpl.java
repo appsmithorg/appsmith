@@ -76,7 +76,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
-    public Mono<T> archiveById(T entity) {
+    public Mono<T> archive(T entity) {
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
         Assert.isTrue(!entity.getDeleted(), "The given entity is already deleted");
