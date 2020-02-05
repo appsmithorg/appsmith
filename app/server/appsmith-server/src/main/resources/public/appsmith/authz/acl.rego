@@ -46,6 +46,7 @@ authenticated_operations = [
     {"method": "GET", "resource": "pages", "permission": "read:pages"},
     {"method": "POST", "resource": "pages", "permission": "create:pages"},
     {"method": "PUT", "resource": "pages", "permission": "update:pages"},
+    {"method": "DELETE", "resource": "pages", "permission": "delete:pages"},
 
     {"method": "GET", "resource": "layouts", "permission": "read:layouts"},
     {"method": "POST", "resource": "layouts", "permission": "create:layouts"},
