@@ -6,7 +6,6 @@ import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
 import DropdownComponent, { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import history from "utils/history";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 
@@ -76,7 +75,6 @@ export const options = (
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: "/org/settings",
             }),
-          active: history.location.pathname === "/org/settings",
         },
         {
           content: "Applications",
@@ -84,7 +82,6 @@ export const options = (
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: "/applications",
             }),
-          active: history.location.pathname === "/applications",
         },
         {
           content: "Members",
@@ -92,7 +89,6 @@ export const options = (
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: "/users",
             }),
-          active: history.location.pathname === "/users",
         },
         {
           content: <DropdownComponent {...switchdropdown(orgs, currentOrg)} />,

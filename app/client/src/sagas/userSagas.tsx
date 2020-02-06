@@ -276,6 +276,9 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
     console.log(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_ERROR,
+      payload: {
+        error,
+      },
     });
   }
 }
