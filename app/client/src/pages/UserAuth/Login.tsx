@@ -138,7 +138,7 @@ export const Login = (props: LoginFormProps) => {
           <FormActions>
             <FormButton
               type="submit"
-              disabled={pristine || !valid}
+              disabled={!valid}
               text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
               intent="primary"
             />
