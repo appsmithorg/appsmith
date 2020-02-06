@@ -48,7 +48,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = object | { message: string };
+type ErrorPayloadType = { message?: string };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -79,7 +79,7 @@ export function* errorSaga(
     type,
     payload: { error, show = true },
   } = errorAction;
-  const message = ActionErrorDisplayMap[type](error);
+  const message = error.message || ActionErrorDisplayMap[type](error);
   if (show) AppToaster.show({ message, intent: Intent.DANGER });
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,

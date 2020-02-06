@@ -43,7 +43,9 @@ axiosInstance.interceptors.response.use(
   },
   function(error: any) {
     if (error.code === "ECONNABORTED") {
-      console.log("CONNECTION TIMEOUT");
+      return Promise.reject({
+        message: "Please check your internet connection",
+      });
     }
     if (error.config.url.match(executeActionRegex)) {
       return makeExecuteActionResponse(error.response);
