@@ -13,10 +13,7 @@ import { ActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
-import {
-  getOccupiedSpaces,
-  getPaginatedWidgets,
-} from "selectors/editorSelectors";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { PaginationField } from "api/ActionAPI";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 
@@ -42,7 +39,6 @@ export type EditorContextType = {
   ) => void;
   disableDrag?: (disable: boolean) => void;
   occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
-  paginatedWidgets?: string[];
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -57,7 +53,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     updateWidgetProperty,
     updateWidgetMetaProperty,
     occupiedSpaces,
-    paginatedWidgets,
     disableDrag,
     children,
   } = props;
@@ -69,7 +64,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidgetProperty,
         updateWidgetMetaProperty,
         occupiedSpaces,
-        paginatedWidgets,
         disableDrag,
       }}
     >
@@ -86,10 +80,6 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
  */
 const mapStateToProps = (state: AppState) => {
   return {
-    paginatedWidgets: getPaginatedWidgets(
-      state.entities.actions.map(action => action.config),
-      state.entities.canvasWidgets,
-    ),
     occupiedSpaces: getOccupiedSpaces(state),
   };
 };

@@ -46,9 +46,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { tableData, widgetId } = this.props;
     const columns = constructColumns(tableData);
 
-    const serverSidePaginationEnabled = this.context.paginatedWidgets.includes(
-      widgetId,
-    );
+    const serverSidePaginationEnabled = (this.props
+      .serverSidePaginationEnabled &&
+      this.props.serverSidePaginationEnabled) as boolean;
     let pageNo = this.props.pageNo;
 
     if (pageNo === undefined) {
@@ -129,6 +129,7 @@ export interface TableWidgetProps extends WidgetProps {
   onRowSelected?: ActionPayload[];
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
+  serverSidePaginationEnabled?: boolean;
 }
 
 export default TableWidget;

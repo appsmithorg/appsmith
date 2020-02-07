@@ -7,6 +7,7 @@ import styled from "constants/DefaultTheme";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import FormRow from "components/editorComponents/FormRow";
 import { Directions } from "utils/helpers";
+import { Callout } from "@blueprintjs/core";
 interface PaginationProps {
   onTestClick: Function;
   paginationType: PaginationType;
@@ -45,18 +46,18 @@ export default function Pagination(props: PaginationProps) {
         <DropdownField
           placeholder="Method"
           name="actionConfiguration.paginationType"
-          width={188}
+          width={223}
           options={[
             {
               label: "None",
               value: PaginationType.NONE,
             },
             {
-              label: "Page No and Page Size",
+              label: "Paginate with Table Page No",
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Pagination Url",
+              label: "Paginate with Response Url",
               value: PaginationType.URL,
             },
           ]}
@@ -101,17 +102,19 @@ export default function Pagination(props: PaginationProps) {
           props.paginationType !== PaginationType.PAGE_NO ? "display-none" : ""
         }
       >
-        <p
-          style={{
-            marginBottom: "6px",
-          }}
-        >
-          Use Table pageNo and pageSize to configure the url.
-        </p>
-        <ExampleApi>
-          http://api.example.com/users?pageNo={"{{Table.pageNo}}"}
-          &amp;pageSize={"{{Table.pageSize}}"}
-        </ExampleApi>
+        <Callout>
+          <p
+            style={{
+              marginBottom: "6px",
+            }}
+          >
+            Use Table pageNo and pageSize to configure the url.
+          </p>
+          <ExampleApi>
+            http://api.example.com/users?pageNo={"{{Table.pageNo}}"}
+            &amp;pageSize={"{{Table.pageSize}}"}
+          </ExampleApi>
+        </Callout>
       </PaginationTypeView>
     </React.Fragment>
   );
