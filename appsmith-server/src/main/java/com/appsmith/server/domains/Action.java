@@ -53,6 +53,8 @@ public class Action extends BaseDomain {
 
     String cacheResponse;
 
+    String templateId; //If action is created via a template, store the id here.
+
     public Datasource getDatasource() {
         if (this.datasource != null) {
             //The action object has been created from JSON.
