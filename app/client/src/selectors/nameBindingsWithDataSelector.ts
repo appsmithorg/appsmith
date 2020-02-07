@@ -25,8 +25,10 @@ export const getNameBindingsWithData = createSelector(
     });
     Object.keys(dataTree.canvasWidgets).forEach(w => {
       const widget = dataTree.canvasWidgets[w];
+      const widgetMetaProps = dataTree.meta[w];
       nameBindingsWithData[widget.widgetName] = {
         ...widget,
+        ...widgetMetaProps,
         __type: ENTITY_TYPE_WIDGET,
       };
     });

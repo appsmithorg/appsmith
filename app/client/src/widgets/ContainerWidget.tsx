@@ -30,6 +30,7 @@ class ContainerWidget extends BaseWidget<
       componentHeight: 0,
       snapColumnSpace: 0,
       snapRowSpace: 0,
+      meta: {},
     };
   }
 

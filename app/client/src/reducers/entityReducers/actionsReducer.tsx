@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { ActionResponse, RestAction } from "api/ActionAPI";
+import { ActionResponse, RestAction, PaginationField } from "api/ActionAPI";
 import { ActionPayload, ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
 
@@ -69,10 +69,13 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
   [ReduxActionTypes.EXECUTE_ACTION]: (
     state: ActionDataState,
-    action: ReduxAction<ActionPayload[]>,
+    action: ReduxAction<{
+      actions: ActionPayload[];
+      paginationField: PaginationField;
+    }>,
   ): ActionDataState =>
     state.map(a => {
-      if (_.find(action.payload, { actionId: a.config.id })) {
+      if (_.find(action.payload.actions, { actionId: a.config.id })) {
         return {
           ...a,
           isLoading: true,

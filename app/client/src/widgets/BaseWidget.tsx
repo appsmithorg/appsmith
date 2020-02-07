@@ -29,6 +29,7 @@ import { PositionTypes } from "constants/WidgetConstants";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { PaginationField } from "api/ActionAPI";
 /***
  * BaseWidget
  *
@@ -50,6 +51,7 @@ abstract class BaseWidget<
     const initialState: WidgetState = {
       componentHeight: 0,
       componentWidth: 0,
+      meta: {},
     };
     initialState.componentHeight = 0;
     initialState.componentWidth = 0;
@@ -82,9 +84,14 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(actionPayloads?: ActionPayload[]): void {
+  executeAction(
+    actionPayloads?: ActionPayload[],
+    paginationField?: PaginationField,
+  ): void {
     const { executeAction } = this.context;
-    executeAction && !_.isNil(actionPayloads) && executeAction(actionPayloads);
+    executeAction &&
+      !_.isNil(actionPayloads) &&
+      executeAction(actionPayloads, paginationField);
   }
 
   disableDrag(disable: boolean) {
@@ -100,6 +107,16 @@ abstract class BaseWidget<
     const { updateWidgetProperty } = this.context;
     updateWidgetProperty &&
       updateWidgetProperty(widgetId, propertyName, propertyValue);
+  }
+
+  updateWidgetMetaProperty(
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ): void {
+    const { updateWidgetMetaProperty } = this.context;
+    updateWidgetMetaProperty &&
+      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
   }
 
   componentDidMount(): void {
@@ -132,7 +149,7 @@ abstract class BaseWidget<
     parentColumnSpace: number,
     parentRowSpace: number,
   ) {
-    const widgetState: WidgetState = {
+    const widgetState = {
       componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
@@ -246,6 +263,7 @@ export interface BaseStyle {
 export interface WidgetState {
   componentHeight: number;
   componentWidth: number;
+  meta: Record<string, any>;
 }
 
 export interface WidgetBuilder<T extends WidgetProps> {

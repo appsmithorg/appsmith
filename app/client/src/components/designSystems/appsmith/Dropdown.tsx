@@ -11,6 +11,7 @@ type DropdownProps = {
   }>;
   input: WrappedFieldInputProps;
   placeholder: string;
+  width?: number;
 };
 
 const selectStyles = {
@@ -20,7 +21,7 @@ const selectStyles = {
   }),
   control: (styles: any, state: any) => ({
     ...styles,
-    width: 100,
+    width: state.selectProps.width || 100,
     minHeight: "32px",
     border: state.isFocused
       ? `${theme.colors.secondary} solid 1px`
@@ -53,6 +54,7 @@ export const BaseDropdown = (props: DropdownProps) => {
       options={options}
       styles={selectStyles}
       {...input}
+      width={props.width}
       onChange={value => input.onChange(value)}
     />
   );

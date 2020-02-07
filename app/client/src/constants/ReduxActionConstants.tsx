@@ -139,6 +139,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CREATE_ORGANIZATION_SUCCESS: "CREATE_ORGANIZATION_SUCCESS",
   ADD_USER_TO_ORG_INIT: "ADD_USER_TO_ORG_INIT",
   ADD_USER_TO_ORG_SUCCESS: "ADD_USER_TO_ORG_ERROR",
+  SET_META_PROP: "SET_META_PROP",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

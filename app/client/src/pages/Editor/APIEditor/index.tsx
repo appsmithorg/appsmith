@@ -8,7 +8,7 @@ import {
   deleteAction,
   updateAction,
 } from "actions/actionActions";
-import { RestAction } from "api/ActionAPI";
+import { RestAction, PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -28,7 +28,7 @@ interface ReduxStateProps {
 interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
-  runAction: (id: string) => void;
+  runAction: (id: string, paginationField: PaginationField) => void;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
 }
@@ -57,8 +57,8 @@ class ApiEditor extends React.Component<Props> {
   handleDeleteClick = () => {
     this.props.deleteAction(this.props.match.params.apiId);
   };
-  handleRunClick = () => {
-    this.props.runAction(this.props.match.params.apiId);
+  handleRunClick = (paginationField?: PaginationField) => {
+    this.props.runAction(this.props.match.params.apiId, paginationField);
   };
 
   render() {
@@ -77,6 +77,10 @@ class ApiEditor extends React.Component<Props> {
     }
     const { isSaving, isRunning, isDeleting, drafts } = apiPane;
     const httpMethod = _.get(formData, "actionConfiguration.httpMethod");
+    const paginationType = _.get(
+      formData,
+      "actionConfiguration.paginationType",
+    );
     return (
       <React.Fragment>
         {apiId ? (
@@ -84,6 +88,7 @@ class ApiEditor extends React.Component<Props> {
             pluginId={pluginId}
             allowSave={apiId in drafts}
             allowPostBody={httpMethod && httpMethod !== HTTP_METHODS[0]}
+            paginationType={paginationType}
             isSaving={isSaving[apiId]}
             isRunning={isRunning[apiId]}
             isDeleting={isDeleting[apiId]}
@@ -112,7 +117,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   createAction: (action: RestAction) => dispatch(createActionRequest(action)),
-  runAction: (id: string) => dispatch(runApiAction(id)),
+  runAction: (id: string, paginationField: PaginationField) =>
+    dispatch(runApiAction(id, paginationField)),
   deleteAction: (id: string) => dispatch(deleteAction({ id })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
 });
