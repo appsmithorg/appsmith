@@ -167,31 +167,6 @@ const getOccupiedSpacesForContainer = (
   });
 };
 
-export const getPaginatedWidgets = (
-  actions: RestAction[],
-  widgets: Record<string, FlattenedWidgetProps>,
-): string[] => {
-  const paginatedActions = actions.filter(
-    action =>
-      action.actionConfiguration.paginationType === PaginationType.URL ||
-      action.actionConfiguration.paginationType === PaginationType.PAGE_NO,
-  );
-  const paginatedWidgets: string[] = [];
-  Object.keys(widgets).forEach((key: string) => {
-    const widget = widgets[key];
-    if (widget.dynamicBindings) {
-      Object.keys(widget.dynamicBindings).forEach(db => {
-        paginatedActions.forEach(pApi => {
-          if (widget[db].indexOf(pApi.name) !== -1) {
-            paginatedWidgets.push(widget.widgetId);
-          }
-        });
-      });
-    }
-  });
-  return paginatedWidgets;
-};
-
 export const getOccupiedSpaces = createSelector(
   getWidgets,
   (

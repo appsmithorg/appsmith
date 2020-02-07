@@ -28,7 +28,6 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
 import { PaginationField } from "api/ActionAPI";
-import { getPaginatedWidgets } from "selectors/editorSelectors";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 
 const AppViewWrapper = styled.div`
@@ -60,7 +59,6 @@ export type AppViewerProps = {
     propertyName: string,
     propertyValue: any,
   ) => void;
-  paginatedWidgets: string[];
 };
 
 class AppViewer extends Component<
@@ -94,7 +92,6 @@ class AppViewer extends Component<
           executeAction: this.props.executeAction,
           updateWidgetProperty: this.props.updateWidgetProperty,
           updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-          paginatedWidgets: this.props.paginatedWidgets,
         }}
       >
         <AppViewWrapper>
@@ -121,10 +118,6 @@ const mapStateToProps = (state: AppState) => ({
   currentDSLPageId: getCurrentDSLPageId(state),
   pages: getPageList(state),
   isInitialized: getIsInitialized(state),
-  paginatedWidgets: getPaginatedWidgets(
-    state.entities.actions.map(action => action.config),
-    state.entities.canvasWidgets,
-  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
