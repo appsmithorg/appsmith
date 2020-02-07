@@ -23,4 +23,6 @@ public interface Url {
     String SIGNUP_URL = BASE_URL + VERSION + "/signup";
     String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     String IMPORT_URL = BASE_URL + VERSION + "/import";
+    String PROVIDER_URL = BASE_URL + VERSION + "/providers";
+    String MARKETPLACE_URL = BASE_URL + VERSION + "/marketplace";
 }
