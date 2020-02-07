@@ -30,7 +30,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}"),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?"),
     DUPLICATE_KEY(409, 4024, "Duplicate key error"),
-    UNAUTHORIZED_ACCESS(401, 4025, "Unauthorized access"),
+    UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
     INVALID_DATASOURCE_NAME(400, 4026, "Datasource name is invalid"),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
