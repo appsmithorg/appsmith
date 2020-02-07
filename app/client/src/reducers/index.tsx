@@ -22,6 +22,7 @@ import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
+import { MetaState } from "./entityReducers/metaReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -55,6 +56,7 @@ export interface AppState {
     datasources: DatasourceDataState;
     pageList: PageListReduxState;
     plugins: PluginDataState;
+    meta: MetaState;
   };
 }
 

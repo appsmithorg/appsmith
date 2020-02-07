@@ -43,8 +43,18 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { tableData } = this.props;
+    const { tableData, widgetId } = this.props;
     const columns = constructColumns(tableData);
+
+    const serverSidePaginationEnabled = this.context.paginatedWidgets.includes(
+      widgetId,
+    );
+    let pageNo = this.props.pageNo;
+
+    if (pageNo === undefined) {
+      pageNo = 1;
+      super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+    }
     return (
       <TableComponent
         data={this.props.tableData}
@@ -63,22 +73,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
           super.executeAction(onRowSelected);
         }}
+        serverSidePaginationEnabled={serverSidePaginationEnabled}
+        pageNo={pageNo}
+        nextPageClick={() => {
+          let pageNo = this.props.pageNo || 1;
+          pageNo = pageNo + 1;
+          super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+
+          super.executeAction(this.props.onPageChange, "NEXT");
+        }}
+        prevPageClick={() => {
+          let pageNo = this.props.pageNo || 1;
+          pageNo = pageNo - 1;
+          if (pageNo >= 1) {
+            super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+            super.executeAction(this.props.onPageChange, "PREV");
+          }
+        }}
+        updatePageNo={(pageNo: number) => {
+          super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+        }}
+        updatePageSize={(pageSize: number) => {
+          super.updateWidgetMetaProperty(widgetId, "pageSize", pageSize);
+        }}
       />
     );
   }
 
-  // componentDidUpdate(prevProps: TableWidgetProps) {
-  //   super.componentDidUpdate(prevProps);
-  //   if (
-  //     !_.isEqual(prevProps.tableData, this.props.tableData) &&
-  //     prevProps.selectedRow
-  //   ) {
-  //     this.updateSelectedRowProperty(
-  //       this.props.tableData[prevProps.selectedRow.rowIndex],
-  //       prevProps.selectedRow.rowIndex,
-  //     );
-  //   }
-  // }
   onCommandClick = (actions: ActionPayload[]) => {
     super.executeAction(actions);
   };
@@ -92,8 +113,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET";
   }
 }
-
-export type PaginationType = "PAGES" | "INFINITE_SCROLL";
 
 type RowData = {
   rowIndex: number;
