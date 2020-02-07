@@ -90,8 +90,16 @@ authenticated_operations = [
     {"method": "POST", "resource": "configs", "permission": "create:configs"},
     {"method": "PUT", "resource": "configs", "permission": "update:configs"},
 
-    {"method": "POST", "resource": "import", "permission": "create:import"}
+    {"method": "POST", "resource": "import", "permission": "create:import"},
+    {"method": "GET", "resource": "import", "permission": "read:import"},
+    {"method": "PUT", "resource": "import", "permission": "update:import"},
+    {"method": "DELETE", "resource": "import", "permission": "delete:import"},
 
+    {"method": "POST", "resource": "providers", "permission": "create:providers"},
+    {"method": "GET", "resource": "providers", "permission": "read:providers"},
+    {"method": "PUT", "resource": "providers", "permission": "update:providers"},
+
+    {"method": "GET", "resource": "marketplace", "permission": "read:marketplace"}
 ]
 
 
