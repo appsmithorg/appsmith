@@ -230,7 +230,8 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               <Button
                 rightIcon={IconNames.CHEVRON_DOWN}
                 text={
-                  !_.isEmpty(this.props.options)
+                  !_.isEmpty(this.props.options) &&
+                  this.props.selectedIndex !== undefined
                     ? this.props.options[this.props.selectedIndex].label
                     : "-- Empty --"
                 }
@@ -344,7 +345,7 @@ export interface DropDownComponentProps extends ComponentProps {
   onOptionRemoved: (removedIndex: number) => void;
   placeholder?: string;
   label?: string;
-  selectedIndex: number;
+  selectedIndex?: number;
   selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
