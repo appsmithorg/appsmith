@@ -43,7 +43,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { tableData, widgetId } = this.props;
+    const { tableData } = this.props;
     const columns = constructColumns(tableData);
 
     const serverSidePaginationEnabled = (this.props
@@ -53,7 +53,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (pageNo === undefined) {
       pageNo = 1;
-      super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+      super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     return (
       <TableComponent
@@ -69,7 +69,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         onCommandClick={this.onCommandClick}
         onRowClick={(rowData: object, index: number) => {
           const { onRowSelected } = this.props;
-          this.updateSelectedRowProperty(index);
+          this.updateWidgetProperty("selectedRowIndex", index);
 
           super.executeAction(onRowSelected);
         }}
@@ -78,7 +78,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         nextPageClick={() => {
           let pageNo = this.props.pageNo || 1;
           pageNo = pageNo + 1;
-          super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+          super.updateWidgetMetaProperty("pageNo", pageNo);
 
           super.executeAction(this.props.onPageChange, "NEXT");
         }}
@@ -86,15 +86,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           let pageNo = this.props.pageNo || 1;
           pageNo = pageNo - 1;
           if (pageNo >= 1) {
-            super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+            super.updateWidgetMetaProperty("pageNo", pageNo);
             super.executeAction(this.props.onPageChange, "PREV");
           }
         }}
         updatePageNo={(pageNo: number) => {
-          super.updateWidgetMetaProperty(widgetId, "pageNo", pageNo);
+          super.updateWidgetMetaProperty("pageNo", pageNo);
         }}
         updatePageSize={(pageSize: number) => {
-          super.updateWidgetMetaProperty(widgetId, "pageSize", pageSize);
+          super.updateWidgetMetaProperty("pageSize", pageSize);
         }}
       />
     );
@@ -103,11 +103,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   onCommandClick = (actions: ActionPayload[]) => {
     super.executeAction(actions);
   };
-
-  updateSelectedRowProperty(index: number) {
-    const { widgetId } = this.props;
-    this.updateWidgetProperty(widgetId, "selectedRowIndex", index);
-  }
 
   getWidgetType(): WidgetType {
     return "TABLE_WIDGET";

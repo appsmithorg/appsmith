@@ -50,7 +50,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   onValueChange = (value: string) => {
-    this.context.updateWidgetProperty(this.props.widgetId, "text", value);
+    this.updateWidgetProperty("text", value);
     super.executeAction(this.props.onTextChanged);
   };
 

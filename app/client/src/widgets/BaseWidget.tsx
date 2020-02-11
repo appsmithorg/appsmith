@@ -99,22 +99,17 @@ abstract class BaseWidget<
     disableDrag && disable !== undefined && disableDrag(disable);
   }
 
-  updateWidgetProperty(
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ): void {
+  updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
+    const { widgetId } = this.props;
     updateWidgetProperty &&
       updateWidgetProperty(widgetId, propertyName, propertyValue);
   }
 
-  updateWidgetMetaProperty(
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ): void {
+  updateWidgetMetaProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetMetaProperty } = this.context;
+    const { widgetId } = this.props;
+
     updateWidgetMetaProperty &&
       updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
   }

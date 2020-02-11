@@ -38,11 +38,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: Date) => {
-    this.context.updateWidgetProperty(
-      this.props.widgetId,
-      "selectedDate",
-      selectedDate,
-    );
+    this.updateWidgetProperty("selectedDate", selectedDate);
     super.executeAction(this.props.onDateSelected);
   };
 

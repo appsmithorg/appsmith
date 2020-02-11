@@ -31,11 +31,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onCheckChange = (isChecked: boolean) => {
-    this.context.updateWidgetProperty(
-      this.props.widgetId,
-      "isChecked",
-      isChecked,
-    );
+    this.updateWidgetProperty("isChecked", isChecked);
     super.executeAction(this.props.onCheckChange);
   };
 

@@ -61,11 +61,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       return option.value === selectedOption.value;
     });
     if (this.props.selectionType === "SINGLE_SELECT") {
-      this.context.updateWidgetProperty(
-        this.props.widgetId,
-        "selectedIndex",
-        selectedIndex,
-      );
+      this.updateWidgetProperty("selectedIndex", selectedIndex);
     } else if (this.props.selectionType === "MULTI_SELECT") {
       const selectedIndexArr = this.props.selectedIndexArr || [];
       const isAlreadySelected =
@@ -76,11 +72,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         this.onOptionRemoved(selectedIndex);
       } else {
         selectedIndexArr.push(selectedIndex);
-        this.context.updateWidgetProperty(
-          this.props.widgetId,
-          "selectedIndexArr",
-          selectedIndexArr,
-        );
+        this.updateWidgetProperty("selectedIndexArr", selectedIndexArr);
       }
     }
     super.executeAction(this.props.onOptionChange);
@@ -92,11 +84,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           return removedIndex !== index;
         })
       : [];
-    this.context.updateWidgetProperty(
-      this.props.widgetId,
-      "selectedIndexArr",
-      updateIndexArr,
-    );
+    this.updateWidgetProperty("selectedIndexArr", updateIndexArr);
     super.executeAction(this.props.onOptionChange);
   };
 
