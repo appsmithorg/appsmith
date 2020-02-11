@@ -79,6 +79,15 @@ const DragLayerComponent = (props: DragLayerProps) => {
     return null;
   }
 
+  /* 
+  When the parent offsets are not updated, we don't need to show the dropzone, as the dropzone
+  will be rendered at an incorrect coordinates. 
+  We can be sure that the parent offset has been calculated
+  when the coordiantes are not [0,0].
+  */
+
+  const isParentOffsetCalculated =
+    props.parentOffset.x > 0 && props.parentOffset.y > 0;
   return (
     <WrappedDragLayer>
       <DropTargetMask
@@ -86,16 +95,20 @@ const DragLayerComponent = (props: DragLayerProps) => {
         columnWidth={props.parentColumnWidth}
         setBounds={props.onBoundsUpdate}
       />
-
-      {props.visible && props.isOver && currentOffset && (
-        <DropZone
-          {...props}
-          width={widgetWidth}
-          height={widgetHeight}
-          currentOffset={currentOffset as XYCoord}
-          canDrop={canDrop}
-        />
-      )}
+      {props.visible &&
+        props.isOver &&
+        currentOffset &&
+        isParentOffsetCalculated && (
+          <DropZone
+            parentOffset={props.parentOffset}
+            parentRowHeight={props.parentRowHeight}
+            parentColumnWidth={props.parentColumnWidth}
+            width={widgetWidth}
+            height={widgetHeight}
+            currentOffset={currentOffset as XYCoord}
+            canDrop={canDrop}
+          />
+        )}
     </WrappedDragLayer>
   );
 };

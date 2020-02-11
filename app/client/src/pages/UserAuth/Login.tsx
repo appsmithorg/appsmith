@@ -72,7 +72,7 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
 >;
 
 export const Login = (props: LoginFormProps) => {
-  const { error, pristine, valid } = props;
+  const { error, valid } = props;
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
@@ -90,7 +90,7 @@ export const Login = (props: LoginFormProps) => {
 
   return (
     <AuthCardContainer>
-      {showError && pristine && (
+      {showError && (
         <FormMessage
           intent="danger"
           message={LOGIN_PAGE_INVALID_CREDS_ERROR}

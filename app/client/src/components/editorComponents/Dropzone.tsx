@@ -9,8 +9,8 @@ import { useSpring, animated, interpolate, config } from "react-spring";
 const SPRING_CONFIG = {
   ...config.gentle,
   clamp: true,
-  friction: 1,
-  tension: 170,
+  friction: 0,
+  tension: 999,
 };
 const DropZoneWrapper = styled.div<{ width: number; height: number }>`
   width: ${props => props.width}px;
@@ -65,14 +65,12 @@ export const DropZone = (props: DropZoneProps) => {
   const [{ X, Y }, setXY] = useSpring(() => ({
     X: props.currentOffset.x - props.parentOffset.x,
     Y: props.currentOffset.y - props.parentOffset.y,
-    reset: true,
     config: SPRING_CONFIG,
   }));
 
   const [{ snappedX, snappedY }, setSnappedXY] = useSpring(() => ({
     snappedX: props.currentOffset.x - props.parentOffset.x,
     snappedY: props.currentOffset.y - props.parentOffset.y,
-    reset: true,
     config: SPRING_CONFIG,
   }));
 

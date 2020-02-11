@@ -2,12 +2,14 @@ import { Rnd } from "react-rnd";
 import styled, { css } from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
+import { invisible } from "constants/DefaultTheme";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
 };
 interface ResizeBorderDotDivProps {
   isfocused: boolean;
+  visible: boolean;
 }
 
 const borderCSS = css<ResizeBorderDotDivProps>`
@@ -27,6 +29,7 @@ const borderCSS = css<ResizeBorderDotDivProps>`
 `;
 
 export const ResizeBorderDotDiv = styled.div<ResizeBorderDotDivProps>`
+  ${props => (!props.visible ? invisible : "")}
   ${borderCSS}
   &:after {
     left: -${props => props.theme.spaces[2]}px;
