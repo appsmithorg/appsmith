@@ -63,6 +63,12 @@ export const BlueprintControlTransform = css`
   }
 `;
 
+export const invisible = css`
+  && > * {
+    opacity: 0.6;
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {

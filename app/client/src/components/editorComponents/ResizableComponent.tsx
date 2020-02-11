@@ -217,7 +217,10 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         bottomLeft: canResize,
       }}
     >
-      <ResizeBorderDotDiv isfocused={isWidgetFocused}>
+      <ResizeBorderDotDiv
+        isfocused={isWidgetFocused}
+        visible={!!props.isVisible}
+      >
         {props.children}
       </ResizeBorderDotDiv>
     </ResizableContainer>

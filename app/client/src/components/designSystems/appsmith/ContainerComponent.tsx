@@ -1,7 +1,7 @@
 import React, { forwardRef, Ref, ReactNode } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "./BaseComponent";
-import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 
 const StyledContainerComponent = styled.div<ContainerComponentProps>`
@@ -19,6 +19,7 @@ const StyledContainerComponent = styled.div<ContainerComponentProps>`
   width: 100%;
   background: ${props => props.backgroundColor};
   position: relative;
+  ${props => (!props.isVisible ? invisible : "")};
 }`;
 
 /* eslint-disable react/display-name */

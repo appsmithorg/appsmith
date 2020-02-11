@@ -82,7 +82,7 @@ const TableComponent = memo(
       e.preventDefault();
       e.stopPropagation();
     }
-
+    /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
       if (grid.current && grid.current.element) {
         const header = grid.current.getHeaderContent();
