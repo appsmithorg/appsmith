@@ -39,17 +39,44 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       }}`,
     };
   }
+
+  componentDidUpdate(nextProps: DropdownWidgetProps) {
+    if (
+      JSON.stringify(nextProps.options) !== JSON.stringify(this.props.options)
+    ) {
+      this.updateWidgetMetaProperty("selectedIndex", undefined);
+      this.updateWidgetMetaProperty("selectedIndexArr", []);
+    }
+  }
   getPageView() {
+    const options = this.props.options || [];
+    let selectedIndex: number | undefined = undefined;
+    if (
+      this.props.selectedIndex !== undefined &&
+      this.props.selectedIndex < options.length &&
+      this.props.selectedIndex >= 0
+    ) {
+      selectedIndex = this.props.selectedIndex;
+    }
+
+    const selectedIndexArr = this.props.selectedIndexArr || [];
+    let computedSelectedIndexArr = selectedIndexArr.slice();
+    selectedIndexArr.forEach((selectedIndex, index) => {
+      if (options[selectedIndex] === undefined) {
+        computedSelectedIndexArr = [];
+      }
+    });
+
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
         onOptionRemoved={this.onOptionRemoved}
         widgetId={this.props.widgetId}
         placeholder={this.props.placeholderText}
-        options={this.props.options || []}
+        options={options}
         selectionType={this.props.selectionType}
-        selectedIndex={this.props.selectedIndex || 0}
-        selectedIndexArr={this.props.selectedIndexArr || []}
+        selectedIndex={selectedIndex}
+        selectedIndexArr={computedSelectedIndexArr}
         label={this.props.label}
         isLoading={this.props.isLoading}
       />
@@ -61,7 +88,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       return option.value === selectedOption.value;
     });
     if (this.props.selectionType === "SINGLE_SELECT") {
-      this.updateWidgetProperty("selectedIndex", selectedIndex);
+      this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
     } else if (this.props.selectionType === "MULTI_SELECT") {
       const selectedIndexArr = this.props.selectedIndexArr || [];
       const isAlreadySelected =
@@ -72,7 +99,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         this.onOptionRemoved(selectedIndex);
       } else {
         selectedIndexArr.push(selectedIndex);
-        this.updateWidgetProperty("selectedIndexArr", selectedIndexArr);
+        this.updateWidgetMetaProperty("selectedIndexArr", selectedIndexArr);
       }
     }
     super.executeAction(this.props.onOptionChange);
@@ -84,7 +111,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           return removedIndex !== index;
         })
       : [];
-    this.updateWidgetProperty("selectedIndexArr", updateIndexArr);
+    this.updateWidgetMetaProperty("selectedIndexArr", updateIndexArr);
     super.executeAction(this.props.onOptionChange);
   };
 
