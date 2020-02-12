@@ -6,7 +6,6 @@ import appViewReducer from "./appViewReducer";
 import applicationsReducer from "./applicationsReducer";
 import { widgetSidebarReducer } from "./widgetSidebarReducer";
 import apiPaneReducer from "./apiPaneReducer";
-import routesParamsReducer from "reducers/uiReducers/routesParamsReducer";
 import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
 import usersReducer from "./usersReducer";
@@ -20,7 +19,6 @@ const uiReducer = combineReducers({
   appView: appViewReducer,
   applications: applicationsReducer,
   apiPane: apiPaneReducer,
-  routesParams: routesParamsReducer,
   auth: authReducer,
   orgs: orgReducer,
   users: usersReducer,

@@ -189,11 +189,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
         ref={drag}
         onMouseOver={(e: any) => {
-          focusWidget && focusWidget(props.widgetId);
+          focusWidget &&
+            focusedWidget !== props.widgetId &&
+            focusWidget(props.widgetId);
           e.stopPropagation();
         }}
         onMouseLeave={(e: any) => {
-          focusWidget && focusWidget();
+          focusWidget && focusedWidget === props.widgetId && focusWidget();
           e.stopPropagation();
         }}
         onClick={(e: any) => {

@@ -18,8 +18,6 @@ import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { getParsedDataTree } from "./nameBindingsWithDataSelector";
 import _ from "lodash";
-import { RestAction } from "api/ActionAPI";
-import { PaginationType } from "pages/Editor/APIEditor/Pagination";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
