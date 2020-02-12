@@ -1,5 +1,10 @@
 import React from "react";
-import { AnchorButton, IButtonProps, MaybeElement } from "@blueprintjs/core";
+import {
+  AnchorButton,
+  IButtonProps,
+  MaybeElement,
+  IconName,
+} from "@blueprintjs/core";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
@@ -114,6 +119,7 @@ interface ButtonContainerProps extends ComponentProps {
   disabled?: boolean;
   buttonStyle?: ButtonStyle;
   isLoading: boolean;
+  rightIcon?: IconName | MaybeElement;
 }
 
 const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
@@ -135,6 +141,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
     <BaseButton
       className={props.isLoading ? "bp3-skeleton" : ""}
       icon={props.icon}
+      rightIcon={props.rightIcon}
       text={props.text}
       filled={props.buttonStyle !== "SECONDARY_BUTTON"}
       accent={mapButtonStyleToStyleName(props.buttonStyle)}
