@@ -1,13 +1,11 @@
 import React from "react";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-// import { Button } from "@blueprintjs/core";
-import Button from "components/editorComponents/Button";
 
 import styled from "constants/DefaultTheme";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import FormRow from "components/editorComponents/FormRow";
-import { Directions } from "utils/helpers";
-import { Callout } from "@blueprintjs/core";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import CalloutComponent from "components/designSystems/blueprint/CalloutComponent";
 interface PaginationProps {
   onTestClick: Function;
   paginationType: PaginationType;
@@ -25,6 +23,7 @@ export enum PaginationType {
 
 const ExampleApi = styled.p`
   color: #ef7b63;
+  font-family: monospace;
 `;
 
 const StyledLabel = styled.label`
@@ -35,6 +34,22 @@ const StyledLabel = styled.label`
 const PaginationTypeView = styled.div`
   padding: 0px 6px;
 `;
+
+const StyledDynamicTextField = styled(DynamicTextField)`
+  &&&& {
+    margin-right: 5px;
+  }
+`;
+
+const TestButton = styled(BaseButton)`
+  &&& {
+    max-width: 72px;
+    margin: 0 5px;
+    min-height: 32px;
+    padding-right: 4px;
+  }
+`;
+
 export default function Pagination(props: PaginationProps) {
   return (
     <React.Fragment>
@@ -71,30 +86,27 @@ export default function Pagination(props: PaginationProps) {
       >
         <StyledLabel>Previous url</StyledLabel>
         <PaginationFieldWrapper>
-          <DynamicTextField name="actionConfiguration.prev" />
-          <Button
+          <StyledDynamicTextField name="actionConfiguration.prev" />
+          <TestButton
+            accent="secondary"
             onClick={() => {
               props.onTestClick("PREV");
             }}
             text={"Test"}
-            icon={"play"}
-            iconAlignment={Directions.RIGHT}
-            filled
-          ></Button>
+            rightIcon={"play"}
+          ></TestButton>
         </PaginationFieldWrapper>
         <StyledLabel>Next url</StyledLabel>
         <PaginationFieldWrapper>
-          <DynamicTextField name="actionConfiguration.next" />
-          <Button
+          <StyledDynamicTextField name="actionConfiguration.next" />
+          <TestButton
+            accent="secondary"
             onClick={() => {
               props.onTestClick("NEXT");
             }}
             text={"Test"}
-            icon={"play"}
-            iconAlignment={Directions.RIGHT}
-            // rightIcon={"play"}
-            filled
-          ></Button>
+            rightIcon={"play"}
+          ></TestButton>
         </PaginationFieldWrapper>
       </PaginationTypeView>
       <PaginationTypeView
@@ -102,7 +114,7 @@ export default function Pagination(props: PaginationProps) {
           props.paginationType !== PaginationType.PAGE_NO ? "display-none" : ""
         }
       >
-        <Callout>
+        <CalloutComponent>
           <p
             style={{
               marginBottom: "6px",
@@ -114,7 +126,7 @@ export default function Pagination(props: PaginationProps) {
             http://api.example.com/users?pageNo={"{{Table.pageNo}}"}
             &amp;pageSize={"{{Table.pageSize}}"}
           </ExampleApi>
-        </Callout>
+        </CalloutComponent>
       </PaginationTypeView>
     </React.Fragment>
   );
