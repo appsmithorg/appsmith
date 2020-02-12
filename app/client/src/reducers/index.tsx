@@ -16,7 +16,6 @@ import { AppViewReduxState } from "./uiReducers/appViewReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
-import { RoutesParamsReducerState } from "reducers/uiReducers/routesParamsReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
@@ -41,7 +40,6 @@ export interface AppState {
     appView: AppViewReduxState;
     applications: ApplicationsReduxState;
     apiPane: ApiPaneReduxState;
-    routesParams: RoutesParamsReducerState;
     auth: AuthState;
     orgs: OrgReduxState;
     users: UsersReduxState;

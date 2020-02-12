@@ -59,12 +59,11 @@ export function TablePagination(props: PagerProps) {
             marginLeft: 6,
           }}
         >
-          <a
+          <button
             className={"e-link e-numericitem e-spacing e-currentitem e-active"}
-            href={""}
           >
             {props.pageNo}
-          </a>
+          </button>
         </div>
         <PagerIcon
           className={"e-next e-icons e-icon-next e-nextpage"}
