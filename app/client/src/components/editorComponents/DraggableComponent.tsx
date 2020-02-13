@@ -7,10 +7,7 @@ import blankImage from "assets/images/blank.png";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
-import {
-  WIDGET_CLASSNAME_PREFIX,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
@@ -200,7 +197,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }}
         onClick={(e: any) => {
           selectWidget && selectWidget(props.widgetId);
-          showPropertyPane && showPropertyPane(props.widgetId);
+          showPropertyPane &&
+            !isResizingOrDragging &&
+            showPropertyPane(props.widgetId);
           e.stopPropagation();
         }}
         show={
@@ -221,25 +220,18 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           zIndex: stackingContext,
         }}
       >
-        {selectedWidget !== props.widgetId &&
-          props.type !== WidgetTypes.CONTAINER_WIDGET && (
-            <ClickCaptureMask
-              onClick={(e: any) => {
-                selectWidget && selectWidget(props.widgetId);
-                showPropertyPane && showPropertyPane(props.widgetId);
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            />
-          )}
+        {selectedWidget !== props.widgetId && props.isDefaultClickDisabled && (
+          <ClickCaptureMask
+            onClick={(e: any) => {
+              selectWidget && selectWidget(props.widgetId);
+              showPropertyPane && showPropertyPane(props.widgetId);
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+        )}
 
         {props.children}
-
-        {/* <DragHandle className="control" ref={drag}>
-          <Tooltip content="Move" hoverOpenDelay={500}>
-            {moveControlIcon}
-          </Tooltip>
-        </DragHandle> */}
         <DeleteControl className="control" onClick={deleteWidget}>
           <Tooltip content="Delete" hoverOpenDelay={500}>
             {deleteControlIcon}

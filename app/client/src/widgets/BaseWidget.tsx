@@ -271,6 +271,7 @@ export interface WidgetProps extends WidgetDataProps {
   dynamicBindings?: Record<string, boolean>;
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
+  isDefaultClickDisabled?: boolean;
   [key: string]: any;
 }
 

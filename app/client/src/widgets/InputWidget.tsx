@@ -76,7 +76,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         minNum={this.props.minNum}
         placeholder={this.props.placeholderText}
         isLoading={this.props.isLoading}
-        isTextArea={
+        multiline={
           this.props.bottomRow - this.props.topRow > 1 &&
           this.props.inputType === "TEXT"
         }
