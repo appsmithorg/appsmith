@@ -5,6 +5,8 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.repositories.GroupRepository;
+import com.appsmith.server.services.GroupService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     @Autowired
     UserService userService;
 
+    @Autowired
+    GroupRepository groupRepository;
+
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     /**
@@ -48,6 +53,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
                                               Authentication authentication) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2AuthenticationToken oauthAuthentication = (OAuth2AuthenticationToken) authentication;
             return checkAndCreateUser(oauthAuthentication)

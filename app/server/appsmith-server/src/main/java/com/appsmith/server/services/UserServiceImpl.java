@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.GroupRepository;
 import com.appsmith.server.repositories.InviteUserRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -46,7 +47,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
-    private final GroupService groupService;
+    private final GroupRepository groupRepository;
     private final InviteUserRepository inviteUserRepository;
     private final UserOrganizationService userOrganizationService;
 
@@ -68,7 +69,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
-                           GroupService groupService,
+                           GroupRepository groupRepository,
                            InviteUserRepository inviteUserRepository,
                            UserOrganizationService userOrganizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -79,7 +80,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
-        this.groupService = groupService;
+        this.groupRepository = groupRepository;
         this.inviteUserRepository = inviteUserRepository;
         this.userOrganizationService = userOrganizationService;
     }
@@ -485,6 +486,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
                 // This object cast is required to ensure that we send the right object type back to Spring framework.
                 // Doesn't work without this.
-                .map(user -> (UserDetails) user);
+                .flatMap(user -> {
+                    Set<String> groupSet = user.getGroupIds();
+
+                    return groupRepository.findAllById(groupSet)
+                            .map(group -> group.getPermissions())
+                            // Adding permissions from all the groups that the user is a part of
+                            .map(permissions -> user.getPermissions().addAll(permissions))
+                            .collectList()
+                            .thenReturn((UserDetails) user);
+                });
     }
 }

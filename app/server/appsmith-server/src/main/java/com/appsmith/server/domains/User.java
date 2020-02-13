@@ -59,15 +59,9 @@ public class User extends BaseDomain implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        if (roles == null || roles.isEmpty()) //No existing roles found.
-            return null;
-
-        Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.toString()))
-                .collect(Collectors.toList());
-
-        return authorities;
+        return this.getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission))
+                .collect(Collectors.toSet());
     }
 
     @Override
