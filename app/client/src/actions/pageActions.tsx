@@ -22,11 +22,15 @@ export const fetchPageList = (
   };
 };
 
-export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
+export const fetchPage = (
+  pageId: string,
+  canvasWidth?: number,
+): ReduxAction<FetchPageRequest & { canvasWidth?: number }> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       pageId,
+      canvasWidth,
     },
   };
 };

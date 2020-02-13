@@ -3,6 +3,7 @@ import _ from "lodash";
 
 import ContainerComponent, {
   ContainerStyle,
+  ContainerComponentProps,
 } from "components/designSystems/appsmith/ContainerComponent";
 import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
@@ -12,6 +13,7 @@ import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 
 import ResizeBoundsContainerComponent from "components/editorComponents/ResizeBoundsContainerComponent";
@@ -71,12 +73,11 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  getContainerComponentProps = () => {
-    const containerProps: ContainerWidgetProps<WidgetProps> = { ...this.props };
-    containerProps.backgroundColor = this.props.backgroundColor || "white";
-
-    return containerProps;
-  };
+  getContainerComponentProps = (): ContainerComponentProps => ({
+    ...this.props,
+    isMainContainer: this.props.widgetId === MAIN_CONTAINER_WIDGET_ID,
+    backgroundColor: this.props.backgroundColor || "white",
+  });
 
   renderAsContainerComponent() {
     return (

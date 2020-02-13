@@ -245,6 +245,12 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const marginBottom =
     props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "500px" : 0;
 
+  const border =
+    (isExactlyOver || isChildResizing) &&
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? "1px solid #ccc"
+      : "none";
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
@@ -261,6 +267,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           userSelect: "none",
           opacity: 0.99,
           background: "none",
+          border,
         }}
       >
         {props.children}

@@ -10,6 +10,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
+      isDefaultClickDisabled: true,
     },
     TEXT_WIDGET: {
       text: "Label me",

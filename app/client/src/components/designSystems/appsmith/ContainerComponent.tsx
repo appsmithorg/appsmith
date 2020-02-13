@@ -1,14 +1,14 @@
 import React, { forwardRef, Ref, ReactNode } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "./BaseComponent";
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 
 const StyledContainerComponent = styled.div<ContainerComponentProps>`
   ${props =>
     props.containerStyle !== "none"
       ? `
-  border: ${getBorderCSSShorthand(props.theme.borders[2])};
+  border: none;
   border-radius: ${
     props.containerStyle === "card" || props.containerStyle === "rounded-border"
       ? props.theme.radii[1]
@@ -17,7 +17,12 @@ const StyledContainerComponent = styled.div<ContainerComponentProps>`
       : ""}
   height: 100%;
   width: 100%;
-  background: ${props => props.backgroundColor};
+  background: ${props =>
+    props.isMainContainer ? "none" : props.backgroundColor};
+  box-shadow: ${props =>
+    props.isMainContainer
+      ? "none"
+      : "0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2)"};
   position: relative;
   ${props => (!props.isVisible ? invisible : "")};
 }`;
@@ -45,6 +50,7 @@ export interface ContainerComponentProps extends ComponentProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;
+  isMainContainer: boolean;
 }
 
 export default ContainerComponent;

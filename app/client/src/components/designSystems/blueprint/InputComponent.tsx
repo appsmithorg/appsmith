@@ -24,13 +24,13 @@ import { Colors } from "constants/Colors";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled(ControlGroup)<{ isTextArea: boolean }>`
+const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
   &&&& {
     .${Classes.INPUT} {
       box-shadow: none;
       border: 1px solid ${Colors.GEYSER_LIGHT};
       border-radius: ${props => props.theme.radii[1]}px;
-      height: ${props => (props.isTextArea ? "100%" : "inherit")};
+      height: ${props => (props.multiline === "true" ? "100%" : "inherit")};
       &:active {
         border: 1px solid ${Colors.HIT_GRAY};
       }
@@ -45,7 +45,7 @@ const InputComponentWrapper = styled(ControlGroup)<{ isTextArea: boolean }>`
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: ${props => (props.isTextArea ? "100%" : "auto")};
+    height: ${props => (props.multiline === "true" ? "100%" : "auto")};
     align-items: center;
     label {
       ${labelStyle}
@@ -178,7 +178,7 @@ class InputComponent extends React.Component<
 
   render() {
     return (
-      <InputComponentWrapper fill isTextArea={this.props.isTextArea}>
+      <InputComponentWrapper fill multiline={this.props.multiline.toString()}>
         {this.props.label && (
           <Label
             className={
@@ -191,7 +191,7 @@ class InputComponent extends React.Component<
           </Label>
         )}
 
-        {this.renderInputComponent(this.props.inputType, this.props.isTextArea)}
+        {this.renderInputComponent(this.props.inputType, this.props.multiline)}
         {this.props.errorMessage && <Text>{this.props.errorMessage}</Text>}
       </InputComponentWrapper>
     );
@@ -219,7 +219,7 @@ export interface InputComponentProps extends ComponentProps {
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;
-  isTextArea: boolean;
+  multiline: boolean;
 }
 
 export default InputComponent;

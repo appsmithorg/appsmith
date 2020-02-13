@@ -1,11 +1,11 @@
 import { FetchPageResponse } from "api/PageApi";
-import {
-  CANVAS_DEFAULT_WIDTH_PX,
-  CANVAS_DEFAULT_HEIGHT_PX,
-  CANVAS_BACKGROUND_COLOR,
-  CANVAS_DEFAULT_GRID_HEIGHT_PX,
-  CANVAS_DEFAULT_GRID_WIDTH_PX,
-} from "constants/AppConstants";
+// import {
+//   CANVAS_DEFAULT_WIDTH_PX,
+//   CANVAS_DEFAULT_HEIGHT_PX,
+//   CANVAS_BACKGROUND_COLOR,
+//   CANVAS_DEFAULT_GRID_HEIGHT_PX,
+//   CANVAS_DEFAULT_GRID_WIDTH_PX,
+// } from "constants/AppConstants";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
@@ -19,13 +19,14 @@ import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
   WidgetTypes,
-  MAIN_CONTAINER_WIDGET_ID,
-  MAIN_CONTAINER_WIDGET_NAME,
+  // MAIN_CONTAINER_WIDGET_ID,
+  // MAIN_CONTAINER_WIDGET_NAME,
   CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
+import defaultTemplate from "templates/default";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -41,31 +42,34 @@ type Rect = {
   bottom: number;
 };
 
-const defaultDSL = {
-  type: WidgetTypes.CONTAINER_WIDGET,
-  widgetId: MAIN_CONTAINER_WIDGET_ID,
-  widgetName: MAIN_CONTAINER_WIDGET_NAME,
+// const defaultDSL = {
+//   type: WidgetTypes.CONTAINER_WIDGET,
+//   widgetId: MAIN_CONTAINER_WIDGET_ID,
+//   widgetName: MAIN_CONTAINER_WIDGET_NAME,
 
-  backgroundColor: CANVAS_BACKGROUND_COLOR,
-  children: [],
+//   backgroundColor: CANVAS_BACKGROUND_COLOR,
+//   children: [],
 
-  leftColumn: 0,
-  rightColumn: CANVAS_DEFAULT_WIDTH_PX,
-  parentColumnSpace: CANVAS_DEFAULT_GRID_WIDTH_PX,
-  snapColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
+//   leftColumn: 0,
+//   rightColumn: CANVAS_DEFAULT_WIDTH_PX,
+//   parentColumnSpace: CANVAS_DEFAULT_GRID_WIDTH_PX,
+//   snapColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
 
-  topRow: 0,
-  bottomRow: CANVAS_DEFAULT_HEIGHT_PX,
-  parentRowSpace: CANVAS_DEFAULT_GRID_HEIGHT_PX,
-  // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
-  // Widget padding: 8px
-  // Container padding: 12px;
-  // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
-  snapRows: CANVAS_DEFAULT_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-};
+//   topRow: 0,
+//   bottomRow: CANVAS_DEFAULT_HEIGHT_PX,
+//   parentRowSpace: CANVAS_DEFAULT_GRID_HEIGHT_PX,
+//   // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
+//   // Widget padding: 8px
+//   // Container padding: 12px;
+//   // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
+//   snapRows: CANVAS_DEFAULT_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+// };
+
+const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
+  canvasWidth?: number,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
@@ -74,6 +78,9 @@ export const extractCurrentDSL = (
   // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
   currentDSL.snapRows =
     Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
+  if (canvasWidth && canvasWidth > 0) {
+    currentDSL.rightColumn = Math.floor(canvasWidth * 0.9);
+  }
   return currentDSL;
 };
 
