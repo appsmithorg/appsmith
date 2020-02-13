@@ -40,12 +40,12 @@ const apiPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.RUN_API_REQUEST]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isRunning: {
       ...state.isRunning,
-      [action.payload]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.RUN_API_SUCCESS]: (
