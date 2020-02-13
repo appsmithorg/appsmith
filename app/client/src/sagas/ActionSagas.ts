@@ -155,7 +155,9 @@ export function* executeAPIQueryActionSaga(
       if (apiAction.onError) {
         yield put({
           type: ReduxActionTypes.EXECUTE_ACTION,
-          payload: apiAction.onError,
+          payload: {
+            actions: apiAction.onError,
+          },
         });
       }
       yield put(
@@ -168,7 +170,9 @@ export function* executeAPIQueryActionSaga(
       if (apiAction.onSuccess) {
         yield put({
           type: ReduxActionTypes.EXECUTE_ACTION,
-          payload: apiAction.onSuccess,
+          payload: {
+            actions: apiAction.onSuccess,
+          },
         });
       }
       yield put({
