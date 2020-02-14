@@ -349,7 +349,6 @@ class EditorSidebar extends React.Component<Props, State> {
                                             <ContextDropdown
                                               options={[
                                                 {
-                                                  id: "copy",
                                                   value: "copy",
                                                   onSelect: () => null,
                                                   label: "Copy to",
@@ -367,7 +366,6 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   ),
                                                 },
                                                 {
-                                                  id: "move",
                                                   value: "move",
                                                   onSelect: () => null,
                                                   label: "Move to",
@@ -387,7 +385,6 @@ class EditorSidebar extends React.Component<Props, State> {
                                                     })),
                                                 },
                                                 {
-                                                  id: "delete",
                                                   value: "delete",
                                                   onSelect: () =>
                                                     this.props.deleteItem(
