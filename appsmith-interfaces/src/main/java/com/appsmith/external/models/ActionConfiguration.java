@@ -35,6 +35,8 @@ public class ActionConfiguration {
     List<Property> headers;
     List<Property> queryParameters;
     String body;
+    // For form-data input instead of json use the following
+    List<Property> bodyFormData;
     HttpMethod httpMethod;
     // Paginated API fields
     String next;
