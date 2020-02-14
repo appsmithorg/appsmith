@@ -71,7 +71,7 @@ public class RestApiPlugin extends BasePlugin {
             URI uri = null;
             try {
                 uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
-                System.out.println("Final URL is : "+ uri.toString());
+                System.out.println("Final URL is : " + uri.toString());
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
@@ -153,6 +153,13 @@ public class RestApiPlugin extends BasePlugin {
                         ClientResponse response = (ClientResponse) res;
                         if (response.statusCode().is3xxRedirection()) {
                             String redirectUrl = response.headers().header("Location").get(0);
+                            /**
+                             * TODO
+                             * In case the redirected URL is not absolute (complete), create the new URL using the relative path
+                             * This particular scenario is seen in the URL : https://rickandmortyapi.com/api/character
+                             * It redirects to partial URI : /api/character/
+                             * In this scenario we should convert the partial URI to complete URI
+                             */
                             URI redirectUri = null;
                             try {
                                 redirectUri = new URI(redirectUrl);

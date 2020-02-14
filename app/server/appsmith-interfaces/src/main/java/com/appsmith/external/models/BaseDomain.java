@@ -1,4 +1,4 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -15,7 +15,12 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
 
-@Getter
+
+/**
+ * TODO :
+ * Move BaseDomain back to appsmith-server.domain. This is done temporarily to create templates and providers in the same database as the server
+ */
+@Getter 
 @Setter
 @ToString
 public abstract class BaseDomain implements Persistable<String> {

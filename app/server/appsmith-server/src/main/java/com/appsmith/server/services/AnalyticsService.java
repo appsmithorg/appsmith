@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.BaseDomain;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;

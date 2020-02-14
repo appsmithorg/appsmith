@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
