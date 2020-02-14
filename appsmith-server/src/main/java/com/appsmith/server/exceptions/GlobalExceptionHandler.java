@@ -104,6 +104,7 @@ public class GlobalExceptionHandler {
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
     }
+
     /**
      * This function catches the generic Exception class and is meant to be a catch all to ensure that we don't leak
      * any information to the client. Ideally, the function #catchAppsmithException should be used

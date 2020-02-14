@@ -119,18 +119,18 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
         return organizationMono
                 .flatMap(org -> groupService.createDefaultGroupsForOrg(org.getId())
-                                // Get only the group ids of the default groups to assign them to the user
-                                .map(group -> group.getId())
-                                .collect(Collectors.toSet())
-                                .flatMap(groupIds -> {
-                                    // Set the default group Ids for the user
-                                    // Append the new organization's default groups to the existing ones belonging to the user
-                                    user.getGroupIds().addAll(groupIds);
-                                    // At this point the organization have been saved and the user has been added to the org.
-                                    // Now add the newly created organization to the newly created user.
-                                    return userOrganizationService.saveUser(user);
-                                })
-                                .thenReturn(org)
+                        // Get only the group ids of the default groups to assign them to the user
+                        .map(group -> group.getId())
+                        .collect(Collectors.toSet())
+                        .flatMap(groupIds -> {
+                            // Set the default group Ids for the user
+                            // Append the new organization's default groups to the existing ones belonging to the user
+                            user.getGroupIds().addAll(groupIds);
+                            // At this point the organization have been saved and the user has been added to the org.
+                            // Now add the newly created organization to the newly created user.
+                            return userOrganizationService.saveUser(user);
+                        })
+                        .thenReturn(org)
                 );
     }
 

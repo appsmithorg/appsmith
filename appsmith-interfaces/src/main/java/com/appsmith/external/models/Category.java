@@ -1,6 +1,5 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
-import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,13 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class Setting extends BaseDomain {
+public class Category extends BaseDomain {
 
-    @Indexed(unique = true)
-    private String key;
-
-    private String defaultValue;
-
-    private Boolean isOrganizationSetting;
+    @Indexed(unique=true)
+    String name; //Category name here
 
 }

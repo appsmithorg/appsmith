@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
