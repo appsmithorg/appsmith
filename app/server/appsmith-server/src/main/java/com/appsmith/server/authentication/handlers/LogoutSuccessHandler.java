@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -29,6 +31,7 @@ public class LogoutSuccessHandler implements ServerLogoutSuccessHandler {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.OK);
+        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         try {
             ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
             String responseStr = objectMapper.writeValueAsString(responseBody);
