@@ -83,7 +83,7 @@ export const ContextDropdown = (props: ContextDropdownProps) => {
 
   const renderer: ItemRenderer<ContextDropdownOption> = (
     option: ContextDropdownOption,
-  ) => <DropdownItem key={option.id} {...option} />;
+  ) => <DropdownItem key={option.value} {...option} />;
 
   return (
     <Dropdown

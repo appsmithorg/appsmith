@@ -40,9 +40,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
-  componentDidUpdate(nextProps: DropdownWidgetProps) {
+  componentDidUpdate(prevProps: DropdownWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
-      JSON.stringify(nextProps.options) !== JSON.stringify(this.props.options)
+      JSON.stringify(prevProps.options) !== JSON.stringify(this.props.options)
     ) {
       this.updateWidgetMetaProperty("selectedIndex", undefined);
       this.updateWidgetMetaProperty("selectedIndexArr", []);
@@ -124,7 +125,6 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
-  id: string;
 }
 
 export interface DropdownWidgetProps extends WidgetProps {

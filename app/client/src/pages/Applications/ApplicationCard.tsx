@@ -150,7 +150,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   const moreActionItems: ContextDropdownOption[] = [];
   if (props.share) {
     moreActionItems.push({
-      id: "share",
       value: "share",
       onSelect: shareApp,
       label: "Share",
@@ -158,7 +157,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   }
   if (props.duplicate) {
     moreActionItems.push({
-      id: "duplicate",
       value: "duplicate",
       onSelect: duplicateApp,
       label: "Duplicate",
@@ -166,7 +164,6 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   }
   if (props.delete) {
     moreActionItems.push({
-      id: "delete",
       value: "delete",
       onSelect: deleteApp,
       label: "Delete",
