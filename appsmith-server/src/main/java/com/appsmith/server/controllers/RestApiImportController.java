@@ -5,7 +5,6 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.RestApiImporterType;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApiImporter;
 import com.appsmith.server.services.CurlImporterService;
 import com.appsmith.server.services.PostmanImporterService;
@@ -41,7 +40,10 @@ public class RestApiImportController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Object input, @RequestParam RestApiImporterType type) throws AppsmithException {
+    public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Object input,
+                                            @RequestParam RestApiImporterType type,
+                                            @RequestParam String pageId,
+                                            @RequestParam String name) {
         log.debug("Going to import API");
         ApiImporter service;
 
@@ -53,13 +55,13 @@ public class RestApiImportController {
                 throw new IllegalStateException("Unexpected value: " + type);
         }
 
-        return Mono.just(service.importAction(input))
+        return service.importAction(input, pageId, name)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping("/postman")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input) {
+    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input, @RequestParam String type) {
         return Mono.just(postmanImporterService.importPostmanCollection(input))
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }

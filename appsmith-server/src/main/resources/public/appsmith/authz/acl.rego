@@ -99,7 +99,11 @@ authenticated_operations = [
     {"method": "GET", "resource": "providers", "permission": "read:providers"},
     {"method": "PUT", "resource": "providers", "permission": "update:providers"},
 
-    {"method": "GET", "resource": "marketplace", "permission": "read:marketplace"}
+    {"method": "GET", "resource": "marketplace", "permission": "read:marketplace"},
+
+    {"method": "POST", "resource": "templates", "permission": "create:templates"},
+    {"method": "GET", "resource": "templates", "permission": "read:templates"},
+    {"method": "PUT", "resource": "templates", "permission": "update:templates"}
 ]
 
 

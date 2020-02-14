@@ -22,11 +22,10 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * This class overrides the default implementation in
  * {@link org.springframework.data.mongodb.repository.support.ReactiveMongoRepositoryFactory#getQueryLookupStrategy}
  * This custom implementation adds the query parameter to filter out any records marked with delete=true in the database
- *
+ * <p>
  * Also refer to the custom Factory: {@link SoftDeleteMongoRepositoryFactory} and
  * custom FactoryBean: {@link SoftDeleteMongoRepositoryFactoryBean}. The annotation @EnableReactiveMongoRepositories in
  * {@link com.appsmith.server.configurations.CommonConfig} sets the Mongo factory bean to our custom bean instead of the default one
- *
  */
 public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
     private final QueryLookupStrategy strategy;
