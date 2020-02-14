@@ -10,6 +10,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URL;
@@ -32,9 +33,14 @@ public class CurlImporterService extends BaseApiImporter {
     private static final String headerRegex = "\\-H\\s+\\'(.+?)\\'";
     private static final String methodRegex = "\\-X\\s+(.+?)\\b";
     private static final String bodyRegex = "\\-d\\s+\\'(.+?)\\'";
+    private final ActionService actionService;
+
+    public CurlImporterService(ActionService actionService) {
+        this.actionService = actionService;
+    }
 
     @Override
-    public Action importAction(Object input) {
+    public Mono<Action> importAction(Object input, String pageId, String name) {
         String command = (String) input;
         Action action = new Action();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -126,6 +132,8 @@ public class CurlImporterService extends BaseApiImporter {
         action.setActionConfiguration(actionConfiguration);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         action.setDatasource(datasource);
-        return action;
+        action.setName(name);
+        action.setPageId(pageId);
+        return actionService.save(action);
     }
 }

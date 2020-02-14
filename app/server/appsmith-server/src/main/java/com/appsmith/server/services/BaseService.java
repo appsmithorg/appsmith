@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.BaseDomain;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseRepository;

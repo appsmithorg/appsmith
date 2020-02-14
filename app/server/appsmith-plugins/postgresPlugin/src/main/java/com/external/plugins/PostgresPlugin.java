@@ -38,7 +38,7 @@ public class PostgresPlugin extends BasePlugin {
     /**
      * Postgres plugin receives the query as json of the following format :
      * {
-     *     "cmd" : "select * from users;"
+     * "cmd" : "select * from users;"
      * }
      */
 
@@ -87,8 +87,8 @@ public class PostgresPlugin extends BasePlugin {
 
                 // Create the connection
                 conn = DriverManager.getConnection(datasourceConfiguration.getUrl(),
-                                                   datasourceConfiguration.getAuthentication().getUsername(),
-                                                   datasourceConfiguration.getAuthentication().getPassword());
+                        datasourceConfiguration.getAuthentication().getUsername(),
+                        datasourceConfiguration.getAuthentication().getPassword());
                 return conn;
             } catch (ClassNotFoundException e) {
                 log.error("", e);

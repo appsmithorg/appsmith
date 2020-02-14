@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

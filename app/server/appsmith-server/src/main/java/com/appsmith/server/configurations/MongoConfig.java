@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 /**
  * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
  * This is required to add default clauses for default JPA queries defined by Spring Data.
- *
+ * <p>
  * The factoryBean class is also custom defined in order to add default clauses for soft delete for all custom JPA queries.
  * {@link SoftDeleteMongoRepositoryFactoryBean} for details.
  */
