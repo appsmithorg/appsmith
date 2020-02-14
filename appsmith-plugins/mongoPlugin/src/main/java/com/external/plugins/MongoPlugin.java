@@ -38,10 +38,10 @@ public class MongoPlugin extends BasePlugin {
          * For reference on creating the json queries for Mongo please head to
          * https://docs.huihoo.com/mongodb/3.4/reference/command/index.html
          *
-         * @param connection : This is the connection that is established to the data source. This connection is according
-         *                   to the parameters in Datasource Configuration
+         * @param connection              : This is the connection that is established to the data source. This connection is according
+         *                                to the parameters in Datasource Configuration
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
-         * @param actionConfiguration : These are the configurations which have been used to create an Action from a Datasource.
+         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
          * @return
          */
         @Override
@@ -55,7 +55,7 @@ public class MongoPlugin extends BasePlugin {
                 return Mono.error(new Exception("Mongo Client is null."));
             }
 
-            MongoClientURI mongoClientURI= new MongoClientURI(datasourceConfiguration.getUrl());
+            MongoClientURI mongoClientURI = new MongoClientURI(datasourceConfiguration.getUrl());
 
             String databaseName = datasourceConfiguration.getDatabaseName();
             if (databaseName == null) {
@@ -113,7 +113,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
-            MongoClientURI mongoClientURI= new MongoClientURI(datasourceConfiguration.getUrl());
+            MongoClientURI mongoClientURI = new MongoClientURI(datasourceConfiguration.getUrl());
             return new MongoClient(mongoClientURI);
         }
 
