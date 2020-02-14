@@ -16,4 +16,17 @@ public class Property {
     Boolean editable;
 
     Boolean internal;
+
+    String description;
+
+    Boolean mandatory;
+
+    String type;
+
+    String defaultValue;
+
+    String minRange;
+
+    String maxRange;
+
 }

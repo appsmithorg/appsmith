@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.BaseDomain;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;

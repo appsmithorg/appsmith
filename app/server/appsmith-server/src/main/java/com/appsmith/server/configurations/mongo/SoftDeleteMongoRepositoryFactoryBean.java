@@ -10,6 +10,7 @@ import java.io.Serializable;
 /**
  * This factory bean class is set in the annotation @EnableReactiveMongoRepositories in {@link com.appsmith.server.configurations.CommonConfig}
  * which overrides the default factory bean {@link ReactiveMongoRepositoryFactoryBean}
+ *
  * @param <T>
  * @param <S>
  * @param <ID>

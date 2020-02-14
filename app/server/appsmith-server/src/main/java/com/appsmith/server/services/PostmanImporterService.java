@@ -10,15 +10,16 @@ import com.appsmith.server.domains.Datasource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Slf4j
-public class PostmanImporterService extends BaseApiImporter{
+public class PostmanImporterService extends BaseApiImporter {
     @Override
-    public Action importAction(Object input) {
+    public Mono<Action> importAction(Object input, String pageId, String name) {
         Action action = new Action();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();
@@ -26,7 +27,9 @@ public class PostmanImporterService extends BaseApiImporter{
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         action.setDatasource(datasource);
         action.setActionConfiguration(actionConfiguration);
-        return action;
+        action.setPageId(pageId);
+        action.setName(name);
+        return Mono.just(action);
     }
 
     public TemplateCollection importPostmanCollection(Object input) {
@@ -79,7 +82,7 @@ public class PostmanImporterService extends BaseApiImporter{
     private TemplateCollection createTemplateCollection(String id) {
         ApiTemplate apiTemplate = createApiTemplate();
         TemplateCollection templateCollection = new TemplateCollection();
-        List<String> apiTemplateIds ;
+        List<String> apiTemplateIds;
         apiTemplateIds = new ArrayList<>();
         List<ApiTemplate> apiTemplateList;
         apiTemplateList = new ArrayList<>();
