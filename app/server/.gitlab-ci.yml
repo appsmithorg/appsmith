@@ -38,17 +38,17 @@ maven-build:
     - master
     - merge_requests
 
-docker-package:
-  image: docker:dind
-  services:
-    - docker:dind
-  stage: package
-  script:
-    - docker build -t appsmith/appsmith-server:release .
-    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-    - docker push appsmith/appsmith-server:release
-  only:
-    - release
+#docker-package:
+#  image: docker:dind
+#  services:
+#    - docker:dind
+#  stage: package
+#  script:
+#    - docker build -t appsmith/appsmith-server:release .
+#    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+#    - docker push appsmith/appsmith-server:release
+#  only:
+#    - release
 
 docker-package-master:
   image: docker:dind
