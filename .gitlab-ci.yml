@@ -41,7 +41,7 @@ maven-build:
 docker-package:
   image: docker:dind
   services:
-    - docker:dind
+    - docker:19.03.5-dind #change this back to docker-dind
   stage: package
   script:
     - docker build -t appsmith/appsmith-server:release .
@@ -53,7 +53,7 @@ docker-package:
 docker-package-master:
   image: docker:dind
   services:
-    - docker:dind
+    - docker:19.03.5-dind #change this back to docker-dind
   stage: package
   script:
     - docker build -t appsmith/appsmith-server:latest .
