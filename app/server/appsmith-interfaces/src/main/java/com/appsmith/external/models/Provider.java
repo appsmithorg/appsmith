@@ -34,4 +34,9 @@ public class Provider extends BaseDomain {
     Statistics statistics; //Cumulative statistics for all the APIs for this provider
 
     DatasourceConfiguration datasourceConfiguration;
+
+    List<PricingPlan> pricingPlans;
+
+    String planSubscribed;
+
 }
