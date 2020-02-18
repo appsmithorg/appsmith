@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@AclEntity(Entity.PAGES)
 public class PageServiceImpl extends BaseService<PageRepository, Page, String> implements PageService {
 
     private final ApplicationService applicationService;

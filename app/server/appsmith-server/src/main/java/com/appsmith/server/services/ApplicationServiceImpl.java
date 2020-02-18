@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -28,6 +29,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@AclEntity(Entity.APPLICATIONS)
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
     private final SessionUserService sessionUserService;
