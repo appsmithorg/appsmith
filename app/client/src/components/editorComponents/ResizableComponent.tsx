@@ -1,5 +1,5 @@
 import React, { useContext, memo } from "react";
-import { css } from "styled-components";
+import styled, { css } from "styled-components";
 import { XYCoord } from "react-dnd";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -29,12 +29,19 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import Resizable from "resizable";
-import { theme } from "constants/DefaultTheme";
+import { invisible, theme } from "constants/DefaultTheme";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
 };
+
+const VisibilityContainer = styled.div<{ visible: boolean; padding: number }>`
+  ${props => (!props.visible ? invisible : "")}
+  height: 100%;
+  width: 100%;
+  padding: ${props => props.padding}px;
+`;
 
 const HandleStyles = css`
   position: absolute;
@@ -338,7 +345,12 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       enable={!isDragging && isWidgetFocused}
       isColliding={isColliding}
     >
-      {props.children}
+      <VisibilityContainer
+        visible={!!props.isVisible}
+        padding={props.paddingOffset}
+      >
+        {props.children}
+      </VisibilityContainer>
     </Resizable>
   );
 });

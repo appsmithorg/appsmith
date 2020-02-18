@@ -86,8 +86,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
   when the coordiantes are not [0,0].
   */
 
-  const isParentOffsetCalculated =
-    props.parentOffset.x > 0 && props.parentOffset.y > 0;
+  const isParentOffsetCalculated = props.parentOffset.x !== 0;
   return (
     <WrappedDragLayer>
       <DropTargetMask
