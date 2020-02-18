@@ -13,6 +13,7 @@ import TouchBackend from "react-dnd-touch-backend";
 
 import { appInitializer } from "utils/AppsmithUtils";
 import ProtectedRoute from "./pages/common/ProtectedRoute";
+import { Slide, ToastContainer } from "react-toastify";
 import store from "./store";
 import {
   BASE_URL,
@@ -49,6 +50,13 @@ ReactDOM.render(
   >
     <Provider store={store}>
       <ThemeProvider theme={theme}>
+        <ToastContainer
+          hideProgressBar
+          draggable={false}
+          transition={Slide}
+          autoClose={5000}
+          closeButton={false}
+        />
         <Helmet>
           <meta charSet="utf-8" />
           <link rel="shortcut icon" href="/favicon-orange.ico" />

@@ -10,15 +10,13 @@ import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
-import {
-  getNameBindingsForAutocomplete,
-  NameBindingsWithData,
-} from "selectors/nameBindingsWithDataSelector";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 require("codemirror/mode/javascript/javascript");
 
 const HintStyles = createGlobalStyle`
@@ -125,7 +123,7 @@ const THEMES = {
 type THEME = "LIGHT" | "DARK";
 
 interface ReduxStateProps {
-  dynamicData: NameBindingsWithData;
+  dynamicData: DataTree;
 }
 
 export type DynamicAutocompleteInputProps = {
@@ -306,7 +304,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getNameBindingsForAutocomplete(state),
+  dynamicData: getDataTreeForAutocomplete(state),
 });
 
 export default connect(mapStateToProps)(DynamicAutocompleteInput);

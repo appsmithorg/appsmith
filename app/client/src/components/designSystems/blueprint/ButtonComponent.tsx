@@ -139,7 +139,7 @@ const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
 const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
   return (
     <BaseButton
-      className={props.isLoading ? "bp3-skeleton" : ""}
+      loading={props.isLoading}
       icon={props.icon}
       rightIcon={props.rightIcon}
       text={props.text}

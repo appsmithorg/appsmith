@@ -2,7 +2,11 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import { ControlWrapper, StyledDropDown } from "./StyledControls";
+import {
+  ControlWrapper,
+  StyledDropDown,
+  StyledDropDownContainer,
+} from "./StyledControls";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 
@@ -14,18 +18,24 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <ControlWrapper>
         <label>{this.props.label}</label>
-        <StyledDropDown
-          items={this.props.options}
-          filterable={false}
-          itemRenderer={this.renderItem}
-          onItemSelect={this.onItemSelect}
-          noResults={<MenuItem disabled={true} text="No results." />}
-        >
-          <Button
-            text={selected ? selected.label : ""}
-            rightIcon="chevron-down"
-          />
-        </StyledDropDown>
+        <StyledDropDownContainer>
+          <StyledDropDown
+            items={this.props.options}
+            filterable={false}
+            itemRenderer={this.renderItem}
+            onItemSelect={this.onItemSelect}
+            noResults={<MenuItem disabled={true} text="No results." />}
+            popoverProps={{
+              minimal: true,
+              usePortal: false,
+            }}
+          >
+            <Button
+              text={selected ? selected.label : ""}
+              rightIcon="chevron-down"
+            />
+          </StyledDropDown>
+        </StyledDropDownContainer>
       </ControlWrapper>
     );
   }
@@ -41,8 +51,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        icon={isSelected ? "tick" : "blank"}
-        active={itemProps.modifiers.active}
+        className="single-select"
+        active={isSelected}
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}

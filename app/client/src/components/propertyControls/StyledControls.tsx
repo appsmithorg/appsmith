@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import { Select, MultiSelect } from "@blueprintjs/select";
-import { Switch, InputGroup, Button } from "@blueprintjs/core";
+import { Switch, InputGroup, Button, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { TimezonePicker } from "@blueprintjs/timezone";
+import { Colors } from "constants/Colors";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -29,12 +30,90 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
 `;
 
+export const StyledDropDownContainer = styled.div`
+  &&&& .${Classes.BUTTON} {
+    box-shadow: none;
+    border-radius: 4px;
+    background-color: ${Colors.SHARK};
+    color: ${Colors.CADET_BLUE};
+    background-image: none;
+  }
+  &&&& .${Classes.MENU_ITEM} {
+    border-radius: ${props => props.theme.radii[1]}px;
+    &:hover {
+      background: ${Colors.POLAR};
+    }
+    &.${Classes.ACTIVE} {
+      background: ${Colors.POLAR};
+      color: ${props => props.theme.colors.textDefault};
+      position: relative;
+      &.single-select {
+        &:before {
+          left: 0;
+          top: -2px;
+          position: absolute;
+          content: "";
+          background: ${props => props.theme.colors.primary};
+          border-radius: 4px 0 0 4px;
+          width: 4px;
+          height: 100%;
+        }
+      }
+    }
+  }
+  && .${Classes.POPOVER} {
+    width: 100%;
+    border-radius: ${props => props.theme.radii[1]}px;
+    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
+    padding: ${props => props.theme.spaces[3]}px;
+    background: white;
+  }
+
+  &&&& .${Classes.POPOVER_CONTENT} {
+    box-shadow: none;
+  }
+
+  && .${Classes.POPOVER_WRAPPER} {
+    .${Classes.OVERLAY} {
+      .${Classes.TRANSITION_CONTAINER} {
+        width: 100%;
+      }
+    }
+  }
+  && .${Classes.MENU} {
+    max-width: 100%;
+    max-height: auto;
+  }
+  width: 100%;
+`;
 const DropDown = Select.ofType<DropdownOption>();
 export const StyledDropDown = styled(DropDown)`
-  &&& button {
-    background: ${props => props.theme.colors.paneInputBG};
-    color: ${props => props.theme.colors.textOnDarkBG};
-    box-shadow: none;
+  div {
+    flex: 1 1 auto;
+  }
+  span {
+    width: 100%;
+    position: relative;
+  }
+  .${Classes.BUTTON} {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .${Classes.BUTTON_TEXT} {
+    text-overflow: ellipsis;
+    text-align: left;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  && {
+    .${Classes.ICON} {
+      width: fit-content;
+      color: ${Colors.SLATE_GRAY};
+    }
   }
 `;
 

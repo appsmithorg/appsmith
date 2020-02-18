@@ -1,8 +1,9 @@
-import { AppState, DataTree } from "reducers";
+import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 
-export const getDataTree = (state: AppState): DataTree => state.entities;
+export const getEntities = (state: AppState): AppState["entities"] =>
+  state.entities;
 
 export const getPluginIdOfName = (
   state: AppState,

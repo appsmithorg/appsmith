@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload, TableAction } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { forIn } from "lodash";
 import TableComponent from "components/designSystems/syncfusion/TableComponent";
 
@@ -10,6 +10,7 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
   const cols: ColumnModel[] | ColumnDirTypecast[] = [];
@@ -42,6 +43,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onRowSelected: true,
+      onPageChange: true,
+      columnActions: true,
+    };
+  }
+
   getPageView() {
     const { tableData } = this.props;
     const columns = constructColumns(tableData);
@@ -67,29 +76,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }}
         columnActions={this.props.columnActions}
         onCommandClick={this.onCommandClick}
-        onRowClick={(rowData: object, index: number) => {
-          const { onRowSelected } = this.props;
-          this.updateWidgetProperty("selectedRowIndex", index);
-
-          super.executeAction(onRowSelected);
-        }}
+        onRowClick={this.handleRowClick}
         serverSidePaginationEnabled={serverSidePaginationEnabled}
         pageNo={pageNo}
-        nextPageClick={() => {
-          let pageNo = this.props.pageNo || 1;
-          pageNo = pageNo + 1;
-          super.updateWidgetMetaProperty("pageNo", pageNo);
-
-          super.executeAction(this.props.onPageChange, "NEXT");
-        }}
-        prevPageClick={() => {
-          let pageNo = this.props.pageNo || 1;
-          pageNo = pageNo - 1;
-          if (pageNo >= 1) {
-            super.updateWidgetMetaProperty("pageNo", pageNo);
-            super.executeAction(this.props.onPageChange, "PREV");
-          }
-        }}
+        nextPageClick={this.handleNextPageClick}
+        prevPageClick={this.handlePrevPageClick}
         updatePageNo={(pageNo: number) => {
           super.updateWidgetMetaProperty("pageNo", pageNo);
         }}
@@ -100,8 +91,56 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
 
-  onCommandClick = (actions: ActionPayload[]) => {
-    super.executeAction(actions);
+  onCommandClick = (action: string) => {
+    super.executeAction({
+      dynamicString: action,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
+  };
+
+  handleRowClick = (rowData: object, index: number) => {
+    const { onRowSelected } = this.props;
+    super.updateWidgetProperty("selectedRow", index);
+    if (onRowSelected) {
+      super.executeAction({
+        dynamicString: onRowSelected,
+        event: {
+          type: EventType.ON_ROW_SELECTED,
+        },
+      });
+    }
+  };
+
+  handleNextPageClick = () => {
+    let pageNo = this.props.pageNo || 1;
+    pageNo = pageNo + 1;
+    super.updateWidgetMetaProperty("pageNo", pageNo);
+    if (this.props.onPageChange) {
+      super.executeAction({
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_NEXT_PAGE,
+        },
+      });
+    }
+  };
+
+  handlePrevPageClick = () => {
+    let pageNo = this.props.pageNo || 1;
+    pageNo = pageNo - 1;
+    if (pageNo >= 1) {
+      super.updateWidgetMetaProperty("pageNo", pageNo);
+      if (this.props.onPageChange) {
+        super.executeAction({
+          dynamicString: this.props.onPageChange,
+          event: {
+            type: EventType.ON_PREV_PAGE,
+          },
+        });
+      }
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -119,9 +158,8 @@ export interface TableWidgetProps extends WidgetProps {
   prevPageKey?: string;
   label: string;
   tableData: object[];
-  recordActions?: TableAction[];
-  onPageChange?: ActionPayload[];
-  onRowSelected?: ActionPayload[];
+  onPageChange?: string;
+  onRowSelected?: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;

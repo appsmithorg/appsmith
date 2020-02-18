@@ -122,3 +122,11 @@ div.bp3-popover-arrow {
 .display-none {
   display: none;
 }
+
+.Toastify__toast {
+  padding: 0 !important;
+  border-radius: 4px !important;
+}
+.Toastify__toast-body {
+  margin: 0 !important;
+}

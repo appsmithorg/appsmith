@@ -140,6 +140,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   ADD_USER_TO_ORG_INIT: "ADD_USER_TO_ORG_INIT",
   ADD_USER_TO_ORG_SUCCESS: "ADD_USER_TO_ORG_ERROR",
   SET_META_PROP: "SET_META_PROP",
+  EXECUTE_API_ACTION_REQUEST: "EXECUTE_API_ACTION_REQUEST",
+  EXECUTE_API_ACTION_SUCCESS: "EXECUTE_API_ACTION_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -200,6 +202,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   SET_DEFAULT_APPLICATION_PAGE_ERROR: "SET_DEFAULT_APPLICATION_PAGE_ERROR",
   CREATE_ORGANIZATION_ERROR: "CREATE_ORGANIZATION_ERROR",
   ADD_USER_TO_ORG_ERROR: "ADD_USER_TO_ORG_ERROR",
+  EXECUTE_API_ACTION_ERROR: "EXECUTE_API_ACTION_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {

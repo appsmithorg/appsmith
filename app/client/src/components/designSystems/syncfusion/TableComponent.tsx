@@ -20,7 +20,6 @@ import {
 import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { ActionPayload } from "constants/ActionConstants";
 import { Classes } from "@blueprintjs/core";
 import { TablePagination } from "../appsmith/TablePagination";
 
@@ -32,7 +31,7 @@ export interface TableComponentProps {
   height: number;
   width: number;
   columnActions?: ColumnAction[];
-  onCommandClick: (actions: ActionPayload[]) => void;
+  onCommandClick: (dynamicTrigger: string) => void;
   disableDrag: (disable: boolean) => void;
   nextPageClick: Function;
   prevPageClick: Function;
@@ -158,7 +157,7 @@ const TableComponent = memo(
     const commands: CommandModel[] = (props.columnActions || []).map(action => {
       return {
         buttonOption: { content: action.label },
-        data: action.actionPayloads,
+        data: action.dynamicTrigger,
       };
     });
 
@@ -172,7 +171,7 @@ const TableComponent = memo(
                 action.label.toLowerCase() === _target.title.toLowerCase(),
             )
             .forEach(action => {
-              props.onCommandClick(action.actionPayloads);
+              props.onCommandClick(action.dynamicTrigger);
             });
         }
       }
