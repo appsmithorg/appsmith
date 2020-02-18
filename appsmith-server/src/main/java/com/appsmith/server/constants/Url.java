@@ -13,8 +13,8 @@ public interface Url {
     String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
     String USER_URL = BASE_URL + VERSION + "/users";
-    String APPLICATION_URL = BASE_URL + VERSION + "/applications";
-    String PAGE_URL = BASE_URL + VERSION + "/pages";
+    String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
+    String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
     String PROPERTY_URL = BASE_URL + VERSION + "/properties";
     String CONFIG_URL = BASE_URL + VERSION + "/configs";
     String TEAM_URL = BASE_URL + VERSION + "/teams";
