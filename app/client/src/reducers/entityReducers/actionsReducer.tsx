@@ -4,11 +4,10 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { ActionResponse, RestAction, PaginationField } from "api/ActionAPI";
-import { ActionPayload, ExecuteErrorPayload } from "constants/ActionConstants";
-import _ from "lodash";
+import { ActionResponse, RestAction } from "api/ActionAPI";
+import { ExecuteErrorPayload } from "constants/ActionConstants";
 
-interface ActionData {
+export interface ActionData {
   isLoading: boolean;
   config: RestAction;
   data?: ActionResponse;
@@ -67,15 +66,12 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
-  [ReduxActionTypes.EXECUTE_ACTION]: (
+  [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
     state: ActionDataState,
-    action: ReduxAction<{
-      actions: ActionPayload[];
-      paginationField: PaginationField;
-    }>,
+    action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
     state.map(a => {
-      if (_.find(action.payload.actions, { actionId: a.config.id })) {
+      if (a.config.id === action.payload.id) {
         return {
           ...a,
           isLoading: true,
@@ -83,14 +79,13 @@ const actionsReducer = createReducer(initialState, {
       }
       return a;
     }),
-  [ReduxActionTypes.EXECUTE_ACTION_SUCCESS]: (
+  [ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS]: (
     state: ActionDataState,
-    action: ReduxAction<{ [id: string]: ActionResponse }>,
+    action: ReduxAction<{ id: string; response: ActionResponse }>,
   ): ActionDataState => {
-    const actionId = Object.keys(action.payload)[0];
     return state.map(a => {
-      if (a.config.id === actionId) {
-        return { ...a, isLoading: false, data: action.payload[actionId] };
+      if (a.config.id === action.payload.id) {
+        return { ...a, isLoading: false, data: action.payload.response };
       }
       return a;
     });

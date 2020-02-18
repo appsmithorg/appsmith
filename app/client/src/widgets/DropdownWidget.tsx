@@ -1,11 +1,12 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 export interface DropDownDerivedProps {
   selectedOption?: DropdownOption;
@@ -30,13 +31,18 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           : undefined
       }}`,
       selectedOptionArr: `{{
-        const options = this.options || [];
         this.selectionType === "MULTI_SELECT"
-          ? options.filter((opt, index) =>
+          ? this.options.filter((opt, index) =>
               _.includes(this.selectedIndexArr, index),
             )
           : undefined
       }}`,
+    };
+  }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onOptionChange: true,
     };
   }
 
@@ -103,7 +109,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         this.updateWidgetMetaProperty("selectedIndexArr", selectedIndexArr);
       }
     }
-    super.executeAction(this.props.onOptionChange);
+    if (this.props.onOptionChange) {
+      super.executeAction({
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   onOptionRemoved = (removedIndex: number) => {
@@ -113,7 +126,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         })
       : [];
     this.updateWidgetMetaProperty("selectedIndexArr", updateIndexArr);
-    super.executeAction(this.props.onOptionChange);
+    if (this.props.onOptionChange) {
+      super.executeAction({
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -125,6 +145,9 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
+  id?: string;
+  onSelect?: (option: DropdownOption) => void;
+  children?: DropdownOption[];
 }
 
 export interface DropdownWidgetProps extends WidgetProps {
@@ -134,7 +157,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedIndexArr?: number[];
   selectionType: SelectionType;
   options?: DropdownOption[];
-  onOptionChange?: ActionPayload[];
+  onOptionChange?: string;
 }
 
 export default DropdownWidget;

@@ -107,7 +107,7 @@ const DropdownContainer = styled.div`
     border-radius: ${props => props.theme.radii[1]}px;
     box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
     padding: ${props => props.theme.spaces[3]}px;
-    background:white;   
+    background: white;
   }
 
   && .${Classes.POPOVER_WRAPPER} {
@@ -123,7 +123,6 @@ const DropdownContainer = styled.div`
     max-width: 100%;
     max-height: auto;
   }
-  
   width: 100%;
 `;
 

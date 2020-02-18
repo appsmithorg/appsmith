@@ -8,6 +8,7 @@ import { WidgetPropertyValidationType } from "./ValidationFactory";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
+export type TriggerPropertiesMap = Record<string, true>;
 
 class WidgetFactory {
   static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();
@@ -23,16 +24,22 @@ class WidgetFactory {
     WidgetType,
     DerivedPropertiesMap
   > = new Map();
+  static triggerPropertiesMap: Map<
+    WidgetType,
+    TriggerPropertiesMap
+  > = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
+    triggerPropertiesMap: TriggerPropertiesMap,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
     this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
+    this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
   }
 
   static createWidget(
@@ -80,6 +87,17 @@ class WidgetFactory {
     const map = this.derivedPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
+      return {};
+    }
+    return map;
+  }
+
+  static getWidgetTriggerPropertiesMap(
+    widgetType: WidgetType,
+  ): TriggerPropertiesMap {
+    const map = this.triggerPropertiesMap.get(widgetType);
+    if (!map) {
+      console.error("Widget trigger map is not defined");
       return {};
     }
     return map;

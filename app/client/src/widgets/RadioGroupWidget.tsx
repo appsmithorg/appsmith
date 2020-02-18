@@ -2,9 +2,10 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -18,6 +19,11 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return {
       selectedOption:
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
+    };
+  }
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onSelectionChange: true,
     };
   }
   getPageView() {
@@ -36,7 +42,14 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   onRadioSelectionChange = (updatedValue: string) => {
     this.updateWidgetProperty("selectedOptionValue", updatedValue);
-    super.executeAction(this.props.onSelectionChange);
+    if (this.props.onSelectionChange) {
+      super.executeAction({
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -54,7 +67,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   label: string;
   options: RadioOption[];
   selectedOptionValue: string;
-  onSelectionChange?: ActionPayload[];
+  onSelectionChange: string;
 }
 
 export default RadioGroupWidget;

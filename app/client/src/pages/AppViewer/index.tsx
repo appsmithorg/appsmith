@@ -6,6 +6,7 @@ import { Switch, Route } from "react-router-dom";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
+  BuilderRouteParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
 import {
@@ -18,7 +19,7 @@ import {
   getIsInitialized,
 } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
-import { ActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/ActionConstants";
 import SideNav from "./viewer/SideNav";
 import { SideNavItemProps } from "./viewer/SideNavItem";
 import AppViewerHeader from "./viewer/AppViewerHeader";
@@ -27,7 +28,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
-import { PaginationField } from "api/ActionAPI";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 
 const AppViewWrapper = styled.div`
@@ -48,7 +48,7 @@ export type AppViewerProps = {
   pages?: PageListPayload;
   initializeAppViewer: Function;
   isInitialized: boolean;
-  executeAction: (actionPayloads: ActionPayload[]) => void;
+  executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -59,7 +59,7 @@ export type AppViewerProps = {
     propertyName: string,
     propertyValue: any,
   ) => void;
-};
+} & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
@@ -70,6 +70,7 @@ class AppViewer extends Component<
       this.props.initializeAppViewer(applicationId);
     }
   }
+
   public render() {
     const { isInitialized } = this.props;
     if (!isInitialized) return null;
@@ -121,10 +122,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (
-    actionPayloads: ActionPayload[],
-    paginationField?: PaginationField,
-  ) => dispatch(executeAction(actionPayloads, paginationField)),
+  executeAction: (actionPayload: ExecuteActionPayload) =>
+    dispatch(executeAction(actionPayload)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,

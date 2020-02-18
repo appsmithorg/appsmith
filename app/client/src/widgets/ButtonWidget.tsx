@@ -2,9 +2,10 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent from "components/designSystems/blueprint/ButtonComponent";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -23,8 +24,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
     };
   }
 
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onClick: true,
+    };
+  }
+
   onButtonClick() {
-    super.executeAction(this.props.onClick);
+    if (this.props.onClick) {
+      super.executeAction({
+        dynamicString: this.props.onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      });
+    }
   }
 
   getPageView() {
@@ -56,7 +70,7 @@ export type ButtonStyle =
 export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
   buttonStyle?: ButtonStyle;
-  onClick?: ActionPayload[];
+  onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
 }

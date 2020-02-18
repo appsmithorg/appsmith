@@ -57,5 +57,3 @@ export interface AppState {
     meta: MetaState;
   };
 }
-
-export type DataTree = AppState["entities"];

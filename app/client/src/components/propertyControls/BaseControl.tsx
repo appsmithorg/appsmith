@@ -6,7 +6,10 @@ import { Component } from "react";
 import _ from "lodash";
 import { ControlType } from "constants/PropertyControlConstants";
 
-abstract class BaseControl<T extends ControlProps> extends Component<T> {
+abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
+  P,
+  S
+> {
   updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
       this.props.onPropertyChange(propertyName, propertyValue);

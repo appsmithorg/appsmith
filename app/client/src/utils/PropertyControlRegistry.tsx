@@ -73,11 +73,7 @@ class PropertyControlRegistry {
     });
     PropertyControlFactory.registerControlBuilder("COLUMN_ACTION_SELECTOR", {
       buildPropertyControl(controlProps: ControlProps): JSX.Element {
-        return (
-          <ColumnActionSelectorControl
-            {...controlProps}
-          ></ColumnActionSelectorControl>
-        );
+        return <ColumnActionSelectorControl {...controlProps} />;
       },
     });
   }

@@ -3,19 +3,19 @@ import {
   mockExecute,
   mockRegisterLibrary,
 } from "../../test/__mocks__/RealmExecutorMock";
-jest.mock("jsExecution/RealmExecutor", () => {
-  return jest.fn().mockImplementation(() => {
-    return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
-  });
-});
 import {
   dependencySortedEvaluateDataTree,
   getDynamicValue,
   getEntityDependencies,
   parseDynamicString,
 } from "./DynamicBindingUtils";
-import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
-import { AppState, DataTree } from "reducers";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
+jest.mock("jsExecution/RealmExecutor", () => {
+  return jest.fn().mockImplementation(() => {
+    return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
+  });
+});
 
 beforeAll(() => {
   mockRegisterLibrary.mockClear();
@@ -24,12 +24,24 @@ beforeAll(() => {
 
 it("Gets the value from the data tree", () => {
   const dynamicBinding = "{{GetUsers.data}}";
-  const nameBindingsWithData = {
+  const nameBindingsWithData: DataTree = {
     GetUsers: {
-      data: "correct data",
+      data: { text: "correct data" },
+      config: {
+        id: "id",
+        name: "text",
+        actionConfiguration: {},
+        pageId: "",
+        jsonPathKeys: [],
+        datasource: { id: "" },
+        pluginType: "1",
+      },
+      isLoading: false,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      run: jest.fn(),
     },
   };
-  const actualValue = "correct data";
+  const actualValue = { result: { text: "correct data" } };
 
   const value = getDynamicValue(dynamicBinding, nameBindingsWithData);
 
@@ -101,7 +113,7 @@ it("evaluates the data tree", () => {
     },
   };
 
-  const result = dependencySortedEvaluateDataTree(input, dynamicBindings);
+  const result = dependencySortedEvaluateDataTree(input, dynamicBindings, true);
   expect(result).toEqual(output);
 });
 

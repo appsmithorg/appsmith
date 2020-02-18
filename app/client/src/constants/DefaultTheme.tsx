@@ -260,6 +260,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  alert: Record<string, { color: Color }>;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -398,6 +399,20 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  alert: {
+    info: {
+      color: Colors.AZURE_RADIANCE,
+    },
+    success: {
+      color: Colors.OCEAN_GREEN,
+    },
+    error: {
+      color: Colors.RED,
+    },
+    warning: {
+      color: Colors.BUTTER_CUP,
+    },
+  },
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };

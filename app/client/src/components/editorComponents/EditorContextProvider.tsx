@@ -9,19 +9,15 @@ import { updateWidget } from "actions/pageActions";
 import { executeAction, disableDragAction } from "actions/widgetActions";
 import { updateWidgetProperty } from "actions/controlActions";
 
-import { ActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { PaginationField } from "api/ActionAPI";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 
 export type EditorContextType = {
-  executeAction?: (
-    actionPayloads: ActionPayload[],
-    paginationField?: PaginationField,
-  ) => void;
+  executeAction?: (actionPayloads: ExecuteActionPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -99,21 +95,19 @@ const mapDispatchToProps = (dispatch: any) => {
           RenderModes.CANVAS,
         ),
       ),
+    executeAction: (actionPayload: ExecuteActionPayload) =>
+      dispatch(executeAction(actionPayload)),
+    updateWidget: (
+      operation: WidgetOperation,
+      widgetId: string,
+      payload: any,
+    ) => dispatch(updateWidget(operation, widgetId, payload)),
     updateWidgetMetaProperty: (
       widgetId: string,
       propertyName: string,
       propertyValue: any,
     ) =>
       dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
-    executeAction: (
-      actionPayloads: ActionPayload[],
-      paginationField?: PaginationField,
-    ) => dispatch(executeAction(actionPayloads, paginationField)),
-    updateWidget: (
-      operation: WidgetOperation,
-      widgetId: string,
-      payload: any,
-    ) => dispatch(updateWidget(operation, widgetId, payload)),
     disableDrag: (disable: boolean) => {
       dispatch(disableDragAction(disable));
     },

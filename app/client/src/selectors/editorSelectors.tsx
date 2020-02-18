@@ -1,13 +1,13 @@
 import { createSelector } from "reselect";
 import createCachedSelector from "re-reselect";
 
-import { AppState, DataTree } from "reducers";
+import { AppState } from "reducers";
 import { EditorReduxState } from "reducers/uiReducers/editorReducer";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getDataTree } from "./entitiesSelector";
+import { getEntities } from "./entitiesSelector";
 import {
   FlattenedWidgetProps,
   CanvasWidgetsReduxState,
@@ -16,7 +16,7 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { getParsedDataTree } from "./nameBindingsWithDataSelector";
+import { getParsedDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 
 const getEditorState = (state: AppState) => state.ui.editor;
@@ -116,10 +116,10 @@ export const getWidgetCards = createSelector(
   },
 );
 
-export const getValidatedDynamicProps = createSelector(
-  getDataTree,
+export const getValidatedWidgetsAndActionTriggers = createSelector(
+  getEntities,
   getParsedDataTree,
-  (entities: DataTree, tree) => {
+  (entities: AppState["entities"], tree) => {
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
       const evaluatedWidget = _.find(tree, { widgetId: widgetKey });
@@ -140,7 +140,7 @@ export const getValidatedDynamicProps = createSelector(
 
 export const getDenormalizedDSL = createCachedSelector(
   getPageWidgetId,
-  getValidatedDynamicProps,
+  getValidatedWidgetsAndActionTriggers,
   (pageWidgetId: string, validatedDynamicWidgets: CanvasWidgetsReduxState) => {
     return CanvasWidgetsNormalizer.denormalize(pageWidgetId, {
       canvasWidgets: validatedDynamicWidgets,

@@ -2,9 +2,10 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "components/designSystems/blueprint/CheckboxComponent";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -13,6 +14,12 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
       isChecked: VALIDATION_TYPES.BOOLEAN,
+    };
+  }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onCheckChange: true,
     };
   }
 
@@ -32,7 +39,14 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   onCheckChange = (isChecked: boolean) => {
     this.updateWidgetProperty("isChecked", isChecked);
-    super.executeAction(this.props.onCheckChange);
+    if (this.props.onCheckChange) {
+      super.executeAction({
+        dynamicString: this.props.onCheckChange,
+        event: {
+          type: EventType.ON_CHECK_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -45,7 +59,7 @@ export interface CheckboxWidgetProps extends WidgetProps {
   defaultCheckedState: boolean;
   isChecked?: boolean;
   isDisabled?: boolean;
-  onCheckChange?: ActionPayload[];
+  onCheckChange?: string;
 }
 
 export default CheckboxWidget;

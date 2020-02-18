@@ -1,4 +1,4 @@
-import { RestAction, PaginationField } from "api/ActionAPI";
+import { RestAction, PaginationField, ActionResponse } from "api/ActionAPI";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -129,6 +129,19 @@ export const copyActionError = (payload: {
     payload,
   };
 };
+
+export const executeApiActionRequest = (payload: { id: string }) => ({
+  type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
+  payload: payload,
+});
+
+export const executeApiActionSuccess = (payload: {
+  id: string;
+  response: ActionResponse;
+}) => ({
+  type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
+  payload: payload,
+});
 
 export default {
   createAction: createActionRequest,

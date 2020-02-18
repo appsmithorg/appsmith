@@ -19,7 +19,7 @@ import {
 import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
-import { ActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/designSystems/appsmith/WidgetNameComponent";
 import shallowequal from "shallowequal";
@@ -28,8 +28,10 @@ import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { PaginationField } from "api/ActionAPI";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 /***
  * BaseWidget
  *
@@ -70,6 +72,10 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {};
+  }
+
   /**
    *  Widget abstraction to register the widget type
    *  ```javascript
@@ -84,14 +90,9 @@ abstract class BaseWidget<
    *  Widgets can execute actions using this `executeAction` method.
    *  Triggers may be specific to the widget
    */
-  executeAction(
-    actionPayloads?: ActionPayload[],
-    paginationField?: PaginationField,
-  ): void {
+  executeAction(actionPayload: ExecuteActionPayload): void {
     const { executeAction } = this.context;
-    executeAction &&
-      !_.isNil(actionPayloads) &&
-      executeAction(actionPayloads, paginationField);
+    executeAction && executeAction(actionPayload);
   }
 
   disableDrag(disable: boolean) {
@@ -269,6 +270,7 @@ export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
   dynamicBindings?: Record<string, boolean>;
+  dynamicTriggers?: Record<string, true>;
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   isDefaultClickDisabled?: boolean;
