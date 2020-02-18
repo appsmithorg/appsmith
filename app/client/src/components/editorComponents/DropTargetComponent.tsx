@@ -73,6 +73,9 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const spacesOccupiedBySiblingWidgets =
     occupiedSpaces && occupiedSpaces[props.widgetId]
@@ -224,7 +227,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   const handleFocus = () => {
-    if (!props.parentId && !isResizing) {
+    if (!props.parentId && !isResizing && !isDragging) {
       selectWidget && selectWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }

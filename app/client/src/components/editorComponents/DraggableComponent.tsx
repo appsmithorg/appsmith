@@ -218,6 +218,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
           userSelect: "none",
           cursor: "drag",
           zIndex: stackingContext,
+          pointerEvents: !isResizingOrDragging ? "auto" : "none",
         }}
       >
         {selectedWidget !== props.widgetId && props.isDefaultClickDisabled && (
