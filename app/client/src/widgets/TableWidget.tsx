@@ -102,7 +102,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleRowClick = (rowData: object, index: number) => {
     const { onRowSelected } = this.props;
-    super.updateWidgetProperty("selectedRow", index);
+    super.updateWidgetProperty("selectedRowIndex", index);
     if (onRowSelected) {
       super.executeAction({
         dynamicString: onRowSelected,
