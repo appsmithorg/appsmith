@@ -386,7 +386,8 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
 
   render() {
     const { actions, value } = this.props;
-    const topLevelFuncValue = this.getTopLevelFuncValue(value);
+    const stringValue = typeof value === "string" ? value : "";
+    const topLevelFuncValue = this.getTopLevelFuncValue(stringValue);
     const actionOptions = PropertyPaneActionDropdownOptions.map(o => {
       if (o.id === "api") {
         return {
