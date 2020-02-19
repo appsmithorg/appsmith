@@ -252,7 +252,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     (isExactlyOver || isChildResizing) &&
     props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "1px solid #ccc"
-      : "none";
+      : "1px solid transparent";
 
   return (
     <DropTargetContext.Provider

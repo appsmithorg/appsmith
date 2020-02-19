@@ -59,6 +59,9 @@ type ResizableProps = {
     bottom: FlattenSimpleInterpolation;
     right: FlattenSimpleInterpolation;
     bottomRight: FlattenSimpleInterpolation;
+    topLeft: FlattenSimpleInterpolation;
+    topRight: FlattenSimpleInterpolation;
+    bottomLeft: FlattenSimpleInterpolation;
   };
   componentWidth: number;
   componentHeight: number;
@@ -76,6 +79,7 @@ export const Resizable = (props: ResizableProps) => {
     height: props.componentHeight,
     x: 0,
     y: 0,
+    reset: false,
   });
 
   const setNewDimensions = (rect: {
@@ -87,7 +91,7 @@ export const Resizable = (props: ResizableProps) => {
     const { width, height, x, y } = rect;
     const isColliding = props.isColliding({ width, height }, { x, y });
     if (!isColliding) {
-      set(rect);
+      set({ ...rect, reset: false });
     }
   };
 
@@ -97,6 +101,7 @@ export const Resizable = (props: ResizableProps) => {
       height: props.componentHeight,
       x: 0,
       y: 0,
+      reset: true,
     });
   }, [props.componentHeight, props.componentWidth]);
 
@@ -156,6 +161,39 @@ export const Resizable = (props: ResizableProps) => {
       },
       component: props.handles.bottomRight,
     },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
+          height: props.componentHeight + y,
+          x,
+          y: newDimensions.y,
+        });
+      },
+      component: props.handles.bottomLeft,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth + x,
+          height: props.componentHeight - y,
+          x: newDimensions.x,
+          y: y,
+        });
+      },
+      component: props.handles.topRight,
+    },
+    {
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
+          height: props.componentHeight - y,
+          x: x,
+          y: y,
+        });
+      },
+      component: props.handles.topLeft,
+    },
   ];
 
   const onResizeStop = () => {
@@ -197,6 +235,7 @@ export const Resizable = (props: ResizableProps) => {
         friction: 0,
         tension: 999,
       }}
+      immediate={newDimensions.reset ? true : false}
     >
       {_props => (
         <ResizeWrapper style={_props}>

@@ -1,5 +1,4 @@
 import React, { useContext, memo } from "react";
-import styled, { css } from "styled-components";
 import { XYCoord } from "react-dnd";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -29,101 +28,22 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import Resizable from "resizable";
-import { invisible, theme } from "constants/DefaultTheme";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import {
+  VisibilityContainer,
+  LeftHandleStyles,
+  RightHandleStyles,
+  TopHandleStyles,
+  BottomHandleStyles,
+  TopLeftHandleStyles,
+  TopRightHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
+} from "./ResizeStyledComponents";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
 };
-
-const VisibilityContainer = styled.div<{ visible: boolean; padding: number }>`
-  ${props => (!props.visible ? invisible : "")}
-  height: 100%;
-  width: 100%;
-  padding: ${props => props.padding}px;
-`;
-
-const HandleStyles = css`
-  position: absolute;
-  z-index: 3;
-  width: 20px;
-  height: 20px;
-  &:before {
-    position: absolute;
-    background: ${theme.colors.widgetBorder};
-    content: "";
-    width: 2px;
-    height: 2px;
-  }
-  &:after {
-    position: absolute;
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: ${theme.colors.widgetBorder};
-    top: calc(50% - 2px);
-    left: calc(50% - 2px);
-  }
-`;
-
-const VerticalHandleStyles = css`
-  ${HandleStyles}
-  top:0;
-  height: 100%;
-  cursor: col-resize;
-  &:before {
-    left: 50%;
-    height: 100%;
-    top: 0;
-  }
-  &:after {
-  }
-`;
-
-const HorizontalHandleStyles = css`
-  ${HandleStyles}
-  left: 0;
-  width: 100%;
-  cursor: row-resize;
-  &:before {
-    top: 50%;
-    width: 100%;
-    left: 0;
-  }
-  &:after {
-  }
-`;
-
-const LeftHandleStyles = css`
-  ${VerticalHandleStyles}
-  left:-10px;
-`;
-
-const RightHandleStyles = css`
-  ${VerticalHandleStyles};
-  right: -10px;
-`;
-
-const TopHandleStyles = css`
-  ${HorizontalHandleStyles};
-  top: -10px;
-`;
-
-const BottomHandleStyles = css`
-  ${HorizontalHandleStyles};
-  bottom: -10px;
-`;
-
-const BottomRightHandleStyles = css`
-  position: absolute;
-  z-index: 3;
-  bottom: -20px;
-  right: -20px;
-  width: 40px;
-  height: 40px;
-  cursor: se-resize;
-`;
 
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
@@ -224,6 +144,13 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       position,
       props,
     );
+
+    if (
+      newRowCols.rightColumn - newRowCols.leftColumn < 1 ||
+      newRowCols.bottomRow - newRowCols.topRow < 1
+    ) {
+      return true;
+    }
 
     if (
       boundingElementClientRect &&
@@ -336,6 +263,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         bottom: BottomHandleStyles,
         right: RightHandleStyles,
         bottomRight: BottomRightHandleStyles,
+        topLeft: TopLeftHandleStyles,
+        topRight: TopRightHandleStyles,
+        bottomLeft: BottomLeftHandleStyles,
       }}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}

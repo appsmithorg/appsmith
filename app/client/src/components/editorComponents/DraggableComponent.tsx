@@ -243,9 +243,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
             {editControlIcon}
           </Tooltip>
         </EditControl>
-        <WidgetBoundaries
-          style={{ display: isResizingOrDragging ? "block" : "none" }}
-        />
+        <WidgetBoundaries style={{ opacity: isResizingOrDragging ? 1 : 0 }} />
       </DraggableWrapper>
     </React.Fragment>
   );
