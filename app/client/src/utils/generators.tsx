@@ -1,7 +1,7 @@
 import generate from "nanoid/generate";
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+// const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export const generateReactKey = ({
   prefix = "",
@@ -10,8 +10,7 @@ export const generateReactKey = ({
 };
 
 export const generateClassName = (seed?: string) => {
-  if (!seed) return generate(ALPHABET, 7);
-  return seed.replace(/^\d+\s*/, "_");
+  return `_${seed}`;
 };
 
 export default {

@@ -1,25 +1,23 @@
-import React, { useContext, useState, memo } from "react";
-import { ResizeDirection } from "re-resizable";
+import React, { useContext, memo } from "react";
 import { XYCoord } from "react-dnd";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { getAbsolutePixels } from "utils/helpers";
-import { WidgetOperations, WidgetRowCols } from "widgets/BaseWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+
+import {
+  WidgetOperations,
+  WidgetRowCols,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { generateClassName } from "utils/generators";
 import { DropTargetContext } from "./DropTargetComponent";
-import ResizableContainer, {
-  ResizeBorderDotDiv,
-  ResizableComponentProps,
-} from "./ResizableContainer";
 import {
   UIElementSize,
-  getHandleSyles,
-  computeUpdatedRowCols,
-  hasCollision,
-  getBorderStyles,
+  computeFinalRowCols,
+  computeRowCols,
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
@@ -28,6 +26,24 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
+import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import Resizable from "resizable";
+import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import {
+  VisibilityContainer,
+  LeftHandleStyles,
+  RightHandleStyles,
+  TopHandleStyles,
+  BottomHandleStyles,
+  TopLeftHandleStyles,
+  TopRightHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
+} from "./ResizeStyledComponents";
+
+export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
+  paddingOffset: number;
+};
 
 /* eslint-disable react/display-name */
 export const ResizableComponent = memo((props: ResizableComponentProps) => {
@@ -50,6 +66,13 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+
+  const propertyPaneState: PropertyPaneReduxState = useSelector(
+    (state: AppState) => state.ui.propertyPane,
+  );
 
   const occupiedSpacesBySiblingWidgets =
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
@@ -69,17 +92,9 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     );
   }
 
-  // Use state flag - isColliding - use to figure out if resize is possible at the current size.
-  const [isColliding, setIsColliding] = useState(false);
-
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
     focusedWidget === props.widgetId || selectedWidget === props.widgetId;
-
-  // Widget can be resized if
-  // The widget is focused, and
-  // There is no drag event in progress on a widget.
-  const canResize = !isDragging && isWidgetFocused;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -93,40 +108,97 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // whose clientRect will act as the bounds for resizing.
   // Note, if there are many containers with the same className
   // the bounding container becomes the nearest parent with the className
-  let bounds = "body";
-  bounds = "." + generateClassName(props.parentId);
+  const boundingElementClassName = generateClassName(props.parentId);
+  const possibleBoundingElements = document.getElementsByClassName(
+    boundingElementClassName,
+  );
+  const boundingElement =
+    possibleBoundingElements.length > 0
+      ? possibleBoundingElements[0]
+      : undefined;
+  const boundingElementClientRect = boundingElement
+    ? boundingElement.getBoundingClientRect()
+    : undefined;
 
   // onResize handler
   // Checks if the current resize position has any collisions
   // If yes, set isColliding flag to true.
   // If no, set isColliding flag to false.
-  const checkForCollision = (
-    e: MouseEvent,
-    dir: ResizeDirection,
-    ref: HTMLDivElement,
-    delta: UIElementSize,
-    position: XYCoord,
-  ) => {
+  const isColliding = (newDimensions: UIElementSize, position: XYCoord) => {
     const bottom =
-      props.bottomRow + (delta.height + position.y) / props.parentRowSpace;
-
+      props.topRow +
+      position.y / props.parentRowSpace +
+      newDimensions.height / props.parentRowSpace;
     // Make sure to calculate collision IF we don't update the main container's rows
     let updated = false;
-    if (updateDropTargetRows && props.parentId === MAIN_CONTAINER_WIDGET_ID)
+    if (updateDropTargetRows && props.parentId === MAIN_CONTAINER_WIDGET_ID) {
       updated = updateDropTargetRows(bottom);
+    }
+
+    const delta: UIElementSize = {
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
+    };
+    const newRowCols: WidgetRowCols | false = computeRowCols(
+      delta,
+      position,
+      props,
+    );
+
+    if (
+      newRowCols.rightColumn - newRowCols.leftColumn < 1 ||
+      newRowCols.bottomRow - newRowCols.topRow < 1
+    ) {
+      return true;
+    }
+
+    if (
+      boundingElementClientRect &&
+      newRowCols.rightColumn * props.parentColumnSpace >
+        boundingElementClientRect.width
+    ) {
+      return true;
+    }
+
+    if (newRowCols && newRowCols.leftColumn < 0) {
+      return true;
+    }
 
     if (!updated) {
-      const isResizePossible = !hasCollision(
-        delta,
-        position,
-        props,
-        occupiedSpacesBySiblingWidgets,
-        maxBottomRowOfChildWidgets,
-      );
-      if (isResizePossible === isColliding) {
-        setIsColliding(!isColliding);
+      if (
+        // If this is a container widget, the maxBottomRow of child widgets should be one less than the max bottom row of the new row cols
+        maxBottomRowOfChildWidgets &&
+        newRowCols &&
+        props.type === WidgetTypes.CONTAINER_WIDGET &&
+        newRowCols.bottomRow - newRowCols.topRow - 1 <
+          maxBottomRowOfChildWidgets
+      ) {
+        return true;
+      }
+
+      if (
+        boundingElementClientRect &&
+        newRowCols.bottomRow * props.parentRowSpace >
+          boundingElementClientRect.height
+      ) {
+        return true;
+      }
+
+      if (newRowCols && newRowCols.topRow < 0) {
+        return true;
       }
     }
+    // Check if new row cols are occupied by sibling widgets
+    return isDropZoneOccupied(
+      {
+        left: newRowCols.leftColumn,
+        top: newRowCols.topRow,
+        bottom: newRowCols.bottomRow,
+        right: newRowCols.rightColumn,
+      },
+      props.widgetId,
+      occupiedSpacesBySiblingWidgets,
+    );
   };
 
   // onResizeStop handler
@@ -134,24 +206,17 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (
-    e: MouseEvent,
-    dir: ResizeDirection,
-    ref: HTMLDivElement,
-    d: UIElementSize,
-    position: XYCoord,
-  ) => {
+  const updateSize = (newDimensions: UIElementSize, position: XYCoord) => {
     // Get the difference in size of the widget, before and after resizing.
     const delta: UIElementSize = {
-      height: getAbsolutePixels(ref.style.height) - dimensions.height,
-      width: getAbsolutePixels(ref.style.width) - dimensions.width,
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
     };
 
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
-    const newRowCols: WidgetRowCols | false = computeUpdatedRowCols(
-      isColliding,
+    const newRowCols: WidgetRowCols | false = computeFinalRowCols(
       delta,
       position,
       props,
@@ -165,7 +230,7 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
     // Clear border styles
-    setIsColliding && setIsColliding(false);
+    // setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
     // Put it laster in the stack so that other updates like click, are not propagated to the parent container
     setTimeout(() => {
@@ -177,53 +242,46 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
+    showPropertyPane &&
+      propertyPaneState.widgetId !== props.widgetId &&
+      showPropertyPane(props.widgetId, true);
+  };
+
+  const handleResizeStart = () => {
+    setIsResizing && !isResizing && setIsResizing(true);
+    selectWidget &&
+      selectedWidget !== props.widgetId &&
+      selectWidget(props.widgetId);
     showPropertyPane && showPropertyPane(props.widgetId, true);
   };
-  const style = getBorderStyles(
-    isWidgetFocused,
-    isColliding,
-    props.paddingOffset - 2,
-  );
+
   return (
-    <ResizableContainer
-      isfocused={isWidgetFocused ? "true" : undefined}
-      position={{
-        x: 0,
-        y: 0,
+    <Resizable
+      handles={{
+        left: LeftHandleStyles,
+        top: TopHandleStyles,
+        bottom: BottomHandleStyles,
+        right: RightHandleStyles,
+        bottomRight: BottomRightHandleStyles,
+        topLeft: TopLeftHandleStyles,
+        topRight: TopRightHandleStyles,
+        bottomLeft: BottomLeftHandleStyles,
       }}
-      size={dimensions}
-      disableDragging
-      minWidth={props.parentColumnSpace}
-      minHeight={props.parentRowSpace}
-      style={style}
-      onResizeStop={updateSize}
-      onResize={checkForCollision}
-      onResizeStart={(e: any) => {
-        setIsResizing && setIsResizing(true);
-        selectWidget && selectWidget(props.widgetId);
-        showPropertyPane && showPropertyPane(undefined, true);
-      }}
-      resizeGrid={[props.parentColumnSpace, props.parentRowSpace]}
-      bounds={bounds}
-      resizeHandleStyles={getHandleSyles()}
-      enableResizing={{
-        top: canResize,
-        right: canResize,
-        bottom: canResize,
-        left: canResize,
-        topRight: canResize,
-        topLeft: canResize,
-        bottomRight: canResize,
-        bottomLeft: canResize,
-      }}
+      componentHeight={dimensions.height}
+      componentWidth={dimensions.width}
+      onStart={handleResizeStart}
+      onStop={updateSize}
+      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      enable={!isDragging && isWidgetFocused}
+      isColliding={isColliding}
     >
-      <ResizeBorderDotDiv
-        isfocused={isWidgetFocused}
+      <VisibilityContainer
         visible={!!props.isVisible}
+        padding={props.paddingOffset}
       >
         {props.children}
-      </ResizeBorderDotDiv>
-    </ResizableContainer>
+      </VisibilityContainer>
+    </Resizable>
   );
 });
 
