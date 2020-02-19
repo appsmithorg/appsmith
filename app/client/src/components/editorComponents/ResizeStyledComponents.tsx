@@ -9,7 +9,8 @@ export const VisibilityContainer = styled.div<{
   ${props => (!props.visible ? invisible : "")}
   height: 100%;
   width: 100%;
-  padding: ${props => props.padding}px;
+  padding: ${props => props.padding}px ${props => props.padding - 2}px
+    ${props => props.padding - 2}px ${props => props.padding}px;
 `;
 
 export const EdgeHandleStyles = css`
