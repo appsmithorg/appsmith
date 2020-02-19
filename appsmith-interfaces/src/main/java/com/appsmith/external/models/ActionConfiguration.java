@@ -37,6 +37,8 @@ public class ActionConfiguration {
     String body;
     // For form-data input instead of json use the following
     List<Property> bodyFormData;
+    // For route parameters extracted from rapid-api
+    List<Property> routeParameters;
     HttpMethod httpMethod;
     // Paginated API fields
     String next;
