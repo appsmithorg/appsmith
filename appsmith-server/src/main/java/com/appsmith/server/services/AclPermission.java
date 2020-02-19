@@ -1,7 +1,5 @@
 package com.appsmith.server.services;
 
-import org.checkerframework.framework.qual.InheritedAnnotation;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
