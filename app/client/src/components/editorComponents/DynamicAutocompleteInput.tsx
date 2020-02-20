@@ -177,7 +177,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         autoCloseBrackets: true,
         ...options,
       });
-      this.editor.on("change", _.debounce(this.handleChange, 100));
+      this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
       this.editor.on("focus", () => this.setState({ isFocused: true }));
       this.editor.on("blur", () => this.setState({ isFocused: false }));
@@ -187,6 +187,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
+      } else {
+        this.editor.setSize(0, "auto");
       }
       this.editor.eachLine(this.highlightBindings);
       // Set value of the editor

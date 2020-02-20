@@ -6,6 +6,7 @@ import _ from "lodash";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
 import StyledDropdown from "components/editorComponents/StyledDropdown";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
@@ -231,7 +232,7 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
 ];
 
 type ReduxStateProps = {
-  actions: DropdownOption[];
+  actions: ActionDataState;
   pageNameDropdown: DropdownOption[];
 };
 
@@ -392,7 +393,12 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
       if (o.id === "api") {
         return {
           ...o,
-          children: actions.map(a => ({ ...o, ...a })),
+          children: actions.map(a => ({
+            ...o,
+            label: a.config.name,
+            id: a.config.id,
+            value: `${a.config.name}.run`,
+          })),
         };
       } else {
         return o;
@@ -431,11 +437,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  actions: state.entities.actions.map(a => ({
-    label: a.config.name,
-    id: a.config.id,
-    value: `${a.config.name}.run`,
-  })),
+  actions: state.entities.actions,
   pageNameDropdown: state.entities.pageList.pages.map(p => ({
     label: p.pageName,
     id: p.pageId,

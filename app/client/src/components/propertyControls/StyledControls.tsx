@@ -1,6 +1,13 @@
 import styled from "styled-components";
 import { Select, MultiSelect } from "@blueprintjs/select";
-import { Switch, InputGroup, Button, Classes } from "@blueprintjs/core";
+import {
+  Switch,
+  InputGroup,
+  Button,
+  Classes,
+  Popover,
+  MenuItem,
+} from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
@@ -113,6 +120,62 @@ export const StyledDropDown = styled(DropDown)`
     .${Classes.ICON} {
       width: fit-content;
       color: ${Colors.SLATE_GRAY};
+    }
+  }
+`;
+
+export const StyledPopover = styled(Popover)`
+  div {
+    flex: 1 1 auto;
+  }
+  span {
+    width: 100%;
+    position: relative;
+  }
+  .${Classes.BUTTON} {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .${Classes.BUTTON_TEXT} {
+    text-overflow: ellipsis;
+    text-align: left;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+  && {
+    .${Classes.ICON} {
+      width: fit-content;
+      color: ${Colors.SLATE_GRAY};
+    }
+  }
+`;
+
+export const StyledMenuItem = styled(MenuItem)`
+  &&&&&& {
+    border-radius: ${props => props.theme.radii[1]}px;
+    &:hover {
+      background: ${Colors.POLAR};
+    }
+    &.${Classes.ACTIVE} {
+      background: ${Colors.POLAR};
+      color: ${props => props.theme.colors.textDefault};
+      position: relative;
+      &.single-select {
+        &:before {
+          left: 0;
+          top: -2px;
+          position: absolute;
+          content: "";
+          background: ${props => props.theme.colors.primary};
+          border-radius: 4px 0 0 4px;
+          width: 4px;
+          height: 100%;
+        }
+      }
     }
   }
 `;

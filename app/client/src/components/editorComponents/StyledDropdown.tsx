@@ -2,11 +2,13 @@ import React from "react";
 import _ from "lodash";
 import { DropdownOption } from "widgets/DropdownWidget";
 import {
-  StyledDropDown,
+  StyledPopover,
   StyledDropDownContainer,
+  StyledMenuItem,
 } from "components/propertyControls/StyledControls";
 import {
   Button,
+  Menu,
   MenuItem,
   PopoverInteractionKind,
   PopoverPosition,
@@ -26,30 +28,20 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
   renderItem = (option: DropdownOption) => {
     const isSelected = this.isOptionSelected(option);
     return (
-      <MenuItem
+      <StyledMenuItem
         className="single-select"
         active={isSelected}
         key={option.value}
-        onClick={() => this.handleSelect(option)}
+        onClick={option.children ? _.noop : () => this.handleSelect(option)}
         text={option.label}
         popoverProps={{
           minimal: true,
-          hoverCloseDelay: 0,
-          interactionKind: PopoverInteractionKind.HOVER,
-          position: PopoverPosition.BOTTOM,
-          modifiers: {
-            arrow: {
-              enabled: false,
-            },
-            offset: {
-              enabled: true,
-              offset: "-16px, 0",
-            },
-          },
+          interactionKind: PopoverInteractionKind.CLICK,
+          position: PopoverPosition.RIGHT,
         }}
       >
         {option.children && option.children.map(this.renderItem)}
-      </MenuItem>
+      </StyledMenuItem>
     );
   };
   isOptionSelected = (currentOption: DropdownOption) => {
@@ -77,22 +69,16 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
     });
     return (
       <StyledDropDownContainer>
-        <StyledDropDown
-          filterable={false}
-          items={this.props.options}
-          itemRenderer={this.renderItem}
-          onItemSelect={_.noop}
-          popoverProps={{
-            minimal: true,
-            usePortal: false,
-            position: PopoverPosition.BOTTOM,
-          }}
+        <StyledPopover
+          usePortal={true}
+          minimal={true}
+          content={<Menu>{this.props.options.map(this.renderItem)}</Menu>}
         >
           <Button
             rightIcon={IconNames.CHEVRON_DOWN}
             text={selectedOption.label}
           />
-        </StyledDropDown>
+        </StyledPopover>
       </StyledDropDownContainer>
     );
   }
