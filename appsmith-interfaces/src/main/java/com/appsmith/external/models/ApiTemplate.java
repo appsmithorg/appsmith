@@ -22,4 +22,6 @@ public class ApiTemplate extends BaseDomain {
     ApiTemplateConfiguration apiTemplateConfiguration;
     ActionConfiguration actionConfiguration;
     DatasourceConfiguration datasourceConfiguration;
+    String hashValue;
+    String scraperId;
 }
