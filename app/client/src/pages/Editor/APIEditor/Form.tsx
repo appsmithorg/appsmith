@@ -36,6 +36,13 @@ const Form = styled.form`
       width: 100%;
     }
   }
+  &&&&& {
+    .CodeMirror-wrap pre.CodeMirror-line,
+    .CodeMirror-wrap pre.CodeMirror-line-like {
+      overflow-x: scroll;
+      white-space: nowrap;
+    }
+  }
 `;
 
 const MainConfiguration = styled.div`
