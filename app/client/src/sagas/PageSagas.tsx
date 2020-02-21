@@ -1,4 +1,5 @@
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { AppState } from "reducers";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -11,6 +12,7 @@ import {
   updateCanvas,
   savePageSuccess,
   fetchPageSuccess,
+  deletePageSuccess,
 } from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
@@ -34,6 +36,8 @@ import {
   all,
   debounce,
 } from "redux-saga/effects";
+import history from "utils/history";
+import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
@@ -283,12 +287,21 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
 export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   try {
     const request: DeletePageRequest = action.payload;
-    const response: ApiResponse = yield call(PageApi.deletePage, request);
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.DELETE_PAGE_SUCCESS,
-      });
+    const defaultPageId = yield select(
+      (state: AppState) => state.entities.pageList.defaultPageId,
+    );
+    const applicationId = yield select(
+      (state: AppState) => state.entities.pageList.applicationId,
+    );
+    if (defaultPageId === request.pageId) {
+      throw Error("Cannot delete the home page.");
+    } else {
+      const response: ApiResponse = yield call(PageApi.deletePage, request);
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put(deletePageSuccess());
+      }
+      history.push(PAGE_LIST_EDITOR_URL(applicationId, defaultPageId));
     }
   } catch (error) {
     yield put({

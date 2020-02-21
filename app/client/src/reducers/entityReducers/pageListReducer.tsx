@@ -10,6 +10,22 @@ const initialState: PageListReduxState = {
 };
 
 const pageListReducer = createReducer(initialState, {
+  [ReduxActionTypes.DELETE_PAGE_INIT]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => {
+    if (state.defaultPageId !== action.payload.pageId) {
+      const pages = state.pages.filter(
+        page => page.pageId !== action.payload.pageId,
+      );
+      return {
+        applicationId: state.applicationId,
+        defaultPageId: state.defaultPageId,
+        pages,
+      };
+    }
+    return state;
+  },
   [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{ pages: PageListPayload; applicationId: string }>,
