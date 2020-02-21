@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { getBorderCSSShorthand, labelStyle } from "constants/DefaultTheme";
+import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
@@ -12,9 +12,11 @@ import {
   Text,
   Classes,
   ControlGroup,
+  TextArea,
 } from "@blueprintjs/core";
 import { InputType } from "widgets/InputWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { Colors } from "constants/Colors";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a sperarate numeric input and text input so switching between them goes here
@@ -22,30 +24,35 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled(ControlGroup)`
+const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
   &&&& {
-    .bp3-input {
+    .${Classes.INPUT} {
       box-shadow: none;
-      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
-      border-radius: 0;
+      border: 1px solid ${Colors.GEYSER_LIGHT};
+      border-radius: ${props => props.theme.radii[1]}px;
+      height: ${props => (props.multiline === "true" ? "100%" : "inherit")};
+      &:active {
+        border: 1px solid ${Colors.HIT_GRAY};
+      }
+      &:focus {
+        border: 3px solid ${Colors.MYSTIC};
+      }
     }
-    .bp3-input:focus {
-      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
-      box-shadow: none;
-    }
-    div.bp3-input-group {
+    .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
     }
-    .bp3-control-group {
+    .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
+    height: ${props => (props.multiline === "true" ? "100%" : "auto")};
     align-items: center;
     label {
       ${labelStyle}
       flex: 0 1 30%;
-      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
+      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
+      align-self: flex-start;
     }
   }
 `;
@@ -59,7 +66,11 @@ class InputComponent extends React.Component<
     this.state = { showPassword: false };
   }
 
-  onTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  onTextChange = (
+    event:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     this.props.onValueChange(event.target.value);
   };
 
@@ -100,61 +111,87 @@ class InputComponent extends React.Component<
         return "text";
     }
   }
+  private numericInputComponent = () => (
+    <NumericInput
+      placeholder={this.props.placeholder}
+      min={this.props.minNum}
+      max={this.props.maxNum}
+      maxLength={this.props.maxChars}
+      disabled={this.props.disabled}
+      intent={this.props.intent}
+      className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
+      defaultValue={this.props.defaultValue}
+      onValueChange={this.onNumberChange}
+      leftIcon={
+        this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
+      }
+      type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
+      allowNumericCharactersOnly
+      stepSize={this.props.stepSize}
+    />
+  );
+  private textAreaInputComponent = (
+    <TextArea
+      placeholder={this.props.placeholder}
+      disabled={this.props.disabled}
+      maxLength={this.props.maxChars}
+      intent={this.props.intent}
+      onChange={this.onTextChange}
+      defaultValue={this.props.defaultValue}
+      className={this.props.isLoading ? "bp3-skeleton" : ""}
+      growVertically={false}
+    />
+  );
+
+  private textInputComponent = (isTextArea: boolean) =>
+    isTextArea ? (
+      this.textAreaInputComponent
+    ) : (
+      <InputGroup
+        placeholder={this.props.placeholder}
+        disabled={this.props.disabled}
+        maxLength={this.props.maxChars}
+        intent={this.props.intent}
+        onChange={this.onTextChange}
+        defaultValue={this.props.defaultValue}
+        className={this.props.isLoading ? "bp3-skeleton" : ""}
+        rightElement={
+          this.props.inputType === "PASSWORD" ? (
+            <Button
+              icon={"lock"}
+              onClick={() => {
+                this.setState({ showPassword: !this.state.showPassword });
+              }}
+            />
+          ) : (
+            undefined
+          )
+        }
+        type={this.getType(this.props.inputType)}
+        leftIcon={this.getIcon(this.props.inputType)}
+      />
+    );
+  private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
+    this.isNumberInputType(inputType)
+      ? this.numericInputComponent()
+      : this.textInputComponent(isTextArea);
 
   render() {
     return (
-      <InputComponentWrapper fill>
-        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-          <span className={this.props.isLoading ? "bp3-skeleton" : ""}>
+      <InputComponentWrapper fill multiline={this.props.multiline.toString()}>
+        {this.props.label && (
+          <Label
+            className={
+              this.props.isLoading
+                ? Classes.SKELETON
+                : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }
+          >
             {this.props.label}
-          </span>
-        </Label>
-
-        {this.isNumberInputType(this.props.inputType) ? (
-          <NumericInput
-            placeholder={this.props.placeholder}
-            min={this.props.minNum}
-            max={this.props.maxNum}
-            maxLength={this.props.maxChars}
-            disabled={this.props.disabled}
-            intent={this.props.intent}
-            className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-            defaultValue={this.props.defaultValue}
-            onValueChange={this.onNumberChange}
-            leftIcon={
-              this.props.inputType === "PHONE_NUMBER"
-                ? "phone"
-                : this.props.leftIcon
-            }
-            type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
-            allowNumericCharactersOnly
-            stepSize={this.props.stepSize}
-          />
-        ) : (
-          <InputGroup
-            placeholder={this.props.placeholder}
-            disabled={this.props.disabled}
-            maxLength={this.props.maxChars}
-            intent={this.props.intent}
-            onChange={this.onTextChange}
-            defaultValue={this.props.defaultValue}
-            className={this.props.isLoading ? "bp3-skeleton" : ""}
-            rightElement={
-              this.props.inputType === "PASSWORD" ? (
-                <Button
-                  icon={"lock"}
-                  onClick={() => {
-                    this.setState({ showPassword: !this.state.showPassword });
-                  }}
-                />
-              ) : (
-                undefined
-              )
-            }
-            type={this.getType(this.props.inputType)}
-            leftIcon={this.getIcon(this.props.inputType)}
-          />
+          </Label>
         )}
+
+        {this.renderInputComponent(this.props.inputType, this.props.multiline)}
         {this.props.errorMessage && <Text>{this.props.errorMessage}</Text>}
       </InputComponentWrapper>
     );
@@ -182,6 +219,7 @@ export interface InputComponentProps extends ComponentProps {
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;
+  multiline: boolean;
 }
 
 export default InputComponent;

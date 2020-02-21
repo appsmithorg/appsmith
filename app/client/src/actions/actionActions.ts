@@ -1,10 +1,9 @@
+import { RestAction, PaginationField, ActionResponse } from "api/ActionAPI";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { RestAction } from "api/ActionAPI";
-import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
 
 export const createActionRequest = (payload: Partial<RestAction>) => {
   return {
@@ -33,10 +32,13 @@ export const fetchActions = (
   };
 };
 
-export const runApiAction = (id: string) => {
+export const runApiAction = (id: string, paginationField?: PaginationField) => {
   return {
     type: ReduxActionTypes.RUN_API_REQUEST,
-    payload: id,
+    payload: {
+      id: id,
+      paginationField: paginationField,
+    },
   };
 };
 
@@ -128,11 +130,17 @@ export const copyActionError = (payload: {
   };
 };
 
-export const actionToWidgetIdMapSuccess = (
-  map: ActionWidgetIdsMap,
-): ReduxAction<ActionWidgetIdsMap> => ({
-  type: ReduxActionTypes.CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS,
-  payload: map,
+export const executeApiActionRequest = (payload: { id: string }) => ({
+  type: ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
+  payload: payload,
+});
+
+export const executeApiActionSuccess = (payload: {
+  id: string;
+  response: ActionResponse;
+}) => ({
+  type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
+  payload: payload,
 });
 
 export default {

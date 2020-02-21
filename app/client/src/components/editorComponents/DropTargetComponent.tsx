@@ -73,6 +73,9 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const spacesOccupiedBySiblingWidgets =
     occupiedSpaces && occupiedSpaces[props.widgetId]
@@ -121,7 +124,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         return true;
         // If the current widget's (dragging/resizing) bottom row has moved back up
       } else if (widgetBottomRow < rows - 2 && rows - props.snapRows >= 2) {
-        setRows(rows - 2);
+        setRows(rows - 1);
         return true;
       }
       return false;
@@ -224,7 +227,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   };
 
   const handleFocus = () => {
-    if (!props.parentId && !isResizing) {
+    if (!props.parentId && !isResizing && !isDragging) {
       selectWidget && selectWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
@@ -245,6 +248,12 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const marginBottom =
     props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "500px" : 0;
 
+  const border =
+    (isExactlyOver || isChildResizing) &&
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? "1px solid #ccc"
+      : "1px solid transparent";
+
   return (
     <DropTargetContext.Provider
       value={{ updateDropTargetRows, persistDropTargetRows }}
@@ -261,6 +270,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           userSelect: "none",
           opacity: 0.99,
           background: "none",
+          border,
         }}
       >
         {props.children}

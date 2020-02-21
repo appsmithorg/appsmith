@@ -52,13 +52,13 @@ div.bp3-popover-arrow {
   cursor: default !important;
 }
 
-.bp3-intent-primary, input:checked ~ span.bp3-control-indicator {
+/* .bp3-intent-primary:not(.bp3-icon):not(:hover), input:checked ~ span.bp3-control-indicator {
   background: #29CCA3 !important;
   box-shadow: none !important;
 }
 .bp3-intent-primary {
   border-radius: 4px !important;
-}
+} */
 
 .pace {
   -webkit-pointer-events: none;
@@ -117,4 +117,16 @@ div.bp3-popover-arrow {
   to {
     transform: rotate(360deg);
   }
+}
+
+.display-none {
+  display: none;
+}
+
+.Toastify__toast {
+  padding: 0 !important;
+  border-radius: 4px !important;
+}
+.Toastify__toast-body {
+  margin: 0 !important;
 }

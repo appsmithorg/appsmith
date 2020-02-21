@@ -111,13 +111,11 @@ const PageListSidebar = () => {
     return pages.map(page => {
       const pageActions: ContextDropdownOption[] = [
         {
-          id: "setdefault",
           value: "setdefault",
           onSelect: () => setPageAsDefault(page.pageId, applicationId),
           label: "Set as Home Page",
         },
         {
-          id: "delete",
           value: "delete",
           onSelect: () => deletePage(page.pageId),
           intent: "danger",

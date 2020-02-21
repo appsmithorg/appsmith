@@ -7,6 +7,7 @@ import {
   getIsFetchingApplications,
   getIsCreatingApplication,
   getCreateApplicationError,
+  getIsDeletingApplication,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -19,6 +20,8 @@ import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import { DELETING_APPLICATION } from "constants/messages";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
@@ -36,6 +39,7 @@ type ApplicationProps = {
   createApplicationError?: string;
   searchApplications: (keyword: string) => void;
   deleteApplication: (id: string) => void;
+  deletingApplication: boolean;
 };
 
 class Applications extends Component<ApplicationProps> {
@@ -48,16 +52,18 @@ class Applications extends Component<ApplicationProps> {
       : this.props.applicationList;
     return (
       <PageWrapper displayName="Applications">
+        {this.props.deletingApplication
+          ? AppToaster.show({ message: DELETING_APPLICATION })
+          : AppToaster.clear()}
         <SubHeader
           add={{
-            form: <CreateApplicationForm />,
-            title: "Create New App",
+            form: CreateApplicationForm,
+            title: "Create Application",
             formName: CREATE_APPLICATION_FORM_NAME,
             formSubmitIntent: "primary",
-            isAdding:
-              this.props.isCreatingApplication ||
-              !!this.props.createApplicationError,
+            isAdding: this.props.isCreatingApplication,
             errorAdding: this.props.createApplicationError,
+            formSubmitText: "Create",
           }}
           search={{
             placeholder: "Search",
@@ -89,6 +95,7 @@ const mapStateToProps = (state: AppState) => ({
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
+  deletingApplication: getIsDeletingApplication(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

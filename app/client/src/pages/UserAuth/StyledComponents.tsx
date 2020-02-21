@@ -4,28 +4,10 @@ import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
 
 export const AuthContainer = styled.section`
-  width: 100vw;
+  position: absolute;
+  width: 100%;
   height: 100vh;
-  && .fade {
-    position: relative;
-  }
-  && .fade-enter {
-    opacity: 0;
-    z-index: 1;
-  }
-
-  && .fade-enter.fade-enter-active {
-    opacity: 1;
-    transition: opacity 250ms ease-in;
-  }
-  .fade-exit {
-    opacity: 1;
-  }
-  .fade-exit-active {
-    display: none;
-    opacity: 0;
-    transition: opacity 250ms;
-  }
+  will-change: transform, opacity;
 `;
 
 export const AuthCard = styled(Card)`
@@ -34,7 +16,6 @@ export const AuthCard = styled(Card)`
   border-radius: ${props => props.theme.authCard.borderRadius}px;
   padding: ${props => props.theme.authCard.padding}px;
   box-shadow: ${props => props.theme.authCard.shadow};
-  position: relative;
   border: none;
   & h1,
   h5 {

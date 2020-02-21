@@ -1,6 +1,7 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
 export const Colors: Record<string, string> = {
   WHITE: "#FFFFFF",
+  WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
   GEYSER: "#D3DEE3",
   GEYSER_LIGHT: "#D0D7DD",
@@ -34,6 +35,9 @@ export const Colors: Record<string, string> = {
   JAFFA: "#F2994A",
   BLUE_BAYOUX: "#4E5D78",
   MINT_TULIP: "#B5F1F1",
+  AZURE_RADIANCE: "#0384FE",
+  OCEAN_GREEN: "#36AB80",
+  BUTTER_CUP: "#F7AF22",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

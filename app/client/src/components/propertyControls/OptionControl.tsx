@@ -7,7 +7,6 @@ import {
 } from "./StyledControls";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
-import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -39,7 +38,7 @@ class OptionControl extends BaseControl<ControlProps> {
           return (
             <StyledOptionControlWrapper
               orientation={"HORIZONTAL"}
-              key={option.id}
+              key={option.value}
             >
               <StyledOptionControlInputGroup
                 type={"text"}
@@ -120,7 +119,7 @@ class OptionControl extends BaseControl<ControlProps> {
     const options: DropdownOption[] = this.props.propertyValue
       ? this.props.propertyValue.slice()
       : [];
-    options.push({ label: "", value: "", id: generateReactKey() });
+    options.push({ label: "", value: "" });
     this.updateProperty("options", options);
   };
 

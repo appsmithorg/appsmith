@@ -9,11 +9,9 @@ import {
   getEvaluatedDataTree,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  NameBindingsWithData,
-  getNameBindingsWithData,
-} from "./nameBindingsWithDataSelector";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -42,11 +40,8 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsWithValidations = createSelector(
   getCurrentWidgetProperties,
-  getNameBindingsWithData,
-  (
-    widget: WidgetProps | undefined,
-    nameBindingsWithData: NameBindingsWithData,
-  ) => {
+  getUnevaluatedDataTree,
+  (widget: WidgetProps | undefined, nameBindingsWithData: DataTree) => {
     if (!widget) return undefined;
     const tree = getEvaluatedDataTree(nameBindingsWithData, false);
     const evaluatedWidget = _.find(tree, { widgetId: widget.widgetId });

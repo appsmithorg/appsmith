@@ -8,15 +8,15 @@ import "codemirror/theme/monokai.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
-import {
-  getNameBindingsForAutocomplete,
-  NameBindingsWithData,
-} from "selectors/nameBindingsWithDataSelector";
+import "codemirror/addon/edit/closebrackets";
+import "codemirror/addon/display/autorefresh";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 require("codemirror/mode/javascript/javascript");
 
 const HintStyles = createGlobalStyle`
@@ -123,7 +123,7 @@ const THEMES = {
 type THEME = "LIGHT" | "DARK";
 
 interface ReduxStateProps {
-  dynamicData: NameBindingsWithData;
+  dynamicData: DataTree;
 }
 
 export type DynamicAutocompleteInputProps = {
@@ -169,15 +169,15 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       this.editor = CodeMirror.fromTextArea(this.textArea.current, {
         mode: { name: "javascript", globalVars: true },
         viewportMargin: 10,
-        value: this.props.input.value,
         tabSize: 2,
         indentWithTabs: true,
         lineWrapping: true,
         showHint: true,
         extraKeys,
+        autoCloseBrackets: true,
         ...options,
       });
-      this.editor.on("change", _.debounce(this.handleChange, 100));
+      this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
       this.editor.on("focus", () => this.setState({ isFocused: true }));
       this.editor.on("blur", () => this.setState({ isFocused: false }));
@@ -187,8 +187,16 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
+      } else {
+        this.editor.setSize(0, "auto");
       }
       this.editor.eachLine(this.highlightBindings);
+      // Set value of the editor
+      let inputValue = this.props.input.value || "";
+      if (typeof inputValue === "object") {
+        inputValue = JSON.stringify(inputValue, null, 2);
+      }
+      this.editor.setValue(inputValue);
     }
   }
 
@@ -225,31 +233,33 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: any) => {
-    let cursorBetweenBinding = false;
-    const cursor = this.editor.getCursor();
-    const value = this.editor.getValue();
-    let cumulativeCharCount = 0;
-    parseDynamicString(value).forEach(segment => {
-      const start = cumulativeCharCount;
-      const dynamicStart = segment.indexOf("{{");
-      const dynamicDoesStart = dynamicStart > -1;
-      const dynamicEnd = segment.indexOf("}}");
-      const dynamicDoesEnd = dynamicEnd > -1;
-      const dynamicStartIndex = dynamicStart + start + 1;
-      const dynamicEndIndex = dynamicEnd + start + 1;
-      if (
-        dynamicDoesStart &&
-        cursor.ch > dynamicStartIndex &&
-        ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
-          (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
-      ) {
-        cursorBetweenBinding = true;
+    if (this.state.isFocused) {
+      let cursorBetweenBinding = false;
+      const cursor = this.editor.getCursor();
+      const value = this.editor.getValue();
+      let cumulativeCharCount = 0;
+      parseDynamicString(value).forEach(segment => {
+        const start = cumulativeCharCount;
+        const dynamicStart = segment.indexOf("{{");
+        const dynamicDoesStart = dynamicStart > -1;
+        const dynamicEnd = segment.indexOf("}}");
+        const dynamicDoesEnd = dynamicEnd > -1;
+        const dynamicStartIndex = dynamicStart + start + 1;
+        const dynamicEndIndex = dynamicEnd + start + 1;
+        if (
+          dynamicDoesStart &&
+          cursor.ch > dynamicStartIndex &&
+          ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
+            (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
+        ) {
+          cursorBetweenBinding = true;
+        }
+        cumulativeCharCount = start + segment.length;
+      });
+      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
+      if (shouldShow) {
+        cm.showHint(cm);
       }
-      cumulativeCharCount = start + segment.length;
-    });
-    const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
-    if (shouldShow) {
-      cm.showHint(cm);
     }
   };
 
@@ -296,7 +306,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getNameBindingsForAutocomplete(state),
+  dynamicData: getDataTreeForAutocomplete(state),
 });
 
 export default connect(mapStateToProps)(DynamicAutocompleteInput);

@@ -126,7 +126,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 
   return (
     <StyledHeader>
-      <StretchedBreadCrumb items={navigation} />
+      <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
       <LoadingContainer>
         {props.isSaving ? "Saving..." : "All changes saved"}

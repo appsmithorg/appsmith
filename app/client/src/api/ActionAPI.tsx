@@ -3,6 +3,7 @@ import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import { APIRequest } from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
 import { Datasource } from "./DatasourcesApi";
+import { PaginationType } from "pages/Editor/APIEditor/Pagination";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -38,6 +39,7 @@ export interface APIConfigRequest {
   path: string;
   body: JSON | string | Record<string, any> | null;
   queryParameters: Property[];
+  paginationType: PaginationType;
 }
 
 export interface QueryConfig {
@@ -60,9 +62,12 @@ export interface RestAction {
   cacheResponse?: string;
 }
 
+export type PaginationField = "PREV" | "NEXT" | undefined;
+
 export interface ExecuteActionRequest extends APIRequest {
   action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
   params?: Property[];
+  paginationField: PaginationField;
 }
 
 export interface ExecuteActionResponse extends ApiResponse {

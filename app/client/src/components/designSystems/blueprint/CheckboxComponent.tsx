@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { Checkbox, Classes } from "@blueprintjs/core";
+import { BlueprintControlTransform } from "constants/DefaultTheme";
 
 const CheckboxContainer = styled.div`
   && {
@@ -14,6 +15,7 @@ const CheckboxContainer = styled.div`
       margin: 0;
     }
   }
+  ${BlueprintControlTransform}
 `;
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {

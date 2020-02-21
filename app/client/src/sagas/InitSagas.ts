@@ -8,7 +8,6 @@ import {
 import { fetchEditorConfigs } from "actions/configsActions";
 import { fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourcesActions";
-import { initBindingMapListener } from "actions/bindingActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
 
@@ -21,7 +20,6 @@ function* initializeEditorSaga(
     put(fetchPlugins()),
     put(fetchPageList(applicationId)),
     put(fetchEditorConfigs()),
-    put(initBindingMapListener()),
     put(fetchActions(applicationId)),
     put(fetchDatasources()),
   ]);
@@ -44,7 +42,6 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId } = action.payload;
   yield all([
-    put(initBindingMapListener()),
     put(fetchActions(applicationId)),
     put(fetchPageList(applicationId)),
   ]);

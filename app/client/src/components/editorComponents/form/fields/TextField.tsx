@@ -18,6 +18,7 @@ class TextField extends React.Component<
         type={this.props.type || "text"}
         component={BaseTextInput}
         {...this.props}
+        noValidate
       />
     );
   }

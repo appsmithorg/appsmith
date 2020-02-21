@@ -3,21 +3,18 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
-import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { connect } from "react-redux";
-import { ActionPayload } from "constants/ActionConstants";
-import { FinalActionSelector } from "./ActionSelectorControl";
 import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
+import { InputText } from "components/propertyControls/InputTextControl";
+import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
+
 export interface ColumnAction {
   label: string;
   id: string;
-  actionPayloads: ActionPayload[];
+  dynamicTrigger: string;
 }
-
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 5px 5px;
   position: absolute;
@@ -27,111 +24,98 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
 `;
 
 class ColumnActionSelectorControl extends BaseControl<
-  ColumnActionSelectorControlProps & ActionDataState
+  ColumnActionSelectorControlProps
 > {
   render() {
     return (
       <ControlWrapper orientation={"VERTICAL"}>
         {this.props.propertyValue &&
-          this.props.propertyValue.map(
-            (columnAction: ColumnAction, index: number) => {
-              return (
-                <div
-                  key={columnAction.id}
-                  style={{
-                    position: "relative",
-                    // position: "absolute",
-                  }}
-                >
-                  <FinalActionSelector
-                    identifier={columnAction.id}
-                    actionsData={this.props.data}
-                    actions={columnAction.actionPayloads}
-                    updateActions={this.updateActions}
-                    label={columnAction.label}
-                    labelEditable={true}
-                    updateLabel={this.updateLabel}
-                  ></FinalActionSelector>
-                  <StyledDeleteIcon
-                    height={20}
-                    width={20}
-                    onClick={this.removeColumnAction.bind(this, index)}
-                  ></StyledDeleteIcon>
-                </div>
-              );
-            },
-          )}
+          this.props.propertyValue.map((columnAction: ColumnAction) => {
+            return (
+              <div
+                key={columnAction.id}
+                style={{
+                  position: "relative",
+                }}
+              >
+                <InputText
+                  label={columnAction.label}
+                  value={columnAction.label}
+                  onChange={this.updateColumnActionLabel.bind(
+                    this,
+                    columnAction,
+                  )}
+                  isValid={true}
+                />
+                <DynamicActionCreator
+                  value={columnAction.dynamicTrigger}
+                  onValueChange={this.updateColumnActionFunction.bind(
+                    this,
+                    columnAction,
+                  )}
+                />
+                <StyledDeleteIcon
+                  height={20}
+                  width={20}
+                  onClick={this.removeColumnAction.bind(this, columnAction)}
+                />
+              </div>
+            );
+          })}
         <StyledPropertyPaneButton
           text={"Column Action"}
           icon={"plus"}
           color={"#FFFFFF"}
           minimal={true}
           onClick={this.addColumnAction}
-        ></StyledPropertyPaneButton>
+        />
       </ControlWrapper>
     );
   }
-  onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
-    let value = event;
-    if (typeof event !== "string") {
-      value = event.target.value;
+
+  updateColumnActionLabel = (
+    columnAction: ColumnAction,
+    newValue: React.ChangeEvent<HTMLTextAreaElement> | string,
+  ) => {
+    let value = newValue;
+    if (typeof newValue !== "string") {
+      value = newValue.target.value;
     }
-    this.updateProperty(this.props.propertyName, value);
+    const update = this.props.propertyValue.map((a: ColumnAction) => {
+      if (a.id === columnAction.id) return { ...a, label: value };
+      return a;
+    });
+    this.updateProperty(this.props.propertyName, update);
   };
-  updateActions = (actions: ActionPayload[], key?: string) => {
-    const columnActions = this.props.propertyValue || [];
-    const columnActionsClone = columnActions.slice();
-    const foundColumnActionIndex = columnActionsClone.findIndex(
-      (columnAction: ColumnAction) => columnAction.id === key,
+
+  updateColumnActionFunction = (
+    columnAction: ColumnAction,
+    newValue: string,
+  ) => {
+    const update = this.props.propertyValue.map((a: ColumnAction) => {
+      if (a.id === columnAction.id) return { ...a, dynamicTrigger: newValue };
+      return a;
+    });
+    this.updateProperty(this.props.propertyName, update);
+  };
+
+  removeColumnAction = (columnAction: ColumnAction) => {
+    const update = this.props.propertyValue.filter(
+      (a: ColumnAction) => a.id !== columnAction.id,
     );
-
-    if (foundColumnActionIndex !== -1) {
-      let foundColumnAction = columnActionsClone[foundColumnActionIndex];
-      foundColumnAction = Object.assign({}, foundColumnAction);
-      foundColumnAction.actionPayloads = actions;
-
-      columnActionsClone.splice(foundColumnActionIndex, 1, foundColumnAction);
-    }
-
-    this.updateProperty(this.props.propertyName, columnActionsClone);
-  };
-  updateLabel = (label: string, key: string) => {
-    const columnActions = this.props.propertyValue || [];
-    const columnActionsClone = columnActions.slice();
-    const foundColumnActionIndex = columnActionsClone.findIndex(
-      (columnAction: ColumnAction) => columnAction.id === key,
-    );
-
-    if (foundColumnActionIndex !== -1) {
-      let foundColumnAction = columnActionsClone[foundColumnActionIndex];
-      foundColumnAction = Object.assign({}, foundColumnAction);
-      foundColumnAction.label = label;
-
-      columnActionsClone.splice(foundColumnActionIndex, 1, foundColumnAction);
-    }
-
-    this.updateProperty(this.props.propertyName, columnActionsClone);
-  };
-  removeColumnAction = (index: number) => {
-    const columnActions = this.props.propertyValue || [];
-    const columnActionsClone = columnActions.slice();
-    columnActionsClone.splice(index, 1);
-
-    this.updateProperty(this.props.propertyName, columnActionsClone);
+    this.updateProperty(this.props.propertyName, update);
   };
   addColumnAction = () => {
     const columnActions = this.props.propertyValue || [];
-    const columnActionsClone = columnActions.slice();
-    columnActionsClone.push({
-      label: "Action",
-      id: generateReactKey(),
-      actionPayloads: [],
-    });
+    const update = columnActions.concat([
+      {
+        label: "Action",
+        id: generateReactKey(),
+        actionPayloads: [],
+      },
+    ]);
 
-    this.updateProperty(this.props.propertyName, columnActionsClone);
-  };
-  onToggle = () => {
-    this.updateProperty(this.props.propertyName, !this.props.propertyValue);
+    this.updateProperty(this.props.propertyName, update);
   };
 
   getControlType(): ControlType {
@@ -141,8 +125,4 @@ class ColumnActionSelectorControl extends BaseControl<
 
 export type ColumnActionSelectorControlProps = ControlProps;
 
-const mapStateToProps = (state: AppState): ActionDataState => ({
-  ...state.entities.actions,
-});
-
-export default connect(mapStateToProps)(ColumnActionSelectorControl);
+export default ColumnActionSelectorControl;

@@ -1,12 +1,11 @@
 import { createSelector } from "reselect";
-import { AppState, DataTree } from "reducers";
+import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import { getDataTree } from "./entitiesSelector";
+import { getEntities } from "./entitiesSelector";
 import createCachedSelector from "re-reselect";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { getValidatedDynamicProps } from "./editorSelectors";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getValidatedWidgetsAndActionTriggers } from "./editorSelectors";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>
@@ -49,16 +48,11 @@ export const getPageWidgetId = createSelector(
 );
 export const getCurrentPageLayoutDSL = createCachedSelector(
   getPageWidgetId,
-  getDataTree,
-  getValidatedDynamicProps,
-  (
-    pageWidgetId: string,
-    entities: DataTree,
-    validatedDynamicWidgets: CanvasWidgetsReduxState,
-  ) => {
+  getEntities,
+  getValidatedWidgetsAndActionTriggers,
+  (pageWidgetId: string, entities: AppState["entities"], widgets) => {
     return CanvasWidgetsNormalizer.denormalize(pageWidgetId, {
-      ...entities,
-      canvasWidgets: validatedDynamicWidgets,
+      canvasWidgets: widgets,
     });
   },
 )((pageWidgetId, entities) => entities || 0);

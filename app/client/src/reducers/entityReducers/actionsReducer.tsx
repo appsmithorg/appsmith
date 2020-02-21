@@ -4,87 +4,137 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { RestAction } from "api/ActionAPI";
-import { ActionWidgetIdsMap } from "sagas/ActionWidgetMapSagas";
+import { ActionResponse, RestAction } from "api/ActionAPI";
+import { ExecuteErrorPayload } from "constants/ActionConstants";
 
-const initialState: ActionDataState = {
-  data: [],
-  actionToWidgetIdMap: {},
-};
-
-export interface ActionDataState {
-  data: RestAction[];
-  actionToWidgetIdMap: ActionWidgetIdsMap;
+export interface ActionData {
+  isLoading: boolean;
+  config: RestAction;
+  data?: ActionResponse;
 }
+export type ActionDataState = ActionData[];
+
+const initialState: ActionDataState = [];
 
 const actionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
-  ) => ({
-    ...state,
-    data: action.payload,
-    isFetching: false,
-  }),
-  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state: ActionDataState) => ({
-    ...state,
-    data: [],
-  }),
+  ): ActionDataState =>
+    action.payload.map(a => ({
+      isLoading: false,
+      config: a,
+    })),
+  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
-  ) => ({
-    ...state,
-    data: state.data.concat([action.payload]),
-  }),
+  ): ActionDataState =>
+    state.concat([{ config: action.payload, isLoading: false }]),
   [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
-  ) => ({
-    ...state,
-    data: state.data.map(a => {
+  ): ActionDataState =>
+    state.map(a => {
       if (
-        a.pageId === action.payload.pageId &&
-        a.name === action.payload.name
+        a.config.pageId === action.payload.pageId &&
+        a.config.name === action.payload.name
       ) {
-        return action.payload;
+        return { ...a, config: action.payload };
       }
       return a;
     }),
-  }),
   [ReduxActionTypes.CREATE_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
-  ) => ({
-    ...state,
-    data: state.data.filter(
-      a => a.name !== action.payload.name && a.pageId !== action.payload.pageId,
+  ): ActionDataState =>
+    state.filter(
+      a =>
+        a.config.name !== action.payload.name &&
+        a.config.pageId !== action.payload.pageId,
     ),
-  }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ data: RestAction }>,
-  ) => ({
-    ...state,
-    data: state.data.map(d => {
-      if (d.id === action.payload.data.id) return action.payload.data;
-      return d;
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.data.id)
+        return { ...a, config: action.payload.data };
+      return a;
     }),
-  }),
   [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    data: state.data.filter(d => d.id !== action.payload.id),
-  }),
-  [ReduxActionTypes.CREATE_UPDATE_ACTION_WIDGETIDS_MAP_SUCCESS]: (
+  ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
+  [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
     state: ActionDataState,
-    action: ReduxAction<ActionWidgetIdsMap>,
-  ) => ({
-    ...state,
-    actionToWidgetIdMap: action.payload,
-  }),
+    action: ReduxAction<{ id: string }>,
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.id) {
+        return {
+          ...a,
+          isLoading: true,
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string; response: ActionResponse }>,
+  ): ActionDataState => {
+    return state.map(a => {
+      if (a.config.id === action.payload.id) {
+        return { ...a, isLoading: false, data: action.payload.response };
+      }
+      return a;
+    });
+  },
+  [ReduxActionErrorTypes.EXECUTE_ACTION_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<ExecuteErrorPayload>,
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.actionId) {
+        return { ...a, isLoading: false };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.RUN_API_REQUEST]: (
+    state: ActionDataState,
+    action: ReduxAction<string>,
+  ): ActionDataState =>
+    state.map(a => {
+      if (action.payload === a.config.id) {
+        return {
+          ...a,
+          isLoading: true,
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.RUN_API_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ [id: string]: ActionResponse }>,
+  ): ActionDataState => {
+    const actionId = Object.keys(action.payload)[0];
+    return state.map(a => {
+      if (a.config.id === actionId) {
+        return { ...a, isLoading: false, data: action.payload[actionId] };
+      }
+      return a;
+    });
+  },
+  [ReduxActionErrorTypes.RUN_API_ERROR]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.id) {
+        return { ...a, isLoading: false };
+      }
+      return a;
+    }),
   [ReduxActionTypes.MOVE_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<{
@@ -92,46 +142,46 @@ const actionsReducer = createReducer(initialState, {
       destinationPageId: string;
       name: string;
     }>,
-  ) => ({
-    ...state,
-    data: state.data.map(restAction => {
-      if (restAction.id === action.payload.id) {
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.id) {
         return {
-          ...restAction,
-          name: action.payload.name,
-          pageId: action.payload.destinationPageId,
+          ...a,
+          config: {
+            ...a.config,
+            name: action.payload.name,
+            pageId: action.payload.destinationPageId,
+          },
         };
       }
-      return restAction;
+      return a;
     }),
-  }),
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
-  ) => ({
-    ...state,
-    data: state.data.map(restAction => {
-      if (restAction.id === action.payload.id) {
-        return action.payload;
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.id) {
+        return { ...a, config: action.payload };
       }
-      return restAction;
+      return a;
     }),
-  }),
   [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string; originalPageId: string }>,
-  ) => ({
-    ...state,
-    data: state.data.map(restAction => {
-      if (restAction.id === action.payload.id) {
+  ): ActionDataState =>
+    state.map(a => {
+      if (a.config.id === action.payload.id) {
         return {
-          ...restAction,
-          pageId: action.payload.originalPageId,
+          ...a,
+          config: {
+            ...a.config,
+            pageId: action.payload.originalPageId,
+          },
         };
       }
-      return restAction;
+      return a;
     }),
-  }),
   [ReduxActionTypes.COPY_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<{
@@ -139,34 +189,35 @@ const actionsReducer = createReducer(initialState, {
       destinationPageId: string;
       name: string;
     }>,
-  ) => ({
-    ...state,
-    data: state.data.concat(
-      state.data
-        .filter(a => a.id === action.payload.id)
+  ): ActionDataState =>
+    state.concat(
+      state
+        .filter(a => a.config.id === action.payload.id)
         .map(a => ({
           ...a,
-          name: action.payload.name,
-          pageId: action.payload.destinationPageId,
+          config: {
+            ...a.config,
+            name: action.payload.name,
+            pageId: action.payload.destinationPageId,
+          },
         })),
     ),
-  }),
   [ReduxActionTypes.COPY_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
-  ) => ({
-    ...state,
-    data: state.data.map(a => {
+  ): ActionDataState =>
+    state.map(a => {
       if (
-        a.pageId === action.payload.pageId &&
-        a.name === action.payload.name
+        a.config.pageId === action.payload.pageId &&
+        a.config.name === action.payload.name
       ) {
-        return action.payload;
+        return {
+          ...a,
+          config: action.payload,
+        };
       }
       return a;
     }),
-  }),
-
   [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<{
@@ -174,18 +225,16 @@ const actionsReducer = createReducer(initialState, {
       destinationPageId: string;
       name: string;
     }>,
-  ) => ({
-    ...state,
-    data: state.data.filter(a => {
-      if (a.pageId === action.payload.destinationPageId) {
-        if (a.id === action.payload.id) {
-          return a.name !== action.payload.name;
+  ): ActionDataState =>
+    state.filter(a => {
+      if (a.config.pageId === action.payload.destinationPageId) {
+        if (a.config.id === action.payload.id) {
+          return a.config.name !== action.payload.name;
         }
         return true;
       }
       return true;
     }),
-  }),
 });
 
 export default actionsReducer;

@@ -95,8 +95,8 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "3.3",
-            propertyName: "allowHtml",
-            label: "Allow HTML",
+            propertyName: "shouldScroll",
+            label: "Enable Scroll",
             controlType: "SWITCH",
           },
           {
@@ -389,18 +389,6 @@ const PropertyPaneConfigResponse = {
     ],
     TABLE_WIDGET: [
       {
-        sectionName: "Column Actions",
-        id: "13",
-        children: [
-          {
-            id: "13.1",
-            propertyName: "columnActions",
-            label: "Column Actions",
-            controlType: "COLUMN_ACTION_SELECTOR",
-          },
-        ],
-      },
-      {
         sectionName: "General",
         id: "11",
         children: [
@@ -418,18 +406,6 @@ const PropertyPaneConfigResponse = {
             inputType: "ARRAY",
           },
           {
-            id: "11.3",
-            propertyName: "nextPageKey",
-            label: "Next Pagination Key",
-            controlType: "INPUT_TEXT",
-          },
-          {
-            id: "11.4",
-            propertyName: "prevPageKey",
-            label: "Previous Pagination Key",
-            controlType: "INPUT_TEXT",
-          },
-          {
             id: "11.5",
             propertyName: "isVisible",
             label: "Visible",
@@ -442,13 +418,31 @@ const PropertyPaneConfigResponse = {
         id: "12",
         children: [
           {
+            id: "12.1",
+            propertyName: "columnActions",
+            label: "Table Actions",
+            controlType: "COLUMN_ACTION_SELECTOR",
+          },
+          {
             id: "12.2",
             propertyName: "onRowSelected",
             label: "onRowSelected",
             controlType: "ACTION_SELECTOR",
           },
+        ],
+      },
+      {
+        sectionName: "Pagination",
+        id: "19",
+        children: [
           {
-            id: "12.3",
+            id: "19.1",
+            propertyName: "serverSidePaginationEnabled",
+            label: "Server Side Pagination",
+            controlType: "SWITCH",
+          },
+          {
+            id: "19.2",
             propertyName: "onPageChange",
             label: "onPageChange",
             controlType: "ACTION_SELECTOR",
@@ -481,7 +475,8 @@ const PropertyPaneConfigResponse = {
             id: "13.4",
             propertyName: "options",
             label: "Options",
-            controlType: "OPTION_INPUT",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter [{label, value}]",
           },
           {
             id: "13.2",

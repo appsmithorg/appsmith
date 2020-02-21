@@ -30,8 +30,6 @@ import {
 } from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
-import { updateRouteParams } from "actions/routeParamsActions";
-import { RoutesParamsReducerState } from "reducers/uiReducers/routesParamsReducer";
 
 type EditorProps = {
   currentPageName?: string;
@@ -43,7 +41,6 @@ type EditorProps = {
   previewPage: Function;
   initEditor: Function;
   createPage: Function;
-  updateRouteParams: (params: RoutesParamsReducerState) => void;
   pages: PageListPayload;
   isPublishing: boolean;
   isEditorLoading: boolean;
@@ -65,7 +62,6 @@ class Editor extends Component<EditorProps> {
     }
   }
   componentDidUpdate(previously: EditorProps) {
-    this.props.updateRouteParams(this.props.match.params);
     if (
       previously.isPublishing &&
       !(this.props.isPublishing && this.props.errorPublishing)
@@ -196,8 +192,6 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       });
     },
-    updateRouteParams: (params: RoutesParamsReducerState) =>
-      dispatch(updateRouteParams(params)),
   };
 };
 

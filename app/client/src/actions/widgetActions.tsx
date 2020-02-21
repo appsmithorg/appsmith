@@ -1,34 +1,36 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { ActionPayload, PageAction } from "constants/ActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
+import {
+  ExecuteActionPayload,
+  ExecuteErrorPayload,
+  PageAction,
+} from "constants/ActionConstants";
 
 export const executeAction = (
-  actionPayloads?: ActionPayload[],
-): ReduxAction<ActionPayload[] | undefined> => {
+  payload: ExecuteActionPayload,
+): ReduxAction<ExecuteActionPayload> => {
   return {
     type: ReduxActionTypes.EXECUTE_ACTION,
-    payload: actionPayloads,
+    payload,
   };
 };
 
+export const executeActionError = (
+  executeErrorPayload: ExecuteErrorPayload,
+): ReduxAction<ExecuteErrorPayload> => ({
+  type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  payload: executeErrorPayload,
+});
+
 export const executePageLoadActions = (
-  payload: PageAction[],
-): ReduxAction<PageAction[]> => ({
+  payload: PageAction[][],
+): ReduxAction<PageAction[][]> => ({
   type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
   payload,
 });
-
-export const loadingAction = (
-  areLoading: boolean,
-  widgetIds: string[],
-): ReduxAction<WidgetLoadingState> => {
-  return {
-    type: ReduxActionTypes.LOADING_ACTION,
-    payload: {
-      areLoading: areLoading,
-      widgetIds: widgetIds,
-    },
-  };
-};
 
 export const disableDragAction = (
   disable: boolean,

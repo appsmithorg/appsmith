@@ -1,17 +1,30 @@
-import { AlertType, MessageIntent } from "widgets/AlertWidget";
-import { DropdownOption } from "widgets/DropdownWidget";
+export type ExecuteActionPayload = {
+  dynamicString: string;
+  event: {
+    type: EventType;
+  };
+  responseData?: any;
+};
 
-export type EventType =
-  | "ON_CLICK"
-  | "ON_HOVER"
-  | "ON_TOGGLE"
-  | "ON_LOAD"
-  | "ON_TEXT_CHANGE"
-  | "ON_SUBMIT"
-  | "ON_CHECK_CHANGE"
-  | "ON_SELECT"
-  | "ON_DATE_SELECTED"
-  | "ON_DATE_RANGE_SELECTED";
+export enum EventType {
+  ON_PAGE_LOAD = "ON_PAGE_LOAD",
+  ON_PREV_PAGE = "ON_PREV_PAGE",
+  ON_NEXT_PAGE = "ON_NEXT_PAGE",
+  ON_ERROR = "ON_ERROR",
+  ON_SUCCESS = "ON_SUCCESS",
+  ON_ROW_SELECTED = "ON_ROW_SELECTED",
+  ON_CLICK = "ON_CLICK",
+  ON_HOVER = "ON_HOVER",
+  ON_TOGGLE = "ON_TOGGLE",
+  ON_LOAD = "ON_LOAD",
+  ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
+  ON_SUBMIT = "ON_SUBMIT",
+  ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
+  ON_SELECT = "ON_SELECT",
+  ON_DATE_SELECTED = "ON_DATE_SELECTED",
+  ON_DATE_RANGE_SELECTED = "ON_DATE_RANGE_SELECTED",
+  ON_OPTION_CHANGE = "ON_OPTION_CHANGE",
+}
 
 export type ActionType =
   | "API"
@@ -22,59 +35,7 @@ export type ActionType =
   | "SET_VALUE"
   | "DOWNLOAD";
 
-export const PropertyPaneActionDropdownOptions: DropdownOption[] = [
-  { label: "Call API", value: "API", id: "API" },
-  // { label: "Run Query", value: "QUERY" },
-];
-
-export interface BaseActionPayload {
-  actionId: string;
-  actionType: ActionType;
-  contextParams: Record<string, string>;
-  onSuccess?: ActionPayload[];
-  onError?: ActionPayload[];
-}
-
-export type ActionPayload =
-  | NavigateActionPayload
-  | SetValueActionPayload
-  | ExecuteJSActionPayload
-  | DownloadDataActionPayload
-  | TableAction;
-
-export type NavigationType = "NEW_TAB" | "INLINE";
-
-export interface NavigateActionPayload extends BaseActionPayload {
-  pageUrl: string;
-  navigationType: NavigationType;
-}
-
-export interface ShowAlertActionPayload extends BaseActionPayload {
-  header: string;
-  message: string;
-  alertType: AlertType;
-  intent: MessageIntent;
-}
-
-export interface SetValueActionPayload extends BaseActionPayload {
-  header: string;
-  message: string;
-  alertType: AlertType;
-  intent: MessageIntent;
-}
-
-export interface ExecuteJSActionPayload extends BaseActionPayload {
-  jsFunctionId: string;
-  jsFunction: string;
-}
-
 export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT";
-
-export interface DownloadDataActionPayload extends BaseActionPayload {
-  data: JSON;
-  fileName: string;
-  fileType: DownloadFiletype;
-}
 
 export interface PageAction {
   id: string;
@@ -83,6 +44,7 @@ export interface PageAction {
   jsonPathKeys: string[];
 }
 
-export interface TableAction extends BaseActionPayload {
-  actionName: string;
+export interface ExecuteErrorPayload {
+  actionId: string;
+  error: any;
 }

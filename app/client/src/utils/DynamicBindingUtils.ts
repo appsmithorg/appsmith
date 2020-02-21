@@ -2,10 +2,17 @@ import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
-import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
+import JSExecutionManagerSingleton, {
+  JSExecutorResult,
+} from "jsExecution/JSExecutionManagerSingleton";
 import unescapeJS from "unescape-js";
-import { NameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
 import toposort from "toposort";
+import {
+  DataTree,
+  DataTreeAction,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
@@ -99,12 +106,18 @@ export const getDynamicBindings = (
 };
 
 // Paths are expected to have "{name}.{path}" signature
+// Also returns any action triggers found after evaluating value
 export const evaluateDynamicBoundValue = (
-  data: NameBindingsWithData,
+  data: DataTree,
   path: string,
-): any => {
+  callbackData?: any,
+): JSExecutorResult => {
   const unescapedInput = unescapeJS(path);
-  return JSExecutionManagerSingleton.evaluateSync(unescapedInput, data);
+  return JSExecutionManagerSingleton.evaluateSync(
+    unescapedInput,
+    data,
+    callbackData,
+  );
 };
 
 // For creating a final value where bindings could be in a template format
@@ -127,26 +140,40 @@ export const createDynamicValueString = (
 
 export const getDynamicValue = (
   dynamicBinding: string,
-  data: NameBindingsWithData,
-): any => {
+  data: DataTree,
+  callBackData?: any,
+  includeTriggers = false,
+): JSExecutorResult => {
   // Get the {{binding}} bound values
   const { bindings, paths } = getDynamicBindings(dynamicBinding);
   if (bindings.length) {
     // Get the Data Tree value of those "binding "paths
     const values = paths.map((p, i) => {
       if (p) {
-        return evaluateDynamicBoundValue(data, p);
+        const result = evaluateDynamicBoundValue(data, p, callBackData);
+        if (includeTriggers) {
+          return result;
+        } else {
+          return { result: result.result };
+        }
       } else {
-        return bindings[i];
+        return { result: bindings[i], triggers: [] };
       }
     });
 
     // if it is just one binding, no need to create template string
     if (bindings.length === 1) return values[0];
     // else return a string template with bindings
-    return createDynamicValueString(dynamicBinding, bindings, values);
+    const templateString = createDynamicValueString(
+      dynamicBinding,
+      bindings,
+      values.map(v => v.result),
+    );
+    return {
+      result: templateString,
+    };
   }
-  return undefined;
+  return { result: undefined, triggers: [] };
 };
 
 export const enhanceWidgetWithValidations = (
@@ -198,7 +225,7 @@ export const getParsedTree = (tree: any) => {
 };
 
 export const getEvaluatedDataTree = (
-  dataTree: NameBindingsWithData,
+  dataTree: DataTree,
   parseValues: boolean,
 ) => {
   const dynamicDependencyMap = createDependencyTree(dataTree);
@@ -207,16 +234,17 @@ export const getEvaluatedDataTree = (
     dynamicDependencyMap,
     parseValues,
   );
+  const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
   if (parseValues) {
-    return getParsedTree(evaluatedTree);
+    return getParsedTree(treeWithLoading);
   } else {
-    return evaluatedTree;
+    return treeWithLoading;
   }
 };
 
 type DynamicDependencyMap = Record<string, Array<string>>;
 export const createDependencyTree = (
-  dataTree: NameBindingsWithData,
+  dataTree: DataTree,
 ): Array<[string, string]> => {
   const dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
@@ -236,7 +264,12 @@ export const createDependencyTree = (
   });
   const dependencyTree: Array<[string, string]> = [];
   Object.keys(dependencyMap).forEach((key: string) => {
-    dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+    if (dependencyMap[key].length) {
+      dependencyMap[key].forEach(dep => dependencyTree.push([key, dep]));
+    } else {
+      // Set no dependency
+      dependencyTree.push([key, ""]);
+    }
   });
   return dependencyTree;
 };
@@ -268,40 +301,97 @@ const calculateSubDependencies = (
   return subDeps;
 };
 
+export const setTreeLoading = (
+  dataTree: DataTree,
+  dependencyMap: Array<[string, string]>,
+) => {
+  const result = _.cloneDeep(dataTree);
+  Object.keys(dataTree)
+    .filter(e => {
+      const entity = dataTree[e] as DataTreeAction;
+      return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION && entity.isLoading;
+    })
+    .reduce(
+      (allEntities: string[], curr) =>
+        allEntities.concat(getEntityDependencies(dependencyMap, curr)),
+      [],
+    )
+    .forEach(w => {
+      const entity = result[w] as DataTreeWidget;
+      entity.isLoading = true;
+    });
+  return result;
+};
+
+export const getEntityDependencies = (
+  dependencyMap: Array<[string, string]>,
+  entity: string,
+): Array<string> => {
+  const entityDeps: Record<string, string[]> = dependencyMap
+    .map(d => [d[1].split(".")[0], d[0].split(".")[0]])
+    .filter(d => d[0] !== d[1])
+    .reduce((deps: Record<string, string[]>, dep) => {
+      const key: string = dep[0];
+      const value: string = dep[1];
+      return {
+        ...deps,
+        [key]: deps[key] ? deps[key].concat(value) : [value],
+      };
+    }, {});
+
+  if (entity in entityDeps) {
+    const recFind = (
+      keys: Array<string>,
+      deps: Record<string, string[]>,
+    ): Array<string> => {
+      let allDeps: string[] = [];
+      keys.forEach(e => {
+        allDeps = allDeps.concat([e]);
+        if (e in deps) {
+          allDeps = allDeps.concat([...recFind(deps[e], deps)]);
+        }
+      });
+      return allDeps;
+    };
+    return recFind(entityDeps[entity], entityDeps);
+  }
+  return [];
+};
+
 export function dependencySortedEvaluateDataTree(
-  dataTree: NameBindingsWithData,
+  dataTree: DataTree,
   dependencyTree: Array<[string, string]>,
   parseValues: boolean,
-) {
+): DataTree {
   const tree = _.cloneDeep(dataTree);
   try {
-    // sort dependencies
-    const sortedDependencies = toposort(dependencyTree).reverse();
+    // sort dependencies and remove empty dependencies
+    const sortedDependencies = toposort(dependencyTree)
+      .reverse()
+      .filter(d => !!d);
     // evaluate and replace values
-    return sortedDependencies.reduce(
-      (currentTree: NameBindingsWithData, path: string) => {
-        const binding = _.get(currentTree as any, path);
-        const widgetType = _.get(
-          currentTree as any,
-          `${path.split(".")[0]}.type`,
-          null,
+    return sortedDependencies.reduce((currentTree: DataTree, path: string) => {
+      const binding = _.get(currentTree as any, path);
+      const widgetType = _.get(
+        currentTree as any,
+        `${path.split(".")[0]}.type`,
+        null,
+      );
+      let result = binding;
+      if (isDynamicValue(binding)) {
+        const dynamicResult = getDynamicValue(binding, currentTree);
+        result = dynamicResult.result;
+      }
+      if (widgetType && parseValues) {
+        const { parsed } = ValidationFactory.validateWidgetProperty(
+          widgetType,
+          `${path.split(".")[1]}`,
+          result,
         );
-        let result = binding;
-        if (isDynamicValue(binding)) {
-          result = getDynamicValue(binding, currentTree);
-        }
-        if (widgetType && parseValues) {
-          const { parsed } = ValidationFactory.validateWidgetProperty(
-            widgetType,
-            `${path.split(".")[1]}`,
-            result,
-          );
-          result = parsed;
-        }
-        return _.set(currentTree, path, result);
-      },
-      tree,
-    );
+        result = parsed;
+      }
+      return _.set(currentTree, path, result);
+    }, tree);
   } catch (e) {
     console.error(e);
     return tree;

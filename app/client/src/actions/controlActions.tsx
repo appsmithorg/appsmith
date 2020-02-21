@@ -24,4 +24,5 @@ export interface UpdateWidgetPropertyPayload {
   propertyValue: any;
   renderMode: RenderMode;
   dynamicBindings?: Record<string, boolean>;
+  dynamicTriggers?: Record<string, true>;
 }

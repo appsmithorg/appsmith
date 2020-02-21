@@ -10,7 +10,7 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { labelStyle } from "constants/DefaultTheme";
+import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -24,15 +24,25 @@ const StyledControlGroup = styled(ControlGroup)`
   }
 `;
 
-const StyledRadioGroup = styled(RadioGroup)``;
+const StyledRadioGroup = styled(RadioGroup)`
+  ${BlueprintControlTransform};
+`;
 
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
   render() {
     return (
       <StyledControlGroup fill>
-        <Label className={Classes.TEXT_OVERFLOW_ELLIPSIS}>
-          {this.props.label}
-        </Label>
+        {this.props.label && (
+          <Label
+            className={
+              this.props.isLoading
+                ? Classes.SKELETON
+                : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }
+          >
+            {this.props.label}
+          </Label>
+        )}
         <StyledRadioGroup
           selectedValue={this.props.selectedOptionValue}
           onChange={this.onRadioSelectionChange}

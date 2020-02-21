@@ -10,7 +10,7 @@ export interface ComponentProps {
   widgetId: string;
   widgetName?: string;
   isDisabled?: boolean;
-  isVisibile?: boolean;
+  isVisible?: boolean;
   backgroundColor?: Color;
 }
 

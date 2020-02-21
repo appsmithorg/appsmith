@@ -7,7 +7,7 @@ export const mockExecute = jest.fn().mockImplementation((src, data) => {
   });
   finalSource = finalSource.substring(0, finalSource.length - 2) + ";";
   finalSource += src;
-  return eval(finalSource);
+  return { result: eval(finalSource), triggers: [] };
 });
 
 export const mockRegisterLibrary = jest.fn();

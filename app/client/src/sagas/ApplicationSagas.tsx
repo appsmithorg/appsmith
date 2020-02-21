@@ -126,6 +126,9 @@ export function* deleteApplicationSaga(
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
+        payload: {
+          applicationId: action.payload.applicationId,
+        },
       });
     }
   } catch (error) {
@@ -191,7 +194,7 @@ export function* createApplicationSaga(
         );
         history.push(pageURL);
       } else {
-        yield call(reject, { _error: "Could not create application" });
+        yield call(reject);
       }
     }
   } catch (error) {

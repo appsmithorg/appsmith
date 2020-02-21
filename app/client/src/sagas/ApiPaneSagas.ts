@@ -17,6 +17,10 @@ import {
   API_EDITOR_URL,
   APPLICATIONS_URL,
 } from "constants/routes";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { destroy, initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
@@ -35,11 +39,10 @@ const getApiDraft = (state: AppState, id: string) => {
   return {};
 };
 
-const getActions = (state: AppState) => state.entities.actions.data;
+const getActions = (state: AppState) =>
+  state.entities.actions.map(a => a.config);
 
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
-
-const getRouterParams = (state: AppState) => state.ui.routesParams;
 
 function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   let actions = yield select(getActions);
@@ -112,7 +115,9 @@ function* syncApiParamsSaga(
 
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const { applicationId, pageId } = yield select(getRouterParams);
+
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;
@@ -214,7 +219,8 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const action = yield select(getAction, id);
   const data = { ...action };
   yield put(initialize(API_EDITOR_FORM_NAME, data));
-  const { applicationId, pageId } = yield select(getRouterParams);
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
 }
 
@@ -230,7 +236,8 @@ function* handleActionUpdatedSaga(
 
 function* handleActionDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const { applicationId, pageId } = yield select(getRouterParams);
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   history.push(API_EDITOR_URL(applicationId, pageId));
   yield put({
     type: ReduxActionTypes.DELETE_API_DRAFT,

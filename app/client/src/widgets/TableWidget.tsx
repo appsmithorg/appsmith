@@ -1,7 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload, TableAction } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { forIn } from "lodash";
 import TableComponent from "components/designSystems/syncfusion/TableComponent";
 
@@ -10,6 +10,7 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
   const cols: ColumnModel[] | ColumnDirTypecast[] = [];
@@ -42,9 +43,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onRowSelected: true,
+      onPageChange: true,
+      columnActions: true,
+    };
+  }
+
   getPageView() {
     const { tableData } = this.props;
     const columns = constructColumns(tableData);
+
+    const serverSidePaginationEnabled = (this.props
+      .serverSidePaginationEnabled &&
+      this.props.serverSidePaginationEnabled) as boolean;
+    let pageNo = this.props.pageNo;
+
+    if (pageNo === undefined) {
+      pageNo = 1;
+      super.updateWidgetMetaProperty("pageNo", pageNo);
+    }
     return (
       <TableComponent
         data={this.props.tableData}
@@ -57,43 +76,77 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }}
         columnActions={this.props.columnActions}
         onCommandClick={this.onCommandClick}
-        onRowClick={(rowData: object, index: number) => {
-          const { onRowSelected } = this.props;
-          this.updateSelectedRowProperty(index);
-
-          super.executeAction(onRowSelected);
+        onRowClick={this.handleRowClick}
+        serverSidePaginationEnabled={serverSidePaginationEnabled}
+        pageNo={pageNo}
+        nextPageClick={this.handleNextPageClick}
+        prevPageClick={this.handlePrevPageClick}
+        updatePageNo={(pageNo: number) => {
+          super.updateWidgetMetaProperty("pageNo", pageNo);
+        }}
+        updatePageSize={(pageSize: number) => {
+          super.updateWidgetMetaProperty("pageSize", pageSize);
         }}
       />
     );
   }
 
-  // componentDidUpdate(prevProps: TableWidgetProps) {
-  //   super.componentDidUpdate(prevProps);
-  //   if (
-  //     !_.isEqual(prevProps.tableData, this.props.tableData) &&
-  //     prevProps.selectedRow
-  //   ) {
-  //     this.updateSelectedRowProperty(
-  //       this.props.tableData[prevProps.selectedRow.rowIndex],
-  //       prevProps.selectedRow.rowIndex,
-  //     );
-  //   }
-  // }
-  onCommandClick = (actions: ActionPayload[]) => {
-    super.executeAction(actions);
+  onCommandClick = (action: string) => {
+    super.executeAction({
+      dynamicString: action,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
   };
 
-  updateSelectedRowProperty(index: number) {
-    const { widgetId } = this.props;
-    this.updateWidgetProperty(widgetId, "selectedRowIndex", index);
-  }
+  handleRowClick = (rowData: object, index: number) => {
+    const { onRowSelected } = this.props;
+    super.updateWidgetProperty("selectedRowIndex", index);
+    if (onRowSelected) {
+      super.executeAction({
+        dynamicString: onRowSelected,
+        event: {
+          type: EventType.ON_ROW_SELECTED,
+        },
+      });
+    }
+  };
+
+  handleNextPageClick = () => {
+    let pageNo = this.props.pageNo || 1;
+    pageNo = pageNo + 1;
+    super.updateWidgetMetaProperty("pageNo", pageNo);
+    if (this.props.onPageChange) {
+      super.executeAction({
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_NEXT_PAGE,
+        },
+      });
+    }
+  };
+
+  handlePrevPageClick = () => {
+    let pageNo = this.props.pageNo || 1;
+    pageNo = pageNo - 1;
+    if (pageNo >= 1) {
+      super.updateWidgetMetaProperty("pageNo", pageNo);
+      if (this.props.onPageChange) {
+        super.executeAction({
+          dynamicString: this.props.onPageChange,
+          event: {
+            type: EventType.ON_PREV_PAGE,
+          },
+        });
+      }
+    }
+  };
 
   getWidgetType(): WidgetType {
     return "TABLE_WIDGET";
   }
 }
-
-export type PaginationType = "PAGES" | "INFINITE_SCROLL";
 
 type RowData = {
   rowIndex: number;
@@ -105,11 +158,11 @@ export interface TableWidgetProps extends WidgetProps {
   prevPageKey?: string;
   label: string;
   tableData: object[];
-  recordActions?: TableAction[];
-  onPageChange?: ActionPayload[];
-  onRowSelected?: ActionPayload[];
+  onPageChange?: string;
+  onRowSelected?: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
+  serverSidePaginationEnabled?: boolean;
 }
 
 export default TableWidget;

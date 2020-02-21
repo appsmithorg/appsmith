@@ -3,6 +3,7 @@ import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
 import _ from "lodash";
+import { Classes } from "@blueprintjs/core";
 
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
@@ -25,6 +26,72 @@ export const IntentColors: Record<string, Color> = {
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
 
+export const BlueprintControlTransform = css`
+  && {
+    .${Classes.CONTROL} {
+      & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${props => props.theme.colors.primary};
+        box-shadow: none;
+        border: 2px solid ${props => props.theme.colors.primary};
+      }
+      & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
+        box-shadow: none;
+        background: none;
+        border: 2px solid ${Colors.SLATE_GRAY};
+      }
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        box-shadow: none;
+        background: none;
+        border: 2px solid ${Colors.SLATE_GRAY};
+      }
+      &:hover .${Classes.CONTROL_INDICATOR} {
+        box-shadow: none;
+        background: none;
+        border: 2px solid ${Colors.SLATE_GRAY};
+      }
+    }
+    .${Classes.CONTROL_INDICATOR} {
+      box-shadow: none;
+      background: none;
+      border: 2px solid ${Colors.SLATE_GRAY};
+      &::before {
+        position: absolute;
+        left: -2px;
+        top: -2px;
+      }
+    }
+  }
+`;
+
+export const invisible = css`
+  && > * {
+    opacity: 0.6;
+  }
+`;
+
+export const BlueprintCSSTransform = css`
+  &&&& {
+    .${Classes.BUTTON} {
+      box-shadow: none;
+      border-radius: 4px;
+      background: none;
+      border: 1px solid ${Colors.GEYSER};
+    }
+    .${Classes.INTENT_PRIMARY} {
+      background: ${IntentColors.primary};
+    }
+    .${Classes.INTENT_SUCCESS} {
+      background: ${IntentColors.success};
+    }
+    .${Classes.INTENT_DANGER} {
+      background: ${IntentColors.danger};
+    }
+    .${Classes.INTENT_WARNING} {
+      background: ${IntentColors.warning};
+    }
+  }
+`;
+
 export const darken = (color: Color, intensity: number) => {
   return new tinycolor(color).darken(intensity).toString();
 };
@@ -37,7 +104,7 @@ export const darkenActive = (color: Color) => {
   return darken(color, 16);
 };
 
-const getHoverAndActiveStyles = (color: Color, filled = true) => {
+const getButtonHoverAndActiveStyles = (color: Color, filled = true) => {
   return css`
     background: ${color};
     border-color: ${filled ? color : "auto"};
@@ -56,7 +123,7 @@ const getHoverAndActiveStyles = (color: Color, filled = true) => {
 };
 
 export const BlueprintButtonIntentsCSS = css`
-  &&.bp3-button {
+  &&.${Classes.BUTTON} {
     box-shadow: none;
     display: flex;
     border-width: 1px;
@@ -73,53 +140,67 @@ export const BlueprintButtonIntentsCSS = css`
     }
     background: ${Colors.WHITE};
   }
-  &&&.bp3-button.bp3-intent-primary:not(.bp3-minimal) {
+  &&&.${Classes.BUTTON}.${Classes.INTENT_PRIMARY}:not(.${Classes.MINIMAL}) {
     background: ${IntentColors.primary};
-    ${getHoverAndActiveStyles(IntentColors.primary)}
+    ${getButtonHoverAndActiveStyles(IntentColors.primary)}
   }
-  &&&.bp3-button.bp3-intent-secondary:not(.bp3-minimal) {
+  &&&.${Classes.BUTTON}.bp3-intent-secondary:not(.${Classes.MINIMAL}) {
     background: ${IntentColors.secondary};
-    ${getHoverAndActiveStyles(IntentColors.secondary)}
+    ${getButtonHoverAndActiveStyles(IntentColors.secondary)}
   }
-  &&&.bp3-button.bp3-intent-danger:not(.bp3-minimal) {
+  &&&.${Classes.BUTTON}.${Classes.INTENT_DANGER}:not(.${Classes.MINIMAL}) {
     background: ${IntentColors.danger};
-    ${getHoverAndActiveStyles(IntentColors.danger)}
+    ${getButtonHoverAndActiveStyles(IntentColors.danger)}
   }
-  &&&.bp3-button.bp3-intent-success:not(.bp3-minimal) {
+  &&&.${Classes.BUTTON}.${Classes.INTENT_SUCCESS}:not(.${Classes.MINIMAL}) {
     background: ${IntentColors.success};
-    ${getHoverAndActiveStyles(IntentColors.success)}
+    ${getButtonHoverAndActiveStyles(IntentColors.success)}
   }
-  &&&.bp3-button.bp3-intent-warning:not(.bp3-minimal) {
+  &&&.${Classes.BUTTON}.${Classes.INTENT_WARNING}:not(.${Classes.MINIMAL}) {
     background: ${IntentColors.warning};
-    ${getHoverAndActiveStyles(IntentColors.warning)}
+    ${getButtonHoverAndActiveStyles(IntentColors.warning)}
   }
 
-  &&.bp3-minimal.bp3-button {
+  &&.${Classes.MINIMAL}.${Classes.BUTTON} {
     border: none;
     border-color: ${IntentColors.none};
     & span.bp3-icon {
       color: ${IntentColors.none};
     }
   }
-  &&&.bp3-minimal.bp3-intent-primary {
+  &&&.${Classes.MINIMAL}.${Classes.INTENT_PRIMARY} {
     color: ${IntentColors.primary};
     border-color: ${IntentColors.primary};
   }
-  &&&.bp3-minimal.bp3-intent-secondary {
+  &&&.${Classes.MINIMAL}.bp3-intent-secondary {
     color: ${IntentColors.secondary};
     border-color: ${IntentColors.secondary};
   }
-  &&&.bp3-minimal.bp3-intent-danger {
+  &&&.${Classes.MINIMAL}.${Classes.INTENT_DANGER} {
     color: ${IntentColors.danger};
     border-color: ${IntentColors.danger};
   }
-  &&&.bp3-minimal.bp3-intent-warning {
+  &&&.${Classes.MINIMAL}.${Classes.INTENT_WARNING} {
     color: ${IntentColors.warning};
     border-color: ${IntentColors.warning};
   }
-  &&&.bp3-minimal.bp3-intent-success {
+  &&&.${Classes.MINIMAL}.${Classes.INTENT_SUCCESS} {
     color: ${IntentColors.success};
     border-color: ${IntentColors.success};
+  }
+`;
+
+export const BlueprintInputTransform = css`
+  && {
+    .${Classes.INPUT} {
+      border-radius: ${props => props.theme.radii[1]}px;
+      box-shadow: none;
+      border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+      &:focus {
+        border: ${props => getBorderCSSShorthand(props.theme.borders[2])};
+        box-shadow: none;
+      }
+    }
   }
 `;
 
@@ -179,6 +260,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  alert: Record<string, { color: Color }>;
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -317,6 +399,20 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  alert: {
+    info: {
+      color: Colors.AZURE_RADIANCE,
+    },
+    success: {
+      color: Colors.OCEAN_GREEN,
+    },
+    error: {
+      color: Colors.RED,
+    },
+    warning: {
+      color: Colors.BUTTER_CUP,
+    },
+  },
 };
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };

@@ -3,18 +3,19 @@ import {
   mockExecute,
   mockRegisterLibrary,
 } from "../../test/__mocks__/RealmExecutorMock";
+import {
+  dependencySortedEvaluateDataTree,
+  getDynamicValue,
+  getEntityDependencies,
+  parseDynamicString,
+} from "./DynamicBindingUtils";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
 jest.mock("jsExecution/RealmExecutor", () => {
   return jest.fn().mockImplementation(() => {
     return { execute: mockExecute, registerLibrary: mockRegisterLibrary };
   });
 });
-import {
-  dependencySortedEvaluateDataTree,
-  getDynamicValue,
-  parseDynamicString,
-} from "./DynamicBindingUtils";
-import { getNameBindingsWithData } from "selectors/nameBindingsWithDataSelector";
-import { AppState, DataTree } from "reducers";
 
 beforeAll(() => {
   mockRegisterLibrary.mockClear();
@@ -23,36 +24,24 @@ beforeAll(() => {
 
 it("Gets the value from the data tree", () => {
   const dynamicBinding = "{{GetUsers.data}}";
-  const dataTree: Partial<DataTree> = {
-    apiData: {
-      id: {
-        body: {
-          data: "correct data",
-        },
-        headers: {},
-        statusCode: "0",
-        duration: "0",
-        size: "0",
+  const nameBindingsWithData: DataTree = {
+    GetUsers: {
+      data: { text: "correct data" },
+      config: {
+        id: "id",
+        name: "text",
+        actionConfiguration: {},
+        pageId: "",
+        jsonPathKeys: [],
+        datasource: { id: "" },
+        pluginType: "1",
       },
-      someOtherId: {
-        body: {
-          data: "wrong data",
-        },
-        headers: {},
-        statusCode: "0",
-        duration: "0",
-        size: "0",
-      },
-    },
-    nameBindings: {
-      GetUsers: "$.apiData.id.body",
+      isLoading: false,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      run: jest.fn(),
     },
   };
-  const appState: Partial<AppState> = {
-    entities: dataTree as DataTree,
-  };
-  const nameBindingsWithData = getNameBindingsWithData(appState as AppState);
-  const actualValue = "correct data";
+  const actualValue = { result: { text: "correct data" } };
 
   const value = getDynamicValue(dynamicBinding, nameBindingsWithData);
 
@@ -86,44 +75,6 @@ describe.each([
   test(`returns ${expected}`, () => {
     expect(parseDynamicString(dynamicString as string)).toStrictEqual(expected);
   });
-});
-
-it("Parse the dynamic string", () => {
-  const dynamicBinding = "{{GetUsers.data}}";
-  const dataTree: Partial<DataTree> = {
-    apiData: {
-      id: {
-        body: {
-          data: "correct data",
-        },
-        headers: {},
-        statusCode: "0",
-        duration: "0",
-        size: "0",
-      },
-      someOtherId: {
-        body: {
-          data: "wrong data",
-        },
-        headers: {},
-        statusCode: "0",
-        duration: "0",
-        size: "0",
-      },
-    },
-    nameBindings: {
-      GetUsers: "$.apiData.id.body",
-    },
-  };
-  const appState: Partial<AppState> = {
-    entities: dataTree as DataTree,
-  };
-  const nameBindingsWithData = getNameBindingsWithData(appState as AppState);
-  const actualValue = "correct data";
-
-  const value = getDynamicValue(dynamicBinding, nameBindingsWithData);
-
-  expect(value).toEqual(actualValue);
 });
 
 it("evaluates the data tree", () => {
@@ -162,6 +113,22 @@ it("evaluates the data tree", () => {
     },
   };
 
-  const result = dependencySortedEvaluateDataTree(input, dynamicBindings);
+  const result = dependencySortedEvaluateDataTree(input, dynamicBindings, true);
   expect(result).toEqual(output);
+});
+
+it("finds dependencies of a entity", () => {
+  const depMap: Array<[string, string]> = [
+    ["Widget5.text", "Widget2.data.visible"],
+    ["Widget1.options", "Action1.data"],
+    ["Widget2.text", "Widget1.selectedOption"],
+    ["Widget3.text", "Widget4.selectedRow.name"],
+    ["Widget6.label", "Action1.data.label"],
+  ];
+  const entity = "Action1";
+  const result = ["Widget1", "Widget2", "Widget5", "Widget6"];
+
+  const actual = getEntityDependencies(depMap, entity);
+
+  expect(actual).toEqual(result);
 });

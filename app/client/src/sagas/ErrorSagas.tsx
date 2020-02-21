@@ -1,15 +1,15 @@
 import _ from "lodash";
-import { Intent } from "@blueprintjs/core";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import AppToaster from "components/editorComponents/ToastComponent";
+import { AppToaster } from "components/editorComponents/ToastComponent";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest, call } from "redux-saga/effects";
 import { ERROR_500 } from "constants/messages";
+import { ToastType } from "react-toastify";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
@@ -48,7 +48,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = object | { message: string };
+type ErrorPayloadType = { message?: string };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -79,8 +79,8 @@ export function* errorSaga(
     type,
     payload: { error, show = true },
   } = errorAction;
-  const message = ActionErrorDisplayMap[type](error);
-  if (show) AppToaster.show({ message, intent: Intent.DANGER });
+  const message = error.message || ActionErrorDisplayMap[type](error);
+  if (show) AppToaster.show({ message, type: ToastType.ERROR });
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {

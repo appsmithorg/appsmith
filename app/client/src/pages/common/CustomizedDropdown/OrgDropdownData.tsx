@@ -3,42 +3,53 @@ import Badge from "./Badge";
 import { Directions } from "utils/helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import { CustomizedDropdownProps } from "./index";
-
+import DropdownComponent, { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import history from "utils/history";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 
-// const switchdropdown = (orgs: Org[]): CustomizedDropdownProps => ({
-//   sections: [
-//     {
-//       isSticky: true,
-//       options: [
-//         {
-//           content: "Create Organization",
-//           onSelect: () => getOnSelectAction(DropdownOnSelectActions.FORM, {}),
-//         },
-//       ],
-//     },
-//     {
-//       options: orgs.map(org => ({
-//         content: org.name,
-//         onSelect: () =>
-//           getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-//             type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
-//             payload: {
-//               organizationId: org.id,
-//             },
-//           }),
-//       })),
-//     },
-//   ],
-//   trigger: {
-//     text: "Switch Organization",
-//   },
-//   openDirection: Directions.RIGHT,
-//   openOnHover: false,
-// });
+const switchdropdown = (
+  orgs: Org[],
+  currentOrg: Org,
+): CustomizedDropdownProps => ({
+  sections: [
+    {
+      isSticky: true,
+      options: [
+        {
+          content: (
+            <FormDialogComponent
+              trigger="Create Organization"
+              Form={CreateOrganizationForm}
+              title="Create Organization"
+            />
+          ),
+          shouldCloseDropdown: false,
+        },
+      ],
+    },
+    {
+      options: orgs
+        .filter(org => org.id !== currentOrg.id)
+        .map(org => ({
+          content: org.name,
+          onSelect: () =>
+            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+              type: ReduxActionTypes.SWITCH_ORGANIZATION_INIT,
+              payload: {
+                orgId: org.id,
+              },
+            }),
+        })),
+    },
+  ],
+  trigger: {
+    text: "Switch Organization",
+  },
+  openDirection: Directions.RIGHT,
+  openOnHover: true,
+});
 
 export const options = (
   orgs: Org[],
@@ -64,7 +75,6 @@ export const options = (
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: "/org/settings",
             }),
-          active: history.location.pathname === "/org/settings",
         },
         {
           content: "Applications",
@@ -72,15 +82,17 @@ export const options = (
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: "/applications",
             }),
-          active: history.location.pathname === "/applications",
         },
         {
           content: "Members",
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/org/users",
+              path: "/users",
             }),
-          active: history.location.pathname === "/org/users",
+        },
+        {
+          content: <DropdownComponent {...switchdropdown(orgs, currentOrg)} />,
+          shouldCloseDropdown: false,
         },
       ],
     },

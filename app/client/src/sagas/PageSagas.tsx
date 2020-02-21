@@ -32,6 +32,7 @@ import {
   takeLatest,
   takeEvery,
   all,
+  debounce,
 } from "redux-saga/effects";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -79,9 +80,10 @@ export function* fetchPageListSaga(
 
 const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
+  canvasWidth?: number,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-    extractCurrentDSL(pageResponse),
+    extractCurrentDSL(pageResponse, canvasWidth),
   );
   return {
     pageWidgetId: normalizedResponse.result,
@@ -95,18 +97,20 @@ const getCanvasWidgetsPayload = (
 };
 
 export function* fetchPageSaga(
-  pageRequestAction: ReduxAction<FetchPageRequest>,
+  pageRequestAction: ReduxAction<FetchPageRequest & { canvasWidth?: number }>,
 ) {
   try {
-    const pageRequest = pageRequestAction.payload;
-    const fetchPageResponse: FetchPageResponse = yield call(
-      PageApi.fetchPage,
-      pageRequest,
-    );
+    const { pageId, canvasWidth } = pageRequestAction.payload;
+    const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
+      pageId,
+    });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(
+        fetchPageResponse,
+        canvasWidth,
+      );
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       // Update the canvas
@@ -125,10 +129,10 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<{ pageId: string }>,
+  pageRequestAction: ReduxAction<{ pageId: string; canvasWidth?: number }>,
 ) {
   try {
-    const { pageId } = pageRequestAction.payload;
+    const { pageId, canvasWidth } = pageRequestAction.payload;
     const request: FetchPublishedPageRequest = {
       pageId,
     };
@@ -138,7 +142,10 @@ export function* fetchPublishedPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(
+        response,
+        canvasWidth,
+      );
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       yield put(updateCanvas(canvasWidgetsPayload));
@@ -162,7 +169,7 @@ export function* fetchPublishedPageSaga(
   }
 }
 
-export function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
+function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
   const savePageRequest = savePageAction.payload;
   try {
     const savePageResponse: SavePageResponse = yield call(
@@ -300,7 +307,6 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       fetchPublishedPageSaga,
     ),
-    takeLatest(ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
@@ -310,5 +316,6 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
+    debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
   ]);
 }

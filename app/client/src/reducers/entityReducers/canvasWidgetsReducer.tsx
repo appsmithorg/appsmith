@@ -7,7 +7,6 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { WidgetLoadingState } from "actions/widgetActions";
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -28,19 +27,6 @@ const canvasWidgetsReducer = createReducer(initialState, {
   ) => {
     return { ...action.payload.widgets };
   },
-  [ReduxActionTypes.WIDGETS_LOADING]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<WidgetLoadingState>,
-  ) => {
-    const finalState = { ...state };
-    action.payload.widgetIds.forEach(widgetId => {
-      const widget = state[widgetId];
-      widget.isLoading = action.payload.areLoading;
-      finalState[widgetId] = widget;
-    });
-
-    return finalState;
-  },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetPropertyPayload>,
@@ -52,6 +38,7 @@ const canvasWidgetsReducer = createReducer(initialState, {
         ...widget,
         [action.payload.propertyName]: action.payload.propertyValue,
         dynamicBindings: action.payload.dynamicBindings,
+        dynamicTriggers: action.payload.dynamicTriggers,
       },
     };
   },

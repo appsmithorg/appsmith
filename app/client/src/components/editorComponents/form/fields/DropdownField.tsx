@@ -10,6 +10,7 @@ interface DropdownFieldProps {
     value: string;
   }>;
   placeholder: string;
+  width?: number;
 }
 
 const DropdownField = (props: DropdownFieldProps) => {
@@ -21,6 +22,7 @@ const DropdownField = (props: DropdownFieldProps) => {
       placeholder={props.placeholder}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
+      width={props.width}
     />
   );
 };

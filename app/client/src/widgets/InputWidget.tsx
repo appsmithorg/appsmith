@@ -2,11 +2,13 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent from "components/designSystems/blueprint/InputComponent";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  regex = new RegExp("");
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       inputType: VALIDATION_TYPES.TEXT,
@@ -25,7 +27,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
     };
   }
-  regex = new RegExp("");
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onTextChanged: true,
+    };
+  }
 
   componentDidMount() {
     super.componentDidMount();
@@ -50,8 +56,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   }
 
   onValueChange = (value: string) => {
-    this.context.updateWidgetProperty(this.props.widgetId, "text", value);
-    super.executeAction(this.props.onTextChanged);
+    this.updateWidgetProperty("text", value);
+    if (this.props.onTextChanged) {
+      super.executeAction({
+        dynamicString: this.props.onTextChanged,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
   };
 
   getPageView() {
@@ -76,6 +89,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         minNum={this.props.minNum}
         placeholder={this.props.placeholderText}
         isLoading={this.props.isLoading}
+        multiline={
+          this.props.bottomRow - this.props.topRow > 1 &&
+          this.props.inputType === "TEXT"
+        }
         stepSize={1}
       />
     );
@@ -111,7 +128,7 @@ export interface InputWidgetProps extends WidgetProps {
   maxChars?: number;
   minNum?: number;
   maxNum?: number;
-  onTextChanged?: ActionPayload[];
+  onTextChanged?: string;
   label: string;
   inputValidators: InputValidator[];
   focusIndex?: number;

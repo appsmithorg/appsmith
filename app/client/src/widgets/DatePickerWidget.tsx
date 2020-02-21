@@ -1,10 +1,11 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -18,6 +19,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       datePickerType: VALIDATION_TYPES.TEXT,
       maxDate: VALIDATION_TYPES.DATE,
       minDate: VALIDATION_TYPES.DATE,
+    };
+  }
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onDateSelected: true,
     };
   }
   getPageView() {
@@ -38,12 +44,15 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: Date) => {
-    this.context.updateWidgetProperty(
-      this.props.widgetId,
-      "selectedDate",
-      selectedDate,
-    );
-    super.executeAction(this.props.onDateSelected);
+    this.updateWidgetProperty("selectedDate", selectedDate);
+    if (this.props.onDateSelected) {
+      super.executeAction({
+        dynamicString: this.props.onDateSelected,
+        event: {
+          type: EventType.ON_DATE_SELECTED,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -61,8 +70,8 @@ export interface DatePickerWidgetProps extends WidgetProps {
   dateFormat: string;
   label: string;
   datePickerType: DatePickerType;
-  onDateSelected: ActionPayload[];
-  onDateRangeSelected: ActionPayload[];
+  onDateSelected?: string;
+  onDateRangeSelected?: string;
   maxDate: Date;
   minDate: Date;
 }

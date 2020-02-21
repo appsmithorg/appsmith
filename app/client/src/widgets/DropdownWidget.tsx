@@ -1,11 +1,12 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { ActionPayload } from "constants/ActionConstants";
+import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 export interface DropDownDerivedProps {
   selectedOption?: DropdownOption;
@@ -16,7 +17,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return {
       placeholderText: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.TABLE_DATA,
+      options: VALIDATION_TYPES.OPTIONS_DATA,
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
@@ -30,26 +31,59 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           : undefined
       }}`,
       selectedOptionArr: `{{
-        const options = this.options || [];
         this.selectionType === "MULTI_SELECT"
-          ? options.filter((opt, index) =>
+          ? this.options.filter((opt, index) =>
               _.includes(this.selectedIndexArr, index),
             )
           : undefined
       }}`,
     };
   }
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onOptionChange: true,
+    };
+  }
+
+  componentDidUpdate(prevProps: DropdownWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      JSON.stringify(prevProps.options) !== JSON.stringify(this.props.options)
+    ) {
+      this.updateWidgetMetaProperty("selectedIndex", undefined);
+      this.updateWidgetMetaProperty("selectedIndexArr", []);
+    }
+  }
   getPageView() {
+    const options = this.props.options || [];
+    let selectedIndex: number | undefined = undefined;
+    if (
+      this.props.selectedIndex !== undefined &&
+      this.props.selectedIndex < options.length &&
+      this.props.selectedIndex >= 0
+    ) {
+      selectedIndex = this.props.selectedIndex;
+    }
+
+    const selectedIndexArr = this.props.selectedIndexArr || [];
+    let computedSelectedIndexArr = selectedIndexArr.slice();
+    selectedIndexArr.forEach((selectedIndex, index) => {
+      if (options[selectedIndex] === undefined) {
+        computedSelectedIndexArr = [];
+      }
+    });
+
     return (
       <DropDownComponent
         onOptionSelected={this.onOptionSelected}
         onOptionRemoved={this.onOptionRemoved}
         widgetId={this.props.widgetId}
         placeholder={this.props.placeholderText}
-        options={this.props.options || []}
+        options={options}
         selectionType={this.props.selectionType}
-        selectedIndex={this.props.selectedIndex || 0}
-        selectedIndexArr={this.props.selectedIndexArr || []}
+        selectedIndex={selectedIndex}
+        selectedIndexArr={computedSelectedIndexArr}
         label={this.props.label}
         isLoading={this.props.isLoading}
       />
@@ -61,11 +95,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       return option.value === selectedOption.value;
     });
     if (this.props.selectionType === "SINGLE_SELECT") {
-      this.context.updateWidgetProperty(
-        this.props.widgetId,
-        "selectedIndex",
-        selectedIndex,
-      );
+      this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
     } else if (this.props.selectionType === "MULTI_SELECT") {
       const selectedIndexArr = this.props.selectedIndexArr || [];
       const isAlreadySelected =
@@ -76,14 +106,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         this.onOptionRemoved(selectedIndex);
       } else {
         selectedIndexArr.push(selectedIndex);
-        this.context.updateWidgetProperty(
-          this.props.widgetId,
-          "selectedIndexArr",
-          selectedIndexArr,
-        );
+        this.updateWidgetMetaProperty("selectedIndexArr", selectedIndexArr);
       }
     }
-    super.executeAction(this.props.onOptionChange);
+    if (this.props.onOptionChange) {
+      super.executeAction({
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   onOptionRemoved = (removedIndex: number) => {
@@ -92,12 +125,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           return removedIndex !== index;
         })
       : [];
-    this.context.updateWidgetProperty(
-      this.props.widgetId,
-      "selectedIndexArr",
-      updateIndexArr,
-    );
-    super.executeAction(this.props.onOptionChange);
+    this.updateWidgetMetaProperty("selectedIndexArr", updateIndexArr);
+    if (this.props.onOptionChange) {
+      super.executeAction({
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
   };
 
   getWidgetType(): WidgetType {
@@ -109,7 +145,9 @@ export type SelectionType = "SINGLE_SELECT" | "MULTI_SELECT";
 export interface DropdownOption {
   label: string;
   value: string;
-  id: string;
+  id?: string;
+  onSelect?: (option: DropdownOption) => void;
+  children?: DropdownOption[];
 }
 
 export interface DropdownWidgetProps extends WidgetProps {
@@ -119,7 +157,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectedIndexArr?: number[];
   selectionType: SelectionType;
   options?: DropdownOption[];
-  onOptionChange?: ActionPayload[];
+  onOptionChange?: string;
 }
 
 export default DropdownWidget;

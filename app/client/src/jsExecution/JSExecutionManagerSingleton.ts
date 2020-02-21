@@ -1,9 +1,18 @@
 import RealmExecutor from "./RealmExecutor";
 import moment from "moment-timezone";
+import { ActionDescription } from "entities/DataTree/dataTreeFactory";
 
 export type JSExecutorGlobal = Record<string, object>;
+export type JSExecutorResult = {
+  result: any;
+  triggers?: ActionDescription<any>[];
+};
 export interface JSExecutor {
-  execute: (src: string, data: JSExecutorGlobal) => any;
+  execute: (
+    src: string,
+    data: JSExecutorGlobal,
+    callbackData?: any,
+  ) => JSExecutorResult;
   registerLibrary: (accessor: string, lib: any) => void;
   unRegisterLibrary: (accessor: string) => void;
 }
@@ -11,6 +20,17 @@ export interface JSExecutor {
 enum JSExecutorType {
   REALM,
 }
+
+export const extraLibraries = [
+  {
+    accessor: "_",
+    lib: window._,
+  },
+  {
+    accessor: "moment",
+    lib: moment,
+  },
+];
 
 class JSExecutionManager {
   currentExecutor: JSExecutor;
@@ -41,11 +61,16 @@ class JSExecutionManager {
     };
     this.currentExecutor = realmExecutor;
 
-    this.registerLibrary("_", window._);
-    this.registerLibrary("moment", moment);
+    extraLibraries.forEach(config => {
+      this.registerLibrary(config.accessor, config.lib);
+    });
   }
-  evaluateSync(jsSrc: string, data: JSExecutorGlobal) {
-    return this.currentExecutor.execute(jsSrc, data);
+  evaluateSync(
+    jsSrc: string,
+    data: JSExecutorGlobal,
+    callbackData?: any,
+  ): JSExecutorResult {
+    return this.currentExecutor.execute(jsSrc, data, callbackData);
   }
 }
 const JSExecutionManagerSingleton = new JSExecutionManager();

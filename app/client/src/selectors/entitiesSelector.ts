@@ -1,10 +1,9 @@
-import { AppState, DataTree } from "reducers";
+import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { ActionResponse } from "api/ActionAPI";
 
-export const getDataTree = (state: AppState): DataTree => state.entities;
-
-export const getDynamicNames = (state: AppState): DataTree["nameBindings"] =>
-  state.entities.nameBindings;
+export const getEntities = (state: AppState): AppState["entities"] =>
+  state.entities;
 
 export const getPluginIdOfName = (
   state: AppState,
@@ -17,5 +16,15 @@ export const getPluginIdOfName = (
   return plugin.id;
 };
 
-export const getActions = (state: AppState): ActionDataState["data"] =>
-  state.entities.actions.data;
+export const getActions = (state: AppState): ActionDataState =>
+  state.entities.actions;
+
+export const getActionResponses = (
+  state: AppState,
+): Record<string, ActionResponse | undefined> => {
+  const responses: Record<string, ActionResponse | undefined> = {};
+  state.entities.actions.forEach(a => {
+    responses[a.config.id] = a.data;
+  });
+  return responses;
+};

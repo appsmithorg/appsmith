@@ -6,6 +6,7 @@ import { Switch, Route } from "react-router-dom";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
+  BuilderRouteParams,
   getApplicationViewerPageURL,
 } from "constants/routes";
 import {
@@ -18,7 +19,7 @@ import {
   getIsInitialized,
 } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
-import { ActionPayload } from "constants/ActionConstants";
+import { ExecuteActionPayload } from "constants/ActionConstants";
 import SideNav from "./viewer/SideNav";
 import { SideNavItemProps } from "./viewer/SideNavItem";
 import AppViewerHeader from "./viewer/AppViewerHeader";
@@ -27,6 +28,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -46,13 +48,18 @@ export type AppViewerProps = {
   pages?: PageListPayload;
   initializeAppViewer: Function;
   isInitialized: boolean;
-  executeAction: (actionPayloads?: ActionPayload[]) => void;
+  executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
     propertyValue: any,
   ) => void;
-};
+  updateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
+} & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
@@ -63,6 +70,7 @@ class AppViewer extends Component<
       this.props.initializeAppViewer(applicationId);
     }
   }
+
   public render() {
     const { isInitialized } = this.props;
     if (!isInitialized) return null;
@@ -84,6 +92,7 @@ class AppViewer extends Component<
         value={{
           executeAction: this.props.executeAction,
           updateWidgetProperty: this.props.updateWidgetProperty,
+          updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
         }}
       >
         <AppViewWrapper>
@@ -113,8 +122,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayloads?: ActionPayload[]) =>
-    dispatch(executeAction(actionPayloads)),
+  executeAction: (actionPayload: ExecuteActionPayload) =>
+    dispatch(executeAction(actionPayload)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -128,6 +137,12 @@ const mapDispatchToProps = (dispatch: any) => ({
         RenderModes.PAGE,
       ),
     ),
+  updateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
   initializeAppViewer: (applicationId: string) =>
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
