@@ -35,7 +35,7 @@ const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
         border: 1px solid ${Colors.HIT_GRAY};
       }
       &:focus {
-        border: 3px solid ${Colors.MYSTIC};
+        border: 1px solid ${Colors.MYSTIC};
       }
     }
     .${Classes.INPUT_GROUP} {

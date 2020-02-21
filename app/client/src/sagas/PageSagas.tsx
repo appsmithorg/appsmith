@@ -12,6 +12,7 @@ import {
   updateCanvas,
   savePageSuccess,
   fetchPageSuccess,
+  updateWidgetNameSuccess,
   deletePageSuccess,
 } from "actions/pageActions";
 import PageApi, {
@@ -25,6 +26,8 @@ import PageApi, {
   FetchPageListResponse,
   UpdatePageRequest,
   DeletePageRequest,
+  UpdateWidgetNameRequest,
+  UpdateWidgetNameResponse,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -46,6 +49,17 @@ import { RenderModes } from "constants/WidgetConstants";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
+import {
+  getCurrentPageId,
+  getCurrentLayoutId,
+  getCurrentApplicationId,
+  getCurrentPageName,
+} from "selectors/editorSelectors";
+import { fetchActionsForPage } from "actions/actionActions";
+import { getExistingWidgetNames } from "./selectors";
+
+const getWidgetName = (state: AppState, widgetId: string) =>
+  state.entities.canvasWidgets[widgetId];
 
 export function* fetchPageListSaga(
   fetchPageListAction: ReduxAction<FetchPageListPayload>,
@@ -313,6 +327,69 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
+export function* updateWidgetNameSaga(
+  action: ReduxAction<{ widgetId: string; newName: string }>,
+) {
+  try {
+    const { widgetName } = yield select(getWidgetName, action.payload.widgetId);
+    const layoutId = yield select(getCurrentLayoutId);
+    const pageId = yield select(getCurrentPageId);
+    const existingWidgetNames = yield select(getExistingWidgetNames);
+    const hasWidgetNameConflict =
+      existingWidgetNames.indexOf(action.payload.newName) > -1;
+    if (!hasWidgetNameConflict) {
+      const request: UpdateWidgetNameRequest = {
+        newName: action.payload.newName,
+        oldName: widgetName,
+        pageId,
+        layoutId,
+      };
+      const response: UpdateWidgetNameResponse = yield call(
+        PageApi.updateWidgetName,
+        request,
+      );
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
+          response.data.dsl,
+        );
+        const currentPageName = yield select(getCurrentPageName);
+        const applicationId = yield select(getCurrentApplicationId);
+        const canvasWidgetsPayload: UpdateCanvasPayload = {
+          pageWidgetId: normalizedWidgets.result,
+          currentPageName,
+          currentPageId: pageId,
+          currentLayoutId: layoutId,
+          currentApplicationId: applicationId,
+          pageActions: response.data.layoutOnLoadActions,
+          widgets: normalizedWidgets.entities.canvasWidgets,
+        };
+
+        yield put(updateCanvas(canvasWidgetsPayload));
+        yield put(fetchActionsForPage(pageId));
+
+        yield put(updateWidgetNameSuccess());
+      }
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
+        payload: {
+          error: {
+            message: `Widget name: ${action.payload.newName} is already being used.`,
+          },
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -330,5 +407,6 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
     debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
+    takeLatest(ReduxActionTypes.UPDATE_WIDGET_NAME_INIT, updateWidgetNameSaga),
   ]);
 }

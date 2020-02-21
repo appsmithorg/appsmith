@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import styled, { FlattenSimpleInterpolation } from "styled-components";
+import styled, { StyledComponent } from "styled-components";
 import { useDrag } from "react-use-gesture";
 import { Spring } from "react-spring/renderprops";
 
@@ -21,7 +21,7 @@ const getSnappedValues = (
 
 type ResizableHandleProps = {
   dragCallback: (x: number, y: number) => void;
-  component: FlattenSimpleInterpolation;
+  component: StyledComponent<"div", {}>;
   onStart: Function;
   onStop: Function;
   snapGrid: {
@@ -46,22 +46,20 @@ const ResizableHandle = (props: ResizableHandleProps) => {
       return snapped;
     },
   );
-  const HandleComponent = styled.div`
-    ${props.component}
-  `;
-  return <HandleComponent {...bind()} />;
+
+  return <props.component {...bind()} />;
 };
 
 type ResizableProps = {
   handles: {
-    left: FlattenSimpleInterpolation;
-    top: FlattenSimpleInterpolation;
-    bottom: FlattenSimpleInterpolation;
-    right: FlattenSimpleInterpolation;
-    bottomRight: FlattenSimpleInterpolation;
-    topLeft: FlattenSimpleInterpolation;
-    topRight: FlattenSimpleInterpolation;
-    bottomLeft: FlattenSimpleInterpolation;
+    left: StyledComponent<"div", {}>;
+    top: StyledComponent<"div", {}>;
+    bottom: StyledComponent<"div", {}>;
+    right: StyledComponent<"div", {}>;
+    bottomRight: StyledComponent<"div", {}>;
+    topLeft: StyledComponent<"div", {}>;
+    topRight: StyledComponent<"div", {}>;
+    bottomLeft: StyledComponent<"div", {}>;
   };
   componentWidth: number;
   componentHeight: number;

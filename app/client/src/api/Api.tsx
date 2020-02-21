@@ -59,6 +59,10 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === 401) {
         setRouteBeforeLogin(window.location.pathname);
         window.location.href = AUTH_LOGIN_URL;
+        return;
+      }
+      if (error.response.data.responseMeta) {
+        return Promise.resolve(error.response.data);
       }
       return Promise.reject(error.response.data);
     } else if (error.request) {
@@ -71,7 +75,7 @@ axiosInstance.interceptors.response.use(
       console.error("Error", error.message);
     }
     console.log(error.config);
-    return Promise.reject(error);
+    return Promise.resolve(error);
   },
 );
 

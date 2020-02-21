@@ -125,6 +125,12 @@ class ActionAPI extends API {
     return API.get(ActionAPI.url, { applicationId });
   }
 
+  static fetchActionsByPageId(
+    pageId: string,
+  ): AxiosPromise<GenericApiResponse<RestAction[]>> {
+    return API.get(ActionAPI.url, { pageId });
+  }
+
   static updateAPI(
     apiConfig: Partial<RestAction>,
   ): AxiosPromise<ActionCreateUpdateResponse> {

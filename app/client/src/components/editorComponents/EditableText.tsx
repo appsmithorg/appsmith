@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { EditableText as BlueprintEditableText } from "@blueprintjs/core";
+import {
+  EditableText as BlueprintEditableText,
+  Classes,
+} from "@blueprintjs/core";
 import styled from "styled-components";
 type EditableTextProps = {
   type: "text" | "password" | "email" | "phone" | "date";
@@ -7,18 +10,24 @@ type EditableTextProps = {
   onTextChanged: (value: string) => void;
   isEditing: boolean;
   placeholder: string;
+  onChange?: (value: string) => void;
+  value?: string;
 };
 
 const EditableTextWrapper = styled.div<{ isEditing: boolean }>`
   && {
-    & .bp3-editable-text {
+    & .${Classes.EDITABLE_TEXT} {
       border: ${props => (props.isEditing ? "1px solid #ccc" : "none")};
       cursor: pointer;
       padding: 5px 10px;
+      text-transform: none;
       &:before,
       &:after {
         display: none;
       }
+    }
+    & div.${Classes.EDITABLE_TEXT_INPUT} {
+      text-transform: none;
     }
   }
 `;
@@ -39,7 +48,7 @@ export const EditableText = (props: EditableTextProps) => {
       <BlueprintEditableText
         {...props}
         disabled={!isEditing}
-        isEditing={!!isEditing}
+        isEditing={isEditing}
         onConfirm={onChange}
         selectAllOnFocus
       />

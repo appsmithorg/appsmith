@@ -36,9 +36,10 @@ export function* validateResponse(response: ApiResponse | any) {
       type: ReduxActionErrorTypes.API_ERROR,
       payload: {
         error: response.responseMeta.error,
+        show: false,
       },
     });
-    return false;
+    throw Error(response.responseMeta.error.message);
   }
 }
 
