@@ -23,7 +23,8 @@ import { getApplicationList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
-
+import { AppState } from "reducers";
+import { setDefaultApplicationPageSuccess } from "actions/applicationActions";
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
@@ -88,20 +89,24 @@ export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
   try {
-    const request: SetDefaultPageRequest = action.payload;
-    const response: ApiResponse = yield call(
-      ApplicationApi.setDefaultApplicationPage,
-      request,
+    const defaultPageId = yield select(
+      (state: AppState) => state.entities.pageList.defaultPageId,
     );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS,
-        payload: {
-          pageId: request.pageId,
-          applicationId: request.applicationId,
-        },
-      });
+    if (defaultPageId !== action.payload.pageId) {
+      const request: SetDefaultPageRequest = action.payload;
+      const response: ApiResponse = yield call(
+        ApplicationApi.setDefaultApplicationPage,
+        request,
+      );
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put(
+          setDefaultApplicationPageSuccess(
+            request.pageId,
+            request.applicationId,
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({

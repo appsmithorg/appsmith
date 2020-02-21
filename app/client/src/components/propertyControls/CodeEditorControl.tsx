@@ -12,6 +12,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         <DynamicAutocompleteInput
           theme={"DARK"}
           input={{ value: this.props.propertyValue, onChange: this.onChange }}
+          singleLine={false}
         />
       </ControlWrapper>
     );

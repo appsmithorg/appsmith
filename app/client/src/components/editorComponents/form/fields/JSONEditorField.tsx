@@ -7,7 +7,13 @@ import DynamicAutocompleteInput, {
 type Props = { name: string } & DynamicAutocompleteInputProps;
 
 const JSONEditorField = (props: Props) => {
-  return <Field name={props.name} component={DynamicAutocompleteInput} />;
+  return (
+    <Field
+      name={props.name}
+      component={DynamicAutocompleteInput}
+      singleLine={false}
+    />
+  );
 };
 
 export default JSONEditorField;

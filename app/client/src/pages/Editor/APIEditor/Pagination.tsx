@@ -86,7 +86,7 @@ export default function Pagination(props: PaginationProps) {
       >
         <StyledLabel>Previous url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField name="actionConfiguration.prev" />
+          <StyledDynamicTextField name="actionConfiguration.prev" singleLine />
           <TestButton
             accent="secondary"
             onClick={() => {
@@ -94,11 +94,11 @@ export default function Pagination(props: PaginationProps) {
             }}
             text={"Test"}
             rightIcon={"play"}
-          ></TestButton>
+          />
         </PaginationFieldWrapper>
         <StyledLabel>Next url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField name="actionConfiguration.next" />
+          <StyledDynamicTextField name="actionConfiguration.next" singleLine />
           <TestButton
             accent="secondary"
             onClick={() => {
@@ -106,7 +106,7 @@ export default function Pagination(props: PaginationProps) {
             }}
             text={"Test"}
             rightIcon={"play"}
-          ></TestButton>
+          />
         </PaginationFieldWrapper>
       </PaginationTypeView>
       <PaginationTypeView

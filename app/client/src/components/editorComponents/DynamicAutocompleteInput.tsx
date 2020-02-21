@@ -59,6 +59,7 @@ const HintStyles = createGlobalStyle`
 const Wrapper = styled.div<{
   borderStyle?: THEME;
   hasError: boolean;
+  singleLine: boolean;
 }>`
   border: 1px solid;
   border-color: ${props =>
@@ -92,6 +93,19 @@ const Wrapper = styled.div<{
     .CodeMirror pre.CodeMirror-placeholder {
       color: #a3b3bf;
     }
+    ${props =>
+      props.singleLine &&
+      `
+      .CodeMirror-wrap pre.CodeMirror-line,
+    .CodeMirror-wrap pre.CodeMirror-line-like {
+      overflow-x: scroll;
+      white-space: nowrap;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+    `}
   }
 `;
 
@@ -134,6 +148,7 @@ export type DynamicAutocompleteInputProps = {
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   allowTabIndent?: boolean;
+  singleLine: boolean;
 };
 
 type Props = ReduxStateProps &
@@ -200,8 +215,13 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   }
 
+  shouldComponentUpdate(): boolean {
+    return !this.state.isFocused;
+  }
+
   componentDidUpdate(prevProps: Props): void {
     if (this.editor) {
+      this.editor.refresh();
       const editorValue = this.editor.getValue();
       let inputValue = this.props.input.value;
       // Safe update of value of the editor when value updated outside the editor
@@ -209,9 +229,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
       if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
-        const cursor = this.editor.getCursor();
         this.editor.setValue(inputValue);
-        this.editor.setCursor(cursor);
       }
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
@@ -280,7 +298,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   render() {
-    const { input, meta, theme } = this.props;
+    const { input, meta, theme, singleLine } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
@@ -288,7 +306,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
-        <Wrapper borderStyle={theme} hasError={hasError}>
+        <Wrapper
+          borderStyle={theme}
+          hasError={hasError}
+          singleLine={singleLine}
+        >
           <HintStyles />
           <IconContainer>
             {this.props.leftIcon && <this.props.leftIcon />}

@@ -28,6 +28,7 @@ export function InputText(props: {
             touched: true,
           }}
           theme={"DARK"}
+          singleLine={false}
         />
       </StyledDynamicInput>
     </ControlWrapper>
