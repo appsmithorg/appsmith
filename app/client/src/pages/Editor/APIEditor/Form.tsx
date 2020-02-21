@@ -36,13 +36,6 @@ const Form = styled.form`
       width: 100%;
     }
   }
-  &&&&& {
-    .CodeMirror-wrap pre.CodeMirror-line,
-    .CodeMirror-wrap pre.CodeMirror-line-like {
-      overflow-x: scroll;
-      white-space: nowrap;
-    }
-  }
 `;
 
 const MainConfiguration = styled.div`
@@ -166,6 +159,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}
+            singleLine
           />
         </FormRow>
       </MainConfiguration>
@@ -195,6 +189,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                             height={300}
                             showLineNumbers
                             allowTabIndent
+                            singleLine={false}
                           />
                         </JSONEditorFieldWrapper>
                       </React.Fragment>
@@ -209,11 +204,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                   <Pagination
                     onTestClick={props.onRunClick}
                     paginationType={props.paginationType}
-                  ></Pagination>
+                  />
                 ),
               },
             ]}
-          ></BaseTabbedView>
+          />
         </TabbedViewContainer>
 
         <ApiResponseView />
