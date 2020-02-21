@@ -25,20 +25,29 @@ class FilePickerComponent extends React.Component<
     return (
       <React.Fragment>
         <BaseButton
+          accent={"primary"}
           className={this.props.isLoading ? "bp3-skeleton" : ""}
-          text={"Upload files"}
+          text={
+            this.props.files && this.props.files.length === 0
+              ? "Select files"
+              : this.props.files.length + " Files Selected"
+          }
           onClick={this.openModal}
         />
         <DashboardModal
           open={this.state.isOpen}
           target={document.body}
           closeModalOnClickOutside={true}
-          plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
-          onRequestClose={() => this.setState({ isOpen: false })}
+          // plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
+          onRequestClose={this.closeModal}
           uppy={this.props.uppy}
         />
       </React.Fragment>
     );
+  }
+
+  public closeModal() {
+    this.setState({ isOpen: false });
   }
 }
 
@@ -50,6 +59,7 @@ export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;
   isLoading: boolean;
+  files: any[];
 }
 
 export default FilePickerComponent;

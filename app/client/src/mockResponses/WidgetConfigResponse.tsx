@@ -150,8 +150,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Alert",
     },
     FILE_PICKER_WIDGET: {
-      rows: 3,
-      columns: 3,
+      rows: 1,
+      files: [],
+      columns: 4,
       widgetName: "FilePicker",
     },
   },
