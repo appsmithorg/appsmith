@@ -1,4 +1,5 @@
 import { AppState } from "reducers";
+import { createSelector } from "reselect";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -52,3 +53,10 @@ export const getDefaultPageId = (state: AppState, pageId?: string): string => {
   const page = pages.find(page => page.pageId === pageId);
   return page ? page.pageId : pages[0].pageId;
 };
+
+export const getExistingWidgetNames = createSelector(
+  getWidgets,
+  (widgets: { [widgetId: string]: FlattenedWidgetProps }) => {
+    return Object.values(widgets).map(widget => widget.widgetName);
+  },
+);

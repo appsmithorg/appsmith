@@ -6,7 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { ActionResponse, RestAction } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
-
+import _ from "lodash";
 export interface ActionData {
   isLoading: boolean;
   config: RestAction;
@@ -25,6 +25,25 @@ const actionsReducer = createReducer(initialState, {
       isLoading: false,
       config: a,
     })),
+  [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction[]>,
+  ): ActionDataState => {
+    if (action.payload.length > 0) {
+      const payloadActionMap = _.keyBy(action.payload, "id");
+      return state.map((stateAction: ActionData) => {
+        if (stateAction.config.pageId === action.payload[0].pageId) {
+          return {
+            data: stateAction.data,
+            isLoading: false,
+            config: payloadActionMap[stateAction.config.id],
+          };
+        }
+        return stateAction;
+      });
+    }
+    return state;
+  },
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
