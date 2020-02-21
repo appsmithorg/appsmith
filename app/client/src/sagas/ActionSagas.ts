@@ -53,7 +53,6 @@ import { validateResponse } from "./ErrorSagas";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction, executeActionError } from "actions/widgetActions";
-import JSExecutionManagerSingleton from "jsExecution/JSExecutionManagerSingleton";
 import { getParsedDataTree } from "selectors/dataTreeSelectors";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionResponses } from "selectors/entitiesSelector";

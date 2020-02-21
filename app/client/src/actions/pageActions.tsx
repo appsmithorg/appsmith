@@ -93,6 +93,12 @@ export const savePageSuccess = (payload: SavePageSuccessPayload) => {
   };
 };
 
+export const deletePageSuccess = () => {
+  return {
+    type: ReduxActionTypes.DELETE_PAGE_SUCCESS,
+  };
+};
+
 export type WidgetAddChild = {
   widgetId: string;
   type: WidgetType;
