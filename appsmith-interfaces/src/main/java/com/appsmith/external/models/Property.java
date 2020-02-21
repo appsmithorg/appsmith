@@ -29,4 +29,6 @@ public class Property {
 
     String maxRange;
 
+    String[] valueOptions; // This stores the values that are permitted by the api for the given key
+
 }
