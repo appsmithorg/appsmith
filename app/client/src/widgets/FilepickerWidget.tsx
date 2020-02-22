@@ -11,15 +11,14 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import Dashboard from "@uppy/dashboard";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
-  filePickerRef: React.RefObject<FilePickerComponent>;
 
   constructor(props: FilePickerWidgetProps) {
     super(props);
     this.refreshUppy(props);
-    this.filePickerRef = React.createRef<FilePickerComponent>();
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -43,6 +42,29 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         allowedFileTypes: props.allowedFileTypes,
       },
     })
+      .use(Dashboard, {
+        target: "body",
+        metaFields: [],
+        inline: false,
+        width: 750,
+        height: 550,
+        thumbnailWidth: 280,
+        showLinkToFileUploadResult: true,
+        showProgressDetails: false,
+        hideUploadButton: false,
+        hideProgressAfterFinish: false,
+        note: null,
+        closeModalOnClickOutside: true,
+        disableStatusBar: false,
+        disableInformer: false,
+        disableThumbnailGenerator: false,
+        disablePageScrollWhenModalOpen: true,
+        proudlyDisplayPoweredByUppy: false,
+        onRequestCloseModal: () => {
+          this.uppy.getPlugin("Dashboard").closeModal();
+        },
+        locale: {},
+      })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
       .use(OneDrive, {
@@ -58,7 +80,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     this.uppy.on("file-added", (file: any) => {
       this.updateWidgetMetaProperty("file", file);
     });
-    this.uppy.on("upload", (uppyFile: any) => {
+    this.uppy.on("upload", () => {
       const files = this.uppy.getFiles();
       const fileArray: any = [];
       if (files.length === 0) {
@@ -71,8 +93,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
             const base64data = reader.result;
             fileArray.push(base64data);
             if (fileArray.length === files.length) {
-              if (this.filePickerRef.current)
-                this.filePickerRef.current.closeModal();
+              this.uppy.getPlugin("Dashboard").closeModal();
               this.updateWidgetMetaProperty("files", fileArray);
               this.onFilesSelected();
             }
@@ -122,7 +143,6 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <FilePickerComponent
-        ref={this.filePickerRef}
         uppy={this.uppy}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}

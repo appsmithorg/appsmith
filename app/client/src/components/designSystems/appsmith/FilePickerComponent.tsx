@@ -4,7 +4,7 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { DashboardModal } from "@uppy/react";
+// import { DashboardModal } from "@uppy/react";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
@@ -18,7 +18,8 @@ class FilePickerComponent extends React.Component<
   }
 
   openModal = () => {
-    this.setState({ isOpen: true });
+    // this.setState({ isOpen: true });
+    this.props.uppy.getPlugin("Dashboard").openModal();
   };
 
   render() {
@@ -34,20 +35,20 @@ class FilePickerComponent extends React.Component<
           }
           onClick={this.openModal}
         />
-        <DashboardModal
+        {/* <DashboardModal
           open={this.state.isOpen}
-          target={document.body}
           closeModalOnClickOutside={true}
           // plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
           onRequestClose={this.closeModal}
           uppy={this.props.uppy}
-        />
+        /> */}
       </React.Fragment>
     );
   }
 
   public closeModal() {
-    this.setState({ isOpen: false });
+    // this.setState({ isOpen: false });
+    this.props.uppy.getPlugin("Dashboard").closeModal();
   }
 }
 
