@@ -4,7 +4,7 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { DashboardModal } from "@uppy/react";
+// import { DashboardModal } from "@uppy/react";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
@@ -18,27 +18,37 @@ class FilePickerComponent extends React.Component<
   }
 
   openModal = () => {
-    this.setState({ isOpen: true });
+    // this.setState({ isOpen: true });
+    this.props.uppy.getPlugin("Dashboard").openModal();
   };
 
   render() {
     return (
       <React.Fragment>
         <BaseButton
+          accent={"primary"}
           className={this.props.isLoading ? "bp3-skeleton" : ""}
-          text={"Upload files"}
+          text={
+            this.props.files && this.props.files.length === 0
+              ? "Select files"
+              : this.props.files.length + " Files Selected"
+          }
           onClick={this.openModal}
         />
-        <DashboardModal
+        {/* <DashboardModal
           open={this.state.isOpen}
-          target={document.body}
           closeModalOnClickOutside={true}
-          plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
-          onRequestClose={() => this.setState({ isOpen: false })}
+          // plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
+          onRequestClose={this.closeModal}
           uppy={this.props.uppy}
-        />
+        /> */}
       </React.Fragment>
     );
+  }
+
+  public closeModal() {
+    // this.setState({ isOpen: false });
+    this.props.uppy.getPlugin("Dashboard").closeModal();
   }
 }
 
@@ -50,6 +60,7 @@ export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;
   isLoading: boolean;
+  files: any[];
 }
 
 export default FilePickerComponent;

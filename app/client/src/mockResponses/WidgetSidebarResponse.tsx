@@ -7,15 +7,9 @@ const WidgetSidebarResponse: {
 } = {
   ["Common Widgets"]: [
     {
-      type: "TEXT_WIDGET",
-      icon: "icon-text",
-      widgetCardName: "Text",
-      key: generateReactKey(),
-    },
-    {
-      type: "INPUT_WIDGET",
-      icon: "icon-input",
-      widgetCardName: "Input",
+      type: "CONTAINER_WIDGET",
+      icon: "icon-container",
+      widgetCardName: "Container",
       key: generateReactKey(),
     },
     {
@@ -25,15 +19,21 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
+      type: "INPUT_WIDGET",
+      icon: "icon-input",
+      widgetCardName: "Input",
+      key: generateReactKey(),
+    },
+    {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
       widgetCardName: "Button",
       key: generateReactKey(),
     },
     {
-      type: "CONTAINER_WIDGET",
-      icon: "icon-container",
-      widgetCardName: "Container",
+      type: "TEXT_WIDGET",
+      icon: "icon-text",
+      widgetCardName: "Text",
       key: generateReactKey(),
     },
   ],
@@ -68,12 +68,12 @@ const WidgetSidebarResponse: {
       widgetCardName: "DatePicker",
       key: generateReactKey(),
     },
-    // {
-    //   type: "FILE_PICKER_WIDGET",
-    //   icon: "icon-filepicker",
-    //   widgetCardName: "FilePicker",
-    //   key: generateReactKey(),
-    // },
+    {
+      type: "FILE_PICKER_WIDGET",
+      icon: "icon-filepicker",
+      widgetCardName: "FilePicker",
+      key: generateReactKey(),
+    },
     {
       type: "BUTTON_WIDGET",
       icon: "icon-button",
