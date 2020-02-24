@@ -33,13 +33,10 @@ public class CurlImporterService extends BaseApiImporter {
     private static final String headerRegex = "\\-H\\s+\\'(.+?)\\'";
     private static final String methodRegex = "\\-X\\s+(.+?)\\b";
     private static final String bodyRegex = "\\-d\\s+\\'(.+?)\\'";
-    private static final String pluginName = "RestTemplatePluginExecutor";
     private final ActionService actionService;
-    private final PluginService pluginService;
 
-    public CurlImporterService(ActionService actionService, PluginService pluginService) {
+    public CurlImporterService(ActionService actionService) {
         this.actionService = actionService;
-        this.pluginService = pluginService;
     }
 
     @Override
@@ -134,21 +131,14 @@ public class CurlImporterService extends BaseApiImporter {
         }
         action.setActionConfiguration(actionConfiguration);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
+        action.setDatasource(datasource);
         action.setName(name);
         action.setPageId(pageId);
 
-        // Set the default values for datasource (plugin, name) and then create the action
-        // with embedded datasource
-        return pluginService.findByName(pluginName)
-                .map(plugin -> {
-                    datasource.setName(datasourceConfiguration.getUrl());
-                    datasource.setPluginId(plugin.getId());
-                    return datasource;
-                })
-                .map(datasource1 -> {
-                    action.setDatasource(datasource1);
-                    return action;
-                })
-                .flatMap(actionService::create);
+        /**
+         * TODO
+         * Instead of save, call create to allow of validation & setup of default values.
+         */
+        return actionService.save(action);
     }
 }
