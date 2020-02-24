@@ -54,6 +54,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         hideUploadButton: false,
         hideProgressAfterFinish: false,
         note: null,
+        closeAfterFinish: true,
         closeModalOnClickOutside: true,
         disableStatusBar: false,
         disableInformer: false,
@@ -77,30 +78,29 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         facingMode: "user",
         locale: {},
       });
+    this.uppy.on("file-removed", (file: any) => {
+      const updatedFiles = this.props.files.filter(dslFile => {
+        return file.id !== dslFile.id;
+      });
+      this.updateWidgetMetaProperty("files", updatedFiles);
+    });
     this.uppy.on("file-added", (file: any) => {
-      this.updateWidgetMetaProperty("file", file);
+      const dslFiles = this.props.files;
+      const reader = new FileReader();
+      reader.readAsDataURL(file.data);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const newFile = {
+          id: file.id,
+          base64: base64data,
+          blob: file.data,
+        };
+        dslFiles.push(newFile);
+        this.updateWidgetMetaProperty("files", dslFiles);
+      };
     });
     this.uppy.on("upload", () => {
-      const files = this.uppy.getFiles();
-      const fileArray: any = [];
-      if (files.length === 0) {
-        this.updateWidgetMetaProperty("files", []);
-      } else {
-        files.map((file: any) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file.data);
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            fileArray.push(base64data);
-            if (fileArray.length === files.length) {
-              this.uppy.getPlugin("Dashboard").closeModal();
-              this.updateWidgetMetaProperty("files", fileArray);
-              this.onFilesSelected();
-            }
-          };
-        });
-      }
-      return true;
+      this.onFilesSelected();
     });
   };
 
