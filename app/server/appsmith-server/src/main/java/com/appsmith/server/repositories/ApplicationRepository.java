@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.services.AclEntity;
 import org.springframework.data.domain.Example;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,7 +11,10 @@ import reactor.core.publisher.Mono;
 @AclEntity("applications")
 public interface ApplicationRepository extends BaseRepository<Application, String> {
 
-    Mono<Application> findByIdAndOrganizationId(String id, String orgId);
+    default Mono<Application> findByIdAndOrganizationId(String id, String orgId){
+        System.out.println("In the custom implementation");
+        return Mono.empty();
+    }
 
     Mono<Application> findByName(String name);
 
