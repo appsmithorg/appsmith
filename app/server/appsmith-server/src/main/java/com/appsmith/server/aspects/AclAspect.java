@@ -27,8 +27,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 @Slf4j
 public class AclAspect {
 

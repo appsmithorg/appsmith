@@ -38,8 +38,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> extends SimpleReactiveMongoRepository<T, ID>
         implements BaseRepository<T, ID> {
 
-    private final MongoEntityInformation<T, ID> entityInformation;
-    private final ReactiveMongoOperations mongoOperations;
+    protected final MongoEntityInformation<T, ID> entityInformation;
+    protected final ReactiveMongoOperations mongoOperations;
 
     public BaseRepositoryImpl(@NonNull MongoEntityInformation<T, ID> entityInformation,
                               @NonNull ReactiveMongoOperations mongoOperations) {
@@ -48,14 +48,14 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.mongoOperations = mongoOperations;
     }
 
-    private Criteria notDeleted() {
+    protected Criteria notDeleted() {
         return new Criteria().orOperator(
                 where("deleted").exists(false),
                 where("deleted").is(false)
         );
     }
 
-    private Criteria getIdCriteria(Object id) {
+    protected Criteria getIdCriteria(Object id) {
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
