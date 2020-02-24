@@ -13,7 +13,7 @@ import FormMessage, {
   MessageAction,
 } from "components/editorComponents/form/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -167,7 +167,9 @@ export const ResetPassword = (props: ResetPasswordProps) => {
           <Field type="hidden" name="email" component="input" />
           <Field type="hidden" name="token" component="input" />
           <FormActions>
-            <FormButton
+            <Button
+              filled
+              size="large"
               type="submit"
               text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
               intent="primary"

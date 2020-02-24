@@ -36,7 +36,7 @@ import FormMessage from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import TextField from "components/editorComponents/form/fields/TextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -112,12 +112,14 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
             />
           </FormGroup>
           <FormActions>
-            <FormButton
+            <Button
               type="submit"
               disabled={pristine || !valid}
               loading={submitting}
               text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
               intent="primary"
+              filled
+              size="large"
             />
           </FormActions>
         </SpacedForm>
@@ -129,7 +131,6 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
 
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {SIGNUP_PAGE_LOGIN_LINK_TEXT}
-        <Icon icon="arrow-right" intent="primary" />
       </AuthCardNavLink>
       <AuthCardFooter>
         <Link to="#">{PRIVACY_POLICY_LINK}</Link>

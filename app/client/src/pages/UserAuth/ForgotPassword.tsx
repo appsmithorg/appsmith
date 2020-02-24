@@ -8,6 +8,7 @@ import {
   AuthCardHeader,
   AuthCardBody,
   FormActions,
+  AuthCardNavLink,
 } from "./StyledComponents";
 import {
   FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL,
@@ -18,13 +19,14 @@ import {
   FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_INVALID_EMAIL,
   FORGOT_PASSWORD_SUCCESS_TEXT,
+  FORGOT_PASSWORD_PAGE_LOGIN_LINK,
 } from "constants/messages";
-
+import { AUTH_LOGIN_URL } from "constants/routes";
 import FormMessage from "components/editorComponents/form/FormMessage";
 
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
 import FormGroup from "components/editorComponents/form/FormGroup";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {
@@ -86,16 +88,21 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
             />
           </FormGroup>
           <FormActions>
-            <FormButton
+            <Button
               type="submit"
               text={FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT}
               intent="primary"
+              filled
+              size="large"
               disabled={pristine && !hasEmail}
               loading={submitting}
             />
           </FormActions>
         </StyledForm>
       </AuthCardBody>
+      <AuthCardNavLink to={AUTH_LOGIN_URL}>
+        {FORGOT_PASSWORD_PAGE_LOGIN_LINK}
+      </AuthCardNavLink>
     </AuthCardContainer>
   );
 };

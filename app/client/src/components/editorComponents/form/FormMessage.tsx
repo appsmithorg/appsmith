@@ -5,6 +5,7 @@ import {
   Intent as BlueprintIntent,
   AnchorButton,
   Button,
+  Classes,
 } from "@blueprintjs/core";
 import { Intent, BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
 
@@ -19,6 +20,9 @@ const StyledTag = styled(Tag)`
   &&& {
     padding: ${props => props.theme.spaces[8]}px;
     font-size: ${props => props.theme.fontSizes[4]}px;
+    &.${Classes.TAG} {
+      background: none;
+    }
     text-align: center;
     margin-bottom: ${props => props.theme.spaces[4]}px;
     p {
@@ -45,7 +49,6 @@ const ActionButton = (props: MessageAction) => {
         className="appsmith-message-action-button"
         href={props.url}
         text={props.text}
-        minimal
         intent={props.intent as BlueprintIntent}
       />
     );
@@ -55,7 +58,6 @@ const ActionButton = (props: MessageAction) => {
         className="appsmith-message-action-button"
         onClick={props.onClick}
         text={props.text}
-        minimal
         intent={props.intent as BlueprintIntent}
       />
     );

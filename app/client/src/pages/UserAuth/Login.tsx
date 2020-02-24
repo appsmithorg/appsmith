@@ -34,7 +34,7 @@ import Divider from "components/editorComponents/Divider";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import TextField from "components/editorComponents/form/fields/TextField";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
@@ -120,27 +120,28 @@ export const Login = (props: LoginFormProps) => {
               name={LOGIN_FORM_EMAIL_FIELD_NAME}
               type="email"
               placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_PASSWORD_INPUT_LABEL}
+            helperText={FORM_VALIDATION_INVALID_PASSWORD}
           >
             <TextField
               type="password"
               name={LOGIN_FORM_PASSWORD_FIELD_NAME}
               placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <Link to={forgotPasswordURL}>{LOGIN_PAGE_FORGOT_PASSWORD_TEXT}</Link>
           <FormActions>
-            <FormButton
+            <Button
               type="submit"
               disabled={!valid}
               text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
               intent="primary"
+              filled
+              size="large"
             />
           </FormActions>
         </SpacedSubmitForm>
@@ -151,7 +152,6 @@ export const Login = (props: LoginFormProps) => {
       </AuthCardBody>
       <AuthCardNavLink to={SIGN_UP_URL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
-        <Icon icon="arrow-right" intent="primary" />
       </AuthCardNavLink>
       <AuthCardFooter>
         <Link to="#">{PRIVACY_POLICY_LINK}</Link>
