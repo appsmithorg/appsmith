@@ -47,6 +47,9 @@ const StyledGridComponent = styled(GridComponent)`
     .e-altrow {
       background-color: #fafafa;
     }
+    .e-active {
+      background: #cccccc;
+    }
     .e-gridcontent {
       height: calc(100% - 50px);
       overflow: auto;
@@ -120,6 +123,11 @@ const TableComponent = memo(
         const pageResize: any = (gridHeight - pageSize * rowHeight) / rowHeight;
         const finalPageSize = pageSize + Math.round(pageResize);
         grid.current.pageSettings.pageSize = finalPageSize;
+
+        if (pager.current) {
+          pager.current.totalRecordsCount = props.data.length;
+          pager.current.pageSize = finalPageSize;
+        }
 
         props.updatePageSize(grid.current.pageSettings.pageSize);
       }
