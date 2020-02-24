@@ -567,7 +567,7 @@ const PropertyPaneConfigResponse = {
             id: "16.2",
             propertyName: "defaultOptionValue",
             label: "Default Selected Value",
-            controlType: "SWITCH",
+            controlType: "INPUT_TEXT",
           },
           {
             id: "16.3",
