@@ -4,9 +4,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -22,11 +20,12 @@ public class SessionUserServiceImpl implements SessionUserService {
         this.repository = userRepository;
     }
 
+
     @Override
     public Mono<User> getCurrentUser() {
         return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     String email = "";
                     if (principal instanceof User) {
@@ -38,5 +37,19 @@ public class SessionUserServiceImpl implements SessionUserService {
                     }
                     return repository.findByEmail(email);
                 });
+    }
+
+    @Override
+    public User getCurrentUserBlocking() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .map(principal -> {
+                    if (principal instanceof User) {
+                        return (User) principal;
+                    }
+                    return new User();
+                }).block()
+                ;
     }
 }

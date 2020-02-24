@@ -103,10 +103,12 @@ public class SecurityConfig {
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()
                 .csrf().disable()
+                .anonymous().and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-                .and().authorizeExchange()
+                .and()
+                .authorizeExchange()
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
                 // This is because the flow enters AclFilter as well and needs to be whitelisted there
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
@@ -119,7 +121,7 @@ public class SecurityConfig {
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
-                .authenticated()
+                .permitAll()
                 .and().formLogin()
                 .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)

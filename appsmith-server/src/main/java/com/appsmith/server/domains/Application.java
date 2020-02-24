@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.services.AclEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Document
 @CompoundIndex(def = "{'organizationId':1, 'name':1}", name = "organization_application_compound_index", unique = true)
+@AclEntity("applications")
 public class Application extends BaseDomain {
 
     @NotNull

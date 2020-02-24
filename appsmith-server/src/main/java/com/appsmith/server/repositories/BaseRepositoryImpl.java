@@ -15,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -63,6 +64,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         Assert.notNull(id, "The given id must not be null!");
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
+        Annotation[] annotations = entityInformation.getJavaType().getAnnotations();
         return mongoOperations.query(entityInformation.getJavaType())
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
@@ -72,6 +74,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     @Override
     public Flux<T> findAll() {
         Query query = new Query(notDeleted());
+        Annotation[] annotations = entityInformation.getJavaType().getAnnotations();
         return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
     }
 

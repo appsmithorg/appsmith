@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.constants.AclConstants;
 import com.appsmith.server.domains.Application;
+import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationService extends CrudService<Application, String> {

@@ -13,4 +13,6 @@ import java.lang.annotation.Target;
 @Documented
 public @interface AclPermission {
     String[] values();
+
+    String principal() default "anonymousUser";
 }
