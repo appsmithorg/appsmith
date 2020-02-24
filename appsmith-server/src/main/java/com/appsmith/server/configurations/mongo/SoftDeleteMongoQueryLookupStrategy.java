@@ -90,17 +90,17 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
 
         @Override
         protected Query createQuery(ConvertingParameterAccessor accessor) {
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-//            User userPrincipal = (User) ReactiveSecurityContextHolder.getContext()
-//                    .switchIfEmpty(Mono.error(new Exception("no context")))
-//                    .map(ctx -> ctx.getAuthentication())
-//                    .map(auth -> auth.getPrincipal())
-//                    .map(principal -> {
-//                        if (principal instanceof User) {
-//                            return (User) principal;
-//                        }
-//                        return new User();
-//                    }).block();
+//            SecurityContext securityContext = SecurityContextHolder.getContext();
+            User userPrincipal = ReactiveSecurityContextHolder.getContext()
+                    .switchIfEmpty(Mono.error(new Exception("no context")))
+                    .map(ctx -> ctx.getAuthentication())
+                    .map(auth -> auth.getPrincipal())
+                    .map(principal -> {
+                        if (principal instanceof User) {
+                            return (User) principal;
+                        }
+                        return new User();
+                    }).block();
             AclPermission aclPermission = method.getAnnotation(AclPermission.class);
             if (aclPermission != null) {
                 log.debug("Got principal: {}", aclPermission.principal());
