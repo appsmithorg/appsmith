@@ -43,6 +43,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     width: 100%;
     align-items: center;
     justify-content: space-between;
+    box-shadow: none;
+    background: white;
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
