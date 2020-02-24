@@ -17,7 +17,7 @@ const ToastBody = styled.div<{ type: TypeOptions }>`
 `;
 
 const ToastMessage = styled.span`
-  font-size: ${props => props.theme.fontSizes[2]}px;
+  font-size: ${props => props.theme.fontSizes[3]}px;
   margin: 0 5px;
 `;
 
