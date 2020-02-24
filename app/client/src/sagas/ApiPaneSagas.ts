@@ -115,6 +115,12 @@ function* syncApiParamsSaga(
 
 function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
+  // Typescript says Element does not have blur function but it does;
+  document.activeElement &&
+    "blur" in document.activeElement &&
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    document.activeElement.blur();
 
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);

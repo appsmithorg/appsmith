@@ -305,7 +305,7 @@ export const theme: Theme = {
     error: Colors.RED,
     info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
-    inputInactiveBorders: Colors.MYSTIC,
+    inputActiveBorder: Colors.HIT_GRAY,
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
