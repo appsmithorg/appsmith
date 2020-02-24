@@ -9,6 +9,9 @@ import OneDrive from "@uppy/onedrive";
 import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { EventType } from "constants/ActionConstants";
+import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import Dashboard from "@uppy/dashboard";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
@@ -29,7 +32,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   refreshUppy = (props: FilePickerWidgetProps) => {
     this.uppy = Uppy({
       id: this.props.widgetId,
-      autoProceed: true,
+      autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
       restrictions: {
@@ -39,6 +42,30 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         allowedFileTypes: props.allowedFileTypes,
       },
     })
+      .use(Dashboard, {
+        target: "body",
+        metaFields: [],
+        inline: false,
+        width: 750,
+        height: 550,
+        thumbnailWidth: 280,
+        showLinkToFileUploadResult: true,
+        showProgressDetails: false,
+        hideUploadButton: false,
+        hideProgressAfterFinish: false,
+        note: null,
+        closeAfterFinish: true,
+        closeModalOnClickOutside: true,
+        disableStatusBar: false,
+        disableInformer: false,
+        disableThumbnailGenerator: false,
+        disablePageScrollWhenModalOpen: true,
+        proudlyDisplayPoweredByUppy: false,
+        onRequestCloseModal: () => {
+          this.uppy.getPlugin("Dashboard").closeModal();
+        },
+        locale: {},
+      })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
       .use(OneDrive, {
@@ -51,7 +78,48 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         facingMode: "user",
         locale: {},
       });
+    this.uppy.on("file-removed", (file: any) => {
+      const updatedFiles = this.props.files.filter(dslFile => {
+        return file.id !== dslFile.id;
+      });
+      this.updateWidgetMetaProperty("files", updatedFiles);
+    });
+    this.uppy.on("file-added", (file: any) => {
+      const dslFiles = this.props.files;
+      const reader = new FileReader();
+      reader.readAsDataURL(file.data);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        const newFile = {
+          id: file.id,
+          base64: base64data,
+          blob: file.data,
+        };
+        dslFiles.push(newFile);
+        this.updateWidgetMetaProperty("files", dslFiles);
+      };
+    });
+    this.uppy.on("upload", () => {
+      this.onFilesSelected();
+    });
   };
+
+  static getTriggerPropertyMap(): TriggerPropertiesMap {
+    return {
+      onFilesSelected: true,
+    };
+  }
+
+  onFilesSelected() {
+    if (this.props.onFilesSelected) {
+      this.executeAction({
+        dynamicString: this.props.onFilesSelected,
+        event: {
+          type: EventType.ON_FILES_SELECTED,
+        },
+      });
+    }
+  }
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
@@ -79,6 +147,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
+        files={this.props.files}
         isLoading={this.props.isLoading}
       />
     );
@@ -92,7 +161,9 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
 export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
+  files: any[];
   allowedFileTypes: string[];
+  onFilesSelected?: string;
 }
 
 export default FilePickerWidget;

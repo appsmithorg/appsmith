@@ -32,6 +32,20 @@ export const fetchActions = (
   };
 };
 
+export const fetchActionsForPage = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
+    payload: { pageId },
+  };
+};
+
+export const fetchActionsForPageSuccess = (actions: RestAction[]) => {
+  return {
+    type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
+    payload: actions,
+  };
+};
+
 export const runApiAction = (id: string, paginationField?: PaginationField) => {
   return {
     type: ReduxActionTypes.RUN_API_REQUEST,

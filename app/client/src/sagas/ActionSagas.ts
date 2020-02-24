@@ -42,6 +42,7 @@ import {
   moveActionSuccess,
   runApiAction,
   updateActionSuccess,
+  fetchActionsForPageSuccess,
 } from "actions/actionActions";
 import {
   getDynamicBindings,
@@ -314,6 +315,27 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   }
 }
 
+export function* fetchActionsForPageSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  try {
+    const { pageId } = action.payload;
+    const response: GenericApiResponse<RestAction[]> = yield call(
+      ActionAPI.fetchActionsByPageId,
+      pageId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(fetchActionsForPageSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
@@ -539,5 +561,9 @@ export function* watchActionSagas() {
     ),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
+      fetchActionsForPageSaga,
+    ),
   ]);
 }

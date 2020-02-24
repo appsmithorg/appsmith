@@ -74,7 +74,7 @@ export const BlueprintCSSTransform = css`
     .${Classes.BUTTON} {
       box-shadow: none;
       border-radius: 4px;
-      background: none;
+      background: white;
       border: 1px solid ${Colors.GEYSER};
     }
     .${Classes.INTENT_PRIMARY} {
@@ -305,7 +305,7 @@ export const theme: Theme = {
     error: Colors.RED,
     info: Colors.SLATE_GRAY,
     hover: Colors.POLAR,
-    inputInactiveBorders: Colors.MYSTIC,
+    inputActiveBorder: Colors.HIT_GRAY,
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,

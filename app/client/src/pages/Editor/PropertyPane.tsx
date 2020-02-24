@@ -24,6 +24,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { theme } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
+import PropertyPaneTitle from "./PropertyPaneTitle";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -33,16 +34,6 @@ const PropertySectionLabel = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-`;
-
-const PropertyPaneTitle = styled.div`
-  text-transform: capitalize;
-  color: ${props => props.theme.colors.textOnDarkBG};
-  font-size: ${props => props.theme.fontSizes[3]}px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: ${props => props.theme.spaces[1]}px 0;
 `;
 
 const PropertyPaneWrapper = styled.div`
@@ -79,7 +70,12 @@ class PropertyPane extends Component<
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
       <PropertyPaneWrapper>
-        <PropertyPaneTitle>{widgetProperties.widgetName}</PropertyPaneTitle>
+        <PropertyPaneTitle
+          key={this.props.widgetId}
+          title={widgetProperties.widgetName}
+          widgetId={this.props.widgetId}
+        />
+
         <CloseButton
           onClick={this.props.hidePropertyPane}
           size={theme.spaces[5]}

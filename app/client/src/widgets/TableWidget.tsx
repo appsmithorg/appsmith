@@ -102,7 +102,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleRowClick = (rowData: object, index: number) => {
     const { onRowSelected } = this.props;
-    super.updateWidgetProperty("selectedRowIndex", index);
+    super.updateWidgetMetaProperty("selectedRowIndex", index);
     if (onRowSelected) {
       super.executeAction({
         dynamicString: onRowSelected,
@@ -118,6 +118,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     pageNo = pageNo + 1;
     super.updateWidgetMetaProperty("pageNo", pageNo);
     if (this.props.onPageChange) {
+      super.updateWidgetMetaProperty("selectedRowIndex", -1);
       super.executeAction({
         dynamicString: this.props.onPageChange,
         event: {
@@ -133,6 +134,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (pageNo >= 1) {
       super.updateWidgetMetaProperty("pageNo", pageNo);
       if (this.props.onPageChange) {
+        super.updateWidgetMetaProperty("selectedRowIndex", -1);
         super.executeAction({
           dynamicString: this.props.onPageChange,
           event: {

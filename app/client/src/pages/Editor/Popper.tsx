@@ -23,6 +23,7 @@ const PopperWrapper = styled(PaneWrapper)`
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+  text-transform: none;
 
   scrollbar-color: ${props => props.theme.colors.paneCard}
     ${props => props.theme.colors.paneBG};

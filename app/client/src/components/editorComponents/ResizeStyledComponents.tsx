@@ -18,14 +18,14 @@ export const EdgeHandleStyles = css`
   z-index: 3;
   width: 20px;
   height: 20px;
-  &:before {
+  &::before {
     position: absolute;
     background: ${theme.colors.widgetBorder};
     content: "";
     width: 2px;
     height: 2px;
   }
-  &:after {
+  &::after {
     position: absolute;
     content: "";
     width: 6px;
@@ -61,53 +61,53 @@ export const HorizontalHandleStyles = css`
   }
 `;
 
-export const LeftHandleStyles = css`
+export const LeftHandleStyles = styled.div`
   ${VerticalHandleStyles}
   left:-10px;
 `;
 
-export const RightHandleStyles = css`
+export const RightHandleStyles = styled.div`
   ${VerticalHandleStyles};
   right: -10px;
 `;
 
-export const TopHandleStyles = css`
+export const TopHandleStyles = styled.div`
   ${HorizontalHandleStyles};
   top: -10px;
 `;
 
-export const BottomHandleStyles = css`
+export const BottomHandleStyles = styled.div`
   ${HorizontalHandleStyles};
   bottom: -10px;
 `;
 
-export const CornerHandleStyles = css`
+export const CornerHandleStyles = styled.div`
   position: absolute;
   z-index: 3;
   width: 40px;
   height: 40px;
 `;
 
-export const BottomRightHandleStyles = css`
+export const BottomRightHandleStyles = styled.div`
   ${CornerHandleStyles}
   bottom: -20px;
   right: -20px;
   cursor: se-resize;
 `;
 
-export const BottomLeftHandleStyles = css`
+export const BottomLeftHandleStyles = styled.div`
   ${CornerHandleStyles}
   left: -20px;
   bottom: -20px;
   cursor: sw-resize;
 `;
-export const TopLeftHandleStyles = css`
+export const TopLeftHandleStyles = styled.div`
   ${CornerHandleStyles}
   left: -20px;
   top: -20px;
   cursor: ew-resize;
 `;
-export const TopRightHandleStyles = css`
+export const TopRightHandleStyles = styled.div`
   ${CornerHandleStyles}
   right: -20px;
   top: -20px;

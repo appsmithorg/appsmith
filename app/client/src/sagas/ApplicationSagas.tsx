@@ -153,8 +153,8 @@ export function* createApplicationSaga(
     reject: any;
   }>,
 ) {
+  const { applicationName, resolve, reject } = action.payload;
   try {
-    const { applicationName, resolve, reject } = action.payload;
     const applicationList: ApplicationPayload[] = yield select(
       getApplicationList,
     );
@@ -203,6 +203,7 @@ export function* createApplicationSaga(
       }
     }
   } catch (error) {
+    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
       payload: {
