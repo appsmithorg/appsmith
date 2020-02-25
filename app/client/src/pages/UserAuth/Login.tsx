@@ -137,6 +137,7 @@ export const Login = (props: LoginFormProps) => {
           <Link to={forgotPasswordURL}>{LOGIN_PAGE_FORGOT_PASSWORD_TEXT}</Link>
           <FormActions>
             <FormButton
+              className="t--login-submit-btn"
               type="submit"
               disabled={!valid}
               text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
