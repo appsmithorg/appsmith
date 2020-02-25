@@ -64,6 +64,7 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
               placeholder={props.search.placeholder}
               leftIcon="search"
               onChange={searchQuery}
+              className="t--application-search-input"
             />
           </ControlGroup>
         )}

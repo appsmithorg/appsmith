@@ -78,11 +78,14 @@ const WidgetCard = (props: CardProps) => {
 
   const iconType: string = props.details.type;
   const Icon = WidgetIcons[iconType]();
-
+  const className = `t--widget-card-draggable-${props.details.type
+    .split("_")
+    .join("")
+    .toLowerCase()}`;
   return (
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
-      <Wrapper ref={drag}>
+      <Wrapper ref={drag} className={className}>
         <div>
           {Icon}
           <IconLabel>{props.details.widgetCardName}</IconLabel>

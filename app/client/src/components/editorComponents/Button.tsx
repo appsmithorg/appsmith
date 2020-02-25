@@ -62,6 +62,7 @@ export type ButtonProps = {
   disabled?: boolean;
   size?: "large" | "small";
   type?: "button" | "submit" | "reset";
+  className?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -86,6 +87,7 @@ export const Button = (props: ButtonProps) => {
     small: props.size === "small",
     loading: props.loading,
     disabled: props.disabled,
+    className: props.className,
   };
   if (props.href) {
     return (

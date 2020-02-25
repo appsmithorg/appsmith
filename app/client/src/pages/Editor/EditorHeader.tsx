@@ -148,6 +148,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             intent="primary"
             filled
             size="small"
+            className="t--application-publish-btn"
           />
         </Tooltip>
       </PreviewPublishSection>
