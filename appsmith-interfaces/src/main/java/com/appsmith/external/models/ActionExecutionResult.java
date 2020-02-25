@@ -15,4 +15,5 @@ public class ActionExecutionResult {
     String statusCode;
     JsonNode headers;
     Object body;
+    Boolean shouldCacheResponse = false;
 }

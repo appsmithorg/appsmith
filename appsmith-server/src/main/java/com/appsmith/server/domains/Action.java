@@ -23,7 +23,6 @@ public class Action extends BaseDomain {
 
     String name;
 
-    @Transient
     Datasource datasource;
 
     String organizationId;

@@ -75,6 +75,8 @@ public class PostgresPlugin extends BasePlugin {
 
             ActionExecutionResult result = new ActionExecutionResult();
             result.setBody(objectMapper.valueToTree(list));
+            result.setShouldCacheResponse(true);
+            System.out.println("In the PostgresPlugin, got action execution result: " + result.toString());
             return Mono.just(result);
         }
 
