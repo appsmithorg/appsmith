@@ -99,7 +99,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             datasource.setIsValid(false);
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
             datasource.setInvalids(invalids);
-            return super.create(datasource);
+            return Mono.just(datasource);
         }
 
         Mono<Organization> organizationMono = userMono
