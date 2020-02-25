@@ -154,6 +154,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       files: [],
       columns: 4,
       widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
     },
   },
   configVersion: 1,
