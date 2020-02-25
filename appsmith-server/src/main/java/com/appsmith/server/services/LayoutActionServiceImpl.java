@@ -358,12 +358,15 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     Boolean actionUpdateRequired = false;
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
                     Set<String> jsonPathKeys = action.getJsonPathKeys();
-                    // Since json path keys actually contain the entire inline js function instead of just the widget/action
-                    // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
-                    // in the set and see if the old name is a substring of the json path key.
-                    for (String key : jsonPathKeys) {
-                        if (key.contains(oldName)) {
-                            actionUpdateRequired = true;
+
+                    if (jsonPathKeys != null || !jsonPathKeys.isEmpty()) {
+                        // Since json path keys actually contain the entire inline js function instead of just the widget/action
+                        // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
+                        // in the set and see if the old name is a substring of the json path key.
+                        for (String key : jsonPathKeys) {
+                            if (key.contains(oldName)) {
+                                actionUpdateRequired = true;
+                            }
                         }
                     }
 
