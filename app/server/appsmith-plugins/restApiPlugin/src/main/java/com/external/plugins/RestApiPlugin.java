@@ -89,6 +89,12 @@ public class RestApiPlugin extends BasePlugin {
 
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
+                        // If the HTTP response is 200, only then cache the response.
+                        // We shouldn't cache the response even for other 2xx statuses like 201, 204 etc.
+                        if (statusCode.equals(HttpStatus.OK)) {
+                            result.setShouldCacheResponse(true);
+                        }
+
                         if (headers != null) {
                             // Convert the headers into json tree to store in the results
                             String headerInJsonString;

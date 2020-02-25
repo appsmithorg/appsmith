@@ -183,8 +183,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Datasource> datasourceMono;
         if (action.getDatasource().getId() == null) {
-            //No data source exists. The action is also trying to create the data source.
-            datasourceMono = datasourceService.create(action.getDatasource());
+            datasourceMono = Mono.just(action.getDatasource())
+                    .flatMap(datasourceService::validateDatasource);
         } else {
             //Data source already exists. Find the same.
             datasourceMono = datasourceService.findById(action.getDatasource().getId())
@@ -398,7 +398,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
                             //If the action is found in the db (i.e. it is not a dry run, save the cached response
                             .flatMap(action -> {
-                                if (result.getStatusCode().charAt(0) == '2') {
+                                if (result.getShouldCacheResponse()) {
                                     //If the status code is 2xx, then save the cached response (aka the body) and return.
                                     action.setCacheResponse(result.getBody().toString());
                                     return repository.save(action);
