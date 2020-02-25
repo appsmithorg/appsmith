@@ -7,7 +7,7 @@ import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/fields/TextField";
 import FormMessage, {
   FormMessageProps,
   MessageAction,
@@ -157,11 +157,10 @@ export const ResetPassword = (props: ResetPasswordProps) => {
             intent={error ? "danger" : "none"}
             label={RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="password"
               type="password"
               placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />

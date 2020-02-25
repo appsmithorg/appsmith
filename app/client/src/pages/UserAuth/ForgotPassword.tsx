@@ -27,7 +27,7 @@ import FormMessage from "components/editorComponents/form/FormMessage";
 import { FORGOT_PASSWORD_FORM_NAME } from "constants/forms";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import Button from "components/editorComponents/Button";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {
   ForgotPasswordFormValues,
@@ -80,10 +80,9 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
             intent={error ? "danger" : "none"}
             label={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="email"
               placeholder={FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              showError
               disabled={submitting}
             />
           </FormGroup>

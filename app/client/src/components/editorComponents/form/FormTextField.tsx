@@ -31,7 +31,7 @@ type FormTextFieldProps = {
   type?: InputType;
   label?: string;
   intent?: Intent;
-  helperText?: string;
+  disabled?: boolean;
 };
 
 const FormTextField = (props: FormTextFieldProps) => {

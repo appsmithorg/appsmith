@@ -30,10 +30,11 @@ import {
   TERMS_AND_CONDITIONS_LINK,
   SIGNUP_PAGE_SUCCESS,
   SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
+  FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import Button from "components/editorComponents/Button";
 
@@ -92,22 +93,21 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_PASSWORD_INPUT_LABEL}
+            helperText={FORM_VALIDATION_PASSWORD_RULE}
           >
-            <TextField
+            <FormTextField
               type="password"
               name="password"
               placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <FormActions>

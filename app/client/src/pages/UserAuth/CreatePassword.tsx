@@ -6,7 +6,7 @@ import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { CREATE_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import FormMessage, {
   FormMessageProps,
   MessageAction,
@@ -151,11 +151,10 @@ export const CreatePassword = (props: CreatePasswordProps) => {
             intent={error ? "danger" : "none"}
             label={CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="password"
               type="password"
               placeholder={CREATE_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />
