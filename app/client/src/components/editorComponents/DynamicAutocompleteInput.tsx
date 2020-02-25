@@ -275,8 +275,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
-  handleChange = (...args: any[]) => {
-    console.log(args);
+  handleChange = () => {
     const value = this.editor.getValue();
     const inputValue = this.props.input.value;
     if (this.props.input.onChange && value !== inputValue) {
