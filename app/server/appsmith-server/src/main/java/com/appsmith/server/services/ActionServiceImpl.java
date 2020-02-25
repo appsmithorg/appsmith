@@ -112,15 +112,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<Action> replaceOrCreateNewDataSourceMono = replaceOrCreateNewDataSource(action);
         Mono<Action> dbActionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
 
-        return Mono.zip(replaceOrCreateNewDataSourceMono, dbActionMono)
-                .map(tuple -> {
-                    Action updatedActionWithDatasource = tuple.getT1();
-                    Action dbAction = tuple.getT2();
-                    copyNewFieldValuesIntoOldObject(updatedActionWithDatasource, dbAction);
+        return dbActionMono
+                .map(dbAction -> {
+                    copyNewFieldValuesIntoOldObject(action, dbAction);
                     return dbAction;
                 })
                 .flatMap(this::validateAndSaveActionToRepository)
@@ -131,33 +128,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             return act;
                         }
                 );
-    }
-
-    private Mono<Action> replaceOrCreateNewDataSource(Action action) {
-        Datasource datasource = action.getDatasource();
-        if (datasource != null) {
-            //Update action contains a change for datasource
-            if (datasource.getId() != null) {
-                //Datasource changed to another existing data source. Confirm and return.
-                return datasourceService.findById(datasource.getId())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource", datasource.getId())))
-                        .map(datasource1 -> {
-                            action.setDatasource(datasource1);
-                            action.setDatasourceId(datasource1.getId());
-                            return action;
-                        });
-            }
-
-            //New datasource needs to be created here.
-            return datasourceService.create(datasource)
-                    .map(datasource1 -> {
-                        action.setDatasource(datasource1);
-                        action.setDatasourceId(datasource1.getId());
-                        return action;
-                    });
-        }
-        //No changes in the datasource.
-        return Mono.just(action);
     }
 
     private Boolean validateActionName(String name) {
@@ -220,17 +190,22 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             datasourceMono = datasourceService.findById(action.getDatasource().getId())
                     .switchIfEmpty(Mono.defer(() -> {
                         action.setIsValid(false);
-                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasourceId()));
+                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
                         return Mono.just(action.getDatasource());
                     }));
         }
 
-        Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> pluginService.findById(datasource.getPluginId())
-                .switchIfEmpty(Mono.defer(() -> {
-                    action.setIsValid(false);
-                    invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PLUGIN, datasource.getPluginId()));
-                    return Mono.just(new Plugin());
-                })));
+        Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
+            if (datasource.getPluginId() == null) {
+                return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
+            }
+            return pluginService.findById(datasource.getPluginId())
+                    .switchIfEmpty(Mono.defer(() -> {
+                        action.setIsValid(false);
+                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PLUGIN, datasource.getPluginId()));
+                        return Mono.just(new Plugin());
+                    }));
+        });
 
         return pluginMono
                 .zipWith(datasourceMono)
@@ -239,7 +214,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     Plugin plugin = tuple.getT1();
                     Datasource datasource = tuple.getT2();
                     action.setDatasource(datasource);
-                    action.setDatasourceId(datasource.getId());
                     action.setInvalids(invalids);
                     action.setPluginType(plugin.getType());
                     return action;
@@ -332,10 +306,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     if (action.getPluginType() == PluginType.JS) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
-                    if (action.getDatasourceId() != null) {
-                        return datasourceService.findById(action.getDatasourceId());
-                    } else if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
+                        return datasourceService.findById(action.getDatasource().getId())
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
                     }
                     //The data source in the action has not been persisted.
                     if (action.getDatasource() != null) {
@@ -343,8 +316,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Valid action"));
                     }
-                })
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource")));
+                });
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {

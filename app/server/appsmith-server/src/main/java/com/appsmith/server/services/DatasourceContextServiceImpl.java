@@ -37,7 +37,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     public Mono<DatasourceContext> getDatasourceContext(Datasource datasource) {
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
-            log.debug("This is a dry run");
+            log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this scenario");
         } else if (datasourceContextMap.get(datasourceId) != null) {
             log.debug("resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceId));

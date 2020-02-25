@@ -47,6 +47,10 @@ public class CurlImporterService extends BaseApiImporter {
         Datasource datasource = new Datasource();
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
+        //Set defaults
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+
         // Matches : "-H 'headerKey:headerValue'
         Pattern headerPattern = Pattern.compile(headerRegex);
         Matcher headerMatcher = headerPattern.matcher(command);
@@ -103,6 +107,10 @@ public class CurlImporterService extends BaseApiImporter {
             try {
                 // If the string doesnt throw an exception when being converted to a URI, its a valid URL.
                 URI uri = new URL(cmdSplit[i]).toURI();
+                URL url = new URL(cmdSplit[i]);
+                String path = url.getFile().substring(0, url.getFile().lastIndexOf('/'));
+                String base = url.getProtocol() + "://" + url.getHost();
+                log.debug("url is : {}, \npath is : {} & \nbase is : {}", url.getProtocol() + "://" + url.getHost() + path, path, base);
                 // If it reaches here, we have successfully found a valid URL.
                 urlFound = true;
                 //Extract query params
@@ -118,8 +126,10 @@ public class CurlImporterService extends BaseApiImporter {
                     queryParameters.add(queryParam);
                 }
                 actionConfiguration.setQueryParameters(queryParameters);
-                //Set the URL without the query params
-                datasourceConfiguration.setUrl(cmdSplit[i].split("\\?")[0]);
+                //Set the URL without the query params & the path
+                datasourceConfiguration.setUrl(base);
+                //Set the path in actionConfiguration
+                actionConfiguration.setPath(path);
             } catch (Exception e) {
                 //Not a valid URL. Continue to the next word in the CURL command
             }
