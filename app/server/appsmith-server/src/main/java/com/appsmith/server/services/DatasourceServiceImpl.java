@@ -87,7 +87,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(this::validateAndSaveDatasourceToRepository);
     }
 
-    private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+    @Override
+    public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
@@ -141,8 +142,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     }
                     datasource1.setInvalids(invalids);
                     return Mono.just(datasource1);
-                })
-                .flatMap(super::create);
+                });
+    }
+
+    private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+        return Mono.just(datasource)
+                .flatMap(this::validateDatasource)
+                .flatMap(repository::save);
     }
 
     @Override
