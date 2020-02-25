@@ -3,7 +3,6 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
 import { Link } from "react-router-dom";
-import { Icon } from "@blueprintjs/core";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,

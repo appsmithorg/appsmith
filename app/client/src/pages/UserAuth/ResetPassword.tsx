@@ -101,7 +101,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
       {
         url: FORGOT_PASSWORD_URL,
         text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
-        intent: "success",
+        intent: "primary",
       },
     ];
   }

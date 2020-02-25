@@ -42,7 +42,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
     const childWidget = generateWidgetProps(
-      widget,
+      widget, // parent,
       type,
       leftColumn,
       topRow,

@@ -6,7 +6,6 @@ import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { CREATE_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
-import { Icon } from "@blueprintjs/core";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormMessage, {
   FormMessageProps,
@@ -113,7 +112,7 @@ export const CreatePassword = (props: CreatePasswordProps) => {
       {
         url: AUTH_LOGIN_URL,
         text: CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
-        intent: "success",
+        intent: "primary",
       },
     ];
   }
@@ -125,7 +124,7 @@ export const CreatePassword = (props: CreatePasswordProps) => {
     intent:
       showInvalidMessage || showExpiredMessage || showFailureMessage
         ? "danger"
-        : "success",
+        : "primary",
     message,
     actions: messageActions,
   };

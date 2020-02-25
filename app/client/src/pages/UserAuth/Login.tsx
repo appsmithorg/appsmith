@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
-import { Icon } from "@blueprintjs/core";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
@@ -29,11 +28,12 @@ import {
   PRIVACY_POLICY_LINK,
   TERMS_AND_CONDITIONS_LINK,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+  FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
 import Divider from "components/editorComponents/Divider";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import Button from "components/editorComponents/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -63,6 +63,8 @@ const validate = (values: LoginFormValues) => {
   } else if (!isEmail(email)) {
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
   }
+
+  console.log(values);
   return errors;
 };
 
@@ -116,7 +118,7 @@ export const Login = (props: LoginFormProps) => {
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name={LOGIN_FORM_EMAIL_FIELD_NAME}
               type="email"
               placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
@@ -125,9 +127,9 @@ export const Login = (props: LoginFormProps) => {
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_PASSWORD_INPUT_LABEL}
-            helperText={FORM_VALIDATION_INVALID_PASSWORD}
+            helperText={FORM_VALIDATION_PASSWORD_RULE}
           >
-            <TextField
+            <FormTextField
               type="password"
               name={LOGIN_FORM_PASSWORD_FIELD_NAME}
               placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
@@ -167,6 +169,7 @@ export default connect(state => ({
 }))(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,
+    touchOnBlur: true,
     form: LOGIN_FORM_NAME,
   })(Login),
 );

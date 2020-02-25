@@ -65,7 +65,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
     <AuthCardContainer>
       {submitSucceeded && (
         <FormMessage
-          intent="success"
+          intent="primary"
           message={`${FORGOT_PASSWORD_SUCCESS_TEXT} ${props.emailValue}`}
         />
       )}
