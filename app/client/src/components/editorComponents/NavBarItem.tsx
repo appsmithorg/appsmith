@@ -7,6 +7,7 @@ type MenuBarItemProps = {
   path: string;
   title: string;
   exact: boolean;
+  className?: string;
 };
 
 type Props = MenuBarItemProps;
@@ -59,7 +60,7 @@ class NavBarItem extends React.Component<Props> {
     const { title, icon, path, exact } = this.props;
     return (
       <ItemContainer>
-        <NavLink exact={exact} to={path}>
+        <NavLink exact={exact} to={path} className={this.props.className}>
           <React.Fragment>
             <IconContainer>{icon({ width: 24, height: 24 })}</IconContainer>
             {title}

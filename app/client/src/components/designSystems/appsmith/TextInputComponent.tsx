@@ -18,9 +18,7 @@ export const TextInput = styled(({ hasError, ...rest }) => (
   & input {
     border: 1px solid
       ${props =>
-        props.hasError
-          ? props.theme.colors.error
-          : props.theme.colors.inputInactiveBorders};
+        props.hasError ? props.theme.colors.error : props.theme.colors.border};
     border-radius: 4px;
     box-shadow: none;
     height: 32px;

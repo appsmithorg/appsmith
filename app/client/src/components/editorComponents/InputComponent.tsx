@@ -21,7 +21,6 @@ type InputComponentProps = {
 };
 
 const InputComponent = (props: InputComponentProps) => {
-  console.log(props);
   return (
     <StyledInputGroup
       {...props.input}

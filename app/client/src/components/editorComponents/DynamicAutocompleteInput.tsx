@@ -17,7 +17,24 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { Theme } from "constants/DefaultTheme";
 require("codemirror/mode/javascript/javascript");
+
+const getBorderStyle = (
+  props: { theme: Theme } & {
+    editorTheme?: THEME;
+    hasError: boolean;
+    singleLine: boolean;
+    isFocused: boolean;
+  },
+) => {
+  if (props.hasError) return props.theme.colors.error;
+  if (props.editorTheme !== THEMES.DARK) {
+    if (props.isFocused) return props.theme.colors.inputActiveBorder;
+    return props.theme.colors.border;
+  }
+  return "transparent";
+};
 
 const HintStyles = createGlobalStyle`
   .CodeMirror-hints {
@@ -57,22 +74,29 @@ const HintStyles = createGlobalStyle`
 `;
 
 const Wrapper = styled.div<{
-  borderStyle?: THEME;
+  editorTheme?: THEME;
   hasError: boolean;
   singleLine: boolean;
+  isFocused: boolean;
 }>`
+  ${props =>
+    props.singleLine && props.isFocused
+      ? `
+  z-index: 1;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  `
+      : `z-index: 0; position: relative`}
+  background-color: ${props =>
+    props.editorTheme === THEMES.DARK ? "#272822" : "#fff"}
   border: 1px solid;
-  border-color: ${props =>
-    props.hasError
-      ? props.theme.colors.error
-      : props.borderStyle !== THEMES.DARK
-      ? "#d0d7dd"
-      : "transparent"};
+  border-color: ${getBorderStyle};
   border-radius: 4px;
   display: flex;
   flex: 1;
   flex-direction: row;
-  position: relative;
   text-transform: none;
   min-height: 32px;
   overflow: hidden;
@@ -80,7 +104,7 @@ const Wrapper = styled.div<{
   && {
     .binding-highlight {
       color: ${props =>
-        props.borderStyle === THEMES.DARK ? "#f7c75b" : "#ffb100"};
+        props.editorTheme === THEMES.DARK ? "#f7c75b" : "#ffb100"};
       font-weight: 700;
     }
     .CodeMirror {
@@ -96,10 +120,7 @@ const Wrapper = styled.div<{
     ${props =>
       props.singleLine &&
       `
-      .CodeMirror-wrap pre.CodeMirror-line,
-    .CodeMirror-wrap pre.CodeMirror-line-like {
-      overflow-x: scroll;
-      white-space: nowrap;
+      .CodeMirror-hscrollbar {
       -ms-overflow-style: none;
       &::-webkit-scrollbar {
         display: none;
@@ -186,7 +207,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         viewportMargin: 10,
         tabSize: 2,
         indentWithTabs: true,
-        lineWrapping: true,
+        lineWrapping: !this.props.singleLine,
         showHint: true,
         extraKeys,
         autoCloseBrackets: true,
@@ -194,8 +215,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
-      this.editor.on("focus", () => this.setState({ isFocused: true }));
-      this.editor.on("blur", () => this.setState({ isFocused: false }));
+      this.editor.on("focus", this.handleEditorFocus);
+      this.editor.on("blur", this.handleEditorBlur);
       this.editor.setOption("hintOptions", {
         completeSingle: false,
         globalScope: this.props.dynamicData,
@@ -215,31 +236,44 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   }
 
-  shouldComponentUpdate(): boolean {
-    return !this.state.isFocused;
-  }
-
   componentDidUpdate(prevProps: Props): void {
     if (this.editor) {
-      this.editor.refresh();
-      const editorValue = this.editor.getValue();
-      let inputValue = this.props.input.value;
-      // Safe update of value of the editor when value updated outside the editor
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      }
-      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
-        this.editor.setValue(inputValue);
-      }
-      // Update the dynamic bindings for autocomplete
-      if (prevProps.dynamicData !== this.props.dynamicData) {
-        this.editor.setOption("hintOptions", {
-          completeSingle: false,
-          globalScope: this.props.dynamicData,
-        });
+      if (!this.state.isFocused) {
+        const editorValue = this.editor.getValue();
+        let inputValue = this.props.input.value;
+        // Safe update of value of the editor when value updated outside the editor
+        if (typeof inputValue === "object") {
+          inputValue = JSON.stringify(inputValue, null, 2);
+        }
+        if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
+          this.editor.setValue(inputValue);
+        }
+      } else {
+        // Update the dynamic bindings for autocomplete
+        if (prevProps.dynamicData !== this.props.dynamicData) {
+          this.editor.setOption("hintOptions", {
+            completeSingle: false,
+            globalScope: this.props.dynamicData,
+          });
+        }
       }
     }
   }
+
+  handleEditorFocus = () => {
+    this.setState({ isFocused: true });
+    this.editor.refresh();
+    if (this.props.singleLine) {
+      this.editor.setOption("lineWrapping", true);
+    }
+  };
+
+  handleEditorBlur = () => {
+    this.setState({ isFocused: false });
+    if (this.props.singleLine) {
+      this.editor.setOption("lineWrapping", false);
+    }
+  };
 
   handleChange = () => {
     const value = this.editor.getValue();
@@ -307,9 +341,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
         <Wrapper
-          borderStyle={theme}
+          editorTheme={theme}
           hasError={hasError}
           singleLine={singleLine}
+          isFocused={this.state.isFocused}
         >
           <HintStyles />
           <IconContainer>
