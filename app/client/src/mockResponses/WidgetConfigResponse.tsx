@@ -137,7 +137,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { id: "2", label: "Bravo", value: "2" },
         { id: "3", label: "Charlie", value: "3" },
       ],
-      selectedOptionValue: "1",
+      defaultOptionValue: "1",
       widgetName: "RadioGroup",
     },
     ALERT_WIDGET: {
@@ -154,6 +154,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       files: [],
       columns: 4,
       widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
     },
   },
   configVersion: 1,

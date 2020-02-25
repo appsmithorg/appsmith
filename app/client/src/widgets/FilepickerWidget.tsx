@@ -12,6 +12,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
+import shallowequal from "shallowequal";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
@@ -124,7 +125,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
-      prevProps.allowedFileTypes !== this.props.allowedFileTypes ||
+      !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles
     ) {
       this.refreshUppy(this.props);
