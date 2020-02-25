@@ -95,17 +95,23 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
+                    Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
+                            .flatMap(application -> {
+                                application.getPages().removeIf(p -> p.getId().equals(page.getId()));
+                                return applicationService.save(application);
+                            });
                     Mono<Page> archivedPageMono = repository.archive(page);
                     Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId())
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return actionRepository.archive(action);
                             }).collectList();
-                    return Mono.zip(archivedPageMono, archivedActionsMono)
+                    return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
                             .map(tuple -> {
                                 Page page1 = tuple.getT1();
                                 List<Action> actions = tuple.getT2();
-                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), id);
+                                Application application = tuple.getT3();
+                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
                                 return page1;
                             });
                 });
