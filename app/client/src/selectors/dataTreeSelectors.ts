@@ -38,9 +38,7 @@ export const getDataTreeForAutocomplete = createCachedSelector(
       });
     }
     const libs: Record<string, any> = {};
-    extraLibraries.forEach(
-      config => (libs[config.accessor] = libs[config.accessor]),
-    );
+    extraLibraries.forEach(config => (libs[config.accessor] = config.lib));
     return { ...dataTree, ...cachedResponses, ...libs };
   },
 )((state: AppState) => state.entities.actions.length);
