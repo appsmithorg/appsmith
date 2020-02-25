@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,9 +25,6 @@ public class Action extends BaseDomain {
 
     @Transient
     Datasource datasource;
-
-    @JsonIgnore
-    String datasourceId;
 
     String organizationId;
 
@@ -55,20 +51,4 @@ public class Action extends BaseDomain {
     String cacheResponse;
 
     String templateId; //If action is created via a template, store the id here.
-
-    public Datasource getDatasource() {
-        if (this.datasource != null) {
-            //The action object has been created from JSON.
-            return this.datasource;
-        }
-
-        //If the action object has been fetched from the db, it would not have datasource. Create and return one.
-        if (this.getDatasourceId() != null) {
-            Datasource datasource = new Datasource();
-            datasource.setId(this.datasourceId);
-            return datasource;
-        }
-
-        return null;
-    }
 }
