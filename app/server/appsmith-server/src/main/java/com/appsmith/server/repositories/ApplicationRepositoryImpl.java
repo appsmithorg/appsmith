@@ -5,6 +5,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
@@ -19,10 +20,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Component
 public class ApplicationRepositoryImpl extends BaseRepositoryImpl<Application, String> implements ApplicationRepository {
 
-    @Autowired
-    public ApplicationRepositoryImpl(@NonNull MongoEntityInformation<Application, String> entityInformation,
-                              @NonNull ReactiveMongoOperations mongoOperations) {
-        super(entityInformation, mongoOperations);
+//    public ApplicationRepositoryImpl(@NonNull MongoEntityInformation<Application, String> entityInformation,
+//                              @NonNull ReactiveMongoOperations mongoOperations) {
+//        super(entityInformation, mongoOperations);
+//    }
+
+    // TODO: Not implemented yet
+    @Override
+    public Mono<Application> findByIdAndOrganizationId(String id, String orgId) {
+        Query query = new Query();
+        return Mono.empty() ;
     }
 
     @Override
@@ -35,12 +42,5 @@ public class ApplicationRepositoryImpl extends BaseRepositoryImpl<Application, S
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
                 .one();
-    }
-
-    @Override
-    public Flux<Application> findAll(Example example) {
-        Query query = new Query(notDeleted());
-        Annotation[] annotations = entityInformation.getJavaType().getAnnotations();
-        return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
     }
 }

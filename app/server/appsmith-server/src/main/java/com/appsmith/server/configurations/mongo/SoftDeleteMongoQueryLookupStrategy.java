@@ -22,9 +22,11 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -91,16 +93,16 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
         @Override
         protected Query createQuery(ConvertingParameterAccessor accessor) {
 //            SecurityContext securityContext = SecurityContextHolder.getContext();
-            User userPrincipal = ReactiveSecurityContextHolder.getContext()
-                    .switchIfEmpty(Mono.error(new Exception("no context")))
-                    .map(ctx -> ctx.getAuthentication())
-                    .map(auth -> auth.getPrincipal())
-                    .map(principal -> {
-                        if (principal instanceof User) {
-                            return (User) principal;
-                        }
-                        return new User();
-                    }).block();
+//            User userPrincipal = ReactiveSecurityContextHolder.getContext()
+//                    .switchIfEmpty(Mono.error(new Exception("no context")))
+//                    .map(ctx -> ctx.getAuthentication())
+//                    .map(auth -> auth.getPrincipal())
+//                    .map(principal -> {
+//                        if (principal instanceof User) {
+//                            return (User) principal;
+//                        }
+//                        return new User();
+//                    }).block();
             AclPermission aclPermission = method.getAnnotation(AclPermission.class);
             if (aclPermission != null) {
                 log.debug("Got principal: {}", aclPermission.principal());
