@@ -32,8 +32,7 @@ class OptionControl extends BaseControl<ControlProps> {
   render() {
     const options: DropdownOption[] = this.props.propertyValue || [{}];
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
+      <React.Fragment>
         {options.map((option, index) => {
           return (
             <StyledOptionControlWrapper
@@ -73,7 +72,7 @@ class OptionControl extends BaseControl<ControlProps> {
           minimal={true}
           onClick={this.addOption}
         />
-      </ControlWrapper>
+      </React.Fragment>
     );
   }
 

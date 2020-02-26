@@ -35,6 +35,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
+      columnActions: VALIDATION_TYPES.ARRAY,
     };
   }
   static getDerivedPropertiesMap() {
@@ -47,7 +48,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       onRowSelected: true,
       onPageChange: true,
-      columnActions: true,
     };
   }
 

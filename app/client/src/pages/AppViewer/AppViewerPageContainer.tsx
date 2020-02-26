@@ -2,10 +2,7 @@ import React, { Component } from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  getIsFetchingPage,
-  getCurrentPageLayoutDSL,
-} from "selectors/appViewSelectors";
+import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -15,6 +12,7 @@ import { theme } from "constants/DefaultTheme";
 import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
+import { getCanvasWidgetDsl } from "selectors/editorSelectors";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -26,7 +24,7 @@ const Section = styled.section`
 `;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
-  dsl?: ContainerWidgetProps<WidgetProps>;
+  widgets?: ContainerWidgetProps<WidgetProps>;
   fetchPage: (pageId: string) => void;
 } & RouteComponentProps<AppViewerRouteParams>;
 
@@ -72,15 +70,14 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <Spinner />
       </Centered>
     );
-
     if (this.props.isFetchingPage) {
       return pageLoading;
-    } else if (!this.props.isFetchingPage && !this.props.dsl) {
+    } else if (!this.props.isFetchingPage && !this.props.widgets) {
       return pageNotFound;
-    } else if (!this.props.isFetchingPage && this.props.dsl) {
+    } else if (!this.props.isFetchingPage && this.props.widgets) {
       return (
         <Section>
-          <AppPage dsl={this.props.dsl} />
+          <AppPage dsl={this.props.widgets} />
         </Section>
       );
     }
@@ -89,7 +86,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => ({
   isFetchingPage: getIsFetchingPage(state),
-  dsl: getCurrentPageLayoutDSL(state),
+  widgets: getCanvasWidgetDsl(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

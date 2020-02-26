@@ -17,11 +17,16 @@ import {
 } from "utils/WidgetPropsUtils";
 import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import {
+  SetWidgetDynamicPropertyPayload,
+  updateWidgetProperty,
+  updateWidgetPropertyRequest,
+  UpdateWidgetPropertyRequestPayload,
+} from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
@@ -177,38 +182,61 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 }
 
 function* updateWidgetPropertySaga(
-  updateAction: ReduxAction<UpdateWidgetPropertyPayload>,
+  updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId },
+    payload: { propertyValue, propertyName, widgetId, renderMode },
   } = updateAction;
   const isDynamic = isDynamicValue(propertyValue);
   const widget: WidgetProps = yield select(getWidget, widgetId);
-  let dynamicBindings: Record<string, boolean> = widget.dynamicBindings || {};
-  let dynamicTriggers: Record<string, true> = widget.dynamicTriggers || {};
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
   if (propertyName in triggerProperties) {
+    let dynamicTriggers: Record<string, true> = widget.dynamicTriggers || {};
     if (propertyValue && !(propertyName in dynamicTriggers)) {
       dynamicTriggers[propertyName] = true;
     }
     if (!propertyValue && propertyName in dynamicTriggers) {
       dynamicTriggers = _.omit(dynamicTriggers, propertyName);
     }
+    yield put(
+      updateWidgetProperty(widgetId, "dynamicTriggers", dynamicTriggers),
+    );
   } else {
+    let dynamicBindings: Record<string, boolean> = widget.dynamicBindings || {};
     if (!isDynamic && propertyName in dynamicBindings) {
       dynamicBindings = _.omit(dynamicBindings, propertyName);
     }
     if (isDynamic && !(propertyName in dynamicBindings)) {
       dynamicBindings[propertyName] = true;
     }
+    yield put(
+      updateWidgetProperty(widgetId, "dynamicBindings", dynamicBindings),
+    );
   }
 
-  yield put({
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-    payload: { ...updateAction.payload, dynamicBindings, dynamicTriggers },
-  });
+  yield put(updateWidgetProperty(widgetId, propertyName, propertyValue));
+}
+
+function* setWidgetDynamicPropertySaga(
+  action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+) {
+  const { isDynamic, propertyName, widgetId } = action.payload;
+  const widget: WidgetProps = yield select(getWidget, widgetId);
+  const dynamicProperties: Record<string, true> = {
+    ...widget.dynamicProperties,
+  };
+  if (isDynamic) {
+    dynamicProperties[propertyName] = true;
+    yield put(updateWidgetProperty(widgetId, propertyName, "{{}}"));
+  } else {
+    delete dynamicProperties[propertyName];
+    yield put(updateWidgetProperty(widgetId, propertyName, undefined));
+  }
+  yield put(
+    updateWidgetProperty(widgetId, "dynamicProperties", dynamicProperties),
+  );
 }
 
 export default function* widgetOperationSagas() {
@@ -220,6 +248,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
       updateWidgetPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
+      setWidgetDynamicPropertySaga,
     ),
   ]);
 }

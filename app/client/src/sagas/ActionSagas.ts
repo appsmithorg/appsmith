@@ -54,7 +54,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction, executeActionError } from "actions/widgetActions";
-import { getParsedDataTree } from "selectors/dataTreeSelectors";
+import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionResponses } from "selectors/entitiesSelector";
 import {
@@ -98,7 +98,7 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const tree = yield select(getParsedDataTree);
+  const tree = yield select(evaluateDataTree);
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -264,7 +264,7 @@ export function* executeActionTriggers(
 
 export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
-  const tree = yield select(getParsedDataTree);
+  const tree = yield select(evaluateDataTree);
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   if (triggers) {
     yield all(

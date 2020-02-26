@@ -1,28 +1,25 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledDatePicker } from "./StyledControls";
+import { StyledDatePicker } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import moment from "moment-timezone";
 
 class DatePickerControl extends BaseControl<DatePickerControlProps> {
   render() {
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
-        <StyledDatePicker
-          formatDate={this.formatDate}
-          parseDate={this.parseDate}
-          placeholder={"DD/MM/YYYY"}
-          showActionsBar={true}
-          timePickerProps={{
-            useAmPm: true,
-            value: this.props.propertyValue || new Date(),
-            showArrowButtons: true,
-          }}
-          onChange={this.onDateSelected}
-          value={this.props.propertyValue || new Date()}
-        />
-      </ControlWrapper>
+      <StyledDatePicker
+        formatDate={this.formatDate}
+        parseDate={this.parseDate}
+        placeholder={"DD/MM/YYYY"}
+        showActionsBar={true}
+        timePickerProps={{
+          useAmPm: true,
+          value: this.props.propertyValue || new Date(),
+          showArrowButtons: true,
+        }}
+        onChange={this.onDateSelected}
+        value={this.props.propertyValue || new Date()}
+      />
     );
   }
 

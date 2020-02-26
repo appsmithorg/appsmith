@@ -269,8 +269,9 @@ export interface WidgetBuilder<T extends WidgetProps> {
 export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
-  dynamicBindings?: Record<string, boolean>;
+  dynamicBindings?: Record<string, true>;
   dynamicTriggers?: Record<string, true>;
+  dynamicProperties?: Record<string, true>;
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   isDefaultClickDisabled?: boolean;

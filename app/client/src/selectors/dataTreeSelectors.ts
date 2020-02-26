@@ -2,31 +2,31 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getActions } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import createCachedSelector from "re-reselect";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 export const getUnevaluatedDataTree = (state: AppState): DataTree =>
   DataTreeFactory.create(state);
 
-export const getParsedDataTree = createSelector(
+export const evaluateDataTree = createSelector(
   getUnevaluatedDataTree,
-  (dataTree: DataTree) => {
-    return getEvaluatedDataTree(dataTree, true);
+  (dataTree: DataTree): DataTree => {
+    return getEvaluatedDataTree(dataTree);
   },
 );
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
-export const getDataTreeForAutocomplete = createCachedSelector(
-  getParsedDataTree,
+export const getDataTreeForAutocomplete = createSelector(
+  evaluateDataTree,
   getActions,
-  (dataTree: DataTree, actions: ActionDataState) => {
+  (tree: DataTree, actions: ActionDataState) => {
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {
-        if (!(action.config.name in dataTree) && action.config.cacheResponse) {
+        if (!(action.config.name in tree) && action.config.cacheResponse) {
           try {
             cachedResponses[action.config.name] = JSON.parse(
               action.config.cacheResponse,
@@ -37,8 +37,9 @@ export const getDataTreeForAutocomplete = createCachedSelector(
         }
       });
     }
+    _.omit(tree, ["MainContainer", "actionPaths"]);
     const libs: Record<string, any> = {};
     extraLibraries.forEach(config => (libs[config.accessor] = config.lib));
-    return { ...dataTree, ...cachedResponses, ...libs };
+    return { ...tree, ...cachedResponses, ...libs };
   },
-)((state: AppState) => state.entities.actions.length);
+);

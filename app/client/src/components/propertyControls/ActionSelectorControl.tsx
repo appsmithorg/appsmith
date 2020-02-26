@@ -13,13 +13,10 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   render() {
     const { propertyValue } = this.props;
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
-        <DynamicActionCreator
-          value={propertyValue}
-          onValueChange={this.handleValueUpdate}
-        />
-      </ControlWrapper>
+      <DynamicActionCreator
+        value={propertyValue}
+        onValueChange={this.handleValueUpdate}
+      />
     );
   }
 
