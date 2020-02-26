@@ -1,19 +1,16 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledSwitch } from "./StyledControls";
+import { StyledSwitch } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
-      <ControlWrapper orientation={"HORIZONTAL"}>
-        <label>{this.props.label}</label>
-        <StyledSwitch
-          onChange={this.onToggle}
-          defaultChecked={this.props.propertyValue}
-          large
-        />
-      </ControlWrapper>
+      <StyledSwitch
+        onChange={this.onToggle}
+        defaultChecked={this.props.propertyValue}
+        large
+      />
     );
   }
 

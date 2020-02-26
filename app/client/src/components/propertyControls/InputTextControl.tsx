@@ -1,9 +1,8 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledDynamicInput } from "./StyledControls";
+import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
-// import { Intent } from "@blueprintjs/core";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
 export function InputText(props: {
@@ -13,25 +12,22 @@ export function InputText(props: {
   isValid: boolean;
   validationMessage?: string;
 }) {
-  const { validationMessage, value, isValid, label, onChange } = props;
+  const { validationMessage, value, isValid, onChange } = props;
   return (
-    <ControlWrapper>
-      <label>{label}</label>
-      <StyledDynamicInput>
-        <DynamicAutocompleteInput
-          input={{
-            value: value,
-            onChange: onChange,
-          }}
-          meta={{
-            error: isValid ? "" : validationMessage,
-            touched: true,
-          }}
-          theme={"DARK"}
-          singleLine={false}
-        />
-      </StyledDynamicInput>
-    </ControlWrapper>
+    <StyledDynamicInput>
+      <DynamicAutocompleteInput
+        input={{
+          value: value,
+          onChange: onChange,
+        }}
+        meta={{
+          error: isValid ? "" : validationMessage,
+          touched: true,
+        }}
+        theme={"DARK"}
+        singleLine={false}
+      />
+    </StyledDynamicInput>
   );
 }
 

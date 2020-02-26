@@ -23,7 +23,7 @@ import { ExecuteActionPayload } from "constants/ActionConstants";
 import SideNav from "./viewer/SideNav";
 import { SideNavItemProps } from "./viewer/SideNavItem";
 import AppViewerHeader from "./viewer/AppViewerHeader";
-import { updateWidgetProperty } from "actions/controlActions";
+import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
@@ -130,7 +130,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetProperty(
+      updateWidgetPropertyRequest(
         widgetId,
         propertyName,
         propertyValue,

@@ -46,7 +46,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { RenderModes } from "constants/WidgetConstants";
-import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { UpdateWidgetPropertyRequestPayload } from "actions/controlActions";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -244,7 +244,7 @@ export function* saveLayoutSaga() {
 }
 
 export function* updateWidgetPropertySaga(
-  action: ReduxAction<UpdateWidgetPropertyPayload>,
+  action: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   if (action.payload.renderMode === RenderModes.CANVAS) {
     yield saveLayoutSaga();
@@ -399,7 +399,7 @@ export default function* pageSagas() {
     ),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLatest(
-      ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+      ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
       updateWidgetPropertySaga,
     ),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),

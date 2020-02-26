@@ -37,8 +37,6 @@ const canvasWidgetsReducer = createReducer(initialState, {
       [action.payload.widgetId]: {
         ...widget,
         [action.payload.propertyName]: action.payload.propertyValue,
-        dynamicBindings: action.payload.dynamicBindings,
-        dynamicTriggers: action.payload.dynamicTriggers,
       },
     };
   },

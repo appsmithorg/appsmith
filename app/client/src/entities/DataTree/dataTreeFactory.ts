@@ -33,8 +33,13 @@ export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
+export type DataTreeEntity =
+  | DataTreeAction
+  | DataTreeWidget
+  | ActionDispatcher<any, any>;
+
 export type DataTree = {
-  [key: string]: DataTreeAction | DataTreeWidget | ActionDispatcher<any, any>;
+  [entityName: string]: DataTreeEntity;
 } & { actionPaths?: string[] };
 
 export class DataTreeFactory {

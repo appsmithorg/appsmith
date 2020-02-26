@@ -1,20 +1,21 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import { ControlWrapper } from "./StyledControls";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
+    const { validationMessage, propertyValue, isValid } = this.props;
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
-        <DynamicAutocompleteInput
-          theme={"DARK"}
-          input={{ value: this.props.propertyValue, onChange: this.onChange }}
-          singleLine={false}
-        />
-      </ControlWrapper>
+      <DynamicAutocompleteInput
+        theme={"DARK"}
+        input={{ value: propertyValue, onChange: this.onChange }}
+        meta={{
+          error: isValid ? "" : validationMessage,
+          touched: true,
+        }}
+        singleLine={false}
+      />
     );
   }
 

@@ -1,7 +1,7 @@
 import React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
@@ -28,7 +28,7 @@ class ColumnActionSelectorControl extends BaseControl<
 > {
   render() {
     return (
-      <ControlWrapper orientation={"VERTICAL"}>
+      <React.Fragment>
         {this.props.propertyValue &&
           this.props.propertyValue.map((columnAction: ColumnAction) => {
             return (
@@ -69,7 +69,7 @@ class ColumnActionSelectorControl extends BaseControl<
           minimal={true}
           onClick={this.addColumnAction}
         />
-      </ControlWrapper>
+      </React.Fragment>
     );
   }
 

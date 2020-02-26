@@ -325,6 +325,7 @@ export const theme: Theme = {
     builderBodyBG: Colors.WHITE,
     widgetBorder: Colors.MINT_TULIP,
     widgetSecondaryBorder: Colors.MERCURY,
+    paneIcon: Colors.TROUT,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
