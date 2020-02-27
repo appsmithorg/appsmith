@@ -43,7 +43,7 @@ export const AuthCardNavLink = styled(Link)`
   text-align: center;
   margin: 0 auto;
   display: block;
-  margin-top: ${props => props.theme.spaces[6]}px;
+  margin-top: ${props => props.theme.spaces[12]}px;
   & span {
     margin-left: ${props => props.theme.spaces[4]}px;
   }
@@ -78,10 +78,16 @@ export const SpacedForm = styled(Form)`
 
 export const SpacedSubmitForm = styled.form`
   ${formSpacing}
+  & a {
+    font-size: ${props => props.theme.fontSizes[3]}px;
+  }
 `;
 
 export const FormActions = styled.div`
   display: flex;
+  & button {
+    flex: 1;
+  }
   justify-content: space-between;
   align-items: baseline;
   margin-top: ${props => props.theme.spaces[2]}px;

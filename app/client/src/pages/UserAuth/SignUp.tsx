@@ -3,7 +3,6 @@ import { reduxForm, InjectedFormProps } from "redux-form";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "constants/forms";
 import { Link } from "react-router-dom";
-import { Icon } from "@blueprintjs/core";
 import Divider from "components/editorComponents/Divider";
 import {
   AuthCardHeader,
@@ -31,12 +30,13 @@ import {
   TERMS_AND_CONDITIONS_LINK,
   SIGNUP_PAGE_SUCCESS,
   SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT,
+  FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import FormGroup from "components/editorComponents/form/FormGroup";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -93,31 +93,32 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_EMAIL_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="email"
               type="email"
               placeholder={SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={SIGNUP_PAGE_PASSWORD_INPUT_LABEL}
+            helperText={FORM_VALIDATION_PASSWORD_RULE}
           >
-            <TextField
+            <FormTextField
               type="password"
               name="password"
               placeholder={SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <FormActions>
-            <FormButton
+            <Button
               type="submit"
               disabled={pristine || !valid}
               loading={submitting}
               text={SIGNUP_PAGE_SUBMIT_BUTTON_TEXT}
               intent="primary"
+              filled
+              size="large"
             />
           </FormActions>
         </SpacedForm>
@@ -129,7 +130,6 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
 
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {SIGNUP_PAGE_LOGIN_LINK_TEXT}
-        <Icon icon="arrow-right" intent="primary" />
       </AuthCardNavLink>
       <AuthCardFooter>
         <Link to="#">{PRIVACY_POLICY_LINK}</Link>

@@ -183,8 +183,8 @@ export function* inviteUsers(
     data: Array<{ roleId: string; emails: string[] }>;
   }>,
 ) {
+  const { data, resolve, reject } = action.payload;
   try {
-    const { data, resolve, reject } = action.payload;
     const sagasToCall = [];
     const emailSet: Record<string, string[]> = {};
     data.forEach((groupSet: { roleId: string; emails: string[] }) => {
@@ -213,6 +213,7 @@ export function* inviteUsers(
     yield call(resolve);
   } catch (error) {
     console.log(error);
+    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
       payload: {

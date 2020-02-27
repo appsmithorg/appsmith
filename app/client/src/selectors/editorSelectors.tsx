@@ -1,5 +1,4 @@
 import { createSelector } from "reselect";
-import createCachedSelector from "re-reselect";
 
 import { AppState } from "reducers";
 import { EditorReduxState } from "reducers/uiReducers/editorReducer";

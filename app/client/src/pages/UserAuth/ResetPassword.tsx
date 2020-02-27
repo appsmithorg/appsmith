@@ -7,13 +7,13 @@ import { RESET_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/fields/TextField";
 import FormMessage, {
   FormMessageProps,
   MessageAction,
 } from "components/editorComponents/form/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -101,7 +101,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
       {
         url: FORGOT_PASSWORD_URL,
         text: RESET_PASSWORD_FORGOT_PASSWORD_LINK,
-        intent: "success",
+        intent: "primary",
       },
     ];
   }
@@ -157,17 +157,18 @@ export const ResetPassword = (props: ResetPasswordProps) => {
             intent={error ? "danger" : "none"}
             label={RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="password"
               type="password"
               placeholder={RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />
           <Field type="hidden" name="token" component="input" />
           <FormActions>
-            <FormButton
+            <Button
+              filled
+              size="large"
               type="submit"
               text={RESET_PASSWORD_SUBMIT_BUTTON_TEXT}
               intent="primary"

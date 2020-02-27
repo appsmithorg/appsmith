@@ -87,6 +87,7 @@ export const Button = (props: ButtonProps) => {
     small: props.size === "small",
     loading: props.loading,
     disabled: props.disabled,
+    type: props.type,
     className: props.className,
   };
   if (props.href) {

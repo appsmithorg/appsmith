@@ -12,8 +12,9 @@ export const FORM_VALIDATION_EMPTY_EMAIL = "Please enter an email";
 export const FORM_VALIDATION_INVALID_EMAIL =
   "Please provide a valid email address";
 export const FORM_VALIDATION_EMPTY_PASSWORD = "Please enter the password";
-export const FORM_VALIDATION_INVALID_PASSWORD =
+export const FORM_VALIDATION_PASSWORD_RULE =
   "Please provide a password with a minimum of 6 characters";
+export const FORM_VALIDATION_INVALID_PASSWORD = "Please enter a valid password";
 
 export const LOGIN_PAGE_SUBTITLE = "Use your organization email";
 export const LOGIN_PAGE_TITLE = "Login";
@@ -22,7 +23,7 @@ export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = "Password";
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = "Email";
 export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = "Password";
 export const LOGIN_PAGE_INVALID_CREDS_ERROR =
-  "Oops! It looks like you may have forgotten your password.";
+  "It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.";
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = "Reset Password";
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = "Login";
@@ -52,9 +53,8 @@ export const RESET_PASSWORD_SUBMIT_BUTTON_TEXT = "Reset";
 export const RESET_PASSWORD_PAGE_SUBTITLE =
   "Create a new password for your account ";
 
-export const RESET_PASSWORD_RESET_SUCCESS =
-  "Your password has been reset. Please"; //"Your password has been reset. Please login" (see next entry);
-export const RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "login";
+export const RESET_PASSWORD_RESET_SUCCESS = "Your password has been reset"; //"Your password has been reset. Please login" (see next entry);
+export const RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "Login";
 
 export const RESET_PASSWORD_EXPIRED_TOKEN =
   "The password reset link has expired. Please try generating a new link";
@@ -109,9 +109,8 @@ export const CREATE_PASSWORD_SUBMIT_BUTTON_TEXT = "Create";
 export const CREATE_PASSWORD_PAGE_SUBTITLE =
   "Set a new password for your account ";
 
-export const CREATE_PASSWORD_RESET_SUCCESS =
-  "Your password has been set. Please";
-export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "login";
+export const CREATE_PASSWORD_RESET_SUCCESS = "Your password has been set";
+export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = "Login";
 
 export const CREATE_PASSWORD_EXPIRED_TOKEN =
   "The invite link has expired. Please try requesting a new invite";
@@ -119,3 +118,4 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
 
 export const DELETING_APPLICATION = "Deleting application...";
+export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";

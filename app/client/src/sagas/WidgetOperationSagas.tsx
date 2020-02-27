@@ -20,13 +20,12 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
-  updateWidgetPropertyRequest,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
@@ -47,7 +46,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
     const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
     const childWidget = generateWidgetProps(
-      widget,
+      widget, // parent,
       type,
       leftColumn,
       topRow,
@@ -185,7 +184,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyValue, propertyName, widgetId, renderMode },
+    payload: { propertyValue, propertyName, widgetId },
   } = updateAction;
   const isDynamic = isDynamicValue(propertyValue);
   const widget: WidgetProps = yield select(getWidget, widgetId);

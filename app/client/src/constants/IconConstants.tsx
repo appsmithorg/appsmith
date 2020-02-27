@@ -2,10 +2,10 @@ import styled from "styled-components";
 import { Color } from "./Colors";
 
 export type IconProps = {
-  width: number;
-  height: number;
-  color: Color;
-  background: Color;
+  width?: number;
+  height?: number;
+  color?: Color;
+  background?: Color;
 };
 
 export const IconWrapper = styled.div<IconProps>`

@@ -1,6 +1,5 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlWrapper } from "./StyledControls";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 
