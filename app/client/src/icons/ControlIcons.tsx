@@ -6,6 +6,7 @@ import { ReactComponent as EditIcon } from "assets/icons/control/edit.svg";
 import { ReactComponent as ViewIcon } from "assets/icons/control/view.svg";
 import { ReactComponent as MoreVerticalIcon } from "assets/icons/control/more-vertical.svg";
 import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-menu.svg";
+import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.svg";
 
 /* eslint-disable react/display-name */
 
@@ -40,6 +41,11 @@ export const ControlIcons: {
   MORE_HORIZONTAL_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <OverflowMenuIcon />
+    </IconWrapper>
+  ),
+  JS_TOGGLE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <JsToggleIcon />
     </IconWrapper>
   ),
 };

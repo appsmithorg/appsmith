@@ -7,7 +7,7 @@ import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeAction, disableDragAction } from "actions/widgetActions";
-import { updateWidgetProperty } from "actions/controlActions";
+import { updateWidgetPropertyRequest } from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
@@ -88,7 +88,7 @@ const mapDispatchToProps = (dispatch: any) => {
       propertyValue: any,
     ) =>
       dispatch(
-        updateWidgetProperty(
+        updateWidgetPropertyRequest(
           widgetId,
           propertyName,
           propertyValue,

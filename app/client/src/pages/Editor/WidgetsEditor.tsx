@@ -5,11 +5,11 @@ import styled from "styled-components";
 import Canvas from "./Canvas";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
-import { fetchPage, savePage } from "actions/pageActions";
+import { fetchPage } from "actions/pageActions";
 import {
-  getDenormalizedDSL,
   getIsFetchingPage,
   getCurrentPageId,
+  getCanvasWidgetDsl,
 } from "selectors/editorSelectors";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { BuilderRouteParams } from "constants/routes";
@@ -43,8 +43,7 @@ const CanvasContainer = styled.section`
 `;
 
 type EditorProps = {
-  dsl?: ContainerWidgetProps<WidgetProps>;
-  savePageLayout: Function;
+  widgets?: ContainerWidgetProps<WidgetProps>;
   fetchPage: (pageId: string, width?: number) => void;
   currentPageId?: string;
   isFetchingPage: boolean;
@@ -71,8 +70,8 @@ const WidgetsEditor = (props: EditorProps) => {
   if (props.isFetchingPage) {
     node = pageLoading;
   }
-  if (!props.isFetchingPage && props.dsl) {
-    node = <Canvas dsl={props.dsl} />;
+  if (!props.isFetchingPage && props.widgets) {
+    node = <Canvas dsl={props.widgets} />;
   }
   return (
     <EditorContextProvider>
@@ -85,7 +84,7 @@ const WidgetsEditor = (props: EditorProps) => {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    dsl: getDenormalizedDSL(state),
+    widgets: getCanvasWidgetDsl(state),
     isFetchingPage: getIsFetchingPage(state),
     currentPageId: getCurrentPageId(state),
   };
@@ -93,11 +92,6 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    savePageLayout: (
-      pageId: string,
-      layoutId: string,
-      dsl: ContainerWidgetProps<WidgetProps>,
-    ) => dispatch(savePage(pageId, layoutId, dsl)),
     fetchPage: (pageId: string, canvasContainerWidth?: number) =>
       dispatch(fetchPage(pageId, canvasContainerWidth)),
   };

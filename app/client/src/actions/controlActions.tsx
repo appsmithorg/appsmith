@@ -1,12 +1,12 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
 
-export const updateWidgetProperty = (
+export const updateWidgetPropertyRequest = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
   renderMode: RenderMode,
-): ReduxAction<UpdateWidgetPropertyPayload> => {
+): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
     payload: {
@@ -18,11 +18,51 @@ export const updateWidgetProperty = (
   };
 };
 
-export interface UpdateWidgetPropertyPayload {
+export const updateWidgetProperty = (
+  widgetId: string,
+  propertyName: string,
+  propertyValue: any,
+): ReduxAction<UpdateWidgetPropertyPayload> => {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
+    payload: {
+      widgetId,
+      propertyName,
+      propertyValue,
+    },
+  };
+};
+
+export const setWidgetDynamicProperty = (
+  widgetId: string,
+  propertyName: string,
+  isDynamic: boolean,
+): ReduxAction<SetWidgetDynamicPropertyPayload> => {
+  return {
+    type: ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
+    payload: {
+      widgetId,
+      propertyName,
+      isDynamic,
+    },
+  };
+};
+
+export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyName: string;
   propertyValue: any;
   renderMode: RenderMode;
-  dynamicBindings?: Record<string, boolean>;
-  dynamicTriggers?: Record<string, true>;
+}
+
+export interface UpdateWidgetPropertyPayload {
+  widgetId: string;
+  propertyName: string;
+  propertyValue: any;
+}
+
+export interface SetWidgetDynamicPropertyPayload {
+  widgetId: string;
+  propertyName: string;
+  isDynamic: boolean;
 }

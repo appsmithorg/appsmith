@@ -38,6 +38,7 @@ export const Colors: Record<string, string> = {
   AZURE_RADIANCE: "#0384FE",
   OCEAN_GREEN: "#36AB80",
   BUTTER_CUP: "#F7AF22",
+  TROUT: "#4C565E",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];
