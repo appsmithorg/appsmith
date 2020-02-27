@@ -55,9 +55,14 @@ const PropertyControl = (props: Props) => {
       false,
     );
     const isConvertible = CONVERTIBLE_CONTROLS.indexOf(config.controlType) > -1;
+    const className = propertyConfig.label
+      .split(" ")
+      .join("")
+      .toLowerCase();
     return (
       <ControlWrapper
-        key={config.key}
+        className={`t--property-control-${className}`}
+        key={config.id}
         orientation={
           config.controlType === "SWITCH" && !isDynamic
             ? "HORIZONTAL"
