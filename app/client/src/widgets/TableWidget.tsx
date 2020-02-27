@@ -77,6 +77,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnActions={this.props.columnActions}
         onCommandClick={this.onCommandClick}
         onRowClick={this.handleRowClick}
+        selectedRowIndex={this.props.selectedRowIndex || -1}
         serverSidePaginationEnabled={serverSidePaginationEnabled}
         pageNo={pageNo}
         nextPageClick={this.handleNextPageClick}
@@ -84,6 +85,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         updatePageNo={(pageNo: number) => {
           super.updateWidgetMetaProperty("pageNo", pageNo);
         }}
+        resetSelectedRowIndex={this.resetSelectedRowIndex}
         updatePageSize={(pageSize: number) => {
           super.updateWidgetMetaProperty("pageSize", pageSize);
         }}
@@ -118,7 +120,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     pageNo = pageNo + 1;
     super.updateWidgetMetaProperty("pageNo", pageNo);
     if (this.props.onPageChange) {
-      super.updateWidgetMetaProperty("selectedRowIndex", -1);
+      this.resetSelectedRowIndex();
       super.executeAction({
         dynamicString: this.props.onPageChange,
         event: {
@@ -128,13 +130,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  resetSelectedRowIndex = () => {
+    super.updateWidgetMetaProperty("selectedRowIndex", -1);
+  };
+
   handlePrevPageClick = () => {
     let pageNo = this.props.pageNo || 1;
     pageNo = pageNo - 1;
     if (pageNo >= 1) {
       super.updateWidgetMetaProperty("pageNo", pageNo);
       if (this.props.onPageChange) {
-        super.updateWidgetMetaProperty("selectedRowIndex", -1);
+        this.resetSelectedRowIndex();
         super.executeAction({
           dynamicString: this.props.onPageChange,
           event: {
