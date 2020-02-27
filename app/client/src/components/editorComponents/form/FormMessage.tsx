@@ -59,7 +59,7 @@ const MessageContainer = styled.div<{ iconbgcolor: string }>`
   }
 `;
 
-const ActionsContainer = styled.div`
+export const ActionsContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -72,7 +72,7 @@ const ActionsContainer = styled.div`
   }
 `;
 
-const ActionButton = (props: MessageAction) => {
+export const ActionButton = (props: MessageAction) => {
   if (props.url) {
     return (
       <Button

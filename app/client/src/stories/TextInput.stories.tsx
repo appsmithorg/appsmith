@@ -3,6 +3,7 @@ import TextInputComponent from "components/designSystems/appsmith/TextInputCompo
 import { withKnobs, text, boolean, select } from "@storybook/addon-knobs";
 import { IconNames } from "@blueprintjs/icons";
 import { withDesign } from "storybook-addon-designs";
+import Centered from "components/designSystems/appsmith/CenteredWrapper";
 
 export default {
   title: "TextInput",
@@ -17,16 +18,27 @@ const mandatoryProps = {
 const iconNames = Object.values({ ...IconNames });
 iconNames.unshift();
 export const withDynamicProps = () => (
-  <TextInputComponent
-    {...mandatoryProps}
-    showError={boolean("Show Errors", false)}
-    placeholder={text("Placeholder", "Placeholder")}
-    meta={{
-      touched: true,
-      error: text("Error Text", "This is an error"),
-    }}
-    icon={select("Icon", iconNames, undefined)}
-  />
+  <Centered style={{ height: "100vh" }}>
+    <div
+      style={{
+        width: "500px",
+        background: "white",
+        height: "300px",
+        padding: "20px",
+      }}
+    >
+      <TextInputComponent
+        {...mandatoryProps}
+        showError={boolean("Show Errors", false)}
+        placeholder={text("Placeholder", "Placeholder")}
+        meta={{
+          touched: true,
+          error: text("Error Text", "This is an error"),
+        }}
+        icon={select("Icon", iconNames, undefined)}
+      />
+    </div>
+  </Centered>
 );
 
 withDynamicProps.story = {
