@@ -6,6 +6,7 @@
     "node": "^10.16.3",
     "npm": "^6.9.0"
   },
+  "cracoConfig": "craco.common.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.18.1",
     "@blueprintjs/datetime": "^3.14.0",
@@ -94,7 +95,7 @@
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
-    "build": "craco  --max-old-space-size=2048 build",
+    "build": "$PWD/build.sh",
     "test": "CI=true craco test",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",
@@ -116,6 +117,7 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
+    "@sentry/webpack-plugin": "^1.10.0",
     "@storybook/addon-contexts": "^5.2.6",
     "@storybook/addon-docs": "^5.2.8",
     "@storybook/addon-knobs": "^5.2.6",
@@ -146,7 +148,8 @@
     "react-test-renderer": "^16.11.0",
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
-    "storybook-addon-designs": "^5.1.1"
+    "storybook-addon-designs": "^5.1.1",
+    "webpack-merge": "^4.2.2"
   },
   "husky": {
     "hooks": {
