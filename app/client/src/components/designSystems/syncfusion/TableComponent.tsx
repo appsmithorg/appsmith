@@ -39,6 +39,8 @@ export interface TableComponentProps {
   serverSidePaginationEnabled: boolean;
   updatePageSize: Function;
   updatePageNo: Function;
+  resetSelectedRowIndex: Function;
+  selectedRowIndex: number;
 }
 
 const StyledGridComponent = styled(GridComponent)`
@@ -62,6 +64,7 @@ const TableContainer = styled.div`
 `;
 const settings: SelectionSettingsModel = {
   type: "Multiple",
+  enableToggle: false,
 };
 
 type GridRef = MutableRefObject<GridComponent | null>;
@@ -207,6 +210,9 @@ const TableComponent = memo(
             if (pager.current) {
               pager.current.totalRecordsCount = props.data.length;
             }
+            if (grid.current) {
+              grid.current.selectionModule.selectRow(props.selectedRowIndex);
+            }
           }}
           rowSelected={rowSelected}
           ref={grid}
@@ -243,6 +249,7 @@ const TableComponent = memo(
             ref={pager}
             click={event => {
               if (grid.current && event) {
+                props.resetSelectedRowIndex();
                 grid.current.pageSettings.currentPage = (event as any).currentPage;
                 if (!props.serverSidePaginationEnabled) {
                   props.updatePageNo((event as any).currentPage);
