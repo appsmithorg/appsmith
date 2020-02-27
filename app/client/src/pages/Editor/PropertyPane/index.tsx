@@ -127,6 +127,7 @@ class PropertyPane extends Component<
                 try {
                   return (
                     <PropertyControl
+                      key={propertyControlOrSection.id}
                       propertyConfig={propertyControlOrSection}
                       widgetProperties={widgetProperties}
                       onPropertyChange={this.onPropertyChange}

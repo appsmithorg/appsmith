@@ -1,5 +1,5 @@
 import { ControlType } from "constants/PropertyControlConstants";
-import React from "react";
+import React, { Fragment } from "react";
 import {
   ControlBuilder,
   ControlProps,
@@ -32,25 +32,15 @@ class PropertyControlFactory {
         key: controlData.id,
       };
       const control = controlBuilder.buildPropertyControl(controlProps);
-      const className = controlProps.label
-        .split(" ")
-        .join("")
-        .toLowerCase();
-      return (
-        <div
-          key={controlProps.id}
-          className={`t--property-control-${className}`}
-        >
-          {control}
-        </div>
-      );
+      return control;
     } else {
       const ex: ControlCreationException = {
         message:
           "Control Builder not registered for control type " +
           controlData.controlType,
       };
-      throw ex;
+      console.log(ex.message);
+      return <Fragment />;
     }
   }
 
