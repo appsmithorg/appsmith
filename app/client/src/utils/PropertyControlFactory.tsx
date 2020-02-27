@@ -1,4 +1,5 @@
 import { ControlType } from "constants/PropertyControlConstants";
+import React from "react";
 import {
   ControlBuilder,
   ControlProps,
@@ -31,7 +32,18 @@ class PropertyControlFactory {
         key: controlData.id,
       };
       const control = controlBuilder.buildPropertyControl(controlProps);
-      return control;
+      const className = controlProps.label
+        .split(" ")
+        .join("")
+        .toLowerCase();
+      return (
+        <div
+          key={controlProps.id}
+          className={`t--property-control-${className}`}
+        >
+          {control}
+        </div>
+      );
     } else {
       const ex: ControlCreationException = {
         message:
