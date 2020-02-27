@@ -177,13 +177,17 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   }
   const isResizingOrDragging =
     selectedWidget !== props.widgetId && (!!isResizing || !!isDragging);
-
+  const className = `${WIDGET_CLASSNAME_PREFIX +
+    props.widgetId} t--draggable-${props.type
+    .split("_")
+    .join("")
+    .toLowerCase()}`;
   return (
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
 
       <DraggableWrapper
-        className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
+        className={className}
         ref={drag}
         onMouseOver={(e: any) => {
           focusWidget &&
@@ -233,12 +237,18 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         )}
 
         {props.children}
-        <DeleteControl className="control" onClick={deleteWidget}>
+        <DeleteControl
+          className="control t--widget-delete-control"
+          onClick={deleteWidget}
+        >
           <Tooltip content="Delete" hoverOpenDelay={500}>
             {deleteControlIcon}
           </Tooltip>
         </DeleteControl>
-        <EditControl className="control" onClick={togglePropertyEditor}>
+        <EditControl
+          className="control t--widget-propertypane-toggle"
+          onClick={togglePropertyEditor}
+        >
           <Tooltip content="Show props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
