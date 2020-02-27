@@ -64,7 +64,6 @@ const validate = (values: LoginFormValues) => {
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
   }
 
-  console.log(values);
   return errors;
 };
 

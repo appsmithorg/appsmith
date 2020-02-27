@@ -21,7 +21,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { destroy, initialize, autofill } from "redux-form";
+import { initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
 import { Property, RestAction } from "api/ActionAPI";
