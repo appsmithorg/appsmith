@@ -10,26 +10,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@NoRepositoryBean
+@Repository
 @AclEntity("applications")
-public interface ApplicationRepository extends BaseRepository<Application, String> {
-
-    default Mono<Application> findByIdAndOrganizationId(String id, String orgId) {
-        System.out.println("In the custom implementation");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    System.out.println("Got principal: " + principal);
-                    return Mono.empty();
-                });
-    }
+public interface ApplicationRepository extends BaseRepository<Application, String>, CustomApplicationRepository {
 
     Mono<Application> findByName(String name);
-
-//    @Override
-//    Flux<Application> findAll(Example example);
-
-    @Override
-    Mono<Application> findById(String id);
 }

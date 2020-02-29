@@ -10,8 +10,6 @@ import java.util.Set;
 @Repository
 public interface ActionRepository extends BaseRepository<Action, String> {
 
-    Mono<Action> findById(String id);
-
     Mono<Action> findByNameAndPageId(String name, String pageId);
 
     Flux<Action> findByPageId(String pageId);
