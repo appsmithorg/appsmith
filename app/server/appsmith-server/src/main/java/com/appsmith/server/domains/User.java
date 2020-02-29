@@ -1,11 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.helpers.AclHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +15,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,9 +61,26 @@ public class User extends BaseDomain implements UserDetails {
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     private Set<String> permissions = new HashSet<>();
 
+    private Set<Policy> policies = new HashSet<>();
+
+    @JsonIgnore
+    @Transient
+    Set<String> flatPermissions = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.getPermissions().stream()
+        // TODO: Also extract the policies from associated groups
+        if (this.flatPermissions != null) {
+            for (Policy policy : this.policies) {
+                for (String entity : policy.getEntities()) {
+                    for (String permission : policy.getPermissions()) {
+                        flatPermissions.add(AclHelper.concatenatePermissionWithArn(permission, entity));
+                    }
+                }
+            }
+        }
+
+        return this.getFlatPermissions().stream()
                 .map(permission -> new SimpleGrantedAuthority(permission))
                 .collect(Collectors.toSet());
     }

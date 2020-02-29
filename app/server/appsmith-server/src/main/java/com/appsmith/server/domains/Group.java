@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -25,13 +26,18 @@ public class Group extends BaseDomain {
     @NotNull
     private String organizationId;
 
-    /*
+    /**
      * This is a list of name of permissions. We will query with permission collection by name
      * This is because permissions are global in nature. They are not specific to a particular org/team.
      */
     Set<String> permissions;
 
     private Boolean isDefault = false;
+
+    /**
+     * These are the policies attached to the group. All users who are part of this group will inherit these policies
+     */
+    Set<Policy> policies = new HashSet<>();
 
     /**
      * If the display name is null or empty, then just return the actual group name. This is just to ensure that

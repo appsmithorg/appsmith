@@ -69,56 +69,7 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
         }
         ReactivePartTreeMongoQuery partTreeQuery = (ReactivePartTreeMongoQuery) repositoryQuery;
 
-        return new SoftDeletePartTreeMongoQuery(method, partTreeQuery);
+        return new SoftDeletePartTreeMongoQuery(method, partTreeQuery, this.mongoOperations, EXPRESSION_PARSER, evaluationContextProvider);
     }
 
-    private Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where("deleted").exists(false),
-                where("deleted").is(false)
-        );
-    }
-
-    private class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
-        private ReactivePartTreeMongoQuery reactivePartTreeQuery;
-        private Method method;
-
-        SoftDeletePartTreeMongoQuery(Method method, ReactivePartTreeMongoQuery reactivePartTreeMongoQuery) {
-            super((ReactiveMongoQueryMethod) reactivePartTreeMongoQuery.getQueryMethod(),
-                    mongoOperations, EXPRESSION_PARSER, evaluationContextProvider);
-            this.reactivePartTreeQuery = reactivePartTreeMongoQuery;
-            this.method = method;
-        }
-
-        @Override
-        protected Query createQuery(ConvertingParameterAccessor accessor) {
-//            SecurityContext securityContext = SecurityContextHolder.getContext();
-//            User userPrincipal = ReactiveSecurityContextHolder.getContext()
-//                    .switchIfEmpty(Mono.error(new Exception("no context")))
-//                    .map(ctx -> ctx.getAuthentication())
-//                    .map(auth -> auth.getPrincipal())
-//                    .map(principal -> {
-//                        if (principal instanceof User) {
-//                            return (User) principal;
-//                        }
-//                        return new User();
-//                    }).block();
-            AclPermission aclPermission = method.getAnnotation(AclPermission.class);
-            if (aclPermission != null) {
-                log.debug("Got principal: {}", aclPermission.principal());
-            }
-            Query query = super.createQuery(accessor);
-            return withNotDeleted(query);
-        }
-
-        @Override
-        protected Query createCountQuery(ConvertingParameterAccessor accessor) {
-            Query query = super.createCountQuery(accessor);
-            return withNotDeleted(query);
-        }
-
-        private Query withNotDeleted(Query query) {
-            return query.addCriteria(notDeleted());
-        }
-    }
 }
