@@ -17,6 +17,8 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     Mono<Plugin> findByName(String name);
 
+    Mono<Plugin> findByPackageName(String packageName);
+
     Mono<Plugin> findById(String id);
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);

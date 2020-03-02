@@ -50,7 +50,8 @@ public class SeedMongoData {
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
+                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"},
+                {"RestTemplatePluginExecutor", PluginType.API, "restapi-plugin"}
         };
         return args -> {
             organizationRepository.deleteAll()
