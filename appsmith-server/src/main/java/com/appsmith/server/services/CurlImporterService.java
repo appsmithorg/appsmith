@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -33,7 +34,7 @@ public class CurlImporterService extends BaseApiImporter {
     private static final String headerRegex = "\\-H\\s+\\'(.+?)\\'";
     private static final String methodRegex = "\\-X\\s+(.+?)\\b";
     private static final String bodyRegex = "\\-d\\s+\\'(.+?)\\'";
-    private static final String pluginName = "RestTemplatePluginExecutor";
+    private static final String pluginName = "restapi-plugin";
     private final ActionService actionService;
     private final PluginService pluginService;
 
@@ -108,16 +109,17 @@ public class CurlImporterService extends BaseApiImporter {
         //Ignoring the first word which is "curl"
         for (int i = 1; i < cmdSplit.length; i++) {
             try {
-                // If the string doesnt throw an exception when being converted to a URI, its a valid URL.
+                // If the string doesn't throw an exception when being converted to a URI, its a valid URL.
                 URI uri = new URL(cmdSplit[i]).toURI();
                 URL url = new URL(cmdSplit[i]);
-                String path = url.getFile().substring(0, url.getFile().lastIndexOf('/'));
-                String base = url.getProtocol() + "://" + url.getHost();
-                log.debug("url is : {}, \npath is : {} & \nbase is : {}", url.getProtocol() + "://" + url.getHost() + path, path, base);
+                String path = url.getPath();
+                String port = getPort(url);
+                String base = url.getProtocol() + "://" + url.getHost() + port;
+                log.debug("url is: {}, path is: {} & baseUrl is: {}", url, path, base);
                 // If it reaches here, we have successfully found a valid URL.
                 urlFound = true;
                 //Extract query params
-                List<NameValuePair> params = URLEncodedUtils.parse(uri, Charset.forName("UTF-8"));
+                List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
                 List<Property> queryParameters = actionConfiguration.getQueryParameters();
                 if (queryParameters == null) {
                     queryParameters = new ArrayList<>();
@@ -150,7 +152,7 @@ public class CurlImporterService extends BaseApiImporter {
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return pluginService.findByName(pluginName)
+        return pluginService.findByPackageName(pluginName)
                 .map(plugin -> {
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
@@ -161,5 +163,12 @@ public class CurlImporterService extends BaseApiImporter {
                     return action;
                 })
                 .flatMap(actionService::create);
+    }
+
+    private String getPort(URL url) {
+        if (url.getPort() != -1) {
+            return ":" + url.getPort();
+        }
+        return "";
     }
 }

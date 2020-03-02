@@ -226,6 +226,10 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         return repository.findByName(name);
     }
 
+    public Mono<Plugin> findByPackageName(String packageName) {
+        return repository.findByPackageName(packageName);
+    }
+
     @Override
     public Mono<Plugin> findById(String id) {
         return repository.findById(id);
