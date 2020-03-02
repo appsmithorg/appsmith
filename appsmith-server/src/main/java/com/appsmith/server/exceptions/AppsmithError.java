@@ -17,7 +17,7 @@ public enum AppsmithError {
     USER_DOESNT_BELONG_ANY_ORGANIZATION(400, 4009, "User {0} does not belong to any organization"),
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}"),
     NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "Datasource without any configuration is invalid. Please try again with datasourceConfiguration"),
-    INVALID_ACTION(400, 4012, "Action is invalid. Please edit to make it valid"),
+    INVALID_ACTION(400, 4012, "Action {0} with id {1} is invalid. Please edit to make it valid"),
     INVALID_DATASOURCE(400, 4013, "Datasource is invalid. Please edit to make it valid"),
     INVALID_ACTION_NAME(400, 4014, "Action name is invalid. Please input syntactically correct name"),
     INVALID_DATASOURCE_CONFIGURATION(400, 4015, "Datasource configuration is invalid"),
