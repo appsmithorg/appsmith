@@ -295,7 +295,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         // This is separately done instead of fetching from the repository using id and isValid. This is
                         // because we want to error out with two different statuses -> Wrong action id OR Invalid action
                         if (action.getIsValid() == false) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION));
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, action.getName(), action.getId()));
                         }
                         return Mono.just(action);
                     });
