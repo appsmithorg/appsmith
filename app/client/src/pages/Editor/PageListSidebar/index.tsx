@@ -4,12 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   ReduxActionTypes,
   PageListPayload,
+  Page,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { ContextDropdownOption } from "components/editorComponents/ContextDropdown";
 import PageListItem from "./PageListItem";
 import CreatePageButton from "./CreatePageButton";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /** Page List */
 
@@ -34,9 +36,14 @@ const PageListSidebar = () => {
   /* Navigation */
   const { pageId } = useParams();
   const history = useHistory();
-  const switchPage = (id: string): void => {
-    if (id !== pageId) {
-      history.push(PAGE_LIST_EDITOR_URL(applicationId, id));
+  const switchPage = (page: Page): void => {
+    AnalyticsUtil.logEvent("PAGE_SWITCH", {
+      pageName: page.pageName,
+      pageId: page.pageId,
+      mode: "EDIT",
+    });
+    if (page.pageId !== pageId) {
+      history.push(PAGE_LIST_EDITOR_URL(applicationId, page.pageId));
     }
   };
 
@@ -61,6 +68,9 @@ const PageListSidebar = () => {
           name,
         },
       });
+      AnalyticsUtil.logEvent("CREATE_PAGE", {
+        pageName: name,
+      });
     }
   };
 
@@ -82,12 +92,15 @@ const PageListSidebar = () => {
     }
   };
 
-  const deletePage = (pageId: string): void => {
+  const deletePage = (page: Page): void => {
     dispatch({
       type: ReduxActionTypes.DELETE_PAGE_INIT,
       payload: {
-        pageId,
+        pageId: page.pageId,
       },
+    });
+    AnalyticsUtil.logEvent("DELETE_PAGE", {
+      pageName: page.pageName,
     });
   };
 
@@ -117,7 +130,7 @@ const PageListSidebar = () => {
         },
         {
           value: "delete",
-          onSelect: () => deletePage(page.pageId),
+          onSelect: () => deletePage(page),
           intent: "danger",
           label: "Delete",
         },
@@ -128,7 +141,7 @@ const PageListSidebar = () => {
           name={page.pageName}
           id={page.pageId}
           updatePage={updatePage}
-          switchPage={switchPage}
+          switchPage={() => switchPage(page)}
           active={page.pageId === pageId}
           isDefault={defaultPageId === page.pageId}
           contextActions={pageActions}

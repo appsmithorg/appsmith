@@ -40,6 +40,7 @@ import {
   BottomLeftHandleStyles,
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
@@ -245,6 +246,15 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
     showPropertyPane &&
       propertyPaneState.widgetId !== props.widgetId &&
       showPropertyPane(props.widgetId, true);
+
+    AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+      startHeight: dimensions.height,
+      startWidth: dimensions.width,
+      endHeight: newDimensions.height,
+      endWidth: newDimensions.width,
+    });
   };
 
   const handleResizeStart = () => {
@@ -253,6 +263,10 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
     showPropertyPane && showPropertyPane(props.widgetId, true);
+    AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+    });
   };
 
   return (

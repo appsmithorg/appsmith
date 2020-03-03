@@ -18,6 +18,7 @@ import {
   useShowPropertyPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -126,6 +127,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   );
 
   const deleteWidget = () => {
+    AnalyticsUtil.logEvent("WIDGET_DELETE", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+    });
     showPropertyPane && showPropertyPane();
     updateWidget &&
       updateWidget(WidgetOperations.DELETE, props.widgetId, {
@@ -153,6 +158,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isCurrentWidgetDragging: monitor.isDragging(),
     }),
     begin: () => {
+      AnalyticsUtil.logEvent("WIDGET_DRAG", {
+        widgetName: props.widgetName,
+        widgetType: props.type,
+      });
       showPropertyPane && showPropertyPane(undefined, true);
       selectWidget && selectWidget(props.widgetId);
       setIsDragging && setIsDragging(true);
@@ -161,6 +170,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       if (monitor.didDrop()) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
+      AnalyticsUtil.logEvent("WIDGET_DROP", {
+        widgetName: props.widgetName,
+        widgetType: props.type,
+      });
       setIsDragging && setIsDragging(false);
     },
     canDrag: () => {
