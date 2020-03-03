@@ -28,6 +28,7 @@ import { theme } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -152,6 +153,14 @@ class PropertyPane extends Component<
       propertyName,
       !isDynamic,
     );
+    if (this.props.widgetProperties) {
+      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
+        widgetType: this.props.widgetProperties.type,
+        widgetName: this.props.widgetProperties.widgetName,
+        propertyName: propertyName,
+        propertyState: !isDynamic ? "JS" : "NORMAL",
+      });
+    }
   };
 
   onPropertyChange(propertyName: string, propertyValue: any) {
@@ -160,6 +169,14 @@ class PropertyPane extends Component<
       propertyName,
       propertyValue,
     );
+    if (this.props.widgetProperties) {
+      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+        widgetType: this.props.widgetProperties.type,
+        widgetName: this.props.widgetProperties.widgetName,
+        propertyName: propertyName,
+        updatedValue: propertyValue,
+      });
+    }
   }
 }
 

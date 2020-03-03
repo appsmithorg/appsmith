@@ -35,6 +35,7 @@ import {
   invitedUserSignupError,
   invitedUserSignupSuccess,
 } from "actions/userActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -287,6 +288,7 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
 export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
   const me = yield call(fetchUserSaga, action);
   if (me) {
+    AnalyticsUtil.identifyUser(me.id, me);
     resetAuthExpiration();
     yield put({
       type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,

@@ -1,8 +1,23 @@
+// Events
 export type EventName =
   | "PAGE_VIEW"
   | "ADD_COMPONENT"
   | "DELETE_COMPONENT"
-  | "RESIZE_COMPONENT";
+  | "RESIZE_COMPONENT"
+  | "WIDGET_DRAG"
+  | "WIDGET_DROP"
+  | "WIDGET_DELETE"
+  | "WIDGET_RESIZE_START"
+  | "WIDGET_RESIZE_END"
+  | "WIDGET_PROPERTY_UPDATE"
+  | "WIDGET_TOGGLE_JS_PROP"
+  | "WIDGET_CARD_DRAG"
+  | "WIDGET_CARD_DROP"
+  | "CREATE_PAGE"
+  | "PAGE_RENAME"
+  | "PAGE_SWITCH"
+  | "DELETE_PAGE";
+
 export type Gender = "MALE" | "FEMALE";
 export interface User {
   userId: string;
@@ -90,12 +105,18 @@ class AnalyticsUtil {
 
   static logEvent(eventName: EventName, eventData: any) {
     const windowDoc: any = window;
-    windowDoc.analytics.track(eventName, eventData);
+    if (windowDoc.analytics) {
+      windowDoc.analytics.track(eventName, eventData);
+    } else {
+      console.log("Event fired", eventName, eventData);
+    }
   }
 
   static identifyUser(userId: string, userData: User) {
     const windowDoc: any = window;
-    windowDoc.analytics.identify(userId, userData);
+    if (windowDoc.analytics) {
+      windowDoc.analytics.identify(userId, userData);
+    }
   }
 }
 

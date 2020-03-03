@@ -258,12 +258,14 @@ export interface ShowPropertyPanePayload {
   callForDragOrResize: boolean;
 }
 
-export type PageListPayload = Array<{
+export interface Page {
   pageName: string;
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
-}>;
+}
+
+export type PageListPayload = Array<Page>;
 
 export type ApplicationPayload = {
   id: string;
