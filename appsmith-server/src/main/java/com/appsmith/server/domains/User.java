@@ -65,7 +65,7 @@ public class User extends BaseDomain implements UserDetails {
 
     @JsonIgnore
     @Transient
-    Set<String> flatPermissions = new HashSet<>();
+    Map<String, Set<Arn>> flatPermissions = new HashMap<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -74,15 +74,26 @@ public class User extends BaseDomain implements UserDetails {
             for (Policy policy : this.policies) {
                 for (String entity : policy.getEntities()) {
                     for (String permission : policy.getPermissions()) {
-                        flatPermissions.add(AclHelper.concatenatePermissionWithArn(permission, entity));
+                        Arn arn = AclHelper.getArnFromString(entity);
+                        String entityName = arn.getEntityName();
+                        if (entityName == null) {
+                            continue;
+                        }
+                        String key = AclHelper.concatenatePermissionWithEntityName(permission, entityName);
+                        if (!flatPermissions.containsKey(key)) {
+                            flatPermissions.put(key, new HashSet<>());
+                        }
+                        flatPermissions.get(key).add(arn);
                     }
                 }
             }
         }
 
-        return this.getFlatPermissions().stream()
-                .map(permission -> new SimpleGrantedAuthority(permission))
-                .collect(Collectors.toSet());
+        Set<SimpleGrantedAuthority> allPermissions = new HashSet<>();
+        return this.getFlatPermissions().keySet().stream()
+                .map(permWithEntityName -> {
+                    return new SimpleGrantedAuthority(permWithEntityName);
+                }).collect(Collectors.toSet());
     }
 
     @Override
