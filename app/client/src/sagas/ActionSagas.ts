@@ -439,7 +439,7 @@ export function* runApiActionSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: reduxAction.payload },
+      payload: { error, id: reduxAction.payload.id },
     });
   }
 }

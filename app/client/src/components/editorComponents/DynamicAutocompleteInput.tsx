@@ -82,7 +82,7 @@ const Wrapper = styled.div<{
   ${props =>
     props.singleLine && props.isFocused
       ? `
-  z-index: 1;
+  z-index: 5;
   position: absolute;
   right: 0;
   left: 0;
@@ -238,6 +238,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     if (this.editor) {
+      this.editor.refresh();
       if (!this.state.isFocused) {
         const editorValue = this.editor.getValue();
         let inputValue = this.props.input.value;
@@ -269,6 +270,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
+    this.handleChange();
     this.setState({ isFocused: false });
     if (this.props.singleLine) {
       this.editor.setOption("lineWrapping", false);
