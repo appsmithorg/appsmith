@@ -347,8 +347,13 @@ export function dependencySortedEvaluateDataTree(
       const entity: DataTreeEntity = currentTree[entityName];
       let result = _.get(currentTree as any, path);
       if (isDynamicValue(result)) {
-        const dynamicResult = getDynamicValue(result, currentTree);
-        result = dynamicResult.result;
+        try {
+          const dynamicResult = getDynamicValue(result, currentTree);
+          result = dynamicResult.result;
+        } catch (e) {
+          console.error(e);
+          result = undefined;
+        }
       }
       if (
         "ENTITY_TYPE" in entity &&
