@@ -19,22 +19,17 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         log.debug("In hasPermission with permission: {}", permission);
         AclEntity aclEntity = targetDomainObject.getClass().getAnnotation(AclEntity.class);
         if (aclEntity == null) {
-            log.info("No permission defined for {}. PermitAll.", targetDomainObject.getClass());
-            return true;
+            log.info("No permission defined for {}. Deny All!", targetDomainObject.getClass());
+            return false;
         }
-        // Create the ARN
-//        String arn = AclHelper.createArn(aclEntity, (User) authentication.getPrincipal(), null);
-//        String authorityToCheck = AclHelper.concatenatePermissionWithEntityName((String) permission, arn);
+
+        // Create the authority against which we will perform an initial check
         String authorityToCheck = AclHelper.concatenatePermissionWithEntityName((String) permission, aclEntity.value());
         log.debug("Got authority to check: {}", authorityToCheck);
 
         boolean result = authentication.getAuthorities().stream()
-//                .anyMatch(auth -> auth.getAuthority().equals(authorityToCheck)
-//                        || auth.getAuthority().matches(authorityToCheck)
-//                        || authorityToCheck.matches(auth.getAuthority())
-//                );
                 .anyMatch(auth -> auth.getAuthority().equals(authorityToCheck));
-        log.debug("Got hasPermission result: {}", result);
+        log.debug("Got result in CustomPermissionEvaluator as: {} for domainObj: {} and permission: {}", result, targetDomainObject, permission);
         return result;
     }
 

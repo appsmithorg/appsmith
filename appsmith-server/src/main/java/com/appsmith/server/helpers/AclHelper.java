@@ -41,14 +41,4 @@ public class AclHelper {
 
         return null;
     }
-
-    public static String extractEntityFromArn(String arn) {
-        Matcher matcher = pattern.matcher(arn);
-
-        if (matcher.find()) {
-            return matcher.group(2);
-        }
-        return null;
-    }
-
 }
