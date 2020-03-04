@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ApiTemplateRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -15,6 +16,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 
 @Service
+@Slf4j
 public class ApiTemplateServiceImpl extends BaseService<ApiTemplateRepository, ApiTemplate, String> implements ApiTemplateService {
 
     public ApiTemplateServiceImpl(Scheduler scheduler,

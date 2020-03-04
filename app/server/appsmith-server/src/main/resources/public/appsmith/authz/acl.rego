@@ -103,7 +103,10 @@ authenticated_operations = [
 
     {"method": "POST", "resource": "templates", "permission": "create:templates"},
     {"method": "GET", "resource": "templates", "permission": "read:templates"},
-    {"method": "PUT", "resource": "templates", "permission": "update:templates"}
+    {"method": "PUT", "resource": "templates", "permission": "update:templates"},
+
+    {"method": "GET", "resource": "items", "permission": "read:items"},
+    {"method": "POST", "resource": "items", "permission": "create:items"}
 ]
 
 
