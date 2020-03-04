@@ -26,4 +26,5 @@ public interface Url {
     String PROVIDER_URL = BASE_URL + VERSION + "/providers";
     String MARKETPLACE_URL = BASE_URL + VERSION + "/marketplace";
     String API_TEMPLATE_URL = BASE_URL + VERSION + "/templates";
+    String MARKETPLACE_ITEM_URL = BASE_URL + VERSION + "/items";
 }
