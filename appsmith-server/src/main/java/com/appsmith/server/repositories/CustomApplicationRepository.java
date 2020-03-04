@@ -5,4 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface CustomApplicationRepository {
     Mono<Application> findByIdAndOrganizationId(String id, String orgId);
+
+    Mono<Application> findByName(String name);
 }
