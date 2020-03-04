@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Configuration
-@EnableAspectJAutoProxy
 public class CommonConfig {
 
     private String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";

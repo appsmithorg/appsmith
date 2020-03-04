@@ -494,15 +494,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
                 // This object cast is required to ensure that we send the right object type back to Spring framework.
                 // Doesn't work without this.
-                .flatMap(user -> {
-                    Set<String> groupSet = user.getGroupIds();
-
-                    return groupRepository.findAllById(groupSet)
-                            .map(group -> group.getPermissions())
-                            // Adding permissions from all the groups that the user is a part of
-                            .map(permissions -> user.getPermissions().addAll(permissions))
-                            .collectList()
-                            .thenReturn((UserDetails) user);
-                });
+                .map(user -> (UserDetails) user);
     }
 }

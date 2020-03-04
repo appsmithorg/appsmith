@@ -1,7 +1,6 @@
 package com.appsmith.external.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Set;
 
 

@@ -47,7 +47,6 @@ public class SoftDeleteMongoQueryLookupStrategy implements QueryLookupStrategy {
         if (method.getAnnotation(CanSeeSoftDeletedRecords.class) != null) {
             return repositoryQuery;
         }
-        AclEntity aclEntityAnnotation = method.getDeclaringClass().getAnnotation(AclEntity.class);
 
         if (!(repositoryQuery instanceof ReactivePartTreeMongoQuery)) {
             return repositoryQuery;
