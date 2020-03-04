@@ -26,7 +26,6 @@ import java.util.Set;
 @Getter 
 @Setter
 @ToString
-@QueryEntity
 public abstract class BaseDomain implements Persistable<String> {
 
     private static final long serialVersionUID = 7459916000501322517L;
@@ -55,6 +54,7 @@ public abstract class BaseDomain implements Persistable<String> {
     @Version
     protected Long documentVersion;
 
+    @JsonIgnore
     protected Set<Policy> policies;
 
     @JsonIgnore

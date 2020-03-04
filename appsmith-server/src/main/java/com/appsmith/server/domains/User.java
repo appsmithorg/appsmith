@@ -64,9 +64,7 @@ public class User extends BaseDomain implements UserDetails {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        return permissions.stream().map(permission -> new SimpleGrantedAuthority(permission))
-                .collect(Collectors.toSet());
-//        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return null;
     }
 
     @Override

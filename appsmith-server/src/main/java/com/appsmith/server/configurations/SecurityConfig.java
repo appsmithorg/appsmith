@@ -4,17 +4,13 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.expression.SecurityExpressionHandler;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -32,6 +28,7 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static com.appsmith.server.constants.Url.USER_URL;
 
@@ -103,7 +100,8 @@ public class SecurityConfig {
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()
                 .csrf().disable()
-                .anonymous().and()
+                .anonymous().principal(createAnonymousUser())
+                .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
@@ -137,5 +135,14 @@ public class SecurityConfig {
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
                 .and().build();
+    }
+
+    private User createAnonymousUser() {
+        User user = new User();
+        user.setName("anonymousUser");
+        user.setEmail("anonymousUser");
+        user.setCurrentOrganizationId("");
+        user.setOrganizationIds(new HashSet<>());
+        return user;
     }
 }
