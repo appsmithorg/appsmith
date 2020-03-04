@@ -21,4 +21,5 @@ public class FieldName {
     public static String ORIGIN = "origin";
     public static String USER = "user";
     public static String PROVIDER_ID = "providerId";
+    public static String CATEGORY = "category";
 }
