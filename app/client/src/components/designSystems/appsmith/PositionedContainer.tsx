@@ -9,6 +9,10 @@ type PositionedContainerProps = {
 };
 
 export const PositionedContainer = (props: PositionedContainerProps) => {
+  const x = props.style.xPosition + (props.style.xPositionUnit || "px");
+  const y = props.isMainContainer
+    ? theme.spaces[9]
+    : props.style.yPosition + (props.style.yPositionUnit || "px");
   return (
     <div
       style={{
@@ -18,10 +22,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
             : "relative",
         height: props.style.componentHeight + (props.style.heightUnit || "px"),
         width: props.style.componentWidth + (props.style.widthUnit || "px"),
-        left: props.style.xPosition + (props.style.xPositionUnit || "px"),
-        top: props.isMainContainer
-          ? theme.spaces[9]
-          : props.style.yPosition + (props.style.yPositionUnit || "px"),
+        transform: `translate3d(${x}, ${y}, 0)`,
         padding: props.isMainContainer ? 0 : WIDGET_PADDING + "px",
       }}
     >
