@@ -1,12 +1,8 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.server.constants.Entity;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Arn;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.helpers.AclHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +13,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
-import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
