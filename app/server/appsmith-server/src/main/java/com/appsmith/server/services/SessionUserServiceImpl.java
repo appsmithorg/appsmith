@@ -38,18 +38,4 @@ public class SessionUserServiceImpl implements SessionUserService {
                     return repository.findByEmail(email);
                 });
     }
-
-    @Override
-    public User getCurrentUserBlocking() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .map(principal -> {
-                    if (principal instanceof User) {
-                        return (User) principal;
-                    }
-                    return new User();
-                }).block()
-                ;
-    }
 }

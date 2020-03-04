@@ -1,4 +1,4 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
 
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 /*
-    TODO: Create a PolicyTemplate that will store all complex policies like "publishApp" which requires mulitple permissions
+    TODO: Create a PolicyTemplate that will store all complex policies like "publishApp" which requires multiple permissions
  */
 @Getter
 @Setter
@@ -18,5 +18,7 @@ public class Policy implements Serializable {
 
     Set<String> permissions;
 
-    Set<String> entities;
+    Set<String> users;
+
+    Set<String> groups;
 }

@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QPolicy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import lombok.NonNull;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
@@ -21,6 +24,7 @@ import reactor.core.publisher.Mono;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -53,16 +57,25 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     protected Criteria notDeleted() {
         return new Criteria().orOperator(
-                where("deleted").exists(false),
-                where("deleted").is(false)
+                where(fieldName(QBaseDomain.baseDomain.deleted)).exists(false),
+                where(fieldName(QBaseDomain.baseDomain.deleted)).is(false)
         );
     }
 
-    protected Criteria userAcl(User user) {
-        return new Criteria().orOperator(
-                where("acl.users").all(user.getUsername()),
-                where("acl.groups").all(user.getGroupIds())
-        );
+    protected Criteria userAcl(User user, String permission) {
+        log.debug("Going to add userAcl");
+        Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where(fieldName(QPolicy.policy.users)).all(user.getUsername())
+                    .and(fieldName(QPolicy.policy.permissions)).all(permission)
+                );
+        log.debug("Got the userCriteria: {}", userCriteria);
+
+        Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where(fieldName(QPolicy.policy.groups)).all(user.getGroupIds())
+                .and(fieldName(QPolicy.policy.permissions)).all(permission));
+
+        log.debug("Got the groupCriteria: {}", groupCriteria);
+        return new Criteria().orOperator(userCriteria, groupCriteria);
     }
 
     protected Criteria getIdCriteria(Object id) {
@@ -71,13 +84,14 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public Mono<T> findById(ID id) {
+        log.debug("In the baseRepository. Going to findById");
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "read")));
 
                     return mongoOperations.query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -93,7 +107,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal)));
+                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, "read")));
                     return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
                 });
     }
@@ -115,7 +129,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Query query = new Query(notDeleted())
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal), new Criteria().alike(example)));
+                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, "read"),
+                            new Criteria().alike(example)));
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });
@@ -147,7 +162,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "delete")));
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
@@ -167,7 +182,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .flatMap(principal -> {
                     Query query = new Query();
                     query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "delete")));
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);

@@ -222,7 +222,7 @@
                             <goal>process</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>target/generated-sources/annotations</outputDirectory>
+                            <outputDirectory>target/generated-sources/java</outputDirectory>
                             <processor>
                                 org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
                             </processor>

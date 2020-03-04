@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -33,11 +34,6 @@ public class Group extends BaseDomain {
     Set<String> permissions;
 
     private Boolean isDefault = false;
-
-    /**
-     * These are the policies attached to the group. All users who are part of this group will inherit these policies
-     */
-    Set<Policy> policies = new HashSet<>();
 
     /**
      * If the display name is null or empty, then just return the actual group name. This is just to ensure that

@@ -45,21 +45,7 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
     }
 
     protected Criteria userAcl(User user, String permission, String entity) {
-        Map<String, Set<Arn>> flatPermissions = user.getFlatPermissions();
-        String authorityToCheck = AclHelper.concatenatePermissionWithEntityName(permission, entity);
-        Criteria criteria = new Criteria();
-        flatPermissions.get(authorityToCheck).stream()
-                .forEach(arn -> {
-                    log.debug("Got ARN: {}", arn);
-                    if (arn.getOrganizationId() != null && !arn.getOrganizationId().equals("*")) {
-                        criteria.and(fieldName(QApplication.application.organizationId)).is(arn.getOrganizationId());
-                    }
-                    if (arn.getEntityId() != null && !arn.getEntityId().equals("*")) {
-                        criteria.and(fieldName(QApplication.application.id)).is(arn.getEntityId());
-                    }
-                });
-
-        return criteria;
+        return null;
     }
 
     protected Criteria getIdCriteria(Object id) {

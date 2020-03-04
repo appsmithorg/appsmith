@@ -138,12 +138,4 @@ public class SecurityConfig {
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
                 .and().build();
     }
-
-    @Bean
-    public MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-        DefaultMethodSecurityExpressionHandler expressionHandler =
-                new DefaultMethodSecurityExpressionHandler();
-        expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
-        return expressionHandler;
-    }
 }
