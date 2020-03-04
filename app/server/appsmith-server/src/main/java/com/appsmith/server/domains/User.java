@@ -68,7 +68,7 @@ public class User extends BaseDomain implements UserDetails {
     Map<String, Set<Arn>> flatPermissions = new HashMap<>();
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<GrantedAuthority> getAuthorities() {
         // TODO: Also extract the policies from associated groups
         if (this.flatPermissions != null) {
             for (Policy policy : this.policies) {
@@ -89,11 +89,9 @@ public class User extends BaseDomain implements UserDetails {
             }
         }
 
-        Set<SimpleGrantedAuthority> allPermissions = new HashSet<>();
         return this.getFlatPermissions().keySet().stream()
-                .map(permWithEntityName -> {
-                    return new SimpleGrantedAuthority(permWithEntityName);
-                }).collect(Collectors.toSet());
+                .map(permWithEntityName -> new SimpleGrantedAuthority(permWithEntityName))
+                .collect(Collectors.toSet());
     }
 
     @Override

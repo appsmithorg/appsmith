@@ -19,11 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -31,6 +33,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -380,6 +383,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
                     .thenReturn(true);
         }).flatMap(result -> result);
+    }
+
+    @Override
+    public Mono<Collection<GrantedAuthority>> getAnonymousAuthorities() {
+        return repository.findByEmail("anonymousUser")
+                .map(user -> user.getAuthorities());
     }
 
     /**
