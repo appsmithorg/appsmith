@@ -29,6 +29,8 @@ public class MDCFilter implements WebFilter {
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
     private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
     private static final String REQUEST_ID_LOG = "requestId";
+    private static final String SESSION_ID_LOG = "sessionId";
+    private static final String SESSION = "SESSION";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -49,6 +51,7 @@ public class MDCFilter implements WebFilter {
                 .collect(toMap(v -> v.getKey().substring((MDC_HEADER_PREFIX.length())), Map.Entry::getValue));
 
         contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
+        contextMap.put(SESSION_ID_LOG, getSessionId(request));
 
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);
@@ -75,6 +78,14 @@ public class MDCFilter implements WebFilter {
                     });
 
         }).then();
+    }
+
+    private String getSessionId(final ServerHttpRequest request) {
+
+        if (request.getCookies().get(SESSION) != null && !request.getCookies().get(SESSION).isEmpty()) {
+            return request.getCookies().get(SESSION).get(0).getValue();
+        }
+        return "";
     }
 
     private String getOrCreateRequestId(final ServerHttpRequest request) {
