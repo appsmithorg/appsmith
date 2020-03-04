@@ -145,6 +145,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return sessionUserService.getCurrentUser()
                 .map(user -> user.getCurrentOrganizationId())
                 .map(orgId -> {
+                    Datasource datasource = action.getDatasource();
+                    if (datasource != null) {
+                        datasource.setOrganizationId(orgId);
+                        action.setDatasource(datasource);
+                    }
                     action.setOrganizationId(orgId);
                     return action;
                 })
