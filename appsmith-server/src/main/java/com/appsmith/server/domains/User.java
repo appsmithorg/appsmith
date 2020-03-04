@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.helpers.AclHelper;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -61,37 +62,11 @@ public class User extends BaseDomain implements UserDetails {
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     private Set<String> permissions = new HashSet<>();
 
-    private Set<Policy> policies = new HashSet<>();
-
-    @JsonIgnore
-    @Transient
-    Map<String, Set<Arn>> flatPermissions = new HashMap<>();
-
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        // TODO: Also extract the policies from associated groups
-        if (this.flatPermissions != null) {
-            for (Policy policy : this.policies) {
-                for (String entity : policy.getEntities()) {
-                    for (String permission : policy.getPermissions()) {
-                        Arn arn = AclHelper.getArnFromString(entity);
-                        String entityName = arn.getEntityName();
-                        if (entityName == null) {
-                            continue;
-                        }
-                        String key = AclHelper.concatenatePermissionWithEntityName(permission, entityName);
-                        if (!flatPermissions.containsKey(key)) {
-                            flatPermissions.put(key, new HashSet<>());
-                        }
-                        flatPermissions.get(key).add(arn);
-                    }
-                }
-            }
-        }
-
-        return this.getFlatPermissions().keySet().stream()
-                .map(permWithEntityName -> new SimpleGrantedAuthority(permWithEntityName))
+        return permissions.stream().map(permission -> new SimpleGrantedAuthority(permission))
                 .collect(Collectors.toSet());
+//        return Set.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override

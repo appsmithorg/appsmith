@@ -5,6 +5,4 @@ import reactor.core.publisher.Mono;
 
 public interface SessionUserService {
     Mono<User> getCurrentUser();
-
-    User getCurrentUserBlocking();
 }

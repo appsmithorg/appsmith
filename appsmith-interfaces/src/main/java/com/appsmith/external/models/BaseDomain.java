@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -23,6 +26,7 @@ import java.time.Instant;
 @Getter 
 @Setter
 @ToString
+@QueryEntity
 public abstract class BaseDomain implements Persistable<String> {
 
     private static final long serialVersionUID = 7459916000501322517L;
@@ -50,6 +54,8 @@ public abstract class BaseDomain implements Persistable<String> {
     @JsonIgnore
     @Version
     protected Long documentVersion;
+
+    protected Set<Policy> policies;
 
     @JsonIgnore
     @Override

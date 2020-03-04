@@ -78,7 +78,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .flatMap(orgId -> repository.findByIdAndOrganizationId(id, orgId))
+//                .flatMap(orgId -> repository.findByIdAndOrganizationId(id, orgId))
+                .flatMap(orgId -> repository.findById(id))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
