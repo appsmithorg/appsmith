@@ -14,5 +14,4 @@ import reactor.core.publisher.Mono;
 @AclEntity("applications")
 public interface ApplicationRepository extends BaseRepository<Application, String>, CustomApplicationRepository {
 
-    Mono<Application> findByName(String name);
 }

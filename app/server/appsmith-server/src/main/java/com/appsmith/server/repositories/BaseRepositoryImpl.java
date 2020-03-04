@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.userAcl;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -53,43 +55,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.mongoOperations = mongoOperations;
     }
 
-    protected Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(fieldName(QBaseDomain.baseDomain.deleted)).exists(false),
-                where(fieldName(QBaseDomain.baseDomain.deleted)).is(false)
-        );
-    }
-
-    protected Criteria userAcl(User user, String permission) {
-        log.debug("Going to add userAcl");
-//        Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-//                .elemMatch(Criteria.where(fieldName(QPolicy.policy.users)).all(user.getUsername())
-//                    .and(fieldName(QPolicy.policy.permissions)).all(permission)
-//                );
-        Criteria userCriteria = Criteria.where("policies")
-                .elemMatch(Criteria.where("users").all(user.getUsername())
-                        .and("permissions").all(permission)
-                );
-        log.debug("Got the userCriteria: {}", userCriteria);
-
-//        Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-//                .elemMatch(Criteria.where(fieldName(QPolicy.policy.groups)).all(user.getGroupIds())
-//                .and(fieldName(QPolicy.policy.permissions)).all(permission));
-        Criteria groupCriteria = Criteria.where("policies")
-                .elemMatch(Criteria.where("groups").all(user.getGroupIds())
-                .and("permissions").all(permission));
-
-        log.debug("Got the groupCriteria: {}", groupCriteria);
-        return new Criteria().orOperator(userCriteria, groupCriteria);
-    }
-
     protected Criteria getIdCriteria(Object id) {
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
     @Override
     public Mono<T> findById(ID id) {
-        log.debug("In the baseRepository. Going to findById");
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())

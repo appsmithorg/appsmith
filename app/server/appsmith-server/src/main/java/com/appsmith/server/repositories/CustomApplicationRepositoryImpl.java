@@ -37,17 +37,6 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
         this.mongoTemplate = mongoTemplate;
     }
 
-    protected Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(fieldName(QBaseDomain.baseDomain.deleted)).exists(false),
-                where(fieldName(QBaseDomain.baseDomain.deleted)).is(false)
-        );
-    }
-
-    protected Criteria userAcl(User user, String permission, String entity) {
-        return null;
-    }
-
     protected Criteria getIdCriteria(Object id) {
         return where(fieldName(QApplication.application.id)).is(id);
     }
@@ -60,7 +49,7 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
                     User user = (User) auth.getPrincipal();
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(orgId));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read", Entity.APPLICATIONS)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read")));
 
                     return mongoOperations.query(Application.class)
                             .matching(query)
@@ -68,9 +57,19 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
                 });
     }
 
-//    @Override
-//    public Mono<Application> findByName(String name) {
-//        Query query = new Query();
-//        return Mono.empty();
-//    }
+    @Override
+    public Mono<Application> findByName(String name) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                   User user = (User) principal;
+                   Query query = new Query(where(fieldName(QApplication.application.name)).is(name));
+                   query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read")));
+
+                   return mongoOperations.query(Application.class)
+                           .matching(query)
+                           .one();
+                });
+    }
 }
