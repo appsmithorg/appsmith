@@ -16,6 +16,7 @@ import { BuilderRouteParams } from "constants/routes";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
+import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -51,8 +52,15 @@ type EditorProps = {
 
 const WidgetsEditor = (props: EditorProps) => {
   const params = useParams<BuilderRouteParams>();
+  const { focusWidget, selectWidget } = useWidgetSelection();
   const { pageId } = params;
   const canvasContainer: MutableRefObject<HTMLElement | null> = useRef(null);
+
+  const handleWrapperClick = (e: any) => {
+    focusWidget && focusWidget();
+    selectWidget && selectWidget();
+    e.preventDefault();
+  };
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (pageId !== props.currentPageId) {
@@ -75,7 +83,7 @@ const WidgetsEditor = (props: EditorProps) => {
   }
   return (
     <EditorContextProvider>
-      <EditorWrapper>
+      <EditorWrapper onClick={handleWrapperClick}>
         <CanvasContainer ref={canvasContainer}>{node}</CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>

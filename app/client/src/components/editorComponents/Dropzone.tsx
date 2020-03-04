@@ -18,6 +18,7 @@ const DropZoneWrapper = styled.div<{ width: number; height: number }>`
   position: absolute;
   background: ${IntentColors.success};
   border: 1px dashed ${props => props.theme.colors.textAnchor};
+  will-change: transform;
   opacity: 0.6;
   z-index: 1;
 `;

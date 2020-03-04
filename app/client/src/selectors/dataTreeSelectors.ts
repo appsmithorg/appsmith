@@ -8,7 +8,7 @@ import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 
 export const getUnevaluatedDataTree = (state: AppState): DataTree =>
-  DataTreeFactory.create(state);
+  DataTreeFactory.create(state.entities);
 
 export const evaluateDataTree = createSelector(
   getUnevaluatedDataTree,
