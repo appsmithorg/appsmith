@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.external.models.QPolicy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import lombok.NonNull;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
@@ -64,15 +62,22 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     protected Criteria userAcl(User user, String permission) {
         log.debug("Going to add userAcl");
-        Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-                .elemMatch(Criteria.where(fieldName(QPolicy.policy.users)).all(user.getUsername())
-                    .and(fieldName(QPolicy.policy.permissions)).all(permission)
+//        Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+//                .elemMatch(Criteria.where(fieldName(QPolicy.policy.users)).all(user.getUsername())
+//                    .and(fieldName(QPolicy.policy.permissions)).all(permission)
+//                );
+        Criteria userCriteria = Criteria.where("policies")
+                .elemMatch(Criteria.where("users").all(user.getUsername())
+                        .and("permissions").all(permission)
                 );
         log.debug("Got the userCriteria: {}", userCriteria);
 
-        Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-                .elemMatch(Criteria.where(fieldName(QPolicy.policy.groups)).all(user.getGroupIds())
-                .and(fieldName(QPolicy.policy.permissions)).all(permission));
+//        Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+//                .elemMatch(Criteria.where(fieldName(QPolicy.policy.groups)).all(user.getGroupIds())
+//                .and(fieldName(QPolicy.policy.permissions)).all(permission));
+        Criteria groupCriteria = Criteria.where("policies")
+                .elemMatch(Criteria.where("groups").all(user.getGroupIds())
+                .and("permissions").all(permission));
 
         log.debug("Got the groupCriteria: {}", groupCriteria);
         return new Criteria().orOperator(userCriteria, groupCriteria);
