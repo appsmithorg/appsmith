@@ -3,7 +3,11 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import org.springframework.security.core.GrantedAuthority;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 public interface UserService extends CrudService<User, String> {
 
@@ -22,4 +26,6 @@ public interface UserService extends CrudService<User, String> {
     Mono<Boolean> verifyInviteToken(String email, String token);
 
     Mono<Boolean> confirmInviteUser(InviteUser inviteUser);
+
+    Mono<Collection<GrantedAuthority>> getAnonymousAuthorities();
 }

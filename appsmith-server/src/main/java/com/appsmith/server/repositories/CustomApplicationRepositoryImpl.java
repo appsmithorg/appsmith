@@ -1,8 +1,10 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Arn;
+import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.AclHelper;
 import lombok.NonNull;
@@ -18,13 +20,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
-public class CustomApplicationRepositoryImpl implements CustomApplicationRepository {
+public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl implements CustomApplicationRepository {
 
     private final ReactiveMongoOperations mongoOperations;
     private final ReactiveMongoTemplate mongoTemplate;
@@ -38,8 +39,8 @@ public class CustomApplicationRepositoryImpl implements CustomApplicationReposit
 
     protected Criteria notDeleted() {
         return new Criteria().orOperator(
-                where("deleted").exists(false),
-                where("deleted").is(false)
+                where(fieldName(QBaseDomain.baseDomain.deleted)).exists(false),
+                where(fieldName(QBaseDomain.baseDomain.deleted)).is(false)
         );
     }
 
@@ -51,26 +52,18 @@ public class CustomApplicationRepositoryImpl implements CustomApplicationReposit
                 .forEach(arn -> {
                     log.debug("Got ARN: {}", arn);
                     if (arn.getOrganizationId() != null && !arn.getOrganizationId().equals("*")) {
-                        criteria.and("organizationId").is(arn.getOrganizationId());
+                        criteria.and(fieldName(QApplication.application.organizationId)).is(arn.getOrganizationId());
                     }
                     if (arn.getEntityId() != null && !arn.getEntityId().equals("*")) {
-                        criteria.and("id").is(arn.getEntityId());
+                        criteria.and(fieldName(QApplication.application.id)).is(arn.getEntityId());
                     }
-//                    if (permission.equals(permSplit[0])) {
-//                        // Extract arn from read::arn:appsmith:5da151714a020300041ae8fd:applications:*
-//                        String arnStr = permSplit[1];
-//                    }
                 });
 
         return criteria;
-//        return new Criteria().orOperator(
-//                where("acl.users").all(user.getUsername()),
-//                where("acl.groups").all(user.getGroupIds())
-//        );
     }
 
     protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
+        return where(fieldName(QApplication.application.id)).is(id);
     }
 
     @Override
@@ -80,7 +73,7 @@ public class CustomApplicationRepositoryImpl implements CustomApplicationReposit
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(where("organizationId").is(orgId));
+                    query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(orgId));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read", Entity.APPLICATIONS)));
 
                     return mongoOperations.query(Application.class)
