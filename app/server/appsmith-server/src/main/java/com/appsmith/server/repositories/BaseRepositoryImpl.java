@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import lombok.NonNull;
@@ -22,7 +21,6 @@ import reactor.core.publisher.Mono;
 import java.io.Serializable;
 import java.util.List;
 
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.userAcl;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
