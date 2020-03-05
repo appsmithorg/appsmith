@@ -31,7 +31,7 @@ const ButtonColorStyles = css<ButtonStyleProps>`
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
   <AnchorButton {..._.omit(props, ["accent", "filled"])} />
 ))<ButtonStyleProps>`
-  && {
+  &&&& {
     ${ButtonColorStyles};
     width: 100%;
     height: 100%;
@@ -48,7 +48,6 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     font-family: "DM Sans";
     outline: none;
     &.bp3-button {
-      min-height: auto;
       padding: 0px 10px;
     }
     && .bp3-button-text {

@@ -56,10 +56,9 @@ const WidgetsEditor = (props: EditorProps) => {
   const { pageId } = params;
   const canvasContainer: MutableRefObject<HTMLElement | null> = useRef(null);
 
-  const handleWrapperClick = (e: any) => {
+  const handleWrapperClick = () => {
     focusWidget && focusWidget();
     selectWidget && selectWidget();
-    e.preventDefault();
   };
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {

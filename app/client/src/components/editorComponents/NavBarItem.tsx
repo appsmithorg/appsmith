@@ -27,7 +27,8 @@ const IconContainer = styled.div`
 `;
 
 const ItemContainer = styled.div`
-  a {
+  && {
+    a {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -53,6 +54,7 @@ const ItemContainer = styled.div`
       }
     }
   }
+}
 `;
 
 class NavBarItem extends React.Component<Props> {
