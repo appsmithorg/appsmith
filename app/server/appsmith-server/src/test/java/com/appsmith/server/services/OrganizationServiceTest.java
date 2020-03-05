@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -15,6 +17,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,6 +71,7 @@ public class OrganizationServiceTest {
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
+                    assertThat(organization1.getPolicies()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -101,7 +106,7 @@ public class OrganizationServiceTest {
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
         Mono<Organization> createOrganization = organizationService.create(organization);
-        Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
+        Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.findById(t.getId()));
         StepVerifier.create(getOrganization)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -126,7 +131,7 @@ public class OrganizationServiceTest {
                     return t;
                 })
                 .flatMap(t -> organizationService.update(t.getId(), t))
-                .flatMap(t -> organizationService.getById(t.getId()));
+                .flatMap(t -> organizationService.findById(t.getId()));
 
         StepVerifier.create(updateOrganization)
                 .assertNext(t -> {

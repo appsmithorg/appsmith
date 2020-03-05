@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
+@Builder
 public class Policy implements Serializable {
 
     String permission;

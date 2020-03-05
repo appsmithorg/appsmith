@@ -1,7 +1,10 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
@@ -24,6 +27,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,6 +82,51 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByName(name);
     }
 
+    private Set<Policy> crudAppPolicy(User user) {
+        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+
+        Policy createAppPolicy = Policy.builder().permission(AclPermission.CREATE_APPLICATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+
+        Policy updateAppPolicy =  Policy.builder().permission(AclPermission.UPDATE_APPLICATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+
+        Policy deleteAppPolicy =  Policy.builder().permission(AclPermission.DELETE_APPLICATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+        return Set.of(createAppPolicy, readAppPolicy, updateAppPolicy,deleteAppPolicy);
+    }
+
+    private Set<Policy> crudOrgPolicy(User user) {
+        Policy readOrgPolicy = Policy.builder().permission(AclPermission.READ_ORGANIZATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+
+        Policy updateOrgPolicy =  Policy.builder().permission(AclPermission.UPDATE_ORGANIZATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+
+        Policy deleteOrgPolicy =  Policy.builder().permission(AclPermission.DELETE_ORGANIZATIONS.getValue())
+                .users(Set.of(user.getUsername()))
+                .build();
+        return Set.of(readOrgPolicy, updateOrgPolicy,deleteOrgPolicy);
+    }
+
+    private Set<Policy> adminPoliciesForOrganization(User user) {
+
+        Set<Policy> crudAppPolicies = crudAppPolicy(user);
+        Set<Policy> crudOrgPolicies = crudOrgPolicy(user);
+
+        Set<Policy> adminPolicies = new HashSet<>();
+        adminPolicies.addAll(crudOrgPolicies);
+        adminPolicies.addAll(crudAppPolicies);
+        return adminPolicies;
+    }
+
     /**
      * This function does the following:
      * 1. Creates the organization for the user
@@ -95,6 +144,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
+
+        // Set the admin policies for this organization & user
+        organization.setPolicies(adminPoliciesForOrganization(user));
 
         Mono<Organization> organizationMono = Mono.just(organization)
                 .flatMap(this::validateObject)
@@ -171,6 +223,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             organizationSetting.setSetting(setting1);
             return organizationSetting;
         });
+    }
+
+    @Override
+    public Mono<Organization> update(String id, Organization resource) {
+        return repository.updateById(id, resource, AclPermission.UPDATE_ORGANIZATIONS)
+                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
     }
 
     @Override
