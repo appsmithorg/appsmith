@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -47,7 +48,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             currentUserMono = Mono.just(user);
         }
 
-        return organizationRepository.findById(orgId)
+        return organizationRepository.findById(orgId, AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization", orgId)))
                 .zipWith(currentUserMono)
                 .map(tuple -> {

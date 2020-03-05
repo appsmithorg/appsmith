@@ -38,17 +38,17 @@ public class SeedMongoData {
                            PluginRepository pluginRepository) {
 
         log.info("Seeding the data");
-        Policy readAppPolicy = new Policy();
-        readAppPolicy.setPermission(AclPermission.READ_APPLICATIONS.getValue());
-        readAppPolicy.setUsers(Set.of("api_user"));
+        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
 
-        Policy createAppPolicy = new Policy();
-        createAppPolicy.setPermission(AclPermission.CREATE_APPLICATIONS.getValue());
-        createAppPolicy.setUsers(Set.of("api_user"));
+        Policy createAppPolicy = Policy.builder().permission(AclPermission.CREATE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
 
-        Policy updateAppPolicy = new Policy();
-        updateAppPolicy.setPermission(AclPermission.UPDATE_APPLICATIONS.getValue());
-        updateAppPolicy.setUsers(Set.of("api_user"));
+        Policy updateAppPolicy =  Policy.builder().permission(AclPermission.UPDATE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
 
         Object[][] userData = {
                 {"user test", "usertest@usertest.com", UserState.ACTIVATED},
