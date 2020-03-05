@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.User;
@@ -18,16 +19,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
-public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl implements CustomApplicationRepository {
+public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<Application>
+        implements CustomApplicationRepository {
 
     private final ReactiveMongoOperations mongoOperations;
-    private final ReactiveMongoTemplate mongoTemplate;
+
 
     @Autowired
-    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           ReactiveMongoTemplate mongoTemplate) {
+    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations) {
+        super(mongoOperations);
         this.mongoOperations = mongoOperations;
-        this.mongoTemplate = mongoTemplate;
     }
 
     protected Criteria getIdCriteria(Object id) {
@@ -35,14 +36,14 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String orgId) {
+    public Mono<Application> findByIdAndOrganizationId(String id, String orgId, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMap(auth -> {
                     User user = (User) auth.getPrincipal();
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(orgId));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read")));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
                     return mongoOperations.query(Application.class)
                             .matching(query)
@@ -51,14 +52,14 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl 
     }
 
     @Override
-    public Mono<Application> findByName(String name) {
+    public Mono<Application> findByName(String name, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                    User user = (User) principal;
                    Query query = new Query(where(fieldName(QApplication.application.name)).is(name));
-                   query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, "read")));
+                   query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
                    return mongoOperations.query(Application.class)
                            .matching(query)

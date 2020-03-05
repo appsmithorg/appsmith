@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -22,16 +23,19 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
     private final PageService pageService;
     private final SessionUserService sessionUserService;
+    private final OrganizationService organizationService;
 
     private final AnalyticsService analyticsService;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
                                       SessionUserService sessionUserService,
+                                      OrganizationService organizationService,
                                       AnalyticsService analyticsService) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
+        this.organizationService = organizationService;
         this.analyticsService = analyticsService;
     }
 
@@ -176,13 +180,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        return userMono
+        Mono<Application> orgMono = userMono
                 .map(user -> user.getCurrentOrganizationId())
                 .map(orgId -> {
                     application.setOrganizationId(orgId);
                     return application;
-                })
+                });
+
+        return orgMono
                 .flatMap(applicationService::create)
                 .flatMap(savedApplication -> {
                     Page page = new Page();

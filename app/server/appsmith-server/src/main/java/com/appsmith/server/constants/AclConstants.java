@@ -17,12 +17,5 @@ public interface AclConstants {
             "create:users",
             "read:users"
     );
-
-    String READ_PERMISSION = "read";
-    String CREATE_PERMISSION = "create";
-    String DELETE_PERMISSION = "delete";
-    String UPDATE_PERMISSION = "update";
-    String PUBLISH_PERMISSION = "publish";
-    String ARCHIVE_PERMISSION = "archive";
 }
 

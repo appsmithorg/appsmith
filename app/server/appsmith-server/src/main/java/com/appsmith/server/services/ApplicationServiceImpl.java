@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -78,7 +79,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .flatMap(orgId -> repository.findById(id))
+                .flatMap(orgId -> repository.findById(id, AclPermission.READ_APPLICATIONS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
@@ -89,12 +90,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> findByIdAndOrganizationId(String id, String organizationId) {
-        return repository.findByIdAndOrganizationId(id, organizationId);
+        return repository.findByIdAndOrganizationId(id, organizationId, AclPermission.READ_APPLICATIONS);
     }
 
     @Override
     public Mono<Application> findByName(String name) {
-        return repository.findByName(name);
+        return repository.findByName(name, AclPermission.READ_APPLICATIONS);
     }
 
     @Override

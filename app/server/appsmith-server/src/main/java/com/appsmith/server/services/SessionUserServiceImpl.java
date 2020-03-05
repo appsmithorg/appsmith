@@ -29,7 +29,8 @@ public class SessionUserServiceImpl implements SessionUserService {
                     String email = "";
                     if (principal instanceof User) {
                         return Mono.just((User) principal);
-                    } else if (principal instanceof DefaultOAuth2User) {
+                    }
+                    if (principal instanceof DefaultOAuth2User) {
                         DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) principal;
                         email = defaultOAuth2User.getName();
                     }

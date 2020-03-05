@@ -1,5 +1,7 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Configuration
@@ -42,8 +45,13 @@ public class SeedMongoData {
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com"}
         };
+        Policy readAppPolicy = new Policy();
+        readAppPolicy.setPermission("read");
+        readAppPolicy.setUsers(Set.of("api_user"));
+        Set<Policy> policies = Set.of(readAppPolicy);
+
         Object[][] appData = {
-                {"LayoutServiceTest TestApplications"}
+                {"LayoutServiceTest TestApplications", policies}
         };
         Object[][] pageData = {
                 {"validPageName"}
@@ -105,10 +113,11 @@ public class SeedMongoData {
                                 Application app = new Application();
                                 app.setName((String) array[0]);
                                 app.setOrganizationId(orgId);
+                                app.setPolicies((Set<Policy>) array[1]);
                                 return app;
                             }).flatMap(applicationRepository::save)
                     // Query the seed data to get the applicationId (required for page creation)
-            ).then(applicationRepository.findByName((String) appData[0][0]))
+            ).then(applicationRepository.findByName((String) appData[0][0], AclPermission.READ_APPLICATIONS))
                     .map(application -> application.getId())
                     .flatMapMany(appId -> Flux.just(pageData)
                             // Seed the page data into the DB
