@@ -16,7 +16,7 @@ import java.util.Set;
 @ToString
 public class Policy implements Serializable {
 
-    Set<String> permissions;
+    String permission;
 
     Set<String> users;
 

@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import lombok.NonNull;
@@ -65,7 +66,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "read")));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.READ)));
 
                     return mongoOperations.query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -81,7 +82,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, "read")));
+                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, AclPermission.READ)));
                     return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
                 });
     }
@@ -103,7 +104,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Query query = new Query(notDeleted())
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, "read"),
+                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, AclPermission.READ),
                             new Criteria().alike(example)));
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
@@ -136,7 +137,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "delete")));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.DELETE)));
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
@@ -156,7 +157,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .flatMap(principal -> {
                     Query query = new Query();
                     query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, "delete")));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.DELETE)));
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
