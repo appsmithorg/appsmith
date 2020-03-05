@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
@@ -13,6 +14,8 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Mono<Organization> create(Organization organization, User user);
 
     Mono<Organization> findById(String id);
+
+    Mono<Organization> findById(String id, AclPermission permission);
 
     Mono<Organization> save(Organization organization);
 

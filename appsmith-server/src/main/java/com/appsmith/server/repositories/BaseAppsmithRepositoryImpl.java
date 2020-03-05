@@ -3,29 +3,45 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
-    private final ReactiveMongoOperations mongoOperations;
+    protected final ReactiveMongoOperations mongoOperations;
 
     private final Class<T> genericDomain;
 
-    public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations) {
+    protected final MongoConverter mongoConverter;
+
+    public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
         this.mongoOperations = mongoOperations;
+        this.mongoConverter = mongoConverter;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
+    }
+
+    public static final String fieldName(Path path) {
+        return path != null ? path.getMetadata().getName() : null;
     }
 
     public static final Criteria notDeleted() {
@@ -56,6 +72,12 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return where("id").is(id);
     }
 
+    protected DBObject getDbObject(Object o) {
+        BasicDBObject basicDBObject = new BasicDBObject();
+        mongoConverter.write(o, basicDBObject);
+        return basicDBObject;
+    }
+
     public Mono<T> findById(String id, AclPermission permission) {
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
@@ -71,7 +93,29 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    public static final String fieldName(Path path) {
-        return path != null ? path.getMetadata().getName() : null;
+    public Mono<T> updateById(String id, T resource, AclPermission permission) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    Query query = new Query(Criteria.where("id").is(id));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, permission)));
+
+                    DBObject update = getDbObject(resource);
+                    Update updateObj = new Update();
+                    Map<String, Object> updateMap = update.toMap();
+                    updateMap.entrySet().stream().forEach(entry -> updateObj.set(entry.getKey(), entry.getValue()));
+
+                    return mongoOperations.updateFirst(query, updateObj, resource.getClass())
+                            .flatMap(obj -> {
+                                if (obj.getMatchedCount() == 0) {
+                                    return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, resource.getClass().getSimpleName().toLowerCase(), id));
+                                }
+                                return findById(id, permission);
+                            });
+                });
     }
 }

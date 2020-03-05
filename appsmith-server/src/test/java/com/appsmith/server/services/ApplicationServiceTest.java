@@ -55,6 +55,7 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
+                    assertThat(application.getPolicies()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -119,6 +120,7 @@ public class ApplicationServiceTest {
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
                     assertThat(t.getId()).isNotNull();
+                    assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
                 })
                 .verifyComplete();

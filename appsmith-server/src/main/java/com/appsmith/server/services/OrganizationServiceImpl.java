@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -174,7 +175,12 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> findById(String id) {
-        return repository.findById(id);
+        return findById(id, AclPermission.READ_ORGANIZATIONS);
+    }
+
+    @Override
+    public Mono<Organization> findById(String id, AclPermission permission) {
+        return repository.findById(id, permission);
     }
 
     @Override

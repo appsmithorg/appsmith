@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -16,6 +18,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -180,14 +184,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
-        Mono<Application> orgMono = userMono
+        Mono<Application> applicationMono = userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .map(orgId -> {
-                    application.setOrganizationId(orgId);
-                    return application;
+                .flatMap(orgId -> {
+                    Mono<Organization> orgMono = organizationService.findById(orgId, AclPermission.CREATE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
+
+                    return orgMono.map(org -> {
+                        application.setOrganizationId(org.getId());
+                        Set<Policy> policySet = org.getPolicies().stream()
+                                // At the organization level, filter out all the application specific policies and apply them
+                                // to the new application that we are creating.
+                                .filter(policy ->
+                                        policy.getPermission().equals(AclPermission.READ_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(AclPermission.UPDATE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(AclPermission.DELETE_APPLICATIONS.getValue())
+                                ).collect(Collectors.toSet());
+                        application.setPolicies(policySet);
+                        return application;
+                    });
                 });
 
-        return orgMono
+        return applicationMono
                 .flatMap(applicationService::create)
                 .flatMap(savedApplication -> {
                     Page page = new Page();
