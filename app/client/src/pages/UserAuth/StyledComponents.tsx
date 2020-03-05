@@ -11,17 +11,19 @@ export const AuthContainer = styled.section`
 `;
 
 export const AuthCard = styled(Card)`
-  width: ${props => props.theme.authCard.width}px;
-  background: ${props => props.theme.authCard.background};
-  border-radius: ${props => props.theme.authCard.borderRadius}px;
-  padding: ${props => props.theme.authCard.padding}px;
-  box-shadow: ${props => props.theme.authCard.shadow};
-  border: none;
-  & h1,
-  h5 {
-    padding: 0;
-    margin: 0;
-    font-weight: ${props => props.theme.fontWeights[1]};
+  && {
+    width: ${props => props.theme.authCard.width}px;
+    background: ${props => props.theme.authCard.background};
+    border-radius: ${props => props.theme.authCard.borderRadius}px;
+    padding: ${props => props.theme.authCard.padding}px;
+    box-shadow: ${props => props.theme.authCard.shadow};
+    border: none;
+    & h1,
+    h5 {
+      padding: 0;
+      margin: 0;
+      font-weight: ${props => props.theme.fontWeights[1]};
+    }
   }
 `;
 

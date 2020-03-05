@@ -120,7 +120,7 @@ const DraftIconIndicator = styled.span<{ isHidden: boolean }>`
 `;
 
 const CreateNewButton = styled(BaseButton)`
-  && {
+  &&&& {
     border: none;
     color: ${props => props.theme.colors.textOnDarkBG};
     height: 32px;
