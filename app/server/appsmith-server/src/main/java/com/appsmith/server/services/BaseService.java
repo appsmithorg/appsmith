@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -95,7 +96,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                 });
     }
 
-    private DBObject getDbObject(Object o) {
+    protected DBObject getDbObject(Object o) {
         BasicDBObject basicDBObject = new BasicDBObject();
         mongoConverter.write(o, basicDBObject);
         return basicDBObject;

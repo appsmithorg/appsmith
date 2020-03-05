@@ -8,7 +8,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -22,13 +22,10 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepository {
 
-    private final ReactiveMongoOperations mongoOperations;
-
-
     @Autowired
-    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations) {
-        super(mongoOperations);
-        this.mongoOperations = mongoOperations;
+    public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
+                                           @NonNull MongoConverter mongoConverter) {
+        super(mongoOperations, mongoConverter);
     }
 
     protected Criteria getIdCriteria(Object id) {

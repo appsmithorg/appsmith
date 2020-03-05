@@ -38,20 +38,28 @@ public class SeedMongoData {
                            PluginRepository pluginRepository) {
 
         log.info("Seeding the data");
+        Policy readAppPolicy = new Policy();
+        readAppPolicy.setPermission(AclPermission.READ_APPLICATIONS.getValue());
+        readAppPolicy.setUsers(Set.of("api_user"));
+
+        Policy createAppPolicy = new Policy();
+        createAppPolicy.setPermission(AclPermission.CREATE_APPLICATIONS.getValue());
+        createAppPolicy.setUsers(Set.of("api_user"));
+
+        Policy updateAppPolicy = new Policy();
+        updateAppPolicy.setPermission(AclPermission.UPDATE_APPLICATIONS.getValue());
+        updateAppPolicy.setUsers(Set.of("api_user"));
+
         Object[][] userData = {
                 {"user test", "usertest@usertest.com", UserState.ACTIVATED},
                 {"api_user", "api_user", UserState.ACTIVATED},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com"}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(readAppPolicy, createAppPolicy, updateAppPolicy)}
         };
-        Policy readAppPolicy = new Policy();
-        readAppPolicy.setPermission("read");
-        readAppPolicy.setUsers(Set.of("api_user"));
-        Set<Policy> policies = Set.of(readAppPolicy);
 
         Object[][] appData = {
-                {"LayoutServiceTest TestApplications", policies}
+                {"LayoutServiceTest TestApplications", Set.of(readAppPolicy)}
         };
         Object[][] pageData = {
                 {"validPageName"}
@@ -84,6 +92,7 @@ public class SeedMongoData {
                                         organization.setName((String) array[0]);
                                         organization.setDomain((String) array[1]);
                                         organization.setWebsite((String) array[2]);
+                                        organization.setPolicies((Set<Policy>) array[3]);
                                         OrganizationPlugin orgPlugin = new OrganizationPlugin();
                                         orgPlugin.setPluginId(pluginId);
                                         List<OrganizationPlugin> orgPlugins = new ArrayList<>();

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface OrganizationRepository extends BaseRepository<Organization, String> {
+public interface OrganizationRepository extends BaseRepository<Organization, String>, CustomOrganizationRepository {
     Mono<Organization> findByName(String name);
 
     Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId);
