@@ -15,6 +15,8 @@ const fuzzySearchOptions = {
 const getApplicationsState = (state: AppState) => state.ui.applications;
 const getApplications = (state: AppState) =>
   state.ui.applications.applicationList;
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
 const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>

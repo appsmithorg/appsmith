@@ -28,6 +28,7 @@ type SubHeaderProps = {
     formSubmitIntent: string;
     errorAdding?: string;
     formSubmitText: string;
+    onClick: () => void;
   };
   search?: {
     placeholder: string;
@@ -50,6 +51,7 @@ export const ApplicationsSubHeader = (props: SubHeaderProps) => {
       text={props.add.title}
       icon="plus"
       title={props.add.title}
+      onClick={props.add.onClick}
       filled
       intent="primary"
     />

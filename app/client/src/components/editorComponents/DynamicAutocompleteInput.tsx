@@ -18,6 +18,7 @@ import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 require("codemirror/mode/javascript/javascript");
 
 const getBorderStyle = (
@@ -277,8 +278,13 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
-  handleChange = () => {
+  handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue();
+    if (changeObj && changeObj.origin === "complete") {
+      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
+        searchString: changeObj.text[0],
+      });
+    }
     const inputValue = this.props.input.value;
     if (this.props.input.onChange && value !== inputValue) {
       this.props.input.onChange(value);
@@ -312,6 +318,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
       const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
       if (shouldShow) {
+        AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         cm.showHint(cm);
       }
     }
