@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
@@ -87,18 +86,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .users(Set.of(user.getUsername()))
                 .build();
 
-        Policy createAppPolicy = Policy.builder().permission(AclPermission.CREATE_APPLICATIONS.getValue())
+        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
                 .users(Set.of(user.getUsername()))
                 .build();
 
-        Policy updateAppPolicy =  Policy.builder().permission(AclPermission.UPDATE_APPLICATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
-
-        Policy deleteAppPolicy =  Policy.builder().permission(AclPermission.DELETE_APPLICATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
-        return Set.of(createAppPolicy, readAppPolicy, updateAppPolicy,deleteAppPolicy);
+        return Set.of(manageAppPolicy, readAppPolicy);
     }
 
     private Set<Policy> crudOrgPolicy(User user) {

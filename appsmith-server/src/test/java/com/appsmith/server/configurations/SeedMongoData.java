@@ -42,11 +42,7 @@ public class SeedMongoData {
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy createAppPolicy = Policy.builder().permission(AclPermission.CREATE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
-        Policy updateAppPolicy =  Policy.builder().permission(AclPermission.UPDATE_APPLICATIONS.getValue())
+        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
@@ -55,7 +51,7 @@ public class SeedMongoData {
                 {"api_user", "api_user", UserState.ACTIVATED},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(readAppPolicy, createAppPolicy, updateAppPolicy)}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(readAppPolicy, manageAppPolicy)}
         };
 
         Object[][] appData = {
