@@ -265,11 +265,17 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
   try {
     const request: FetchUserRequest = action.payload;
     const response: FetchUserResponse = yield call(UserApi.fetchUser, request);
+    const { user, applications, currentOrganization } = response.data;
+    const finalData = {
+      ...user,
+      applications,
+      currentOrganization,
+    };
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_USER_SUCCESS,
-        payload: response.data,
+        payload: finalData,
       });
       return yield response.data;
     }
