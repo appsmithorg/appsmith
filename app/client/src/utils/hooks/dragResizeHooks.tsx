@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
-  return (widgetId?: string, callForDragOrResize?: boolean) => {
+  return (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
     dispatch(
       // If widgetId is not provided, we don't show the property pane.
       // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -15,7 +15,7 @@ export const useShowPropertyPane = () => {
           widgetId || callForDragOrResize
             ? ReduxActionTypes.SHOW_PROPERTY_PANE
             : ReduxActionTypes.HIDE_PROPERTY_PANE,
-        payload: { widgetId, callForDragOrResize },
+        payload: { widgetId, callForDragOrResize, force },
       },
     );
   };

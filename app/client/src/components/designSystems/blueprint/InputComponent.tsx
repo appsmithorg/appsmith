@@ -45,7 +45,7 @@ const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: ${props => (props.multiline === "true" ? "100%" : "auto")};
+    height: 100%;
     align-items: center;
     label {
       ${labelStyle}

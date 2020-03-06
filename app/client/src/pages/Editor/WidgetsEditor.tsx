@@ -1,4 +1,4 @@
-import React, { useEffect, ReactNode, useRef, MutableRefObject } from "react";
+import React, { useEffect, ReactNode } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -54,7 +54,6 @@ const WidgetsEditor = (props: EditorProps) => {
   const params = useParams<BuilderRouteParams>();
   const { focusWidget, selectWidget } = useWidgetSelection();
   const { pageId } = params;
-  const canvasContainer: MutableRefObject<HTMLElement | null> = useRef(null);
 
   const handleWrapperClick = () => {
     focusWidget && focusWidget();
@@ -63,8 +62,7 @@ const WidgetsEditor = (props: EditorProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (pageId !== props.currentPageId) {
-      const width = canvasContainer.current?.getBoundingClientRect().width;
-      props.fetchPage(pageId, width);
+      props.fetchPage(pageId);
     }
   }, [pageId]);
 
@@ -83,7 +81,7 @@ const WidgetsEditor = (props: EditorProps) => {
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer ref={canvasContainer}>{node}</CanvasContainer>
+        <CanvasContainer>{node}</CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>
   );
@@ -99,8 +97,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    fetchPage: (pageId: string, canvasContainerWidth?: number) =>
-      dispatch(fetchPage(pageId, canvasContainerWidth)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
   };
 };
 

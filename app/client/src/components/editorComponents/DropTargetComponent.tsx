@@ -123,9 +123,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         setRows(rows + 2);
         return true;
         // If the current widget's (dragging/resizing) bottom row has moved back up
-      } else if (widgetBottomRow < rows - 2 && rows - props.snapRows >= 2) {
-        setRows(rows - 1);
-        return true;
       }
       return false;
     }
@@ -250,8 +247,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "500px" : 0;
 
   const border =
-    (isExactlyOver || isChildResizing) &&
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+    (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "1px solid #ccc"
       : "1px solid transparent";
 
@@ -276,13 +272,11 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       >
         {props.children}
         <DragLayerComponent
-          parentOffset={dropTargetOffset}
           parentWidgetId={props.widgetId}
           parentRowHeight={props.snapRowSpace}
           parentColumnWidth={props.snapColumnSpace}
           visible={isExactlyOver || isChildResizing}
           isOver={isExactlyOver}
-          dropTargetOffset={dropTargetOffset}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
           parentRows={rows}

@@ -29,7 +29,7 @@ const buttonStyles = css<{
         : 0};
 
     background: ${props =>
-      props.filled || props.outline ? "auto" : "transparent"};
+      props.filled || props.outline ? "inherit" : "transparent"};
   }
 
   ${props => (props.outline ? outline : "")}

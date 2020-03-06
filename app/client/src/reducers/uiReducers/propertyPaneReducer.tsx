@@ -8,6 +8,7 @@ import {
 const initialState: PropertyPaneReduxState = {
   isVisible: false,
   widgetId: undefined,
+  lastWidgetId: undefined,
 };
 
 const propertyPaneReducer = createReducer(initialState, {
@@ -15,6 +16,13 @@ const propertyPaneReducer = createReducer(initialState, {
     state: PropertyPaneReduxState,
     action: ReduxAction<ShowPropertyPanePayload>,
   ) => {
+    if (
+      action.payload.widgetId &&
+      state.lastWidgetId === action.payload.widgetId &&
+      !action.payload.force
+    ) {
+      return state;
+    }
     const { widgetId, callForDragOrResize } = action.payload;
     // If callForDragOrResize is true, an action has started or ended.
     // If the action has started, isVisibleBeforeAction should be undefined
@@ -43,13 +51,19 @@ const propertyPaneReducer = createReducer(initialState, {
     return { ...state, widgetId, isVisible, isVisibleBeforeAction };
   },
   [ReduxActionTypes.HIDE_PROPERTY_PANE]: (state: PropertyPaneReduxState) => {
-    return { ...state, isVisible: false, isVisibleBeforeAction: undefined };
+    return {
+      ...state,
+      isVisible: false,
+      isVisibleBeforeAction: undefined,
+      lastWidgetId: state.widgetId,
+    };
   },
 });
 
 export interface PropertyPaneReduxState {
   widgetId?: string;
   isVisible: boolean;
+  lastWidgetId?: string;
   isVisibleBeforeAction?: boolean;
 }
 
