@@ -479,7 +479,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Action> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
         return actionMono
-                .flatMap(toDelete -> repository.archive(toDelete))
+                .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
                 .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Action) deletedObj));
     }
 
