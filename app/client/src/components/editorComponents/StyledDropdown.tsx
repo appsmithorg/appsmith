@@ -9,7 +9,6 @@ import {
 import {
   Button,
   Menu,
-  MenuItem,
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";

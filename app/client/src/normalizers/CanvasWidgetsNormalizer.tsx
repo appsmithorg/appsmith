@@ -11,7 +11,7 @@ widgetSchema.define({ children: [widgetSchema] });
 
 class CanvasWidgetsNormalizer {
   static normalize(
-    dsl: ContainerWidgetProps<WidgetProps>,
+    dsl: Partial<ContainerWidgetProps<WidgetProps>>,
   ): { entities: any; result: any } {
     return normalize(dsl, widgetSchema);
   }

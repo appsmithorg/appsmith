@@ -1,4 +1,5 @@
 import { ControlType } from "constants/PropertyControlConstants";
+import React, { Fragment } from "react";
 import {
   ControlBuilder,
   ControlProps,
@@ -19,8 +20,11 @@ class PropertyControlFactory {
   static createControl(
     controlData: ControlData,
     controlFunctions: ControlFunctions,
+    preferEditor: boolean,
   ): JSX.Element {
-    const controlBuilder = this.controlMap.get(controlData.controlType);
+    const controlBuilder = preferEditor
+      ? this.controlMap.get("CODE_EDITOR")
+      : this.controlMap.get(controlData.controlType);
     if (controlBuilder) {
       const controlProps: ControlProps = {
         ...controlData,
@@ -35,7 +39,8 @@ class PropertyControlFactory {
           "Control Builder not registered for control type " +
           controlData.controlType,
       };
-      throw ex;
+      console.log(ex.message);
+      return <Fragment />;
     }
   }
 

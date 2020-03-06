@@ -209,7 +209,7 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
   return (
     <StyledForm>
       {submitSucceeded && (
-        <FormMessage intent="success" message={INVITE_USERS_SUBMIT_SUCCESS} />
+        <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
       )}
       {submitFailed && error && (
         <FormMessage

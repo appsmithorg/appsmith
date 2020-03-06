@@ -18,18 +18,21 @@ import styled from "styled-components";
 import { HTTP_METHODS, PLUGIN_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getPluginIdOfName } from "selectors/entitiesSelector";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
   formData: RestAction;
   pluginId: string | undefined;
+  currentApplication?: ApplicationPayload;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
   runAction: (id: string, paginationField: PaginationField) => void;
-  deleteAction: (id: string) => void;
+  deleteAction: (id: string, name: string) => void;
   updateAction: (data: RestAction) => void;
 }
 
@@ -55,7 +58,10 @@ class ApiEditor extends React.Component<Props> {
     this.props.submitForm(API_EDITOR_FORM_NAME);
   };
   handleDeleteClick = () => {
-    this.props.deleteAction(this.props.match.params.apiId);
+    this.props.deleteAction(
+      this.props.match.params.apiId,
+      this.props.formData.name,
+    );
   };
   handleRunClick = (paginationField?: PaginationField) => {
     this.props.runAction(this.props.match.params.apiId, paginationField);
@@ -96,6 +102,11 @@ class ApiEditor extends React.Component<Props> {
             onSaveClick={this.handleSaveClick}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
+            appName={
+              this.props.currentApplication
+                ? this.props.currentApplication.name
+                : ""
+            }
           />
         ) : (
           <EmptyStateContainer>
@@ -111,6 +122,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   pluginId: getPluginIdOfName(state, PLUGIN_NAME),
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
+  currentApplication: getCurrentApplication(state),
   formData: getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction,
 });
 
@@ -119,7 +131,8 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   createAction: (action: RestAction) => dispatch(createActionRequest(action)),
   runAction: (id: string, paginationField: PaginationField) =>
     dispatch(runApiAction(id, paginationField)),
-  deleteAction: (id: string) => dispatch(deleteAction({ id })),
+  deleteAction: (id: string, name: string) =>
+    dispatch(deleteAction({ id, name })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
 });
 

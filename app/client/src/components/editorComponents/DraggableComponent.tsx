@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { useDrag, DragPreviewImage, DragSourceMonitor } from "react-dnd";
-import blankImage from "assets/images/blank.png";
+import { useDrag, DragSourceMonitor } from "react-dnd";
+
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
@@ -18,6 +18,7 @@ import {
   useShowPropertyPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 // FontSizes array in DefaultTheme.tsx
 // Change this to toggle the size of delete and move handles.
@@ -29,9 +30,13 @@ const DraggableWrapper = styled.div<{ show: boolean }>`
     display: ${props => (props.show ? "block" : "none")};
   }
   display: block;
-  position: relative;
-  z-index: 1;
   cursor: grab;
+  flexDirection: column,
+  transform: translate3d(0, 0, 0);
+  width: 100%,
+  height: 100%,
+  userSelect: none,
+  cursor: drag,
 `;
 
 const WidgetBoundaries = styled.div`
@@ -126,6 +131,10 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   );
 
   const deleteWidget = () => {
+    AnalyticsUtil.logEvent("WIDGET_DELETE", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+    });
     showPropertyPane && showPropertyPane();
     updateWidget &&
       updateWidget(WidgetOperations.DELETE, props.widgetId, {
@@ -147,59 +156,62 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     e.stopPropagation();
   };
 
-  const [{ isCurrentWidgetDragging }, drag, preview] = useDrag({
+  const [{ isCurrentWidgetDragging }, drag] = useDrag({
     item: props as WidgetProps,
     collect: (monitor: DragSourceMonitor) => ({
       isCurrentWidgetDragging: monitor.isDragging(),
     }),
     begin: () => {
+      AnalyticsUtil.logEvent("WIDGET_DRAG", {
+        widgetName: props.widgetName,
+        widgetType: props.type,
+      });
       showPropertyPane && showPropertyPane(undefined, true);
-      selectWidget && selectWidget(props.widgetId);
+      // selectWidget && selectWidget(props.widgetId);
       setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
       if (monitor.didDrop()) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
-      setIsDragging && setIsDragging(false);
+      AnalyticsUtil.logEvent("WIDGET_DROP", {
+        widgetName: props.widgetName,
+        widgetType: props.type,
+      });
+      // Take this to the bottom of the stack. So that it runs last.
+      setTimeout(() => setIsDragging && setIsDragging(false), 0);
     },
     canDrag: () => {
       return !isResizing && !isDraggingDisabled;
     },
   });
 
-  let stackingContext = 0;
-  if (props.widgetId === selectedWidget) {
-    stackingContext = 1;
-  }
-  if (props.widgetId === focusedWidget) {
-    stackingContext = 2;
-  }
-  const isResizingOrDragging =
-    selectedWidget !== props.widgetId && (!!isResizing || !!isDragging);
-
+  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const className = `${WIDGET_CLASSNAME_PREFIX +
+    props.widgetId} t--draggable-${props.type
+    .split("_")
+    .join("")
+    .toLowerCase()}`;
   return (
     <React.Fragment>
-      <DragPreviewImage connect={preview} src={blankImage} />
-
       <DraggableWrapper
-        className={WIDGET_CLASSNAME_PREFIX + props.widgetId}
+        className={className}
         ref={drag}
         onMouseOver={(e: any) => {
           focusWidget &&
+            !isResizingOrDragging &&
             focusedWidget !== props.widgetId &&
             focusWidget(props.widgetId);
           e.stopPropagation();
         }}
-        onMouseLeave={(e: any) => {
-          focusWidget && focusedWidget === props.widgetId && focusWidget();
-          e.stopPropagation();
-        }}
         onClick={(e: any) => {
-          selectWidget && selectWidget(props.widgetId);
-          showPropertyPane &&
-            !isResizingOrDragging &&
-            showPropertyPane(props.widgetId);
+          if (!isResizingOrDragging) {
+            selectWidget &&
+              selectedWidget !== props.widgetId &&
+              selectWidget(props.widgetId);
+            showPropertyPane && showPropertyPane(props.widgetId);
+          }
+
           e.stopPropagation();
         }}
         show={
@@ -209,16 +221,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }
         style={{
           display: isCurrentWidgetDragging ? "none" : "flex",
-          flexDirection: "column",
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: "100%",
-          height: "100%",
-          userSelect: "none",
-          cursor: "drag",
-          zIndex: stackingContext,
-          pointerEvents: !isResizingOrDragging ? "auto" : "none",
+          // zIndex: stackingContext,
         }}
       >
         {selectedWidget !== props.widgetId && props.isDefaultClickDisabled && (
@@ -233,17 +236,28 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         )}
 
         {props.children}
-        <DeleteControl className="control" onClick={deleteWidget}>
+        <DeleteControl
+          className="control t--widget-delete-control"
+          onClick={deleteWidget}
+        >
           <Tooltip content="Delete" hoverOpenDelay={500}>
             {deleteControlIcon}
           </Tooltip>
         </DeleteControl>
-        <EditControl className="control" onClick={togglePropertyEditor}>
+        <EditControl
+          className="control t--widget-propertypane-toggle"
+          onClick={togglePropertyEditor}
+        >
           <Tooltip content="Show props" hoverOpenDelay={500}>
             {editControlIcon}
           </Tooltip>
         </EditControl>
-        <WidgetBoundaries style={{ opacity: isResizingOrDragging ? 1 : 0 }} />
+        <WidgetBoundaries
+          style={{
+            opacity:
+              isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+          }}
+        />
       </DraggableWrapper>
     </React.Fragment>
   );

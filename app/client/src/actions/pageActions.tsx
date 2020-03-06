@@ -93,6 +93,12 @@ export const savePageSuccess = (payload: SavePageSuccessPayload) => {
   };
 };
 
+export const updateWidgetNameSuccess = () => {
+  return {
+    type: ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
+  };
+};
+
 export const deletePageSuccess = () => {
   return {
     type: ReduxActionTypes.DELETE_PAGE_SUCCESS,

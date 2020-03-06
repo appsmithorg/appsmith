@@ -94,6 +94,7 @@ interface APIFormProps {
   isRunning: boolean;
   isDeleting: boolean;
   paginationType: PaginationType;
+  appName: string;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
@@ -153,7 +154,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourceWrapper>
-            <DatasourcesField name="datasource.id" pluginId={pluginId} />
+            <DatasourcesField
+              name="datasource.id"
+              pluginId={pluginId}
+              appName={props.appName}
+            />
           </DatasourceWrapper>
           <DynamicTextField
             placeholder="v1/method"

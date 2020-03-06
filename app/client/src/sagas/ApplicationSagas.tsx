@@ -25,6 +25,7 @@ import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { setDefaultApplicationPageSuccess } from "actions/applicationActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
@@ -78,6 +79,32 @@ export function* fetchApplicationListSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_LIST_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchApplicationSaga(
+  action: ReduxAction<{
+    applicationId: string;
+  }>,
+) {
+  try {
+    const applicationId: string = action.payload.applicationId;
+    const response: FetchApplicationsResponse = yield call(
+      ApplicationApi.fetchApplication,
+      applicationId,
+    );
+
+    yield put({
+      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      payload: response.data,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       payload: {
         error,
       },
@@ -153,8 +180,8 @@ export function* createApplicationSaga(
     reject: any;
   }>,
 ) {
+  const { applicationName, resolve, reject } = action.payload;
   try {
-    const { applicationName, resolve, reject } = action.payload;
     const applicationList: ApplicationPayload[] = yield select(
       getApplicationList,
     );
@@ -188,6 +215,9 @@ export function* createApplicationSaga(
           pageCount: response.data.pages ? response.data.pages.length : 0,
           defaultPageId: getDefaultPageId(response.data.pages),
         };
+        AnalyticsUtil.logEvent("CREATE_APP", {
+          appName: application.name,
+        });
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: application,
@@ -203,6 +233,7 @@ export function* createApplicationSaga(
       }
     }
   } catch (error) {
+    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.CREATE_APPLICATION_ERROR,
       payload: {
@@ -223,6 +254,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
       fetchApplicationListSaga,
     ),
+    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(
       ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,

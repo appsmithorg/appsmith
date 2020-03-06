@@ -21,6 +21,7 @@ type ControlWrapperProps = {
 export const ControlWrapper = styled.div<ControlWrapperProps>`
   display: ${props => (props.orientation === "HORIZONTAL" ? "flex" : "block")};
   justify-content: space-between;
+  align-items: center;
   flex-direction: ${props =>
     props.orientation === "VERTICAL" ? "column" : "row"}
   margin: ${props => props.theme.spaces[3]}px 0;
@@ -34,6 +35,29 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
   &&& > label {
     display: inline-block;
+  }
+`;
+
+export const ControlPropertyLabelContainer = styled.div`
+  display: flex;
+  align-items: center;
+  & > label {
+    color: ${props => props.theme.colors.paneText};
+    margin-bottom: ${props => props.theme.spaces[1]}px;
+    font-size: ${props => props.theme.fontSizes[3]}px;
+  }
+`;
+
+export const JSToggleButton = styled.span<{ active: boolean }>`
+  margin: 0 3px;
+  cursor: pointer;
+  svg {
+    rect {
+      fill: ${props =>
+        props.active
+          ? props.theme.colors.primary
+          : props.theme.colors.paneIcon};
+    }
   }
 `;
 

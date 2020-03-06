@@ -57,7 +57,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget } = useWidgetSelection();
+  const { selectWidget, focusWidget } = useWidgetSelection();
 
   const [rows, setRows] = useState(props.snapRows);
   useEffect(() => {
@@ -229,6 +229,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const handleFocus = () => {
     if (!props.parentId && !isResizing && !isDragging) {
       selectWidget && selectWidget(props.widgetId);
+      focusWidget && focusWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
   };

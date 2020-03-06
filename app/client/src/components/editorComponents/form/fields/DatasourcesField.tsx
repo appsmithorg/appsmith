@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import _ from "lodash";
 import { createDatasource } from "actions/datasourcesActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
@@ -17,6 +18,7 @@ interface ReduxActionProps {
 interface ComponentProps {
   name: string;
   pluginId: string;
+  appName: string;
 }
 
 const DatasourcesField = (
@@ -55,7 +57,11 @@ const mapDispatchToProps = (
   dispatch: any,
   ownProps: ComponentProps,
 ): ReduxActionProps => ({
-  createDatasource: (value: string) =>
+  createDatasource: (value: string) => {
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      appName: ownProps.appName,
+      dataSource: value,
+    });
     dispatch(
       createDatasource({
         // Datasource name should not end with /
@@ -65,8 +71,10 @@ const mapDispatchToProps = (
           url: value.endsWith("/") ? value : `${value}/`,
         },
         pluginId: ownProps.pluginId,
+        appName: ownProps.appName,
       }),
-    ),
+    );
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DatasourcesField);

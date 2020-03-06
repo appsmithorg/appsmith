@@ -44,7 +44,11 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           </Label>
         )}
         <StyledRadioGroup
-          selectedValue={this.props.selectedOptionValue}
+          selectedValue={
+            this.props.selectedOptionValue === undefined
+              ? this.props.defaultOptionValue
+              : this.props.selectedOptionValue
+          }
           onChange={this.onRadioSelectionChange}
         >
           {this.props.options.map(option => {
@@ -73,6 +77,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
   isLoading: boolean;
+  defaultOptionValue: string;
 }
 
 export default RadioGroupComponent;

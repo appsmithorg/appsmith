@@ -33,15 +33,20 @@ export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
+export type DataTreeEntity =
+  | DataTreeAction
+  | DataTreeWidget
+  | ActionDispatcher<any, any>;
+
 export type DataTree = {
-  [key: string]: DataTreeAction | DataTreeWidget | ActionDispatcher<any, any>;
+  [entityName: string]: DataTreeEntity;
 } & { actionPaths?: string[] };
 
 export class DataTreeFactory {
-  static create(state: AppState): DataTree {
+  static create(state: AppState["entities"]): DataTree {
     const dataTree: DataTree = {};
     dataTree.actionPaths = ["navigateTo", "navigateToUrl", "showAlert"];
-    state.entities.actions.forEach(a => {
+    state.actions.forEach(a => {
       dataTree[a.config.name] = {
         ...a,
         data: a.data ? a.data.body : {},
@@ -59,9 +64,9 @@ export class DataTreeFactory {
       };
       dataTree.actionPaths && dataTree.actionPaths.push(`${a.config.name}.run`);
     });
-    Object.keys(state.entities.canvasWidgets).forEach(w => {
-      const widget = state.entities.canvasWidgets[w];
-      const widgetMetaProps = state.entities.meta[w];
+    Object.keys(state.canvasWidgets).forEach(w => {
+      const widget = state.canvasWidgets[w];
+      const widgetMetaProps = state.meta[w];
       dataTree[widget.widgetName] = {
         ...widget,
         ...widgetMetaProps,

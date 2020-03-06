@@ -22,7 +22,7 @@ export interface SavePageRequest {
 export interface PageLayout {
   id: string;
   dsl: Partial<ContainerWidgetProps<any>>;
-  layoutOnLoadActions: PageAction[];
+  layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
 }
 
@@ -74,8 +74,20 @@ export interface DeletePageRequest {
   pageId: string;
 }
 
+export interface UpdateWidgetNameRequest {
+  pageId: string;
+  layoutId: string;
+  newName: string;
+  oldName: string;
+}
+
+export interface UpdateWidgetNameResponse extends ApiResponse {
+  data: PageLayout;
+}
+
 class PageApi extends Api {
   static url = "v1/pages";
+  static refactorLayoutURL = "v1/layouts/refactor";
   static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
@@ -129,6 +141,12 @@ class PageApi extends Api {
 
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
     return Api.delete(PageApi.url + "/" + request.pageId);
+  }
+
+  static updateWidgetName(
+    request: UpdateWidgetNameRequest,
+  ): AxiosPromise<UpdateWidgetNameResponse> {
+    return Api.put(PageApi.refactorLayoutURL, request);
   }
 }
 

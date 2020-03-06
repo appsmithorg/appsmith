@@ -26,7 +26,8 @@ class FilePickerComponent extends React.Component<
     return (
       <React.Fragment>
         <BaseButton
-          accent={"primary"}
+          accent="primary"
+          filled
           className={this.props.isLoading ? "bp3-skeleton" : ""}
           text={
             this.props.files && this.props.files.length === 0

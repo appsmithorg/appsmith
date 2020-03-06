@@ -33,6 +33,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
         label={this.props.label}
+        defaultOptionValue={this.props.defaultOptionValue}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
         isLoading={this.props.isLoading}
@@ -41,7 +42,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
-    this.updateWidgetProperty("selectedOptionValue", updatedValue);
+    super.updateWidgetMetaProperty("selectedOptionValue", updatedValue);
     if (this.props.onSelectionChange) {
       super.executeAction({
         dynamicString: this.props.onSelectionChange,
@@ -68,6 +69,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   options: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;
+  defaultOptionValue: string;
 }
 
 export default RadioGroupWidget;

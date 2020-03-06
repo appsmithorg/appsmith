@@ -8,6 +8,7 @@ import {
   useWidgetDragResize,
   useShowPropertyPane,
 } from "utils/hooks/dragResizeHooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -68,21 +69,32 @@ const WidgetCard = (props: CardProps) => {
       isDragging: monitor.isDragging(),
     }),
     begin: () => {
+      AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
+        widgetType: props.details.type,
+        widgetName: props.details.widgetCardName,
+      });
       showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
     },
     end: () => {
+      AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
+        widgetType: props.details.type,
+        widgetName: props.details.widgetCardName,
+      });
       setIsDragging && setIsDragging(false);
     },
   });
 
   const iconType: string = props.details.type;
   const Icon = WidgetIcons[iconType]();
-
+  const className = `t--widget-card-draggable-${props.details.type
+    .split("_")
+    .join("")
+    .toLowerCase()}`;
   return (
     <React.Fragment>
       <DragPreviewImage connect={preview} src={blankImage} />
-      <Wrapper ref={drag}>
+      <Wrapper ref={drag} className={className}>
         <div>
           {Icon}
           <IconLabel>{props.details.widgetCardName}</IconLabel>

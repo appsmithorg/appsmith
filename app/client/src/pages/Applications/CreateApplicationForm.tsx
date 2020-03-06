@@ -23,7 +23,7 @@ export const CreateApplicationForm = (
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
-      <FormGroup intent={error ? "danger" : "none"} helperText={error}>
+      <FormGroup intent={error ? "danger" : "none"}>
         <TextField name="applicationName" placeholder="Name" />
       </FormGroup>
       <FormFooter

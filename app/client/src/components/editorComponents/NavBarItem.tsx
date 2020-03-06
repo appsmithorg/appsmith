@@ -1,12 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type MenuBarItemProps = {
   icon: Function;
   path: string;
   title: string;
   exact: boolean;
+  className?: string;
 };
 
 type Props = MenuBarItemProps;
@@ -26,7 +28,8 @@ const IconContainer = styled.div`
 `;
 
 const ItemContainer = styled.div`
-  a {
+  && {
+    a {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -52,6 +55,7 @@ const ItemContainer = styled.div`
       }
     }
   }
+}
 `;
 
 class NavBarItem extends React.Component<Props> {
@@ -59,7 +63,16 @@ class NavBarItem extends React.Component<Props> {
     const { title, icon, path, exact } = this.props;
     return (
       <ItemContainer>
-        <NavLink exact={exact} to={path}>
+        <NavLink
+          exact={exact}
+          to={path}
+          className={this.props.className}
+          onClick={() => {
+            AnalyticsUtil.logEvent("SIDEBAR_NAVIGATION", {
+              navPage: this.props.title.toUpperCase(),
+            });
+          }}
+        >
           <React.Fragment>
             <IconContainer>{icon({ width: 24, height: 24 })}</IconContainer>
             {title}

@@ -7,6 +7,7 @@ import ContextDropdown, {
 import { MenuIcons } from "icons/MenuIcons";
 import { Theme } from "constants/DefaultTheme";
 import EditableText from "components/editorComponents/EditableText";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /** Page List Item */
 export const PageListItemCSS = css`
@@ -69,6 +70,11 @@ type PageListItemProps = {
 const PageListItem = withTheme((props: PageListItemProps) => {
   const onEditPageName = (name: string) => {
     props.updatePage(props.id, name);
+    AnalyticsUtil.logEvent("PAGE_RENAME", {
+      pageName: props.name,
+      newName: name,
+      pageId: props.id,
+    });
   };
   const pageIcon = props.isDefault ? (
     MenuIcons.HOMEPAGE_ICON({ width: 28, height: 28 })

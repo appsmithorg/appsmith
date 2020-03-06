@@ -22,6 +22,8 @@ const initialState: EditorReduxState = {
     isPageSwitching: false,
     creatingPage: false,
     creatingPageError: false,
+    updatingWidgetName: false,
+    updateWidgetNameError: false,
   },
 };
 
@@ -130,6 +132,23 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.creatingPage = false;
     return { ...state };
   },
+  [ReduxActionTypes.UPDATE_WIDGET_NAME_INIT]: (state: EditorReduxState) => {
+    state.loadingStates.updatingWidgetName = true;
+    state.loadingStates.updateWidgetNameError = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: (state: EditorReduxState) => {
+    state.loadingStates.updatingWidgetName = false;
+    state.loadingStates.updateWidgetNameError = false;
+    return { ...state };
+  },
+  [ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    state.loadingStates.updatingWidgetName = false;
+    state.loadingStates.updateWidgetNameError = true;
+    return { ...state };
+  },
 });
 
 export interface EditorReduxState {
@@ -153,6 +172,8 @@ export interface EditorReduxState {
     pageSwitchingError: boolean;
     creatingPage: boolean;
     creatingPageError: boolean;
+    updatingWidgetName: boolean;
+    updateWidgetNameError: boolean;
   };
 }
 

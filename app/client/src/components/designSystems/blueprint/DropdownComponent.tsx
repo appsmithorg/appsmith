@@ -43,6 +43,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     width: 100%;
     align-items: center;
     justify-content: space-between;
+    box-shadow: none;
+    background: white;
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -60,7 +62,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
   }
 `;
 
-const StyledControlGroup = styled(ControlGroup)<{ hasLabel: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
   &&& > {
     label {
       ${labelStyle}
@@ -72,7 +74,7 @@ const StyledControlGroup = styled(ControlGroup)<{ hasLabel: boolean }>`
     }
     span {
       max-width: ${props =>
-        props.hasLabel ? `calc(70% - ${WIDGET_PADDING}px)` : "100%"};
+        props.haslabel === "true" ? `calc(70% - ${WIDGET_PADDING}px)` : "100%"};
     }
   }
 `;
@@ -202,7 +204,10 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       : [];
     return (
       <DropdownContainer>
-        <StyledControlGroup fill hasLabel={!!this.props.label}>
+        <StyledControlGroup
+          fill
+          haslabel={!!this.props.label ? "true" : "false"}
+        >
           {this.props.label && (
             <Label
               className={

@@ -4,6 +4,13 @@ import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 
 const TabsWrapper = styled.div`
+  height: 100%;
+  .react-tabs {
+    height: 100%;
+  }
+  .react-tabs__tab-panel {
+    height: 100%;
+  }
   .react-tabs__tab-list {
     border-bottom-color: #d0d7dd;
     color: #a3b3bf;

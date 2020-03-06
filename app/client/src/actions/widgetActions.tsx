@@ -42,8 +42,3 @@ export const disableDragAction = (
     },
   };
 };
-
-export type WidgetLoadingState = {
-  areLoading: boolean;
-  widgetIds: string[];
-};

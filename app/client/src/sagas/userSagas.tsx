@@ -35,6 +35,7 @@ import {
   invitedUserSignupError,
   invitedUserSignupSuccess,
 } from "actions/userActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -183,8 +184,8 @@ export function* inviteUsers(
     data: Array<{ roleId: string; emails: string[] }>;
   }>,
 ) {
+  const { data, resolve, reject } = action.payload;
   try {
-    const { data, resolve, reject } = action.payload;
     const sagasToCall = [];
     const emailSet: Record<string, string[]> = {};
     data.forEach((groupSet: { roleId: string; emails: string[] }) => {
@@ -213,6 +214,7 @@ export function* inviteUsers(
     yield call(resolve);
   } catch (error) {
     console.log(error);
+    yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
       payload: {
@@ -263,11 +265,17 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
   try {
     const request: FetchUserRequest = action.payload;
     const response: FetchUserResponse = yield call(UserApi.fetchUser, request);
+    const { user, applications, currentOrganization } = response.data;
+    const finalData = {
+      ...user,
+      applications,
+      currentOrganization,
+    };
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_USER_SUCCESS,
-        payload: response.data,
+        payload: finalData,
       });
       return yield response.data;
     }
@@ -286,6 +294,7 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
 export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
   const me = yield call(fetchUserSaga, action);
   if (me) {
+    AnalyticsUtil.identifyUser(me.id, me);
     resetAuthExpiration();
     yield put({
       type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,

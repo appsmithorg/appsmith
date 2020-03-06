@@ -2,11 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { Button, MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import {
-  ControlWrapper,
-  StyledDropDown,
-  StyledDropDownContainer,
-} from "./StyledControls";
+import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 
@@ -16,27 +12,24 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       option => option.value === this.props.propertyValue,
     );
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
-        <StyledDropDownContainer>
-          <StyledDropDown
-            items={this.props.options}
-            filterable={false}
-            itemRenderer={this.renderItem}
-            onItemSelect={this.onItemSelect}
-            noResults={<MenuItem disabled={true} text="No results." />}
-            popoverProps={{
-              minimal: true,
-              usePortal: false,
-            }}
-          >
-            <Button
-              text={selected ? selected.label : ""}
-              rightIcon="chevron-down"
-            />
-          </StyledDropDown>
-        </StyledDropDownContainer>
-      </ControlWrapper>
+      <StyledDropDownContainer>
+        <StyledDropDown
+          items={this.props.options}
+          filterable={false}
+          itemRenderer={this.renderItem}
+          onItemSelect={this.onItemSelect}
+          noResults={<MenuItem disabled={true} text="No results." />}
+          popoverProps={{
+            minimal: true,
+            usePortal: false,
+          }}
+        >
+          <Button
+            text={selected ? selected.label : ""}
+            rightIcon="chevron-down"
+          />
+        </StyledDropDown>
+      </StyledDropDownContainer>
     );
   }
 
