@@ -11,6 +11,7 @@ const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
   },
   segment: {
     enabled: false,
+    key: "NZALSCjsaxOIyprzITLz2yZwFzQynGt1",
   },
   apiUrl: "/api/",
   baseUrl,

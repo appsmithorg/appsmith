@@ -10,7 +10,8 @@ const stageConfig = (baseUrl: string): AppsmithUIConfigs => ({
     enabled: false,
   },
   segment: {
-    enabled: false,
+    enabled: true,
+    key: "NZALSCjsaxOIyprzITLz2yZwFzQynGt1",
   },
   apiUrl: "/api/",
   baseUrl,

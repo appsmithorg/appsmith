@@ -69,7 +69,7 @@ class AnalyticsUtil {
     })(window, document, "//static.hotjar.com/c/hotjar-", ".js?sv=");
   }
 
-  static initializeSegment() {
+  static initializeSegment(key: string) {
     (function init(window: any) {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
@@ -123,7 +123,7 @@ class AnalyticsUtil {
           analytics._loadOptions = e;
         };
         analytics.SNIPPET_VERSION = "4.1.0";
-        analytics.load("O7rsLdWq7fhJI9rYsj1eatGAjuULTmfP");
+        analytics.load(key);
         analytics.page();
       }
     })(window);

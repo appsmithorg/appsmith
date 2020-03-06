@@ -37,7 +37,7 @@ export const appInitializer = () => {
     AnalyticsUtil.initializeHotjar(id, sv);
   }
   if (appsmithConfigs.segment.enabled) {
-    AnalyticsUtil.initializeSegment();
+    AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
 
   const textFont = new FontFaceObserver("DM Sans");
