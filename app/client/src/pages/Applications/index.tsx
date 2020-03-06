@@ -22,6 +22,7 @@ import CreateApplicationForm from "./CreateApplicationForm";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
@@ -64,6 +65,9 @@ class Applications extends Component<ApplicationProps> {
             isAdding: this.props.isCreatingApplication,
             errorAdding: this.props.createApplicationError,
             formSubmitText: "Create",
+            onClick: () => {
+              AnalyticsUtil.logEvent("CREATE_APP_CLICK", {});
+            },
           }}
           search={{
             placeholder: "Search",

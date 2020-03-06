@@ -18,6 +18,7 @@ import { getPluginIdOfName } from "selectors/entitiesSelector";
 import { DEFAULT_API_ACTION, PLUGIN_NAME } from "constants/ApiEditorConstants";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -69,7 +70,7 @@ interface ReduxDispatchProps {
     originalPageId: string,
   ) => void;
   copyAction: (id: string, pageId: string, name: string) => void;
-  deleteAction: (id: string) => void;
+  deleteAction: (id: string, name: string) => void;
 }
 
 type Props = ReduxStateProps &
@@ -99,6 +100,9 @@ class ApiSidebar extends React.Component<Props> {
       .map(a => a.config.name);
     const newName = getNextEntityName("Api", pageApiNames);
     this.props.createAction({ ...DEFAULT_API_ACTION, name: newName, pageId });
+    AnalyticsUtil.logEvent("CREATE_API_CLICK", {
+      apiName: newName,
+    });
   };
 
   handleApiChange = (actionId: string) => {
@@ -134,13 +138,20 @@ class ApiSidebar extends React.Component<Props> {
     this.props.copyAction(itemId, destinationPageId, name);
   };
 
-  handleDelete = (itemId: string) => {
-    this.props.deleteAction(itemId);
+  handleDelete = (itemId: string, itemName: string) => {
+    this.props.deleteAction(itemId, itemName);
   };
 
   renderItem = (action: RestAction) => {
     return (
-      <ActionItem>
+      <ActionItem
+        onClick={() => {
+          AnalyticsUtil.logEvent("API_SELECT", {
+            apiId: action.id,
+            apiName: action.name,
+          });
+        }}
+      >
         {action.actionConfiguration ? (
           <HTTPMethod method={action.actionConfiguration.httpMethod}>
             {action.actionConfiguration.httpMethod}
@@ -203,7 +214,8 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
     ),
   copyAction: (id: string, destinationPageId: string, name: string) =>
     dispatch(copyActionRequest({ id, destinationPageId, name })),
-  deleteAction: (id: string) => dispatch(deleteAction({ id })),
+  deleteAction: (id: string, name: string) =>
+    dispatch(deleteAction({ id, name })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiSidebar);

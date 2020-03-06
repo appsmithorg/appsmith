@@ -23,6 +23,10 @@ export interface ApplicationResponsePayload {
   pages?: ApplicationPagePayload[];
 }
 
+export interface FetchApplicationResponse extends ApiResponse {
+  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+}
+
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
@@ -61,6 +65,11 @@ class ApplicationApi extends Api {
   }
   static fetchApplications(): AxiosPromise<FetchApplicationsResponse> {
     return Api.get(ApplicationApi.baseURL);
+  }
+  static fetchApplication(
+    applicationId: string,
+  ): AxiosPromise<FetchApplicationsResponse> {
+    return Api.get(ApplicationApi.baseURL + applicationId);
   }
   static createApplication(
     request: CreateApplicationRequest,

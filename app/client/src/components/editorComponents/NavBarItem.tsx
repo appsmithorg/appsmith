@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type MenuBarItemProps = {
   icon: Function;
@@ -62,7 +63,16 @@ class NavBarItem extends React.Component<Props> {
     const { title, icon, path, exact } = this.props;
     return (
       <ItemContainer>
-        <NavLink exact={exact} to={path} className={this.props.className}>
+        <NavLink
+          exact={exact}
+          to={path}
+          className={this.props.className}
+          onClick={() => {
+            AnalyticsUtil.logEvent("SIDEBAR_NAVIGATION", {
+              navPage: this.props.title.toUpperCase(),
+            });
+          }}
+        >
           <React.Fragment>
             <IconContainer>{icon({ width: 24, height: 24 })}</IconContainer>
             {title}

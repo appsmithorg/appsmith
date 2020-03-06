@@ -26,6 +26,8 @@ export interface CreateDatasourceConfig {
   datasourceConfiguration: {
     url: string;
   };
+  //Passed for logging purposes.
+  appName: string;
 }
 
 class DatasourcesApi extends API {

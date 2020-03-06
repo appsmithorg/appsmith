@@ -16,7 +16,25 @@ export type EventName =
   | "CREATE_PAGE"
   | "PAGE_RENAME"
   | "PAGE_SWITCH"
-  | "DELETE_PAGE";
+  | "DELETE_PAGE"
+  | "SIDEBAR_NAVIGATION"
+  | "PUBLISH_APP"
+  | "PREVIEW_APP"
+  | "EDITOR_OPEN"
+  | "CREATE_API"
+  | "SAVE_API"
+  | "RUN_API"
+  | "DELETE_API"
+  | "DUPLICATE_API"
+  | "MOVE_API"
+  | "API_SELECT"
+  | "CREATE_API_CLICK"
+  | "AUTO_COMPELTE_SHOW"
+  | "AUTO_COMPLETE_SELECT"
+  | "CREATE_APP_CLICK"
+  | "CREATE_APP"
+  | "CREATE_DATA_SOURCE_CLICK"
+  | "SAVE_DATA_SOURCE";
 
 export type Gender = "MALE" | "FEMALE";
 export interface User {
@@ -27,6 +45,14 @@ export interface User {
 }
 
 class AnalyticsUtil {
+  static user: any = {};
+  static appData: {
+    appId: string;
+    appName: string;
+  } = {
+    appId: "",
+    appName: "",
+  };
   static initializeHotjar(id: string, sv: string) {
     (function init(h: any, o: any, t: any, j: any, a?: any, r?: any) {
       h.hj =
@@ -105,18 +131,39 @@ class AnalyticsUtil {
 
   static logEvent(eventName: EventName, eventData: any) {
     const windowDoc: any = window;
+    let finalEventData = eventData;
+    const userData = AnalyticsUtil.user;
+    const appData = AnalyticsUtil.appData;
+
+    if (userData) {
+      finalEventData = {
+        ...finalEventData,
+        userData: {
+          email: userData.email,
+          currentOrgId: userData.currentOrganizationId,
+          ...appData,
+        },
+      };
+    }
     if (windowDoc.analytics) {
-      windowDoc.analytics.track(eventName, eventData);
+      windowDoc.analytics.track(eventName, finalEventData);
     } else {
-      console.log("Event fired", eventName, eventData);
+      console.log("Event fired", eventName, finalEventData);
     }
   }
 
   static identifyUser(userId: string, userData: User) {
     const windowDoc: any = window;
+    AnalyticsUtil.user = userData;
     if (windowDoc.analytics) {
       windowDoc.analytics.identify(userId, userData);
     }
+  }
+  static setAppData(appId: string, appName: string) {
+    AnalyticsUtil.appData = {
+      appId: appId,
+      appName: appName,
+    };
   }
 }
 
