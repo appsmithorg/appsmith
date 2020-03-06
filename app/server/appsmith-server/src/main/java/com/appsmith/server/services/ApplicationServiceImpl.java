@@ -95,6 +95,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Mono<Application> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
+    }
+
+    @Override
     public Mono<Application> findByIdAndOrganizationId(String id, String organizationId) {
         return repository.findByIdAndOrganizationId(id, organizationId, AclPermission.READ_APPLICATIONS);
     }
@@ -111,7 +116,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> update(String id, Application resource) {
-       return repository.updateById(id, resource, AclPermission.UPDATE_APPLICATIONS)
+       return repository.updateById(id, resource, AclPermission.MANAGE_APPLICATIONS)
                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
     }
 

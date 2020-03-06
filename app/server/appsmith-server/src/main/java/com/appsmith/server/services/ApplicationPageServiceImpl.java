@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,7 +62,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             page.setLayouts(layoutList);
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId())
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.CREATE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
         return applicationMono
@@ -178,6 +179,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    private Set<Policy> adminApplicationPolicy(Organization org, User user) {
+        Set<Policy> orgPolicies = org.getPolicies();
+        // If a user can create an application on org, they can read, update & delete all applications
+        return null;
+    }
+
+    private Set<Policy> adminPagePolicyForApplication(User user) {
+        return null;
+    }
+
     public Mono<Application> createApplication(Application application) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
@@ -185,21 +196,29 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
         Mono<Application> applicationMono = userMono
-                .map(user -> user.getCurrentOrganizationId())
-                .flatMap(orgId -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, AclPermission.CREATE_APPLICATIONS)
+                .flatMap(user -> {
+                    String orgId = user.getCurrentOrganizationId();
+
+                    Mono<Organization> orgMono = organizationService.findById(orgId, AclPermission.MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
 
                     return orgMono.map(org -> {
                         application.setOrganizationId(org.getId());
+                        // At the organization level, filter out all the application specific policies and apply them
+                        // to the new application that we are creating.
                         Set<Policy> policySet = org.getPolicies().stream()
-                                // At the organization level, filter out all the application specific policies and apply them
-                                // to the new application that we are creating.
                                 .filter(policy ->
                                         policy.getPermission().equals(AclPermission.READ_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(AclPermission.UPDATE_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(AclPermission.DELETE_APPLICATIONS.getValue())
+                                                policy.getPermission().equals(AclPermission.MANAGE_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
+                        Set<String> users = policySet.stream()
+                                .map(policy -> policy.getUsers())
+                                .flatMap(Collection::stream)
+                                .collect(Collectors.toSet());
+                        policySet.add(Policy.builder()
+                                .permission(AclPermission.CREATE_PAGES.getValue())
+                                .users(Set.of(user.getUsername())).build()
+                        );
                         application.setPolicies(policySet);
                         return application;
                     });

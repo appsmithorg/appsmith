@@ -6,23 +6,29 @@ import lombok.Getter;
 public enum AclPermission {
 
     // These are generic permissions created to make the transition to the new ACL format easy. They must be removed
-    CREATE("create"),
-    READ("read"),
-    UPDATE("update"),
-    DELETE("delete"),
+    CREATE("create", null),
+    READ("read", null),
+    UPDATE("update", null),
+    DELETE("delete", null),
 
-    CREATE_APPLICATIONS("create:applications"),
-    READ_APPLICATIONS("read:applications"),
-    UPDATE_APPLICATIONS("update:applications"),
-    DELETE_APPLICATIONS("delete:applications"),
-    CREATE_ORGANIZATIONS("create:organizations"),
-    READ_ORGANIZATIONS("read:organizations"),
-    UPDATE_ORGANIZATIONS("update:organizations"),
-    DELETE_ORGANIZATIONS("delete:organizations");
+    CREATE_ORGANIZATIONS("create:organizations", null),
+    READ_ORGANIZATIONS("read:organizations", null),
+    UPDATE_ORGANIZATIONS("update:organizations", null),
+    DELETE_ORGANIZATIONS("delete:organizations", null),
+
+    MANAGE_APPLICATIONS("manage:applications", null),
+    READ_APPLICATIONS("read:applications", MANAGE_APPLICATIONS),
+
+    CREATE_PAGES("create:pages", null),
+    READ_PAGES("read:pages", CREATE_PAGES),
+    UPDATE_PAGES("update:pages", null),
+    DELETE_PAGES("delete:pages", null);
+
 
     private String value;
+    private AclPermission parent;
 
-    AclPermission(String value) {
+    AclPermission(String value, AclPermission parent) {
         this.value = value;
     }
 }
