@@ -81,7 +81,11 @@ class PropertyPane extends Component<
         />
 
         <CloseButton
-          onClick={this.props.hidePropertyPane}
+          onClick={(e: any) => {
+            this.props.hidePropertyPane();
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           size={theme.spaces[5]}
           color={theme.colors.paneSectionLabel}
         />

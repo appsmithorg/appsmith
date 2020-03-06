@@ -92,8 +92,12 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
-    width: (props.rightColumn - props.leftColumn) * props.parentColumnSpace,
-    height: (props.bottomRow - props.topRow) * props.parentRowSpace,
+    width:
+      (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+      2 * props.paddingOffset,
+    height:
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      2 * props.paddingOffset,
   };
 
   // Resize bound's className - defaults to body

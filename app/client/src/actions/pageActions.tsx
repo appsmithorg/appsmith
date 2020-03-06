@@ -10,6 +10,7 @@ import {
   FetchPageListPayload,
 } from "constants/ReduxActionConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export const fetchPageList = (
   applicationId: string,
@@ -22,15 +23,11 @@ export const fetchPageList = (
   };
 };
 
-export const fetchPage = (
-  pageId: string,
-  canvasWidth?: number,
-): ReduxAction<FetchPageRequest & { canvasWidth?: number }> => {
+export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       pageId,
-      canvasWidth,
     },
   };
 };
@@ -102,6 +99,13 @@ export const updateWidgetNameSuccess = () => {
 export const deletePageSuccess = () => {
   return {
     type: ReduxActionTypes.DELETE_PAGE_SUCCESS,
+  };
+};
+
+export const updateAndSaveLayout = (widgets: FlattenedWidgetProps) => {
+  return {
+    type: ReduxActionTypes.UPDATE_LAYOUT,
+    payload: { widgets },
   };
 };
 

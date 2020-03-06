@@ -68,7 +68,6 @@
     "react-dnd-touch-backend": "^9.4.0",
     "react-dom": "^16.7.0",
     "react-helmet": "^5.2.1",
-    "react-monaco-editor": "^0.31.1",
     "react-redux": "^7.1.3",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",

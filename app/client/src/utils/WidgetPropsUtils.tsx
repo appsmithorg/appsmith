@@ -69,7 +69,6 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
-  canvasWidth?: number,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
@@ -78,9 +77,9 @@ export const extractCurrentDSL = (
   // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
   currentDSL.snapRows =
     Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
-  if (canvasWidth && canvasWidth > 0) {
-    currentDSL.rightColumn = Math.floor(canvasWidth * 0.9);
-  }
+
+  currentDSL.rightColumn = 1224;
+
   return currentDSL;
 };
 

@@ -25,7 +25,7 @@ export const calculateDropTargetRows = (
   */
   if (maxBottomRow && _rows - maxBottomRow > 2) {
     _rows = Math.max(
-      maxBottomRow + 2,
+      maxBottomRow + 5,
       CANVAS_DEFAULT_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
     );
   }

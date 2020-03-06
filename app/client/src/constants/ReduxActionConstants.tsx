@@ -259,6 +259,7 @@ export interface UpdateCanvasPayload {
 export interface ShowPropertyPanePayload {
   widgetId: string;
   callForDragOrResize: boolean;
+  force: boolean;
 }
 
 export interface Page {

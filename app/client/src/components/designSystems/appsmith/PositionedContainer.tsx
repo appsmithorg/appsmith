@@ -1,6 +1,6 @@
 import React from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { PositionTypes, WIDGET_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { theme } from "constants/DefaultTheme";
 type PositionedContainerProps = {
   style: BaseStyle;
@@ -16,13 +16,11 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
   return (
     <div
       style={{
-        position:
-          props.style.positionType === PositionTypes.ABSOLUTE
-            ? "absolute"
-            : "relative",
+        position: "absolute",
+        left: x,
+        top: y,
         height: props.style.componentHeight + (props.style.heightUnit || "px"),
         width: props.style.componentWidth + (props.style.widthUnit || "px"),
-        transform: `translate3d(${x}, ${y}, 0)`,
         padding: props.isMainContainer ? 0 : WIDGET_PADDING + "px",
       }}
     >

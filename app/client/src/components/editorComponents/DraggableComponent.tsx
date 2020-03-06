@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragSourceMonitor } from "react-dnd";
-
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { ControlIcons } from "icons/ControlIcons";
 import { Tooltip } from "@blueprintjs/core";
@@ -25,29 +25,25 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const CONTROL_THEME_FONTSIZE_INDEX = 6;
 
 const DraggableWrapper = styled.div<{ show: boolean }>`
-  pointer-events: auto !important;
   & > div.control {
     display: ${props => (props.show ? "block" : "none")};
   }
   display: block;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  userselect: none;
   cursor: grab;
-  flexDirection: column,
-  transform: translate3d(0, 0, 0);
-  width: 100%,
-  height: 100%,
-  userSelect: none,
-  cursor: drag,
 `;
 
 const WidgetBoundaries = styled.div`
-  left: 0;
-  right: 0;
+  transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
   z-index: 0;
-  width: 100%;
-  height: 100%;
+  width: calc(100% + ${WIDGET_PADDING - 2}px);
+  height: calc(100% + ${WIDGET_PADDING - 2}px);
+  position: absolute;
   border: 1px dashed
     ${props => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
-  position: absolute;
   pointer-events: none;
 `;
 
@@ -148,7 +144,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         props.widgetId === propertyPaneState.widgetId) ||
       props.widgetId !== propertyPaneState.widgetId
     ) {
-      showPropertyPane && showPropertyPane(props.widgetId);
+      showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
     } else {
       showPropertyPane && showPropertyPane();
     }
@@ -167,7 +163,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         widgetType: props.type,
       });
       showPropertyPane && showPropertyPane(undefined, true);
-      // selectWidget && selectWidget(props.widgetId);
+      selectWidget && selectWidget(props.widgetId);
       setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
@@ -192,6 +188,7 @@ const DraggableComponent = (props: DraggableComponentProps) => {
     .split("_")
     .join("")
     .toLowerCase()}`;
+
   return (
     <React.Fragment>
       <DraggableWrapper
@@ -206,12 +203,13 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }}
         onClick={(e: any) => {
           if (!isResizingOrDragging) {
+            const shouldForceOpen = selectedWidget !== props.widgetId;
+            showPropertyPane &&
+              showPropertyPane(props.widgetId, undefined, shouldForceOpen);
             selectWidget &&
               selectedWidget !== props.widgetId &&
               selectWidget(props.widgetId);
-            showPropertyPane && showPropertyPane(props.widgetId);
           }
-
           e.stopPropagation();
         }}
         show={
@@ -221,14 +219,15 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         }
         style={{
           display: isCurrentWidgetDragging ? "none" : "flex",
-          // zIndex: stackingContext,
         }}
       >
         {selectedWidget !== props.widgetId && props.isDefaultClickDisabled && (
           <ClickCaptureMask
             onClick={(e: any) => {
+              const shouldForceOpen = selectedWidget !== props.widgetId;
+              showPropertyPane &&
+                showPropertyPane(props.widgetId, undefined, shouldForceOpen);
               selectWidget && selectWidget(props.widgetId);
-              showPropertyPane && showPropertyPane(props.widgetId);
               e.preventDefault();
               e.stopPropagation();
             }}

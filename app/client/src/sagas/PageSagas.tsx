@@ -43,10 +43,8 @@ import history from "utils/history";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { getEditorConfigs, getWidgets } from "./selectors";
+import { getEditorConfigs } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
-import { RenderModes } from "constants/WidgetConstants";
-import { UpdateWidgetPropertyRequestPayload } from "actions/controlActions";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -98,10 +96,9 @@ export function* fetchPageListSaga(
 
 const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
-  canvasWidth?: number,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
-    extractCurrentDSL(pageResponse, canvasWidth),
+    extractCurrentDSL(pageResponse),
   );
   return {
     pageWidgetId: normalizedResponse.result,
@@ -115,20 +112,17 @@ const getCanvasWidgetsPayload = (
 };
 
 export function* fetchPageSaga(
-  pageRequestAction: ReduxAction<FetchPageRequest & { canvasWidth?: number }>,
+  pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { pageId, canvasWidth } = pageRequestAction.payload;
+    const { pageId } = pageRequestAction.payload;
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       pageId,
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(
-        fetchPageResponse,
-        canvasWidth,
-      );
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       // Update the canvas
@@ -147,10 +141,10 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<{ pageId: string; canvasWidth?: number }>,
+  pageRequestAction: ReduxAction<{ pageId: string }>,
 ) {
   try {
-    const { pageId, canvasWidth } = pageRequestAction.payload;
+    const { pageId } = pageRequestAction.payload;
     const request: FetchPublishedPageRequest = {
       pageId,
     };
@@ -160,10 +154,7 @@ export function* fetchPublishedPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(
-        response,
-        canvasWidth,
-      );
+      const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       yield put(updateCanvas(canvasWidgetsPayload));
@@ -224,9 +215,11 @@ function getLayoutSavePayload(
   };
 }
 
-export function* saveLayoutSaga() {
+export function* saveLayoutSaga(
+  action: ReduxAction<{ widgets: FlattenedWidgetProps }>,
+) {
   try {
-    const widgets = yield select(getWidgets);
+    const { widgets } = action.payload;
     const editorConfigs = yield select(getEditorConfigs) as any;
 
     yield put({
@@ -240,14 +233,6 @@ export function* saveLayoutSaga() {
         error,
       },
     });
-  }
-}
-
-export function* updateWidgetPropertySaga(
-  action: ReduxAction<UpdateWidgetPropertyRequestPayload>,
-) {
-  if (action.payload.renderMode === RenderModes.CANVAS) {
-    yield saveLayoutSaga();
   }
 }
 
@@ -398,10 +383,7 @@ export default function* pageSagas() {
       fetchPublishedPageSaga,
     ),
     takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLatest(
-      ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
-      updateWidgetPropertySaga,
-    ),
+
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
