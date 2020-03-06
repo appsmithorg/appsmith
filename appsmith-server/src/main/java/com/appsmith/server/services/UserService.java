@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import reactor.core.publisher.Mono;
 
 public interface UserService extends CrudService<User, String> {
@@ -22,4 +23,6 @@ public interface UserService extends CrudService<User, String> {
     Mono<Boolean> verifyInviteToken(String email, String token);
 
     Mono<Boolean> confirmInviteUser(InviteUser inviteUser);
+
+    Mono<UserProfileDTO> getUserProfile();
 }
