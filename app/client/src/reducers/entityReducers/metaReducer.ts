@@ -21,6 +21,22 @@ export const metaReducer = createReducer(initialState, {
       action.payload.propertyValue;
     return next;
   },
+  [ReduxActionTypes.RESET_WIDGET_META]: (
+    state: MetaState,
+    action: ReduxAction<{ widgetId: string }>,
+  ) => {
+    const widgetId = action.payload.widgetId;
+    if (widgetId in state) {
+      const resetData: Record<string, any> = {
+        ...state[widgetId],
+      };
+      Object.keys(resetData).forEach((key: string) => {
+        resetData[key] = undefined;
+      });
+      return { ...state, [widgetId]: { ...resetData } };
+    }
+    return state;
+  },
 });
 
 export default metaReducer;

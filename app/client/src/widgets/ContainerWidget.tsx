@@ -53,7 +53,7 @@ class ContainerWidget extends BaseWidget<
     }
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): JSX.Element {
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
     childWidgetData.parentId = this.props.widgetId;

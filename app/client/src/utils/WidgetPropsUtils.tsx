@@ -10,19 +10,17 @@ import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
-  WidgetProps,
-  WidgetOperations,
   WidgetOperation,
+  WidgetOperations,
+  WidgetProps,
 } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { generateReactKey } from "utils/generators";
 import {
-  GridDefaults,
-  WidgetTypes,
-  // MAIN_CONTAINER_WIDGET_ID,
-  // MAIN_CONTAINER_WIDGET_NAME,
   CONTAINER_GRID_PADDING,
+  GridDefaults,
+  WidgetType,
+  WidgetTypes,
 } from "constants/WidgetConstants";
+import { generateReactKey } from "utils/generators";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
@@ -132,13 +130,12 @@ export const isWidgetOverflowingParentBounds = (
   parentRowCols: { rows?: number; cols?: number },
   offset: Rect,
 ): boolean => {
-  const result =
+  return (
     offset.right < 0 ||
     offset.top < 0 ||
     (parentRowCols.cols || GridDefaults.DEFAULT_GRID_COLUMNS) < offset.right ||
-    (parentRowCols.rows || 0) < offset.bottom;
-
-  return result;
+    (parentRowCols.rows || 0) < offset.bottom
+  );
 };
 
 export const noCollision = (
@@ -288,7 +285,10 @@ export const generateWidgetProps = (
       bottomRow: topRow + rows,
     };
     let others = {};
-    if (type === WidgetTypes.CONTAINER_WIDGET) {
+    if (
+      type === WidgetTypes.CONTAINER_WIDGET ||
+      type === WidgetTypes.FORM_WIDGET
+    ) {
       others = {
         snapColumns: DEFAULT_GRID_COLUMNS,
         snapRows: rows - 1,

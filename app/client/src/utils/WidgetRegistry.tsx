@@ -20,6 +20,11 @@ import FilePickerWidget, {
 import DatePickerWidget, {
   DatePickerWidgetProps,
 } from "widgets/DatePickerWidget";
+import FormWidget from "widgets/FormWidget";
+import FormButtonWidget, {
+  FormButtonWidgetProps,
+} from "widgets/FormButtonWidget";
+
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -163,6 +168,32 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getPropertyValidationMap(),
       DatePickerWidget.getDerivedPropertiesMap(),
       DatePickerWidget.getTriggerPropertyMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FORM_WIDGET",
+      {
+        buildWidget(
+          widgetProps: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <FormWidget {...widgetProps} />;
+        },
+      },
+      FormWidget.getPropertyValidationMap(),
+      FormWidget.getDerivedPropertiesMap(),
+      FormWidget.getTriggerPropertyMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FORM_BUTTON_WIDGET",
+      {
+        buildWidget(widgetProps: FormButtonWidgetProps): JSX.Element {
+          return <FormButtonWidget {...widgetProps} />;
+        },
+      },
+      FormButtonWidget.getPropertyValidationMap(),
+      FormButtonWidget.getDerivedPropertiesMap(),
+      FormButtonWidget.getTriggerPropertyMap(),
     );
   }
 }

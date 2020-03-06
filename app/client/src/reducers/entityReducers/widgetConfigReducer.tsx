@@ -9,19 +9,31 @@ import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { SpinnerWidgetProps } from "widgets/SpinnerWidget";
-import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
-import { TableWidgetProps } from "../../widgets/TableWidget";
-import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
-import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
-import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
-import { AlertWidgetProps } from "../../widgets/AlertWidget";
-import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
+import { DatePickerWidgetProps } from "widgets/DatePickerWidget";
+import { TableWidgetProps } from "widgets/TableWidget";
+import { DropdownWidgetProps } from "widgets/DropdownWidget";
+import { CheckboxWidgetProps } from "widgets/CheckboxWidget";
+import { RadioGroupWidgetProps } from "widgets/RadioGroupWidget";
+import { AlertWidgetProps } from "widgets/AlertWidget";
+import { FilePickerWidgetProps } from "widgets/FilepickerWidget";
+import { FormWidgetProps } from "widgets/FormWidget";
+import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
+
+export type WidgetBlueprint = {
+  view: Array<{
+    type: string;
+    size: { rows: number; cols: number };
+    position: { top?: number; left?: number };
+    props: Record<string, any>;
+  }>;
+};
 
 export interface WidgetConfigProps {
   rows: number;
   columns: number;
+  blueprint?: WidgetBlueprint;
 }
 
 export interface WidgetConfigReducerState {
@@ -41,6 +53,8 @@ export interface WidgetConfigReducerState {
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
+    FORM_WIDGET: Partial<FormWidgetProps> & WidgetConfigProps;
+    FORM_BUTTON_WIDGET: Partial<FormButtonWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

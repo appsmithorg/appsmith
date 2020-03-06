@@ -1,12 +1,20 @@
+export type ExecuteActionPayloadEvent = {
+  type: EventType;
+  callback?: (result: ExecutionResult) => void;
+};
+
+export type ExecutionResult = {
+  success: boolean;
+};
+
 export type ExecuteActionPayload = {
   dynamicString: string;
-  event: {
-    type: EventType;
-  };
+  event: ExecuteActionPayloadEvent;
   responseData?: any;
 };
 
 export enum EventType {
+  ON_RESET = "ON_RESET",
   ON_PAGE_LOAD = "ON_PAGE_LOAD",
   ON_PREV_PAGE = "ON_PREV_PAGE",
   ON_NEXT_PAGE = "ON_NEXT_PAGE",

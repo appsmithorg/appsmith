@@ -8,10 +8,10 @@ type State = { hasError: boolean };
 const ErrorBoundaryContainer = styled.div<{ isValid: boolean }>`
   height: 100%;
   width: 100%;
-  border: 1px solid;
-  border-color: ${({ isValid, theme }) =>
-    isValid ? "transparent" : theme.colors.error};
 `;
+// border: 1px solid;
+// border-color: ${({ isValid, theme }) =>
+//   isValid ? "transparent" : theme.colors.error};
 
 const RetryLink = styled.span`
   color: ${props => props.theme.colors.primaryDarkest};

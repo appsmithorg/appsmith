@@ -4,18 +4,18 @@ import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
-class ButtonWidget extends BaseWidget<
-  ButtonWidgetProps,
+class FormButtonWidget extends BaseWidget<
+  FormButtonWidgetProps,
   WidgetState & { isLoading: boolean }
 > {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
 
-  constructor(props: ButtonWidgetProps) {
+  constructor(props: FormButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
     this.state = {
@@ -31,7 +31,7 @@ class ButtonWidget extends BaseWidget<
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       text: VALIDATION_TYPES.TEXT,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
+      disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       buttonStyle: VALIDATION_TYPES.TEXT,
     };
@@ -52,19 +52,28 @@ class ButtonWidget extends BaseWidget<
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
-          callback: this.handleActionComplete,
+          callback: this.handleActionResult,
         },
       });
     }
   }
 
-  handleActionComplete = () => {
+  handleActionResult = (result: ExecutionResult) => {
     this.setState({
       isLoading: false,
     });
+    if (result.success) {
+      if (this.props.resetFormOnClick && this.props.onReset)
+        this.props.onReset();
+    }
   };
 
   getPageView() {
+    const disabled =
+      this.props.disabledWhenInvalid &&
+      "isFormValid" in this.props &&
+      !this.props.isFormValid;
+
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
@@ -72,16 +81,16 @@ class ButtonWidget extends BaseWidget<
         key={this.props.widgetId}
         widgetName={this.props.widgetName}
         text={this.props.text}
-        disabled={this.props.isDisabled}
+        disabled={disabled}
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
-        type={this.props.buttonType || ButtonType.BUTTON}
+        type={ButtonType.SUBMIT}
       />
     );
   }
 
   getWidgetType(): WidgetType {
-    return "BUTTON_WIDGET";
+    return "FORM_BUTTON_WIDGET";
   }
 }
 
@@ -91,13 +100,15 @@ export type ButtonStyle =
   | "SUCCESS_BUTTON"
   | "DANGER_BUTTON";
 
-export interface ButtonWidgetProps extends WidgetProps {
+export interface FormButtonWidgetProps extends WidgetProps {
   text?: string;
   buttonStyle?: ButtonStyle;
   onClick?: string;
-  isDisabled?: boolean;
   isVisible?: boolean;
-  buttonType?: ButtonType;
+  isFormValid?: boolean;
+  resetFormOnClick?: boolean;
+  onReset?: () => void;
+  disabledWhenInvalid?: boolean;
 }
 
-export default ButtonWidget;
+export default FormButtonWidget;

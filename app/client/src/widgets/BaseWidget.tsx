@@ -32,6 +32,7 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+
 /***
  * BaseWidget
  *
@@ -113,6 +114,11 @@ abstract class BaseWidget<
 
     updateWidgetMetaProperty &&
       updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
+  }
+
+  resetChildrenMetaProperty(widgetId: string) {
+    const { resetChildrenMetaProperty } = this.context;
+    resetChildrenMetaProperty(widgetId);
   }
 
   componentDidMount(): void {
@@ -313,7 +319,6 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   widgetCardName: string;
-  icon: string;
 }
 
 export const WidgetOperations = {

@@ -111,6 +111,12 @@ BaseButton.defaultProps = {
   minimal: true,
 };
 
+export enum ButtonType {
+  SUBMIT = "submit",
+  RESET = "reset",
+  BUTTON = "button",
+}
+
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
@@ -119,6 +125,7 @@ interface ButtonContainerProps extends ComponentProps {
   buttonStyle?: ButtonStyle;
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
+  type: ButtonType;
 }
 
 const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
@@ -146,6 +153,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       accent={mapButtonStyleToStyleName(props.buttonStyle)}
       onClick={props.onClick}
       disabled={props.disabled}
+      type={props.type}
     />
   );
 };

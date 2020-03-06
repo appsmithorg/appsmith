@@ -59,36 +59,41 @@ const PropertyControl = (props: Props) => {
       .split(" ")
       .join("")
       .toLowerCase();
-    return (
-      <ControlWrapper
-        className={`t--property-control-${className}`}
-        key={config.id}
-        orientation={
-          config.controlType === "SWITCH" && !isDynamic
-            ? "HORIZONTAL"
-            : "VERTICAL"
-        }
-      >
-        <ControlPropertyLabelContainer>
-          <label>{label}</label>
-          {isConvertible && (
-            <JSToggleButton
-              active={isDynamic}
-              onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-            >
-              <ControlIcons.JS_TOGGLE />
-            </JSToggleButton>
+    try {
+      return (
+        <ControlWrapper
+          className={`t--property-control-${className}`}
+          key={config.id}
+          orientation={
+            config.controlType === "SWITCH" && !isDynamic
+              ? "HORIZONTAL"
+              : "VERTICAL"
+          }
+        >
+          <ControlPropertyLabelContainer>
+            <label>{label}</label>
+            {isConvertible && (
+              <JSToggleButton
+                active={isDynamic}
+                onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+              >
+                <ControlIcons.JS_TOGGLE />
+              </JSToggleButton>
+            )}
+          </ControlPropertyLabelContainer>
+          {PropertyControlFactory.createControl(
+            config,
+            {
+              onPropertyChange: onPropertyChange,
+            },
+            isDynamic,
           )}
-        </ControlPropertyLabelContainer>
-        {PropertyControlFactory.createControl(
-          config,
-          {
-            onPropertyChange: onPropertyChange,
-          },
-          isDynamic,
-        )}
-      </ControlWrapper>
-    );
+        </ControlWrapper>
+      );
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
   return null;
 };

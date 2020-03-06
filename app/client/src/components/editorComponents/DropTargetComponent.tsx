@@ -44,7 +44,7 @@ const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
 `;
 
-/* 
+/*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
   an update of the main container's rows
 */
