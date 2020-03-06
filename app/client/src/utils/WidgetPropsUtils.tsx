@@ -15,7 +15,6 @@ import {
   WidgetProps,
 } from "widgets/BaseWidget";
 import {
-  CONTAINER_GRID_PADDING,
   GridDefaults,
   WidgetType,
   WidgetTypes,
@@ -91,8 +90,8 @@ export const getDropZoneOffsets = (
   return snapToGrid(
     colWidth,
     rowHeight,
-    dragOffset.x - parentOffset.x - CONTAINER_GRID_PADDING,
-    dragOffset.y - parentOffset.y - CONTAINER_GRID_PADDING,
+    dragOffset.x - parentOffset.x,
+    dragOffset.y - parentOffset.y,
   );
 };
 
