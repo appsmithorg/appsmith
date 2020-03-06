@@ -5,6 +5,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
@@ -77,9 +78,16 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @Deprecated
     @GetMapping("/me")
     public Mono<ResponseDTO<User>> getUserProfile() {
         return sessionUserService.getCurrentUser()
+                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+    }
+
+    @GetMapping("/profile")
+    public Mono<ResponseDTO<UserProfileDTO>> getEnhancedUserProfile() {
+        return service.getUserProfile()
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
