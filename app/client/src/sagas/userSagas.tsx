@@ -277,7 +277,7 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
         type: ReduxActionTypes.FETCH_USER_SUCCESS,
         payload: finalData,
       });
-      return yield response.data;
+      return yield finalData;
     }
     return yield false;
   } catch (error) {
