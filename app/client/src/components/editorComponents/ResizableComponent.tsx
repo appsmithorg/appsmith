@@ -1,4 +1,4 @@
-import React, { useContext, memo } from "react";
+import React, { useContext, useMemo } from "react";
 import { XYCoord } from "react-dnd";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -26,7 +26,6 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import Resizable from "resizable";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
@@ -40,13 +39,14 @@ import {
   BottomLeftHandleStyles,
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
 };
 
 /* eslint-disable react/display-name */
-export const ResizableComponent = memo((props: ResizableComponentProps) => {
+export const ResizableComponent = (props: ResizableComponentProps) => {
   // Fetch information from the context
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
@@ -69,28 +69,21 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  const propertyPaneState: PropertyPaneReduxState = useSelector(
-    (state: AppState) => state.ui.propertyPane,
-  );
-
   const occupiedSpacesBySiblingWidgets =
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
       : undefined;
 
-  let maxBottomRowOfChildWidgets: number | undefined;
-  if (props.type === WidgetTypes.CONTAINER_WIDGET) {
-    const occupiedSpacesByChildren =
-      occupiedSpaces && occupiedSpaces[props.widgetId];
-    maxBottomRowOfChildWidgets = occupiedSpacesByChildren?.reduce(
-      (prev: number, next) => {
+  const maxBottomRowOfChildWidgets: number | undefined = useMemo(() => {
+    if (props.type === WidgetTypes.CONTAINER_WIDGET) {
+      const occupiedSpacesByChildren =
+        occupiedSpaces && occupiedSpaces[props.widgetId];
+      return occupiedSpacesByChildren?.reduce((prev: number, next) => {
         if (next.bottom > prev) return next.bottom;
         return prev;
-      },
-      0,
-    );
-  }
+      }, 0);
+    }
+  }, [occupiedSpaces, props.type, props.widgetId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -99,8 +92,12 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
-    width: (props.rightColumn - props.leftColumn) * props.parentColumnSpace,
-    height: (props.bottomRow - props.topRow) * props.parentRowSpace,
+    width:
+      (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+      2 * props.paddingOffset,
+    height:
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      2 * props.paddingOffset,
   };
 
   // Resize bound's className - defaults to body
@@ -229,22 +226,29 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
-    // Clear border styles
-    // setIsColliding && setIsColliding(false);
     // Tell the Canvas that we've stopped resizing
-    // Put it laster in the stack so that other updates like click, are not propagated to the parent container
+    // Put it later in the stack so that other updates like click, are not propagated to the parent container
     setTimeout(() => {
       setIsResizing && setIsResizing(false);
     }, 0);
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
-    selectWidget && selectWidget(props.widgetId);
+    selectWidget &&
+      selectedWidget !== props.widgetId &&
+      selectWidget(props.widgetId);
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
-    showPropertyPane &&
-      propertyPaneState.widgetId !== props.widgetId &&
-      showPropertyPane(props.widgetId, true);
+    showPropertyPane && showPropertyPane(props.widgetId, true);
+
+    AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+      startHeight: dimensions.height,
+      startWidth: dimensions.width,
+      endHeight: newDimensions.height,
+      endWidth: newDimensions.width,
+    });
   };
 
   const handleResizeStart = () => {
@@ -253,6 +257,10 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
     showPropertyPane && showPropertyPane(props.widgetId, true);
+    AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
+      widgetName: props.widgetName,
+      widgetType: props.type,
+    });
   };
 
   return (
@@ -283,6 +291,6 @@ export const ResizableComponent = memo((props: ResizableComponentProps) => {
       </VisibilityContainer>
     </Resizable>
   );
-});
+};
 
 export default ResizableComponent;

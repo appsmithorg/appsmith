@@ -4,14 +4,10 @@ import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer"
 import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import {
-  enhanceWidgetWithValidations,
-  getEvaluatedDataTree,
-} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { evaluateDataTree } from "selectors/dataTreeSelectors";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
@@ -38,18 +34,19 @@ export const getCurrentWidgetProperties = createSelector(
   },
 );
 
-export const getWidgetPropsWithValidations = createSelector(
+export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getUnevaluatedDataTree,
-  (widget: WidgetProps | undefined, nameBindingsWithData: DataTree) => {
+  evaluateDataTree,
+  (
+    widget: WidgetProps | undefined,
+    evaluatedTree: DataTree,
+  ): WidgetProps | undefined => {
     if (!widget) return undefined;
-    const tree = getEvaluatedDataTree(nameBindingsWithData, false);
-    const evaluatedWidget = _.find(tree, { widgetId: widget.widgetId });
-    const validations = enhanceWidgetWithValidations(
-      evaluatedWidget as WidgetProps,
-    );
-    if (validations) {
-      const { invalidProps, validationMessages } = validations;
+    const evaluatedWidget = _.find(evaluatedTree, {
+      widgetId: widget.widgetId,
+    }) as DataTreeWidget;
+    if (evaluatedWidget.invalidProps) {
+      const { invalidProps, validationMessages } = evaluatedWidget;
       return {
         ...widget,
         invalidProps,

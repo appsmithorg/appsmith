@@ -6,5 +6,5 @@ export type User = {
 };
 
 export const CurrentUserDetailsRequestPayload = {
-  id: "me",
+  id: "profile",
 };

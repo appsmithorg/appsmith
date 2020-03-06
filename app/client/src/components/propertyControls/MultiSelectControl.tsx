@@ -3,7 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import { ControlWrapper, StyledMultiSelectDropDown } from "./StyledControls";
+import { StyledMultiSelectDropDown } from "./StyledControls";
 import _ from "lodash";
 import { DropdownOption } from "widgets/DropdownWidget";
 
@@ -18,21 +18,16 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
       return option;
     });
     return (
-      <ControlWrapper>
-        <label>{this.props.label}</label>
-        {
-          <StyledMultiSelectDropDown
-            items={this.props.options}
-            placeholder={this.props.placeholderText}
-            itemRenderer={this.renderItem}
-            tagRenderer={this.renderTag}
-            selectedItems={selectedItems}
-            tagInputProps={{ onRemove: this.onItemRemoved }}
-            onItemSelect={this.onItemSelect}
-            noResults={<MenuItem disabled={true} text="No results." />}
-          />
-        }
-      </ControlWrapper>
+      <StyledMultiSelectDropDown
+        items={this.props.options}
+        placeholder={this.props.placeholderText}
+        itemRenderer={this.renderItem}
+        tagRenderer={this.renderTag}
+        selectedItems={selectedItems}
+        tagInputProps={{ onRemove: this.onItemRemoved }}
+        onItemSelect={this.onItemSelect}
+        noResults={<MenuItem disabled={true} text="No results." />}
+      />
     );
   }
 

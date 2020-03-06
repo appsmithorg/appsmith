@@ -5,7 +5,10 @@ import { EventType } from "constants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -19,8 +22,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       datePickerType: VALIDATION_TYPES.TEXT,
       maxDate: VALIDATION_TYPES.DATE,
       minDate: VALIDATION_TYPES.DATE,
+      isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
+    };
+  }
+
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onDateSelected: true,
@@ -29,7 +40,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
-        label={this.props.label}
+        label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
         dateFormat={this.props.dateFormat}
         widgetId={this.props.widgetId}
         timezone={this.props.timezone}
@@ -44,7 +55,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   }
 
   onDateSelected = (selectedDate: Date) => {
-    this.updateWidgetProperty("selectedDate", selectedDate);
+    this.updateWidgetMetaProperty("selectedDate", selectedDate);
     if (this.props.onDateSelected) {
       super.executeAction({
         dynamicString: this.props.onDateSelected,
@@ -74,6 +85,7 @@ export interface DatePickerWidgetProps extends WidgetProps {
   onDateRangeSelected?: string;
   maxDate: Date;
   minDate: Date;
+  isRequired?: boolean;
 }
 
 export default DatePickerWidget;

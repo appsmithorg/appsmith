@@ -1,52 +1,87 @@
 import React from "react";
 import styled from "styled-components";
+import tinycolor from "tinycolor2";
 import {
-  Tag,
-  Intent as BlueprintIntent,
-  AnchorButton,
-  Button,
-} from "@blueprintjs/core";
-import { Intent, BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
+  Intent,
+  BlueprintButtonIntentsCSS,
+  IntentIcons,
+  IntentColors,
+  getColorWithOpacity,
+} from "constants/DefaultTheme";
+import Button from "components/editorComponents/Button";
 
 export type MessageAction = {
   url?: string;
-  onClick?: (e: React.SyntheticEvent) => void;
+  onClick?: () => void;
   text: string;
   intent: Intent;
 };
 
-const StyledTag = styled(Tag)`
-  &&& {
+const StyledMessage = styled.div`
+  & {
+    width: 100%;
     padding: ${props => props.theme.spaces[8]}px;
     font-size: ${props => props.theme.fontSizes[4]}px;
-    text-align: center;
+    background: ${props =>
+      getColorWithOpacity(props.theme.colors.messageBG, 0.4)};
+    text-align: left;
     margin-bottom: ${props => props.theme.spaces[4]}px;
+  }
+`;
+
+const MessageContainer = styled.div<{ iconbgcolor: string }>`
+  & {
+    display: flex;
+    justify-content: flex-start;
+    & > div {
+      position: relative;
+      align-self: flex-start;
+      &:before {
+        content: "";
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        background: ${props => props.iconbgcolor};
+        border-radius: 50%;
+        left: -6px;
+        top: -6px;
+        z-index: 0;
+      }
+      svg {
+        position: aboslute;
+        z-index: 1;
+      }
+    }
     p {
-      white-space: normal;
-      margin: 0;
+      margin: 0 ${props => props.theme.spaces[8]}px;
+      align-self: flex-start;
     }
   }
 `;
 
-const ActionsContainer = styled.div`
+export const ActionsContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  margin-left: 38px;
+  margin: ${props => props.theme.spaces[6]}px 0 0 38px;
+
   & .appsmith-message-action-button {
     border: none;
     ${BlueprintButtonIntentsCSS}
   }
 `;
 
-const ActionButton = (props: MessageAction) => {
+export const ActionButton = (props: MessageAction) => {
   if (props.url) {
     return (
-      <AnchorButton
+      <Button
         className="appsmith-message-action-button"
         href={props.url}
         text={props.text}
-        minimal
-        intent={props.intent as BlueprintIntent}
+        intent="primary"
+        filled
+        size="small"
       />
     );
   } else if (props.onClick) {
@@ -55,8 +90,9 @@ const ActionButton = (props: MessageAction) => {
         className="appsmith-message-action-button"
         onClick={props.onClick}
         text={props.text}
-        minimal
-        intent={props.intent as BlueprintIntent}
+        intent="primary"
+        filled
+        size="small"
       />
     );
   }
@@ -66,7 +102,6 @@ const ActionButton = (props: MessageAction) => {
 export type FormMessageProps = {
   intent: Intent;
   message: string;
-  title?: string;
   actions?: MessageAction[];
 };
 
@@ -74,12 +109,19 @@ export const FormMessage = (props: FormMessageProps) => {
   const actions =
     props.actions &&
     props.actions.map(action => <ActionButton key={action.text} {...action} />);
+  const Icon = IntentIcons[props.intent];
+  const iconbgcolor = tinycolor(IntentColors[props.intent])
+    .lighten()
+    .setAlpha(0.2)
+    .toString();
   return (
-    <StyledTag fill large minimal intent={props.intent as BlueprintIntent}>
-      {props.title && <h4>{props.title}</h4>}
-      <p>{props.message}</p>
+    <StyledMessage>
+      <MessageContainer iconbgcolor={iconbgcolor}>
+        <Icon color={IntentColors[props.intent]} width={20} height={20} />
+        <p>{props.message}</p>
+      </MessageContainer>
       {actions && <ActionsContainer>{actions}</ActionsContainer>}
-    </StyledTag>
+    </StyledMessage>
   );
 };
 

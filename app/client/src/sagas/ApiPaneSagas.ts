@@ -21,7 +21,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { destroy, initialize, autofill } from "redux-form";
+import { initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
 import { Property, RestAction } from "api/ActionAPI";
@@ -134,7 +134,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
   const draft = yield select(getApiDraft, id);
-  yield put(destroy(API_EDITOR_FORM_NAME));
   const data = _.isEmpty(draft) ? action : draft;
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));

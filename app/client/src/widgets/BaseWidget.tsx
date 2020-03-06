@@ -32,6 +32,7 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+
 /***
  * BaseWidget
  *
@@ -115,6 +116,11 @@ abstract class BaseWidget<
       updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
   }
 
+  resetChildrenMetaProperty(widgetId: string) {
+    const { resetChildrenMetaProperty } = this.context;
+    resetChildrenMetaProperty(widgetId);
+  }
+
   componentDidMount(): void {
     this.calculateWidgetBounds(
       this.props.rightColumn,
@@ -196,7 +202,7 @@ abstract class BaseWidget<
                 this.props.widgetId === "0"
               }
             >
-              <ErrorBoundary>{this.getPageView()}</ErrorBoundary>
+              <ErrorBoundary isValid>{this.getPageView()}</ErrorBoundary>
             </PositionedContainer>
           );
         }
@@ -209,7 +215,14 @@ abstract class BaseWidget<
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    return <ErrorBoundary>{this.getPageView()}</ErrorBoundary>;
+    let isValid = true;
+    if (this.props.invalidProps) {
+      isValid = _.keys(this.props.invalidProps).length === 0;
+    }
+    if (this.props.isLoading) isValid = true;
+    return (
+      <ErrorBoundary isValid={isValid}>{this.getPageView()}</ErrorBoundary>
+    );
   }
 
   // TODO(Nikhil): Revisit the inclusion of another library for shallowEqual.
@@ -269,8 +282,9 @@ export interface WidgetBuilder<T extends WidgetProps> {
 export interface WidgetProps extends WidgetDataProps {
   key?: string;
   renderMode: RenderMode;
-  dynamicBindings?: Record<string, boolean>;
+  dynamicBindings?: Record<string, true>;
   dynamicTriggers?: Record<string, true>;
+  dynamicProperties?: Record<string, true>;
   invalidProps?: Record<string, boolean>;
   validationMessages?: Record<string, string>;
   isDefaultClickDisabled?: boolean;
@@ -305,7 +319,6 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   widgetCardName: string;
-  icon: string;
 }
 
 export const WidgetOperations = {

@@ -4,7 +4,9 @@ import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
 import _ from "lodash";
 import { Classes } from "@blueprintjs/core";
-
+import { AlertIcons } from "icons/AlertIcons";
+import { IconProps } from "constants/IconConstants";
+import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -25,6 +27,15 @@ export const IntentColors: Record<string, Color> = {
 };
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
+
+export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
+  primary: AlertIcons.SUCCESS,
+  success: AlertIcons.SUCCESS,
+  secondary: AlertIcons.INFO,
+  danger: AlertIcons.ERROR,
+  none: AlertIcons.INFO,
+  warning: AlertIcons.WARNING,
+};
 
 export const BlueprintControlTransform = css`
   && {
@@ -188,6 +199,12 @@ export const BlueprintButtonIntentsCSS = css`
     color: ${IntentColors.success};
     border-color: ${IntentColors.success};
   }
+
+  &&&&&&.${Classes.DISABLED} {
+    color: ${Colors.SLATE_GRAY};
+    background: ${Colors.MERCURY};
+    border-color: ${Colors.MERCURY};
+  }
 `;
 
 export const BlueprintInputTransform = css`
@@ -325,6 +342,8 @@ export const theme: Theme = {
     builderBodyBG: Colors.WHITE,
     widgetBorder: Colors.MINT_TULIP,
     widgetSecondaryBorder: Colors.MERCURY,
+    messageBG: Colors.CONCRETE,
+    paneIcon: Colors.TROUT,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [

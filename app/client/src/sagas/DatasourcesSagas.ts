@@ -12,6 +12,7 @@ import DatasourcesApi, {
 } from "api/DatasourcesApi";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -40,6 +41,10 @@ function* createDatasourceSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
+        dataSourceName: actionPayload.payload.name,
+        appName: actionPayload.payload.appName,
+      });
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,

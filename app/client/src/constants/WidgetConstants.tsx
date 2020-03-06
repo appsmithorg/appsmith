@@ -11,7 +11,9 @@ export type WidgetType =
   | "RADIO_GROUP_WIDGET"
   | "FILE_PICKER_WIDGET"
   | "INPUT_WIDGET"
-  | "SWITCH_WIDGET";
+  | "SWITCH_WIDGET"
+  | "FORM_WIDGET"
+  | "FORM_BUTTON_WIDGET";
 
 export const WidgetTypes: { [id: string]: WidgetType } = {
   BUTTON_WIDGET: "BUTTON_WIDGET",
@@ -26,13 +28,15 @@ export const WidgetTypes: { [id: string]: WidgetType } = {
   DROP_DOWN_WIDGET: "DROP_DOWN_WIDGET",
   CHECKBOX_WIDGET: "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET: "RADIO_GROUP_WIDGET",
+  FORM_WIDGET: "FORM_WIDGET",
+  FORM_BUTTON_WIDGET: "FORM_BUTTON_WIDGET",
 };
 
 export type ContainerOrientation = "HORIZONTAL" | "VERTICAL";
 
 export const PositionTypes: { [id: string]: string } = {
   ABSOLUTE: "ABSOLUTE",
-  CONTAINER_DIREACTION: "CONTAINER_DIRECTION",
+  CONTAINER_DIRECTION: "CONTAINER_DIRECTION",
 };
 export type PositionType = typeof PositionTypes[keyof typeof PositionTypes];
 

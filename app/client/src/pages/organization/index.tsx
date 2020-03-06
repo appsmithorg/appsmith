@@ -1,6 +1,5 @@
 import React from "react";
 import { Switch, Route, useRouteMatch, useLocation } from "react-router-dom";
-import { TransitionGroup, CSSTransition } from "react-transition-group";
 import PageWrapper from "pages/common/PageWrapper";
 import Settings from "./settings";
 import Invite from "./invite";
@@ -10,15 +9,11 @@ export const Organization = () => {
   const location = useLocation();
   return (
     <PageWrapper displayName="Organization Settings">
-      <TransitionGroup>
-        <CSSTransition key={location.key} classNames="fade" timeout={300}>
-          <Switch location={location}>
-            <Route exact path={`${path}/settings`} component={Settings} />
-            <Route exact path={`${path}/invite`} component={Invite} />
-            <Route component={DefaultOrgPage} />
-          </Switch>
-        </CSSTransition>
-      </TransitionGroup>
+      <Switch location={location}>
+        <Route exact path={`${path}/settings`} component={Settings} />
+        <Route exact path={`${path}/invite`} component={Invite} />
+        <Route component={DefaultOrgPage} />
+      </Switch>
     </PageWrapper>
   );
 };

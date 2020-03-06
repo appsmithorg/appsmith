@@ -1,14 +1,19 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import InputComponent from "components/designSystems/blueprint/InputComponent";
+import InputComponent, {
+  InputComponentProps,
+} from "components/designSystems/blueprint/InputComponent";
 import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
-  regex = new RegExp("");
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       inputType: VALIDATION_TYPES.TEXT,
@@ -25,6 +30,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       inputValidators: VALIDATION_TYPES.ARRAY,
       focusIndex: VALIDATION_TYPES.NUMBER,
       isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
+      isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
@@ -33,30 +39,38 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.regex) {
-      try {
-        this.regex = new RegExp(this.props.regex);
-      } catch (e) {
-        console.log("invalid regex");
-      }
-    }
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      isValid: `{{
+        function() {
+          if(this.isDirty) {
+            if(this.isRequired) {
+              if(!this.text || this.text.length === 0) {
+                return false
+              }
+            }
+            if(this.regex) {
+              return new RegExp(this.regex).test(this.text);
+            }
+          }
+          return true
+        }()
+      }}`,
+    };
   }
 
-  componentDidUpdate(prevProps: InputWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (this.props.regex !== prevProps.regex && this.props.regex) {
-      try {
-        this.regex = new RegExp(this.props.regex);
-      } catch (e) {
-        console.log("invalid regex");
-      }
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultText) {
+      this.updateWidgetMetaProperty("text", this.props.defaultText);
     }
   }
 
   onValueChange = (value: string) => {
-    this.updateWidgetProperty("text", value);
+    this.updateWidgetMetaProperty("text", value);
+    if (!this.props.isDirty) {
+      this.updateWidgetMetaProperty("isDirty", true);
+    }
     if (this.props.onTextChanged) {
       super.executeAction({
         dynamicString: this.props.onTextChanged,
@@ -67,26 +81,33 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   };
 
+  handleFocusChange = (focusState: boolean) => {
+    this.updateWidgetMetaProperty("isFocused", focusState);
+  };
+
   getPageView() {
-    const errorMessage =
-      this.props.regex &&
-      this.props.text &&
-      this.props.text.length > 0 &&
-      !this.regex.test(this.props.text)
-        ? this.props.errorMessage
-        : undefined;
+    const value = this.props.text || "";
+    const isInvalid = "isValid" in this.props && !this.props.isValid;
+    const conditionalProps: Partial<InputComponentProps> = {};
+    conditionalProps.errorMessage = this.props.errorMessage;
+    if (this.props.isRequired && value.length === 0) {
+      conditionalProps.errorMessage = FIELD_REQUIRED_ERROR;
+    }
+    if (this.props.maxChars) conditionalProps.maxChars = this.props.maxChars;
+    if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
+    if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+    if (this.props.isRequired) conditionalProps.label = `${this.props.label} *`;
+
     return (
       <InputComponent
+        value={value}
+        isInvalid={isInvalid}
         onValueChange={this.onValueChange}
         widgetId={this.props.widgetId}
-        errorMessage={errorMessage}
         inputType={this.props.inputType}
         disabled={this.props.isDisabled}
-        maxChars={this.props.maxChars}
         label={this.props.label}
         defaultValue={this.props.defaultText}
-        maxNum={this.props.maxNum}
-        minNum={this.props.minNum}
         placeholder={this.props.placeholderText}
         isLoading={this.props.isLoading}
         multiline={
@@ -94,6 +115,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           this.props.inputType === "TEXT"
         }
         stepSize={1}
+        onFocusChange={this.handleFocusChange}
+        showError={!!this.props.isFocused}
+        {...conditionalProps}
       />
     );
   }
@@ -131,8 +155,12 @@ export interface InputWidgetProps extends WidgetProps {
   onTextChanged?: string;
   label: string;
   inputValidators: InputValidator[];
+  isValid: boolean;
   focusIndex?: number;
   isAutoFocusEnabled?: boolean;
+  isRequired?: boolean;
+  isFocused?: boolean;
+  isDirty?: boolean;
 }
 
 export default InputWidget;

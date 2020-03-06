@@ -14,6 +14,7 @@ import {
 import {
   EventType,
   ExecuteActionPayload,
+  ExecuteActionPayloadEvent,
   PageAction,
 } from "constants/ActionConstants";
 import ActionAPI, {
@@ -54,7 +55,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction, executeActionError } from "actions/widgetActions";
-import { getParsedDataTree } from "selectors/dataTreeSelectors";
+import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getActionResponses } from "selectors/entitiesSelector";
 import {
@@ -71,6 +72,7 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { ToastType } from "react-toastify";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const getAction = (
   state: AppState,
@@ -85,6 +87,25 @@ const createActionResponse = (response: ActionApiResponse): ActionResponse => ({
   ...response.clientMeta,
 });
 
+function getCurrentPageNameByActionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.actions.find(action => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+function getPageNameByPageId(state: AppState, pageId: string): string {
+  const page = state.entities.pageList.pages.find(
+    page => page.pageId === pageId,
+  );
+  const pageName = page ? page.pageName : "";
+  return pageName;
+}
+
 const createActionErrorResponse = (
   response: ActionApiResponse,
 ): ActionResponse => ({
@@ -98,7 +119,7 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
-  const tree = yield select(getParsedDataTree);
+  const tree = yield select(evaluateDataTree);
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -138,7 +159,7 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 
 export function* executeAPIQueryActionSaga(
   apiAction: RunActionPayload,
-  event: EventType,
+  event: ExecuteActionPayloadEvent,
 ) {
   const { actionId, onSuccess, onError } = apiAction;
   try {
@@ -146,9 +167,9 @@ export function* executeAPIQueryActionSaga(
     const api: RestAction = yield select(getAction, actionId);
     const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
     const pagination =
-      event === EventType.ON_NEXT_PAGE
+      event.type === EventType.ON_NEXT_PAGE
         ? "NEXT"
-        : event === EventType.ON_PREV_PAGE
+        : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
     const executeActionRequest: ExecuteActionRequest = {
@@ -167,11 +188,16 @@ export function* executeAPIQueryActionSaga(
           executeAction({
             dynamicString: onError,
             event: {
+              ...event,
               type: EventType.ON_ERROR,
             },
             responseData: payload,
           }),
         );
+      } else {
+        if (event.callback) {
+          event.callback({ success: false });
+        }
       }
       yield put(
         executeActionError({
@@ -181,18 +207,26 @@ export function* executeAPIQueryActionSaga(
       );
     } else {
       yield put(
-        executeApiActionSuccess({ id: apiAction.actionId, response: payload }),
+        executeApiActionSuccess({
+          id: apiAction.actionId,
+          response: payload,
+        }),
       );
       if (onSuccess) {
         yield put(
           executeAction({
             dynamicString: onSuccess,
             event: {
+              ...event,
               type: EventType.ON_SUCCESS,
             },
             responseData: payload,
           }),
         );
+      } else {
+        if (event.callback) {
+          event.callback({ success: true });
+        }
       }
     }
     return response;
@@ -208,16 +242,24 @@ export function* executeAPIQueryActionSaga(
         executeAction({
           dynamicString: `{{${onError}}}`,
           event: {
+            ...event,
             type: EventType.ON_ERROR,
           },
           responseData: {},
         }),
       );
+    } else {
+      if (event.callback) {
+        event.callback({ success: false });
+      }
     }
   }
 }
 
-function* navigateActionSaga(action: { pageName: string }, event: EventType) {
+function* navigateActionSaga(
+  action: { pageName: string },
+  event: ExecuteActionPayloadEvent,
+) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
   const page = _.find(pageList, { pageName: action.pageName });
@@ -227,12 +269,15 @@ function* navigateActionSaga(action: { pageName: string }, event: EventType) {
       ? BUILDER_PAGE_URL(applicationId, page.pageId)
       : getApplicationViewerPageURL(applicationId, page.pageId);
     history.push(path);
+    if (event.callback) event.callback({ success: true });
+  } else {
+    if (event.callback) event.callback({ success: false });
   }
 }
 
 export function* executeActionTriggers(
   trigger: ActionDescription<any>,
-  event: EventType,
+  event: ExecuteActionPayloadEvent,
 ) {
   switch (trigger.type) {
     case "RUN_ACTION":
@@ -244,6 +289,9 @@ export function* executeActionTriggers(
     case "NAVIGATE_TO_URL":
       if (trigger.payload.url) {
         window.location.href = trigger.payload.url;
+        if (event.callback) event.callback({ success: true });
+      } else {
+        if (event.callback) event.callback({ success: false });
       }
       break;
     case "SHOW_ALERT":
@@ -251,6 +299,7 @@ export function* executeActionTriggers(
         message: trigger.payload.message,
         type: trigger.payload.style,
       });
+      if (event.callback) event.callback({ success: true });
       break;
     default:
       yield put(
@@ -264,11 +313,11 @@ export function* executeActionTriggers(
 
 export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
-  const tree = yield select(getParsedDataTree);
+  const tree = yield select(evaluateDataTree);
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   if (triggers) {
     yield all(
-      triggers.map(trigger => call(executeActionTriggers, trigger, event.type)),
+      triggers.map(trigger => call(executeActionTriggers, trigger, event)),
     );
   }
 }
@@ -283,6 +332,17 @@ export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
       AppToaster.show({
         message: `${actionPayload.payload.name} Action created`,
         type: ToastType.SUCCESS,
+      });
+
+      const pageName = yield select(
+        getCurrentPageNameByActionId,
+        response.data.id,
+      );
+
+      AnalyticsUtil.logEvent("CREATE_API", {
+        apiId: response.data.id,
+        apiName: response.data.name,
+        pageName: pageName,
       });
       yield put(createActionSuccess(response.data));
     }
@@ -351,6 +411,17 @@ export function* updateActionSaga(
         message: `${actionPayload.payload.data.name} Action updated`,
         type: ToastType.SUCCESS,
       });
+
+      const pageName = yield select(
+        getCurrentPageNameByActionId,
+        response.data.id,
+      );
+
+      AnalyticsUtil.logEvent("SAVE_API", {
+        apiId: response.data.id,
+        apiName: response.data.name,
+        pageName: pageName,
+      });
       yield put(updateActionSuccess({ data: response.data }));
       yield put(runApiAction(data.id));
     }
@@ -362,9 +433,12 @@ export function* updateActionSaga(
   }
 }
 
-export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
+export function* deleteActionSaga(
+  actionPayload: ReduxAction<{ id: string; name: string }>,
+) {
   try {
     const id = actionPayload.payload.id;
+    const name = actionPayload.payload.name;
     const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
       id,
     );
@@ -373,6 +447,12 @@ export function* deleteActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       AppToaster.show({
         message: `${response.data.name} Action deleted`,
         type: ToastType.SUCCESS,
+      });
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_API", {
+        apiName: name,
+        pageName: pageName,
+        apiID: id,
       });
       yield put(deleteActionSuccess({ id }));
     }
@@ -432,6 +512,17 @@ export function* runApiActionSaga(
       payload = createActionErrorResponse(response);
     }
     const id = values.id || "DRY_RUN";
+
+    const pageName = yield select(getCurrentPageNameByActionId, values.id);
+
+    AnalyticsUtil.logEvent("RUN_API", {
+      apiId: values.id,
+      apiName: values.name,
+      pageName: pageName,
+      responseTime: response.clientMeta.duration,
+      apiType: "INTERNAL",
+    });
+
     yield put({
       type: ReduxActionTypes.RUN_API_SUCCESS,
       payload: { [id]: payload },
@@ -439,7 +530,7 @@ export function* runApiActionSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: reduxAction.payload },
+      payload: { error, id: reduxAction.payload.id },
     });
   }
 }
@@ -460,7 +551,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
     yield* yield all(
       filteredSet.map(a =>
-        call(executeAPIQueryActionSaga, a, EventType.ON_PAGE_LOAD),
+        call(executeAPIQueryActionSaga, a, {
+          type: EventType.ON_PAGE_LOAD,
+        }),
       ),
     );
   }
@@ -496,6 +589,12 @@ function* moveActionSaga(
         type: ToastType.SUCCESS,
       });
     }
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    AnalyticsUtil.logEvent("MOVE_API", {
+      apiName: response.data.name,
+      pageName: pageName,
+      apiID: response.data.id,
+    });
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     AppToaster.show({
@@ -537,6 +636,13 @@ function* copyActionSaga(
         type: ToastType.SUCCESS,
       });
     }
+
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    AnalyticsUtil.logEvent("DUPLICATE_API", {
+      apiName: response.data.name,
+      pageName: pageName,
+      apiID: response.data.id,
+    });
     yield put(copyActionSuccess(response.data));
   } catch (e) {
     AppToaster.show({

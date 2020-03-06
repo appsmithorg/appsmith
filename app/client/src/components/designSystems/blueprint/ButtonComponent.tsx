@@ -31,7 +31,7 @@ const ButtonColorStyles = css<ButtonStyleProps>`
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
   <AnchorButton {..._.omit(props, ["accent", "filled"])} />
 ))<ButtonStyleProps>`
-  && {
+  &&&& {
     ${ButtonColorStyles};
     width: 100%;
     height: 100%;
@@ -48,7 +48,6 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
     font-family: "DM Sans";
     outline: none;
     &.bp3-button {
-      min-height: auto;
       padding: 0px 10px;
     }
     && .bp3-button-text {
@@ -112,6 +111,12 @@ BaseButton.defaultProps = {
   minimal: true,
 };
 
+export enum ButtonType {
+  SUBMIT = "submit",
+  RESET = "reset",
+  BUTTON = "button",
+}
+
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
@@ -120,6 +125,7 @@ interface ButtonContainerProps extends ComponentProps {
   buttonStyle?: ButtonStyle;
   isLoading: boolean;
   rightIcon?: IconName | MaybeElement;
+  type: ButtonType;
 }
 
 const mapButtonStyleToStyleName = (buttonStyle?: ButtonStyle) => {
@@ -147,6 +153,7 @@ const ButtonContainer = (props: ButtonContainerProps & ButtonStyleProps) => {
       accent={mapButtonStyleToStyleName(props.buttonStyle)}
       onClick={props.onClick}
       disabled={props.disabled}
+      type={props.type}
     />
   );
 };

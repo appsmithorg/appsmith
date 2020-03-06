@@ -2,19 +2,21 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import PropertyControlFactory from "utils/PropertyControlFactory";
 import _ from "lodash";
 import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReducer";
-import { updateWidgetProperty } from "actions/controlActions";
+import {
+  updateWidgetPropertyRequest,
+  setWidgetDynamicProperty,
+} from "actions/controlActions";
 import {
   getCurrentWidgetId,
   getPropertyConfig,
   getIsPropertyPaneVisible,
-  getWidgetPropsWithValidations,
+  getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
 import { Divider } from "@blueprintjs/core";
 
-import Popper from "./Popper";
+import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
 import {
   RenderModes,
@@ -24,7 +26,9 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { theme } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
-import PropertyPaneTitle from "./PropertyPaneTitle";
+import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
+import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -77,7 +81,11 @@ class PropertyPane extends Component<
         />
 
         <CloseButton
-          onClick={this.props.hidePropertyPane}
+          onClick={(e: any) => {
+            this.props.hidePropertyPane();
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           size={theme.spaces[5]}
           color={theme.colors.paneSectionLabel}
         />
@@ -120,24 +128,17 @@ class PropertyPane extends Component<
                   propertyControlOrSection,
                   propertyControlOrSection.id,
                 );
-              } else {
+              } else if (widgetProperties) {
                 try {
-                  const { propertyName } = propertyControlOrSection;
-                  const config = { ...propertyControlOrSection };
-                  if (widgetProperties) {
-                    config.propertyValue = widgetProperties[propertyName];
-                    config.isValid = widgetProperties.invalidProps
-                      ? !(propertyName in widgetProperties.invalidProps)
-                      : true;
-                    config.validationMessage = widgetProperties.validationMessages
-                      ? propertyName in widgetProperties.validationMessages
-                        ? widgetProperties.validationMessages[propertyName]
-                        : ""
-                      : "";
-                  }
-                  return PropertyControlFactory.createControl(config, {
-                    onPropertyChange: this.onPropertyChange,
-                  });
+                  return (
+                    <PropertyControl
+                      key={propertyControlOrSection.id}
+                      propertyConfig={propertyControlOrSection}
+                      widgetProperties={widgetProperties}
+                      onPropertyChange={this.onPropertyChange}
+                      toggleDynamicProperty={this.toggleDynamicProperty}
+                    />
+                  );
                 } catch (e) {
                   console.log(e);
                 }
@@ -149,12 +150,37 @@ class PropertyPane extends Component<
     );
   }
 
+  toggleDynamicProperty = (propertyName: string, isDynamic: boolean) => {
+    const { widgetId } = this.props;
+    this.props.setWidgetDynamicProperty(
+      widgetId as string,
+      propertyName,
+      !isDynamic,
+    );
+    if (this.props.widgetProperties) {
+      AnalyticsUtil.logEvent("WIDGET_TOGGLE_JS_PROP", {
+        widgetType: this.props.widgetProperties.type,
+        widgetName: this.props.widgetProperties.widgetName,
+        propertyName: propertyName,
+        propertyState: !isDynamic ? "JS" : "NORMAL",
+      });
+    }
+  };
+
   onPropertyChange(propertyName: string, propertyValue: any) {
     this.props.updateWidgetProperty(
       this.props.widgetId,
       propertyName,
       propertyValue,
     );
+    if (this.props.widgetProperties) {
+      AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
+        widgetType: this.props.widgetProperties.type,
+        widgetName: this.props.widgetProperties.widgetName,
+        propertyName: propertyName,
+        updatedValue: propertyValue,
+      });
+    }
   }
 }
 
@@ -162,7 +188,7 @@ const mapStateToProps = (state: AppState): PropertyPaneProps => {
   return {
     propertySections: getPropertyConfig(state),
     widgetId: getCurrentWidgetId(state),
-    widgetProperties: getWidgetPropsWithValidations(state),
+    widgetProperties: getWidgetPropsForPropertyPane(state),
     isVisible: getIsPropertyPaneVisible(state),
   };
 };
@@ -175,7 +201,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
       propertyValue: any,
     ) =>
       dispatch(
-        updateWidgetProperty(
+        updateWidgetPropertyRequest(
           widgetId,
           propertyName,
           propertyValue,
@@ -186,6 +212,11 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
       dispatch({
         type: ReduxActionTypes.HIDE_PROPERTY_PANE,
       }),
+    setWidgetDynamicProperty: (
+      widgetId: string,
+      propertyName: string,
+      isDynamic: boolean,
+    ) => dispatch(setWidgetDynamicProperty(widgetId, propertyName, isDynamic)),
   };
 };
 
@@ -197,6 +228,11 @@ export interface PropertyPaneProps {
 }
 
 export interface PropertyPaneFunctions {
+  setWidgetDynamicProperty: (
+    widgetId: string,
+    propertyName: string,
+    isDynamic: boolean,
+  ) => void;
   updateWidgetProperty: Function;
   hidePropertyPane: () => void;
 }

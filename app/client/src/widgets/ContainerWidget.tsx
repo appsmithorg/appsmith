@@ -14,6 +14,7 @@ import {
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
 } from "constants/WidgetConstants";
 
 import ResizeBoundsContainerComponent from "components/editorComponents/ResizeBoundsContainerComponent";
@@ -52,7 +53,7 @@ class ContainerWidget extends BaseWidget<
     }
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): JSX.Element {
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
     childWidgetData.parentRowSpace = this.state.snapRowSpace;
     childWidgetData.parentId = this.props.widgetId;
@@ -60,7 +61,17 @@ class ContainerWidget extends BaseWidget<
   }
 
   renderChildren = () => {
-    return _.map(this.props.children, this.renderChildWidget);
+    return _.map(
+      // sort by row so stacking context is correct
+      // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
+      // Figure out a way in which the stacking context is consitent.
+      _.sortBy(this.props.children, child => {
+        return this.props.renderMode === RenderModes.CANVAS
+          ? child.topRow
+          : -child.topRow;
+      }),
+      this.renderChildWidget,
+    );
   };
 
   renderAsDropTarget() {

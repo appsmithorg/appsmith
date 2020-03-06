@@ -1,18 +1,31 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ButtonComponent from "components/designSystems/blueprint/ButtonComponent";
+import ButtonComponent, {
+  ButtonType,
+} from "components/designSystems/blueprint/ButtonComponent";
 import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
-class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
+class ButtonWidget extends BaseWidget<
+  ButtonWidgetProps,
+  WidgetState & { isLoading: boolean }
+> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
 
   constructor(props: ButtonWidgetProps) {
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
+    this.state = {
+      // TODO these values dont have any bearing on the actual component height
+      // at this level. The widget state should not define this
+      componentHeight: 0,
+      componentWidth: 0,
+      meta: {},
+      isLoading: false,
+    };
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -32,14 +45,24 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
 
   onButtonClick() {
     if (this.props.onClick) {
+      this.setState({
+        isLoading: true,
+      });
       super.executeAction({
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
+          callback: this.handleActionComplete,
         },
       });
     }
   }
+
+  handleActionComplete = () => {
+    this.setState({
+      isLoading: false,
+    });
+  };
 
   getPageView() {
     return (
@@ -51,7 +74,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, WidgetState> {
         text={this.props.text}
         disabled={this.props.isDisabled}
         onClick={this.onButtonClickBound}
-        isLoading={this.props.isLoading}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        type={this.props.buttonType || ButtonType.BUTTON}
       />
     );
   }
@@ -73,6 +97,7 @@ export interface ButtonWidgetProps extends WidgetProps {
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  buttonType?: ButtonType;
 }
 
 export default ButtonWidget;

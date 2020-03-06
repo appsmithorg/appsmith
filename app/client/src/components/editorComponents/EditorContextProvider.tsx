@@ -7,14 +7,17 @@ import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeAction, disableDragAction } from "actions/widgetActions";
-import { updateWidgetProperty } from "actions/controlActions";
+import { updateWidgetPropertyRequest } from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 
 export type EditorContextType = {
   executeAction?: (actionPayloads: ExecuteActionPayload) => void;
@@ -33,6 +36,7 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  resetChildrenMetaProperty?: (widgetId: string) => void;
   disableDrag?: (disable: boolean) => void;
   occupiedSpaces?: { [containerWidgetId: string]: OccupiedSpace[] };
 };
@@ -51,6 +55,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
     occupiedSpaces,
     disableDrag,
     children,
+    resetChildrenMetaProperty,
   } = props;
   return (
     <EditorContext.Provider
@@ -61,6 +66,7 @@ const EditorContextProvider = (props: EditorContextProviderProps) => {
         updateWidgetMetaProperty,
         occupiedSpaces,
         disableDrag,
+        resetChildrenMetaProperty,
       }}
     >
       {children}
@@ -88,7 +94,7 @@ const mapDispatchToProps = (dispatch: any) => {
       propertyValue: any,
     ) =>
       dispatch(
-        updateWidgetProperty(
+        updateWidgetPropertyRequest(
           widgetId,
           propertyName,
           propertyValue,
@@ -108,6 +114,8 @@ const mapDispatchToProps = (dispatch: any) => {
       propertyValue: any,
     ) =>
       dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
+    resetChildrenMetaProperty: (widgetId: string) =>
+      dispatch(resetChildrenMetaProperty(widgetId)),
     disableDrag: (disable: boolean) => {
       dispatch(disableDragAction(disable));
     },

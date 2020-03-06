@@ -55,6 +55,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!isValid) {
       try {
         parsed = _.toNumber(value);
+        if (isNaN(parsed)) {
+          return {
+            isValid: false,
+            parsed: 0,
+            message: `${WIDGET_TYPE_VALIDATION_ERROR}: number`,
+          };
+        }
         isValid = true;
       } catch (e) {
         console.error(`Error when parsing ${value} to number`);

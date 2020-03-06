@@ -202,7 +202,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <Link to={editApplicationURL}>
+      <Link className="t--application-edit-link" to={editApplicationURL}>
         <ApplicationImage className="image-container">
           <Control className="control">
             <Button
@@ -212,6 +212,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
               icon="edit"
               iconAlignment="left"
               size="small"
+              className="t--application-edit-btn"
             />
           </Control>
         </ApplicationImage>

@@ -1,10 +1,9 @@
 import { createSelector } from "reselect";
-import createCachedSelector from "re-reselect";
 
 import { AppState } from "reducers";
 import { EditorReduxState } from "reducers/uiReducers/editorReducer";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetCardProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { getEntities } from "./entitiesSelector";
@@ -16,8 +15,10 @@ import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { getParsedDataTree } from "selectors/dataTreeSelectors";
+import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -116,37 +117,28 @@ export const getWidgetCards = createSelector(
   },
 );
 
-export const getValidatedWidgetsAndActionTriggers = createSelector(
+export const getCanvasWidgetDsl = createSelector(
   getEntities,
-  getParsedDataTree,
-  (entities: AppState["entities"], tree) => {
+  evaluateDataTree,
+  getPageWidgetId,
+  (
+    entities: AppState["entities"],
+    evaluatedDataTree,
+  ): ContainerWidgetProps<WidgetProps> => {
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
-      const evaluatedWidget = _.find(tree, { widgetId: widgetKey });
+      const evaluatedWidget = _.find(evaluatedDataTree, {
+        widgetId: widgetKey,
+      });
       if (evaluatedWidget) {
-        widgets[widgetKey] = evaluatedWidget;
+        widgets[widgetKey] = evaluatedWidget as DataTreeWidget;
       }
     });
-    return widgets;
-  },
-);
-
-// TODO(abhinav) : Benchmark this, see how many times this is called in the application
-// lifecycle. Move to using flattend redux state for widgets if necessary.
-
-// Also, try to merge the widgetCards and widgetConfigs in the fetch Saga.
-// No point in storing widgetCards, without widgetConfig
-// Alternatively, try to see if we can continue to use only WidgetConfig and eliminate WidgetCards
-
-export const getDenormalizedDSL = createCachedSelector(
-  getPageWidgetId,
-  getValidatedWidgetsAndActionTriggers,
-  (pageWidgetId: string, validatedDynamicWidgets: CanvasWidgetsReduxState) => {
-    return CanvasWidgetsNormalizer.denormalize(pageWidgetId, {
-      canvasWidgets: validatedDynamicWidgets,
+    return CanvasWidgetsNormalizer.denormalize("0", {
+      canvasWidgets: widgets,
     });
   },
-)((pageWidgetId, entities) => entities || 0);
+);
 
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
@@ -176,7 +168,10 @@ export const getOccupiedSpaces = createSelector(
     // Get all widgets with type "CONTAINER_WIDGET" and has children
     const containerWidgets: FlattenedWidgetProps[] = Object.values(
       widgets,
-    ).filter(widget => widget.type === WidgetTypes.CONTAINER_WIDGET);
+    ).filter(
+      widget =>
+        widget.type === WidgetTypes.CONTAINER_WIDGET || WidgetTypes.FORM_WIDGET,
+    );
 
     // If we have any container widgets
     if (containerWidgets) {

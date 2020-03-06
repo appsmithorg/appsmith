@@ -10,19 +10,16 @@ import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
-  WidgetProps,
-  WidgetOperations,
   WidgetOperation,
+  WidgetOperations,
+  WidgetProps,
 } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
+  WidgetType,
   WidgetTypes,
-  // MAIN_CONTAINER_WIDGET_ID,
-  // MAIN_CONTAINER_WIDGET_NAME,
-  CONTAINER_GRID_PADDING,
 } from "constants/WidgetConstants";
+import { generateReactKey } from "utils/generators";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
@@ -69,7 +66,6 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
-  canvasWidth?: number,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
   // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
@@ -78,9 +74,9 @@ export const extractCurrentDSL = (
   // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
   currentDSL.snapRows =
     Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
-  if (canvasWidth && canvasWidth > 0) {
-    currentDSL.rightColumn = Math.floor(canvasWidth * 0.9);
-  }
+
+  currentDSL.rightColumn = 1224;
+
   return currentDSL;
 };
 
@@ -94,8 +90,8 @@ export const getDropZoneOffsets = (
   return snapToGrid(
     colWidth,
     rowHeight,
-    dragOffset.x - parentOffset.x - CONTAINER_GRID_PADDING,
-    dragOffset.y - parentOffset.y - CONTAINER_GRID_PADDING,
+    dragOffset.x - parentOffset.x,
+    dragOffset.y - parentOffset.y,
   );
 };
 
@@ -133,13 +129,12 @@ export const isWidgetOverflowingParentBounds = (
   parentRowCols: { rows?: number; cols?: number },
   offset: Rect,
 ): boolean => {
-  const result =
+  return (
     offset.right < 0 ||
     offset.top < 0 ||
     (parentRowCols.cols || GridDefaults.DEFAULT_GRID_COLUMNS) < offset.right ||
-    (parentRowCols.rows || 0) < offset.bottom;
-
-  return result;
+    (parentRowCols.rows || 0) < offset.bottom
+  );
 };
 
 export const noCollision = (
@@ -289,7 +284,10 @@ export const generateWidgetProps = (
       bottomRow: topRow + rows,
     };
     let others = {};
-    if (type === WidgetTypes.CONTAINER_WIDGET) {
+    if (
+      type === WidgetTypes.CONTAINER_WIDGET ||
+      type === WidgetTypes.FORM_WIDGET
+    ) {
       others = {
         snapColumns: DEFAULT_GRID_COLUMNS,
         snapRows: rows - 1,

@@ -44,7 +44,7 @@ const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
 `;
 
-/* 
+/*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
   an update of the main container's rows
 */
@@ -57,7 +57,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Hook to keep the offset of the drop target container in state
   const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
   const showPropertyPane = useShowPropertyPane();
-  const { selectWidget } = useWidgetSelection();
+  const { selectWidget, focusWidget } = useWidgetSelection();
 
   const [rows, setRows] = useState(props.snapRows);
   useEffect(() => {
@@ -123,9 +123,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         setRows(rows + 2);
         return true;
         // If the current widget's (dragging/resizing) bottom row has moved back up
-      } else if (widgetBottomRow < rows - 2 && rows - props.snapRows >= 2) {
-        setRows(rows - 1);
-        return true;
       }
       return false;
     }
@@ -229,6 +226,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const handleFocus = () => {
     if (!props.parentId && !isResizing && !isDragging) {
       selectWidget && selectWidget(props.widgetId);
+      focusWidget && focusWidget(props.widgetId);
       showPropertyPane && showPropertyPane();
     }
   };
@@ -249,8 +247,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "500px" : 0;
 
   const border =
-    (isExactlyOver || isChildResizing) &&
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+    (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "1px solid #ccc"
       : "1px solid transparent";
 
@@ -275,13 +272,11 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       >
         {props.children}
         <DragLayerComponent
-          parentOffset={dropTargetOffset}
           parentWidgetId={props.widgetId}
           parentRowHeight={props.snapRowSpace}
           parentColumnWidth={props.snapColumnSpace}
           visible={isExactlyOver || isChildResizing}
           isOver={isExactlyOver}
-          dropTargetOffset={dropTargetOffset}
           occupiedSpaces={spacesOccupiedBySiblingWidgets}
           onBoundsUpdate={handleBoundsUpdate}
           parentRows={rows}

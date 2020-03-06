@@ -18,6 +18,7 @@ import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 require("codemirror/mode/javascript/javascript");
 
 const getBorderStyle = (
@@ -82,7 +83,7 @@ const Wrapper = styled.div<{
   ${props =>
     props.singleLine && props.isFocused
       ? `
-  z-index: 1;
+  z-index: 5;
   position: absolute;
   right: 0;
   left: 0;
@@ -238,6 +239,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props): void {
     if (this.editor) {
+      this.editor.refresh();
       if (!this.state.isFocused) {
         const editorValue = this.editor.getValue();
         let inputValue = this.props.input.value;
@@ -269,15 +271,20 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
+    this.handleChange();
     this.setState({ isFocused: false });
     if (this.props.singleLine) {
       this.editor.setOption("lineWrapping", false);
     }
   };
 
-  handleChange = (...args: any[]) => {
-    console.log(args);
+  handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue();
+    if (changeObj && changeObj.origin === "complete") {
+      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
+        searchString: changeObj.text[0],
+      });
+    }
     const inputValue = this.props.input.value;
     if (this.props.input.onChange && value !== inputValue) {
       this.props.input.onChange(value);
@@ -311,6 +318,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
       const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
       if (shouldShow) {
+        AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         cm.showHint(cm);
       }
     }

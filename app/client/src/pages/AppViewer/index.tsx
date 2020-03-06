@@ -23,12 +23,15 @@ import { ExecuteActionPayload } from "constants/ActionConstants";
 import SideNav from "./viewer/SideNav";
 import { SideNavItemProps } from "./viewer/SideNavItem";
 import AppViewerHeader from "./viewer/AppViewerHeader";
-import { updateWidgetProperty } from "actions/controlActions";
+import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import AppViewerSideNavWrapper from "./viewer/AppViewerSideNavWrapper";
-import { updateWidgetMetaProperty } from "actions/metaActions";
+import {
+  resetChildrenMetaProperty,
+  updateWidgetMetaProperty,
+} from "actions/metaActions";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -59,6 +62,7 @@ export type AppViewerProps = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  resetChildrenMetaProperty: (widgetId: string) => void;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
@@ -93,6 +97,7 @@ class AppViewer extends Component<
           executeAction: this.props.executeAction,
           updateWidgetProperty: this.props.updateWidgetProperty,
           updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+          resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}
       >
         <AppViewWrapper>
@@ -130,7 +135,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetProperty(
+      updateWidgetPropertyRequest(
         widgetId,
         propertyName,
         propertyValue,
@@ -143,6 +148,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
+  resetChildrenMetaProperty: (widgetId: string) =>
+    dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (applicationId: string) =>
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,

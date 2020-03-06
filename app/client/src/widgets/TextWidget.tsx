@@ -18,6 +18,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return {
       text: VALIDATION_TYPES.TEXT,
       textStyle: VALIDATION_TYPES.TEXT,
+      isVisible: VALIDATION_TYPES.BOOLEAN,
     };
   }
 

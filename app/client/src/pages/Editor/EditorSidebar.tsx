@@ -120,7 +120,7 @@ const DraftIconIndicator = styled.span<{ isHidden: boolean }>`
 `;
 
 const CreateNewButton = styled(BaseButton)`
-  && {
+  &&&& {
     border: none;
     color: ${props => props.theme.colors.textOnDarkBG};
     height: 32px;
@@ -159,7 +159,7 @@ type EditorSidebarComponentProps = {
   onItemSelected: (itemId: string) => void;
   moveItem: (itemId: string, destinationPageId: string) => void;
   copyItem: (itemId: string, destinationPageId: string) => void;
-  deleteItem: (itemId: string) => void;
+  deleteItem: (itemId: string, itemName: string) => void;
 };
 
 type Props = ReduxStateProps &
@@ -389,6 +389,7 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   onSelect: () =>
                                                     this.props.deleteItem(
                                                       item.id,
+                                                      item.name,
                                                     ),
                                                   label: "Delete",
                                                   intent: "danger",

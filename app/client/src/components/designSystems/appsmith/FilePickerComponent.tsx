@@ -23,16 +23,17 @@ class FilePickerComponent extends React.Component<
   };
 
   render() {
+    let label = "Select files";
+    if (this.props.files && this.props.files.length) {
+      label = `${this.props.files.length} files selected`;
+    }
     return (
       <React.Fragment>
         <BaseButton
-          accent={"primary"}
+          accent="primary"
+          filled
           className={this.props.isLoading ? "bp3-skeleton" : ""}
-          text={
-            this.props.files && this.props.files.length === 0
-              ? "Select files"
-              : this.props.files.length + " Files Selected"
-          }
+          text={label}
           onClick={this.openModal}
         />
         {/* <DashboardModal
@@ -60,7 +61,7 @@ export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;
   isLoading: boolean;
-  files: any[];
+  files?: any[];
 }
 
 export default FilePickerComponent;

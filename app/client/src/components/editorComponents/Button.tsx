@@ -29,7 +29,7 @@ const buttonStyles = css<{
         : 0};
 
     background: ${props =>
-      props.filled || props.outline ? "auto" : "transparent"};
+      props.filled || props.outline ? "inherit" : "transparent"};
   }
 
   ${props => (props.outline ? outline : "")}
@@ -62,6 +62,7 @@ export type ButtonProps = {
   disabled?: boolean;
   size?: "large" | "small";
   type?: "button" | "submit" | "reset";
+  className?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -86,6 +87,8 @@ export const Button = (props: ButtonProps) => {
     small: props.size === "small",
     loading: props.loading,
     disabled: props.disabled,
+    type: props.type,
+    className: props.className,
   };
   if (props.href) {
     return (

@@ -3,7 +3,6 @@ import { XYCoord } from "react-dnd";
 import styled from "styled-components";
 import { snapToGrid } from "utils/helpers";
 import { IntentColors } from "constants/DefaultTheme";
-import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSpring, animated, interpolate, config } from "react-spring";
 
 const SPRING_CONFIG = {
@@ -18,6 +17,7 @@ const DropZoneWrapper = styled.div<{ width: number; height: number }>`
   position: absolute;
   background: ${IntentColors.success};
   border: 1px dashed ${props => props.theme.colors.textAnchor};
+  will-change: transform;
   opacity: 0.6;
   z-index: 1;
 `;
@@ -53,12 +53,12 @@ const getSnappedXY = (
   const [leftColumn, topRow] = snapToGrid(
     parentColumnWidth,
     parentRowHeight,
-    currentOffset.x - parentOffset.x - CONTAINER_GRID_PADDING,
-    currentOffset.y - parentOffset.y - CONTAINER_GRID_PADDING,
+    currentOffset.x - parentOffset.x,
+    currentOffset.y - parentOffset.y,
   );
   return {
-    X: leftColumn * parentColumnWidth + CONTAINER_GRID_PADDING,
-    Y: topRow * parentRowHeight + CONTAINER_GRID_PADDING,
+    X: leftColumn * parentColumnWidth,
+    Y: topRow * parentRowHeight,
   };
 };
 export const DropZone = (props: DropZoneProps) => {

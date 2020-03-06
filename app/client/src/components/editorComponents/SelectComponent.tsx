@@ -22,8 +22,9 @@ export const SelectComponent = (props: SelectComponentProps) => {
           props.options &&
           props.options.map(option => ({
             content: option.name,
-            onSelect: () =>
-              props.input.onChange && props.input.onChange(option.id),
+            onSelect: () => {
+              props.input.onChange && props.input.onChange(option.id);
+            },
             shouldCloseDropdown: true,
           })),
       },

@@ -19,8 +19,11 @@ class PropertyControlFactory {
   static createControl(
     controlData: ControlData,
     controlFunctions: ControlFunctions,
+    preferEditor: boolean,
   ): JSX.Element {
-    const controlBuilder = this.controlMap.get(controlData.controlType);
+    const controlBuilder = preferEditor
+      ? this.controlMap.get("CODE_EDITOR")
+      : this.controlMap.get(controlData.controlType);
     if (controlBuilder) {
       const controlProps: ControlProps = {
         ...controlData,

@@ -10,9 +10,13 @@ import FilePickerComponent from "components/designSystems/appsmith/FilePickerCom
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import {
+  DerivedPropertiesMap,
+  TriggerPropertiesMap,
+} from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
+import _ from "lodash";
 
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
@@ -27,6 +31,13 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       maxNumFiles: VALIDATION_TYPES.NUMBER,
       allowedFileTypes: VALIDATION_TYPES.ARRAY,
+      isRequired: VALIDATION_TYPES.BOOLEAN,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
     };
   }
 
@@ -37,10 +48,15 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
       allowMultipleUploads: true,
       debug: false,
       restrictions: {
-        maxFileSize: null,
+        maxFileSize: props.maxFileSize ? props.maxFileSize * 1000 * 1000 : null,
         maxNumberOfFiles: props.maxNumFiles,
         minNumberOfFiles: null,
-        allowedFileTypes: props.allowedFileTypes,
+        allowedFileTypes:
+          props.allowedFileTypes &&
+          (props.allowedFileTypes.includes("*") ||
+            _.isEmpty(props.allowedFileTypes))
+            ? null
+            : props.allowedFileTypes,
       },
     })
       .use(Dashboard, {
@@ -126,7 +142,8 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     super.componentDidUpdate(prevProps);
     if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
-      prevProps.maxNumFiles !== this.props.maxNumFiles
+      prevProps.maxNumFiles !== this.props.maxNumFiles ||
+      prevProps.maxNumFiles !== this.props.maxFileSize
     ) {
       this.refreshUppy(this.props);
     }
@@ -162,9 +179,11 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
 export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
+  maxFileSize?: number;
   files: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
+  isRequired?: boolean;
 }
 
 export default FilePickerWidget;

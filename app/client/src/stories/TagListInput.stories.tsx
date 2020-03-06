@@ -3,6 +3,7 @@ import TagInputComponent from "components/editorComponents/TagInputComponent";
 import { withKnobs, text, select } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { IntentColors } from "constants/DefaultTheme";
+import Centered from "components/designSystems/appsmith/CenteredWrapper";
 
 export default {
   title: "TagListInput",
@@ -17,16 +18,26 @@ export const withDynamicProps = () =>
     );
 
     return (
-      <TagInputComponent
-        placeholder={text("Placeholder", "Placeholder")}
-        input={{
-          value: values,
-          onChange: (value: string) => setValues(value),
-        }}
-        separator={text("Separator (string | RegExp)", ",")}
-        type="email"
-        intent={select("Intent", Object.keys(IntentColors), "success")}
-      />
+      <Centered style={{ height: "100vh" }}>
+        <div
+          style={{
+            width: "1024px",
+            background: "white",
+            height: "300px",
+            padding: "20px",
+          }}
+        >
+          <TagInputComponent
+            placeholder={text("Placeholder", "Placeholder")}
+            input={{
+              value: values,
+              onChange: (value: string) => setValues(value),
+            }}
+            type="email"
+            intent={select("Intent", Object.keys(IntentColors), "success")}
+          />
+        </div>
+      </Centered>
     );
   });
 

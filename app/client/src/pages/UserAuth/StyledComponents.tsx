@@ -11,17 +11,19 @@ export const AuthContainer = styled.section`
 `;
 
 export const AuthCard = styled(Card)`
-  width: ${props => props.theme.authCard.width}px;
-  background: ${props => props.theme.authCard.background};
-  border-radius: ${props => props.theme.authCard.borderRadius}px;
-  padding: ${props => props.theme.authCard.padding}px;
-  box-shadow: ${props => props.theme.authCard.shadow};
-  border: none;
-  & h1,
-  h5 {
-    padding: 0;
-    margin: 0;
-    font-weight: ${props => props.theme.fontWeights[1]};
+  && {
+    width: ${props => props.theme.authCard.width}px;
+    background: ${props => props.theme.authCard.background};
+    border-radius: ${props => props.theme.authCard.borderRadius}px;
+    padding: ${props => props.theme.authCard.padding}px;
+    box-shadow: ${props => props.theme.authCard.shadow};
+    border: none;
+    & h1,
+    h5 {
+      padding: 0;
+      margin: 0;
+      font-weight: ${props => props.theme.fontWeights[1]};
+    }
   }
 `;
 
@@ -43,7 +45,7 @@ export const AuthCardNavLink = styled(Link)`
   text-align: center;
   margin: 0 auto;
   display: block;
-  margin-top: ${props => props.theme.spaces[6]}px;
+  margin-top: ${props => props.theme.spaces[12]}px;
   & span {
     margin-left: ${props => props.theme.spaces[4]}px;
   }
@@ -78,10 +80,16 @@ export const SpacedForm = styled(Form)`
 
 export const SpacedSubmitForm = styled.form`
   ${formSpacing}
+  & a {
+    font-size: ${props => props.theme.fontSizes[3]}px;
+  }
 `;
 
 export const FormActions = styled.div`
   display: flex;
+  & button {
+    flex: 1;
+  }
   justify-content: space-between;
   align-items: baseline;
   margin-top: ${props => props.theme.spaces[2]}px;

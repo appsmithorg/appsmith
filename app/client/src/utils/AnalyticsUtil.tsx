@@ -1,8 +1,41 @@
+// Events
 export type EventName =
   | "PAGE_VIEW"
   | "ADD_COMPONENT"
   | "DELETE_COMPONENT"
-  | "RESIZE_COMPONENT";
+  | "RESIZE_COMPONENT"
+  | "WIDGET_DRAG"
+  | "WIDGET_DROP"
+  | "WIDGET_DELETE"
+  | "WIDGET_RESIZE_START"
+  | "WIDGET_RESIZE_END"
+  | "WIDGET_PROPERTY_UPDATE"
+  | "WIDGET_TOGGLE_JS_PROP"
+  | "WIDGET_CARD_DRAG"
+  | "WIDGET_CARD_DROP"
+  | "CREATE_PAGE"
+  | "PAGE_RENAME"
+  | "PAGE_SWITCH"
+  | "DELETE_PAGE"
+  | "SIDEBAR_NAVIGATION"
+  | "PUBLISH_APP"
+  | "PREVIEW_APP"
+  | "EDITOR_OPEN"
+  | "CREATE_API"
+  | "SAVE_API"
+  | "RUN_API"
+  | "DELETE_API"
+  | "DUPLICATE_API"
+  | "MOVE_API"
+  | "API_SELECT"
+  | "CREATE_API_CLICK"
+  | "AUTO_COMPELTE_SHOW"
+  | "AUTO_COMPLETE_SELECT"
+  | "CREATE_APP_CLICK"
+  | "CREATE_APP"
+  | "CREATE_DATA_SOURCE_CLICK"
+  | "SAVE_DATA_SOURCE";
+
 export type Gender = "MALE" | "FEMALE";
 export interface User {
   userId: string;
@@ -12,6 +45,14 @@ export interface User {
 }
 
 class AnalyticsUtil {
+  static user: any = {};
+  static appData: {
+    appId: string;
+    appName: string;
+  } = {
+    appId: "",
+    appName: "",
+  };
   static initializeHotjar(id: string, sv: string) {
     (function init(h: any, o: any, t: any, j: any, a?: any, r?: any) {
       h.hj =
@@ -28,7 +69,7 @@ class AnalyticsUtil {
     })(window, document, "//static.hotjar.com/c/hotjar-", ".js?sv=");
   }
 
-  static initializeSegment() {
+  static initializeSegment(key: string) {
     (function init(window: any) {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
@@ -82,7 +123,7 @@ class AnalyticsUtil {
           analytics._loadOptions = e;
         };
         analytics.SNIPPET_VERSION = "4.1.0";
-        analytics.load("O7rsLdWq7fhJI9rYsj1eatGAjuULTmfP");
+        analytics.load(key);
         analytics.page();
       }
     })(window);
@@ -90,12 +131,39 @@ class AnalyticsUtil {
 
   static logEvent(eventName: EventName, eventData: any) {
     const windowDoc: any = window;
-    windowDoc.analytics.track(eventName, eventData);
+    let finalEventData = eventData;
+    const userData = AnalyticsUtil.user;
+    const appData = AnalyticsUtil.appData;
+
+    if (userData) {
+      finalEventData = {
+        ...finalEventData,
+        userData: {
+          email: userData.email,
+          currentOrgId: userData.currentOrganizationId,
+          ...appData,
+        },
+      };
+    }
+    if (windowDoc.analytics) {
+      windowDoc.analytics.track(eventName, finalEventData);
+    } else {
+      console.log("Event fired", eventName, finalEventData);
+    }
   }
 
   static identifyUser(userId: string, userData: User) {
     const windowDoc: any = window;
-    windowDoc.analytics.identify(userId, userData);
+    AnalyticsUtil.user = userData;
+    if (windowDoc.analytics) {
+      windowDoc.analytics.identify(userId, userData);
+    }
+  }
+  static setAppData(appId: string, appName: string) {
+    AnalyticsUtil.appData = {
+      appId: appId,
+      appName: appName,
+    };
   }
 }
 

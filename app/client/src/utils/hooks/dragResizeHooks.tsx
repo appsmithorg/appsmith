@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
-  return (widgetId?: string, callForDragOrResize?: boolean) =>
+  return (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
     dispatch(
       // If widgetId is not provided, we don't show the property pane.
       // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
@@ -15,16 +15,18 @@ export const useShowPropertyPane = () => {
           widgetId || callForDragOrResize
             ? ReduxActionTypes.SHOW_PROPERTY_PANE
             : ReduxActionTypes.HIDE_PROPERTY_PANE,
-        payload: { widgetId, callForDragOrResize },
+        payload: { widgetId, callForDragOrResize, force },
       },
     );
+  };
 };
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
-    selectWidget: (widgetId?: string) =>
-      dispatch({ type: ReduxActionTypes.SELECT_WIDGET, payload: { widgetId } }),
+    selectWidget: (widgetId?: string) => {
+      dispatch({ type: ReduxActionTypes.SELECT_WIDGET, payload: { widgetId } });
+    },
     focusWidget: (widgetId?: string) =>
       dispatch({ type: ReduxActionTypes.FOCUS_WIDGET, payload: { widgetId } }),
   };
@@ -38,10 +40,11 @@ export const useWidgetDragResize = () => {
         type: ReduxActionTypes.SET_WIDGET_DRAGGING,
         payload: { isDragging },
       }),
-    setIsResizing: (isResizing: boolean) =>
+    setIsResizing: (isResizing: boolean) => {
       dispatch({
         type: ReduxActionTypes.SET_WIDGET_RESIZING,
         payload: { isResizing },
-      }),
+      });
+    },
   };
 };

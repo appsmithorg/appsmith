@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle } from "constants/DefaultTheme";
+import { IntentColors, labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   Intent,
@@ -9,7 +9,6 @@ import {
   InputGroup,
   Button,
   Label,
-  Text,
   Classes,
   ControlGroup,
   TextArea,
@@ -17,25 +16,38 @@ import {
 import { InputType } from "widgets/InputWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import _ from "lodash";
+import { INPUT_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
 /**
  * All design system component specific logic goes here.
- * Ex. Blueprint has a sperarate numeric input and text input so switching between them goes here
+ * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
  * Ex. To set the icon as currency, blue print takes in a set of defined types
  * All generic logic like max characters for phone numbers should be 10, should go in the widget
  */
 
-const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
+const InputComponentWrapper = styled(props => (
+  <ControlGroup {..._.omit(props, ["hasError"])} />
+))<{
+  multiline: string;
+  hasError: boolean;
+}>`
   &&&& {
     .${Classes.INPUT} {
       box-shadow: none;
-      border: 1px solid ${Colors.GEYSER_LIGHT};
+      border: 1px solid;
+      border-color: ${({ hasError }) =>
+        hasError ? IntentColors.danger : Colors.GEYSER_LIGHT};
       border-radius: ${props => props.theme.radii[1]}px;
       height: ${props => (props.multiline === "true" ? "100%" : "inherit")};
+      width: 100%;
       &:active {
-        border: 1px solid ${Colors.HIT_GRAY};
+        border-color: ${({ hasError }) =>
+          hasError ? IntentColors.danger : Colors.HIT_GRAY};
       }
       &:focus {
-        border: 1px solid ${Colors.MYSTIC};
+        border-color: ${({ hasError }) =>
+          hasError ? IntentColors.danger : Colors.MYSTIC};
       }
     }
     .${Classes.INPUT_GROUP} {
@@ -45,7 +57,7 @@ const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: ${props => (props.multiline === "true" ? "100%" : "auto")};
+    height: 100%;
     align-items: center;
     label {
       ${labelStyle}
@@ -53,6 +65,7 @@ const InputComponentWrapper = styled(ControlGroup)<{ multiline: string }>`
       margin: 7px ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
       align-self: flex-start;
+      max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
 `;
@@ -65,6 +78,10 @@ class InputComponent extends React.Component<
     super(props);
     this.state = { showPassword: false };
   }
+
+  setFocusState = (isFocused: boolean) => {
+    this.props.onFocusChange(isFocused);
+  };
 
   onTextChange = (
     event:
@@ -113,6 +130,7 @@ class InputComponent extends React.Component<
   }
   private numericInputComponent = () => (
     <NumericInput
+      value={this.props.value}
       placeholder={this.props.placeholder}
       min={this.props.minNum}
       max={this.props.maxNum}
@@ -128,10 +146,13 @@ class InputComponent extends React.Component<
       type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
       allowNumericCharactersOnly
       stepSize={this.props.stepSize}
+      onFocus={() => this.setFocusState(true)}
+      onBlur={() => this.setFocusState(false)}
     />
   );
   private textAreaInputComponent = (
     <TextArea
+      value={this.props.value}
       placeholder={this.props.placeholder}
       disabled={this.props.disabled}
       maxLength={this.props.maxChars}
@@ -140,6 +161,8 @@ class InputComponent extends React.Component<
       defaultValue={this.props.defaultValue}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       growVertically={false}
+      onFocus={() => this.setFocusState(true)}
+      onBlur={() => this.setFocusState(false)}
     />
   );
 
@@ -148,6 +171,7 @@ class InputComponent extends React.Component<
       this.textAreaInputComponent
     ) : (
       <InputGroup
+        value={this.props.value}
         placeholder={this.props.placeholder}
         disabled={this.props.disabled}
         maxLength={this.props.maxChars}
@@ -169,6 +193,8 @@ class InputComponent extends React.Component<
         }
         type={this.getType(this.props.inputType)}
         leftIcon={this.getIcon(this.props.inputType)}
+        onFocus={() => this.setFocusState(true)}
+        onBlur={() => this.setFocusState(false)}
       />
     );
   private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
@@ -178,7 +204,11 @@ class InputComponent extends React.Component<
 
   render() {
     return (
-      <InputComponentWrapper fill multiline={this.props.multiline.toString()}>
+      <InputComponentWrapper
+        fill
+        multiline={this.props.multiline.toString()}
+        hasError={this.props.isInvalid}
+      >
         {this.props.label && (
           <Label
             className={
@@ -190,9 +220,17 @@ class InputComponent extends React.Component<
             {this.props.label}
           </Label>
         )}
-
-        {this.renderInputComponent(this.props.inputType, this.props.multiline)}
-        {this.props.errorMessage && <Text>{this.props.errorMessage}</Text>}
+        <ErrorTooltip
+          isOpen={this.props.isInvalid && this.props.showError}
+          message={
+            this.props.errorMessage || INPUT_WIDGET_DEFAULT_VALIDATION_ERROR
+          }
+        >
+          {this.renderInputComponent(
+            this.props.inputType,
+            this.props.multiline,
+          )}
+        </ErrorTooltip>
       </InputComponentWrapper>
     );
   }
@@ -203,6 +241,7 @@ export interface InputComponentState {
 }
 
 export interface InputComponentProps extends ComponentProps {
+  value: string;
   inputType: InputType;
   disabled?: boolean;
   intent?: Intent;
@@ -220,6 +259,9 @@ export interface InputComponentProps extends ComponentProps {
   placeholder?: string;
   isLoading: boolean;
   multiline: boolean;
+  isInvalid: boolean;
+  showError: boolean;
+  onFocusChange: (state: boolean) => void;
 }
 
 export default InputComponent;

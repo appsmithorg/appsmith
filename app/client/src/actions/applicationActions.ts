@@ -12,3 +12,18 @@ export const setDefaultApplicationPageSuccess = (
     },
   };
 };
+
+export const fetchApplications = () => {
+  return {
+    type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
+  };
+};
+
+export const fetchApplication = (applicationId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+    payload: {
+      applicationId,
+    },
+  };
+};

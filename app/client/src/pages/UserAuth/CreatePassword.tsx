@@ -6,14 +6,13 @@ import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { CREATE_PASSWORD_FORM_NAME } from "constants/forms";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
-import { Icon } from "@blueprintjs/core";
-import TextField from "components/editorComponents/form/fields/TextField";
+import FormTextField from "components/editorComponents/form/FormTextField";
 import FormMessage, {
   FormMessageProps,
   MessageAction,
 } from "components/editorComponents/form/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import FormButton from "components/editorComponents/FormButton";
+import Button from "components/editorComponents/Button";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -113,7 +112,7 @@ export const CreatePassword = (props: CreatePasswordProps) => {
       {
         url: AUTH_LOGIN_URL,
         text: CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
-        intent: "success",
+        intent: "primary",
       },
     ];
   }
@@ -125,7 +124,7 @@ export const CreatePassword = (props: CreatePasswordProps) => {
     intent:
       showInvalidMessage || showExpiredMessage || showFailureMessage
         ? "danger"
-        : "success",
+        : "primary",
     message,
     actions: messageActions,
   };
@@ -152,17 +151,18 @@ export const CreatePassword = (props: CreatePasswordProps) => {
             intent={error ? "danger" : "none"}
             label={CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL}
           >
-            <TextField
+            <FormTextField
               name="password"
               type="password"
               placeholder={CREATE_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER}
-              showError
             />
           </FormGroup>
           <Field type="hidden" name="email" component="input" />
           <Field type="hidden" name="token" component="input" />
           <FormActions>
-            <FormButton
+            <Button
+              filled
+              size="large"
               type="submit"
               text={CREATE_PASSWORD_SUBMIT_BUTTON_TEXT}
               intent="primary"
@@ -174,7 +174,6 @@ export const CreatePassword = (props: CreatePasswordProps) => {
       </AuthCardBody>
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {CREATE_PASSWORD_LOGIN_LINK_TEXT}
-        <Icon icon="arrow-right" intent="primary" />
       </AuthCardNavLink>
       <AuthCardFooter>
         <Link to="#">{PRIVACY_POLICY_LINK}</Link>

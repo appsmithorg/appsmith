@@ -27,9 +27,12 @@ import {
 import {
   ReduxActionTypes,
   PageListPayload,
+  ApplicationPayload,
 } from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type EditorProps = {
   currentPageName?: string;
@@ -49,6 +52,7 @@ type EditorProps = {
   errorPublishing: boolean;
   publishedTime?: string;
   isPageSwitching: boolean;
+  currentApplication?: ApplicationPayload;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<EditorProps> {
@@ -80,6 +84,14 @@ class Editor extends Component<EditorProps> {
   handlePublish = () => {
     if (this.props.currentApplicationId) {
       this.props.publishApplication(this.props.currentApplicationId);
+
+      const appName = this.props.currentApplication
+        ? this.props.currentApplication.name
+        : "";
+      AnalyticsUtil.logEvent("PUBLISH_APP", {
+        appId: this.props.currentApplicationId,
+        appName: appName,
+      });
     }
   };
   handleCreatePage = (pageName: string) => {
@@ -152,6 +164,7 @@ const mapStateToProps = (state: AppState) => ({
   currentPageName: state.ui.editor.currentPageName,
   isSaving: getIsPageSaving(state),
   currentApplicationId: getCurrentApplicationId(state),
+  currentApplication: getCurrentApplication(state),
   currentPageId: getCurrentPageId(state),
   currentLayoutId: getCurrentLayoutId(state),
   pages: getPageList(state),

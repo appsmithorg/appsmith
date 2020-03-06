@@ -80,7 +80,7 @@ const validate = (values: InviteUsersToOrgFormValues) => {
   return errors;
 };
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   width: 100%;
   background: white;
   padding: ${props => props.theme.spaces[11]}px;
@@ -157,7 +157,6 @@ const renderInviteUsersByRoleForm = (
           })
         }
         text={INVITE_USERS_ADD_EMAIL_LIST_FIELD}
-        large
         icon="plus"
       />
     </React.Fragment>
@@ -209,7 +208,7 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
   return (
     <StyledForm>
       {submitSucceeded && (
-        <FormMessage intent="success" message={INVITE_USERS_SUBMIT_SUCCESS} />
+        <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
       )}
       {submitFailed && error && (
         <FormMessage
@@ -217,13 +216,7 @@ export const InviteUsersForm = (props: InviteUsersFormProps) => {
           message={`${INVITE_USERS_SUBMIT_ERROR}: ${error}`}
         />
       )}
-      {/* Disable submit on "Enter" because TagInputComponent uses it. */}
-      <button
-        type="submit"
-        disabled
-        style={{ display: "none" }}
-        aria-hidden="true"
-      ></button>
+
       <FieldArray
         name="usersByRole"
         component={renderInviteUsersByRoleForm}
