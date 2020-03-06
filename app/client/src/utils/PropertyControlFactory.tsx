@@ -1,5 +1,4 @@
 import { ControlType } from "constants/PropertyControlConstants";
-import React, { Fragment } from "react";
 import {
   ControlBuilder,
   ControlProps,
@@ -39,8 +38,7 @@ class PropertyControlFactory {
           "Control Builder not registered for control type " +
           controlData.controlType,
       };
-      console.log(ex.message);
-      return <Fragment />;
+      throw ex;
     }
   }
 

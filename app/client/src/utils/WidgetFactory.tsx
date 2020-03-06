@@ -5,6 +5,7 @@ import {
   WidgetDataProps,
 } from "widgets/BaseWidget";
 import { WidgetPropertyValidationType } from "./ValidationFactory";
+import React from "react";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -45,7 +46,7 @@ class WidgetFactory {
   static createWidget(
     widgetData: WidgetDataProps,
     renderMode: RenderMode,
-  ): JSX.Element {
+  ): React.ReactNode {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
@@ -62,7 +63,8 @@ class WidgetFactory {
         message:
           "Widget Builder not registered for widget type" + widgetData.type,
       };
-      throw ex;
+      console.error(ex);
+      return null;
     }
   }
 

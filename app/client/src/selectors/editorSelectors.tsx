@@ -168,7 +168,10 @@ export const getOccupiedSpaces = createSelector(
     // Get all widgets with type "CONTAINER_WIDGET" and has children
     const containerWidgets: FlattenedWidgetProps[] = Object.values(
       widgets,
-    ).filter(widget => widget.type === WidgetTypes.CONTAINER_WIDGET);
+    ).filter(
+      widget =>
+        widget.type === WidgetTypes.CONTAINER_WIDGET || WidgetTypes.FORM_WIDGET,
+    );
 
     // If we have any container widgets
     if (containerWidgets) {

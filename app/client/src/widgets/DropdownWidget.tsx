@@ -8,10 +8,6 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
-export interface DropDownDerivedProps {
-  selectedOption?: DropdownOption;
-  selectedOptionArr?: DropdownOption[];
-}
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -21,10 +17,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
+      isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getDerivedPropertiesMap() {
     return {
+      isValid: `{{ this.isRequired ? !!this.selectedOption.value : true }}`,
       selectedOption: `{{
         this.selectionType === 'SINGLE_SELECT'
           ? this.options[this.selectedIndex]
@@ -84,7 +82,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectionType={this.props.selectionType}
         selectedIndex={selectedIndex}
         selectedIndexArr={computedSelectedIndexArr}
-        label={this.props.label}
+        label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
         isLoading={this.props.isLoading}
       />
     );
@@ -158,6 +156,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectionType: SelectionType;
   options?: DropdownOption[];
   onOptionChange?: string;
+  isRequired: boolean;
 }
 
 export default DropdownWidget;

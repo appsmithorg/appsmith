@@ -156,6 +156,52 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
     },
+    FORM_BUTTON_WIDGET: {
+      rows: 1,
+      columns: 3,
+      widgetName: "FormButton",
+      text: "Submit",
+    },
+    FORM_WIDGET: {
+      rows: 10,
+      columns: 10,
+      widgetName: "Form",
+      blueprint: {
+        view: [
+          {
+            type: "TEXT_WIDGET",
+            size: { rows: 1, cols: 4 },
+            position: { top: 0, left: 0 },
+            props: {
+              text: "Title",
+              textStyle: "HEADING",
+            },
+          },
+          {
+            type: "FORM_BUTTON_WIDGET",
+            size: { rows: 1, cols: 3 },
+            position: { top: 8, left: 13 },
+            props: {
+              text: "Submit",
+              buttonStyle: "PRIMARY_BUTTON",
+              disabledWhenInvalid: true,
+              resetFormOnClick: false,
+            },
+          },
+          {
+            type: "FORM_BUTTON_WIDGET",
+            size: { rows: 1, cols: 3 },
+            position: { top: 8, left: 10 },
+            props: {
+              text: "Reset",
+              buttonStyle: "SECONDARY_BUTTON",
+              disabledWhenInvalid: false,
+              resetFormOnClick: true,
+            },
+          },
+        ],
+      },
+    },
   },
   configVersion: 1,
 };

@@ -121,7 +121,7 @@ const PropertyPaneConfigResponse = {
             placeholderText: "Enter URL",
           },
           {
-            id: "4.1",
+            id: "4.2",
             propertyName: "defaultImage",
             label: "Default Image",
             controlType: "INPUT_TEXT",
@@ -223,12 +223,18 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "5.8",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
+          },
+          {
+            id: "5.9",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
           },
           {
-            id: "5.9",
+            id: "5.10",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
@@ -303,7 +309,7 @@ const PropertyPaneConfigResponse = {
             id: "7.1",
             propertyName: "backgroundColor",
             label: "Background Color",
-            controlType: "COLOR_PICKER",
+            controlType: "INPUT_TEXT",
           },
           {
             id: "7.2",
@@ -362,6 +368,12 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "9.7",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
+          },
+          {
+            id: "9.8",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
@@ -393,17 +405,17 @@ const PropertyPaneConfigResponse = {
         id: "11",
         children: [
           {
-            id: "11.1",
-            propertyName: "label",
-            label: "Enter Table Label",
-            controlType: "INPUT_TEXT",
-          },
-          {
             id: "11.2",
             propertyName: "tableData",
             label: "Table Data",
             controlType: "INPUT_TEXT",
             inputType: "ARRAY",
+          },
+          {
+            id: "11.3",
+            propertyName: "serverSidePaginationEnabled",
+            label: "Server Side Pagination",
+            controlType: "SWITCH",
           },
           {
             id: "11.5",
@@ -429,20 +441,8 @@ const PropertyPaneConfigResponse = {
             label: "onRowSelected",
             controlType: "ACTION_SELECTOR",
           },
-        ],
-      },
-      {
-        sectionName: "Pagination",
-        id: "19",
-        children: [
           {
-            id: "19.1",
-            propertyName: "serverSidePaginationEnabled",
-            label: "Server Side Pagination",
-            controlType: "SWITCH",
-          },
-          {
-            id: "19.2",
+            id: "12.3",
             propertyName: "onPageChange",
             label: "onPageChange",
             controlType: "ACTION_SELECTOR",
@@ -472,18 +472,24 @@ const PropertyPaneConfigResponse = {
             ],
           },
           {
-            id: "13.4",
+            id: "13.2",
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter [{label, value}]",
           },
           {
-            id: "13.2",
+            id: "13.3",
             propertyName: "label",
             label: "Label",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter the label",
+          },
+          {
+            id: "13.4",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
           },
           {
             id: "13.5",
@@ -526,12 +532,18 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "15.3",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
+          },
+          {
+            id: "15.4",
             propertyName: "isDisabled",
             label: "Disabled",
             controlType: "SWITCH",
           },
           {
-            id: "15.4",
+            id: "15.5",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
@@ -577,6 +589,12 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "16.4",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
+          },
+          {
+            id: "16.5",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
@@ -602,26 +620,19 @@ const PropertyPaneConfigResponse = {
         id: "18",
         children: [
           {
-            id: "18.1",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter Label",
-            inputType: "INTEGER",
-          },
-          {
             id: "18.2",
             propertyName: "maxNumFiles",
-            label: "No. of files",
+            label: "Max files",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter No. of files",
+            placeholderText: "Enter no. of files",
+            inputType: "INTEGER",
           },
           {
             id: "18.3",
             propertyName: "allowedFileTypes",
             label: "Allowed File Types",
             controlType: "MULTI_SELECT",
-            placeholderText: "Enter No. of files",
+            placeholderText: "Select allowed types",
             options: [
               {
                 label: "Any File",
@@ -659,9 +670,217 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "18.4",
+            propertyName: "isRequired",
+            label: "Required",
+            controlType: "SWITCH",
+          },
+          {
+            id: "18.5",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        id: "19",
+        children: [
+          {
+            id: "19.1",
+            propertyName: "onFilesSelected",
+            label: "onFilesSelected",
+            controlType: "ACTION_SELECTOR",
+          },
+        ],
+      },
+    ],
+    RICH_TEXT_EDITOR_WIDGET: [
+      {
+        sectionName: "General",
+        id: "19",
+        children: [
+          {
+            id: "19.1",
+            propertyName: "defaultValue",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter your HTML text",
+          },
+          {
+            id: "19.2",
+            propertyName: "placeholder",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter your placeholder",
+          },
+          {
+            id: "19.3",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            id: "19.4",
+            propertyName: "isDisabled",
+            label: "Disable",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        id: "20",
+        children: [
+          {
+            id: "20.1",
+            propertyName: "onTextChange",
+            label: "onTextChange",
+            controlType: "ACTION_SELECTOR",
+          },
+        ],
+      },
+    ],
+    GRAPH_WIDGET: [
+      {
+        sectionName: "General",
+        id: "21",
+        children: [
+          {
+            id: "21.1",
+            propertyName: "graphType",
+            label: "Graph Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Line Graph",
+                value: "LINE_GRAPH",
+              },
+              {
+                label: "Bar Graph",
+                value: "BAR_GRAPH",
+              },
+              {
+                label: "Pie Graph",
+                value: "PIE_GRAPH",
+              },
+              {
+                label: "Column Graph",
+                value: "COLUMN_GRAPH",
+              },
+              {
+                label: "Area Graph",
+                value: "AREA_GRAPH",
+              },
+              {
+                label: "Scatter Graph",
+                value: "SCATTER_GRAPH",
+              },
+            ],
+          },
+          {
+            id: "21.2",
+            propertyName: "xAxisName",
+            label: "X-axis Label",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "21.3",
+            propertyName: "yAxisName",
+            label: "Y-axis Label",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "21.4",
+            propertyName: "graphData",
+            label: "Graph Data",
+            controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
+          },
+        ],
+      },
+    ],
+    FORM_WIDGET: [
+      {
+        sectionName: "General",
+        id: "22",
+        children: [
+          {
+            id: "22.1",
+            propertyName: "backgroundColor",
+            label: "Background Color",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "22.2",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+    ],
+    FORM_BUTTON_WIDGET: [
+      {
+        sectionName: "General",
+        id: "23.1",
+        children: [
+          {
+            id: "23.1.1",
+            propertyName: "text",
+            label: "Button Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter button text",
+          },
+          {
+            id: "23.1.2",
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Primary Button",
+                value: "PRIMARY_BUTTON",
+              },
+              {
+                label: "Secondary Button",
+                value: "SECONDARY_BUTTON",
+              },
+              {
+                label: "Danger Button",
+                value: "DANGER_BUTTON",
+              },
+            ],
+          },
+          {
+            id: "23.1.3",
+            propertyName: "disabledWhenInvalid",
+            label: "Disabled when invalid",
+            controlType: "SWITCH",
+          },
+          {
+            id: "24.1.4",
+            propertyName: "resetFormOnClick",
+            label: "Reset form onClick",
+            controlType: "SWITCH",
+          },
+          {
+            id: "23.1.5",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        id: "23.2",
+        children: [
+          {
+            id: "23.2.1",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
           },
         ],
       },

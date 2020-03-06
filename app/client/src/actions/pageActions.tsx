@@ -119,6 +119,7 @@ export type WidgetAddChild = {
   parentRowSpace: number;
   parentColumnSpace: number;
   newWidgetId: string;
+  props?: Record<string, any>;
 };
 
 export type WidgetMove = {

@@ -16,7 +16,14 @@ import {
   generateWidgetProps,
   updateWidgetPosition,
 } from "utils/WidgetPropsUtils";
-import { put, select, takeEvery, takeLatest, all } from "redux-saga/effects";
+import {
+  call,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+  all,
+} from "redux-saga/effects";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
@@ -28,6 +35,8 @@ import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import { WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { buildWidgetBlueprint } from "sagas/WidgetBlueprintSagas";
+import { resetWidgetMetaProperty } from "actions/metaActions";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -41,6 +50,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       parentRowSpace,
       parentColumnSpace,
       newWidgetId,
+      props,
     } = addChildAction.payload;
     const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
@@ -56,7 +66,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       parentRowSpace,
       parentColumnSpace,
       getNextEntityName(defaultWidgetConfig.widgetName, widgetNames),
-      defaultWidgetConfig,
+      { ...defaultWidgetConfig, ...props },
     );
     childWidget.widgetId = newWidgetId;
     widgets[childWidget.widgetId] = childWidget;
@@ -65,6 +75,13 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     }
     widgets[widgetId] = widget;
     yield put(updateAndSaveLayout(widgets));
+    if (defaultWidgetConfig.blueprint) {
+      yield call(
+        buildWidgetBlueprint,
+        defaultWidgetConfig.blueprint,
+        newWidgetId,
+      );
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -151,7 +168,10 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
-    if (widget.type === WidgetTypes.CONTAINER_WIDGET) {
+    if (
+      widget.type === WidgetTypes.CONTAINER_WIDGET ||
+      WidgetTypes.FORM_WIDGET
+    ) {
       widget.snapRows = bottomRow - topRow - 1;
     }
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
@@ -252,6 +272,32 @@ function* setWidgetDynamicPropertySaga(
   );
 }
 
+function* getWidgetChildren(widgetId: string): any {
+  const childrenIds: string[] = [];
+  const widget = yield select(getWidget, widgetId);
+  const { children } = widget;
+  if (children && children.length) {
+    for (const childIndex in children) {
+      const child = children[childIndex];
+      childrenIds.push(child);
+      const grandChildren = yield call(getWidgetChildren, child);
+      if (grandChildren.length) {
+        childrenIds.push(...grandChildren);
+      }
+    }
+  }
+  return childrenIds;
+}
+
+function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
+  const parentWidgetId = action.payload.widgetId;
+  const childrenIds: string[] = yield call(getWidgetChildren, parentWidgetId);
+  for (const childIndex in childrenIds) {
+    const childId = childrenIds[childIndex];
+    yield put(resetWidgetMetaProperty(childId));
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
@@ -265,6 +311,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY,
       setWidgetDynamicPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
+      resetChildrenMetaSaga,
     ),
   ]);
 }

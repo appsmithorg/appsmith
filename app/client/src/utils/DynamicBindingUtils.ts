@@ -90,7 +90,10 @@ const getAllPaths = (
 export const getDynamicBindings = (
   dynamicString: string,
 ): { bindings: string[]; paths: string[] } => {
-  if (!dynamicString) return { bindings: [], paths: [] };
+  // Protect against bad string parse
+  if (!dynamicString || !_.isString(dynamicString)) {
+    return { bindings: [], paths: [] };
+  }
   const sanitisedString = dynamicString.trim();
   // Get the {{binding}} bound values
   const bindings = parseDynamicString(sanitisedString);

@@ -14,6 +14,7 @@ import {
 import {
   EventType,
   ExecuteActionPayload,
+  ExecuteActionPayloadEvent,
   PageAction,
 } from "constants/ActionConstants";
 import ActionAPI, {
@@ -158,7 +159,7 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 
 export function* executeAPIQueryActionSaga(
   apiAction: RunActionPayload,
-  event: EventType,
+  event: ExecuteActionPayloadEvent,
 ) {
   const { actionId, onSuccess, onError } = apiAction;
   try {
@@ -166,9 +167,9 @@ export function* executeAPIQueryActionSaga(
     const api: RestAction = yield select(getAction, actionId);
     const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
     const pagination =
-      event === EventType.ON_NEXT_PAGE
+      event.type === EventType.ON_NEXT_PAGE
         ? "NEXT"
-        : event === EventType.ON_PREV_PAGE
+        : event.type === EventType.ON_PREV_PAGE
         ? "PREV"
         : undefined;
     const executeActionRequest: ExecuteActionRequest = {
@@ -187,11 +188,16 @@ export function* executeAPIQueryActionSaga(
           executeAction({
             dynamicString: onError,
             event: {
+              ...event,
               type: EventType.ON_ERROR,
             },
             responseData: payload,
           }),
         );
+      } else {
+        if (event.callback) {
+          event.callback({ success: false });
+        }
       }
       yield put(
         executeActionError({
@@ -201,18 +207,26 @@ export function* executeAPIQueryActionSaga(
       );
     } else {
       yield put(
-        executeApiActionSuccess({ id: apiAction.actionId, response: payload }),
+        executeApiActionSuccess({
+          id: apiAction.actionId,
+          response: payload,
+        }),
       );
       if (onSuccess) {
         yield put(
           executeAction({
             dynamicString: onSuccess,
             event: {
+              ...event,
               type: EventType.ON_SUCCESS,
             },
             responseData: payload,
           }),
         );
+      } else {
+        if (event.callback) {
+          event.callback({ success: true });
+        }
       }
     }
     return response;
@@ -228,16 +242,24 @@ export function* executeAPIQueryActionSaga(
         executeAction({
           dynamicString: `{{${onError}}}`,
           event: {
+            ...event,
             type: EventType.ON_ERROR,
           },
           responseData: {},
         }),
       );
+    } else {
+      if (event.callback) {
+        event.callback({ success: false });
+      }
     }
   }
 }
 
-function* navigateActionSaga(action: { pageName: string }, event: EventType) {
+function* navigateActionSaga(
+  action: { pageName: string },
+  event: ExecuteActionPayloadEvent,
+) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
   const page = _.find(pageList, { pageName: action.pageName });
@@ -247,12 +269,15 @@ function* navigateActionSaga(action: { pageName: string }, event: EventType) {
       ? BUILDER_PAGE_URL(applicationId, page.pageId)
       : getApplicationViewerPageURL(applicationId, page.pageId);
     history.push(path);
+    if (event.callback) event.callback({ success: true });
+  } else {
+    if (event.callback) event.callback({ success: false });
   }
 }
 
 export function* executeActionTriggers(
   trigger: ActionDescription<any>,
-  event: EventType,
+  event: ExecuteActionPayloadEvent,
 ) {
   switch (trigger.type) {
     case "RUN_ACTION":
@@ -264,6 +289,9 @@ export function* executeActionTriggers(
     case "NAVIGATE_TO_URL":
       if (trigger.payload.url) {
         window.location.href = trigger.payload.url;
+        if (event.callback) event.callback({ success: true });
+      } else {
+        if (event.callback) event.callback({ success: false });
       }
       break;
     case "SHOW_ALERT":
@@ -271,6 +299,7 @@ export function* executeActionTriggers(
         message: trigger.payload.message,
         type: trigger.payload.style,
       });
+      if (event.callback) event.callback({ success: true });
       break;
     default:
       yield put(
@@ -288,7 +317,7 @@ export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   if (triggers) {
     yield all(
-      triggers.map(trigger => call(executeActionTriggers, trigger, event.type)),
+      triggers.map(trigger => call(executeActionTriggers, trigger, event)),
     );
   }
 }
@@ -522,7 +551,9 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
     );
     yield* yield all(
       filteredSet.map(a =>
-        call(executeAPIQueryActionSaga, a, EventType.ON_PAGE_LOAD),
+        call(executeAPIQueryActionSaga, a, {
+          type: EventType.ON_PAGE_LOAD,
+        }),
       ),
     );
   }

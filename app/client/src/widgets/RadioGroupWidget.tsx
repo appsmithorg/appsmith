@@ -13,12 +13,14 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
+      isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getDerivedPropertiesMap() {
     return {
       selectedOption:
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
+      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {
@@ -32,7 +34,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
-        label={this.props.label}
+        label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
         defaultOptionValue={this.props.defaultOptionValue}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
@@ -70,6 +72,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;
+  isRequired?: boolean;
 }
 
 export default RadioGroupWidget;

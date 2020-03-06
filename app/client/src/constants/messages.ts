@@ -119,3 +119,4 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
 
 export const DELETING_APPLICATION = "Deleting application...";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
+export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
