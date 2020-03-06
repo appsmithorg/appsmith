@@ -161,6 +161,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       widgetName: "FormButton",
       text: "Submit",
+      isDefaultClickDisabled: true,
     },
     FORM_WIDGET: {
       rows: 10,
