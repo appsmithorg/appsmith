@@ -1,21 +1,26 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationNameIdDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.InviteUserRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -49,6 +54,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final GroupService groupService;
     private final InviteUserRepository inviteUserRepository;
     private final UserOrganizationService userOrganizationService;
+    private final ApplicationRepository applicationRepository;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
@@ -70,7 +76,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            EmailSender emailSender,
                            GroupService groupService,
                            InviteUserRepository inviteUserRepository,
-                           UserOrganizationService userOrganizationService) {
+                           UserOrganizationService userOrganizationService,
+                           ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -82,6 +89,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.groupService = groupService;
         this.inviteUserRepository = inviteUserRepository;
         this.userOrganizationService = userOrganizationService;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -486,5 +494,36 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 // This object cast is required to ensure that we send the right object type back to Spring framework.
                 // Doesn't work without this.
                 .map(user -> (UserDetails) user);
+    }
+
+    @Override
+    public Mono<UserProfileDTO> getUserProfile() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    String currentOrganizationId = user.getCurrentOrganizationId();
+                    UserProfileDTO userProfile = new UserProfileDTO();
+                    userProfile.setUser(user);
+
+                    Mono<UserProfileDTO> userProfileDTOMono = organizationService.findById(currentOrganizationId)
+                            .flatMap(org -> {
+                                userProfile.setCurrentOrganization(org);
+
+                                Application applicationExample = new Application();
+                                applicationExample.setOrganizationId(org.getId());
+                                return applicationRepository.findAll(Example.of(applicationExample))
+                                        .map(application -> {
+                                            ApplicationNameIdDTO dto = new ApplicationNameIdDTO();
+                                            dto.setId(application.getId());
+                                            dto.setName(application.getName());
+                                            return dto;
+                                        }).collectList()
+                                        .map(dtos -> {
+                                            userProfile.setApplications(dtos);
+                                            return userProfile;
+
+                                        });
+                            });
+                    return userProfileDTOMono;
+                });
     }
 }
