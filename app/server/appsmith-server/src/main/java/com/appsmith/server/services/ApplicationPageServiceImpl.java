@@ -219,10 +219,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(application -> applicationService.archive(application));
 
         return applicationMono
-                .map(deletedObj -> {
-                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj);
-                    return (Application) deletedObj;
-                });
+                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Application) deletedObj));
     }
 
 }
