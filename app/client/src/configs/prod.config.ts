@@ -19,6 +19,7 @@ export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
   },
   segment: {
     enabled: true,
+    key: "O7rsLdWq7fhJI9rYsj1eatGAjuULTmfP",
   },
   apiUrl: "/api/",
   baseUrl,
