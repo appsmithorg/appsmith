@@ -43,15 +43,13 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function() {
-          if(this.isDirty) {
-            if(this.isRequired) {
-              if(!this.text || this.text.length === 0) {
-                return false
-              }
+          if(this.isRequired) {
+            if(!this.text || this.text.length === 0) {
+              return false
             }
-            if(this.regex) {
-              return new RegExp(this.regex).test(this.text);
-            }
+          }
+          if(this.regex) {
+            return new RegExp(this.regex).test(this.text);
           }
           return true
         }()
@@ -87,7 +85,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   getPageView() {
     const value = this.props.text || "";
-    const isInvalid = "isValid" in this.props && !this.props.isValid;
+    const isInvalid =
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
