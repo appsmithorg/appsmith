@@ -44,15 +44,18 @@ export interface User {
   gender: Gender;
 }
 
+function getApplicationId(location: Location) {
+  const pathSplit = location.pathname.split("/");
+  const applicationsIndex = pathSplit.findIndex(
+    path => path === "applications",
+  );
+  const appId = pathSplit[applicationsIndex + 1];
+
+  return appId;
+}
+
 class AnalyticsUtil {
   static user: any = {};
-  static appData: {
-    appId: string;
-    appName: string;
-  } = {
-    appId: "",
-    appName: "",
-  };
   static initializeHotjar(id: string, sv: string) {
     (function init(h: any, o: any, t: any, j: any, a?: any, r?: any) {
       h.hj =
@@ -133,15 +136,19 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
-    const appData = AnalyticsUtil.appData;
+    const appId = getApplicationId(windowDoc.location);
+    const app = userData.applications.find((app: any) => app.id === appId);
 
     if (userData) {
       finalEventData = {
         ...finalEventData,
         userData: {
+          userId: userData.id,
           email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
-          ...appData,
+          currentOrgId: userData.currentOrganization.id,
+          currentOrgName: userData.currentOrganization.name,
+          appId: appId,
+          appName: app ? app.name : undefined,
         },
       };
     }
@@ -158,12 +165,6 @@ class AnalyticsUtil {
     if (windowDoc.analytics) {
       windowDoc.analytics.identify(userId, userData);
     }
-  }
-  static setAppData(appId: string, appName: string) {
-    AnalyticsUtil.appData = {
-      appId: appId,
-      appName: appName,
-    };
   }
 }
 

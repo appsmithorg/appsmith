@@ -19,14 +19,14 @@ import { HTTP_METHODS, PLUGIN_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getPluginIdOfName } from "selectors/entitiesSelector";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { UserApplication } from "constants/userConstants";
 
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
   formData: RestAction;
   pluginId: string | undefined;
-  currentApplication?: ApplicationPayload;
+  currentApplication: UserApplication;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;

@@ -8,6 +8,7 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
+import { UserApplication } from "constants/userConstants";
 import { AppState } from "reducers";
 import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
@@ -27,7 +28,6 @@ import {
 import {
   ReduxActionTypes,
   PageListPayload,
-  ApplicationPayload,
 } from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
@@ -52,7 +52,7 @@ type EditorProps = {
   errorPublishing: boolean;
   publishedTime?: string;
   isPageSwitching: boolean;
-  currentApplication?: ApplicationPayload;
+  currentApplication: UserApplication;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<EditorProps> {
