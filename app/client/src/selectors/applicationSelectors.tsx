@@ -3,6 +3,7 @@ import { AppState } from "reducers";
 import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Fuse from "fuse.js";
+import { UserApplication } from "constants/userConstants";
 
 const fuzzySearchOptions = {
   keys: ["name"],
@@ -15,8 +16,20 @@ const fuzzySearchOptions = {
 const getApplicationsState = (state: AppState) => state.ui.applications;
 const getApplications = (state: AppState) =>
   state.ui.applications.applicationList;
-export const getCurrentApplication = (state: AppState) =>
-  state.ui.applications.currentApplication;
+export const getCurrentApplication = (state: AppState): UserApplication => {
+  const appId = state.entities.pageList.applicationId;
+  const apps = state.ui.users.current
+    ? state.ui.users.current.applications
+    : [];
+  const app = apps.find(app => app.id === appId);
+
+  return (
+    app || {
+      id: "",
+      name: "",
+    }
+  );
+};
 const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>

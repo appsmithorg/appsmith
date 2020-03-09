@@ -10,9 +10,8 @@ import { fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourcesActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
-import { fetchApplication } from "actions/applicationActions";
-import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
@@ -21,7 +20,6 @@ function* initializeEditorSaga(
   // Step 1: Start getting all the data needed by the
   yield all([
     put(fetchPlugins()),
-    put(fetchApplication(applicationId)),
     put(fetchPageList(applicationId)),
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
@@ -30,20 +28,16 @@ function* initializeEditorSaga(
   // Step 2: Wait for all data to be in the state
   yield all([
     take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
-    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
-  const currentApplication = yield select(
-    (state: AppState) => state.ui.applications.currentApplication,
-  );
+  const currentApplication = yield select(getCurrentApplication);
 
   const appName = currentApplication ? currentApplication.name : "";
   const appId = currentApplication ? currentApplication.id : "";
 
-  AnalyticsUtil.setAppData(appId, appName);
   AnalyticsUtil.logEvent("EDITOR_OPEN", {
     appId: appId,
     appName: appName,
@@ -62,22 +56,17 @@ export function* initializeAppViewerSaga(
   yield all([
     put(fetchActions(applicationId)),
     put(fetchPageList(applicationId)),
-    put(fetchApplication(applicationId)),
   ]);
 
   yield all([
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
-    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
   ]);
 
-  const currentApplication = yield select(
-    (state: AppState) => state.ui.applications.currentApplication,
-  );
+  const currentApplication = yield select(getCurrentApplication);
 
   const appName = currentApplication ? currentApplication.name : "";
   const appId = currentApplication ? currentApplication.id : "";
-  AnalyticsUtil.setAppData(appId, appName);
   AnalyticsUtil.logEvent("PREVIEW_APP", {
     appId: appId,
     appName: appName,
