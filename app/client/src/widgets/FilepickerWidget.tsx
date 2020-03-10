@@ -143,7 +143,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
-      prevProps.maxNumFiles !== this.props.maxFileSize
+      prevProps.maxFileSize !== this.props.maxFileSize
     ) {
       this.refreshUppy(this.props);
     }
