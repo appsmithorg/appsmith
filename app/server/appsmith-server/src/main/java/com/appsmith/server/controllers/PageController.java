@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,8 @@ public class PageController extends BaseController<PageService, Page, String> {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Page>> create(@Valid @RequestBody Page resource) throws AppsmithException {
+    public Mono<ResponseDTO<Page>> create(@Valid @RequestBody Page resource,
+                                          @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return applicationPageService.createPage(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
