@@ -1,1 +1,11 @@
-{}
+{
+  "baseUrl":"http://dev.appsmith.com:3000/",
+
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "results",
+    "overwrite": false,
+    "html": false,
+    "json": true
+  }
+}
