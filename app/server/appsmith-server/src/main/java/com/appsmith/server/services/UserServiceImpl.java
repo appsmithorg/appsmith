@@ -28,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -35,6 +36,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -57,7 +59,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final ApplicationRepository applicationRepository;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
-    private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
+    private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/createPassword?token=%s&email=%s";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
@@ -282,32 +284,47 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // Create an invite token for the user. This token is linked to the email ID and the organization to which the user was invited.
         String token = UUID.randomUUID().toString();
 
-        return sessionUserService.getCurrentUser()
-                .map(reqUser -> {
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+        Mono<InviteUser> inviteUserMono = currentUserMono
+                .map(currentUser -> {
                     log.debug("Got request to invite user {} by user: {} for org: {}",
-                            user.getEmail(), reqUser.getEmail(), reqUser.getCurrentOrganizationId());
+                            user.getEmail(), currentUser.getEmail(), currentUser.getCurrentOrganizationId());
 
                     InviteUser inviteUser = new InviteUser();
                     inviteUser.setEmail(user.getEmail());
-                    inviteUser.setCurrentOrganizationId(reqUser.getCurrentOrganizationId());
+                    inviteUser.setCurrentOrganizationId(currentUser.getCurrentOrganizationId());
                     inviteUser.setToken(passwordEncoder.encode(token));
                     inviteUser.setGroupIds(user.getGroupIds());
                     inviteUser.setPermissions(user.getPermissions());
-                    inviteUser.setInviterUserId(reqUser.getId());
+                    inviteUser.setInviterUserId(currentUser.getId());
                     return inviteUser;
                 })
                 // Save the invited user in the DB
-                .flatMap(inviteUserRepository::save)
-                // Send an email to the invited user with the token
-                .map(inviteUser -> {
+                .flatMap(inviteUserRepository::save);
+
+        Mono<Organization> currentOrgMono = currentUserMono
+                .flatMap(currentUser -> organizationService.findById(currentUser.getCurrentOrganizationId()));
+
+        // Send an email to the invited user with the token
+        return Mono.zip(currentUserMono, inviteUserMono, currentOrgMono)
+                .map(tuple -> {
+                    User currentUser = tuple.getT1();
+                    InviteUser inviteUser = tuple.getT2();
+                    Organization currentUserOrg = tuple.getT3();
                     log.debug("Going to send email for invite user to {} with token {}", inviteUser.getEmail(), token);
                     try {
                         String inviteUrl = String.format(INVITE_USER_CLIENT_URL_FORMAT, originHeader,
                                 URLEncoder.encode(token, StandardCharsets.UTF_8),
                                 URLEncoder.encode(inviteUser.getEmail(), StandardCharsets.UTF_8));
-                        Map<String, String> params = Map.of(
-                                "token", token,
-                                "inviteUrl", inviteUrl);
+                        Map<String, String> params = new HashMap<>();
+                        params.put("token", token);
+                        params.put("inviteUrl", inviteUrl);
+                        if (!StringUtils.isEmpty(currentUser.getName())) {
+                            params.put("Inviter_First_Name", currentUser.getName());
+                        } else {
+                            params.put("Inviter_First_Name", currentUser.getEmail());
+                        }
+                        params.put("inviter_org_name", currentUserOrg.getName());
                         String emailBody = emailSender.replaceEmailTemplate(INVITE_USER_EMAIL_TEMPLATE, params);
                         emailSender.sendMail(inviteUser.getEmail(), "Invite for Appsmith", emailBody);
                     } catch (IOException e) {
@@ -315,7 +332,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     return inviteUser;
                 });
-
     }
 
     /**
@@ -389,6 +405,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }).flatMap(result -> result);
     }
 
+    @Override
+    public Mono<User> create(User user) {
+        return createUser(user, null);
+    }
+
     /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
      * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
@@ -400,7 +421,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<User> create(User user) {
+    public Mono<User> createUser(User user, String originHeader) {
+        if (originHeader == null || originHeader.isBlank()) {
+            // Default to the production link
+            originHeader = "https://app.appsmith.com";
+        }
+        final String finalOriginHeader = originHeader;
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (LoginSource.FORM.equals(user.getSource())) {
@@ -417,8 +443,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             firstName = user.getEmail().split("@")[0];
         }
 
-        String personalWorkspaceName = firstName + "'s Personal Workspace";
-        personalOrg.setName(personalWorkspaceName);
+        String personalOrganizationName = firstName + "'s Personal Organization";
+        personalOrg.setName(personalOrganizationName);
 
         // Save the new user
         Mono<User> savedUserMono = super.create(user);
@@ -433,7 +459,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .map(savedUser -> {
                     // Send an email to the user welcoming them to the Appsmith platform
                     try {
-                        Map<String, String> params = Map.of("personalWorkspaceName", personalWorkspaceName);
+                        Map<String, String> params = new HashMap<>();
+                        params.put("personalOrganizationName", personalOrganizationName);
+                        params.put("firstName", savedUser.getName());
+                        // TODO: Configure this link for each environment. For now, hard-coding it to app.appsmith.com for production
+                        params.put("appsmithLink", finalOriginHeader);
                         String emailBody = emailSender.replaceEmailTemplate(WELCOME_USER_EMAIL_TEMPLATE, params);
                         emailSender.sendMail(savedUser.getEmail(), "Welcome to Appsmith", emailBody);
                     } catch (IOException e) {

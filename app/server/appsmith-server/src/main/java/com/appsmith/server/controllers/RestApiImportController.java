@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -43,7 +44,9 @@ public class RestApiImportController {
     public Mono<ResponseDTO<Action>> create(@Valid @RequestBody Object input,
                                             @RequestParam RestApiImporterType type,
                                             @RequestParam String pageId,
-                                            @RequestParam String name) {
+                                            @RequestParam String name,
+                                            @RequestHeader(name = "Origin", required = false) String originHeader
+                                            ) {
         log.debug("Going to import API");
         ApiImporter service;
 
@@ -61,7 +64,8 @@ public class RestApiImportController {
 
     @PostMapping("/postman")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input, @RequestParam String type) {
+    public Mono<ResponseDTO<TemplateCollection>> importPostmanCollection(@RequestBody Object input,
+                                                                         @RequestParam String type) {
         return Mono.just(postmanImporterService.importPostmanCollection(input))
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
