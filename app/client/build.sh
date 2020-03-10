@@ -11,5 +11,5 @@ GIT_BRANCH=$(git branch  --no-color  | grep -E '^\*' | sed 's/\*[^a-z]*//g')
 
 REACT_APP_SENTRY_RELEASE=$GIT_SHA craco --max-old-space-size=2048 build --config craco.build.config.js
 
-rm $PWD/build/static/js/*.js.map
+rm ./build/static/js/*.js.map
 echo "build finished"
