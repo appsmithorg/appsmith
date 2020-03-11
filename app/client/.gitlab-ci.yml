@@ -60,6 +60,8 @@ cypress-test:
 
 docker-package-release:
   image: docker:dind
+  services:
+    - docker:dind  
   stage: package
   script:
     - docker build --build-arg REACT_APP_ENVIRONMENT=STAGING --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:release .
@@ -70,6 +72,8 @@ docker-package-release:
 
 docker-package-prod:
   image: docker:dind
+  services:
+    - docker:dind
   stage: package
   script: 
     - docker build --build-arg REACT_APP_ENVIRONMENT=PRODUCTION --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:latest .
