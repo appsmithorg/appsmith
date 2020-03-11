@@ -23,7 +23,7 @@ class FilePickerComponent extends React.Component<
   };
 
   render() {
-    let label = "Select files";
+    let label = this.props.label;
     if (this.props.files && this.props.files.length) {
       label = `${this.props.files.length} files selected`;
     }
