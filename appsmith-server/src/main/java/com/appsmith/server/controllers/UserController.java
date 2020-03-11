@@ -125,8 +125,9 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PutMapping("/invite/confirm")
-    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody InviteUser inviteUser) {
-        return service.confirmInviteUser(inviteUser)
+    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody InviteUser inviteUser,
+                                                        @RequestHeader("Origin") String originHeader) {
+        return service.confirmInviteUser(inviteUser, originHeader)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }
