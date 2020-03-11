@@ -1,0 +1,79 @@
+.only-default: &only-default
+  only:
+    - release
+    - master
+    - merge_requests
+
+image: cypress/base:10.16.3
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
+  DOCKER_DRIVER: overlay
+  DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm
+    - cache/Cypress
+    - node_modules
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+react-build:
+  stage: build
+  script:
+    - yarn install
+    # show where the Cypress test runner binaries are cached
+    - $(npm bin)/cypress cache path
+    # show all installed versions of Cypress binary
+    - $(npm bin)/cypress cache list
+    - $(npm bin)/cypress verify
+  only:
+    - release
+    - merge_requests
+
+cypress-test:
+  stage: test
+  script:
+    - REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_BASE_URL="https://release-api.appsmith.com" GIT_SHA=$(git rev-parse --short HEAD) yarn build
+    - yarn global add serve
+    - serve -s build -p 3000 &
+    # This is required in order to ensure that all the test cases pass
+    - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
+    - yarn test
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/
+      - cypress/screenshots
+      - cypress/videos
+  only:
+    # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
+    - release
+    - merge_requests
+
+docker-package-release:
+  image: docker:dind
+  stage: package
+  script:
+    - docker build --build-arg REACT_APP_ENVIRONMENT=STAGING --build-arg GIT_SHA=$(git rev-parse --short HEAD) -t appsmith/appsmith-editor:release .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:release
+  only:
+    - release
+
+docker-package-prod:
+  image: docker:dind
+  stage: package
+  script: 
+    - docker build --build-arg REACT_APP_ENVIRONMENT=PRODUCTION --build-arg GIT_SHA=$(git rev-parse --short HEAD) -t appsmith/appsmith-editor:latest .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:latest
+  only:
+    - master
