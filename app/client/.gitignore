@@ -28,3 +28,5 @@ yarn-error.log*
 /src/assets/icons/fonts/*
 .idea
 .storybook-out/
+cypress/videos
+results/
