@@ -359,7 +359,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<Boolean> confirmInviteUser(InviteUser inviteUser) {
+    public Mono<Boolean> confirmInviteUser(InviteUser inviteUser, String originHeader) {
         if (inviteUser.getToken() == null || inviteUser.getToken().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "token"));
         }
@@ -397,7 +397,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             log.debug("The invited user {} doesn't exist in the system. Creating a new record", inviteUser.getEmail());
             // The user doesn't exist in the system. Create a new user object
             newUser.setPassword(inviteUser.getPassword());
-            return this.create(newUser)
+            return this.createUser(newUser, originHeader)
                     .flatMap(createdUser -> userOrganizationService.addUserToOrganization(newUser.getCurrentOrganizationId(), createdUser))
                     .thenReturn(newUser)
                     .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
