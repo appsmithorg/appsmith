@@ -11,16 +11,25 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Slf4j
 public class ProviderServiceImpl extends BaseService<ProviderRepository, Provider, String> implements ProviderService {
 
+    private static final List<String> CATEGORIES = Arrays.asList("Business","Visual Recognition","Location","Science",
+            "Food","Travel, Transportation","Music","Tools","Text Analysis","Weather","Gaming","SMS","Events","Health, Fitness",
+            "Payments","Financial","Translation","Storage","Logistics","Database","Search","Reward","Mapping","Machine Learning",
+            "Email","News, Media","Video, Images","eCommerce","Medical","Devices","Business Software","Advertising","Education",
+            "Media","Social","Commerce","Communication","Other","Monitoring","Energy");
+
+    private static final String DEFAULT_CATEGORY = "Business Software";
     public ProviderServiceImpl(Scheduler scheduler,
                                Validator validator,
                                MongoConverter mongoConverter,
@@ -39,12 +48,22 @@ public class ProviderServiceImpl extends BaseService<ProviderRepository, Provide
             providerExample.setName(params.getFirst(FieldName.NAME));
         }
 
+        List<String> categories = new ArrayList<>();
         if (params.getFirst(FieldName.CATEGORY) != null) {
-            List<String> categories = new ArrayList<>();
             categories.add(params.getFirst(FieldName.CATEGORY));
-            providerExample.setCategories(categories);
+
+        } else {
+            // No category has been provided. Set the default category.
+            categories.add(DEFAULT_CATEGORY);
         }
+        providerExample.setCategories(categories);
 
         return repository.findAll(Example.of(providerExample), sort);
+    }
+
+    @Override
+    public Flux<String> getAllCategories() {
+        return Mono.just(CATEGORIES)
+                .flatMapMany(Flux::fromIterable);
     }
 }
