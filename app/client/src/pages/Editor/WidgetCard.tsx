@@ -76,10 +76,11 @@ const WidgetCard = (props: CardProps) => {
       showPropertyPane && showPropertyPane(undefined);
       setIsDragging && setIsDragging(true);
     },
-    end: () => {
+    end: (widget, monitor) => {
       AnalyticsUtil.logEvent("WIDGET_CARD_DROP", {
         widgetType: props.details.type,
         widgetName: props.details.widgetCardName,
+        didDrop: monitor.didDrop(),
       });
       setIsDragging && setIsDragging(false);
     },

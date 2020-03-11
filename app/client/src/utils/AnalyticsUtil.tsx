@@ -1,5 +1,7 @@
 // Events
 export type EventName =
+  | "LOGIN_CLICK"
+  | "SIGNUP_CLICK"
   | "PAGE_VIEW"
   | "ADD_COMPONENT"
   | "DELETE_COMPONENT"
@@ -23,8 +25,11 @@ export type EventName =
   | "EDITOR_OPEN"
   | "CREATE_API"
   | "SAVE_API"
+  | "SAVE_API_CLICK"
   | "RUN_API"
+  | "RUN_API_CLICK"
   | "DELETE_API"
+  | "DELETE_API_CLICK"
   | "DUPLICATE_API"
   | "MOVE_API"
   | "API_SELECT"
@@ -34,7 +39,10 @@ export type EventName =
   | "CREATE_APP_CLICK"
   | "CREATE_APP"
   | "CREATE_DATA_SOURCE_CLICK"
-  | "SAVE_DATA_SOURCE";
+  | "SAVE_DATA_SOURCE"
+  | "NAVIGATE"
+  | "PAGE_LOAD"
+  | "NAVIGATE_EDITOR";
 
 export type Gender = "MALE" | "FEMALE";
 export interface User {
@@ -55,7 +63,7 @@ function getApplicationId(location: Location) {
 }
 
 class AnalyticsUtil {
-  static user: any = {};
+  static user: any = undefined;
   static initializeHotjar(id: string, sv: string) {
     (function init(h: any, o: any, t: any, j: any, a?: any, r?: any) {
       h.hj =
@@ -137,9 +145,10 @@ class AnalyticsUtil {
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
     const appId = getApplicationId(windowDoc.location);
-    const app = userData.applications.find((app: any) => app.id === appId);
-
     if (userData) {
+      const app = (userData.applications || []).find(
+        (app: any) => app.id === appId,
+      );
       finalEventData = {
         ...finalEventData,
         userData: {

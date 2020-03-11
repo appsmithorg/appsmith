@@ -167,12 +167,14 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
-      if (monitor.didDrop()) {
+      const didDrop = monitor.didDrop();
+      if (didDrop) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
       AnalyticsUtil.logEvent("WIDGET_DROP", {
         widgetName: props.widgetName,
         widgetType: props.type,
+        didDrop: didDrop,
       });
       // Take this to the bottom of the stack. So that it runs last.
       setTimeout(() => setIsDragging && setIsDragging(false), 0);

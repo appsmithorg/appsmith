@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, useRouteMatch, useLocation } from "react-router-dom";
+import { Switch, useRouteMatch, useLocation } from "react-router-dom";
 import Login from "./Login";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { animated, useTransition } from "react-spring";
@@ -8,6 +8,7 @@ import SignUp from "./SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
 import CreatePassword from "./CreatePassword";
+import AppRoute from "pages/common/AppRoute";
 const AnimatedAuthCard = animated(AuthContainer);
 export const UserAuth = () => {
   const { path } = useRouteMatch();
@@ -24,22 +25,35 @@ export const UserAuth = () => {
         <Centered>
           <AuthCard>
             <Switch location={location}>
-              <Route exact path={`${path}/login`} component={Login} />
-              <Route exact path={`${path}/signup`} component={SignUp} />
-              <Route
+              <AppRoute
+                exact
+                path={`${path}/login`}
+                component={Login}
+                name={"Login"}
+              />
+              <AppRoute
+                exact
+                path={`${path}/signup`}
+                component={SignUp}
+                name={"SignUp"}
+              />
+              <AppRoute
                 exact
                 path={`${path}/resetPassword`}
                 component={ResetPassword}
+                name={"ResetPassword"}
               />
-              <Route
+              <AppRoute
                 exact
                 path={`${path}/forgotPassword`}
                 component={ForgotPassword}
+                name={"ForgotPassword"}
               />
-              <Route
+              <AppRoute
                 exact
                 path={`${path}/createPassword`}
                 component={CreatePassword}
+                name={"CreatePassword"}
               />
             </Switch>
           </AuthCard>

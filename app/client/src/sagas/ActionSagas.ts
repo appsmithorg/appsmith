@@ -284,10 +284,16 @@ export function* executeActionTriggers(
       yield call(executeAPIQueryActionSaga, trigger.payload, event);
       break;
     case "NAVIGATE_TO":
+      AnalyticsUtil.logEvent("NAVIGATE", {
+        pageName: trigger.payload.pageName,
+      });
       yield call(navigateActionSaga, trigger.payload, event);
       break;
     case "NAVIGATE_TO_URL":
       if (trigger.payload.url) {
+        AnalyticsUtil.logEvent("NAVIGATE", {
+          navUrl: trigger.payload.url,
+        });
         window.location.href = trigger.payload.url;
         if (event.callback) event.callback({ success: true });
       } else {

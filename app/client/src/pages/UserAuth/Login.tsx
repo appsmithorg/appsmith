@@ -48,6 +48,7 @@ import {
   AuthCardNavLink,
   AuthCardBody,
 } from "./StyledComponents";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -143,11 +144,17 @@ export const Login = (props: LoginFormProps) => {
               intent="primary"
               filled
               size="large"
+              onClick={() => {
+                AnalyticsUtil.logEvent("LOGIN_CLICK", {
+                  loginMethod: "EMAIL",
+                });
+              }}
             />
           </FormActions>
         </SpacedSubmitForm>
         <Divider />
         <ThirdPartyAuth
+          type={"SIGNIN"}
           logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
         />
       </AuthCardBody>
