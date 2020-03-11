@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Route,
-  Switch,
-  withRouter,
-  RouteComponentProps,
-} from "react-router-dom";
+import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
 import {
   API_EDITOR_ID_URL,
@@ -15,6 +10,7 @@ import {
   APIEditorRouteParams,
 } from "constants/routes";
 import styled from "styled-components";
+import AppRoute from "pages/common/AppRoute";
 
 const Wrapper = styled.div<{ isVisible: boolean; showOnlySidebar?: boolean }>`
   position: absolute;
@@ -105,8 +101,18 @@ class EditorsRouter extends React.Component<
           onClick={this.preventClose}
         >
           <Switch>
-            <Route exact path={API_EDITOR_URL()} component={ApiEditor} />
-            <Route exact path={API_EDITOR_ID_URL()} component={ApiEditor} />
+            <AppRoute
+              exact
+              path={API_EDITOR_URL()}
+              component={ApiEditor}
+              name={"ApiEditor"}
+            />
+            <AppRoute
+              exact
+              path={API_EDITOR_ID_URL()}
+              component={ApiEditor}
+              name={"ApiEditor"}
+            />
           </Switch>
         </DrawerWrapper>
       </Wrapper>

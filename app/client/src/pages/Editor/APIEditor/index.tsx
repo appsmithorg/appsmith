@@ -20,6 +20,8 @@ import _ from "lodash";
 import { getPluginIdOfName } from "selectors/entitiesSelector";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { UserApplication } from "constants/userConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentPageName } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -27,6 +29,8 @@ interface ReduxStateProps {
   formData: RestAction;
   pluginId: string | undefined;
   currentApplication: UserApplication;
+  currentPageName: string | undefined;
+  pages: any;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -34,6 +38,11 @@ interface ReduxActionProps {
   runAction: (id: string, paginationField: PaginationField) => void;
   deleteAction: (id: string, name: string) => void;
   updateAction: (data: RestAction) => void;
+}
+
+function getPageName(pages: any, pageId: string) {
+  const page = pages.find((page: any) => page.pageId === pageId);
+  return page ? page.pageName : "";
 }
 
 type Props = ReduxActionProps &
@@ -55,15 +64,33 @@ class ApiEditor extends React.Component<Props> {
   };
 
   handleSaveClick = () => {
+    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    AnalyticsUtil.logEvent("SAVE_API_CLICK", {
+      apiName: this.props.formData.name,
+      apiID: this.props.match.params.apiId,
+      pageName: pageName,
+    });
     this.props.submitForm(API_EDITOR_FORM_NAME);
   };
   handleDeleteClick = () => {
+    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
+      apiName: this.props.formData.name,
+      apiID: this.props.match.params.apiId,
+      pageName: pageName,
+    });
     this.props.deleteAction(
       this.props.match.params.apiId,
       this.props.formData.name,
     );
   };
   handleRunClick = (paginationField?: PaginationField) => {
+    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    AnalyticsUtil.logEvent("RUN_API_CLICK", {
+      apiName: this.props.formData.name,
+      apiID: this.props.match.params.apiId,
+      pageName: pageName,
+    });
     this.props.runAction(this.props.match.params.apiId, paginationField);
   };
 
@@ -123,6 +150,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
   currentApplication: getCurrentApplication(state),
+  currentPageName: getCurrentPageName(state),
+  pages: state.entities.pageList.pages,
   formData: getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction,
 });
 

@@ -25,6 +25,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -106,10 +107,16 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               );
               return {
                 content: page.pageName,
-                onSelect: () =>
+                onSelect: () => {
+                  AnalyticsUtil.logEvent("PAGE_SWITCH", {
+                    pageName: page.pageName,
+                    pageId: page.pageId,
+                    mode: "EDIT",
+                  });
                   getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                     path: url,
-                  }),
+                  });
+                },
                 shouldCloseDropdown: true,
                 active: page.pageId === props.currentPageId,
               };

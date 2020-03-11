@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { Switch, Route } from "react-router-dom";
+import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
@@ -32,6 +32,7 @@ import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
+import AppRoute from "pages/common/AppRoute";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -107,10 +108,12 @@ class AppViewer extends Component<
               <SideNav items={items} active={this.props.currentDSLPageId} />
             </AppViewerSideNavWrapper>
             <Switch>
-              <Route
+              <AppRoute
                 path={getApplicationViewerPageURL()}
                 exact
                 component={AppViewerPageContainer}
+                name={"AppViewerPageContainer"}
+                logDisable
               />
             </Switch>
           </AppViewerBody>

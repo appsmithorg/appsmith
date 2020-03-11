@@ -159,7 +159,7 @@ type EditorSidebarComponentProps = {
   onItemSelected: (itemId: string) => void;
   moveItem: (itemId: string, destinationPageId: string) => void;
   copyItem: (itemId: string, destinationPageId: string) => void;
-  deleteItem: (itemId: string, itemName: string) => void;
+  deleteItem: (itemId: string, itemName: string, pageName: string) => void;
 };
 
 type Props = ReduxStateProps &
@@ -390,6 +390,7 @@ class EditorSidebar extends React.Component<Props, State> {
                                                     this.props.deleteItem(
                                                       item.id,
                                                       item.name,
+                                                      page.name,
                                                     ),
                                                   label: "Delete",
                                                   intent: "danger",

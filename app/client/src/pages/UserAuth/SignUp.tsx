@@ -41,6 +41,7 @@ import Button from "components/editorComponents/Button";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import { signupFormSubmitHandler, SignupFormValues } from "./helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -119,12 +120,18 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
               intent="primary"
               filled
               size="large"
+              onClick={() => {
+                AnalyticsUtil.logEvent("SIGNUP_CLICK", {
+                  signupMethod: "EMAIL",
+                });
+              }}
             />
           </FormActions>
         </SpacedForm>
         <Divider />
         <ThirdPartyAuth
           logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
+          type={"SIGNUP"}
         />
       </AuthCardBody>
 
