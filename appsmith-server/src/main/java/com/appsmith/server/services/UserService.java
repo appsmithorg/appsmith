@@ -22,7 +22,7 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> verifyInviteToken(String email, String token);
 
-    Mono<Boolean> confirmInviteUser(InviteUser inviteUser);
+    Mono<Boolean> confirmInviteUser(InviteUser inviteUser, String originHeader);
 
     Mono<UserProfileDTO> getUserProfile();
 
