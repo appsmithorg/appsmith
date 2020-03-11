@@ -78,7 +78,8 @@ public class ItemServiceImpl implements ItemService {
 
         // Set Action Fields
         action.setActionConfiguration(apiTemplate.getActionConfiguration());
-        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null) {
+        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null &&
+                apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody() != null ) {
             action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
         }
 
