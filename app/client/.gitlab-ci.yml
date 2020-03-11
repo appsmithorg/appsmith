@@ -41,7 +41,7 @@ react-build:
 cypress-test:
   stage: test
   script:
-    - REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_BASE_URL="https://release-api.appsmith.com" GIT_SHA=$(git rev-parse --short HEAD) yarn build
+    - REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_BASE_URL="https://release-api.appsmith.com" GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
     - yarn global add serve
     - serve -s build -p 3000 &
     # This is required in order to ensure that all the test cases pass
@@ -62,7 +62,7 @@ docker-package-release:
   image: docker:dind
   stage: package
   script:
-    - docker build --build-arg REACT_APP_ENVIRONMENT=STAGING --build-arg GIT_SHA=$(git rev-parse --short HEAD) -t appsmith/appsmith-editor:release .
+    - docker build --build-arg REACT_APP_ENVIRONMENT=STAGING --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:release .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
     - docker push appsmith/appsmith-editor:release
   only:
@@ -72,7 +72,7 @@ docker-package-prod:
   image: docker:dind
   stage: package
   script: 
-    - docker build --build-arg REACT_APP_ENVIRONMENT=PRODUCTION --build-arg GIT_SHA=$(git rev-parse --short HEAD) -t appsmith/appsmith-editor:latest .
+    - docker build --build-arg REACT_APP_ENVIRONMENT=PRODUCTION --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:latest .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
     - docker push appsmith/appsmith-editor:latest
   only:
