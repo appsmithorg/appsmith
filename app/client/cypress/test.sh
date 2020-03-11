@@ -1,1 +1,1 @@
-npx cypress run CYPRESS_BASE_URL='http://dev.appsmith.com:3000/' --spec "cypress/integration/OnBoarding/Login_spec.js"
+$(npm bin)/cypress run CYPRESS_BASE_URL='http://dev.appsmith.com:3000/' --spec "cypress/integration/OnBoarding/Login_spec.js"
