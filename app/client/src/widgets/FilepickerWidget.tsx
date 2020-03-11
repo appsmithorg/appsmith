@@ -48,7 +48,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
       allowMultipleUploads: true,
       debug: false,
       restrictions: {
-        maxFileSize: props.maxFileSize ? props.maxFileSize * 1000 * 1000 : null,
+        maxFileSize: props.maxFileSize ? props.maxFileSize * 1024 * 1024 : null,
         maxNumberOfFiles: props.maxNumFiles,
         minNumberOfFiles: null,
         allowedFileTypes:
