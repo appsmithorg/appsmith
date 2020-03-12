@@ -62,8 +62,7 @@ public class ProviderServiceImpl extends BaseService<ProviderRepository, Provide
     }
 
     @Override
-    public Flux<String> getAllCategories() {
-        return Mono.just(CATEGORIES)
-                .flatMapMany(Flux::fromIterable);
+    public Mono<List<String>> getAllCategories() {
+        return Mono.just(CATEGORIES);
     }
 }
