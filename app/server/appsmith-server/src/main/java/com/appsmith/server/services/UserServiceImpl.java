@@ -53,7 +53,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
-    private final GroupService groupService;
     private final InviteUserRepository inviteUserRepository;
     private final UserOrganizationService userOrganizationService;
     private final ApplicationRepository applicationRepository;
@@ -63,6 +62,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/createPassword?token=%s&email=%s";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
+    // We default the origin header to the production deployment of the client's URL
+    private static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -76,7 +77,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
-                           GroupService groupService,
                            InviteUserRepository inviteUserRepository,
                            UserOrganizationService userOrganizationService,
                            ApplicationRepository applicationRepository) {
@@ -88,7 +88,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
-        this.groupService = groupService;
         this.inviteUserRepository = inviteUserRepository;
         this.userOrganizationService = userOrganizationService;
         this.applicationRepository = applicationRepository;
@@ -281,10 +280,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        // Create an invite token for the user. This token is linked to the email ID and the organization to which the user was invited.
+        // Create an invite token for the user. This token is linked to the email ID and the organization to which the
+        // user was invited.
         String token = UUID.randomUUID().toString();
 
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+        // Caching the response from sessionUserService because it's re-used multiple times in this flow
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
         Mono<InviteUser> inviteUserMono = currentUserMono
                 .map(currentUser -> {
                     log.debug("Got request to invite user {} by user: {} for org: {}",
@@ -424,7 +425,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<User> createUser(User user, String originHeader) {
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
-            originHeader = "https://app.appsmith.com";
+            originHeader = DEFAULT_ORIGIN_HEADER;
         }
         final String finalOriginHeader = originHeader;
 
@@ -462,7 +463,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         Map<String, String> params = new HashMap<>();
                         params.put("personalOrganizationName", personalOrganizationName);
                         params.put("firstName", savedUser.getName());
-                        // TODO: Configure this link for each environment. For now, hard-coding it to app.appsmith.com for production
                         params.put("appsmithLink", finalOriginHeader);
                         String emailBody = emailSender.replaceEmailTemplate(WELCOME_USER_EMAIL_TEMPLATE, params);
                         emailSender.sendMail(savedUser.getEmail(), "Welcome to Appsmith", emailBody);
