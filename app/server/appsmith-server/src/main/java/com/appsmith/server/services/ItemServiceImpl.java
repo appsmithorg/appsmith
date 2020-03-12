@@ -67,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
         action.setName(addItemToPageDTO.getName());
         action.setPageId(addItemToPageDTO.getPageId());
         action.setTemplateId(apiTemplate.getId());
+        action.setProviderId(apiTemplate.getProviderId());
 
         Documentation documentation = new Documentation();
         documentation.setText(apiTemplate.getApiTemplateConfiguration().getDocumentation());
