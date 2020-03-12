@@ -12,7 +12,10 @@ import { theme } from "constants/DefaultTheme";
 import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
-import { getCanvasWidgetDsl } from "selectors/editorSelectors";
+import {
+  getCanvasWidgetDsl,
+  getCurrentPageName,
+} from "selectors/editorSelectors";
 
 const Section = styled.section`
   background: ${props => props.theme.colors.bodyBG};
@@ -25,6 +28,7 @@ const Section = styled.section`
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
   widgets?: ContainerWidgetProps<WidgetProps>;
+  currentPageName?: string;
   fetchPage: (pageId: string) => void;
 } & RouteComponentProps<AppViewerRouteParams>;
 
@@ -77,7 +81,11 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     } else if (!this.props.isFetchingPage && this.props.widgets) {
       return (
         <Section>
-          <AppPage dsl={this.props.widgets} />
+          <AppPage
+            dsl={this.props.widgets}
+            pageId={this.props.match.params.pageId}
+            pageName={this.props.currentPageName}
+          />
         </Section>
       );
     }
@@ -87,6 +95,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 const mapStateToProps = (state: AppState) => ({
   isFetchingPage: getIsFetchingPage(state),
   widgets: getCanvasWidgetDsl(state),
+  currentPageName: getCurrentPageName(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

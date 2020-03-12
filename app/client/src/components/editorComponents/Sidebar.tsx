@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router";
+import { Switch } from "react-router";
 import styled from "styled-components";
 import {
   API_EDITOR_URL,
@@ -10,6 +10,7 @@ import {
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import ApiSidebar from "pages/Editor/ApiSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
+import AppRoute from "pages/common/AppRoute";
 
 const SidebarWrapper = styled.div`
   background-color: ${props => props.theme.colors.paneBG};
@@ -22,13 +23,29 @@ export const Sidebar = () => {
   return (
     <SidebarWrapper>
       <Switch>
-        <Route exact path={BUILDER_URL} component={WidgetSidebar} />
-        <Route exact path={API_EDITOR_URL()} component={ApiSidebar} />
-        <Route exact path={API_EDITOR_ID_URL()} component={ApiSidebar} />
-        <Route
+        <AppRoute
+          exact
+          path={BUILDER_URL}
+          component={WidgetSidebar}
+          name={"WidgetSidebar"}
+        />
+        <AppRoute
+          exact
+          path={API_EDITOR_URL()}
+          component={ApiSidebar}
+          name={"ApiSidebar"}
+        />
+        <AppRoute
+          exact
+          path={API_EDITOR_ID_URL()}
+          component={ApiSidebar}
+          name={"ApiSidebar"}
+        />
+        <AppRoute
           exact
           path={PAGE_LIST_EDITOR_URL()}
           component={PageListSidebar}
+          name={"PageListSidebar"}
         />
       </Switch>
     </SidebarWrapper>

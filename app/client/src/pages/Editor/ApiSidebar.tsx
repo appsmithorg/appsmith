@@ -138,7 +138,12 @@ class ApiSidebar extends React.Component<Props> {
     this.props.copyAction(itemId, destinationPageId, name);
   };
 
-  handleDelete = (itemId: string, itemName: string) => {
+  handleDelete = (itemId: string, itemName: string, pageName: string) => {
+    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
+      apiId: itemId,
+      apiName: itemName,
+      pageName: pageName,
+    });
     this.props.deleteAction(itemId, itemName);
   };
 

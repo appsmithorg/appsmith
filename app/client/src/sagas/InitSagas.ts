@@ -63,15 +63,6 @@ export function* initializeAppViewerSaga(
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
 
-  const currentApplication = yield select(getCurrentApplication);
-
-  const appName = currentApplication ? currentApplication.name : "";
-  const appId = currentApplication ? currentApplication.id : "";
-  AnalyticsUtil.logEvent("PREVIEW_APP", {
-    appId: appId,
-    appName: appName,
-  });
-
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
   });

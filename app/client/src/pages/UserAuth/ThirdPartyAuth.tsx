@@ -5,6 +5,7 @@ import {
   SocialLoginType,
 } from "constants/SocialLogin";
 import { IntentColors, getBorderCSSShorthand } from "constants/DefaultTheme";
+import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -60,13 +61,27 @@ export const SocialLoginTypes: Record<string, string> = {
   GITHUB: "github",
 };
 
+type SignInType = "SIGNIN" | "SIGNUP";
+
 const SocialLoginButton = (props: {
   logo: string;
   name: string;
   url: string;
+  type: SignInType;
 }) => {
   return (
-    <StyledSocialLoginButton href={props.url}>
+    <StyledSocialLoginButton
+      href={props.url}
+      onClick={() => {
+        let eventName: EventName = "LOGIN_CLICK";
+        if (props.type === "SIGNUP") {
+          eventName = "SIGNUP_CLICK";
+        }
+        AnalyticsUtil.logEvent(eventName, {
+          loginMethod: props.name.toUpperCase(),
+        });
+      }}
+    >
       <div>
         <img alt={` ${props.name} login`} src={props.logo} />
       </div>
@@ -75,10 +90,19 @@ const SocialLoginButton = (props: {
   );
 };
 
-export const ThirdPartyAuth = (props: { logins: SocialLoginType[] }) => {
+export const ThirdPartyAuth = (props: {
+  logins: SocialLoginType[];
+  type: SignInType;
+}) => {
   const socialLoginButtons = getSocialLoginButtonProps(props.logins).map(
     item => {
-      return <SocialLoginButton key={item.name} {...item}></SocialLoginButton>;
+      return (
+        <SocialLoginButton
+          key={item.name}
+          {...item}
+          type={props.type}
+        ></SocialLoginButton>
+      );
     },
   );
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;

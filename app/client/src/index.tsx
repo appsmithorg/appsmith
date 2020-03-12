@@ -5,14 +5,14 @@ import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
 import "./index.css";
 import * as serviceWorker from "./serviceWorker";
-import { Router, Route, Switch, Redirect } from "react-router-dom";
+import { Router, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 
 import { appInitializer } from "utils/AppsmithUtils";
-import ProtectedRoute from "./pages/common/ProtectedRoute";
+import AppRoute from "./pages/common/AppRoute";
 import { Slide, ToastContainer } from "react-toastify";
 import store from "./store";
 import {
@@ -64,20 +64,54 @@ ReactDOM.render(
         <Router history={history}>
           <Suspense fallback={loadingIndicator}>
             <Switch>
-              <ProtectedRoute exact path={BASE_URL} component={App} />
-              <ProtectedRoute path={ORG_URL} component={Organization} />
-              <ProtectedRoute exact path={USERS_URL} component={Users} />
-              <Route path={USER_AUTH_URL} component={UserAuth} />
+              <AppRoute
+                exact
+                path={BASE_URL}
+                component={App}
+                name={"App"}
+                routeProtected
+              />
+              <AppRoute
+                path={ORG_URL}
+                component={Organization}
+                name={"Organisation"}
+                routeProtected
+              />
+              <AppRoute
+                exact
+                path={USERS_URL}
+                component={Users}
+                name={"Users"}
+                routeProtected
+              />
+              <AppRoute
+                path={USER_AUTH_URL}
+                component={UserAuth}
+                name={"UserAuth"}
+              />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <ProtectedRoute
+              <AppRoute
                 exact
                 path={APPLICATIONS_URL}
                 component={Applications}
+                name={"Home"}
+                routeProtected
               />
-              <ProtectedRoute path={BUILDER_URL} component={Editor} />
-              <ProtectedRoute path={APP_VIEW_URL} component={AppViewer} />
-              <Route component={PageNotFound} />
+              <AppRoute
+                path={BUILDER_URL}
+                component={Editor}
+                name={"Editor"}
+                routeProtected
+              />
+              <AppRoute
+                path={APP_VIEW_URL}
+                component={AppViewer}
+                name={"AppViewer"}
+                routeProtected
+                logDisable
+              />
+              <AppRoute component={PageNotFound} name={"PageNotFound"} />
             </Switch>
           </Suspense>
         </Router>
