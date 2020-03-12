@@ -38,12 +38,12 @@ import {
   deleteActionSuccess,
   executeApiActionRequest,
   executeApiActionSuccess,
+  fetchActionsForPageSuccess,
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
   runApiAction,
   updateActionSuccess,
-  fetchActionsForPageSuccess,
 } from "actions/actionActions";
 import {
   getDynamicBindings,
@@ -82,10 +82,19 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
-const createActionResponse = (response: ActionApiResponse): ActionResponse => ({
+const createActionSuccessResponse = (
+  response: ActionApiResponse,
+): ActionResponse => ({
   ...response.data,
   ...response.clientMeta,
 });
+
+const isErrorResponse = (response: ActionApiResponse) => {
+  return (
+    (response.responseMeta && response.responseMeta.error) ||
+    !/2\d\d/.test(response.data.statusCode)
+  );
+};
 
 function getCurrentPageNameByActionId(
   state: AppState,
@@ -102,8 +111,7 @@ function getPageNameByPageId(state: AppState, pageId: string): string {
   const page = state.entities.pageList.pages.find(
     page => page.pageId === pageId,
   );
-  const pageName = page ? page.pageName : "";
-  return pageName;
+  return page ? page.pageName : "";
 }
 
 const createActionErrorResponse = (
@@ -111,7 +119,7 @@ const createActionErrorResponse = (
 ): ActionResponse => ({
   body: response.responseMeta.error || { error: "Error" },
   statusCode: response.responseMeta.error
-    ? response.responseMeta.error.code
+    ? response.responseMeta.error.code.toString()
     : "Error",
   headers: {},
   duration: "0",
@@ -157,7 +165,7 @@ export function* getActionParams(jsonPathKeys: string[] | undefined) {
 //   });
 // }
 
-export function* executeAPIQueryActionSaga(
+export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
@@ -180,9 +188,8 @@ export function* executeAPIQueryActionSaga(
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
     );
-    let payload = createActionResponse(response);
-    if (response.responseMeta && response.responseMeta.error) {
-      payload = createActionErrorResponse(response);
+    if (isErrorResponse(response)) {
+      const payload = createActionErrorResponse(response);
       if (onError) {
         yield put(
           executeAction({
@@ -206,6 +213,7 @@ export function* executeAPIQueryActionSaga(
         }),
       );
     } else {
+      const payload = createActionSuccessResponse(response);
       yield put(
         executeApiActionSuccess({
           id: apiAction.actionId,
@@ -281,7 +289,7 @@ export function* executeActionTriggers(
 ) {
   switch (trigger.type) {
     case "RUN_ACTION":
-      yield call(executeAPIQueryActionSaga, trigger.payload, event);
+      yield call(executeActionSaga, trigger.payload, event);
       break;
     case "NAVIGATE_TO":
       AnalyticsUtil.logEvent("NAVIGATE", {
@@ -513,7 +521,7 @@ export function* runApiActionSaga(
       params,
       paginationField,
     });
-    let payload = createActionResponse(response);
+    let payload = createActionSuccessResponse(response);
     if (response.responseMeta && response.responseMeta.error) {
       payload = createActionErrorResponse(response);
     }
@@ -541,27 +549,43 @@ export function* runApiActionSaga(
   }
 }
 
+function* executePageLoadAction(pageAction: PageAction) {
+  const params: Property[] = yield call(
+    getActionParams,
+    pageAction.jsonPathKeys,
+  );
+  const executeActionRequest: ExecuteActionRequest = {
+    action: { id: pageAction.id },
+    params,
+  };
+  const response: ActionApiResponse = yield ActionAPI.executeAction(
+    executeActionRequest,
+  );
+
+  if (isErrorResponse(response)) {
+    yield put(
+      executeActionError({
+        actionId: pageAction.id,
+        error: response.responseMeta.error,
+      }),
+    );
+  } else {
+    const payload = createActionSuccessResponse(response);
+    yield put(
+      executeApiActionSuccess({
+        id: pageAction.id,
+        response: payload,
+      }),
+    );
+  }
+}
+
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
-  const actionPayloads: RunActionPayload[][] = pageActions.map(actionSet =>
-    actionSet.map(action => ({
-      actionId: action.id,
-      onSuccess: "",
-      onError: "",
-    })),
-  );
-  for (const actionSet of actionPayloads) {
+  for (const actionSet of pageActions) {
     const apiResponses = yield select(getActionResponses);
-    const filteredSet = actionSet.filter(
-      action => !apiResponses[action.actionId],
-    );
-    yield* yield all(
-      filteredSet.map(a =>
-        call(executeAPIQueryActionSaga, a, {
-          type: EventType.ON_PAGE_LOAD,
-        }),
-      ),
-    );
+    const filteredSet = actionSet.filter(action => !apiResponses[action.id]);
+    yield* yield all(filteredSet.map(a => call(executePageLoadAction, a)));
   }
 }
 
