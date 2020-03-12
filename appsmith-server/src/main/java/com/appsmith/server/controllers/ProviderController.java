@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(Url.PROVIDER_URL)
@@ -19,7 +21,7 @@ public class ProviderController extends BaseController<ProviderService, Provider
     }
 
     @GetMapping("/categories")
-    public Flux<ResponseDTO<String>> getAllCategories() {
+    public Mono<ResponseDTO<List<String>>> getAllCategories() {
         return service.getAllCategories()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
