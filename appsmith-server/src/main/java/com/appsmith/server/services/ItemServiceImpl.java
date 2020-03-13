@@ -4,6 +4,7 @@ import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ItemType;
@@ -66,13 +67,22 @@ public class ItemServiceImpl implements ItemService {
         action.setName(addItemToPageDTO.getName());
         action.setPageId(addItemToPageDTO.getPageId());
         action.setTemplateId(apiTemplate.getId());
+        action.setProviderId(apiTemplate.getProviderId());
+
+        Documentation documentation = new Documentation();
+        documentation.setText(apiTemplate.getApiTemplateConfiguration().getDocumentation());
+        documentation.setUrl(apiTemplate.getApiTemplateConfiguration().getDocumentationUrl());
+        action.setDocumentation(documentation);
         /** TODO
          * Also hit the Marketplace to update the number of imports.
          */
 
         // Set Action Fields
         action.setActionConfiguration(apiTemplate.getActionConfiguration());
-        action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
+        if (apiTemplate.getApiTemplateConfiguration().getSampleResponse() != null &&
+                apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody() != null ) {
+            action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
+        }
 
         return pluginService
                 .findByPackageName(apiTemplate.getPackageName())

@@ -18,6 +18,7 @@
         <module>postgresPlugin</module>
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
+        <module>rapidApiPlugin</module>
     </modules>
 
 </project>

@@ -43,8 +43,17 @@ public class AnalyticsService<T extends BaseDomain> {
                 });
     }
 
+    private User createAnonymousUser() {
+        User user = new User();
+        user.setId("anonymousUser");
+        return user;
+    }
+
     public Mono<T> sendEvent(String eventTag, T object) {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
+        // We will create an anonymous user object for event tracking if no user is present
+        // Without this, a lot of flows meant for anonymous users will error out
+        Mono<User> userMono = sessionUserService.getCurrentUser()
+                .defaultIfEmpty(createAnonymousUser());
         return userMono
                 .map(user -> {
                     HashMap<String, String> analyticsProperties = new HashMap<>();

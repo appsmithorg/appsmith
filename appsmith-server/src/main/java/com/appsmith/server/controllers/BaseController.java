@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
@@ -29,7 +30,8 @@ public abstract class BaseController<S extends CrudService, T extends BaseDomain
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource) throws AppsmithException {
+    public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource,
+                                       @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return service.create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));

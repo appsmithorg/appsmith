@@ -10,6 +10,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -68,6 +69,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
+    private final ProviderService providerService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -82,7 +84,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              ObjectMapper objectMapper,
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
-                             SessionUserService sessionUserService) {
+                             SessionUserService sessionUserService,
+                             ProviderService providerService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -92,6 +95,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
+        this.providerService = providerService;
     }
 
     /**
@@ -270,6 +274,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         action.setJsonPathKeys(keys);
         return action;
     }
+
 
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
@@ -478,13 +483,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Action> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
         return actionMono
-                .flatMap(toDelete ->
-                        repository.delete(toDelete)
-                                .thenReturn(toDelete))
-                .map(deletedObj -> {
-                    analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Action) deletedObj);
-                    return (Action) deletedObj;
-                });
+                .flatMap(toDelete -> repository.delete(toDelete).thenReturn(toDelete))
+                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Action) deletedObj));
     }
 
     @Override
@@ -523,6 +523,27 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMapMany(orgId -> {
                     actionExample.setOrganizationId(orgId);
                     return repository.findAll(Example.of(actionExample), sort);
+                })
+                .flatMap(action -> {
+                    if ((action.getTemplateId()!=null) && (action.getProviderId() != null)) {
+                        // In case of an action which was imported from a 3P API, fill in the extra information of the
+                        // provider required by the front end UI.
+                        return providerService
+                                .getById(action.getProviderId())
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
+                                .map(provider -> {
+                                    ActionProvider actionProvider = new ActionProvider();
+                                    actionProvider.setName(provider.getName());
+                                    actionProvider.setCredentialSteps(provider.getCredentialSteps());
+                                    actionProvider.setDescription(provider.getDescription());
+                                    actionProvider.setImageUrl(provider.getImageUrl());
+                                    actionProvider.setUrl(provider.getUrl());
+
+                                    action.setProvider(actionProvider);
+                                    return action;
+                                });
+                    }
+                    return Mono.just(action);
                 });
     }
 
