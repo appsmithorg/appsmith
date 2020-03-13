@@ -55,6 +55,8 @@ class FormButtonWidget extends BaseWidget<
           callback: this.handleActionResult,
         },
       });
+    } else if (this.props.resetFormOnClick && this.props.onReset) {
+      this.props.onReset();
     }
   }
 
@@ -84,7 +86,7 @@ class FormButtonWidget extends BaseWidget<
         disabled={disabled}
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
-        type={ButtonType.SUBMIT}
+        type={this.props.buttonType || ButtonType.BUTTON}
       />
     );
   }
@@ -105,6 +107,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   buttonStyle?: ButtonStyle;
   onClick?: string;
   isVisible?: boolean;
+  buttonType: ButtonType;
   isFormValid?: boolean;
   resetFormOnClick?: boolean;
   onReset?: () => void;

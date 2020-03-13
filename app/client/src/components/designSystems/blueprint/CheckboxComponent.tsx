@@ -26,22 +26,22 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           className={
             this.props.isLoading ? "bp3-skeleton" : Classes.RUNNING_TEXT
           }
-          defaultChecked={this.props.defaultCheckedState}
           onChange={this.onCheckChange}
           disabled={this.props.isDisabled}
+          checked={this.props.isChecked}
         />
       </CheckboxContainer>
     );
   }
 
-  onCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.props.onCheckChange(event.target.value === "true");
+  onCheckChange = () => {
+    this.props.onCheckChange(!this.props.isChecked);
   };
 }
 
 export interface CheckboxComponentProps extends ComponentProps {
   label: string;
-  defaultCheckedState: boolean;
+  isChecked: boolean;
   onCheckChange: (isChecked: boolean) => void;
   isLoading: boolean;
 }

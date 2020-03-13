@@ -32,7 +32,7 @@ class FilePickerComponent extends React.Component<
         <BaseButton
           accent="primary"
           filled
-          className={this.props.isLoading ? "bp3-skeleton" : ""}
+          loading={this.props.isLoading}
           text={label}
           onClick={this.openModal}
         />

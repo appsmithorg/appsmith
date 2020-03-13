@@ -64,6 +64,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     }
   }
 
+  componentDidUpdate(prevProps: InputWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.props.defaultText) {
+      if (
+        (this.props.text !== prevProps.text && this.props.text === undefined) ||
+        this.props.defaultText !== prevProps.defaultText
+      ) {
+        this.updateWidgetMetaProperty("text", this.props.defaultText);
+      }
+    }
+  }
+
   onValueChange = (value: string) => {
     this.updateWidgetMetaProperty("text", value);
     if (!this.props.isDirty) {
@@ -96,7 +108,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
     if (this.props.isRequired) conditionalProps.label = `${this.props.label} *`;
-
     return (
       <InputComponent
         value={value}
