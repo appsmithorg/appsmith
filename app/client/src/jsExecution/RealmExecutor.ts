@@ -102,7 +102,7 @@ export default class RealmExecutor implements JSExecutor {
         triggers,
       };
     } catch (e) {
-      console.error(`Error: "${e.message}" when evaluating {{${sourceText}}}`);
+      // console.error(`Error: "${e.message}" when evaluating {{${sourceText}}}`);
       return { result: undefined, triggers: [] };
     }
   }

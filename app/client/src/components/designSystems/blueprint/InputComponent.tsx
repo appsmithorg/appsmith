@@ -27,8 +27,9 @@ import { INPUT_WIDGET_DEFAULT_VALIDATION_ERROR } from "constants/messages";
  */
 
 const InputComponentWrapper = styled(props => (
-  <ControlGroup {..._.omit(props, ["hasError"])} />
+  <ControlGroup {..._.omit(props, ["hasError", "numeric"])} />
 ))<{
+  numeric: boolean;
   multiline: string;
   hasError: boolean;
 }>`
@@ -41,6 +42,13 @@ const InputComponentWrapper = styled(props => (
       border-radius: ${props => props.theme.radii[1]}px;
       height: ${props => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
+      ${props =>
+        props.numeric &&
+        `
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        border-right-width: 0px;
+      `}
       &:active {
         border-color: ${({ hasError }) =>
           hasError ? IntentColors.danger : Colors.HIT_GRAY};
@@ -138,7 +146,6 @@ class InputComponent extends React.Component<
       disabled={this.props.disabled}
       intent={this.props.intent}
       className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
-      defaultValue={this.props.defaultValue}
       onValueChange={this.onNumberChange}
       leftIcon={
         this.props.inputType === "PHONE_NUMBER" ? "phone" : this.props.leftIcon
@@ -150,7 +157,7 @@ class InputComponent extends React.Component<
       onBlur={() => this.setFocusState(false)}
     />
   );
-  private textAreaInputComponent = (
+  private textAreaInputComponent = () => (
     <TextArea
       value={this.props.value}
       placeholder={this.props.placeholder}
@@ -158,7 +165,6 @@ class InputComponent extends React.Component<
       maxLength={this.props.maxChars}
       intent={this.props.intent}
       onChange={this.onTextChange}
-      defaultValue={this.props.defaultValue}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       growVertically={false}
       onFocus={() => this.setFocusState(true)}
@@ -168,7 +174,7 @@ class InputComponent extends React.Component<
 
   private textInputComponent = (isTextArea: boolean) =>
     isTextArea ? (
-      this.textAreaInputComponent
+      this.textAreaInputComponent()
     ) : (
       <InputGroup
         value={this.props.value}
@@ -177,7 +183,6 @@ class InputComponent extends React.Component<
         maxLength={this.props.maxChars}
         intent={this.props.intent}
         onChange={this.onTextChange}
-        defaultValue={this.props.defaultValue}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -207,6 +212,7 @@ class InputComponent extends React.Component<
       <InputComponentWrapper
         fill
         multiline={this.props.multiline.toString()}
+        numeric={this.isNumberInputType(this.props.inputType)}
         hasError={this.props.isInvalid}
       >
         {this.props.label && (

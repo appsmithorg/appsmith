@@ -11,11 +11,11 @@ import { WIDGET_TYPE_VALIDATION_ERROR } from "constants/messages";
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
     let parsed = value;
-    if (_.isUndefined(value)) {
+    if (_.isUndefined(value) || value === null) {
       return {
-        isValid: false,
-        parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: text`,
+        isValid: true,
+        parsed: value,
+        message: "",
       };
     }
     if (_.isObject(value)) {

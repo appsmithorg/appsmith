@@ -8,15 +8,39 @@ import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "widgets/DatePickerWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { Colors } from "constants/Colors";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
+    .${Classes.INPUT} {
+      box-shadow: none;
+      border: 1px solid;
+      border-color: ${Colors.GEYSER_LIGHT};
+      border-radius: ${props => props.theme.radii[1]}px;
+      width: 100%;
+      height: inherit;
+      align-items: center;
+      &:active {
+        border-color: ${Colors.HIT_GRAY};
+      }
+      &:focus {
+        border-color: ${Colors.MYSTIC};
+      }
+    }
+    .${Classes.INPUT_GROUP} {
+      display: block;
+      margin: 0;
+    }
+    .${Classes.CONTROL_GROUP} {
+      justify-content: flex-start;
+    }
     label {
       ${labelStyle}
       flex: 0 1 30%;
+      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
-      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
-      align-self: center;
+      align-self: flex-start;
+      max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
 `;

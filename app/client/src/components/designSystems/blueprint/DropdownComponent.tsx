@@ -21,6 +21,7 @@ import _ from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import styled, {
+  createGlobalStyle,
   labelStyle,
   BlueprintCSSTransform,
   BlueprintInputTransform,
@@ -79,53 +80,61 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
   }
 `;
 
-const DropdownContainer = styled.div`
-  ${BlueprintCSSTransform}
-  &&&& .${Classes.MENU_ITEM} {
-    border-radius: ${props => props.theme.radii[1]}px;
-    &:hover{
-      background: ${Colors.POLAR};
-    }
-  &.${Classes.ACTIVE} {
-    background: ${Colors.POLAR};
-    color: ${props => props.theme.colors.textDefault};
-    position:relative;
-    &.single-select{
-      &:before{
-        left: 0;
-        top: -2px;
-        position: absolute;
-        content: "";
-        background: ${props => props.theme.colors.primary};
-        border-radius: 4px 0 0 4px;
-        width: 4px;
-        height:100%;
-      }
-    }
-  }
-}
-  && .${Classes.POPOVER} {
+const DropdownStyles = createGlobalStyle`
+  .select-popover-wrapper {
     width: 100%;
     border-radius: ${props => props.theme.radii[1]}px;
     box-shadow:  0px 2px 4px rgba(67, 70, 74, 0.14);
     padding: ${props => props.theme.spaces[3]}px;
     background: white;
-  }
-
-  && .${Classes.POPOVER_WRAPPER} {
-    position:relative;
-    .${Classes.OVERLAY} {
-      position: absolute;
-      .${Classes.TRANSITION_CONTAINER} {
-        width: 100%;
+    && .${Classes.MENU} {
+      max-width: 100%;
+      max-height: auto;
+    }
+    &&&& .${Classes.MENU_ITEM} {
+      border-radius: ${props => props.theme.radii[1]}px;
+      &:hover{
+        background: ${Colors.POLAR};
+      }
+      &.${Classes.ACTIVE} {
+        background: ${Colors.POLAR};
+        color: ${props => props.theme.colors.textDefault};
+        position:relative;
+        &.single-select{
+          &:before{
+            left: 0;
+            top: -2px;
+            position: absolute;
+            content: "";
+            background: ${props => props.theme.colors.primary};
+            border-radius: 4px 0 0 4px;
+            width: 4px;
+            height:100%;
+          }
+        }
+      }
+      .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+        background: white;
+        box-shadow: none;
+        border-width: 2px;
+        border-style: solid;
+        border-color: ${Colors.GEYSER};
+        &::before {
+          width: auto;
+          height: 1em;
+        }&
+      }
+      .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${props => props.theme.colors.primary};
+        color: ${props => props.theme.colors.textOnDarkBG};
+        border-color: ${props => props.theme.colors.primary};
       }
     }
   }
-  && .${Classes.MENU} {
-    max-width: 100%;
-    max-height: auto;
-  }
-  width: 100%;
+`;
+
+const DropdownContainer = styled.div`
+  ${BlueprintCSSTransform}
 `;
 
 const StyledMultiDropDown = styled(MultiDropDown)`
@@ -169,24 +178,6 @@ const StyledMultiDropDown = styled(MultiDropDown)`
       }
     }
   }
-  &&&& {
-    .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-      background: white;
-      box-shadow: none;
-      border-width: 2px;
-      border-style: solid;
-      border-color: ${Colors.GEYSER};
-      &::before {
-        width: auto;
-        height: 1em;
-      }
-    }
-    .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${props => props.theme.colors.primary};
-      color: ${props => props.theme.colors.textOnDarkBG};
-      border-color: ${props => props.theme.colors.primary};
-    }
-  }
 `;
 
 const StyledCheckbox = styled(Checkbox)`
@@ -204,6 +195,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       : [];
     return (
       <DropdownContainer>
+        <DropdownStyles />
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
@@ -228,7 +220,8 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
-                usePortal: false,
+                usePortal: true,
+                popoverClassName: "select-popover-wrapper",
               }}
             >
               <Button
@@ -258,9 +251,10 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               onItemSelect={this.onItemSelect}
               popoverProps={{
                 minimal: true,
-                usePortal: false,
+                usePortal: true,
+                popoverClassName: "select-popover-wrapper",
               }}
-            ></StyledMultiDropDown>
+            />
           )}
         </StyledControlGroup>
       </DropdownContainer>

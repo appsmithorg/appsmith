@@ -28,6 +28,32 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       onSelectionChange: true,
     };
   }
+
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultOptionValue) {
+      this.updateWidgetMetaProperty(
+        "selectedOptionValue",
+        this.props.defaultOptionValue,
+      );
+    }
+  }
+
+  componentDidUpdate(prevProps: RadioGroupWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.props.defaultOptionValue) {
+      if (
+        (this.props.selectedOptionValue !== prevProps.selectedOptionValue &&
+          this.props.selectedOptionValue === undefined) ||
+        this.props.defaultOptionValue !== prevProps.defaultOptionValue
+      ) {
+        this.updateWidgetMetaProperty(
+          "selectedOptionValue",
+          this.props.defaultOptionValue,
+        );
+      }
+    }
+  }
   getPageView() {
     return (
       <RadioGroupComponent
@@ -35,7 +61,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
         label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
-        defaultOptionValue={this.props.defaultOptionValue}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
         isLoading={this.props.isLoading}

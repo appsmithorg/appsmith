@@ -13,7 +13,6 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       isDisabled: VALIDATION_TYPES.BOOLEAN,
       label: VALIDATION_TYPES.TEXT,
       defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
-      isChecked: VALIDATION_TYPES.BOOLEAN,
     };
   }
 
@@ -23,10 +22,37 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultCheckedState) {
+      this.updateWidgetMetaProperty(
+        "isChecked",
+        this.props.defaultCheckedState,
+      );
+    }
+  }
+
+  componentDidUpdate(prevProps: CheckboxWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.props.defaultCheckedState.toString()) {
+      if (
+        (this.props.isChecked !== prevProps.isChecked &&
+          this.props.isChecked === undefined) ||
+        this.props.defaultCheckedState.toString() !==
+          prevProps.defaultCheckedState.toString()
+      ) {
+        this.updateWidgetMetaProperty(
+          "isChecked",
+          this.props.defaultCheckedState,
+        );
+      }
+    }
+  }
+
   getPageView() {
     return (
       <CheckboxComponent
-        defaultCheckedState={this.props.defaultCheckedState}
+        isChecked={!!this.props.isChecked}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}

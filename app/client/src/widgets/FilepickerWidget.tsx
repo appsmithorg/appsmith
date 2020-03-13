@@ -9,7 +9,7 @@ import OneDrive from "@uppy/onedrive";
 import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { EventType } from "constants/ActionConstants";
+import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
@@ -96,13 +96,15 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         locale: {},
       });
     this.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.files.filter(dslFile => {
-        return file.id !== dslFile.id;
-      });
+      const updatedFiles = this.props.files
+        ? this.props.files.filter(dslFile => {
+            return file.id !== dslFile.id;
+          })
+        : [];
       this.updateWidgetMetaProperty("files", updatedFiles);
     });
     this.uppy.on("file-added", (file: any) => {
-      const dslFiles = this.props.files;
+      const dslFiles = this.props.files || [];
       const reader = new FileReader();
       reader.readAsDataURL(file.data);
       reader.onloadend = () => {
@@ -133,14 +135,30 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
+          callback: this.handleFileUploaded,
         },
       });
     }
   }
 
+  handleFileUploaded = (result: ExecutionResult) => {
+    if (result.success) {
+      this.updateWidgetMetaProperty(
+        "uploadedFileData",
+        this.props.uploadedFileUrls,
+      );
+    }
+  };
+
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
+      prevProps.files &&
+      prevProps.files.length > 0 &&
+      this.props.files === undefined
+    ) {
+      this.uppy.reset();
+    } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
       prevProps.maxNumFiles !== this.props.maxNumFiles ||
       prevProps.maxFileSize !== this.props.maxFileSize
@@ -165,7 +183,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.files}
+        files={this.props.files || []}
         isLoading={this.props.isLoading}
       />
     );
@@ -180,10 +198,11 @@ export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
-  files: any[];
+  files?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
   isRequired?: boolean;
+  uploadedFileUrls?: string;
 }
 
 export default FilePickerWidget;
