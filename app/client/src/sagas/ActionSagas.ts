@@ -550,6 +550,7 @@ export function* runApiActionSaga(
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
+  yield put(executeApiActionRequest({ id: pageAction.id }));
   const params: Property[] = yield call(
     getActionParams,
     pageAction.jsonPathKeys,
