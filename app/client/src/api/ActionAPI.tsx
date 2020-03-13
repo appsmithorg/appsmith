@@ -62,12 +62,12 @@ export interface RestAction {
   cacheResponse?: string;
 }
 
-export type PaginationField = "PREV" | "NEXT" | undefined;
+export type PaginationField = "PREV" | "NEXT";
 
 export interface ExecuteActionRequest extends APIRequest {
   action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
   params?: Property[];
-  paginationField: PaginationField;
+  paginationField?: PaginationField;
 }
 
 export interface ExecuteActionResponse extends ApiResponse {
@@ -80,7 +80,7 @@ export interface ActionApiResponse {
   data: {
     body: object;
     headers: Record<string, string[]>;
-    statusCode: string | number;
+    statusCode: string;
   };
   clientMeta: {
     duration: string;
@@ -91,7 +91,7 @@ export interface ActionApiResponse {
 export interface ActionResponse {
   body: object;
   headers: Record<string, string[]>;
-  statusCode: string | number;
+  statusCode: string;
   duration: string;
   size: string;
 }
