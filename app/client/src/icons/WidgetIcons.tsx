@@ -14,6 +14,7 @@ import { ReactComponent as SwitchIcon } from "assets/icons/widget/switch.svg";
 import { ReactComponent as TextIcon } from "assets/icons/widget/text.svg";
 import { ReactComponent as ImageIcon } from "assets/icons/widget/image.svg";
 import { ReactComponent as FilePickerIcon } from "assets/icons/widget/filepicker.svg";
+import { ReactComponent as ChartIcon } from "assets/icons/widget/chart.svg";
 import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 
 /* eslint-disable react/display-name */
@@ -89,6 +90,11 @@ export const WidgetIcons: {
   FILE_PICKER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <FilePickerIcon />
+    </IconWrapper>
+  ),
+  CHART_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ChartIcon />
     </IconWrapper>
   ),
   FORM_WIDGET: (props: IconProps) => (

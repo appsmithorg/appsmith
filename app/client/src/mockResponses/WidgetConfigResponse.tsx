@@ -154,6 +154,45 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
     },
+    CHART_WIDGET: {
+      rows: 8,
+      columns: 6,
+      widgetName: "Chart",
+      chartType: "LINE_CHART",
+      chartName: "Sales on working days",
+      chartData: [
+        {
+          x: "Mon",
+          y: 10000,
+        },
+        {
+          x: "Tue",
+          y: 12000,
+        },
+        {
+          x: "Wed",
+          y: 32000,
+        },
+        {
+          x: "Thu",
+          y: 28000,
+        },
+        {
+          x: "Fri",
+          y: 14000,
+        },
+        {
+          x: "Sat",
+          y: 19000,
+        },
+        {
+          x: "Sun",
+          y: 36000,
+        },
+      ],
+      xAxisName: "Last Week",
+      yAxisName: "Total Order Revenue $",
+    },
     FORM_BUTTON_WIDGET: {
       rows: 1,
       columns: 3,
