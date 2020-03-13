@@ -118,10 +118,8 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                             });
                 });
 
-        return pageMono.map(deletedObj -> {
-            analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Page) deletedObj);
-            return (Page) deletedObj;
-        });
+        return pageMono
+                .flatMap(deletedObj -> analyticsService.sendEvent(AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(), (Page) deletedObj));
     }
 
     @Override

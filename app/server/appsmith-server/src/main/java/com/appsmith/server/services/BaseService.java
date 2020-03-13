@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,6 +23,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.Map;
 
+@Slf4j
 public abstract class BaseService<R extends BaseRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
 
     final Scheduler scheduler;
@@ -90,10 +92,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .map(savedObj -> {
-                    analyticsService.sendEvent(AnalyticsEvents.CREATE + "_" + savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj);
-                    return savedObj;
-                });
+                .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE + "_" + savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj));
     }
 
     protected DBObject getDbObject(Object o) {

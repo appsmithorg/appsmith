@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +33,8 @@ public class CollectionController extends BaseController<CollectionService, Coll
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Collection>> create(@Valid @RequestBody Collection resource) throws AppsmithException {
+    public Mono<ResponseDTO<Collection>> create(@Valid @RequestBody Collection resource,
+                                                @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return actionCollectionService.createCollection(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
