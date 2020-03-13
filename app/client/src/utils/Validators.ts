@@ -174,6 +174,23 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.CHART_DATA]: (value: any): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
+      };
+    } else if (!_.every(parsed, datum => _.isObject(datum))) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
   [VALIDATION_TYPES.OPTIONS_DATA]: (value: any): ValidationResponse => {
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
     if (!isValid) {

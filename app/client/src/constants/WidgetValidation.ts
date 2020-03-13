@@ -8,6 +8,7 @@ export const VALIDATION_TYPES = {
   TABLE_DATA: "TABLE_DATA",
   OPTIONS_DATA: "OPTIONS_DATA",
   DATE: "DATE",
+  CHART_DATA: "CHART_DATA",
 };
 
 export type ValidationResponse = {
