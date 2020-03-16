@@ -64,16 +64,18 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     ) {
       this.updateWidgetMetaProperty("selectedIndex", undefined);
       this.updateWidgetMetaProperty("selectedIndexArr", []);
-    } else if (this.props.defaultOptionValue) {
-      if (
-        (this.props.selectedIndex !== prevProps.selectedIndex &&
-          this.props.selectedIndex === undefined) ||
-        this.props.defaultOptionValue !== prevProps.defaultOptionValue
-      ) {
-        const selectedIndex = _.findIndex(this.props.options, option => {
-          return option.value === this.props.defaultOptionValue;
-        });
+    } else if (
+      (this.props.selectedIndex !== prevProps.selectedIndex &&
+        this.props.selectedIndex === undefined) ||
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue
+    ) {
+      const selectedIndex = _.findIndex(this.props.options, option => {
+        return option.value === this.props.defaultOptionValue;
+      });
+      if (selectedIndex > -1) {
         this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+      } else {
+        this.updateWidgetMetaProperty("selectedIndex", undefined);
       }
     }
   }

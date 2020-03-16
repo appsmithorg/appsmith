@@ -29,4 +29,5 @@ yarn-error.log*
 .idea
 .storybook-out/
 cypress/videos
+cypress/screenshots
 results/
