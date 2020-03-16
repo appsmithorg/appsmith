@@ -3,12 +3,16 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { Intent } from "@blueprintjs/core";
 import SpinnerComponent from "components/designSystems/blueprint/SpinnerComponent";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class SpinnerWidget extends BaseWidget<SpinnerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       size: VALIDATION_TYPES.NUMBER,
       value: VALIDATION_TYPES.NUMBER,
       ellipsize: VALIDATION_TYPES.BOOLEAN,

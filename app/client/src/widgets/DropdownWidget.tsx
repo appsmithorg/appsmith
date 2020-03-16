@@ -4,13 +4,17 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       placeholderText: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,

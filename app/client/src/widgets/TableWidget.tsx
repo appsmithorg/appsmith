@@ -6,7 +6,10 @@ import { forIn } from "lodash";
 import TableComponent from "components/designSystems/syncfusion/TableComponent";
 
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -30,6 +33,7 @@ function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       tableData: VALIDATION_TYPES.TABLE_DATA,
       nextPageKey: VALIDATION_TYPES.TEXT,
       prevPageKey: VALIDATION_TYPES.TEXT,
@@ -155,11 +159,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET";
   }
 }
-
-type RowData = {
-  rowIndex: number;
-};
-type SelectedRow = object & RowData;
 
 export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;

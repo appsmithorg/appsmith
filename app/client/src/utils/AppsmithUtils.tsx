@@ -1,4 +1,4 @@
-import { ReduxAction } from "../constants/ReduxActionConstants";
+import { ReduxAction } from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -76,4 +76,15 @@ export const getNextEntityName = (prefix: string, existingNames: string[]) => {
 
 export const noop = () => {
   console.log("noop");
+};
+
+export const convertToString = (value: any): string => {
+  if (_.isUndefined(value)) {
+    return "";
+  }
+  if (_.isObject(value)) {
+    return JSON.stringify(value, null, 2);
+  }
+  if (_.isString(value)) return value;
+  return value.toString();
 };

@@ -318,7 +318,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
     ) => void,
   ) => {
     return (
-      <div style={{ paddingLeft: 5 }}>
+      <div>
         {selectedOption.arguments.map(arg => {
           switch (arg.field) {
             case "ACTION_SELECTOR_FIELD":
@@ -357,14 +357,15 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
               );
             case "TEXT_FIELD":
               return (
-                <React.Fragment key={arg.label}>
+                <ControlWrapper key={arg.label}>
+                  <label>{arg.label}</label>
                   <InputText
                     label={arg.label}
                     value={arg.getSelectedValue(value, false)}
                     onChange={e => handleUpdate(e, arg.valueChangeHandler)}
                     isValid={true}
                   />
-                </React.Fragment>
+                </ControlWrapper>
               );
             case "ALERT_TYPE_SELECTOR_FIELD":
               return (

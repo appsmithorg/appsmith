@@ -1,6 +1,5 @@
 import React from "react";
 import _ from "lodash";
-import { CONVERTIBLE_CONTROLS } from "constants/PropertyControlConstants";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
@@ -54,7 +53,7 @@ const PropertyControl = (props: Props) => {
       ["dynamicProperties", propertyName],
       false,
     );
-    const isConvertible = CONVERTIBLE_CONTROLS.indexOf(config.controlType) > -1;
+    const isConvertible = !!propertyConfig.isJSConvertible;
     const className = propertyConfig.label
       .split(" ")
       .join("")

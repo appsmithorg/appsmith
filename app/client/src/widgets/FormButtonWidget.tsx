@@ -5,7 +5,10 @@ import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
@@ -30,10 +33,11 @@ class FormButtonWidget extends BaseWidget<
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       text: VALIDATION_TYPES.TEXT,
       disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
       buttonStyle: VALIDATION_TYPES.TEXT,
+      buttonType: VALIDATION_TYPES.TEXT,
     };
   }
 

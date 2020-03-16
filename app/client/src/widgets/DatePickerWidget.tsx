@@ -3,7 +3,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   DerivedPropertiesMap,
@@ -13,6 +16,7 @@ import {
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       defaultDate: VALIDATION_TYPES.DATE,
       selectedDate: VALIDATION_TYPES.DATE,
       timezone: VALIDATION_TYPES.TEXT,
