@@ -30,6 +30,7 @@ export interface ControlData {
   id: string;
   label: string;
   propertyName: string;
+  isJSConvertible?: boolean;
   controlType: ControlType;
   propertyValue?: any;
   isValid: boolean;

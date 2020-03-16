@@ -1,12 +1,18 @@
 import { WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "./WidgetFactory";
 import {
+  VALIDATION_TYPES,
   ValidationResponse,
   ValidationType,
   Validator,
 } from "constants/WidgetValidation";
 
-// TODO: need to be strict about what the key can be
+export const BASE_WIDGET_VALIDATION = {
+  isLoading: VALIDATION_TYPES.BOOLEAN,
+  isVisible: VALIDATION_TYPES.BOOLEAN,
+  isDisabled: VALIDATION_TYPES.BOOLEAN,
+};
+
 export type WidgetPropertyValidationType = Record<string, ValidationType>;
 
 class ValidationFactory {

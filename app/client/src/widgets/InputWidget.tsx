@@ -5,7 +5,10 @@ import InputComponent, {
   InputComponentProps,
 } from "components/designSystems/blueprint/InputComponent";
 import { EventType } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { FIELD_REQUIRED_ERROR } from "constants/messages";
 import {
@@ -16,6 +19,7 @@ import {
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       inputType: VALIDATION_TYPES.TEXT,
       defaultText: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
@@ -30,7 +34,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       inputValidators: VALIDATION_TYPES.ARRAY,
       focusIndex: VALIDATION_TYPES.NUMBER,
       isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
+      onTextChanged: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      isValid: VALIDATION_TYPES.BOOLEAN,
     };
   }
   static getTriggerPropertyMap(): TriggerPropertiesMap {

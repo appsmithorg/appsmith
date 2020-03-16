@@ -30,7 +30,10 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
-    const options: DropdownOption[] = this.props.propertyValue || [{}];
+    const { propertyValue } = this.props;
+    const options: DropdownOption[] = Array.isArray(propertyValue)
+      ? propertyValue
+      : [{}];
     return (
       <React.Fragment>
         {options.map((option, index) => {
@@ -77,13 +80,19 @@ class OptionControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const options: DropdownOption[] = this.props.propertyValue.slice();
-    options.splice(index, 1);
-    this.updateProperty("options", options);
+    const { propertyValue } = this.props;
+    const options: DropdownOption[] = Array.isArray(propertyValue)
+      ? propertyValue
+      : [{}];
+    const newOptions = options.filter((o, i) => i !== index);
+    this.updateProperty("options", newOptions);
   };
 
   updateOptionLabel = (index: number, updatedLabel: string) => {
-    const options: DropdownOption[] = this.props.propertyValue;
+    const { propertyValue } = this.props;
+    const options: DropdownOption[] = Array.isArray(propertyValue)
+      ? propertyValue
+      : [{}];
     this.updateProperty(
       "options",
       options.map((option, optionIndex) => {
@@ -99,7 +108,10 @@ class OptionControl extends BaseControl<ControlProps> {
   };
 
   updateOptionValue = (index: number, updatedValue: string) => {
-    const options: DropdownOption[] = this.props.propertyValue;
+    const { propertyValue } = this.props;
+    const options: DropdownOption[] = Array.isArray(propertyValue)
+      ? propertyValue
+      : [{}];
     this.updateProperty(
       "options",
       options.map((option, optionIndex) => {
@@ -115,9 +127,10 @@ class OptionControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    const options: DropdownOption[] = this.props.propertyValue
-      ? this.props.propertyValue.slice()
-      : [];
+    const { propertyValue } = this.props;
+    const options: DropdownOption[] = Array.isArray(propertyValue)
+      ? propertyValue
+      : [{}];
     options.push({ label: "", value: "" });
     this.updateProperty("options", options);
   };
