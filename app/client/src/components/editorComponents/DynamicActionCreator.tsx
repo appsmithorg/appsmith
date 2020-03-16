@@ -328,6 +328,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={allOptions}
                     selectedValue={arg.getSelectedValue(value, false)}
+                    defaultText={"Select Action"}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
                     }
@@ -347,6 +348,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={this.props.pageNameDropdown}
                     selectedValue={arg.getSelectedValue(value, false)}
+                    defaultText={"Select Page"}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
                     }
@@ -370,6 +372,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <label>{arg.label}</label>
                   <StyledDropdown
                     options={ALERT_STYLE_OPTIONS}
+                    defaultText={"Select type"}
                     selectedValue={arg.getSelectedValue(value, false)}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
@@ -421,6 +424,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
         <StyledDropdown
           options={actionOptions}
           selectedValue={topLevelFuncValue}
+          defaultText={"Select"}
           onSelect={value =>
             this.handleValueUpdate(value, handleTopLevelFuncUpdate)
           }
