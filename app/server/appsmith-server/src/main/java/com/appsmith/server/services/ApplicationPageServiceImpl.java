@@ -1,7 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -13,14 +14,19 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
+import org.jgrapht.graph.DefaultEdge;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 
 @Slf4j
 @Service
@@ -31,17 +37,20 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final OrganizationService organizationService;
 
     private final AnalyticsService analyticsService;
+    private final PolicyGenerator policyGenerator;
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       PageService pageService,
                                       SessionUserService sessionUserService,
                                       OrganizationService organizationService,
-                                      AnalyticsService analyticsService) {
+                                      AnalyticsService analyticsService,
+                                      PolicyGenerator policyGenerator) {
         this.applicationService = applicationService;
         this.pageService = pageService;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
+        this.policyGenerator = policyGenerator;
     }
 
     public Mono<Page> createPage(Page page) {
@@ -62,7 +71,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             page.setLayouts(layoutList);
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.CREATE_PAGES)
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
         return applicationMono
@@ -199,7 +208,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(user -> {
                     String orgId = user.getCurrentOrganizationId();
 
-                    Mono<Organization> orgMono = organizationService.findById(orgId, AclPermission.MANAGE_APPLICATIONS)
+                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
 
                     return orgMono.map(org -> {
@@ -208,18 +217,36 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         // to the new application that we are creating.
                         Set<Policy> policySet = org.getPolicies().stream()
                                 .filter(policy ->
-                                        policy.getPermission().equals(AclPermission.READ_APPLICATIONS.getValue()) ||
-                                                policy.getPermission().equals(AclPermission.MANAGE_APPLICATIONS.getValue())
+                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
-                        Set<String> users = policySet.stream()
-                                .map(policy -> policy.getUsers())
+
+                        Set<Policy> documentPolicies = policySet.stream()
+                                .map(policy -> {
+                                    AclPermission aclPermission = AclPermission
+                                            .getPermissionByValue(policy.getPermission(), Organization.class);
+
+                                    // Check the hierarchy graph to derive child permissions that must be given to this
+                                    // document
+                                    Set<Policy> childPolicySet = new HashSet<>();
+                                    Set<DefaultEdge> edges = policyGenerator.getHierarchyGraph()
+                                            .outgoingEdgesOf(aclPermission);
+                                    for (DefaultEdge edge: edges) {
+                                        AclPermission childPermission = policyGenerator.getHierarchyGraph().getEdgeTarget(edge);
+                                        childPolicySet.add(Policy.builder().permission(childPermission.getValue())
+                                                .users(policy.getUsers()).build());
+
+                                        // Get the lateral permissions that must be applied given the child permission
+                                        // This is applied at a user level and not from the parent object. Hence only the
+                                        // current user gets these permissions
+                                        childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(childPermission, user));
+                                    }
+                                    childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(aclPermission, user));
+                                    return childPolicySet;
+                                })
                                 .flatMap(Collection::stream)
                                 .collect(Collectors.toSet());
-                        policySet.add(Policy.builder()
-                                .permission(AclPermission.CREATE_PAGES.getValue())
-                                .users(Set.of(user.getUsername())).build()
-                        );
-                        application.setPolicies(policySet);
+                        application.setPolicies(documentPolicies);
                         return application;
                     });
                 });

@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.AclConstants;
+import com.appsmith.server.acl.AclConstants;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;

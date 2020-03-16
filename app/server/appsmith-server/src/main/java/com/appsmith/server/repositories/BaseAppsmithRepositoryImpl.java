@@ -2,7 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -54,13 +54,13 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     public static final Criteria userAcl(User user, AclPermission permission) {
         log.debug("Going to add userAcl for user: {} and permission: {}", user.getUsername(), permission.getValue());
 
-        Criteria userCriteria = Criteria.where("policies")
+        Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
                 .elemMatch(Criteria.where("users").all(user.getUsername())
                         .and("permission").is(permission.getValue())
                 );
         log.debug("Got the userCriteria: {}", userCriteria.getCriteriaObject());
 
-        Criteria groupCriteria = Criteria.where("policies")
+        Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
                 .elemMatch(Criteria.where("groups").all(user.getGroupIds())
                         .and("permission").is(permission.getValue()));
 

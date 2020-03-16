@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.constants.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,6 +19,8 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -66,12 +67,17 @@ public class OrganizationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void validCreateOrganizationTest() {
+        Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Mono<Organization> organizationResponse = organizationService.create(organization)
                 .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
                     assertThat(organization1.getPolicies()).isNotEmpty();
+                    assertThat(organization1.getPolicies()).containsAll(Set.of(manageOrgAppPolicy));
                 })
                 .verifyComplete();
     }
