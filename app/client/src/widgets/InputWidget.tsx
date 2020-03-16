@@ -72,13 +72,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: InputWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (this.props.defaultText) {
-      if (
-        (this.props.text !== prevProps.text && this.props.text === undefined) ||
-        this.props.defaultText !== prevProps.defaultText
-      ) {
-        this.updateWidgetMetaProperty("text", this.props.defaultText);
-      }
+    if (
+      (this.props.text !== prevProps.text && this.props.text === undefined) ||
+      this.props.defaultText !== prevProps.defaultText
+    ) {
+      this.updateWidgetMetaProperty("text", this.props.defaultText);
     }
   }
 

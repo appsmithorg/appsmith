@@ -228,7 +228,8 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 rightIcon={IconNames.CHEVRON_DOWN}
                 text={
                   !_.isEmpty(this.props.options) &&
-                  this.props.selectedIndex !== undefined
+                  this.props.selectedIndex !== undefined &&
+                  this.props.selectedIndex > -1
                     ? this.props.options[this.props.selectedIndex].label
                     : "-- Empty --"
                 }

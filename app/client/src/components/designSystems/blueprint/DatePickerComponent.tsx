@@ -71,14 +71,14 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
               this.props.enableTimePicker
                 ? {
                     useAmPm: true,
-                    value: this.props.selectedDate || this.props.defaultDate,
+                    value: this.props.selectedDate,
                     showArrowButtons: true,
                   }
                 : undefined
             }
             closeOnSelection={true}
             onChange={this.onDateSelected}
-            value={this.props.selectedDate || this.props.defaultDate}
+            value={this.props.selectedDate}
           />
         ) : (
           <DateRangeInput
@@ -121,7 +121,6 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
 
 export interface DatePickerComponentProps extends ComponentProps {
   label: string;
-  defaultDate?: Date;
   dateFormat: string;
   enableTimePicker?: boolean;
   selectedDate?: Date;

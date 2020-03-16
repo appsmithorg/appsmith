@@ -48,6 +48,7 @@ cypress-test:
     - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
     - yarn test
   artifacts:
+    when: on_failure
     expire_in: 1 week
     paths:
       - build/
@@ -61,7 +62,7 @@ cypress-test:
 docker-package-release:
   image: docker:dind
   services:
-    - docker:dind  
+    - docker:dind
   stage: package
   script:
     - docker build --build-arg REACT_APP_ENVIRONMENT=STAGING --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:release .
@@ -75,7 +76,7 @@ docker-package-prod:
   services:
     - docker:dind
   stage: package
-  script: 
+  script:
     - docker build --build-arg REACT_APP_ENVIRONMENT=PRODUCTION --build-arg GIT_SHA=$CI_COMMIT_SHORT_SHA -t appsmith/appsmith-editor:latest .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
     - docker push appsmith/appsmith-editor:latest
