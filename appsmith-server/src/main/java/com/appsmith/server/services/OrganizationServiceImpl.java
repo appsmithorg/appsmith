@@ -1,7 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
@@ -15,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -26,10 +28,13 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
@@ -41,6 +46,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
+    private final PolicyGenerator policyGenerator;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -53,7 +59,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    GroupService groupService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
-                                   UserOrganizationService userOrganizationService) {
+                                   UserOrganizationService userOrganizationService,
+                                   PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
@@ -61,6 +68,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -81,41 +89,62 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByName(name);
     }
 
-    private Set<Policy> crudAppPolicy(User user) {
-        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
-
-        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
-
-        return Set.of(manageAppPolicy, readAppPolicy);
-    }
+//    private Set<Policy> crudAppPolicy(User user) {
+//        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
+//                .users(Set.of(user.getUsername()))
+//                .build();
+//
+//        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
+//                .users(Set.of(user.getUsername()))
+//                .build();
+//
+//        return Set.of(manageAppPolicy, readAppPolicy);
+//    }
 
     private Set<Policy> crudOrgPolicy(User user) {
-        Policy readOrgPolicy = Policy.builder().permission(AclPermission.READ_ORGANIZATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
+        Set<Policy> policySet = user.getPolicies().stream()
+                .filter(policy ->
+                        policy.getPermission().equals(MANAGE_ORGANIZATIONS.getValue())
+                ).collect(Collectors.toSet());
 
-        Policy updateOrgPolicy =  Policy.builder().permission(AclPermission.UPDATE_ORGANIZATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
+        Set<Policy> documentPolicies = policySet.stream()
+                .map(policy -> {
+                    AclPermission aclPermission = AclPermission
+                            .getPermissionByValue(policy.getPermission(), Organization.class);
+                    // Check the hierarchy graph to derive child permissions that must be given to this
+                    // document
+                    Set<Policy> childPolicySet = new HashSet<>();
+                    Set<DefaultEdge> edges = policyGenerator.getHierarchyGraph()
+                            .outgoingEdgesOf(aclPermission);
+                    for (DefaultEdge edge : edges) {
+                        AclPermission childPermission = policyGenerator.getHierarchyGraph().getEdgeTarget(edge);
+                        childPolicySet.add(Policy.builder().permission(childPermission.getValue())
+                                .users(policy.getUsers()).build());
 
-        Policy deleteOrgPolicy =  Policy.builder().permission(AclPermission.DELETE_ORGANIZATIONS.getValue())
+                        // Get the lateral permissions that must be applied given the child permission
+                        // This is applied at a user level and not from the parent object. Hence only the
+                        // current user gets these permissions
+                        childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(childPermission, user));
+                    }
+                    childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(aclPermission, user));
+                    return childPolicySet;
+                }).flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
                 .users(Set.of(user.getUsername()))
                 .build();
-        return Set.of(readOrgPolicy, updateOrgPolicy,deleteOrgPolicy);
+        documentPolicies.add(manageOrgPolicy);
+        return documentPolicies;
     }
 
     private Set<Policy> adminPoliciesForOrganization(User user) {
 
-        Set<Policy> crudAppPolicies = crudAppPolicy(user);
         Set<Policy> crudOrgPolicies = crudOrgPolicy(user);
 
         Set<Policy> adminPolicies = new HashSet<>();
         adminPolicies.addAll(crudOrgPolicies);
-        adminPolicies.addAll(crudAppPolicies);
+
         return adminPolicies;
     }
 
@@ -138,7 +167,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         }
 
         // Set the admin policies for this organization & user
-        organization.setPolicies(adminPoliciesForOrganization(user));
+        organization.setPolicies(crudOrgPolicy(user));
 
         Mono<Organization> organizationMono = Mono.just(organization)
                 .flatMap(this::validateObject)
@@ -219,7 +248,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> update(String id, Organization resource) {
-        return repository.updateById(id, resource, AclPermission.UPDATE_ORGANIZATIONS)
+        return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
                 .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
     }
 

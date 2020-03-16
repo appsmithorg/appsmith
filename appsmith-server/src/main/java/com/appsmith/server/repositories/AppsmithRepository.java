@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
 import reactor.core.publisher.Mono;
 
 public interface AppsmithRepository<T> {

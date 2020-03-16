@@ -1,6 +1,6 @@
 package com.appsmith.server.authentication.handlers;
 
-import com.appsmith.server.constants.AclConstants;
+import com.appsmith.server.acl.AclConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;

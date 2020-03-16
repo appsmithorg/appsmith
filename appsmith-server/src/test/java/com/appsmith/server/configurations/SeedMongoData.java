@@ -1,7 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
@@ -23,8 +23,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 @Slf4j
 @Configuration
@@ -38,20 +43,24 @@ public class SeedMongoData {
                            PluginRepository pluginRepository) {
 
         log.info("Seeding the data");
-        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
+        Policy manageAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
         Object[][] userData = {
-                {"user test", "usertest@usertest.com", UserState.ACTIVATED},
-                {"api_user", "api_user", UserState.ACTIVATED},
+                {"user test", "usertest@usertest.com", UserState.ACTIVATED, new HashSet<>()},
+                {"api_user", "api_user", UserState.ACTIVATED, Set.of(manageOrgPolicy)},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(readAppPolicy, manageAppPolicy)}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(manageAppPolicy)}
         };
 
         Object[][] appData = {
@@ -107,6 +116,7 @@ public class SeedMongoData {
                                 user.setName((String) array[0]);
                                 user.setEmail((String) array[1]);
                                 user.setState((UserState) array[2]);
+                                user.setPolicies((Set<Policy>) array[3]);
                                 user.setCurrentOrganizationId(orgId);
                                 return user;
                             })
@@ -122,7 +132,7 @@ public class SeedMongoData {
                                 return app;
                             }).flatMap(applicationRepository::save)
                     // Query the seed data to get the applicationId (required for page creation)
-            ).then(applicationRepository.findByName((String) appData[0][0], AclPermission.READ_APPLICATIONS))
+            ).then(applicationRepository.findByName((String) appData[0][0], READ_APPLICATIONS))
                     .map(application -> application.getId())
                     .flatMapMany(appId -> Flux.just(pageData)
                             // Seed the page data into the DB

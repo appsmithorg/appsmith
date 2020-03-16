@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.constants.AclPermission;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;

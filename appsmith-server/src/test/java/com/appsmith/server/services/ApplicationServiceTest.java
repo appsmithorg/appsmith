@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -15,6 +16,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Set;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -49,6 +55,13 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestApp");
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication);
 
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
@@ -56,6 +69,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
                     assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 })
                 .verifyComplete();
     }
