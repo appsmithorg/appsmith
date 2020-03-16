@@ -72,6 +72,9 @@ const ChartComponent = (props: ChartComponentProps) => {
             yAxisName: props.yAxisName,
             theme: "fusion",
             caption: props.chartName,
+            captionAlignment: "left",
+            captionHorizontalPadding: 10,
+            alignCaptionWithCanvas: false,
           },
           data: getChartData(props.chartData),
         }}
