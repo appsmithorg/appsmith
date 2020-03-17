@@ -11,7 +11,7 @@ ENV GIT_SHA=${GIT_SHA}
 
 COPY package.json yarn.lock ./
 COPY . ./
-RUN yarn install && yarn build
+RUN yarn install --production && yarn build
 
 # Use the output from the previous Docker build to create the nginx container
 FROM nginx:1.17.9-alpine as final-image
