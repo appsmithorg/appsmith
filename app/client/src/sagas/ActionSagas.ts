@@ -329,10 +329,12 @@ export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   const tree = yield select(evaluateDataTree);
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
-  if (triggers) {
+  if (triggers && triggers.length) {
     yield all(
       triggers.map(trigger => call(executeActionTriggers, trigger, event)),
     );
+  } else {
+    if (event.callback) event.callback({ success: true });
   }
 }
 
@@ -687,7 +689,7 @@ function* copyActionSaga(
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
-    takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
+    takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
