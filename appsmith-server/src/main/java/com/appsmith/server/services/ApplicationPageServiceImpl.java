@@ -14,19 +14,19 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
-import org.jgrapht.graph.DefaultEdge;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 @Slf4j
 @Service
@@ -71,11 +71,31 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             page.setLayouts(layoutList);
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_PAGES)
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, page.getApplicationId())));
 
-        return applicationMono
-                .thenReturn(page)
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+        Mono<Page> pageMono = Mono.zip(applicationMono, userMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+
+                    Set<Policy> policySet = application.getPolicies().stream()
+                            .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
+                                    || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
+                            .collect(Collectors.toSet());
+                    Set<Policy> documentPolicies = policySet.stream()
+                            .map(policy -> {
+                                AclPermission aclPermission = AclPermission
+                                        .getPermissionByValue(policy.getPermission(), Application.class);
+                                return policyGenerator.getChildPolicies(policy, aclPermission, user);
+                            }).flatMap(Collection::stream)
+                            .collect(Collectors.toSet());
+                    page.setPolicies(documentPolicies);
+                    return page;
+                });
+
+        return pageMono
                 .flatMap(pageService::create)
                 //After the page has been saved, update the application (save the page id inside the application)
                 .flatMap(savedPage ->
@@ -226,23 +246,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                     AclPermission aclPermission = AclPermission
                                             .getPermissionByValue(policy.getPermission(), Organization.class);
 
-                                    // Check the hierarchy graph to derive child permissions that must be given to this
-                                    // document
-                                    Set<Policy> childPolicySet = new HashSet<>();
-                                    Set<DefaultEdge> edges = policyGenerator.getHierarchyGraph()
-                                            .outgoingEdgesOf(aclPermission);
-                                    for (DefaultEdge edge: edges) {
-                                        AclPermission childPermission = policyGenerator.getHierarchyGraph().getEdgeTarget(edge);
-                                        childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                                                .users(policy.getUsers()).build());
-
-                                        // Get the lateral permissions that must be applied given the child permission
-                                        // This is applied at a user level and not from the parent object. Hence only the
-                                        // current user gets these permissions
-                                        childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(childPermission, user));
-                                    }
-                                    childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(aclPermission, user));
-                                    return childPolicySet;
+                                    // Derive child permissions that must be given to this document
+                                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
                                 })
                                 .flatMap(Collection::stream)
                                 .collect(Collectors.toSet());

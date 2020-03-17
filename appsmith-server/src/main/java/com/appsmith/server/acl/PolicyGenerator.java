@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -101,6 +102,35 @@ public class PolicyGenerator {
                             .users(Set.of(user.getUsername())).build();
                 })
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * This function returns derives all the hierarchical and lateral policies for a given policy, aclPermission and user
+     * Should be used in places where we are creating a document to ensure that the correct permissions are assigned
+     * to the new document.
+     *
+     * @param policy
+     * @param aclPermission
+     * @param user
+     * @return
+     */
+    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, User user) {
+        // Check the hierarchy graph to derive child permissions that must be given to this
+        // document
+        Set<Policy> childPolicySet = new HashSet<>();
+        Set<DefaultEdge> edges = hierarchyGraph.outgoingEdgesOf(aclPermission);
+        for (DefaultEdge edge: edges) {
+            AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
+            childPolicySet.add(Policy.builder().permission(childPermission.getValue())
+                    .users(policy.getUsers()).build());
+
+            // Get the lateral permissions that must be applied given the child permission
+            // This is applied at a user level and not from the parent object. Hence only the
+            // current user gets these permissions
+            childPolicySet.addAll(getLateralPoliciesForUser(childPermission, user));
+        }
+        childPolicySet.addAll(getLateralPoliciesForUser(aclPermission, user));
+        return childPolicySet;
     }
 
 }

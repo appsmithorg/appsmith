@@ -111,23 +111,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission
                             .getPermissionByValue(policy.getPermission(), Organization.class);
-                    // Check the hierarchy graph to derive child permissions that must be given to this
-                    // document
-                    Set<Policy> childPolicySet = new HashSet<>();
-                    Set<DefaultEdge> edges = policyGenerator.getHierarchyGraph()
-                            .outgoingEdgesOf(aclPermission);
-                    for (DefaultEdge edge : edges) {
-                        AclPermission childPermission = policyGenerator.getHierarchyGraph().getEdgeTarget(edge);
-                        childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                                .users(policy.getUsers()).build());
-
-                        // Get the lateral permissions that must be applied given the child permission
-                        // This is applied at a user level and not from the parent object. Hence only the
-                        // current user gets these permissions
-                        childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(childPermission, user));
-                    }
-                    childPolicySet.addAll(policyGenerator.getLateralPoliciesForUser(aclPermission, user));
-                    return childPolicySet;
+                    // Get all the child policies for the given policy and aclPermission
+                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
                 }).flatMap(Collection::stream)
                 .collect(Collectors.toSet());
 

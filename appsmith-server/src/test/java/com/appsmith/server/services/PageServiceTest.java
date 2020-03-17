@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
@@ -18,6 +19,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Set;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,6 +81,13 @@ public class PageServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidPage() {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Page testPage = new Page();
         testPage.setName("PageServiceTest TestApp");
 
@@ -91,7 +104,8 @@ public class PageServiceTest {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat("PageServiceTest TestApp".equals(page.getName()));
-
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
     }
