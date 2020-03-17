@@ -22,6 +22,7 @@ import {
   getResponseErrorMessage,
   callAPI,
 } from "./ErrorSagas";
+import * as Sentry from "@sentry/browser";
 
 import { fetchOrgsSaga } from "./OrgSagas";
 
@@ -295,6 +296,9 @@ export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
   const me = yield call(fetchUserSaga, action);
   if (me) {
     AnalyticsUtil.identifyUser(me.id, me);
+    Sentry.configureScope(function(scope) {
+      scope.setUser({ email: me.email, id: me.id });
+    });
     resetAuthExpiration();
     yield put({
       type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,
