@@ -13,6 +13,7 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import ChartWidget, { ChartWidgetProps } from "widgets/ChartWidget";
 
 import FilePickerWidget, {
   FilePickerWidgetProps,
@@ -169,7 +170,17 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getDerivedPropertiesMap(),
       DatePickerWidget.getTriggerPropertyMap(),
     );
-
+    WidgetFactory.registerWidgetBuilder(
+      "CHART_WIDGET",
+      {
+        buildWidget(widgetData: ChartWidgetProps): JSX.Element {
+          return <ChartWidget {...widgetData} />;
+        },
+      },
+      ChartWidget.getPropertyValidationMap(),
+      ChartWidget.getDerivedPropertiesMap(),
+      ChartWidget.getTriggerPropertyMap(),
+    );
     WidgetFactory.registerWidgetBuilder(
       "FORM_WIDGET",
       {

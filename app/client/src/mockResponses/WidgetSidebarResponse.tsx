@@ -96,6 +96,11 @@ const WidgetSidebarResponse: {
       widgetCardName: "Table",
       key: generateReactKey(),
     },
+    {
+      type: "CHART_WIDGET",
+      widgetCardName: "Chart",
+      key: generateReactKey(),
+    },
   ],
   ["Layout widgets"]: [
     {

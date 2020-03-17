@@ -318,7 +318,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
     ) => void,
   ) => {
     return (
-      <div style={{ paddingLeft: 5 }}>
+      <div>
         {selectedOption.arguments.map(arg => {
           switch (arg.field) {
             case "ACTION_SELECTOR_FIELD":
@@ -328,6 +328,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={allOptions}
                     selectedValue={arg.getSelectedValue(value, false)}
+                    defaultText={"Select Action"}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
                     }
@@ -347,6 +348,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={this.props.pageNameDropdown}
                     selectedValue={arg.getSelectedValue(value, false)}
+                    defaultText={"Select Page"}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
                     }
@@ -355,14 +357,15 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
               );
             case "TEXT_FIELD":
               return (
-                <React.Fragment key={arg.label}>
+                <ControlWrapper key={arg.label}>
+                  <label>{arg.label}</label>
                   <InputText
                     label={arg.label}
                     value={arg.getSelectedValue(value, false)}
                     onChange={e => handleUpdate(e, arg.valueChangeHandler)}
                     isValid={true}
                   />
-                </React.Fragment>
+                </ControlWrapper>
               );
             case "ALERT_TYPE_SELECTOR_FIELD":
               return (
@@ -370,6 +373,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <label>{arg.label}</label>
                   <StyledDropdown
                     options={ALERT_STYLE_OPTIONS}
+                    defaultText={"Select type"}
                     selectedValue={arg.getSelectedValue(value, false)}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
@@ -421,6 +425,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
         <StyledDropdown
           options={actionOptions}
           selectedValue={topLevelFuncValue}
+          defaultText={"Select"}
           onSelect={value =>
             this.handleValueUpdate(value, handleTopLevelFuncUpdate)
           }

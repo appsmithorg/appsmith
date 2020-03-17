@@ -11,8 +11,9 @@ export function InputText(props: {
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   isValid: boolean;
   validationMessage?: string;
+  placeholder?: string;
 }) {
-  const { validationMessage, value, isValid, onChange } = props;
+  const { validationMessage, value, isValid, onChange, placeholder } = props;
   return (
     <StyledDynamicInput>
       <DynamicAutocompleteInput
@@ -26,6 +27,7 @@ export function InputText(props: {
         }}
         theme={"DARK"}
         singleLine={false}
+        placeholder={placeholder}
       />
     </StyledDynamicInput>
   );
@@ -33,7 +35,13 @@ export function InputText(props: {
 
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
-    const { validationMessage, propertyValue, isValid, label } = this.props;
+    const {
+      validationMessage,
+      propertyValue,
+      isValid,
+      label,
+      placeholderText,
+    } = this.props;
     return (
       <InputText
         label={label}
@@ -41,6 +49,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         onChange={this.onTextChange}
         isValid={isValid}
         validationMessage={validationMessage}
+        placeholder={placeholderText}
       />
     );
   }

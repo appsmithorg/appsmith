@@ -24,7 +24,7 @@ import {
   takeLatest,
   all,
 } from "redux-saga/effects";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
 import {
   SetWidgetDynamicPropertyPayload,
   updateWidgetProperty,
@@ -262,7 +262,8 @@ function* setWidgetDynamicPropertySaga(
   };
   if (isDynamic) {
     dynamicProperties[propertyName] = true;
-    yield put(updateWidgetProperty(widgetId, propertyName, "{{}}"));
+    const value = convertToString(widget[propertyName]);
+    yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
     yield put(updateWidgetProperty(widgetId, propertyName, undefined));

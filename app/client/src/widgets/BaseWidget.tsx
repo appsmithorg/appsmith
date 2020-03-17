@@ -27,7 +27,10 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/ValidationFactory";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
@@ -66,7 +69,7 @@ abstract class BaseWidget<
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {};
+    return BASE_WIDGET_VALIDATION;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -166,7 +169,14 @@ abstract class BaseWidget<
   }
 
   render() {
-    return this.getWidgetView();
+    let isValid = true;
+    if (this.props.invalidProps) {
+      isValid = _.keys(this.props.invalidProps).length === 0;
+    }
+    if (this.props.isLoading) isValid = true;
+    return (
+      <ErrorBoundary isValid={isValid}>{this.getWidgetView()}</ErrorBoundary>
+    );
   }
 
   private getWidgetView(): JSX.Element {
@@ -202,7 +212,7 @@ abstract class BaseWidget<
                 this.props.widgetId === "0"
               }
             >
-              <ErrorBoundary isValid>{this.getPageView()}</ErrorBoundary>
+              {this.getPageView()}
             </PositionedContainer>
           );
         }
@@ -215,14 +225,7 @@ abstract class BaseWidget<
   abstract getPageView(): JSX.Element;
 
   getCanvasView(): JSX.Element {
-    let isValid = true;
-    if (this.props.invalidProps) {
-      isValid = _.keys(this.props.invalidProps).length === 0;
-    }
-    if (this.props.isLoading) isValid = true;
-    return (
-      <ErrorBoundary isValid={isValid}>{this.getPageView()}</ErrorBoundary>
-    );
+    return this.getPageView();
   }
 
   // TODO(Nikhil): Revisit the inclusion of another library for shallowEqual.

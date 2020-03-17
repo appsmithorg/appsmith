@@ -3,7 +3,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 
 const LINE_HEIGHTS: { [key in TextStyle]: number } = {
   // The following values are arrived at by multiplying line-height with font-size
@@ -16,9 +19,10 @@ const LINE_HEIGHTS: { [key in TextStyle]: number } = {
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       text: VALIDATION_TYPES.TEXT,
       textStyle: VALIDATION_TYPES.TEXT,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
+      shouldScroll: VALIDATION_TYPES.BOOLEAN,
     };
   }
 

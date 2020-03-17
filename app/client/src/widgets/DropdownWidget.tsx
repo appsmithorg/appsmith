@@ -4,18 +4,21 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       placeholderText: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectionType: VALIDATION_TYPES.TEXT,
-      selectedIndex: VALIDATION_TYPES.NUMBER,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
     };
@@ -44,6 +47,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultOptionValue) {
+      const selectedIndex = _.findIndex(this.props.options, option => {
+        return option.value === this.props.defaultOptionValue;
+      });
+      this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+    }
+  }
+
   componentDidUpdate(prevProps: DropdownWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
@@ -51,22 +64,26 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     ) {
       this.updateWidgetMetaProperty("selectedIndex", undefined);
       this.updateWidgetMetaProperty("selectedIndexArr", []);
+    } else if (
+      (this.props.selectedIndex !== prevProps.selectedIndex &&
+        this.props.selectedIndex === undefined) ||
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue
+    ) {
+      const selectedIndex = _.findIndex(this.props.options, option => {
+        return option.value === this.props.defaultOptionValue;
+      });
+      if (selectedIndex > -1) {
+        this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+      } else {
+        this.updateWidgetMetaProperty("selectedIndex", undefined);
+      }
     }
   }
   getPageView() {
     const options = this.props.options || [];
-    let selectedIndex: number | undefined = undefined;
-    if (
-      this.props.selectedIndex !== undefined &&
-      this.props.selectedIndex < options.length &&
-      this.props.selectedIndex >= 0
-    ) {
-      selectedIndex = this.props.selectedIndex;
-    }
-
     const selectedIndexArr = this.props.selectedIndexArr || [];
     let computedSelectedIndexArr = selectedIndexArr.slice();
-    selectedIndexArr.forEach((selectedIndex, index) => {
+    selectedIndexArr.forEach(selectedIndex => {
       if (options[selectedIndex] === undefined) {
         computedSelectedIndexArr = [];
       }
@@ -80,7 +97,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText}
         options={options}
         selectionType={this.props.selectionType}
-        selectedIndex={selectedIndex}
+        selectedIndex={this.props.selectedIndex}
         selectedIndexArr={computedSelectedIndexArr}
         label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
         isLoading={this.props.isLoading}
@@ -156,6 +173,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectionType: SelectionType;
   options?: DropdownOption[];
   onOptionChange?: string;
+  defaultOptionValue?: string;
   isRequired: boolean;
 }
 

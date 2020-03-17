@@ -5,7 +5,10 @@ import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType, ExecutionResult } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
@@ -30,10 +33,11 @@ class FormButtonWidget extends BaseWidget<
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       text: VALIDATION_TYPES.TEXT,
       disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
       buttonStyle: VALIDATION_TYPES.TEXT,
+      buttonType: VALIDATION_TYPES.TEXT,
     };
   }
 
@@ -55,6 +59,8 @@ class FormButtonWidget extends BaseWidget<
           callback: this.handleActionResult,
         },
       });
+    } else if (this.props.resetFormOnClick && this.props.onReset) {
+      this.props.onReset();
     }
   }
 
@@ -84,7 +90,7 @@ class FormButtonWidget extends BaseWidget<
         disabled={disabled}
         onClick={this.onButtonClickBound}
         isLoading={this.props.isLoading || this.state.isLoading}
-        type={ButtonType.SUBMIT}
+        type={this.props.buttonType || ButtonType.BUTTON}
       />
     );
   }
@@ -105,6 +111,7 @@ export interface FormButtonWidgetProps extends WidgetProps {
   buttonStyle?: ButtonStyle;
   onClick?: string;
   isVisible?: boolean;
+  buttonType: ButtonType;
   isFormValid?: boolean;
   resetFormOnClick?: boolean;
   onReset?: () => void;

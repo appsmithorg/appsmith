@@ -885,6 +885,67 @@ const PropertyPaneConfigResponse = {
         ],
       },
     ],
+    CHART_WIDGET: [
+      {
+        sectionName: "General",
+        id: "21",
+        children: [
+          {
+            id: "21.1",
+            propertyName: "chartType",
+            label: "Chart Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Line Chart",
+                value: "LINE_CHART",
+              },
+              {
+                label: "Bar Chart",
+                value: "BAR_CHART",
+              },
+              {
+                label: "Pie Chart",
+                value: "PIE_CHART",
+              },
+              {
+                label: "Column Chart",
+                value: "COLUMN_CHART",
+              },
+              {
+                label: "Area Chart",
+                value: "AREA_CHART",
+              },
+            ],
+          },
+          {
+            id: "21.2",
+            propertyName: "chartName",
+            label: "Chart Name",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "21.3",
+            propertyName: "xAxisName",
+            label: "X-axis Label",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "21.4",
+            propertyName: "yAxisName",
+            label: "Y-axis Label",
+            controlType: "INPUT_TEXT",
+          },
+          {
+            id: "21.5",
+            propertyName: "chartData",
+            label: "Chart Data",
+            controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
+          },
+        ],
+      },
+    ],
   },
   name: "propertyPane",
 };

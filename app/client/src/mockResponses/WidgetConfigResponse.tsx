@@ -34,7 +34,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1,
       columns: 8,
       widgetName: "Input",
-      text: "",
     },
     SWITCH_WIDGET: {
       isOn: false,
@@ -119,7 +118,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Option 5", value: "5" },
       ],
       widgetName: "Dropdown",
-      selectedIndex: 0,
     },
     CHECKBOX_WIDGET: {
       rows: 1,
@@ -155,6 +153,45 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
+    },
+    CHART_WIDGET: {
+      rows: 8,
+      columns: 6,
+      widgetName: "Chart",
+      chartType: "LINE_CHART",
+      chartName: "Sales on working days",
+      chartData: [
+        {
+          x: "Mon",
+          y: 10000,
+        },
+        {
+          x: "Tue",
+          y: 12000,
+        },
+        {
+          x: "Wed",
+          y: 32000,
+        },
+        {
+          x: "Thu",
+          y: 28000,
+        },
+        {
+          x: "Fri",
+          y: 14000,
+        },
+        {
+          x: "Sat",
+          y: 19000,
+        },
+        {
+          x: "Sun",
+          y: 36000,
+        },
+      ],
+      xAxisName: "Last Week",
+      yAxisName: "Total Order Revenue $",
     },
     FORM_BUTTON_WIDGET: {
       rows: 1,

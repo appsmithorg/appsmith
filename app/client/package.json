@@ -44,6 +44,7 @@
     "flow-bin": "^0.91.0",
     "fontfaceobserver": "^2.1.0",
     "fuse.js": "^3.4.5",
+    "fusioncharts": "^3.15.0-sr.1",
     "history": "^4.10.1",
     "husky": "^3.0.5",
     "interweave": "^12.1.1",
@@ -67,6 +68,7 @@
     "react-dnd-html5-backend": "^9.3.4",
     "react-dnd-touch-backend": "^9.4.0",
     "react-dom": "^16.7.0",
+    "react-fusioncharts": "^3.1.2",
     "react-helmet": "^5.2.1",
     "react-redux": "^7.1.3",
     "react-router": "^5.1.2",
@@ -157,8 +159,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn run test"
+      "pre-commit": "lint-staged"
     }
   }
 }

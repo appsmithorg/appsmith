@@ -3,16 +3,22 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
 import { EventType } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
+      onSelectionChange: VALIDATION_TYPES.TEXT,
+      defaultOptionValue: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
@@ -28,6 +34,30 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       onSelectionChange: true,
     };
   }
+
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultOptionValue) {
+      this.updateWidgetMetaProperty(
+        "selectedOptionValue",
+        this.props.defaultOptionValue,
+      );
+    }
+  }
+
+  componentDidUpdate(prevProps: RadioGroupWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      (this.props.selectedOptionValue !== prevProps.selectedOptionValue &&
+        this.props.selectedOptionValue === undefined) ||
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue
+    ) {
+      this.updateWidgetMetaProperty(
+        "selectedOptionValue",
+        this.props.defaultOptionValue,
+      );
+    }
+  }
   getPageView() {
     return (
       <RadioGroupComponent
@@ -35,7 +65,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
         label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
-        defaultOptionValue={this.props.defaultOptionValue}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
         isLoading={this.props.isLoading}

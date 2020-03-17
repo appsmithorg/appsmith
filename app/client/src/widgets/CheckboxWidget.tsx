@@ -4,16 +4,18 @@ import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "components/designSystems/blueprint/CheckboxComponent";
 import { EventType } from "constants/ActionConstants";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
+      ...BASE_WIDGET_VALIDATION,
       label: VALIDATION_TYPES.TEXT,
       defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
-      isChecked: VALIDATION_TYPES.BOOLEAN,
     };
   }
 
@@ -23,10 +25,35 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    if (this.props.defaultCheckedState) {
+      this.updateWidgetMetaProperty(
+        "isChecked",
+        this.props.defaultCheckedState,
+      );
+    }
+  }
+
+  componentDidUpdate(prevProps: CheckboxWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (
+      (this.props.isChecked !== prevProps.isChecked &&
+        this.props.isChecked === undefined) ||
+      this.props.defaultCheckedState.toString() !==
+        prevProps.defaultCheckedState.toString()
+    ) {
+      this.updateWidgetMetaProperty(
+        "isChecked",
+        this.props.defaultCheckedState,
+      );
+    }
+  }
+
   getPageView() {
     return (
       <CheckboxComponent
-        defaultCheckedState={this.props.defaultCheckedState}
+        isChecked={!!this.props.isChecked}
         label={this.props.label}
         widgetId={this.props.widgetId}
         key={this.props.widgetId}

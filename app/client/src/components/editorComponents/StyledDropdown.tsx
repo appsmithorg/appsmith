@@ -17,6 +17,7 @@ import { IconNames } from "@blueprintjs/icons";
 type ActionTypeDropdownProps = {
   options: DropdownOption[];
   selectedValue: string;
+  defaultText: string;
   onSelect: (value: string) => void;
 };
 
@@ -55,7 +56,9 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
 
   render() {
     const { selectedValue } = this.props;
-    let selectedOption = this.props.options[0];
+    let selectedOption = {
+      label: this.props.defaultText,
+    };
     this.props.options.forEach(o => {
       if (o.value === selectedValue) {
         selectedOption = o;

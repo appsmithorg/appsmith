@@ -17,15 +17,19 @@ const StyledControlGroup = styled(ControlGroup)`
     & > label {
       ${labelStyle}
       flex: 0 1 30%;
-      align-self: flex-start;
+      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
       text-align: right;
-      margin: 0 ${WIDGET_PADDING * 2}px 0 0;
+      align-self: flex-start;
+      max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
   ${BlueprintControlTransform};
+  label {
+    margin: 7px ${WIDGET_PADDING * 2}px 0 0;
+  }
 `;
 
 class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
@@ -44,11 +48,7 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           </Label>
         )}
         <StyledRadioGroup
-          selectedValue={
-            this.props.selectedOptionValue === undefined
-              ? this.props.defaultOptionValue
-              : this.props.selectedOptionValue
-          }
+          selectedValue={this.props.selectedOptionValue}
           onChange={this.onRadioSelectionChange}
         >
           {this.props.options.map(option => {
@@ -77,7 +77,6 @@ export interface RadioGroupComponentProps extends ComponentProps {
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
   isLoading: boolean;
-  defaultOptionValue: string;
 }
 
 export default RadioGroupComponent;
