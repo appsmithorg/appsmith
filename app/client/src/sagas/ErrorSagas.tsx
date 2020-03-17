@@ -80,7 +80,8 @@ export function* errorSaga(
     type,
     payload: { error, show = true },
   } = errorAction;
-  const message = error.message || ActionErrorDisplayMap[type](error);
+  const message =
+    error && error.message ? error.message : ActionErrorDisplayMap[type](error);
   if (show) AppToaster.show({ message, type: ToastType.ERROR });
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
