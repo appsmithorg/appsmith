@@ -173,34 +173,34 @@ class PropertyPane extends Component<
     }
   };
 
-  shouldComponentUpdate(nextProps: PropertyPaneProps & PropertyPaneFunctions) {
+  componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
     if (
-      nextProps.widgetId !== this.props.widgetId &&
-      nextProps.widgetId !== undefined
+      this.props.widgetId !== prevProps.widgetId &&
+      this.props.widgetId !== undefined
     ) {
-      if (this.props.widgetId && this.props.widgetProperties) {
+      if (prevProps.widgetId && prevProps.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
-          widgetType: this.props.widgetProperties.type,
-          widgetId: this.props.widgetId,
+          widgetType: prevProps.widgetProperties.type,
+          widgetId: prevProps.widgetId,
         });
       }
-      if (nextProps.widgetProperties) {
+      if (this.props.widgetProperties) {
         AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
-          widgetType: nextProps.widgetProperties.type,
-          widgetId: nextProps.widgetId,
+          widgetType: this.props.widgetProperties.type,
+          widgetId: this.props.widgetId,
         });
       }
     }
 
     if (
-      nextProps.widgetId === this.props.widgetId &&
-      nextProps.isVisible &&
-      !this.props.isVisible &&
-      nextProps.widgetProperties !== undefined
+      this.props.widgetId === prevProps.widgetId &&
+      this.props.isVisible &&
+      !prevProps.isVisible &&
+      this.props.widgetProperties !== undefined
     ) {
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
-        widgetType: nextProps.widgetProperties.type,
-        widgetId: nextProps.widgetId,
+        widgetType: this.props.widgetProperties.type,
+        widgetId: this.props.widgetId,
       });
     }
 
