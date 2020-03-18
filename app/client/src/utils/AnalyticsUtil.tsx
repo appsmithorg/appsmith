@@ -42,7 +42,11 @@ export type EventName =
   | "SAVE_DATA_SOURCE"
   | "NAVIGATE"
   | "PAGE_LOAD"
-  | "NAVIGATE_EDITOR";
+  | "NAVIGATE_EDITOR"
+  | "PROPERTY_PANE_OPEN"
+  | "PROPERTY_PANE_CLOSE"
+  | "PROPERTY_PANE_OPEN_CLICK"
+  | "PROPERTY_PANE_CLOSE_CLICK";
 
 export type Gender = "MALE" | "FEMALE";
 export interface User {

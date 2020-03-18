@@ -82,6 +82,12 @@ class PropertyPane extends Component<
 
         <CloseButton
           onClick={(e: any) => {
+            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+              widgetType: this.props.widgetProperties
+                ? this.props.widgetProperties.type
+                : "",
+              widgetId: this.props.widgetId,
+            });
             this.props.hidePropertyPane();
             e.preventDefault();
             e.stopPropagation();
@@ -166,6 +172,40 @@ class PropertyPane extends Component<
       });
     }
   };
+
+  shouldComponentUpdate(nextProps: PropertyPaneProps & PropertyPaneFunctions) {
+    if (
+      nextProps.widgetId !== this.props.widgetId &&
+      nextProps.widgetId !== undefined
+    ) {
+      if (this.props.widgetId && this.props.widgetProperties) {
+        AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
+          widgetType: this.props.widgetProperties.type,
+          widgetId: this.props.widgetId,
+        });
+      }
+      if (nextProps.widgetProperties) {
+        AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+          widgetType: nextProps.widgetProperties.type,
+          widgetId: nextProps.widgetId,
+        });
+      }
+    }
+
+    if (
+      nextProps.widgetId === this.props.widgetId &&
+      nextProps.isVisible &&
+      !this.props.isVisible &&
+      nextProps.widgetProperties !== undefined
+    ) {
+      AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+        widgetType: nextProps.widgetProperties.type,
+        widgetId: nextProps.widgetId,
+      });
+    }
+
+    return true;
+  }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
     this.props.updateWidgetProperty(
