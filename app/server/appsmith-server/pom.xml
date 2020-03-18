@@ -222,6 +222,9 @@
                             <processor>
                                 org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
                             </processor>
+                            <options>
+                                <querydsl.listAccessors>true</querydsl.listAccessors>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>
