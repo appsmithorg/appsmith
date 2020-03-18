@@ -31,10 +31,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
@@ -89,48 +91,21 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByName(name);
     }
 
-//    private Set<Policy> crudAppPolicy(User user) {
-//        Policy readAppPolicy = Policy.builder().permission(AclPermission.READ_APPLICATIONS.getValue())
-//                .users(Set.of(user.getUsername()))
-//                .build();
-//
-//        Policy manageAppPolicy = Policy.builder().permission(AclPermission.MANAGE_APPLICATIONS.getValue())
-//                .users(Set.of(user.getUsername()))
-//                .build();
-//
-//        return Set.of(manageAppPolicy, readAppPolicy);
-//    }
-
     private Set<Policy> crudOrgPolicy(User user) {
         Set<Policy> policySet = user.getPolicies().stream()
                 .filter(policy ->
-                        policy.getPermission().equals(MANAGE_ORGANIZATIONS.getValue())
+                        policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
                 ).collect(Collectors.toSet());
 
         Set<Policy> documentPolicies = policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), Organization.class);
+                            .getPermissionByValue(policy.getPermission(), User.class);
                     // Get all the child policies for the given policy and aclPermission
                     return policyGenerator.getChildPolicies(policy, aclPermission, user);
                 }).flatMap(Collection::stream)
                 .collect(Collectors.toSet());
-
-        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
-                .users(Set.of(user.getUsername()))
-                .build();
-        documentPolicies.add(manageOrgPolicy);
         return documentPolicies;
-    }
-
-    private Set<Policy> adminPoliciesForOrganization(User user) {
-
-        Set<Policy> crudOrgPolicies = crudOrgPolicy(user);
-
-        Set<Policy> adminPolicies = new HashSet<>();
-        adminPolicies.addAll(crudOrgPolicies);
-
-        return adminPolicies;
     }
 
     /**
@@ -149,6 +124,15 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         log.debug("Going to create org: {}", organization);
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
+        }
+
+        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()))
+                .findFirst()
+                .isPresent();
+
+        if (!isManageOrgPolicyPresent) {
+            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
         // Set the admin policies for this organization & user

@@ -31,6 +31,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Configuration
@@ -52,7 +53,7 @@ public class SeedMongoData {
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+        Policy userManageOrgPolicy = Policy.builder().permission(USER_MANAGE_ORGANIZATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
 
@@ -62,7 +63,7 @@ public class SeedMongoData {
 
         Object[][] userData = {
                 {"user test", "usertest@usertest.com", UserState.ACTIVATED, new HashSet<>()},
-                {"api_user", "api_user", UserState.ACTIVATED, Set.of(manageOrgPolicy)},
+                {"api_user", "api_user", UserState.ACTIVATED, Set.of(userManageOrgPolicy)},
         };
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(manageAppPolicy)}

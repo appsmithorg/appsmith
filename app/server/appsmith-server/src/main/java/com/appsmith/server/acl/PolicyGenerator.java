@@ -28,6 +28,8 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
 
 @Getter
 @Setter
@@ -55,12 +57,21 @@ public class PolicyGenerator {
                     lateralGraph.addVertex(permission);
                 });
 
+        createUserPolicyGraph();
         createOrganizationPolicyGraph();
         createApplicationPolicyGraph();
         createPagePolicyGraph();
         createActionPolicyGraph();
 
         log.debug("Successfully created the createGraph & lateralGraph");
+    }
+
+    private void createUserPolicyGraph() {
+        hierarchyGraph.addEdge(USER_MANAGE_ORGANIZATIONS, MANAGE_ORGANIZATIONS);
+        hierarchyGraph.addEdge(USER_READ_ORGANIZATIONS, READ_ORGANIZATIONS);
+
+        // If user is given manageOrg permission, they must also be able to read organizations
+        lateralGraph.addEdge(USER_MANAGE_ORGANIZATIONS, USER_READ_ORGANIZATIONS);
     }
 
     private void createOrganizationPolicyGraph() {
@@ -129,7 +140,7 @@ public class PolicyGenerator {
             // current user gets these permissions
             childPolicySet.addAll(getLateralPoliciesForUser(childPermission, user));
         }
-        childPolicySet.addAll(getLateralPoliciesForUser(aclPermission, user));
+
         return childPolicySet;
     }
 

@@ -12,10 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -110,6 +115,29 @@ public class ApplicationServiceTest {
                     assertThat(t.getName()).isEqualTo("validGetApplicationByName-Test");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplications() {
+        Application application = new Application();
+        application.setName("validGetApplicationByName-Test");
+
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Mono<Application> createApplication = applicationPageService.createApplication(application);
+        List<Application> applicationList = createApplication
+                .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
+                .collectList()
+                .block();
+
+        assertThat(applicationList.size() > 0);
+        applicationList.forEach(t -> {
+            assertThat(t.getId()).isNotNull();
+            assertThat(t.getPolicies()).isNotEmpty();
+            assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
+        });
     }
 
     /* Tests for Update Application Flow */

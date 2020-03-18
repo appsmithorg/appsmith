@@ -12,6 +12,8 @@ import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -115,5 +118,30 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                                 return findById(id, permission);
                             });
                 });
+    }
+
+    public Flux<T> findAll(Example<T> example, Sort sort, AclPermission aclPermission) {
+        Assert.notNull(example, "Sample must not be null!");
+        Assert.notNull(sort, "Sort must not be null!");
+
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMapMany(principal -> {
+
+                    Query query = new Query().addCriteria(
+                            new Criteria().andOperator(notDeleted(), userAcl((User) principal, aclPermission),
+                                    new Criteria().alike(example))
+                    ).with(sort);
+
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(query)
+                            .all();
+                });
+    }
+
+    public Flux<T> findAll(Example<T> example, AclPermission aclPermission) {
+        Assert.notNull(example, "Example must not be null!");
+        return findAll(example, Sort.unsorted(), aclPermission);
     }
 }

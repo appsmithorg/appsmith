@@ -20,6 +20,7 @@ import reactor.test.StepVerifier;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,13 +72,17 @@ public class OrganizationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Mono<Organization> organizationResponse = organizationService.create(organization)
                 .switchIfEmpty(Mono.error(new Exception("create is returning empty!!")));
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
                     assertThat(organization1.getPolicies()).isNotEmpty();
-                    assertThat(organization1.getPolicies()).containsAll(Set.of(manageOrgAppPolicy));
+                    assertThat(organization1.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy));
                 })
                 .verifyComplete();
     }
