@@ -39,4 +39,8 @@ public class Provider extends BaseDomain {
 
     String planSubscribed;
 
+    Boolean isVisible = true;
+
+    Integer sortOrder = 1000;
+
 }
