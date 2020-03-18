@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
@@ -234,7 +235,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .update(action.getId(), action)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
                 .flatMap(savedAction -> pageService
-                        .findById(oldPageId)
+                        .findById(oldPageId, AclPermission.MANAGE_PAGES)
                         .map(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -250,7 +251,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                     .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
                                     .collect(toSet());
                         })
-                        .then(pageService.findById(actionMoveDTO.getDestinationPageId()))
+                        .then(pageService.findById(actionMoveDTO.getDestinationPageId(), AclPermission.MANAGE_PAGES))
                         .map(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -320,7 +321,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Flux<Action> actionsInPageFlux = actionService.get(params);
 
         Mono<Page> updatePageMono = pageService
-                .findById(pageId)
+                .findById(pageId, AclPermission.MANAGE_PAGES)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -456,7 +457,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
          * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
          */
         Mono<Set<String>> widgetNamesMono = pageService
-                .findById(pageId)
+                .findById(pageId, AclPermission.MANAGE_PAGES)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {

@@ -41,12 +41,23 @@ public class LayoutServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
+    @Autowired
+    ApplicationPageService applicationPageService;
+
     Mono<Application> applicationMono;
 
     @Before
     public void setup() {
-        applicationMono = applicationService.findByName("LayoutServiceTest TestApplications");
+        purgeAllPages();
+        Application application = new Application();
+        application.setName("LayoutAPI-Test-Application");
+        applicationMono = applicationPageService.createApplication(application);
     }
+
+    private void purgeAllPages() {
+        pageService.deleteAll();
+    }
+
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -76,15 +87,20 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidLayout() {
+        Page testPage = new Page();
+        testPage.setName("createLayoutPageName");
+        Mono<Page> pageMono = applicationMono
+                .switchIfEmpty(Mono.error(new Exception("No application found")))
+                .map(application -> {
+                    testPage.setApplicationId(application.getId());
+                    return testPage;
+                })
+                .flatMap(applicationPageService::createPage);
+
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
         obj.put("key1", "value1");
         testLayout.setDsl(obj);
-
-        String testPageName = "validPageName";
-        Mono<Page> pageMono = pageService
-                .findByName(testPageName)
-                .switchIfEmpty(Mono.error(new Exception("No page found")));
 
         Mono<Layout> layoutMono = pageMono
                 .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
@@ -99,6 +115,18 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
+    private Mono<Page> createPage(Page page) {
+        Mono<Page> pageMono = pageService
+                .findByName(page.getName())
+                .switchIfEmpty(applicationMono
+                        .map(application -> {
+                            page.setApplicationId(application.getId());
+                            return page;
+                        })
+                        .flatMap(applicationPageService::createPage));
+        return pageMono;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLayoutInvalidPageId() {
@@ -106,31 +134,24 @@ public class LayoutServiceTest {
         JSONObject obj = new JSONObject();
         obj.put("key", "value");
         testLayout.setDsl(obj);
-        AtomicReference<String> pageId = new AtomicReference<>();
 
         Page testPage = new Page();
-        testPage.setName("LayoutServiceTest updateLayoutInvalidPage");
-        Mono<Page> pageMono = pageService
-                .findByName(testPage.getName())
-                .switchIfEmpty(applicationMono
-                        .map(application -> {
-                            testPage.setApplicationId(application.getId());
-                            return testPage;
-                        })
-                        .flatMap(pageService::save));
-
-        Layout startLayout = pageMono
-                .flatMap(page -> {
-                    pageId.set(page.getId());
-                    return layoutService.createLayout(page.getId(), testLayout);
-                }).block();
+        testPage.setName("LayoutServiceTest updateLayoutInvalidPageId");
 
         Layout updateLayout = new Layout();
         obj = new JSONObject();
         obj.put("key", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
+        Mono<Page> pageMono = createPage(testPage);
+
+        Mono<Layout> startLayoutMono = pageMono
+                .switchIfEmpty(Mono.error(new Exception("No page found")))
+                .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
+
+        Mono<Layout> updatedLayoutMono = startLayoutMono.flatMap(startLayout ->
+                layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout)
+        );
 
         StepVerifier
                 .create(updatedLayoutMono)
@@ -153,8 +174,9 @@ public class LayoutServiceTest {
         updateLayout.setDsl(obj);
 
         Page testPage = new Page();
-        testPage.setName("validPageName");
-        Mono<Page> pageMono = pageService.findByName(testPage.getName()).cache();
+        testPage.setName("LayoutServiceTest updateLayoutValidPageId");
+
+        Mono<Page> pageMono = createPage(testPage);
 
         Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 

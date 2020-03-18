@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
@@ -50,7 +51,7 @@ public class LayoutServiceImpl implements LayoutService {
         }
 
         Mono<Page> pageMono = pageService
-                .findById(pageId)
+                .findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono

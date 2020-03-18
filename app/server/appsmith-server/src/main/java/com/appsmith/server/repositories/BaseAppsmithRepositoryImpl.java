@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -143,5 +144,37 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     public Flux<T> findAll(Example<T> example, AclPermission aclPermission) {
         Assert.notNull(example, "Example must not be null!");
         return findAll(example, Sort.unsorted(), aclPermission);
+    }
+
+    protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    Query query = new Query();
+                    criterias.stream()
+                            .forEach(criteria -> query.addCriteria(criteria));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(query)
+                            .one();
+                });
+    }
+
+    protected Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMapMany(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    Query query = new Query();
+                    criterias.stream()
+                            .forEach(criteria -> query.addCriteria(criteria));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(query)
+                            .all();
+                });
     }
 }

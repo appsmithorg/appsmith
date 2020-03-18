@@ -167,11 +167,13 @@ public class SeedMongoData {
                                     });
                         }));
 
-        Query orgNameQuery = new Query();
-        orgNameQuery.addCriteria(where("name").is(orgData[0][0]));
+        Query orgNameQuery = new Query(where("name").is(orgData[0][0]));
         Mono<Organization> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Organization.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find org")));
 
+        Query appNameQuery = new Query(where("name").is(appData[0][0]));
+        Mono<Application> appByNameMono = mongoTemplate.findOne(appNameQuery, Application.class)
+                .switchIfEmpty(Mono.error(new Exception("Can't find app")));
         return args -> {
             organizationFlux1
                     .thenMany(addUserOrgFlux)
@@ -179,17 +181,19 @@ public class SeedMongoData {
                     .then(orgByNameMono)
                     .map(org -> org.getId())
                     // Seed the user data into the DB
-                    .map(orgId ->
+                    .flatMapMany(orgId ->
                                     // Seed the application data into the DB
-                                    Flux.just(appData).map(array -> {
-                                        Application app = new Application();
-                                        app.setName((String) array[0]);
-                                        app.setOrganizationId(orgId);
-                                        app.setPolicies((Set<Policy>) array[1]);
-                                        return app;
-                                    }).flatMap(applicationRepository::save)
+                                    Flux.just(appData)
+                                            .map(array -> {
+                                                Application app = new Application();
+                                                app.setName((String) array[0]);
+                                                app.setOrganizationId(orgId);
+                                                app.setPolicies((Set<Policy>) array[1]);
+                                                return app;
+                                            })
+                                            .flatMap(applicationRepository::save)
                             // Query the seed data to get the applicationId (required for page creation)
-                    ).then(applicationRepository.findByName((String) appData[0][0], READ_APPLICATIONS))
+                    ).then(appByNameMono)
                     .map(application -> application.getId())
                     .flatMapMany(appId -> Flux.just(pageData)
                             // Seed the page data into the DB
