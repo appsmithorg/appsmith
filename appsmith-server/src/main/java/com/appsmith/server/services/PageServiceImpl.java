@@ -104,7 +104,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                                 return applicationService.save(application);
                             });
                     Mono<Page> archivedPageMono = repository.archive(page);
-                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId())
+                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return actionRepository.archive(action);

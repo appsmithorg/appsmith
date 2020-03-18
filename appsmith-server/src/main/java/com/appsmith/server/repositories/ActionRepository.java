@@ -8,11 +8,6 @@ import reactor.core.publisher.Mono;
 import java.util.Set;
 
 @Repository
-public interface ActionRepository extends BaseRepository<Action, String> {
+public interface ActionRepository extends BaseRepository<Action, String>, CustomActionRepository {
 
-    Mono<Action> findByNameAndPageId(String name, String pageId);
-
-    Flux<Action> findByPageId(String pageId);
-
-    Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names, String pageId, String httpMethod);
 }
