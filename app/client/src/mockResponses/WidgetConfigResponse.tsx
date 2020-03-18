@@ -150,6 +150,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1,
       files: [],
+      label: "Select Files",
       columns: 4,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
@@ -201,8 +202,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDefaultClickDisabled: true,
     },
     FORM_WIDGET: {
-      rows: 10,
-      columns: 10,
+      rows: 13,
+      columns: 6,
       widgetName: "Form",
       blueprint: {
         view: [
