@@ -28,6 +28,8 @@ import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+
 
 @Slf4j
 @Service
@@ -59,15 +61,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        return userMono
-                .map(user -> user.getCurrentOrganizationId())
-                .flatMapMany(orgId -> {
-                    Application applicationExample = new Application();
-                    applicationExample.setOrganizationId(orgId);
-                    return repository.findAll(Example.of(applicationExample));
-                });
+        Application applicationExample = new Application();
+        return repository.findAll(Example.of(applicationExample), READ_APPLICATIONS);
     }
 
     @Override
@@ -80,7 +75,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return userMono
                 .map(user -> user.getCurrentOrganizationId())
-                .flatMap(orgId -> repository.findById(id, AclPermission.READ_APPLICATIONS))
+                .flatMap(orgId -> repository.findById(id, READ_APPLICATIONS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
@@ -96,12 +91,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> findByIdAndOrganizationId(String id, String organizationId) {
-        return repository.findByIdAndOrganizationId(id, organizationId, AclPermission.READ_APPLICATIONS);
+        return repository.findByIdAndOrganizationId(id, organizationId, READ_APPLICATIONS);
     }
 
     @Override
     public Mono<Application> findByName(String name) {
-        return repository.findByName(name, AclPermission.READ_APPLICATIONS);
+        return repository.findByName(name, READ_APPLICATIONS);
     }
 
     @Override
@@ -111,8 +106,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> update(String id, Application resource) {
-       return repository.updateById(id, resource, AclPermission.MANAGE_APPLICATIONS)
-               .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
+        return repository.updateById(id, resource, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
     }
 
     @Override

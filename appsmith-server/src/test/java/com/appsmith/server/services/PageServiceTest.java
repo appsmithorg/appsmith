@@ -102,7 +102,7 @@ public class PageServiceTest {
                     assertThat(page.getId()).isNotNull();
                     assertThat("PageServiceTest TestApp".equals(page.getName()));
                     assertThat(page.getPolicies()).isNotEmpty();
-                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
                 })
                 .verifyComplete();
     }

@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.User;
 import lombok.Getter;
 
 @Getter
@@ -14,6 +15,9 @@ public enum AclPermission {
     READ("read", null),
     UPDATE("update", null),
     DELETE("delete", null),
+
+    USER_MANAGE_ORGANIZATIONS("manage:userOrganiation", User.class),
+    USER_READ_ORGANIZATIONS("read:userOrganiation", User.class),
 
     MANAGE_ORGANIZATIONS("manage:organizations", Organization.class),
     READ_ORGANIZATIONS("read:organizations", Organization.class),
