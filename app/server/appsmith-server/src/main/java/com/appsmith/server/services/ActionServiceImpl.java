@@ -7,6 +7,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -435,12 +436,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Mono<Action> findByNameAndPageId(String name, String pageId) {
-        return repository.findByNameAndPageId(name, pageId);
+        return repository.findByNameAndPageId(name, pageId, AclPermission.READ_ACTIONS);
     }
 
     @Override
     public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
-        return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, httpMethod);
+        return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId,
+                httpMethod, AclPermission.READ_ACTIONS);
     }
 
     /**
