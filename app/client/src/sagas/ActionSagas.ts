@@ -300,7 +300,13 @@ export function* executeActionTriggers(
         AnalyticsUtil.logEvent("NAVIGATE", {
           navUrl: trigger.payload.url,
         });
-        window.location.href = trigger.payload.url;
+        // Add a default protocol if it doesn't exist.
+        let url = trigger.payload.url;
+        if (url.indexOf("://") === -1) {
+          url = "https://" + url;
+        }
+        window.location.assign(url);
+
         if (event.callback) event.callback({ success: true });
       } else {
         if (event.callback) event.callback({ success: false });
