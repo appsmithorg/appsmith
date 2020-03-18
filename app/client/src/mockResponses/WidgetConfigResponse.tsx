@@ -150,6 +150,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1,
       files: [],
+      label: "Select Files",
       columns: 4,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
@@ -201,14 +202,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDefaultClickDisabled: true,
     },
     FORM_WIDGET: {
-      rows: 10,
-      columns: 10,
+      rows: 13,
+      columns: 6,
       widgetName: "Form",
       blueprint: {
         view: [
           {
             type: "TEXT_WIDGET",
-            size: { rows: 1, cols: 4 },
+            size: { rows: 1, cols: 12 },
             position: { top: 0, left: 0 },
             props: {
               text: "Title",
@@ -217,8 +218,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
           {
             type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 3 },
-            position: { top: 8, left: 13 },
+            size: { rows: 1, cols: 4 },
+            position: { top: 11, left: 12 },
             props: {
               text: "Submit",
               buttonStyle: "PRIMARY_BUTTON",
@@ -228,8 +229,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
           {
             type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 3 },
-            position: { top: 8, left: 10 },
+            size: { rows: 1, cols: 4 },
+            position: { top: 11, left: 8 },
             props: {
               text: "Reset",
               buttonStyle: "SECONDARY_BUTTON",
