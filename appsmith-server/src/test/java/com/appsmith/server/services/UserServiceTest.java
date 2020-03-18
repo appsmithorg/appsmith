@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -28,17 +29,16 @@ public class UserServiceTest {
     OrganizationService organizationService;
 
     Mono<User> userMono;
+
     Mono<Organization> organizationMono;
 
     @Before
     public void setup() {
-
         userMono = userService.findByEmail("usertest@usertest.com");
         organizationMono = organizationService.getByName("Spring Test Organization");
     }
 
     //Test the update organization flow.
-
     @Test
     public void updateInvalidUserWithAnything() {
         User updateUser = new User();
@@ -56,6 +56,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void updateUserWithValidOrganization() {
         User updateUser = new User();
         //Add valid organization id to the updateUser object.
