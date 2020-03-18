@@ -28,6 +28,8 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -271,7 +273,8 @@ public class RapidApiPlugin extends BasePlugin {
                     // If either the key or the value is empty, skip
                     if (queryParam.getKey() != null && !queryParam.getKey().isEmpty() &&
                             queryParam.getValue() != null && !queryParam.getValue().isEmpty()) {
-                        uriBuilder.queryParam(queryParam.getKey(), queryParam.getValue());
+                        uriBuilder.queryParam(queryParam.getKey(), URLEncoder.encode(queryParam.getValue(),
+                                StandardCharsets.UTF_8));
                     }
                 }
             }

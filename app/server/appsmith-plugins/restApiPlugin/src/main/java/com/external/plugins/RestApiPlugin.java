@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class RestApiPlugin extends BasePlugin {
@@ -219,7 +221,8 @@ public class RestApiPlugin extends BasePlugin {
             if (queryParams != null) {
                 for (Property queryParam : queryParams) {
                     if (queryParam.getKey() != null && !queryParam.getKey().isEmpty()) {
-                        uriBuilder.queryParam(queryParam.getKey(), queryParam.getValue());
+                        uriBuilder.queryParam(queryParam.getKey(), URLEncoder.encode(queryParam.getValue(),
+                                StandardCharsets.UTF_8));
                     }
                 }
             }
