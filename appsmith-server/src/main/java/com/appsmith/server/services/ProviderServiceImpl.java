@@ -42,7 +42,7 @@ public class ProviderServiceImpl extends BaseService<ProviderRepository, Provide
     @Override
     public Flux<Provider> get(MultiValueMap<String, String> params) {
         Provider providerExample = new Provider();
-        Sort sort = Sort.by(FieldName.NAME);
+        Sort sort = Sort.by("sortOrder");
 
         if (params.getFirst(FieldName.NAME) != null) {
             providerExample.setName(params.getFirst(FieldName.NAME));
@@ -57,6 +57,8 @@ public class ProviderServiceImpl extends BaseService<ProviderRepository, Provide
             categories.add(DEFAULT_CATEGORY);
         }
         providerExample.setCategories(categories);
+
+        providerExample.setSortOrder(null);
 
         return repository.findAll(Example.of(providerExample), sort);
     }
