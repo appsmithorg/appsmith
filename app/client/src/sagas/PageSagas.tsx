@@ -123,12 +123,12 @@ export function* fetchPageSaga(
     if (isValidResponse) {
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
+      // Execute page load actions
+      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     yield put({
@@ -155,8 +155,6 @@ export function* fetchPublishedPageSaga(
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
-      // Execute page load actions
-      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
       yield put(updateCanvas(canvasWidgetsPayload));
       yield put({
         type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
@@ -167,6 +165,8 @@ export function* fetchPublishedPageSaga(
           pageWidgetId: canvasWidgetsPayload.pageWidgetId,
         },
       });
+      // Execute page load actions
+      yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
     yield put({
