@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -8,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 public interface PageService extends CrudService<Page, String> {
 
-    Mono<Page> findById(String pageId);
+    Mono<Page> findById(String pageId, AclPermission aclPermission);
 
     Flux<Page> findByApplicationId(String applicationId);
 

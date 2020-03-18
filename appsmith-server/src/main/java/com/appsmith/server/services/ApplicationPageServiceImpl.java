@@ -144,7 +144,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
-        return pageService.findById(pageId)
+        return pageService.findById(pageId, AclPermission.READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
                 .flatMap(this::doesPageBelongToCurrentUserOrganization)
                 //The pageId given is correct and belongs to the current user's organization.
@@ -181,7 +181,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
-        return pageService.findById(pageId)
+        return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, pageId)))
                 // Check if the page actually belongs to the application.
                 .flatMap(page -> {

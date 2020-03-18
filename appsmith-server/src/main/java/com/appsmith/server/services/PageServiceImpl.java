@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -49,13 +50,13 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findById(String pageId) {
-        return repository.findById(pageId);
+    public Mono<Page> findById(String pageId, AclPermission aclPermission) {
+        return repository.findById(pageId, aclPermission);
     }
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId) {
-        return repository.findByApplicationId(applicationId);
+        return repository.findByApplicationId(applicationId, AclPermission.READ_PAGES);
     }
 
     @Override
@@ -65,12 +66,12 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     @Override
     public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId) {
-        return repository.findByIdAndLayoutsId(pageId, layoutId);
+        return repository.findByIdAndLayoutsId(pageId, layoutId, AclPermission.READ_PAGES);
     }
 
     @Override
     public Mono<Page> findByName(String name) {
-        return repository.findByName(name);
+        return repository.findByName(name, AclPermission.READ_PAGES);
     }
 
     @Override
@@ -125,7 +126,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
         return applicationService
-                .findById(applicationId)
+                .findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMapMany(this::findNamesByApplication);
     }
@@ -140,7 +141,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application) {
         List<ApplicationPage> pages = application.getPages();
-        return repository.findByApplicationId(application.getId())
+        return repository.findByApplicationId(application.getId(), AclPermission.READ_PAGES)
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
                     pageNameIdDTO.setId(page.getId());
@@ -156,6 +157,6 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
 
     @Override
     public Mono<Page> findByNameAndApplicationId(String name, String applicationId) {
-        return repository.findByNameAndApplicationId(name, applicationId);
+        return repository.findByNameAndApplicationId(name, applicationId, AclPermission.READ_PAGES);
     }
 }
