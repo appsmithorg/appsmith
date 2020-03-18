@@ -134,12 +134,10 @@ export function* evaluateDynamicBoundValueSaga(path: string): any {
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
   if (_.isNil(jsonPathKeys)) return [];
-  const values: any = _.flatten(
-    yield all(
-      jsonPathKeys.map((jsonPath: string) => {
-        return call(evaluateDynamicBoundValueSaga, jsonPath);
-      }),
-    ),
+  const values: any = yield all(
+    jsonPathKeys.map((jsonPath: string) => {
+      return call(evaluateDynamicBoundValueSaga, jsonPath);
+    }),
   );
   const dynamicBindings: Record<string, string> = {};
   jsonPathKeys.forEach((key, i) => {
