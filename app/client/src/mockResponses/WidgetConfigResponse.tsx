@@ -209,7 +209,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         view: [
           {
             type: "TEXT_WIDGET",
-            size: { rows: 1, cols: 4 },
+            size: { rows: 1, cols: 12 },
             position: { top: 0, left: 0 },
             props: {
               text: "Title",
@@ -218,8 +218,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
           {
             type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 3 },
-            position: { top: 8, left: 13 },
+            size: { rows: 1, cols: 4 },
+            position: { top: 11, left: 12 },
             props: {
               text: "Submit",
               buttonStyle: "PRIMARY_BUTTON",
@@ -229,8 +229,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
           {
             type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 3 },
-            position: { top: 8, left: 10 },
+            size: { rows: 1, cols: 4 },
+            position: { top: 11, left: 8 },
             props: {
               text: "Reset",
               buttonStyle: "SECONDARY_BUTTON",
