@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
@@ -55,6 +56,10 @@ public class SeedMongoData {
                 .users(Set.of("api_user"))
                 .build();
 
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Object[][] userData = {
                 {"user test", "usertest@usertest.com", UserState.ACTIVATED, new HashSet<>()},
                 {"api_user", "api_user", UserState.ACTIVATED, Set.of(manageOrgPolicy)},
@@ -67,7 +72,7 @@ public class SeedMongoData {
                 {"LayoutServiceTest TestApplications", Set.of(readAppPolicy)}
         };
         Object[][] pageData = {
-                {"validPageName"}
+                {"validPageName", Set.of(managePagePolicy)}
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
@@ -140,6 +145,7 @@ public class SeedMongoData {
                                 Page page = new Page();
                                 page.setName((String) array[0]);
                                 page.setApplicationId(appId);
+                                page.setPolicies((Set<Policy>) array[1]);
                                 return page;
                             })
                             .flatMap(pageRepository::save)

@@ -35,9 +35,6 @@ public class PageServiceTest {
     PageService pageService;
 
     @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
     ApplicationPageService applicationPageService;
 
     Mono<Application> applicationMono;

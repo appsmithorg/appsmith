@@ -41,8 +41,6 @@ public class LayoutServiceTest {
     @Autowired
     LayoutActionService layoutActionService;
 
-    Mono<Layout> layoutMono;
-
     Mono<Application> applicationMono;
 
     @Before
@@ -83,17 +81,12 @@ public class LayoutServiceTest {
         obj.put("key1", "value1");
         testLayout.setDsl(obj);
 
-        Page testPage = new Page();
-        testPage.setName("LayoutServiceTest createValidLayout Page");
+        String testPageName = "validPageName";
         Mono<Page> pageMono = pageService
-                .findByName(testPage.getName())
-                .switchIfEmpty(applicationMono
-                        .map(application -> {
-                            testPage.setApplicationId(application.getId());
-                            return testPage;
-                        })
-                        .flatMap(pageService::save));
-        layoutMono = pageMono
+                .findByName(testPageName)
+                .switchIfEmpty(Mono.error(new Exception("No page found")));
+
+        Mono<Layout> layoutMono = pageMono
                 .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 
         StepVerifier
@@ -154,20 +147,23 @@ public class LayoutServiceTest {
         obj.put("key", "value");
         testLayout.setDsl(obj);
 
-        Page testPage = new Page();
-        testPage.setName("validPageName");
-        Page page = pageService
-                .findByName(testPage.getName())
-                .block();
-
-        Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
-
         Layout updateLayout = new Layout();
         JSONObject obj1 = new JSONObject();
         obj1.put("key1", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+        Page testPage = new Page();
+        testPage.setName("validPageName");
+        Mono<Page> pageMono = pageService.findByName(testPage.getName()).cache();
+
+        Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
+
+        Mono<Layout> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono)
+                .flatMap(tuple -> {
+                    Page page = tuple.getT1();
+                    Layout startLayout = tuple.getT2();
+                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+                });
 
         StepVerifier
                 .create(updatedLayoutMono)

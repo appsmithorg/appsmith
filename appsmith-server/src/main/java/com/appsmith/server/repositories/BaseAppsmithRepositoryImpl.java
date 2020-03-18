@@ -58,13 +58,11 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .elemMatch(Criteria.where("users").all(user.getUsername())
                         .and("permission").is(permission.getValue())
                 );
-        log.debug("Got the userCriteria: {}", userCriteria.getCriteriaObject());
 
         Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
                 .elemMatch(Criteria.where("groups").all(user.getGroupIds())
                         .and("permission").is(permission.getValue()));
 
-        log.debug("Got the groupCriteria: {}", groupCriteria.getCriteriaObject());
         return new Criteria().orOperator(userCriteria, groupCriteria);
     }
 
