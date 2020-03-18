@@ -3,17 +3,16 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -34,33 +33,15 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Application> findByIdAndOrganizationId(String id, String orgId, AclPermission permission) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .flatMap(auth -> {
-                    User user = (User) auth.getPrincipal();
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(where(fieldName(QApplication.application.organizationId)).is(orgId));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
+        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(orgId);
+        Criteria idCriteria = getIdCriteria(id);
 
-                    return mongoOperations.query(Application.class)
-                            .matching(query)
-                            .one();
-                });
+        return queryOne(List.of(idCriteria, orgIdCriteria), permission);
     }
 
     @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                   User user = (User) principal;
-                   Query query = new Query(where(fieldName(QApplication.application.name)).is(name));
-                   query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
-
-                   return mongoOperations.query(Application.class)
-                           .matching(query)
-                           .one();
-                });
+        Criteria nameCriteria = where(fieldName(QApplication.application.name)).is(name);
+        return queryOne(List.of(nameCriteria), permission);
     }
 }
