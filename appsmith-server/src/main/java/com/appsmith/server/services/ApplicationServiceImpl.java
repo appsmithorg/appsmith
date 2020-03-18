@@ -62,6 +62,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
         Application applicationExample = new Application();
+        if (params != null && !params.isEmpty()) {
+            if (params.getFirst(FieldName.NAME) != null) {
+                applicationExample.setName(params.getFirst(FieldName.NAME));
+            }
+        }
         return repository.findAll(Example.of(applicationExample), READ_APPLICATIONS);
     }
 
@@ -71,11 +76,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        return userMono
-                .map(user -> user.getCurrentOrganizationId())
-                .flatMap(orgId -> repository.findById(id, READ_APPLICATIONS))
+        return repository.findById(id, READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 

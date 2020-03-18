@@ -10,11 +10,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -103,11 +105,31 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void validGetApplicationByName() {
+    public void validGetApplicationById() {
         Application application = new Application();
-        application.setName("validGetApplicationByName-Test");
+        application.setName("validGetApplicationById-Test");
         Mono<Application> createApplication = applicationPageService.createApplication(application);
         Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
+        StepVerifier.create(getApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getName()).isEqualTo("validGetApplicationById-Test");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplicationsByName() {
+        Application application = new Application();
+        application.setName("validGetApplicationByName-Test");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.set(FieldName.NAME, application.getName());
+
+        Mono<Application> createApplication = applicationPageService.createApplication(application);
+
+        Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();

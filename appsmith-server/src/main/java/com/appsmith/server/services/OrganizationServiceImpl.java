@@ -88,7 +88,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> getByName(String name) {
-        return repository.findByName(name);
+        return repository.findByName(name, AclPermission.READ_ORGANIZATIONS);
     }
 
     private Set<Policy> crudOrgPolicy(User user) {
@@ -238,7 +238,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId) {
-        return repository.findByIdAndPluginsPluginId(organizationId, pluginId);
+        return repository.findByIdAndPluginsPluginId(organizationId, pluginId, AclPermission.READ_ORGANIZATIONS);
     }
 
 }

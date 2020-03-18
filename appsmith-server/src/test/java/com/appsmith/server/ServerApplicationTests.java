@@ -1,5 +1,6 @@
 package com.appsmith.server;
 
+import com.appsmith.server.services.ActionServiceTest;
 import com.appsmith.server.services.ApplicationServiceTest;
 import com.appsmith.server.services.LayoutServiceTest;
 import com.appsmith.server.services.OrganizationServiceTest;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
         LayoutServiceTest.class,
         UserServiceTest.class,
         PageServiceTest.class,
+        ActionServiceTest.class
 })
 public class ServerApplicationTests {
 
