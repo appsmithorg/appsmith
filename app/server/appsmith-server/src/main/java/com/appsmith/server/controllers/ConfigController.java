@@ -7,6 +7,8 @@ import com.appsmith.server.services.ConfigService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -25,4 +27,9 @@ public class ConfigController extends BaseController<ConfigService, Config, Stri
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
+    @PutMapping("/name/{name}")
+    public Mono<ResponseDTO<Config>> updateByName(@PathVariable String name, @RequestBody Config config) {
+        return service.updateByName(name, config)
+                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
+    }
 }

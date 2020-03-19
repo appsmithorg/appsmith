@@ -5,11 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -17,7 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Document
 public class Config extends BaseDomain {
-    Map<String, List<WidgetSectionProperty>> config;
+    JSONObject config;
 
     @Indexed(unique = true)
     String name;
