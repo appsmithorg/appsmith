@@ -9,6 +9,8 @@ export const getWidgets = (
   return state.entities.canvasWidgets;
 };
 
+export const getWidgetsMeta = (state: AppState) => state.entities.meta;
+
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
 };
@@ -16,13 +18,10 @@ export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
 export const getEditorConfigs = (
   state: AppState,
 ): { pageId: string; layoutId: string } | undefined => {
-  const { currentLayoutId, currentPageId } = state.ui.editor;
-  return currentLayoutId && currentPageId
-    ? {
-        pageId: currentPageId,
-        layoutId: currentLayoutId,
-      }
-    : undefined;
+  const pageId = state.entities.pageList.currentPageId;
+  const layoutId = state.ui.editor.currentLayoutId;
+  if (!pageId || !layoutId) return undefined;
+  return { pageId, layoutId };
 };
 
 export const getDefaultWidgetConfig = (
