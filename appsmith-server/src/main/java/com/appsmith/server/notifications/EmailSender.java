@@ -12,9 +12,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +31,7 @@ public class EmailSender {
     @Autowired
     EmailConfig emailConfig;
 
-    private final String MAIL_FROM = "hello@appsmith.com";
+    private static final InternetAddress MAIL_FROM = makeFromAddress();
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -42,15 +44,19 @@ public class EmailSender {
     /**
      * This function sends an HTML email to the user from the default email address
      *
-     * @param to
-     * @param subject
-     * @param text
-     * @throws MailException
+     * @param to Single valid string email address to send to. Multiple addresses doesn't work.
+     * @param subject Subject string.
+     * @param text HTML Body of the message. This method assumes UTF-8.
      */
     public void sendMail(String to, String subject, String text) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);
         // Don't send an email for local, dev or test environments
         if (!emailConfig.isEmailEnabled()) {
+            return;
+        }
+
+        if (MAIL_FROM == null) {
+            log.error("MAIL_FROM is null, no From address object to send an email. Not sending email '{}'.", subject);
             return;
         }
 
@@ -93,5 +99,14 @@ public class EmailSender {
         mustache.execute(stringWriter, params).flush();
         String emailTemplate = stringWriter.toString();
         return emailTemplate;
+    }
+
+    private static InternetAddress makeFromAddress() {
+        try {
+            return new InternetAddress("hello@appsmith.com", "Appsmith");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Encoding error creating Appsmith from address.", e);
+            return null;
+        }
     }
 }
