@@ -591,8 +591,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
   for (const actionSet of pageActions) {
     const apiResponses = yield select(getActionResponses);
-    const filteredSet = actionSet.filter(action => !apiResponses[action.id]);
-    yield* yield all(filteredSet.map(a => call(executePageLoadAction, a)));
+    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
 }
 
