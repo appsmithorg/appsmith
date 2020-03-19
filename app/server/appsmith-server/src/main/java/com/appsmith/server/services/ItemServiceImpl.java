@@ -22,6 +22,7 @@ public class ItemServiceImpl implements ItemService {
     private final ApiTemplateService apiTemplateService;
     private final ActionService actionService;
     private final PluginService pluginService;
+    private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
                            ActionService actionService, PluginService pluginService) {
@@ -85,7 +86,11 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return pluginService
-                .findByPackageName(apiTemplate.getPackageName())
+                // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
+                /** TODO
+                 * Scraper should set the correct package name (rapidapi-plugin) instead of restapi-plugin
+                 */
+                .findByPackageName(RAPID_API_PLUGIN)
                 .map(plugin -> {
                     //Set Datasource
                     Datasource datasource = new Datasource();
