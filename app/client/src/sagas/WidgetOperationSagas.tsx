@@ -37,6 +37,7 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { buildWidgetBlueprint } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
+import ValidationFactory from "utils/ValidationFactory";
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
@@ -257,16 +258,22 @@ function* setWidgetDynamicPropertySaga(
 ) {
   const { isDynamic, propertyName, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
+  const propertyValue = widget[propertyName];
   const dynamicProperties: Record<string, true> = {
     ...widget.dynamicProperties,
   };
   if (isDynamic) {
     dynamicProperties[propertyName] = true;
-    const value = convertToString(widget[propertyName]);
+    const value = convertToString(propertyValue);
     yield put(updateWidgetProperty(widgetId, propertyName, value));
   } else {
     delete dynamicProperties[propertyName];
-    yield put(updateWidgetProperty(widgetId, propertyName, undefined));
+    const { parsed } = ValidationFactory.validateWidgetProperty(
+      widget.type,
+      propertyName,
+      propertyValue,
+    );
+    yield put(updateWidgetProperty(widgetId, propertyName, parsed));
   }
   yield put(
     updateWidgetProperty(widgetId, "dynamicProperties", dynamicProperties),
