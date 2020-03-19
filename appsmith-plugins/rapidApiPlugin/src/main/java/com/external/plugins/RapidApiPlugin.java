@@ -28,16 +28,20 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RapidApiPlugin extends BasePlugin {
     private static int MAX_REDIRECTS = 5;
     private static ObjectMapper objectMapper;
-    private static String rapidApiKeyName = "X-RapidAPI-Key";
-    private static String rapidApiKeyValue = "f2a61def63msh9d6582090d01286p157197jsnade6f31fcae8";
+    private static String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
+    private static String RAPID_API_KEY_VALUE = "f2a61def63msh9d6582090d01286p157197jsnade6f31fcae8";
+    private static String JSON_TYPE = "apipayload";
 
     public RapidApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -73,7 +77,21 @@ public class RapidApiPlugin extends BasePlugin {
             }
 
             // Add the rapid api headers
-            webClientBuilder.defaultHeader(rapidApiKeyName, rapidApiKeyValue);
+            webClientBuilder.defaultHeader(RAPID_API_KEY_NAME, RAPID_API_KEY_VALUE);
+
+            //If route parameters exist, update the URL by replacing the key surrounded by '{' and '}'
+            if (actionConfiguration.getRouteParameters() != null && !actionConfiguration.getRouteParameters().isEmpty()) {
+                for (Property property : actionConfiguration.getRouteParameters()) {
+                    // If either the key or the value is empty, skip
+                    if (property.getKey() != null && !property.getKey().isEmpty() &&
+                            property.getValue() != null && !property.getValue().isEmpty()) {
+
+                        Pattern pattern = Pattern.compile("\\{" + property.getKey() + "\\}");
+                        Matcher matcher = pattern.matcher(url);
+                        url = matcher.replaceAll(property.getValue());
+                    }
+                }
+            }
 
             URI uri = null;
             try {
@@ -87,21 +105,36 @@ public class RapidApiPlugin extends BasePlugin {
             // Build the body of the request in case of bodyFormData is not null
             if (actionConfiguration.getBodyFormData() != null) {
                 // First set the header to specify the content type
-                webClientBuilder.defaultHeader("Content-Type", "application/json");
+                webClientBuilder.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.toString());
 
-                Map<String, String> strStrMap = new HashMap<String, String>();
+                Map<String, String> keyValueMap = new HashMap<String, String>();
 
                 List<Property> bodyFormData = actionConfiguration.getBodyFormData();
+                String jsonString = null;
+                JSONObject bodyJson;
+                for (Property property: bodyFormData) {
 
-                bodyFormData
-                        .stream()
-                        .map(property -> strStrMap.put(property.getKey(), property.getValue()));
+                    if(property.getValue()!=null) {
+                        if (!property.getType().equals(JSON_TYPE)) {
+                            keyValueMap.put(property.getKey(), property.getValue());
+                        } else {
+                            // This is actually supposed to be the body and should not be in key-value format. No need to
+                            // convert the same.
+                            jsonString = property.getValue();
+                            break;
+                        }
+                    }
+                }
 
-                log.debug("str str map from body form data is : {}", strStrMap);
+                if (jsonString == null) {
+                    bodyJson = new JSONObject(keyValueMap);
+                } else {
+                    bodyJson = new JSONObject(jsonString);
+                }
+                jsonString = bodyJson.toString();
 
-                JSONObject bodyJson = new JSONObject(strStrMap);
-                String jsonString = bodyJson.toString();
-                log.debug("Json string from body form data is : {}", jsonString);
+                // Now reset the request body
+                requestBody = jsonString;
 
             }
 
@@ -218,18 +251,9 @@ public class RapidApiPlugin extends BasePlugin {
 
         @Override
         public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-            if (datasourceConfiguration.getUrl() == null) {
-                System.out.println("URL is null. Data validation failed");
-                return false;
-            }
-            // Check for URL validity
-            try {
-                new URL(datasourceConfiguration.getUrl()).toURI();
-                return true;
-            } catch (Exception e) {
-                System.out.println("URL is invalid. Data validation failed");
-                return false;
-            }
+            // Since the datasource is created by rapid api & not by the user and it can't be edited
+            // Assume that everything is good. Return true.
+            return true;
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {
@@ -246,8 +270,11 @@ public class RapidApiPlugin extends BasePlugin {
 
             if (queryParams != null) {
                 for (Property queryParam : queryParams) {
-                    if (queryParam.getKey() != null && !queryParam.getKey().isEmpty()) {
-                        uriBuilder.queryParam(queryParam.getKey(), queryParam.getValue());
+                    // If either the key or the value is empty, skip
+                    if (queryParam.getKey() != null && !queryParam.getKey().isEmpty() &&
+                            queryParam.getValue() != null && !queryParam.getValue().isEmpty()) {
+                        uriBuilder.queryParam(queryParam.getKey(), URLEncoder.encode(queryParam.getValue(),
+                                StandardCharsets.UTF_8));
                     }
                 }
             }

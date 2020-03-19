@@ -19,4 +19,5 @@ public class WidgetChildProperty {
     String placeholderText;
     List<WidgetOption> options;
     String inputType;
+    Boolean isJSConvertible;
 }
