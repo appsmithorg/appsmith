@@ -13,6 +13,9 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import RichTextEditorWidget, {
+  RichTextEditorWidgetProps,
+} from "widgets/RichTextEditorWidget";
 import ChartWidget, { ChartWidgetProps } from "widgets/ChartWidget";
 
 import FilePickerWidget, {
@@ -169,6 +172,17 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getPropertyValidationMap(),
       DatePickerWidget.getDerivedPropertiesMap(),
       DatePickerWidget.getTriggerPropertyMap(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "RICH_TEXT_EDITOR_WIDGET",
+      {
+        buildWidget(widgetData: RichTextEditorWidgetProps): JSX.Element {
+          return <RichTextEditorWidget {...widgetData} />;
+        },
+      },
+      RichTextEditorWidget.getPropertyValidationMap(),
+      RichTextEditorWidget.getDerivedPropertiesMap(),
+      RichTextEditorWidget.getTriggerPropertyMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "CHART_WIDGET",

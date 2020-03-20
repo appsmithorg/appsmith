@@ -7,6 +7,7 @@ import { TextWidgetProps } from "widgets/TextWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
+import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { SpinnerWidgetProps } from "widgets/SpinnerWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
@@ -43,6 +44,8 @@ export interface WidgetConfigReducerState {
     TEXT_WIDGET: Partial<TextWidgetProps> & WidgetConfigProps;
     IMAGE_WIDGET: Partial<ImageWidgetProps> & WidgetConfigProps;
     INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
+    RICH_TEXT_EDITOR_WIDGET: Partial<RichTextEditorWidgetProps> &
+      WidgetConfigProps;
     SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
