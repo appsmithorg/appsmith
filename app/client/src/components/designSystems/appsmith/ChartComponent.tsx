@@ -3,13 +3,6 @@ import { ChartType, ChartData } from "widgets/ChartWidget";
 import styled from "styled-components";
 import { invisible } from "constants/DefaultTheme";
 import _ from "lodash";
-/*
-import ReactFC from "react-fusioncharts";
-import FusionCharts from "fusioncharts";
-import Column2D from "fusioncharts/fusioncharts.charts";
-import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
-ReactFC.fcRoot(FusionCharts, Column2D, FusionTheme);
-*/
 const FusionCharts = require("fusioncharts");
 const Charts = require("fusioncharts/fusioncharts.charts");
 const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
@@ -22,6 +15,7 @@ export interface ChartComponentProps {
   xAxisName: string;
   yAxisName: string;
   chartName: string;
+  widgetId: string;
   isVisible?: boolean;
 }
 
@@ -67,7 +61,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   createGraph = () => {
     const chartConfig = {
       type: this.getChartType(this.props.chartType),
-      renderAt: "chart-container",
+      renderAt: this.props.widgetId + "chart-container",
       width: "100%",
       height: "100%",
       dataFormat: "json",
@@ -111,7 +105,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
-    return <CanvasContainer {...this.props} id="chart-container" />;
+    return (
+      <CanvasContainer
+        {...this.props}
+        id={this.props.widgetId + "chart-container"}
+      />
+    );
   }
 }
 

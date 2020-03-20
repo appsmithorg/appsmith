@@ -25,6 +25,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
         yAxisName={this.props.yAxisName}
         chartName={this.props.chartName}
         chartData={this.props.chartData}
+        widgetId={this.props.widgetId}
       />
     );
   }
