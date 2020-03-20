@@ -248,10 +248,13 @@ export const StyledInputGroup = styled(InputGroup)`
 `;
 
 export const StyledDatePicker = styled(DateInput)`
-& > input {
-  placeholderText: ${props => props.placeholder}
-  color: ${props => props.theme.colors.textOnDarkBG};
-  background: ${props => props.theme.colors.paneInputBG};
+  & {
+    input {
+      placeholderText: ${props => props.placeholder};
+      color: ${props => props.theme.colors.textOnDarkBG};
+      background: ${props => props.theme.colors.paneInputBG};
+    }
+  }
 }
 `;
 

@@ -14,11 +14,11 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
         showActionsBar={true}
         timePickerProps={{
           useAmPm: true,
-          value: this.props.propertyValue || new Date(),
+          value: new Date(this.props.propertyValue),
           showArrowButtons: true,
         }}
         onChange={this.onDateSelected}
-        value={this.props.propertyValue || new Date()}
+        value={new Date(this.props.propertyValue)}
       />
     );
   }
@@ -43,6 +43,7 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
 export interface DatePickerControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: Date;
+  enableTimePicker: boolean;
 }
 
 export default DatePickerControl;
