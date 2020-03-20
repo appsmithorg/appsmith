@@ -84,20 +84,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
       };
     }
-    let isValid = _.isBoolean(value);
+    const isBoolean = _.isBoolean(value);
+    const isStringTrueFalse = value === "true" || value === "false";
+    const isValid = isBoolean || isStringTrueFalse;
+    if (isStringTrueFalse) parsed = value !== "false";
     if (!isValid) {
-      try {
-        parsed = !!value;
-        isValid = true;
-      } catch (e) {
-        console.error(`Error when parsing ${value} to boolean`);
-        console.error(e);
-        return {
-          isValid: false,
-          parsed: false,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
-        };
-      }
+      return {
+        isValid: isValid,
+        parsed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: boolean`,
+      };
     }
     return { isValid, parsed };
   },
@@ -217,6 +213,15 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (value: any): ValidationResponse => {
+    if (value === undefined) {
+      const today = new Date();
+      today.setHours(0, 0, 0);
+      return {
+        isValid: false,
+        parsed: today,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+      };
+    }
     const isValid = moment(value).isValid();
     const parsed = isValid ? moment(value).toDate() : new Date();
     return {

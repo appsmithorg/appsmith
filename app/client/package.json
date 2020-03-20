@@ -15,6 +15,7 @@
     "@blueprintjs/timezone": "^3.6.0",
     "@craco/craco": "^5.6.1",
     "@sentry/browser": "^5.6.3",
+    "@sentry/webpack-plugin": "^1.10.0",
     "@syncfusion/ej2-react-grids": "^17.4.40",
     "@types/chance": "^1.0.7",
     "@types/fontfaceobserver": "^0.0.6",
@@ -117,7 +118,6 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
-    "@sentry/webpack-plugin": "^1.10.0",
     "@storybook/addon-contexts": "^5.2.6",
     "@storybook/addon-docs": "^5.2.8",
     "@storybook/addon-knobs": "^5.2.6",
@@ -158,8 +158,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn run test"
+      "pre-commit": "lint-staged"
     }
   }
 }

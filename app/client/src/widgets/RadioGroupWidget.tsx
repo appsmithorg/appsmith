@@ -3,16 +3,22 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
 import { EventType } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
+      onSelectionChange: VALIDATION_TYPES.TEXT,
+      defaultOptionValue: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
     };
   }
@@ -41,17 +47,15 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: RadioGroupWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (this.props.defaultOptionValue) {
-      if (
-        (this.props.selectedOptionValue !== prevProps.selectedOptionValue &&
-          this.props.selectedOptionValue === undefined) ||
-        this.props.defaultOptionValue !== prevProps.defaultOptionValue
-      ) {
-        this.updateWidgetMetaProperty(
-          "selectedOptionValue",
-          this.props.defaultOptionValue,
-        );
-      }
+    if (
+      (this.props.selectedOptionValue !== prevProps.selectedOptionValue &&
+        this.props.selectedOptionValue === undefined) ||
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue
+    ) {
+      this.updateWidgetMetaProperty(
+        "selectedOptionValue",
+        this.props.defaultOptionValue,
+      );
     }
   }
   getPageView() {

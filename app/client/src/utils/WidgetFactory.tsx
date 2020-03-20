@@ -4,7 +4,10 @@ import {
   WidgetProps,
   WidgetDataProps,
 } from "widgets/BaseWidget";
-import { WidgetPropertyValidationType } from "./ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "./ValidationFactory";
 import React from "react";
 
 type WidgetDerivedPropertyType = any;
@@ -78,7 +81,7 @@ class WidgetFactory {
     const map = this.widgetPropValidationMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
-      return {};
+      return BASE_WIDGET_VALIDATION;
     }
     return map;
   }

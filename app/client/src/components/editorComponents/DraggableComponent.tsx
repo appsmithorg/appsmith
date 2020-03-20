@@ -144,10 +144,19 @@ const DraggableComponent = (props: DraggableComponentProps) => {
         props.widgetId === propertyPaneState.widgetId) ||
       props.widgetId !== propertyPaneState.widgetId
     ) {
+      AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
+        widgetType: props.type,
+        widgetId: props.widgetId,
+      });
       showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
     } else {
+      AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+        widgetType: props.type,
+        widgetId: props.widgetId,
+      });
       showPropertyPane && showPropertyPane();
     }
+
     e.preventDefault();
     e.stopPropagation();
   };

@@ -4,19 +4,24 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import _ from "lodash";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       placeholderText: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      defaultOptionValue: VALIDATION_TYPES.TEXT,
     };
   }
   static getDerivedPropertiesMap() {
@@ -60,7 +65,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     ) {
       this.updateWidgetMetaProperty("selectedIndex", undefined);
       this.updateWidgetMetaProperty("selectedIndexArr", []);
-    } else if (this.props.defaultOptionValue) {
+    }
+    if (this.props.defaultOptionValue) {
       if (
         (this.props.selectedIndex !== prevProps.selectedIndex &&
           this.props.selectedIndex === undefined) ||
@@ -69,7 +75,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         const selectedIndex = _.findIndex(this.props.options, option => {
           return option.value === this.props.defaultOptionValue;
         });
-        this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+        if (selectedIndex > -1) {
+          this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+        } else {
+          this.updateWidgetMetaProperty("selectedIndex", undefined);
+        }
       }
     }
   }

@@ -27,7 +27,10 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { PositionTypes } from "constants/WidgetConstants";
 
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  BASE_WIDGET_VALIDATION,
+  WidgetPropertyValidationType,
+} from "utils/ValidationFactory";
 import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
@@ -66,7 +69,7 @@ abstract class BaseWidget<
   // Needed to send a default no validation option. In case a widget needs
   // validation implement this in the widget class again
   static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {};
+    return BASE_WIDGET_VALIDATION;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

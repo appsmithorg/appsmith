@@ -134,12 +134,10 @@ export function* evaluateDynamicBoundValueSaga(path: string): any {
 
 export function* getActionParams(jsonPathKeys: string[] | undefined) {
   if (_.isNil(jsonPathKeys)) return [];
-  const values: any = _.flatten(
-    yield all(
-      jsonPathKeys.map((jsonPath: string) => {
-        return call(evaluateDynamicBoundValueSaga, jsonPath);
-      }),
-    ),
+  const values: any = yield all(
+    jsonPathKeys.map((jsonPath: string) => {
+      return call(evaluateDynamicBoundValueSaga, jsonPath);
+    }),
   );
   const dynamicBindings: Record<string, string> = {};
   jsonPathKeys.forEach((key, i) => {
@@ -302,7 +300,13 @@ export function* executeActionTriggers(
         AnalyticsUtil.logEvent("NAVIGATE", {
           navUrl: trigger.payload.url,
         });
-        window.location.href = trigger.payload.url;
+        // Add a default protocol if it doesn't exist.
+        let url = trigger.payload.url;
+        if (url.indexOf("://") === -1) {
+          url = "https://" + url;
+        }
+        window.location.assign(url);
+
         if (event.callback) event.callback({ success: true });
       } else {
         if (event.callback) event.callback({ success: false });
@@ -329,10 +333,12 @@ export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   const tree = yield select(evaluateDataTree);
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
-  if (triggers) {
+  if (triggers && triggers.length) {
     yield all(
       triggers.map(trigger => call(executeActionTriggers, trigger, event)),
     );
+  } else {
+    if (event.callback) event.callback({ success: true });
   }
 }
 
@@ -585,8 +591,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
   for (const actionSet of pageActions) {
     const apiResponses = yield select(getActionResponses);
-    const filteredSet = actionSet.filter(action => !apiResponses[action.id]);
-    yield* yield all(filteredSet.map(a => call(executePageLoadAction, a)));
+    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
 }
 
@@ -687,7 +692,7 @@ function* copyActionSaga(
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
-    takeLatest(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
+    takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
     takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),

@@ -3,7 +3,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
-import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import {
+  WidgetPropertyValidationType,
+  BASE_WIDGET_VALIDATION,
+} from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   DerivedPropertiesMap,
@@ -13,8 +16,8 @@ import {
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
+      ...BASE_WIDGET_VALIDATION,
       defaultDate: VALIDATION_TYPES.DATE,
-      selectedDate: VALIDATION_TYPES.DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
@@ -37,6 +40,21 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       onDateSelected: true,
     };
   }
+
+  componentDidUpdate(prevProps: DatePickerWidgetProps) {
+    super.componentDidUpdate(prevProps);
+    if (this.props.defaultDate) {
+      if (
+        (this.props.selectedDate !== prevProps.selectedDate &&
+          this.props.selectedDate === undefined) ||
+        this.props.defaultDate.toDateString() !==
+          prevProps.defaultDate.toDateString()
+      ) {
+        this.updateWidgetMetaProperty("selectedDate", this.props.defaultDate);
+      }
+    }
+  }
+
   getPageView() {
     return (
       <DatePickerComponent
@@ -45,7 +63,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         timezone={this.props.timezone}
         enableTimePicker={this.props.enableTimePicker}
-        defaultDate={this.props.defaultDate}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
@@ -74,7 +91,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
 export interface DatePickerWidgetProps extends WidgetProps {
-  defaultDate?: Date;
+  defaultDate: Date;
   selectedDate: Date;
   timezone?: string;
   enableTimePicker: boolean;

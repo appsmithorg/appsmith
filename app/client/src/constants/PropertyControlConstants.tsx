@@ -19,10 +19,3 @@ export type ControlType =
   | "TIME_ZONE"
   | "CODE_EDITOR"
   | "COLUMN_ACTION_SELECTOR";
-
-export const CONVERTIBLE_CONTROLS = [
-  "SWITCH",
-  "OPTION_INPUT",
-  "ACTION_SELECTOR",
-  "DATE_PICKER",
-];
