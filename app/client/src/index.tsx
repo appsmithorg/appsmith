@@ -38,7 +38,6 @@ const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
 const AppViewer = lazy(() => import("./pages/AppViewer"));
 const Organization = lazy(() => import("./pages/organization"));
 const Users = lazy(() => import("./pages/users"));
-
 appInitializer();
 
 ReactDOM.render(

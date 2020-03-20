@@ -1,5 +1,6 @@
 export type ControlType =
   | "INPUT_TEXT"
+  | "RICH_TEXT_EDITOR"
   | "ICON_PICKER"
   | "SEGMENT_CONTROL"
   | "SWITCH"

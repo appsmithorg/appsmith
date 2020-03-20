@@ -14,6 +14,7 @@ import { ReactComponent as SwitchIcon } from "assets/icons/widget/switch.svg";
 import { ReactComponent as TextIcon } from "assets/icons/widget/text.svg";
 import { ReactComponent as ImageIcon } from "assets/icons/widget/image.svg";
 import { ReactComponent as FilePickerIcon } from "assets/icons/widget/filepicker.svg";
+import { ReactComponent as RichTextEditorIcon } from "assets/icons/widget/rich-text.svg";
 import { ReactComponent as ChartIcon } from "assets/icons/widget/chart.svg";
 import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 
@@ -70,6 +71,11 @@ export const WidgetIcons: {
   INPUT_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <InputIcon />
+    </IconWrapper>
+  ),
+  RICH_TEXT_EDITOR_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RichTextEditorIcon />
     </IconWrapper>
   ),
   SWITCH_WIDGET: (props: IconProps) => (
