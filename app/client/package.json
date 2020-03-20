@@ -138,7 +138,7 @@
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "babel-loader": "^8.0.6",
-    "cypress": "^3.7.0",
+    "cypress": "^4.1.0",
     "cypress-multi-reporters": "^1.2.4",
     "dotenv": "^8.1.0",
     "eslint": "^6.4.0",
@@ -162,6 +162,7 @@
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
+
     }
   }
 }
