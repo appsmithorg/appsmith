@@ -9,7 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ControlConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
-import { Tooltip } from "@blueprintjs/core";
+import { Tooltip, Position } from "@blueprintjs/core";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -27,21 +27,30 @@ function UnderlinedLabel({
 }) {
   const toolTipDefined = tooltip !== undefined;
   return (
-    <Tooltip disabled={!toolTipDefined} content={tooltip} hoverOpenDelay={200}>
+    <Tooltip
+      disabled={!toolTipDefined}
+      content={tooltip}
+      position={Position.TOP}
+      hoverOpenDelay={200}
+    >
       <div
-        style={
-          toolTipDefined
-            ? {
-                height: "20px",
-                cursor: "help",
-              }
-            : {
-                height: "20px",
-              }
-        }
+        style={{
+          height: "22px",
+        }}
       >
-        {label}
+        <label
+          style={
+            toolTipDefined
+              ? {
+                  cursor: "help",
+                }
+              : {}
+          }
+        >
+          {label}
+        </label>
         <span
+          className={"underline"}
           style={
             toolTipDefined
               ? {
