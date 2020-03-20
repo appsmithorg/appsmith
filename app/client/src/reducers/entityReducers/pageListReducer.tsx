@@ -64,12 +64,20 @@ const pageListReducer = createReducer(initialState, {
     }
     return state;
   },
+  [ReduxActionTypes.UPDATE_CURRENT_PAGE]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    currentPageId: action.payload.id,
+  }),
 });
 
 export interface PageListReduxState {
   pages: PageListPayload;
   applicationId?: string;
   defaultPageId?: string;
+  currentPageId?: string;
 }
 
 export default pageListReducer;

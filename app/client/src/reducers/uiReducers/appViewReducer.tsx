@@ -6,6 +6,7 @@ import {
   ReduxActionTypes,
   PageListPayload,
 } from "constants/ReduxActionConstants";
+import { FetchPublishedPageSuccessPayload } from "actions/pageActions";
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
@@ -31,16 +32,11 @@ const appViewReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: (
     state: AppViewReduxState,
-    action: ReduxAction<{
-      pageId: string;
-      dsl: ContainerWidgetProps<WidgetProps>;
-      pageWidgetId: string;
-    }>,
+    action: ReduxAction<FetchPublishedPageSuccessPayload>,
   ) => {
     return {
       ...state,
       dsl: action.payload.dsl,
-      currentPageId: action.payload.pageId,
       isFetchingPage: false,
       pageWidgetId: action.payload.pageWidgetId,
     };
@@ -51,7 +47,6 @@ export interface AppViewReduxState {
   initialized: boolean;
   dsl?: ContainerWidgetProps<WidgetProps>;
   isFetchingPage: boolean;
-  currentPageId?: string;
   currentLayoutId?: string;
   pages: PageListPayload;
   pageWidgetId: string;

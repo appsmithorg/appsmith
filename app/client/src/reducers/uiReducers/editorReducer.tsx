@@ -89,7 +89,6 @@ const editorReducer = createReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const {
-      currentPageId,
       currentPageName,
       currentLayoutId,
       pageWidgetId,
@@ -99,7 +98,6 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.publishingError = false;
     return {
       ...state,
-      currentPageId,
       currentPageName,
       currentLayoutId,
       pageWidgetId,
@@ -155,7 +153,6 @@ export interface EditorReduxState {
   initialized: boolean;
   dsl?: ContainerWidgetProps<WidgetProps>;
   pageWidgetId?: string;
-  currentPageId?: string;
   currentLayoutId?: string;
   currentPageName?: string;
   selectedWidget?: string;

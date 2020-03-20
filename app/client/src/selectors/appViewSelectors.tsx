@@ -32,6 +32,6 @@ export const getIsInitialized = createSelector(
 );
 
 export const getCurrentDSLPageId = createSelector(
-  getAppViewState,
-  (view: AppViewReduxState) => view.currentPageId,
+  getPageListState,
+  (pageList: PageListReduxState) => pageList.currentPageId,
 );

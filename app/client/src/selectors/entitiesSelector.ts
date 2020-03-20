@@ -1,6 +1,7 @@
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
+import { createSelector } from "reselect";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -18,6 +19,18 @@ export const getPluginIdOfName = (
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
+
+const getCurrentPageId = (state: AppState) =>
+  state.entities.pageList.currentPageId;
+
+export const getActionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getActions,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter(a => a.config.pageId === pageId);
+  },
+);
 
 export const getActionResponses = (
   state: AppState,
