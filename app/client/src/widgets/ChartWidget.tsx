@@ -24,8 +24,6 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
         xAxisName={this.props.xAxisName}
         yAxisName={this.props.yAxisName}
         chartName={this.props.chartName}
-        componentWidth={this.state.componentWidth - 10}
-        componentHeight={this.state.componentHeight - 10}
         chartData={this.props.chartData}
       />
     );
@@ -55,8 +53,6 @@ export interface ChartWidgetProps extends WidgetProps {
   xAxisName: string;
   yAxisName: string;
   chartName: string;
-  componentWidth: number;
-  componentHeight: number;
   isVisible?: boolean;
 }
 
