@@ -55,6 +55,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DATE_PICKER_WIDGET: {
       enableTimePicker: true,
+      isDisabled: false,
       datePickerType: "DATE_PICKER",
       rows: 1,
       dateFormat: "DD/MM/YYYY",
