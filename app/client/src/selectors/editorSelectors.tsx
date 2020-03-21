@@ -59,8 +59,8 @@ export const getPageList = createSelector(
 );
 
 export const getCurrentPageId = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.currentPageId,
+  getPageListState,
+  (pageList: PageListReduxState) => pageList.currentPageId,
 );
 
 export const getCurrentLayoutId = createSelector(

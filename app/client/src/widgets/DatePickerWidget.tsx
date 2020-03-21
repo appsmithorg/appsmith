@@ -47,6 +47,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       if (
         (this.props.selectedDate !== prevProps.selectedDate &&
           this.props.selectedDate === undefined) ||
+        prevProps.defaultDate === undefined ||
         this.props.defaultDate.toDateString() !==
           prevProps.defaultDate.toDateString()
       ) {
@@ -63,6 +64,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         timezone={this.props.timezone}
         enableTimePicker={this.props.enableTimePicker}
+        isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
@@ -95,6 +97,7 @@ export interface DatePickerWidgetProps extends WidgetProps {
   selectedDate: Date;
   timezone?: string;
   enableTimePicker: boolean;
+  isDisabled: boolean;
   dateFormat: string;
   label: string;
   datePickerType: DatePickerType;

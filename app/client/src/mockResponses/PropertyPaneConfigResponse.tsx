@@ -702,26 +702,19 @@ const PropertyPaneConfigResponse = {
         children: [
           {
             id: "19.1",
-            propertyName: "defaultValue",
+            propertyName: "text",
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter your HTML text",
           },
           {
             id: "19.2",
-            propertyName: "placeholder",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter your placeholder",
-          },
-          {
-            id: "19.3",
             propertyName: "isVisible",
             label: "Visible",
             controlType: "SWITCH",
           },
           {
-            id: "19.4",
+            id: "19.3",
             propertyName: "isDisabled",
             label: "Disable",
             controlType: "SWITCH",

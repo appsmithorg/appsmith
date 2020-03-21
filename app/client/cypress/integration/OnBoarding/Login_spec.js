@@ -1,20 +1,16 @@
 var loginPage= require('../../locators/LoginPage.json')
-const loginData=require('../../fixtures/user.json')
+var homePage = require('../../locators/HomePage.json')
+var commonlocators = require('../../locators/commonlocators.json')
+var widgetsPage= require('../../locators/Widgets.json')
+
+
 
 context('Cypress test',function() {
 
 it('Login functionality',function(){
-	
-	cy.LogintoApp(loginData.username,loginData.password)
-	cy.get('input[type="text"]').type('Test app')
-	cy.wait(3000)
-	cy.get('.t--application-edit-link').click()
-	cy.wait(5000)
-	cy.get('.t--draggable-buttonwidget').click({ force: true })
-	cy.wait(2000)
-	cy.get('textarea').first().click({ force: true }).clear({ force: true }).type('Test', { force: true })
-	cy.wait(5000)
-	cy.get('.t--application-publish-btn').click()
-	
+
+	cy.get(widgetsPage.buttonWidget).click({ force: true })
+	cy.get('.CodeMirror textarea').focus().type("{meta}a").clear({ force: true }).type('Test', { force: true })
+	cy.get(commonlocators.editPropCrossButton).click()
 })
 })

@@ -3,9 +3,14 @@ import styled, { StyledComponent } from "styled-components";
 import { useDrag } from "react-use-gesture";
 import { Spring } from "react-spring/renderprops";
 
-const ResizeWrapper = styled.div`
+const ResizeWrapper = styled.div<{ pevents: boolean }>`
   position: absolute;
   display: block;
+  & {
+    * {
+      pointer-events: ${props => !props.pevents && "none"};
+    }
+  }
 `;
 
 const getSnappedValues = (
@@ -72,6 +77,7 @@ type ResizableProps = {
 };
 
 export const Resizable = (props: ResizableProps) => {
+  const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState({
     width: props.componentWidth,
     height: props.componentHeight,
@@ -195,6 +201,7 @@ export const Resizable = (props: ResizableProps) => {
   ];
 
   const onResizeStop = () => {
+    togglePointerEvents(true);
     props.onStop(
       {
         width: newDimensions.width,
@@ -211,12 +218,14 @@ export const Resizable = (props: ResizableProps) => {
     <ResizableHandle
       {...handle}
       key={index}
-      onStart={props.onStart}
+      onStart={() => {
+        togglePointerEvents(false);
+        props.onStart();
+      }}
       onStop={onResizeStop}
       snapGrid={props.snapGrid}
     />
   ));
-
   return (
     <Spring
       from={{
@@ -236,7 +245,7 @@ export const Resizable = (props: ResizableProps) => {
       immediate={newDimensions.reset ? true : false}
     >
       {_props => (
-        <ResizeWrapper style={_props}>
+        <ResizeWrapper style={_props} pevents={pointerEvents}>
           {props.children}
           {props.enable && renderHandles}
         </ResizeWrapper>

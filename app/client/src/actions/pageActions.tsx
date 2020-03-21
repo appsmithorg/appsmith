@@ -1,16 +1,15 @@
 import { FetchPageRequest } from "api/PageApi";
-import { WidgetProps, WidgetOperation } from "widgets/BaseWidget";
+import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   ReduxActionTypes,
   ReduxAction,
   UpdateCanvasPayload,
-  SavePagePayload,
   SavePageSuccessPayload,
   FetchPageListPayload,
 } from "constants/ReduxActionConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
 export const fetchPageList = (
   applicationId: string,
@@ -31,37 +30,30 @@ export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
     },
   };
 };
+
 export const fetchPageSuccess = () => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
   };
 };
 
-export const addWidget = (
-  pageId: string,
-  widget: WidgetProps,
-): ReduxAction<{ pageId: string; widget: WidgetProps }> => {
-  return {
-    type: ReduxActionTypes.ADD_PAGE_WIDGET,
-    payload: {
-      pageId,
-      widget,
-    },
-  };
+export type FetchPublishedPageSuccessPayload = {
+  pageId: string;
+  dsl: ContainerWidgetProps<WidgetProps>;
+  pageWidgetId: string;
 };
 
-export const removeWidget = (
-  pageId: string,
-  widgetId: string,
-): ReduxAction<{ pageId: string; widgetId: string }> => {
-  return {
-    type: ReduxActionTypes.REMOVE_PAGE_WIDGET,
-    payload: {
-      pageId,
-      widgetId,
-    },
-  };
-};
+export const fetchPublishedPageSuccess = (
+  payload: FetchPublishedPageSuccessPayload,
+) => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  payload,
+});
+
+export const updateCurrentPage = (id: string) => ({
+  type: ReduxActionTypes.UPDATE_CURRENT_PAGE,
+  payload: { id },
+});
 
 export const updateCanvas = (
   payload: UpdateCanvasPayload,
@@ -69,17 +61,6 @@ export const updateCanvas = (
   return {
     type: ReduxActionTypes.UPDATE_CANVAS,
     payload,
-  };
-};
-
-export const savePage = (
-  pageId: string,
-  layoutId: string,
-  dsl: ContainerWidgetProps<WidgetProps>,
-): ReduxAction<SavePagePayload> => {
-  return {
-    type: ReduxActionTypes.SAVE_PAGE_INIT,
-    payload: { pageId, layoutId, dsl },
   };
 };
 

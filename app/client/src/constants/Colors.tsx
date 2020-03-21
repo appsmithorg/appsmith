@@ -10,6 +10,7 @@ export const Colors: Record<string, string> = {
   MYSTIC: "#E1E8ED",
   AQUA_HAZE: "#EEF2F5",
   GRAY_CHATEAU: "#A2A6A8",
+  LIGHT_GREYISH_BLUE: "#B0BFCB",
   SUNGLOW: "#FFCB33",
 
   BLACK: "#000000",
