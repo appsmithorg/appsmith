@@ -11366,12 +11366,6 @@ react-focus-lock@^2.1.0:
     use-callback-ref "^1.2.1"
     use-sidecar "^1.0.1"
 
-react-fusioncharts@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/react-fusioncharts/-/react-fusioncharts-3.1.2.tgz#add3f23e1ca819f1d6f9b58547cfcb85b50c6972"
-  dependencies:
-    uuid "^3.2.1"
-
 react-helmet-async@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/react-helmet-async/-/react-helmet-async-1.0.4.tgz#079ef10b7fefcaee6240fefd150711e62463cc97"
@@ -13865,7 +13859,7 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
 
-uuid@^3.0.1, uuid@^3.1.0, uuid@^3.2.1, uuid@^3.3.2:
+uuid@^3.0.1, uuid@^3.1.0, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
 
