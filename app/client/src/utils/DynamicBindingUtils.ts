@@ -14,6 +14,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
+import * as log from "loglevel";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
@@ -209,15 +210,54 @@ export const getValidatedTree = (tree: any) => {
   }, tree);
 };
 
-export const getEvaluatedDataTree = (dataTree: DataTree): DataTree => {
-  const dynamicDependencyMap = createDependencyTree(dataTree);
-  const evaluatedTree = dependencySortedEvaluateDataTree(
-    dataTree,
-    dynamicDependencyMap,
-  );
-  const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
-  return getValidatedTree(treeWithLoading);
-};
+function instrumentedGetEvaluatedDataTree(): (dataTree: DataTree) => DataTree {
+  let count = 0;
+  return (dataTree: DataTree) => {
+    // increase count
+    count++;
+    // count total time taken
+    const totalStart = performance.now();
+
+    // Create Dependencies DAG
+    const createDepsStart = performance.now();
+    const dynamicDependencyMap = createDependencyTree(dataTree);
+    const createDepsEnd = performance.now();
+
+    // Evaluate Tree
+    const evaluatedTreeStart = performance.now();
+    const evaluatedTree = dependencySortedEvaluateDataTree(
+      dataTree,
+      dynamicDependencyMap,
+    );
+    const evaluatedTreeEnd = performance.now();
+
+    // Set Loading Widgets
+    const loadingTreeStart = performance.now();
+    const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
+    const loadingTreeEnd = performance.now();
+
+    // Validate Widgets
+    const validated = getValidatedTree(treeWithLoading);
+
+    // End counting total time
+    const endStart = performance.now();
+
+    // Log time taken and count
+    const timeTaken = {
+      total: (endStart - totalStart).toFixed(2),
+      createDeps: (createDepsEnd - createDepsStart).toFixed(2),
+      evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
+      loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
+    };
+    log.debug("data tree evaluated", {
+      timeTaken,
+      count,
+    });
+    return validated;
+  };
+}
+
+export const getEvaluatedDataTree = instrumentedGetEvaluatedDataTree();
 
 type DynamicDependencyMap = Record<string, Array<string>>;
 export const createDependencyTree = (
@@ -341,45 +381,60 @@ export function dependencySortedEvaluateDataTree(
   const tree = _.cloneDeep(dataTree);
   try {
     // sort dependencies and remove empty dependencies
+    const sortStart = performance.now();
     const sortedDependencies = toposort(dependencyTree)
       .reverse()
       .filter(d => !!d);
+    const sortEnd = performance.now();
     // evaluate and replace values
-    return sortedDependencies.reduce((currentTree: DataTree, path: string) => {
-      const entityName = path.split(".")[0];
-      const entity: DataTreeEntity = currentTree[entityName];
-      let result = _.get(currentTree as any, path);
-      if (isDynamicValue(result)) {
-        try {
-          const dynamicResult = getDynamicValue(result, currentTree);
-          result = dynamicResult.result;
-        } catch (e) {
-          console.error(e);
-          result = undefined;
+    const evalStart = performance.now();
+    const final = sortedDependencies.reduce(
+      (currentTree: DataTree, path: string) => {
+        const entityName = path.split(".")[0];
+        const entity: DataTreeEntity = currentTree[entityName];
+        let result = _.get(currentTree as any, path);
+        if (isDynamicValue(result)) {
+          try {
+            const dynamicResult = getDynamicValue(result, currentTree);
+            result = dynamicResult.result;
+          } catch (e) {
+            console.error(e);
+            result = undefined;
+          }
         }
-      }
-      if (
-        "ENTITY_TYPE" in entity &&
-        entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-      ) {
-        const propertyPath = path.split(".")[1];
-        const {
-          parsed,
-          isValid,
-          message,
-        } = ValidationFactory.validateWidgetProperty(
-          entity.type,
-          propertyPath,
-          result,
-        );
-        result = parsed;
-        if (!isValid) {
-          _.set(entity, `invalidProps.${propertyPath}`, true);
-          _.set(entity, `validationMessages.${propertyPath}`, message);
+        if (
+          "ENTITY_TYPE" in entity &&
+          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+        ) {
+          const propertyPath = path.split(".")[1];
+          const {
+            parsed,
+            isValid,
+            message,
+          } = ValidationFactory.validateWidgetProperty(
+            entity.type,
+            propertyPath,
+            result,
+          );
+          result = parsed;
+          if (!isValid) {
+            _.set(entity, `invalidProps.${propertyPath}`, true);
+            _.set(entity, `validationMessages.${propertyPath}`, message);
+          }
         }
-      }
-      return _.set(currentTree, path, result);
-    }, tree);
+        return _.set(currentTree, path, result);
+      },
+      tree,
+    );
+    const evalEnd = performance.now();
+
+    log.debug({
+      depLength: sortedDependencies.length,
+      sort: (sortEnd - sortStart).toFixed(2),
+      eval: (evalEnd - evalStart).toFixed(2),
+    });
+
+    return final;
   } catch (e) {
     console.error(e);
     return tree;

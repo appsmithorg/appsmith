@@ -15,6 +15,7 @@ const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
   },
   apiUrl: "/api/",
   baseUrl,
+  logLevel: "debug",
 });
 
 export default devConfig;

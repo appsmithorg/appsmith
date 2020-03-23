@@ -6,6 +6,7 @@ import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import * as log from "loglevel";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -29,6 +30,7 @@ export const getDataTreeForAutocomplete = createSelector(
   evaluateDataTree,
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
+    log.debug("Evaluating data tree to get autocomplete values");
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {

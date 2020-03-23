@@ -1,3 +1,5 @@
+import { LogLevelDesc } from "loglevel";
+
 export type SentryConfig = {
   dsn: string;
   environment: string;
@@ -23,4 +25,5 @@ export type AppsmithUIConfigs = {
   };
   apiUrl: string;
   baseUrl: string;
+  logLevel: LogLevelDesc;
 };

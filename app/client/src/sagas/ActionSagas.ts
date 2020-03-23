@@ -57,7 +57,6 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { executeAction, executeActionError } from "actions/widgetActions";
 import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { getActionResponses } from "selectors/entitiesSelector";
 import {
   ActionDescription,
   RunActionPayload,
@@ -73,6 +72,7 @@ import {
 } from "constants/routes";
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import * as log from "loglevel";
 
 export const getAction = (
   state: AppState,
@@ -127,6 +127,7 @@ const createActionErrorResponse = (
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
+  log.debug("Evaluating data tree to get action binding value");
   const tree = yield select(evaluateDataTree);
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
@@ -331,6 +332,7 @@ export function* executeActionTriggers(
 
 export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
+  log.debug("Evaluating data tree to get action trigger");
   const tree = yield select(evaluateDataTree);
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   if (triggers && triggers.length) {
@@ -590,7 +592,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
   const pageActions = action.payload;
   for (const actionSet of pageActions) {
-    const apiResponses = yield select(getActionResponses);
+    // Load all sets in parallel
     yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
 }

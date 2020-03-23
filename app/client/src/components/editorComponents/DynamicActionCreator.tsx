@@ -7,6 +7,7 @@ import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
 import StyledDropdown from "components/editorComponents/StyledDropdown";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
@@ -442,7 +443,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  actions: state.entities.actions,
+  actions: getActionsForCurrentPage(state),
   pageNameDropdown: state.entities.pageList.pages.map(p => ({
     label: p.pageName,
     id: p.pageId,
