@@ -29,6 +29,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import * as log from "loglevel";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -55,6 +56,7 @@ class PropertyPane extends Component<
 
   render() {
     if (this.props.isVisible) {
+      log.debug("Property pane rendered");
       const content = this.renderPropertyPane(this.props.propertySections);
       const el = document.getElementsByClassName(
         WIDGET_CLASSNAME_PREFIX + this.props.widgetId,

@@ -15,6 +15,7 @@ const stageConfig = (baseUrl: string): AppsmithUIConfigs => ({
   },
   apiUrl: "/api/",
   baseUrl,
+  logLevel: "info",
 });
 
 export default stageConfig;
