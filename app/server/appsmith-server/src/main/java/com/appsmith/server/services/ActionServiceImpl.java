@@ -232,7 +232,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     return action;
                 }).map(act -> extractAndSetJsonPathKeys(act))
                 .flatMap(super::create)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
+                .flatMap(this::setTransientFieldsInAction);
     }
 
     /**
@@ -517,53 +518,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 example.setOrganizationId(orgId);
                                 return example;
                             })
-                            .flatMap(example -> repository.findAll(Example.of(example), sort)));
+                            .flatMap(example -> repository.findAll(Example.of(example), sort)))
+                            .flatMap(this::setTransientFieldsInAction);
         }
         return orgIdMono
                 .flatMapMany(orgId -> {
                     actionExample.setOrganizationId(orgId);
                     return repository.findAll(Example.of(actionExample), sort);
                 })
-                .flatMap(action -> {
-                    // Set the plugin id in the action object fetching it from the datasource.
-                    Datasource datasource = action.getDatasource();
-                    if (datasource != null) {
-                        if (datasource.getId() != null) {
-                            // its a global datasource. Get the datasource from the collection
-                            return datasourceService
-                                    .findById(datasource.getId())
-                                    .map(datasource1 -> {
-                                        action.setPluginId(datasource1.getPluginId());
-                                        return action;
-                                    });
-                        } else {
-                            // Its a nested datasource. Pick up the pluginId from here
-                            action.setPluginId(datasource.getPluginId());
-                        }
-                    }
-                    return Mono.just(action);
-                })
-                .flatMap(action -> {
-                    if ((action.getTemplateId()!=null) && (action.getProviderId() != null)) {
-                        // In case of an action which was imported from a 3P API, fill in the extra information of the
-                        // provider required by the front end UI.
-                        return providerService
-                                .getById(action.getProviderId())
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
-                                .map(provider -> {
-                                    ActionProvider actionProvider = new ActionProvider();
-                                    actionProvider.setName(provider.getName());
-                                    actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                                    actionProvider.setDescription(provider.getDescription());
-                                    actionProvider.setImageUrl(provider.getImageUrl());
-                                    actionProvider.setUrl(provider.getUrl());
-
-                                    action.setProvider(actionProvider);
-                                    return action;
-                                });
-                    }
-                    return Mono.just(action);
-                });
+                .flatMap(this::setTransientFieldsInAction);
     }
 
     private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
@@ -588,5 +551,62 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
         return datasourceConfiguration;
+    }
+
+    private Mono<Action> setTransientFieldsInAction(Action action) {
+
+        // Set the plugin id in the action object fetching it from the datasource.
+
+        Mono<Action> pluginIdUpdateMono = null;
+        Datasource datasource = action.getDatasource();
+        if (datasource != null) {
+            if (datasource.getId() != null) {
+                // its a global datasource. Get the datasource from the collection
+                pluginIdUpdateMono = datasourceService
+                        .findById(datasource.getId())
+                        .map(datasource1 -> {
+                            action.setPluginId(datasource1.getPluginId());
+                            return action;
+                        });
+            } else {
+                // Its a nested datasource. Pick up the pluginId from here
+                pluginIdUpdateMono = Mono.just(action)
+                        .map(action1 -> {
+                            action1.setPluginId(datasource.getPluginId());
+                            return action1;
+                        });
+            }
+        }
+
+        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
+        Mono<Action> providerUpdateMono = null;
+        if ((action.getTemplateId()!=null) && (action.getProviderId() != null)) {
+
+            providerUpdateMono = providerService
+                    .getById(action.getProviderId())
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
+                    .map(provider -> {
+                        ActionProvider actionProvider = new ActionProvider();
+                        actionProvider.setName(provider.getName());
+                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
+                        actionProvider.setDescription(provider.getDescription());
+                        actionProvider.setImageUrl(provider.getImageUrl());
+                        actionProvider.setUrl(provider.getUrl());
+
+                        action.setProvider(actionProvider);
+                        return action;
+                    });
+        } else  {
+            providerUpdateMono = Mono.just(action);
+        }
+
+        return Mono.zip(pluginIdUpdateMono, providerUpdateMono)
+                .map(tuple -> {
+                    Action pluginIdUpdatedAction = tuple.getT1();
+                    Action providerUpdatedAction = tuple.getT2();
+
+                    providerUpdatedAction.setPluginId(pluginIdUpdatedAction.getPluginId());
+                    return providerUpdatedAction;
+                });
     }
 }
