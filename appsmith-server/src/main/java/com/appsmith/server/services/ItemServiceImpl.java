@@ -22,13 +22,17 @@ public class ItemServiceImpl implements ItemService {
     private final ApiTemplateService apiTemplateService;
     private final ActionService actionService;
     private final PluginService pluginService;
+    private final ProviderService providerService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
-                           ActionService actionService, PluginService pluginService) {
+                           ActionService actionService,
+                           PluginService pluginService,
+                           ProviderService providerService) {
         this.apiTemplateService = apiTemplateService;
         this.actionService = actionService;
         this.pluginService = pluginService;
+        this.providerService = providerService;
     }
 
     @Override
