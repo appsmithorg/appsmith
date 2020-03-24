@@ -12,14 +12,11 @@ import {
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
-import {
-  API_EDITOR_ID_URL,
-  API_EDITOR_URL,
-  APPLICATIONS_URL,
-} from "constants/routes";
+import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
@@ -45,10 +42,9 @@ const getActions = (state: AppState) =>
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
 
 function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
-  let actions = yield select(getActions);
-  while (!actions.length) {
-    yield take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS);
-    actions = yield select(getActions);
+  const isInitialized = yield select(getIsEditorInitialized);
+  while (!isInitialized) {
+    yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
   const urlId = actionPayload.payload.id;
   const lastUsedId = yield select(getLastUsedAction);
@@ -124,15 +120,10 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
-  if (!applicationId || !pageId) {
-    history.push(APPLICATIONS_URL);
+  if (!id) {
     return;
   }
   const action = yield select(getAction, id);
-  if (!action) {
-    history.push(API_EDITOR_URL(applicationId, pageId));
-    return;
-  }
   const draft = yield select(getApiDraft, id);
   const data = _.isEmpty(draft) ? action : draft;
   yield put(initialize(API_EDITOR_FORM_NAME, data));

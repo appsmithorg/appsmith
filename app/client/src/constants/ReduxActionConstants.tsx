@@ -300,6 +300,9 @@ export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;
+  pageId: string;
 };
 
-export type FetchPageListPayload = InitializeEditorPayload;
+export type FetchPageListPayload = {
+  applicationId: string;
+};

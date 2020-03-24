@@ -33,6 +33,7 @@ import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { fetchPage } from "actions/pageActions";
 
 type EditorProps = {
   currentPageName?: string;
@@ -44,6 +45,7 @@ type EditorProps = {
   previewPage: Function;
   initEditor: Function;
   createPage: Function;
+  fetchPage: (pageId: string) => void;
   pages: PageListPayload;
   isPublishing: boolean;
   isEditorLoading: boolean;
@@ -61,8 +63,9 @@ class Editor extends Component<EditorProps> {
   };
 
   componentDidMount() {
-    if (this.props.match.params.applicationId) {
-      this.props.initEditor(this.props.match.params.applicationId);
+    const { applicationId, pageId } = this.props.match.params;
+    if (applicationId && pageId) {
+      this.props.initEditor(applicationId, pageId);
     }
   }
   componentDidUpdate(previously: EditorProps) {
@@ -73,6 +76,9 @@ class Editor extends Component<EditorProps> {
       this.setState({
         isDialogOpen: true,
       });
+    }
+    if (this.props.match.params.pageId !== previously.match.params.pageId) {
+      this.props.fetchPage(this.props.match.params.pageId);
     }
   }
 
@@ -178,7 +184,8 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string) => dispatch(initEditor(applicationId)),
+    initEditor: (applicationId: string, pageId: string) =>
+      dispatch(initEditor(applicationId, pageId)),
     publishApplication: (applicationId: string) => {
       dispatch({
         type: ReduxActionTypes.PUBLISH_APPLICATION_INIT,
@@ -196,6 +203,7 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       });
     },
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     createPage: (applicationId: string, name: string) => {
       dispatch({
         type: ReduxActionTypes.CREATE_PAGE_INIT,

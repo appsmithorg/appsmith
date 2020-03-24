@@ -6,7 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 
 import { fetchEditorConfigs } from "actions/configsActions";
-import { fetchPageList } from "actions/pageActions";
+import { fetchPage, fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourcesActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
@@ -16,7 +16,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
-  const { applicationId } = initializeEditorAction.payload;
+  const { applicationId, pageId } = initializeEditorAction.payload;
   // Step 1: Start getting all the data needed by the
   yield all([
     put(fetchPlugins()),
@@ -24,11 +24,14 @@ function* initializeEditorSaga(
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
     put(fetchDatasources()),
+    put(fetchPage(pageId)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
     take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_PAGE_SUCCESS),
+    take(ReduxActionTypes.UPDATE_CURRENT_PAGE),
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
