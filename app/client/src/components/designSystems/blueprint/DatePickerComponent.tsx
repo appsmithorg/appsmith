@@ -43,7 +43,17 @@ const StyledControlGroup = styled(ControlGroup)`
       max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
+  &&& {
+    input {
+      border: 1px solid #a1acb3;
+      border-radius: 4px;
+      box-shadow: none;
+      color: #2e3d49;
+      font-size: 14px;
+    }
+  }
 `;
+
 class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
     return (
@@ -97,12 +107,16 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   }
 
   formatDate = (date: Date): string => {
+    let dateFormat = "DD/MM/YYYY";
+    if (this.props.enableTimePicker) {
+      dateFormat = "DD/MM/YYYY HH:mm";
+    }
     if (this.props.timezone) {
       return moment(date)
         .tz(this.props.timezone)
-        .format(this.props.dateFormat);
+        .format(dateFormat);
     }
-    return moment(date).format(this.props.dateFormat);
+    return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
@@ -128,6 +142,7 @@ export interface DatePickerComponentProps extends ComponentProps {
   maxDate?: Date;
   timezone?: string;
   datePickerType: DatePickerType;
+  isDisabled: boolean;
   onDateSelected: (date: Date) => void;
   isLoading: boolean;
 }

@@ -19,6 +19,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 3,
       widgetName: "Text",
     },
+    RICH_TEXT_EDITOR_WIDGET: {
+      text: "This is the initial <b>content</b> of the editor",
+      rows: 5,
+      columns: 8,
+      isDisabled: false,
+      isVisible: true,
+      widgetName: "RichTextEditor",
+    },
     IMAGE_WIDGET: {
       defaultImage:
         "https://www.cowgirlcontractcleaning.com/wp-content/uploads/sites/360/2018/05/placeholder-img-5.jpg",
@@ -55,6 +63,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DATE_PICKER_WIDGET: {
       enableTimePicker: true,
+      isDisabled: false,
       datePickerType: "DATE_PICKER",
       rows: 1,
       dateFormat: "DD/MM/YYYY",

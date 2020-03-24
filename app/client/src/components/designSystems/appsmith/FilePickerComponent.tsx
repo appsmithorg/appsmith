@@ -42,7 +42,7 @@ class FilePickerComponent extends React.Component<
           // plugins={["GoogleDrive", "Url", "OneDrive", "Webcam"]}
           onRequestClose={this.closeModal}
           uppy={this.props.uppy}
-        /> */}
+        />**/}
       </React.Fragment>
     );
   }

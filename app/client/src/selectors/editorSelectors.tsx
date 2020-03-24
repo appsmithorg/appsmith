@@ -19,6 +19,7 @@ import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import * as log from "loglevel";
 
 const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
@@ -59,8 +60,8 @@ export const getPageList = createSelector(
 );
 
 export const getCurrentPageId = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.currentPageId,
+  getPageListState,
+  (pageList: PageListReduxState) => pageList.currentPageId,
 );
 
 export const getCurrentLayoutId = createSelector(
@@ -125,6 +126,7 @@ export const getCanvasWidgetDsl = createSelector(
     entities: AppState["entities"],
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
+    log.debug("Evaluating data tree to get canvas widgets");
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
       const evaluatedWidget = _.find(evaluatedDataTree, {

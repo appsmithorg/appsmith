@@ -9,6 +9,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ControlConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { Tooltip, Position } from "@blueprintjs/core";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -16,6 +17,56 @@ type Props = {
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
 };
+
+function UnderlinedLabel({
+  tooltip,
+  label,
+}: {
+  tooltip?: string;
+  label: string;
+}) {
+  const toolTipDefined = tooltip !== undefined;
+  return (
+    <Tooltip
+      disabled={!toolTipDefined}
+      content={tooltip}
+      position={Position.TOP}
+      hoverOpenDelay={200}
+    >
+      <div
+        style={{
+          height: "22px",
+        }}
+      >
+        <label
+          style={
+            toolTipDefined
+              ? {
+                  cursor: "help",
+                }
+              : {}
+          }
+        >
+          {label}
+        </label>
+        <span
+          className={"underline"}
+          style={
+            toolTipDefined
+              ? {
+                  borderBottom: "1px dashed",
+                  width: "100%",
+                  display: "inline-block",
+                  position: "relative",
+                  top: "-15px",
+                }
+              : {}
+          }
+        ></span>
+      </div>
+    </Tooltip>
+  );
+}
 
 const PropertyControl = (props: Props) => {
   const {
@@ -70,7 +121,11 @@ const PropertyControl = (props: Props) => {
           }
         >
           <ControlPropertyLabelContainer>
-            <label>{label}</label>
+            <UnderlinedLabel
+              tooltip={propertyConfig.helpText}
+              label={label}
+            ></UnderlinedLabel>
+
             {isConvertible && (
               <JSToggleButton
                 active={isDynamic}

@@ -151,6 +151,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   EXECUTE_API_ACTION_REQUEST: "EXECUTE_API_ACTION_REQUEST",
   EXECUTE_API_ACTION_SUCCESS: "EXECUTE_API_ACTION_SUCCESS",
   SET_WIDGET_DYNAMIC_PROPERTY: "SET_WIDGET_DYNAMIC_PROPERTY",
+  UPDATE_CURRENT_PAGE: "UPDATE_CURRENT_PAGE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

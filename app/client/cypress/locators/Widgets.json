@@ -1,0 +1,13 @@
+{
+    "containerWidget":".t--draggable-containerwidget",
+    "inputWidget":".t--draggable-inputwidget",
+    "togglebutton":"input[type='checkbox']",
+    "inputPropsDataType":".t--property-control-datatype",
+    "inputdatatypedropdownicon": "./html/body/div[6]/div/div[3]/div[2]/div[2]/div[2]/span/span/div/button/span[2]",
+    "inputdatatypeplaceholder":".t--property-control-placeholder",
+    "buttonWidget":".t--draggable-buttonwidget",
+    "textWidget":".t--draggable-textwidget",
+    "tableWidget":".t--draggable-tablewidget"
+    
+
+}

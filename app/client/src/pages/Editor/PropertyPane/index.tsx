@@ -29,6 +29,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import * as log from "loglevel";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -55,6 +56,7 @@ class PropertyPane extends Component<
 
   render() {
     if (this.props.isVisible) {
+      log.debug("Property pane rendered");
       const content = this.renderPropertyPane(this.props.propertySections);
       const el = document.getElementsByClassName(
         WIDGET_CLASSNAME_PREFIX + this.props.widgetId,
@@ -82,6 +84,12 @@ class PropertyPane extends Component<
 
         <CloseButton
           onClick={(e: any) => {
+            AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+              widgetType: this.props.widgetProperties
+                ? this.props.widgetProperties.type
+                : "",
+              widgetId: this.props.widgetId,
+            });
             this.props.hidePropertyPane();
             e.preventDefault();
             e.stopPropagation();
@@ -166,6 +174,40 @@ class PropertyPane extends Component<
       });
     }
   };
+
+  componentDidUpdate(prevProps: PropertyPaneProps & PropertyPaneFunctions) {
+    if (
+      this.props.widgetId !== prevProps.widgetId &&
+      this.props.widgetId !== undefined
+    ) {
+      if (prevProps.widgetId && prevProps.widgetProperties) {
+        AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE", {
+          widgetType: prevProps.widgetProperties.type,
+          widgetId: prevProps.widgetId,
+        });
+      }
+      if (this.props.widgetProperties) {
+        AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+          widgetType: this.props.widgetProperties.type,
+          widgetId: this.props.widgetId,
+        });
+      }
+    }
+
+    if (
+      this.props.widgetId === prevProps.widgetId &&
+      this.props.isVisible &&
+      !prevProps.isVisible &&
+      this.props.widgetProperties !== undefined
+    ) {
+      AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN", {
+        widgetType: this.props.widgetProperties.type,
+        widgetId: this.props.widgetId,
+      });
+    }
+
+    return true;
+  }
 
   onPropertyChange(propertyName: string, propertyValue: any) {
     this.props.updateWidgetProperty(

@@ -1,13 +1,13 @@
 import React from "react";
-import ReactFC from "react-fusioncharts";
-import FusionCharts from "fusioncharts";
-import Column2D from "fusioncharts/fusioncharts.charts";
-import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 import { ChartType, ChartData } from "widgets/ChartWidget";
 import styled from "styled-components";
 import { invisible } from "constants/DefaultTheme";
-
-ReactFC.fcRoot(FusionCharts, Column2D, FusionTheme);
+import _ from "lodash";
+const FusionCharts = require("fusioncharts");
+const Charts = require("fusioncharts/fusioncharts.charts");
+const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
+Charts(FusionCharts);
+FusionTheme(FusionCharts);
 
 export interface ChartComponentProps {
   chartType: ChartType;
@@ -15,8 +15,7 @@ export interface ChartComponentProps {
   xAxisName: string;
   yAxisName: string;
   chartName: string;
-  componentWidth: number;
-  componentHeight: number;
+  widgetId: string;
   isVisible?: boolean;
 }
 
@@ -31,9 +30,9 @@ const CanvasContainer = styled.div<ChartComponentProps>`
   ${props => (!props.isVisible ? invisible : "")};
 }`;
 
-/* eslint-disable react/display-name */
-const ChartComponent = (props: ChartComponentProps) => {
-  const getChartType = (chartType: ChartType) => {
+class ChartComponent extends React.Component<ChartComponentProps> {
+  chartInstance = new FusionCharts();
+  getChartType = (chartType: ChartType) => {
     switch (chartType) {
       case "LINE_CHART":
         return "line";
@@ -50,7 +49,7 @@ const ChartComponent = (props: ChartComponentProps) => {
     }
   };
 
-  const getChartData = (chartData: ChartData[]) => {
+  getChartData = (chartData: ChartData[]) => {
     return chartData.map(item => {
       return {
         label: item.x,
@@ -59,25 +58,63 @@ const ChartComponent = (props: ChartComponentProps) => {
     });
   };
 
-  return (
-    <CanvasContainer {...props}>
-      <ReactFC
-        type={getChartType(props.chartType)}
-        width={props.componentWidth.toString()}
-        height={props.componentHeight.toString()}
-        dataForma="json"
-        dataSource={{
+  createGraph = () => {
+    const chartConfig = {
+      type: this.getChartType(this.props.chartType),
+      renderAt: this.props.widgetId + "chart-container",
+      width: "100%",
+      height: "100%",
+      dataFormat: "json",
+      dataSource: {
+        chart: {
+          caption: this.props.chartName,
+          xAxisName: this.props.xAxisName,
+          yAxisName: this.props.yAxisName,
+          theme: "fusion",
+          captionAlignment: "left",
+          captionHorizontalPadding: 10,
+          alignCaptionWithCanvas: 0,
+        },
+        data: this.getChartData(this.props.chartData),
+      },
+    };
+    this.chartInstance = new FusionCharts(chartConfig);
+  };
+
+  componentDidMount() {
+    this.createGraph();
+    FusionCharts.ready(() => {
+      this.chartInstance.render();
+    });
+  }
+
+  componentDidUpdate(prevProps: ChartComponentProps) {
+    if (!_.isEqual(prevProps, this.props)) {
+      if (prevProps.chartType !== this.props.chartType) {
+        const chartType = this.getChartType(this.props.chartType);
+        this.chartInstance.chartType(chartType);
+      } else {
+        this.chartInstance.setChartData({
           chart: {
-            xAxisName: props.xAxisName,
-            yAxisName: props.yAxisName,
+            caption: this.props.chartName,
+            xAxisName: this.props.xAxisName,
+            yAxisName: this.props.yAxisName,
             theme: "fusion",
-            caption: props.chartName,
           },
-          data: getChartData(props.chartData),
-        }}
+          data: this.getChartData(this.props.chartData),
+        });
+      }
+    }
+  }
+
+  render() {
+    return (
+      <CanvasContainer
+        {...this.props}
+        id={this.props.widgetId + "chart-container"}
       />
-    </CanvasContainer>
-  );
-};
+    );
+  }
+}
 
 export default ChartComponent;

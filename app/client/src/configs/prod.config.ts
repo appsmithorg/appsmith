@@ -23,6 +23,7 @@ export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
   },
   apiUrl: "/api/",
   baseUrl,
+  logLevel: "error",
 });
 
 export default prodConfig;

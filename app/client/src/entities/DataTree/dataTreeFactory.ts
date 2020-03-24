@@ -1,7 +1,11 @@
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
-import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MetaState } from "reducers/entityReducers/metaReducer";
 
 export type ActionDescription<T> = {
   type: string;
@@ -42,11 +46,17 @@ export type DataTree = {
   [entityName: string]: DataTreeEntity;
 } & { actionPaths?: string[] };
 
+type DataTreeSeed = {
+  actions: ActionDataState;
+  widgets: CanvasWidgetsReduxState;
+  widgetsMeta: MetaState;
+};
+
 export class DataTreeFactory {
-  static create(state: AppState["entities"]): DataTree {
+  static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     dataTree.actionPaths = ["navigateTo", "navigateToUrl", "showAlert"];
-    state.actions.forEach(a => {
+    actions.forEach(a => {
       dataTree[a.config.name] = {
         ...a,
         data: a.data ? a.data.body : {},
@@ -64,9 +74,9 @@ export class DataTreeFactory {
       };
       dataTree.actionPaths && dataTree.actionPaths.push(`${a.config.name}.run`);
     });
-    Object.keys(state.canvasWidgets).forEach(w => {
-      const widget = state.canvasWidgets[w];
-      const widgetMetaProps = state.meta[w];
+    Object.keys(widgets).forEach(w => {
+      const widget = widgets[w];
+      const widgetMetaProps = widgetsMeta[w];
       dataTree[widget.widgetName] = {
         ...widget,
         ...widgetMetaProps,

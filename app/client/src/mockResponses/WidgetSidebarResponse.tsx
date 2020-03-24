@@ -79,6 +79,11 @@ const WidgetSidebarResponse: {
       widgetCardName: "Button",
       key: generateReactKey(),
     },
+    {
+      type: "RICH_TEXT_EDITOR_WIDGET",
+      widgetCardName: "Rich Text Editor",
+      key: generateReactKey(),
+    },
   ],
   ["View widgets"]: [
     {

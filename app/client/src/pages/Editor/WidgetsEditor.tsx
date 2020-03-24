@@ -19,6 +19,7 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import { Spinner } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import * as log from "loglevel";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -94,6 +95,7 @@ const WidgetsEditor = (props: EditorProps) => {
   if (!props.isFetchingPage && props.widgets) {
     node = <Canvas dsl={props.widgets} />;
   }
+  log.debug("Canvas rendered");
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>

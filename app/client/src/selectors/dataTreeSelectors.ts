@@ -1,14 +1,21 @@
-import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getActions } from "./entitiesSelector";
+import { getActionsForCurrentPage } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import * as log from "loglevel";
 
-export const getUnevaluatedDataTree = (state: AppState): DataTree =>
-  DataTreeFactory.create(state.entities);
+export const getUnevaluatedDataTree = createSelector(
+  getActionsForCurrentPage,
+  getWidgets,
+  getWidgetsMeta,
+  (actions, widgets, widgetsMeta) => {
+    return DataTreeFactory.create({ actions, widgets, widgetsMeta });
+  },
+);
 
 export const evaluateDataTree = createSelector(
   getUnevaluatedDataTree,
@@ -21,8 +28,9 @@ export const evaluateDataTree = createSelector(
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
   evaluateDataTree,
-  getActions,
+  getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
+    log.debug("Evaluating data tree to get autocomplete values");
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
       actions.forEach(action => {

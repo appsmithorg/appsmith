@@ -9,6 +9,7 @@ import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import moment from "moment-timezone";
 import ValidationRegistry from "./ValidationRegistry";
+import * as log from "loglevel";
 
 export const createReducer = (
   initialState: any,
@@ -39,6 +40,8 @@ export const appInitializer = () => {
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
+
+  log.setLevel(appsmithConfigs.logLevel);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont

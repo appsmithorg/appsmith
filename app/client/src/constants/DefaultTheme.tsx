@@ -332,6 +332,7 @@ export const theme: Theme = {
     paneInputBG: Colors.SHARK,
     paneBG: Colors.OUTER_SPACE,
     paneText: Colors.GRAY_CHATEAU,
+    paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
     grid: Colors.GEYSER_LIGHT,

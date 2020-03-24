@@ -14,6 +14,8 @@ import {
   fetchPageSuccess,
   updateWidgetNameSuccess,
   deletePageSuccess,
+  updateCurrentPage,
+  fetchPublishedPageSuccess,
 } from "actions/pageActions";
 import PageApi, {
   FetchPageResponse,
@@ -125,6 +127,8 @@ export function* fetchPageSaga(
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
       yield put(updateCanvas(canvasWidgetsPayload));
+      // set current page
+      yield put(updateCurrentPage(pageId));
       // dispatch fetch page success
       yield put(fetchPageSuccess());
       // Execute page load actions
@@ -156,15 +160,14 @@ export function* fetchPublishedPageSaga(
     if (isValidResponse) {
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       yield put(updateCanvas(canvasWidgetsPayload));
-      yield put({
-        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-        payload: {
+      yield put(updateCurrentPage(pageId));
+      yield put(
+        fetchPublishedPageSuccess({
           dsl: response.data.layouts[0].dsl,
-          layoutId: response.data.layouts[0].id,
           pageId: request.pageId,
           pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-        },
-      });
+        }),
+      );
       // Execute page load actions
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }

@@ -41,17 +41,22 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
 export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
-  & > label {
+  label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
     font-size: ${props => props.theme.fontSizes[3]}px;
+  }
+  .underline {
+    color: ${props => props.theme.colors.paneTextUnderline};
   }
 `;
 
 export const JSToggleButton = styled.span<{ active: boolean }>`
   margin: 0 3px;
   cursor: pointer;
+  height: 24px;
   svg {
+    height: 24px;
     rect {
       fill: ${props =>
         props.active
@@ -243,10 +248,13 @@ export const StyledInputGroup = styled(InputGroup)`
 `;
 
 export const StyledDatePicker = styled(DateInput)`
-& > input {
-  placeholderText: ${props => props.placeholder}
-  color: ${props => props.theme.colors.textOnDarkBG};
-  background: ${props => props.theme.colors.paneInputBG};
+  & {
+    input {
+      placeholderText: ${props => props.placeholder};
+      color: ${props => props.theme.colors.textOnDarkBG};
+      background: ${props => props.theme.colors.paneInputBG};
+    }
+  }
 }
 `;
 
