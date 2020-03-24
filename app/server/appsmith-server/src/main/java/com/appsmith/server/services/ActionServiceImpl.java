@@ -525,6 +525,25 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     return repository.findAll(Example.of(actionExample), sort);
                 })
                 .flatMap(action -> {
+                    // Set the plugin id in the action object fetching it from the datasource.
+                    Datasource datasource = action.getDatasource();
+                    if (datasource != null) {
+                        if (datasource.getId() != null) {
+                            // its a global datasource. Get the datasource from the collection
+                            return datasourceService
+                                    .findById(datasource.getId())
+                                    .map(datasource1 -> {
+                                        action.setPluginId(datasource1.getPluginId());
+                                        return action;
+                                    });
+                        } else {
+                            // Its a nested datasource. Pick up the pluginId from here
+                            action.setPluginId(datasource.getPluginId());
+                        }
+                    }
+                    return Mono.just(action);
+                })
+                .flatMap(action -> {
                     if ((action.getTemplateId()!=null) && (action.getProviderId() != null)) {
                         // In case of an action which was imported from a 3P API, fill in the extra information of the
                         // provider required by the front end UI.
