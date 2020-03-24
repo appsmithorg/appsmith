@@ -9,7 +9,7 @@ context('Cypress test',function() {
 
         cy.get(widgetsPage.tableWidget).first().trigger('mouseover',{force:true})
         cy.get(widgetsPage.tableWidget).children(commonlocators.editicon).first().click()
-        cy.get('.CodeMirror textarea').focus().type("{meta}a").clear({ force: true }).type("{{MockUsersApi.data}}",{parseSpecialCharSequences: false})
+        cy.get('.CodeMirror textarea').first().focus().type("{meta}a").clear({ force: true }).type("{{MockUsersApi.data}}",{parseSpecialCharSequences: false})      
         cy.get(commonlocators.editPropCrossButton).click()
     })
 })
