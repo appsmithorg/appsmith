@@ -73,8 +73,14 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
-    public Mono<Organization> getByName(String name) {
-        return repository.findByName(name);
+    public Mono<Organization> getBySlug(String slug) {
+        return repository.findBySlug(slug);
+    }
+
+    @Override
+    public Mono<String> getNextUniqueSlug(String initialSlug) {
+        return repository.countSlugsByPrefix(initialSlug)
+            .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
     }
 
     /**
@@ -95,7 +101,13 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
 
-        Mono<Organization> organizationMono = Mono.just(organization)
+        Mono<Organization> setSlugMono = getNextUniqueSlug(organization.getSlug())
+                .map(slug -> {
+                    organization.setSlug(slug);
+                    return organization;
+                });
+
+        Mono<Organization> organizationMono = setSlugMono
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)

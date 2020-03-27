@@ -53,7 +53,7 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void createValidActionNullActionConfiguration() {
         Action action = new Action();
-        action.setName("randomActionName");
+        action.setName("randomActionName2");
         action.setPageId("randomPageId");
         Mono<Action> actionMono = Mono.just(action)
                 .flatMap(actionService::create);

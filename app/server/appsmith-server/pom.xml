@@ -188,6 +188,13 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.10</version>
         </dependency>
+
+        <!-- MongoDB Migrations: https://github.com/mongobee/mongobee -->
+        <dependency>
+            <groupId>com.github.mongobee</groupId>
+            <artifactId>mongobee</artifactId>
+            <version>0.13</version>
+        </dependency>
     </dependencies>
 
     <build>
