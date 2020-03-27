@@ -68,13 +68,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo = 1;
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
       <TableComponent
         data={this.props.tableData}
         columns={columns}
         isLoading={this.props.isLoading}
-        height={this.state.componentHeight}
-        width={this.state.componentWidth}
+        height={componentHeight}
+        width={componentWidth}
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}

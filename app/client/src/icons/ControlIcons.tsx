@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSXElementConstructor } from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as DeleteIcon } from "assets/icons/control/delete.svg";
 import { ReactComponent as MoveIcon } from "assets/icons/control/move.svg";
@@ -7,11 +7,11 @@ import { ReactComponent as ViewIcon } from "assets/icons/control/view.svg";
 import { ReactComponent as MoreVerticalIcon } from "assets/icons/control/more-vertical.svg";
 import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-menu.svg";
 import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.svg";
-
+import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 /* eslint-disable react/display-name */
 
 export const ControlIcons: {
-  [id: string]: Function;
+  [id: string]: JSXElementConstructor<IconProps>;
 } = {
   DELETE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
@@ -46,6 +46,11 @@ export const ControlIcons: {
   JS_TOGGLE: (props: IconProps) => (
     <IconWrapper {...props}>
       <JsToggleIcon />
+    </IconWrapper>
+  ),
+  CLOSE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CloseIcon />
     </IconWrapper>
   ),
 };

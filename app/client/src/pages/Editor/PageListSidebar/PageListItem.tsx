@@ -79,7 +79,7 @@ const PageListItem = withTheme((props: PageListItemProps) => {
   const pageIcon = props.isDefault ? (
     MenuIcons.HOMEPAGE_ICON({ width: 28, height: 28 })
   ) : (
-    <LetterIcon text={props.name[0]} />
+    <LetterIcon text={String.fromCodePoint(props.name.codePointAt(0) || 0)} />
   );
   return (
     <PageListItemWrapper

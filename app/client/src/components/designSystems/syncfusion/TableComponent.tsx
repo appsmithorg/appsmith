@@ -76,13 +76,6 @@ const TableComponent = memo(
     const grid: GridRef = useRef(null);
     const pager: PagerRef = useRef(null);
 
-    // componentDidUpdate start
-    useEffect(() => {
-      props.height && reCalculatePageSize(grid, props.height);
-      /* eslint-disable react-hooks/exhaustive-deps */
-    }, [props.height, grid]);
-    // componentDidUpdate end
-
     function disableBubbling(e: any) {
       e.preventDefault();
       e.stopPropagation();
@@ -211,6 +204,7 @@ const TableComponent = memo(
               pager.current.totalRecordsCount = props.data.length;
             }
             if (grid.current) {
+              props.height && reCalculatePageSize(grid, props.height);
               grid.current.selectionModule.selectRow(props.selectedRowIndex);
             }
           }}

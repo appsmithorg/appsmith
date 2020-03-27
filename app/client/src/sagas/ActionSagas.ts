@@ -320,6 +320,14 @@ export function* executeActionTriggers(
       });
       if (event.callback) event.callback({ success: true });
       break;
+    case "SHOW_MODAL_BY_NAME":
+      yield put(trigger);
+      if (event.callback) event.callback({ success: true });
+      break;
+    case "CLOSE_MODAL":
+      yield put(trigger);
+      if (event.callback) event.callback({ success: true });
+      break;
     default:
       yield put(
         executeActionError({

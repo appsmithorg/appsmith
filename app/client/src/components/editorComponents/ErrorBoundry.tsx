@@ -1,8 +1,8 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/browser";
 
-type Props = { isValid: boolean; children: JSX.Element };
+type Props = { isValid: boolean; children: ReactNode };
 type State = { hasError: boolean };
 
 const ErrorBoundaryContainer = styled.div<{ isValid: boolean }>`

@@ -5,7 +5,10 @@ import { useSelector } from "store";
 import { hasAuthExpired } from "utils/storage";
 import { User } from "constants/userConstants";
 import { setCurrentUserDetails } from "actions/userActions";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 export const checkAuth = (dispatch: any, currentUser?: User) => {
   return hasAuthExpired().then(hasExpired => {
@@ -18,6 +21,10 @@ export const checkAuth = (dispatch: any, currentUser?: User) => {
 export const WrappedComponent = (props: any) => {
   const showPropertyPane = useShowPropertyPane();
   showPropertyPane();
+
+  const { selectWidget, focusWidget } = useWidgetSelection();
+  selectWidget(undefined);
+  focusWidget(undefined);
 
   const dispatch = useDispatch();
   const currentUser = useSelector(state => state.ui.users.current);

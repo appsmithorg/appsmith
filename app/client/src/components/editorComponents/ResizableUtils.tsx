@@ -57,5 +57,6 @@ export const computeFinalRowCols = (
   const newRowCols = computeBoundedRowCols(
     computeRowCols(delta, position, props),
   );
+
   return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
 };

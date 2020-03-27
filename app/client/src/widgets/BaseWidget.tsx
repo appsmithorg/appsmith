@@ -9,19 +9,18 @@ import {
   RenderModes,
   CSSUnits,
 } from "constants/WidgetConstants";
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 import {
   PositionType,
   CSSUnit,
   CONTAINER_GRID_PADDING,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import _ from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
 import { ExecuteActionPayload } from "constants/ActionConstants";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
-import WidgetNameComponent from "components/designSystems/appsmith/WidgetNameComponent";
+import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { PositionTypes } from "constants/WidgetConstants";
@@ -52,18 +51,6 @@ abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState
 > extends Component<T, K> {
-  constructor(props: T) {
-    super(props);
-    const initialState: WidgetState = {
-      componentHeight: 0,
-      componentWidth: 0,
-      meta: {},
-    };
-    initialState.componentHeight = 0;
-    initialState.componentWidth = 0;
-    this.state = initialState as K;
-  }
-
   static contextType = EditorContext;
 
   // Needed to send a default no validation option. In case a widget needs
@@ -124,8 +111,14 @@ abstract class BaseWidget<
     resetChildrenMetaProperty(widgetId);
   }
 
-  componentDidMount(): void {
-    this.calculateWidgetBounds(
+  /* eslint-disable @typescript-eslint/no-empty-function */
+  componentDidUpdate(prevProps: T) {}
+
+  componentDidMount(): void {}
+  /* eslint-enable @typescript-eslint/no-empty-function */
+
+  getComponentDimensions = () => {
+    return this.calculateWidgetBounds(
       this.props.rightColumn,
       this.props.leftColumn,
       this.props.topRow,
@@ -133,18 +126,7 @@ abstract class BaseWidget<
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
     );
-  }
-  //eslint-disable-next-line @typescript-eslint/no-unused-vars
-  componentDidUpdate(prevProps: T) {
-    this.calculateWidgetBounds(
-      this.props.rightColumn,
-      this.props.leftColumn,
-      this.props.topRow,
-      this.props.bottomRow,
-      this.props.parentColumnSpace,
-      this.props.parentRowSpace,
-    );
-  }
+  };
 
   calculateWidgetBounds(
     rightColumn: number,
@@ -154,60 +136,80 @@ abstract class BaseWidget<
     parentColumnSpace: number,
     parentRowSpace: number,
   ) {
-    const widgetState = {
+    return {
       componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
-
-    if (
-      _.isNil(this.state) ||
-      widgetState.componentHeight !== this.state.componentHeight ||
-      widgetState.componentWidth !== this.state.componentWidth
-    ) {
-      this.setState(widgetState);
-    }
   }
 
   render() {
     return this.getWidgetView();
   }
 
-  private getWidgetView(): JSX.Element {
+  makeResizable(content: ReactNode) {
+    return (
+      <ResizableComponent
+        {...this.props}
+        paddingOffset={PositionedContainer.padding}
+      >
+        {content}
+      </ResizableComponent>
+    );
+  }
+  showWidgetName(content: ReactNode, showControls = false) {
+    return (
+      <React.Fragment>
+        <WidgetNameComponent
+          widgetName={this.props.widgetName}
+          widgetId={this.props.widgetId}
+          parentId={this.props.parentId}
+          type={this.props.type}
+          showControls={showControls}
+        />
+        {content}
+      </React.Fragment>
+    );
+  }
+
+  makeDraggable(content: ReactNode) {
+    return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
+  }
+
+  makePositioned(content: ReactNode) {
+    const style = this.getPositionStyle();
+    return (
+      <PositionedContainer widgetId={this.props.widgetId} style={style}>
+        {content}
+      </PositionedContainer>
+    );
+  }
+
+  addErrorBoundary(content: ReactNode, isValid: boolean) {
+    return <ErrorBoundary isValid={isValid}>{content}</ErrorBoundary>;
+  }
+
+  private getWidgetView(): ReactNode {
+    let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        const style = this.getPositionStyle();
-        if (this.props.parentId) {
-          return (
-            <PositionedContainer style={style}>
-              <DraggableComponent {...this.props} orientation={"VERTICAL"}>
-                <WidgetNameComponent
-                  widgetName={this.props.widgetName}
-                  widgetId={this.props.widgetId}
-                />
-                <ResizableComponent
-                  {...this.props}
-                  paddingOffset={PositionedContainer.padding}
-                >
-                  {this.getCanvasView()}
-                </ResizableComponent>
-              </DraggableComponent>
-            </PositionedContainer>
-          );
+        content = this.getCanvasView();
+        if (!this.props.detachFromLayout) {
+          content = this.makeResizable(content);
+          content = this.showWidgetName(content);
+          content = this.makeDraggable(content);
+          content = this.makePositioned(content);
         }
-        return this.getCanvasView();
+        return content;
+
+      // return this.getCanvasView();
       case RenderModes.PAGE:
+        content = this.getPageView();
         if (this.props.isVisible) {
-          return (
-            <PositionedContainer
-              style={this.getPositionStyle()}
-              isMainContainer={
-                this.props.type === WidgetTypes.CONTAINER_WIDGET &&
-                this.props.widgetId === "0"
-              }
-            >
-              <ErrorBoundary isValid>{this.getPageView()}</ErrorBoundary>
-            </PositionedContainer>
-          );
+          content = this.addErrorBoundary(content, true);
+          if (!this.props.detachFromLayout) {
+            content = this.makePositioned(content);
+          }
+          return content;
         }
         return <React.Fragment />;
       default:
@@ -215,33 +217,31 @@ abstract class BaseWidget<
     }
   }
 
-  abstract getPageView(): JSX.Element;
+  abstract getPageView(): ReactNode;
 
-  getCanvasView(): JSX.Element {
+  getCanvasView(): ReactNode {
     let isValid = true;
     if (this.props.invalidProps) {
       isValid = _.keys(this.props.invalidProps).length === 0;
     }
     if (this.props.isLoading) isValid = true;
-    return (
-      <ErrorBoundary isValid={isValid}>{this.getPageView()}</ErrorBoundary>
-    );
+    const content = this.getPageView();
+    return this.addErrorBoundary(content, isValid);
   }
 
-  // TODO(Nikhil): Revisit the inclusion of another library for shallowEqual.
-  // `react-redux` provides shallowEqual natively
-  shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
-    const isNotEqual =
-      !shallowequal(nextProps, this.props) ||
-      !shallowequal(nextState, this.state);
-    return isNotEqual;
+  // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
+  // This would involve making all widgets which have "states" to not have states,
+  // as they're extending this one.
+  shouldComponentUpdate(nextProps: WidgetProps) {
+    return !shallowequal(nextProps, this.props);
   }
 
   private getPositionStyle(): BaseStyle {
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return {
       positionType: PositionTypes.ABSOLUTE,
-      componentHeight: this.state.componentHeight,
-      componentWidth: this.state.componentWidth,
+      componentHeight,
+      componentWidth,
       yPosition:
         this.props.topRow * this.props.parentRowSpace + CONTAINER_GRID_PADDING,
       xPosition:
@@ -252,7 +252,8 @@ abstract class BaseWidget<
     };
   }
 
-  static defaultProps: Partial<WidgetProps> = {
+  // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
+  static defaultProps: Partial<WidgetProps> | undefined = {
     parentRowSpace: 1,
     parentColumnSpace: 1,
     topRow: 0,
@@ -272,19 +273,54 @@ export interface BaseStyle {
   widthUnit?: CSSUnit;
 }
 
-export interface WidgetState {
-  componentHeight: number;
-  componentWidth: number;
-  meta: Record<string, any>;
-}
+export type WidgetState = {};
 
 export interface WidgetBuilder<T extends WidgetProps> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
+export interface WidgetBaseProps {
+  widgetId: string;
+  type: WidgetType;
+  widgetName: string;
+  parentId: string;
+  renderMode: RenderMode;
+}
+
+export type WidgetRowCols = {
+  leftColumn: number;
+  rightColumn: number;
+  topRow: number;
+  bottomRow: number;
+  minHeight?: number; // Required to reduce the size of CanvasWidgets.
+};
+
+export interface WidgetPositionProps extends WidgetRowCols {
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  // The detachFromLayout flag tells use about the following properties when enabled
+  // 1) Widget does not drag/resize
+  // 2) Widget CAN (but not neccessarily) be a dropTarget
+  // Examples: MainContainer is detached from layout,
+  // MODAL_WIDGET is also detached from layout.
+  detachFromLayout?: boolean;
+}
+
+export interface WidgetDisplayProps {
+  //TODO(abhinav): Some of these props are mandatory
+  isVisible?: boolean;
+  isLoading: boolean;
+  isDisabled?: boolean;
+  backgroundColor?: string;
+}
+
+export interface WidgetDataProps
+  extends WidgetBaseProps,
+    WidgetPositionProps,
+    WidgetDisplayProps {}
+
 export interface WidgetProps extends WidgetDataProps {
   key?: string;
-  renderMode: RenderMode;
   dynamicBindings?: Record<string, true>;
   dynamicTriggers?: Record<string, true>;
   dynamicProperties?: Record<string, true>;
@@ -293,30 +329,6 @@ export interface WidgetProps extends WidgetDataProps {
   isDefaultClickDisabled?: boolean;
   [key: string]: any;
 }
-
-export interface WidgetDataProps {
-  widgetId: string;
-  type: WidgetType;
-  widgetName: string;
-  topRow: number;
-  leftColumn: number;
-  bottomRow: number;
-  rightColumn: number;
-  parentColumnSpace: number;
-  parentRowSpace: number;
-  isVisible?: boolean;
-  isLoading: boolean;
-  isDisabled?: boolean;
-  parentId?: string;
-  backgroundColor?: string;
-}
-
-export type WidgetRowCols = {
-  leftColumn: number;
-  rightColumn: number;
-  topRow: number;
-  bottomRow: number;
-};
 
 export interface WidgetCardProps {
   type: WidgetType;

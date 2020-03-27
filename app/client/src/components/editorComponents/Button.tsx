@@ -20,6 +20,7 @@ const buttonStyles = css<{
   outline?: string;
   intent?: Intent;
   filled?: string;
+  fluid?: boolean;
 }>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
@@ -30,6 +31,8 @@ const buttonStyles = css<{
 
     background: ${props =>
       props.filled || props.outline ? "inherit" : "transparent"};
+
+    width: ${props => (props.fluid ? "100%" : "auto")};
   }
 
   ${props => (props.outline ? outline : "")}
@@ -63,6 +66,7 @@ export type ButtonProps = {
   size?: "large" | "small";
   type?: "button" | "submit" | "reset";
   className?: string;
+  fluid?: boolean;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -89,6 +93,7 @@ export const Button = (props: ButtonProps) => {
     disabled: props.disabled,
     type: props.type,
     className: props.className,
+    fluid: props.fluid ? props.fluid.toString() : undefined,
   };
   if (props.href) {
     return (

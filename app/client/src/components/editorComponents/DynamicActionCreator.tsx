@@ -2,12 +2,15 @@ import React, { ChangeEvent } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { DropdownOption } from "widgets/DropdownWidget";
+import { ReduxActionWithoutPayload } from "constants/ReduxActionConstants";
 import _ from "lodash";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
 import StyledDropdown from "components/editorComponents/StyledDropdown";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getModalDropdownList } from "selectors/widgetSelectors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { createModalAction } from "actions/widgetActions";
 
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
@@ -23,6 +26,10 @@ type ValueChangeHandler = (changeValue: string, currentValue: string) => string;
 type ActionCreatorArgumentConfig = {
   label: string;
   field: string;
+  create?: {
+    text: string;
+    dispatchPayload: ReduxActionWithoutPayload;
+  };
   valueChangeHandler: ValueChangeHandler;
   getSelectedValue: (value: string, returnArguments: boolean) => string;
 };
@@ -80,10 +87,11 @@ const handleAlertTextChange = (
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
   args[0] = `'${changeValue}'`;
-  return currentValue.replace(
+  const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
+  return result;
 };
 
 const handleAlertTypeChange = (
@@ -186,6 +194,36 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
     ],
   },
   {
+    label: "Show Modal",
+    value: "showModal",
+    id: "showModal",
+    arguments: [
+      {
+        label: "Modal Name",
+        field: "MODAL_SELECTOR_FIELD",
+        create: {
+          text: "Modal",
+          dispatchPayload: createModalAction(),
+        },
+        valueChangeHandler: handlePageNameArgSelect,
+        getSelectedValue: getPageNameSelectedValue,
+      },
+    ],
+  },
+  {
+    label: "Close Modal",
+    value: "closeModal",
+    id: "closeModal",
+    arguments: [
+      {
+        label: "Modal Name",
+        field: "MODAL_SELECTOR_FIELD",
+        valueChangeHandler: handlePageNameArgSelect,
+        getSelectedValue: getPageNameSelectedValue,
+      },
+    ],
+  },
+  {
     label: "Navigate to Page",
     value: "navigateTo",
     id: "navigateTo",
@@ -235,6 +273,8 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
 type ReduxStateProps = {
   actions: ActionDataState;
   pageNameDropdown: DropdownOption[];
+  modalDropdown?: DropdownOption[];
+  dispatchAction: (payload: ReduxActionWithoutPayload) => void;
 };
 
 interface Props {
@@ -356,6 +396,28 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   />
                 </ControlWrapper>
               );
+            case "MODAL_SELECTOR_FIELD":
+              return (
+                <ControlWrapper key={arg.label}>
+                  <label>{arg.label}</label>
+                  <StyledDropdown
+                    options={this.props.modalDropdown || []}
+                    selectedValue={arg.getSelectedValue(value, false)}
+                    defaultText={"Select Modal"}
+                    createButton={
+                      arg.create && {
+                        text: arg.create.text,
+                        onClick: () =>
+                          arg.create &&
+                          this.props.dispatchAction(arg.create.dispatchPayload),
+                      }
+                    }
+                    onSelect={value =>
+                      handleUpdate(value, arg.valueChangeHandler)
+                    }
+                  />
+                </ControlWrapper>
+              );
             case "TEXT_FIELD":
               return (
                 <ControlWrapper key={arg.label}>
@@ -409,6 +471,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
         return o;
       }
     });
+
     let selectedOption = actionOptions[0];
     actionOptions.forEach(o => {
       if (
@@ -442,13 +505,23 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: AppState) => ({
   actions: getActionsForCurrentPage(state),
   pageNameDropdown: state.entities.pageList.pages.map(p => ({
     label: p.pageName,
     id: p.pageId,
     value: `'${p.pageName}'`,
   })),
+  modalDropdown: getModalDropdownList(state),
 });
 
-export default connect(mapStateToProps)(DynamicActionCreator);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    dispatchAction: (payload: ReduxActionWithoutPayload) => dispatch(payload),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DynamicActionCreator);

@@ -10,9 +10,7 @@ interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
 }
 
-/* eslint-disable react/display-name */
-/* eslint-disable react/prop-types */
-
+// TODO(abhinav): get the render mode from context
 const Canvas = (props: CanvasProps) => {
   try {
     return (

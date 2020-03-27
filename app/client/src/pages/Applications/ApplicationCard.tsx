@@ -122,12 +122,13 @@ const Control = styled.button<{ fixed?: boolean }>`
 `;
 
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
-
-const viewControlIcon = ControlIcons.VIEW_CONTROL({
+const ViewIcon = ControlIcons.VIEW_CONTROL;
+const viewIconProps = {
   width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
   height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
   color: theme.colors.secondary,
-});
+};
+const viewControlIcon = <ViewIcon {...viewIconProps} />;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;

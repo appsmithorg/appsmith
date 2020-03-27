@@ -135,6 +135,7 @@ export function* fetchPageSaga(
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
+    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {

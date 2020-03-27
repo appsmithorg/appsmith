@@ -1,18 +1,17 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { theme } from "constants/DefaultTheme";
+import { generateClassName } from "utils/generators";
 type PositionedContainerProps = {
   style: BaseStyle;
-  children: JSX.Element | JSX.Element[];
-  isMainContainer?: boolean;
+  children: ReactNode;
+  widgetId: string;
 };
 
 export const PositionedContainer = (props: PositionedContainerProps) => {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
-  const y = props.isMainContainer
-    ? theme.spaces[9]
-    : props.style.yPosition + (props.style.yPositionUnit || "px");
+  const y = props.style.yPosition + (props.style.yPositionUnit || "px");
+  const padding = WIDGET_PADDING;
   return (
     <div
       style={{
@@ -21,8 +20,10 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
         top: y,
         height: props.style.componentHeight + (props.style.heightUnit || "px"),
         width: props.style.componentWidth + (props.style.widthUnit || "px"),
-        padding: props.isMainContainer ? 0 : WIDGET_PADDING + "px",
+        padding: padding + "px",
       }}
+      //Before you remove: This is used by property pane to reference the element
+      className={generateClassName(props.widgetId)}
     >
       {props.children}
     </div>

@@ -1,5 +1,3 @@
-import { PropertyPaneConfigState } from "reducers/entityReducers/propertyPaneConfigReducer";
-
 const PropertyPaneConfigResponse = {
   config: {
     BUTTON_WIDGET: [
@@ -315,6 +313,12 @@ const PropertyPaneConfigResponse = {
             id: "7.2",
             propertyName: "isVisible",
             label: "Visible",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.3",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
             controlType: "SWITCH",
           },
         ],
@@ -810,6 +814,12 @@ const PropertyPaneConfigResponse = {
             label: "Visible",
             controlType: "SWITCH",
           },
+          {
+            id: "22.3",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+          },
         ],
       },
     ],
@@ -874,6 +884,42 @@ const PropertyPaneConfigResponse = {
             propertyName: "onClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
+          },
+        ],
+      },
+    ],
+    MODAL_WIDGET: [
+      {
+        sectionName: "General",
+        id: "24.1",
+        children: [
+          {
+            id: "24.1.1",
+            propertyName: "canOutsideClickClose",
+            label: "Close on blur",
+            controlType: "SWITCH",
+          },
+          {
+            id: "24.1.3",
+            propertyName: "canEscapeKeyClose",
+            label: "Close on ESC",
+            controlType: "SWITCH",
+          },
+          {
+            id: "24.1.4",
+            propertyName: "size",
+            label: "Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Large",
+                value: "MODAL_LARGE",
+              },
+              {
+                label: "Small",
+                value: "MODAL_SMALL",
+              },
+            ],
           },
         ],
       },
