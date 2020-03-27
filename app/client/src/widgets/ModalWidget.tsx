@@ -31,7 +31,13 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = true;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : MODAL_SIZE[this.props.size].height;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
     childWidgetData.rightColumn = MODAL_SIZE[this.props.size].width;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
@@ -54,10 +60,6 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   makeModalComponent(content: ReactNode) {
-    const shouldScroll =
-      !!this.props.children &&
-      !!this.props.children[0] &&
-      this.props.children[0].bottomRow > MODAL_SIZE[this.props.size].height;
     return (
       <React.Fragment>
         <ModalComponent
@@ -68,7 +70,7 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           className={generateClassName(this.props.widgetId)}
           canOutsideClickClose={!!this.props.canOutsideClickClose}
           canEscapeKeyClose={!!this.props.canEscapeKeyClose}
-          scrollContents={shouldScroll}
+          scrollContents={!!this.props.shouldScrollContents}
         >
           {content}
         </ModalComponent>

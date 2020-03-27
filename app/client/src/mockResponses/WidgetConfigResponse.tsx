@@ -187,6 +187,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       canEscapeKeyClose: true,
       detachFromLayout: true,
       canOutsideClickClose: true,
+      shouldScrollContents: true,
       isVisible: false,
       widgetName: "Modal",
       children: [],
