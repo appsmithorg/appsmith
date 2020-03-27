@@ -22,7 +22,6 @@ public class Organization extends BaseDomain {
     private String domain;
 
     @NotNull
-    @Indexed(unique = true)
     private String name;
 
     private String website;
@@ -30,5 +29,17 @@ public class Organization extends BaseDomain {
     private List<OrganizationSetting> organizationSettings;
 
     private List<OrganizationPlugin> plugins;
+
+    @NotNull
+    @Indexed(unique = true)
+    private String slug;
+
+    public String getSlug() {
+        return slug == null ? toSlug(name) : slug;
+    }
+
+    public static String toSlug(String text) {
+        return text == null ? null : text.replaceAll("[^\\w\\d]+", "-").toLowerCase();
+    }
 
 }

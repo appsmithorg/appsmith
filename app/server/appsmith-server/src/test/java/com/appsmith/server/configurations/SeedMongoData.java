@@ -13,7 +13,9 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.github.mongobee.exception.MongobeeException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +29,18 @@ import java.util.List;
 @Configuration
 public class SeedMongoData {
 
+    @Autowired
+    private MongoConfig mongoConfig;
+
     @Bean
     ApplicationRunner init(UserRepository userRepository,
                            OrganizationRepository organizationRepository,
                            ApplicationRepository applicationRepository,
                            PageRepository pageRepository,
-                           PluginRepository pluginRepository) {
+                           PluginRepository pluginRepository)
+            throws MongobeeException {
+
+        mongoConfig.runMigrations();
 
         log.info("Seeding the data");
         Object[][] userData = {
@@ -40,7 +48,7 @@ public class SeedMongoData {
                 {"api_user", "api_user", UserState.ACTIVATED},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com"}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization"}
         };
         Object[][] appData = {
                 {"LayoutServiceTest TestApplications"}
@@ -50,8 +58,7 @@ public class SeedMongoData {
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"},
-                {"RestTemplatePluginExecutor", PluginType.API, "restapi-plugin"}
+                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
         return args -> {
             organizationRepository.deleteAll()
@@ -76,6 +83,7 @@ public class SeedMongoData {
                                         organization.setName((String) array[0]);
                                         organization.setDomain((String) array[1]);
                                         organization.setWebsite((String) array[2]);
+                                        organization.setSlug((String) array[3]);
                                         OrganizationPlugin orgPlugin = new OrganizationPlugin();
                                         orgPlugin.setPluginId(pluginId);
                                         List<OrganizationPlugin> orgPlugins = new ArrayList<>();
@@ -85,7 +93,7 @@ public class SeedMongoData {
                                     }).flatMap(organizationRepository::save)
                     )
                     // Query the seed data to get the organizationId (required for application creation)
-                    .then(organizationRepository.findByName((String) orgData[0][0]))
+                    .then(organizationRepository.findBySlug((String) orgData[0][3]))
                     .map(org -> org.getId())
                     // Seed the user data into the DB
                     .flatMapMany(orgId -> Flux.just(userData)

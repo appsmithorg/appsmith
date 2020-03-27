@@ -34,6 +34,7 @@ public class OrganizationServiceTest {
         organization.setName("Test Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
+        organization.setSlug("test-name");
     }
 
     /* Tests for the Create Organization Flow */
@@ -100,6 +101,7 @@ public class OrganizationServiceTest {
         organization.setName("Test For Get Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
+        organization.setSlug("test-for-get-name");
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> getOrganization = createOrganization.flatMap(t -> organizationService.getById(t.getId()));
         StepVerifier.create(getOrganization)
@@ -118,6 +120,7 @@ public class OrganizationServiceTest {
         organization.setName("Test Update Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
+        organization.setSlug("test-update-name");
 
         Mono<Organization> createOrganization = organizationService.create(organization);
         Mono<Organization> updateOrganization = createOrganization
@@ -134,6 +137,53 @@ public class OrganizationServiceTest {
                     assertThat(t.getName()).isEqualTo(organization.getName());
                     assertThat(t.getId()).isEqualTo(organization.getId());
                     assertThat(t.getDomain()).isEqualTo("abc.com");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void uniqueSlugs() {
+        Organization organization = new Organization();
+        organization.setName("First slug org");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<String> uniqueSlug = organizationService.getNextUniqueSlug("slug-org")
+            .map(slug -> {
+                organization.setSlug(slug);
+                return organization;
+            })
+            .flatMap(organizationService::create)
+            .then(organizationService.getNextUniqueSlug("slug-org"));
+
+        StepVerifier.create(uniqueSlug)
+                .assertNext(slug -> {
+                    assertThat(slug).isNotEqualTo("slug-org");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDuplicateNameOrganization() {
+        Organization firstOrg = new Organization();
+        firstOrg.setName("Really good org");
+        firstOrg.setDomain("example.com");
+        firstOrg.setWebsite("https://example.com");
+
+        Organization secondOrg = new Organization();
+        secondOrg.setName(firstOrg.getName());
+        secondOrg.setDomain(firstOrg.getDomain());
+        secondOrg.setWebsite(firstOrg.getWebsite());
+
+        Mono<Organization> firstOrgCreation = organizationService.create(firstOrg).cache();
+        Mono<Organization> secondOrgCreation = firstOrgCreation.then(organizationService.create(secondOrg));
+
+        StepVerifier.create(Mono.zip(firstOrgCreation, secondOrgCreation))
+                .assertNext(orgsTuple -> {
+                    assertThat(orgsTuple.getT1().getSlug()).isEqualTo("really-good-org");
+                    assertThat(orgsTuple.getT2().getSlug()).isEqualTo("really-good-org2");
                 })
                 .verifyComplete();
     }
