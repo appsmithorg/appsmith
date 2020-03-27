@@ -6,7 +6,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Submit",
       buttonStyle: "PRIMARY_BUTTON",
       rows: 1,
-      columns: 5,
+      columns: 2,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -16,7 +16,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Label me",
       textStyle: "LABEL",
       rows: 1,
-      columns: 3,
+      columns: 4,
       widgetName: "Text",
     },
     RICH_TEXT_EDITOR_WIDGET: {
@@ -33,14 +33,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
-      columns: 3,
+      columns: 2,
       widgetName: "Image",
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
       label: "Label me",
       rows: 1,
-      columns: 8,
+      columns: 5,
       widgetName: "Input",
     },
     SWITCH_WIDGET: {
@@ -89,7 +89,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7,
-      columns: 14,
+      columns: 10,
       label: "Data",
       widgetName: "Table",
       tableData: [
@@ -153,7 +153,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
-      columns: 5,
+      columns: 3,
       label: "Label",
       options: [
         { id: "1", label: "Alpha", value: "1" },
