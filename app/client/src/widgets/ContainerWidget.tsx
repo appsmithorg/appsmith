@@ -42,7 +42,7 @@ class ContainerWidget extends BaseWidget<
     const snapSpaces = this.getSnapSpaces();
     const { componentWidth, componentHeight } = this.getComponentDimensions();
 
-    if (!childWidgetData.detachFromLayout) {
+    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
       childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
       childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     } else {

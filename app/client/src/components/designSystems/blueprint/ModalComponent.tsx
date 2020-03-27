@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
@@ -6,7 +6,6 @@ import { getCanvasClassName } from "utils/generators";
 const CloseModalControl = ControlIcons.CLOSE_CONTROL;
 const Container = styled.div<{
   width: number;
-  scroll: boolean;
   height: number;
 }>`
   &&& {
@@ -33,11 +32,15 @@ const Container = styled.div<{
     }
   }
 `;
-const Content = styled.div<{ height: number }>`
-  overflow-y: visible;
+const Content = styled.div<{
+  height: number;
+  scroll: boolean;
+  ref: RefObject<HTMLDivElement>;
+}>`
+  overflow-y: ${props => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
-  max-height: ${props => props.height}px;
+  height: ${props => props.height}px;
 `;
 
 const CloseModalTrigger = styled(CloseModalControl)`
@@ -61,12 +64,16 @@ export type ModalComponentProps = {
 
 /* eslint-disable react/display-name */
 export const ModalComponent = (props: ModalComponentProps) => {
+  const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
+    null,
+  );
+  useEffect(() => {
+    if (!props.scrollContents) {
+      modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [props.scrollContents]);
   return (
-    <Container
-      width={props.width}
-      height={props.height}
-      scroll={props.scrollContents}
-    >
+    <Container width={props.width} height={props.height}>
       <Overlay
         isOpen={props.isOpen}
         onClose={props.onClose}
@@ -78,8 +85,10 @@ export const ModalComponent = (props: ModalComponentProps) => {
         <div>
           <CloseModalTrigger onClick={props.onClose} />
           <Content
+            scroll={props.scrollContents}
             className={`${getCanvasClassName()} ${props.className}`}
             height={props.height}
+            ref={modalContentRef}
           >
             {props.children}
           </Content>
