@@ -13,26 +13,22 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-const loginData=require('../fixtures/user.json')
-const inputData=require('../fixtures/inputdata.json')
+const loginData = require("../fixtures/user.json");
+const inputData = require("../fixtures/inputdata.json");
 
 // Import commands.js using ES2015 syntax:
-import './commands'
-before(function () {
-   
-    cy.LogintoApp(loginData.username,loginData.password)
-    cy.SearchApp(inputData.appname)
-  })
+import "./commands";
+before(function() {
+  cy.LogintoApp(loginData.username, loginData.password);
+  cy.SearchApp(inputData.appname);
+});
 
-  beforeEach(function () {
-   
-    Cypress.Cookies.preserveOnce('session_id', 'remember_token')
-  
-  })
+beforeEach(function() {
+  Cypress.Cookies.preserveOnce("session_id", "remember_token");
+});
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 after(function() {
- 
-  cy.PublishtheApp()
-})
+  cy.PublishtheApp();
+});

@@ -7,18 +7,23 @@ import {
   StyledMenuItem,
 } from "components/propertyControls/StyledControls";
 import {
-  Button,
+  Button as BlueprintButton,
   Menu,
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
+import Button from "components/editorComponents/Button";
 
 type ActionTypeDropdownProps = {
   options: DropdownOption[];
   selectedValue: string;
   defaultText: string;
   onSelect: (value: string) => void;
+  createButton?: {
+    text: string;
+    onClick: () => void;
+  };
 };
 
 class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
@@ -59,24 +64,41 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
     let selectedOption = {
       label: this.props.defaultText,
     };
-    this.props.options.forEach(o => {
-      if (o.value === selectedValue) {
-        selectedOption = o;
-      } else {
-        const childOption = _.find(o.children, {
-          value: this.props.selectedValue,
-        });
-        if (childOption) selectedOption = childOption;
-      }
-    });
+    this.props.options.length > 0 &&
+      this.props.options.forEach(o => {
+        if (o.value === selectedValue) {
+          selectedOption = o;
+        } else {
+          const childOption = _.find(o.children, {
+            value: this.props.selectedValue,
+          });
+          if (childOption) selectedOption = childOption;
+        }
+      });
+    const list =
+      this.props.options.length > 0 && this.props.options.map(this.renderItem);
+    let createBtn: React.ReactNode;
+    if (this.props.createButton) {
+      createBtn = (
+        <Button
+          text={`Create ${this.props.createButton.text}`}
+          icon="plus"
+          intent="primary"
+          onClick={this.props.createButton?.onClick}
+          fluid
+        />
+      );
+    }
+    const popoverContent = (
+      <Menu>
+        {createBtn}
+        {list}
+      </Menu>
+    );
     return (
       <StyledDropDownContainer>
-        <StyledPopover
-          usePortal={true}
-          minimal={true}
-          content={<Menu>{this.props.options.map(this.renderItem)}</Menu>}
-        >
-          <Button
+        <StyledPopover usePortal={true} minimal={true} content={popoverContent}>
+          <BlueprintButton
             rightIcon={IconNames.CHEVRON_DOWN}
             text={selectedOption.label}
           />

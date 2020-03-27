@@ -2,7 +2,9 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
+import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
+
 export const getWidgets = (
   state: AppState,
 ): { [widgetId: string]: FlattenedWidgetProps } => {
@@ -13,6 +15,12 @@ export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
+};
+
+export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
+  return Object.values(state.entities.canvasWidgets)
+    .filter((widget: FlattenedWidgetProps) => widget.type === type)
+    .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
 export const getEditorConfigs = (
@@ -29,24 +37,13 @@ export const getDefaultWidgetConfig = (
   type: WidgetType,
 ): Partial<WidgetProps> => {
   const configs = state.entities.widgetConfig.config;
-  const widgetConfig = { ...configs[type] };
-  delete widgetConfig.rows;
-  delete widgetConfig.columns;
-  return widgetConfig;
+  if (configs.hasOwnProperty(type)) {
+    const widgetConfig = { ...configs[type] };
+    return widgetConfig;
+  }
+  return {};
 };
 
-// export const getPageLayoutId = (state: AppState, pageId: string): string => {
-//   const { pages } = state.entities.pageList;
-//   const page = pages.find(page => page.pageId === pageId);
-//   if (!page) {
-//     throw Error("Page not found");
-//   }
-//   return page.layoutId;
-// };
-
-//TODO(abhinav): The api will return a default flag in the future. use that
-// Also, check out `sagaUtils.ts` this has a getDefaultPageId. when the flag is available
-// remove that and use this.
 export const getDefaultPageId = (state: AppState, pageId?: string): string => {
   const { pages } = state.entities.pageList;
   const page = pages.find(page => page.pageId === pageId);
@@ -59,3 +56,14 @@ export const getExistingWidgetNames = createSelector(
     return Object.values(widgets).map(widget => widget.widgetName);
   },
 );
+
+export const getWidgetByName = (
+  state: AppState,
+  widgetName: string,
+): FlattenedWidgetProps | undefined => {
+  const widgets = state.entities.canvasWidgets;
+  return _.find(
+    Object.values(widgets),
+    widget => widget.widgetName === widgetName,
+  );
+};

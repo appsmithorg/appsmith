@@ -1,18 +1,12 @@
-import React, { useContext } from "react";
+import React, { CSSProperties } from "react";
 import styled from "styled-components";
-import { WidgetProps, WidgetOperations } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { useDrag, DragSourceMonitor } from "react-dnd";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { ControlIcons } from "icons/ControlIcons";
-import { Tooltip } from "@blueprintjs/core";
-import { WIDGET_CLASSNAME_PREFIX } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { AppState } from "reducers";
-import { theme, getColorWithOpacity } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
+import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   useWidgetSelection,
   useShowPropertyPane,
@@ -20,22 +14,16 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-// FontSizes array in DefaultTheme.tsx
-// Change this to toggle the size of delete and move handles.
-const CONTROL_THEME_FONTSIZE_INDEX = 6;
-
-const DraggableWrapper = styled.div<{ show: boolean }>`
-  & > div.control {
-    display: ${props => (props.show ? "block" : "none")};
-  }
+const DraggableWrapper = styled.div`
   display: block;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  userselect: none;
+  user-select: none;
   cursor: grab;
 `;
 
+// Widget Boundaries which is shown to indicate the boundaries of the widget
 const WidgetBoundaries = styled.div`
   transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
   z-index: 0;
@@ -56,110 +44,74 @@ const ClickCaptureMask = styled.div`
   z-index: 2;
 `;
 
-const DeleteControl = styled.div`
-  position: absolute;
-  right: ${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
-  display: none;
-  cursor: pointer;
-`;
-
-const EditControl = styled.div`
-  position: absolute;
-  right: 0;
-  top: -${props => props.theme.fontSizes[CONTROL_THEME_FONTSIZE_INDEX]}px;
-  display: none;
-  cursor: pointer;
-`;
-
-const CONTROL_ICON_SIZE = 20;
-
-const deleteControlIcon = ControlIcons.DELETE_CONTROL({
-  width: CONTROL_ICON_SIZE,
-  height: CONTROL_ICON_SIZE,
-});
-
 type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 
 /* eslint-disable react/display-name */
 
 const DraggableComponent = (props: DraggableComponentProps) => {
+  // Dispatch hook handy to toggle property pane
   const showPropertyPane = useShowPropertyPane();
+
+  // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget, focusWidget } = useWidgetSelection();
+
+  // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
+  // The value is boolean
   const { setIsDragging } = useWidgetDragResize();
 
-  const propertyPaneState: PropertyPaneReduxState = useSelector(
-    (state: AppState) => state.ui.propertyPane,
-  );
+  // This state tells us which widget is selected
+  // The value is the widgetId of the selected widget
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.editor.selectedWidget,
   );
+
+  // This state tels us which widget is focused
+  // The value is the widgetId of the focused widget.
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.editor.focusedWidget,
   );
 
+  // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
+
+  // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const editControlIcon = ControlIcons.EDIT_CONTROL({
-    width: CONTROL_ICON_SIZE,
-    height: CONTROL_ICON_SIZE,
-    color:
-      propertyPaneState.widgetId === props.widgetId &&
-      propertyPaneState.isVisible
-        ? theme.colors.textDefault
-        : theme.colors.textOnDarkBG,
-    background:
-      propertyPaneState.widgetId === props.widgetId &&
-      propertyPaneState.isVisible
-        ? Colors.HIT_GRAY
-        : Colors.SHARK,
-  });
-
-  const { updateWidget } = useContext(EditorContext);
-
+  // This state tells us to disable dragging,
+  // This is usually true when widgets themselves implement drag/drop
+  // This flag resolves conflicting drag/drop triggers.
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
 
-  const deleteWidget = () => {
-    AnalyticsUtil.logEvent("WIDGET_DELETE", {
-      widgetName: props.widgetName,
-      widgetType: props.type,
-    });
-    showPropertyPane && showPropertyPane();
-    updateWidget &&
-      updateWidget(WidgetOperations.DELETE, props.widgetId, {
-        parentId: props.parentId,
-      });
-  };
-
-  const togglePropertyEditor = (e: any) => {
-    if (
-      (!propertyPaneState.isVisible &&
-        props.widgetId === propertyPaneState.widgetId) ||
-      props.widgetId !== propertyPaneState.widgetId
-    ) {
-      AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
-        widgetType: props.type,
-        widgetId: props.widgetId,
-      });
-      showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-    } else {
-      AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-        widgetType: props.type,
-        widgetId: props.widgetId,
-      });
-      showPropertyPane && showPropertyPane();
-    }
-
-    e.preventDefault();
-    e.stopPropagation();
-  };
+  // If this widget has not been selected, and the props tell us to
+  // disable the default click on the wiget;
+  // We add a mask on the widget and stop "first" click event from propagating to the
+  // underlying component
+  const clickCaptureMask = selectedWidget !== props.widgetId &&
+    props.isDefaultClickDisabled && (
+      <ClickCaptureMask
+        onClick={(e: any) => {
+          // The first click on any widget opens the property pane
+          // When the user closes the property pane manually,
+          // the property pane does not show up in subsequent clicks
+          // However, when this widgets is not selected, a click
+          // is considered as the first click, we need to force the
+          // property pane to open.
+          // Adding a third parameter to force open the property pane
+          showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
+          // Select this widget to make this mask disappear
+          selectWidget && selectWidget(props.widgetId);
+          // Prevent click event from propagating
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+    );
 
   const [{ isCurrentWidgetDragging }, drag] = useDrag({
     item: props as WidgetProps,
@@ -167,109 +119,110 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       isCurrentWidgetDragging: monitor.isDragging(),
     }),
     begin: () => {
+      // When this draggable starts dragging
+
+      // Remove property pane by passing undefined for the widgetId
+      // The second parameter is true to make sure the next call (at drop)
+      // takes the current state of the property pane toggle state (open/close)
+      // into account.
+      showPropertyPane && showPropertyPane(undefined, true);
+
+      // Make sure that this widget is selected
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+
+      // Tell the rest of the application that a widget has started dragging
+      setIsDragging && setIsDragging(true);
+
       AnalyticsUtil.logEvent("WIDGET_DRAG", {
         widgetName: props.widgetName,
         widgetType: props.type,
       });
-      showPropertyPane && showPropertyPane(undefined, true);
-      selectWidget && selectWidget(props.widgetId);
-      setIsDragging && setIsDragging(true);
     },
     end: (widget, monitor) => {
+      // When this draggable is dropped, we try to open the propertypane
+      // We pass the second parameter to make sure the previous toggle state (open/close)
+      // of the property pane is taken into account.
+      // See utils/hooks/dragResizeHooks.tsx
       const didDrop = monitor.didDrop();
       if (didDrop) {
         showPropertyPane && showPropertyPane(props.widgetId, true);
       }
+      // Take this to the bottom of the stack. So that it runs last.
+      // We do this because, we don't want erroraneous mouse clicks to propagate.
+      setTimeout(() => setIsDragging && setIsDragging(false), 0);
       AnalyticsUtil.logEvent("WIDGET_DROP", {
         widgetName: props.widgetName,
         widgetType: props.type,
         didDrop: didDrop,
       });
-      // Take this to the bottom of the stack. So that it runs last.
-      setTimeout(() => setIsDragging && setIsDragging(false), 0);
     },
     canDrag: () => {
+      // Dont' allow drag if we're resizing or the drag of `DraggableComponent` is disabled
       return !isResizing && !isDraggingDisabled;
     },
   });
 
+  // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-  const className = `${WIDGET_CLASSNAME_PREFIX +
-    props.widgetId} t--draggable-${props.type
+
+  // When the draggable is clicked
+  const handleClick = (e: any) => {
+    if (!isResizingOrDragging) {
+      const shouldForceOpen = selectedWidget !== props.widgetId;
+      showPropertyPane &&
+        showPropertyPane(props.widgetId, undefined, shouldForceOpen);
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+    }
+    e.stopPropagation();
+  };
+
+  // When mouse is over this draggable
+  const handleMouseOver = (e: any) => {
+    focusWidget &&
+      !isResizingOrDragging &&
+      focusedWidget !== props.widgetId &&
+      focusWidget(props.widgetId);
+    e.stopPropagation();
+  };
+
+  // Display this draggable based on the current drag state
+  const style: CSSProperties = {
+    display: isCurrentWidgetDragging ? "none" : "flex",
+  };
+
+  // WidgetBoundaries
+  const widgetBoundaries = (
+    <WidgetBoundaries
+      style={{
+        opacity:
+          isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
+      }}
+    />
+  );
+
+  const classNameForTesting = `t--draggable-${props.type
     .split("_")
     .join("")
     .toLowerCase()}`;
 
-  return (
-    <React.Fragment>
-      <DraggableWrapper
-        className={className}
-        ref={drag}
-        onMouseOver={(e: any) => {
-          focusWidget &&
-            !isResizingOrDragging &&
-            focusedWidget !== props.widgetId &&
-            focusWidget(props.widgetId);
-          e.stopPropagation();
-        }}
-        onClick={(e: any) => {
-          if (!isResizingOrDragging) {
-            const shouldForceOpen = selectedWidget !== props.widgetId;
-            showPropertyPane &&
-              showPropertyPane(props.widgetId, undefined, shouldForceOpen);
-            selectWidget &&
-              selectedWidget !== props.widgetId &&
-              selectWidget(props.widgetId);
-          }
-          e.stopPropagation();
-        }}
-        show={
-          (props.widgetId === focusedWidget ||
-            props.widgetId === selectedWidget) &&
-          !isResizing
-        }
-        style={{
-          display: isCurrentWidgetDragging ? "none" : "flex",
-        }}
-      >
-        {selectedWidget !== props.widgetId && props.isDefaultClickDisabled && (
-          <ClickCaptureMask
-            onClick={(e: any) => {
-              const shouldForceOpen = selectedWidget !== props.widgetId;
-              showPropertyPane &&
-                showPropertyPane(props.widgetId, undefined, shouldForceOpen);
-              selectWidget && selectWidget(props.widgetId);
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-        )}
+  const className = `${classNameForTesting}`;
 
-        {props.children}
-        <DeleteControl
-          className="control t--widget-delete-control"
-          onClick={deleteWidget}
-        >
-          <Tooltip content="Delete" hoverOpenDelay={500}>
-            {deleteControlIcon}
-          </Tooltip>
-        </DeleteControl>
-        <EditControl
-          className="control t--widget-propertypane-toggle"
-          onClick={togglePropertyEditor}
-        >
-          <Tooltip content="Show props" hoverOpenDelay={500}>
-            {editControlIcon}
-          </Tooltip>
-        </EditControl>
-        <WidgetBoundaries
-          style={{
-            opacity:
-              isResizingOrDragging && selectedWidget !== props.widgetId ? 1 : 0,
-          }}
-        />
-      </DraggableWrapper>
-    </React.Fragment>
+  return (
+    <DraggableWrapper
+      className={className}
+      ref={drag}
+      onMouseOver={handleMouseOver}
+      onClick={handleClick}
+      style={style}
+    >
+      {clickCaptureMask}
+      {props.children}
+      {widgetBoundaries}
+    </DraggableWrapper>
   );
 };
 

@@ -55,7 +55,13 @@ type DataTreeSeed = {
 export class DataTreeFactory {
   static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    dataTree.actionPaths = ["navigateTo", "navigateToUrl", "showAlert"];
+    dataTree.actionPaths = [
+      "navigateTo",
+      "navigateToUrl",
+      "showAlert",
+      "showModal",
+      "closeModal",
+    ];
     actions.forEach(a => {
       dataTree[a.config.name] = {
         ...a,
@@ -101,6 +107,19 @@ export class DataTreeFactory {
       return {
         type: "SHOW_ALERT",
         payload: { message, style },
+      };
+    };
+
+    dataTree.showModal = function(modalName: string) {
+      return {
+        type: "SHOW_MODAL_BY_NAME",
+        payload: { modalName },
+      };
+    };
+    dataTree.closeModal = function(modalName: string) {
+      return {
+        type: "CLOSE_MODAL",
+        payload: { modalName },
       };
     };
 

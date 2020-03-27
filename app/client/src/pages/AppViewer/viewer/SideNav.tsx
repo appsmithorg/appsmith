@@ -79,7 +79,9 @@ export const SideNav = (props: SideNavProps) => {
     return items.map(item => {
       const icon =
         item.text.length > 0 ? (
-          <LetterIcon text={item.text[0].toUpperCase()} />
+          <LetterIcon
+            text={String.fromCodePoint(item.text.codePointAt(0) || 0)}
+          />
         ) : null;
       return (
         <SideNavItem key={item.id} showText={open} {...item} icon={icon} />

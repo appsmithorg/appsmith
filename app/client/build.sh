@@ -1,8 +1,5 @@
 #!/bin/sh
 # GIT_BRANCH=$(git branch  --no-color  | grep -E '^\*' | sed 's/\*[^a-z]*//g')
-# RELEASE="${GIT_BRANCH}_${GIT_SHA}"
-# RELEASE=$(echo "$RELEASE" | sed -e 's/[\/\\\ .]/\-/g')
-# echo $RELEASE
 
 GIT_SHA=$(eval git rev-parse HEAD)
 echo $GIT_SHA

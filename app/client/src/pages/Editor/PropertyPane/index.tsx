@@ -18,10 +18,8 @@ import { Divider } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
-import {
-  RenderModes,
-  WIDGET_CLASSNAME_PREFIX,
-} from "constants/WidgetConstants";
+import { generateClassName } from "utils/generators";
+import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
 import { theme } from "constants/DefaultTheme";
@@ -59,7 +57,7 @@ class PropertyPane extends Component<
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane(this.props.propertySections);
       const el = document.getElementsByClassName(
-        WIDGET_CLASSNAME_PREFIX + this.props.widgetId,
+        generateClassName(this.props.widgetId),
       )[0];
       return (
         <Popper isOpen={true} targetNode={el}>

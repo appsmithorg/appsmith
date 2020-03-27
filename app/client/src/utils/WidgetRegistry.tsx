@@ -1,4 +1,5 @@
-import { WidgetProps } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
+import { WidgetTypes } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import TextWidget, { TextWidgetProps } from "widgets/TextWidget";
 import InputWidget, { InputWidgetProps } from "widgets/InputWidget";
@@ -13,6 +14,7 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import ModalWidget, { ModalWidgetProps } from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
 } from "widgets/RichTextEditorWidget";
@@ -28,6 +30,8 @@ import FormWidget from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
 } from "widgets/FormButtonWidget";
+
+import CanvasWidget from "widgets/CanvasWidget";
 
 class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -174,6 +178,17 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getTriggerPropertyMap(),
     );
     WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetProps: ModalWidgetProps): JSX.Element {
+          return <ModalWidget {...widgetProps} />;
+        },
+      },
+      BaseWidget.getPropertyValidationMap(),
+      BaseWidget.getDerivedPropertiesMap(),
+      BaseWidget.getTriggerPropertyMap(),
+    );
+    WidgetFactory.registerWidgetBuilder(
       "RICH_TEXT_EDITOR_WIDGET",
       {
         buildWidget(widgetData: RichTextEditorWidgetProps): JSX.Element {
@@ -219,6 +234,20 @@ class WidgetBuilderRegistry {
       FormButtonWidget.getPropertyValidationMap(),
       FormButtonWidget.getDerivedPropertiesMap(),
       FormButtonWidget.getTriggerPropertyMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.CANVAS_WIDGET,
+      {
+        buildWidget(
+          widgetData: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <CanvasWidget {...widgetData} />;
+        },
+      },
+      CanvasWidget.getPropertyValidationMap(),
+      CanvasWidget.getDerivedPropertiesMap(),
+      CanvasWidget.getTriggerPropertyMap(),
     );
   }
 }

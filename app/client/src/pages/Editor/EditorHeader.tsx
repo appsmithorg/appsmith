@@ -14,8 +14,13 @@ import {
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import { Directions } from "utils/helpers";
+import { useSelector } from "react-redux";
+import { getModalDropdownList } from "selectors/widgetSelectors";
 
-import { PageListPayload } from "constants/ReduxActionConstants";
+import {
+  PageListPayload,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown, {
@@ -62,15 +67,14 @@ type EditorHeaderProps = {
   isPublishing: boolean;
   publishedTime?: string;
   currentApplicationId?: string;
+  createModal: () => void;
 };
-
+const navigation: IBreadcrumbProps[] = [
+  { href: BASE_URL, icon: "home", text: "Home" },
+  { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
+  { icon: "page-layout", text: "", current: true },
+];
 export const EditorHeader = (props: EditorHeaderProps) => {
-  const navigation: IBreadcrumbProps[] = [
-    { href: BASE_URL, icon: "home", text: "Home" },
-    { href: APPLICATIONS_URL, icon: "folder-close", text: "Applications" },
-    { icon: "page-layout", text: "", current: true },
-  ];
-
   const selectedPageName = props.pages?.find(
     page => page.pageId === props.currentPageId,
   )?.pageName;
@@ -131,14 +135,62 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     openOnHover: false,
   };
 
+  const modals = useSelector(getModalDropdownList);
+
+  const modalSelectorData: CustomizedDropdownProps = {
+    sections: [
+      {
+        isSticky: true,
+        options: [
+          {
+            content: (
+              <Button text="Create Modal" icon="plus" iconAlignment="left" />
+            ),
+            onSelect: () =>
+              getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+                type: ReduxActionTypes.CREATE_MODAL_INIT,
+              }),
+          },
+        ],
+      },
+      {
+        options:
+          modals && modals.length > 0
+            ? modals.map(modal => {
+                return {
+                  content: modal.label,
+                  onSelect: () =>
+                    getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+                      type: ReduxActionTypes.SHOW_MODAL,
+                      payload: {
+                        modalId: modal.id,
+                      },
+                    }),
+                  shouldCloseDropdown: true,
+                };
+              })
+            : [],
+      },
+    ],
+    trigger: {
+      icon: "eye-open",
+      intent: "primary",
+      iconAlignment: "left",
+    },
+    openDirection: Directions.BOTTOM,
+    openOnHover: false,
+  };
+
   return (
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
+
       <LoadingContainer>
         {props.isSaving ? "Saving..." : "All changes saved"}
       </LoadingContainer>
       <PreviewPublishSection>
+        <CustomizedDropdown {...modalSelectorData} />
         <Tooltip
           disabled={!props.publishedTime}
           content={

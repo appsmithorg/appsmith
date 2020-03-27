@@ -1,19 +1,26 @@
 import * as React from "react";
 import { ComponentProps } from "./BaseComponent";
-import { StyledContainer, StyledContainerProps } from "./StyledContainer";
 import styled from "styled-components";
 
-export interface StyledImageProps extends StyledContainerProps {
+export interface StyledImageProps {
   defaultImageUrl: string;
+  imageUrl?: string;
+  backgroundColor?: string;
 }
 
-export const StyledImage = styled(StyledContainer)<StyledImageProps>`
-    background-image: url("${props => {
-      return props.imageUrl || props.defaultImageUrl;
-    }}");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
+export const StyledImage = styled.div<StyledImageProps>`
+  position: relative;
+  display: flex;
+  flex-direction: "row";
+  background: ${props => props.backgroundColor};
+  background-image: url("${props => {
+    return props.imageUrl || props.defaultImageUrl;
+  }}");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 100%;
+  width: 100%;
 `;
 
 class ImageComponent extends React.Component<ImageComponentProps> {
@@ -22,9 +29,7 @@ class ImageComponent extends React.Component<ImageComponentProps> {
       <StyledImage
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         {...this.props}
-      >
-        {}
-      </StyledImage>
+      ></StyledImage>
     );
   }
 }

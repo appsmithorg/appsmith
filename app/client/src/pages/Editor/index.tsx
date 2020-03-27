@@ -31,6 +31,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { Dialog, Classes, AnchorButton } from "@blueprintjs/core";
 import { initEditor } from "actions/initActions";
+import { RenderModes } from "constants/WidgetConstants";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { fetchPage } from "actions/pageActions";
@@ -54,6 +55,7 @@ type EditorProps = {
   errorPublishing: boolean;
   publishedTime?: string;
   isPageSwitching: boolean;
+  createModal: () => void;
   currentApplication: UserApplication;
 } & RouteComponentProps<BuilderRouteParams>;
 
@@ -131,6 +133,7 @@ class Editor extends Component<EditorProps> {
           currentApplicationId={this.props.currentApplicationId}
           isPublishing={this.props.isPublishing}
           publishedTime={this.props.publishedTime}
+          createModal={this.props.createModal}
         />
         <MainContainer />
         <Dialog
@@ -213,6 +216,14 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       });
     },
+    // TODO(abhinav): get the render mode from context
+    createModal: () =>
+      dispatch({
+        type: ReduxActionTypes.CREATE_MODAL_INIT,
+        payload: {
+          renderMode: RenderModes.CANVAS,
+        },
+      }),
   };
 };
 

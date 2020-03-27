@@ -7,7 +7,8 @@ export const DropdownTrigger = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  & > div > div {
+  & > div > div,
+  & > div > span {
     margin-right: 20px;
   }
   &&& button {

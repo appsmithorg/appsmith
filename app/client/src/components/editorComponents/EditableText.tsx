@@ -38,7 +38,11 @@ export const EditableText = (props: EditableTextProps) => {
     setIsEditing(props.isEditing);
   }, [props.isEditing]);
 
-  const edit = () => setIsEditing(true);
+  const edit = (e: any) => {
+    setIsEditing(true);
+    e.preventDefault();
+    e.stopPropagation();
+  };
   const onChange = (value: string) => {
     props.onTextChanged(value);
     setIsEditing(false);
