@@ -73,7 +73,7 @@ public class SeedMongoData {
                 {"api_user", "api_user", UserState.ACTIVATED, Set.of(userManageOrgPolicy)},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", Set.of(manageAppPolicy)}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization", Set.of(manageAppPolicy)}
         };
 
         Object[][] appData = {
@@ -84,8 +84,7 @@ public class SeedMongoData {
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"},
-                {"RestTemplatePluginExecutor", PluginType.API, "restapi-plugin"}
+                {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
         // Seed the plugin data into the DB
@@ -167,7 +166,7 @@ public class SeedMongoData {
                                     });
                         }));
 
-        Query orgNameQuery = new Query(where("name").is(orgData[0][0]));
+        Query orgNameQuery = new Query(where("slug").is(orgData[0][0]));
         Mono<Organization> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Organization.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find org")));
 

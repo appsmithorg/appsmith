@@ -2,29 +2,6 @@ let error = false
 print("**** Going to start Mongo seed ****")
 
 let res = [
-    db.plugins.insertMany([
-        {
-            "_id" : ObjectId("5c9f512f96c1a50004819786"),
-            "name" : "PostgresDbPlugin",
-            "type" : "DB",
-            "packageName" : "postgres-plugin",
-            "deleted" : false,
-            "uiComponent" : "DbEditorForm",
-            "defaultInstall" : true,
-            "_class" : "com.appsmith.server.domains.Plugin"
-        },
-        {
-            "_id" : ObjectId("5ca385dc81b37f0004b4db85"),
-            "name" : "RestTemplatePluginExecutor",
-            "type" : "API",
-            "packageName" : "restapi-plugin",
-            "deleted" : false,
-            "uiComponent" : "ApiEditorForm",
-            "defaultInstall" : true,
-            "_class" : "com.appsmith.server.domains.Plugin"
-        }
-    ]),
-
     db.organization.insert({
         "_id": ObjectId("5da151714a020300041ae8fd"),
         "name": "Test Organization",

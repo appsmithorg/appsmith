@@ -26,7 +26,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -51,8 +51,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
@@ -233,7 +231,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     return action;
                 }).map(act -> extractAndSetJsonPathKeys(act))
                 .flatMap(super::create)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
+                .flatMap(this::setTransientFieldsInAction);
     }
 
     /**
@@ -293,6 +292,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 // the execution to go through no matter what.
                 else if (param.getValue() == null) {
                     param.setValue("");
+                } else {
+                    String value = StringEscapeUtils.escapeJava(param.getValue());
+                    param.setValue(value);
                 }
             }
         }
@@ -359,14 +361,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
+
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
                         // If the action has a body (for RestAPI), then unescape HTML in the string.
-                        if (actionConfigurationTemp.getBody() != null) {
-                            actionConfigurationTemp.setBody(StringEscapeUtils.unescapeHtml(actionConfigurationTemp.getBody()));
-                        }
-
+                        log.debug("For action Id: {}, got the actionConfigurationBody: {}", action.getId(), actionConfigurationTemp.getBody());
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
@@ -403,30 +403,30 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 }))
                 .flatMap(obj -> obj)
                 .flatMap(res -> {
-                    ActionExecutionResult result = (ActionExecutionResult) res;
-                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
-                    if (actionFromDto.getId() == null) {
-                        // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
-                        return resultMono;
-                    }
+                            ActionExecutionResult result = (ActionExecutionResult) res;
+                            Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                            if (actionFromDto.getId() == null) {
+                                // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
+                                return resultMono;
+                            }
 
-                    Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
-                            //If the action is found in the db (i.e. it is not a dry run, save the cached response
-                            .flatMap(action -> {
-                                if (result.getShouldCacheResponse()) {
-                                    //If the status code is 2xx, then save the cached response (aka the body) and return.
-                                    action.setCacheResponse(result.getBody().toString());
-                                    return repository.save(action);
-                                }
-                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
-                                return Mono.just(action);
-                            });
-                    return actionFromDbMono.zipWith(resultMono)
-                            .map(tuple -> {
-                                ActionExecutionResult executionResult = tuple.getT2();
-                                return executionResult;
-                            });
-                });
+                            Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
+                                    //If the action is found in the db (i.e. it is not a dry run, save the cached response
+                                    .flatMap(action -> {
+                                        if (result.getShouldCacheResponse()) {
+                                            //If the status code is 2xx, then save the cached response (aka the body) and return.
+                                            action.setCacheResponse(result.getBody().toString());
+                                            return repository.save(action);
+                                        }
+                                        log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
+                                        return Mono.just(action);
+                                    });
+                            return actionFromDbMono.zipWith(resultMono)
+                                    .map(tuple -> {
+                                        ActionExecutionResult executionResult = tuple.getT2();
+                                        return executionResult;
+                                    });
+                        });
     }
 
     @Override
@@ -448,17 +448,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     /**
      * This function replaces the variables in the Object with the actual params
      */
+    @Override
     public Object variableSubstitution(Object configuration,
                                        Map<String, String> replaceParamsMap) {
-
         try {
             // Convert the object to String as a preparation to send it to mustacheReplacement
             String objectInJsonString = objectMapper.writeValueAsString(configuration);
             objectInJsonString = mustacheReplacement(objectInJsonString, configuration.getClass().getSimpleName(), replaceParamsMap);
-            Pattern pattern = Pattern.compile("&#61;");
-            Matcher matcher = pattern.matcher(objectInJsonString);
-            String res = matcher.replaceAll("=");
-            return objectMapper.readValue(res, configuration.getClass());
+            return objectMapper.readValue(objectInJsonString, configuration.getClass());
         } catch (Exception e) {
             log.error("Exception caught while substituting values in mustache template.", e);
         }
@@ -477,7 +474,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Writer writer = new StringWriter();
         mustache.execute(writer, keyValueMap);
 
-        return writer.toString();
+        return StringEscapeUtils.unescapeHtml4(writer.toString());
     }
 
     @Override
@@ -519,34 +516,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 example.setOrganizationId(orgId);
                                 return example;
                             })
-                            .flatMap(example -> repository.findAll(Example.of(example), sort)));
+                            .flatMap(example -> repository.findAll(Example.of(example), sort)))
+                    .flatMap(this::setTransientFieldsInAction);
         }
         return orgIdMono
                 .flatMapMany(orgId -> {
                     actionExample.setOrganizationId(orgId);
                     return repository.findAll(Example.of(actionExample), sort);
                 })
-                .flatMap(action -> {
-                    if ((action.getTemplateId()!=null) && (action.getProviderId() != null)) {
-                        // In case of an action which was imported from a 3P API, fill in the extra information of the
-                        // provider required by the front end UI.
-                        return providerService
-                                .getById(action.getProviderId())
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
-                                .map(provider -> {
-                                    ActionProvider actionProvider = new ActionProvider();
-                                    actionProvider.setName(provider.getName());
-                                    actionProvider.setCredentialSteps(provider.getCredentialSteps());
-                                    actionProvider.setDescription(provider.getDescription());
-                                    actionProvider.setImageUrl(provider.getImageUrl());
-                                    actionProvider.setUrl(provider.getUrl());
-
-                                    action.setProvider(actionProvider);
-                                    return action;
-                                });
-                    }
-                    return Mono.just(action);
-                });
+                .flatMap(this::setTransientFieldsInAction);
     }
 
     private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
@@ -571,5 +549,62 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             datasourceConfiguration.setUrl(actionConfiguration.getPrev());
         }
         return datasourceConfiguration;
+    }
+
+    private Mono<Action> setTransientFieldsInAction(Action action) {
+
+        // Set the plugin id in the action object fetching it from the datasource.
+
+        Mono<Action> pluginIdUpdateMono = null;
+        Datasource datasource = action.getDatasource();
+        if (datasource != null) {
+            if (datasource.getId() != null) {
+                // its a global datasource. Get the datasource from the collection
+                pluginIdUpdateMono = datasourceService
+                        .findById(datasource.getId())
+                        .map(datasource1 -> {
+                            action.setPluginId(datasource1.getPluginId());
+                            return action;
+                        });
+            } else {
+                // Its a nested datasource. Pick up the pluginId from here
+                pluginIdUpdateMono = Mono.just(action)
+                        .map(action1 -> {
+                            action1.setPluginId(datasource.getPluginId());
+                            return action1;
+                        });
+            }
+        }
+
+        // In case of an action which was imported from a 3P API, fill in the extra information of the provider required by the front end UI.
+        Mono<Action> providerUpdateMono = null;
+        if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
+
+            providerUpdateMono = providerService
+                    .getById(action.getProviderId())
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
+                    .map(provider -> {
+                        ActionProvider actionProvider = new ActionProvider();
+                        actionProvider.setName(provider.getName());
+                        actionProvider.setCredentialSteps(provider.getCredentialSteps());
+                        actionProvider.setDescription(provider.getDescription());
+                        actionProvider.setImageUrl(provider.getImageUrl());
+                        actionProvider.setUrl(provider.getUrl());
+
+                        action.setProvider(actionProvider);
+                        return action;
+                    });
+        } else {
+            providerUpdateMono = Mono.just(action);
+        }
+
+        return Mono.zip(pluginIdUpdateMono, providerUpdateMono)
+                .map(tuple -> {
+                    Action pluginIdUpdatedAction = tuple.getT1();
+                    Action providerUpdatedAction = tuple.getT2();
+
+                    providerUpdatedAction.setPluginId(pluginIdUpdatedAction.getPluginId());
+                    return providerUpdatedAction;
+                });
     }
 }

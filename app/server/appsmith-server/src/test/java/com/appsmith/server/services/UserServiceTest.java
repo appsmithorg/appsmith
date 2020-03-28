@@ -35,7 +35,7 @@ public class UserServiceTest {
     @Before
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
-        organizationMono = organizationService.getByName("Spring Test Organization");
+        organizationMono = organizationService.getBySlug("spring-test-organization");
     }
 
     //Test the update organization flow.

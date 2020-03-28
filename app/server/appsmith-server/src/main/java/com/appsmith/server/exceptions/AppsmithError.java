@@ -24,6 +24,7 @@ public enum AppsmithError {
     NO_CONFIGURATION_FOUND_IN_ACTION(400, 4016, "No action configuration found. Please configure it and try again."),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name."),
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Page {0} does not belong to the application {1}"),
+    NO_DSL_FOUND_IN_PAGE(400, 4029, "The page {0} doesn't have a DSL. This is an unexpected state"),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain provided. Please sign in with a valid work email ID"),
     INVALID_PASSWORD_RESET(400, 4020, "Unable to reset the password. Please initiate a request via 'forgot password' link to reset your password"),
     LOGIN_INTERNAL_ERROR(401, 4021, "Internal error while trying to login"),
