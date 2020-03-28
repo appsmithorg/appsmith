@@ -1,21 +1,8 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.OrganizationPlugin;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserState;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
-import com.appsmith.server.repositories.PageRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.github.mongobee.exception.MongobeeException;
+import com.appsmith.server.domains.*;
+import com.appsmith.server.repositories.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,18 +16,12 @@ import java.util.List;
 @Configuration
 public class SeedMongoData {
 
-    @Autowired
-    private MongoConfig mongoConfig;
-
     @Bean
     ApplicationRunner init(UserRepository userRepository,
                            OrganizationRepository organizationRepository,
                            ApplicationRepository applicationRepository,
                            PageRepository pageRepository,
-                           PluginRepository pluginRepository)
-            throws MongobeeException {
-
-        mongoConfig.runMigrations();
+                           PluginRepository pluginRepository) {
 
         log.info("Seeding the data");
         Object[][] userData = {
