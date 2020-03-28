@@ -195,6 +195,12 @@
             <artifactId>mongock-spring</artifactId>
             <version>3.2.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+        </dependency>
     </dependencies>
 
     <build>

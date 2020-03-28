@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.ExecuteActionDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface ActionService extends CrudService<Action, String> {
@@ -19,4 +20,7 @@ public interface ActionService extends CrudService<Action, String> {
     Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod);
 
     Action extractAndSetJsonPathKeys(Action action);
+
+    Object variableSubstitution(Object configuration, Map<String, String> replaceParamsMap);
+
 }
