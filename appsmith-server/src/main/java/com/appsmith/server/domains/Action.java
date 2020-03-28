@@ -56,6 +56,9 @@ public class Action extends BaseDomain {
     @Transient
     ActionProvider provider;
 
+    @Transient
+    String pluginId;
+
     Documentation documentation;
 
     /**

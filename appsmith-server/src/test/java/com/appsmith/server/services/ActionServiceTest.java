@@ -17,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -53,7 +55,7 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void createValidActionNullActionConfiguration() {
         Action action = new Action();
-        action.setName("randomActionName");
+        action.setName("randomActionName2");
         action.setPageId("randomPageId");
         Mono<Action> actionMono = Mono.just(action)
                 .flatMap(actionService::create);
@@ -100,5 +102,56 @@ public class ActionServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testVariableSubstitution() {
+        String json = "{\n" +
+                "  \n" +
+                "  \"deleted\": false,\n" +
+                "  \"config\": {\n" +
+                "    \"CONTAINER_WIDGET\": [\n" +
+                "      {\n" +
+                "        \"_id\": \"7\",\n" +
+                "        \"sectionName\": \"General\",\n" +
+                "        \"children\": [\n" +
+                "          {\n" +
+                "            \"_id\": \"7.1\",\n" +
+                "            \"helpText\": \"Use a html color name, HEX, RGB or RGBA value\",\n" +
+                "            \"placeholderText\": \"#FFFFFF / Gray / rgb(255, 99, 71)\",\n" +
+                "            \"propertyName\": \"backgroundColor\",\n" +
+                "            \"label\": \"Background Color\",\n" +
+                "            \"controlType\": \"INPUT_TEXT\"\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"_id\": \"7.2\",\n" +
+                "            \"helpText\": \"Controls the visibility of the widget\",\n" +
+                "            \"propertyName\": \"isVisible\",\n" +
+                "            \"label\": \"Visible\",\n" +
+                "            \"controlType\": \"SWITCH\",\n" +
+                "            \"isJSConvertible\": true\n" +
+                "          }\n" +
+                "        ]\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  },\n" +
+                "  \"name\": \"propertyPane\"\n" +
+                "}";
+
+        Object obj = actionService.variableSubstitution("{{Input.text}}", Map.of("Input.text", json));
+        assertThat(obj).isNotNull();
+        assertThat(obj).isInstanceOf(String.class);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testVariableSubstitutionWithNewline() {
+        String inputText = "name\\nvalue";
+        String expectedOutput = "name\nvalue";
+        Object obj = actionService.variableSubstitution("{{Input.text}}", Map.of("Input.text", inputText));
+        assertThat(obj).isNotNull();
+        assertThat(obj).isInstanceOf(String.class);
+        assertThat(obj).isEqualTo(expectedOutput);
     }
 }
