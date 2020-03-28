@@ -101,11 +101,16 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
 
-        Mono<Organization> setSlugMono = getNextUniqueSlug(organization.getSlug())
-                .map(slug -> {
-                    organization.setSlug(slug);
-                    return organization;
-                });
+        Mono<Organization> setSlugMono;
+        if (organization.getName() == null) {
+            setSlugMono = Mono.just(organization);
+        } else {
+            setSlugMono = getNextUniqueSlug(organization.makeSlug())
+                    .map(slug -> {
+                        organization.setSlug(slug);
+                        return organization;
+                    });
+        }
 
         Mono<Organization> organizationMono = setSlugMono
                 .flatMap(this::validateObject)
