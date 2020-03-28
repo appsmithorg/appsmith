@@ -189,11 +189,11 @@
             <version>4.5.10</version>
         </dependency>
 
-        <!-- MongoDB Migrations: https://github.com/mongobee/mongobee -->
+        <!-- MongoDB Migrations: https://github.com/cloudyrock/mongock -->
         <dependency>
-            <groupId>com.github.mongobee</groupId>
-            <artifactId>mongobee</artifactId>
-            <version>0.13</version>
+            <groupId>com.github.cloudyrock.mongock</groupId>
+            <artifactId>mongock-spring</artifactId>
+            <version>3.2.4</version>
         </dependency>
     </dependencies>
 
