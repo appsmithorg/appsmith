@@ -1,10 +1,11 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.domains.*;
+import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.mongodb.DuplicateKeyException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,6 +21,10 @@ public class DatabaseChangelog {
 
     /**
      * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
+     * Note: The order of the fields here is important. An index with the fields `"name", "organizationId"` is different
+     * from an index with the fields `"organizationId", "name"`. If an index exists with the first ordering and we try
+     * to **ensure** an index with the same name but the second ordering of fields, errors will show up and bad things
+     * WILL happen.
      */
     private static Index makeIndex(String... fields) {
         if (fields.length == 1) {
@@ -82,11 +87,20 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "003", id = "add-org-slugs", author = "")
-    public void addOrgSlugs(MongoTemplate mongoTemplate) {
+    public void addOrgSlugs(MongoTemplate mongoTemplate, OrganizationService organizationService) {
         // For all existing organizations, add a slug field, which should be unique.
+        // We are blocking here for adding a slug to each existing organization. This is bad and slow. Do NOT copy this
+        // code fragment into the services' control flow. This is a single migration code and is expected to run once in
+        // lifetime of a deployment.
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
-            organization.setSlug(organization.getSlug());
-            mongoTemplate.save(organization);
+            if (organization.getSlug() == null) {
+                organizationService.getNextUniqueSlug(organization.makeSlug())
+                        .doOnSuccess(slug -> {
+                            organization.setSlug(slug);
+                            mongoTemplate.save(organization);
+                        })
+                        .block();
+            }
         }
     }
 
@@ -106,7 +120,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, Application.class,
                 createdAtIndex,
-                makeIndex("name", "organizationId").unique().named("organization_application_compound_index")
+                makeIndex("organizationId", "name").unique().named("organization_application_compound_index")
         );
 
         ensureIndexes(mongoTemplate, Collection.class,
@@ -120,7 +134,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, Datasource.class,
                 createdAtIndex,
-                makeIndex("name", "organizationId").unique().named("organization_datasource_compound_index")
+                makeIndex("organizationId", "name").unique().named("organization_datasource_compound_index")
         );
 
         ensureIndexes(mongoTemplate, InviteUser.class,
