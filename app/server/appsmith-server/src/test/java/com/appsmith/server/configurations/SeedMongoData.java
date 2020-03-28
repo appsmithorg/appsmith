@@ -128,7 +128,8 @@ public class SeedMongoData {
                             organization.setName((String) array[0]);
                             organization.setDomain((String) array[1]);
                             organization.setWebsite((String) array[2]);
-                            organization.setPolicies((Set<Policy>) array[3]);
+                            organization.setSlug((String) array[3]);
+                            organization.setPolicies((Set<Policy>) array[4]);
 
                             OrganizationPlugin orgPlugin = new OrganizationPlugin();
                             orgPlugin.setPluginId(pluginId);
@@ -166,7 +167,7 @@ public class SeedMongoData {
                                     });
                         }));
 
-        Query orgNameQuery = new Query(where("slug").is(orgData[0][0]));
+        Query orgNameQuery = new Query(where("slug").is(orgData[0][3]));
         Mono<Organization> orgByNameMono = mongoTemplate.findOne(orgNameQuery, Organization.class)
                 .switchIfEmpty(Mono.error(new Exception("Can't find org")));
 
