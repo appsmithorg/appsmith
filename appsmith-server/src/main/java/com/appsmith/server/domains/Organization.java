@@ -34,8 +34,8 @@ public class Organization extends BaseDomain {
     @Indexed(unique = true)
     private String slug;
 
-    public String getSlug() {
-        return slug == null ? toSlug(name) : slug;
+    public String makeSlug() {
+        return toSlug(name);
     }
 
     public static String toSlug(String text) {
