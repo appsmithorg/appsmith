@@ -1,8 +1,8 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.domains.*;
-import com.github.mongobee.changeset.ChangeLog;
-import com.github.mongobee.changeset.ChangeSet;
+import com.github.cloudyrock.mongock.ChangeLog;
+import com.github.cloudyrock.mongock.ChangeSet;
 import com.mongodb.DuplicateKeyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -10,25 +10,13 @@ import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver;
-import org.springframework.data.mongodb.core.mapping.BasicMongoPersistentEntity;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.data.mongodb.core.index.IndexOperations;
 
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
-
-    // This value is set from ServerApplication before the migrations run. This appears to be the only reliable way to
-    // inject Spring beans into this class. May be there will be a better way to do this once Mongobee's Spring
-    // integration is improved.
-    // - If we add @Autowired to the `autoCreateIndexes` method to get this, then the migration method will run but
-    // Mongobee won't save that fact in it's own collection, and will run this migration method at every server startup.
-    // - If we add @Autowired to this field here, we have to turn the class into a Spring Component, but then Mongobee
-    // creates its own instance of this class, which would have this field set to `null`.
-    public static MongoMappingContext mongoMappingContext;
 
     /**
      * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
@@ -50,7 +38,7 @@ public class DatabaseChangelog {
      * those indexes on the database behind the MongoTemplate instance.
      */
     private static void ensureIndexes(MongoTemplate mongoTemplate, Class<?> entityClass, Index... indexes) {
-        var indexOps = mongoTemplate.indexOps(entityClass);
+        IndexOperations indexOps = mongoTemplate.indexOps(entityClass);
         for (Index index : indexes) {
             indexOps.ensureIndex(index);
         }
@@ -109,7 +97,7 @@ public class DatabaseChangelog {
      */
     @ChangeSet(order = "004", id = "initial-indexes", author = "")
     public void addInitialIndexes(MongoTemplate mongoTemplate) {
-        var createdAtIndex = makeIndex("createdAt");
+        Index createdAtIndex = makeIndex("createdAt");
 
         ensureIndexes(mongoTemplate, Action.class,
                 createdAtIndex,
