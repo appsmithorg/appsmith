@@ -33,9 +33,6 @@ public class LayoutServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
     PageService pageService;
 
     @Autowired
@@ -44,20 +41,17 @@ public class LayoutServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    Mono<Application> applicationMono;
+    @Autowired
+    ApplicationService applicationService;
 
     @Before
     public void setup() {
         purgeAllPages();
-        Application application = new Application();
-        application.setName("LayoutAPI-Test-Application");
-        applicationMono = applicationPageService.createApplication(application);
     }
 
     private void purgeAllPages() {
         pageService.deleteAll();
     }
-
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -89,10 +83,15 @@ public class LayoutServiceTest {
     public void createValidLayout() {
         Page testPage = new Page();
         testPage.setName("createLayoutPageName");
+
+        Application application = new Application();
+        application.setName("createValidLayout-Test-Application");
+        Mono<Application> applicationMono = applicationPageService.createApplication(application);
+
         Mono<Page> pageMono = applicationMono
                 .switchIfEmpty(Mono.error(new Exception("No application found")))
-                .map(application -> {
-                    testPage.setApplicationId(application.getId());
+                .map(app -> {
+                    testPage.setApplicationId(app.getId());
                     return testPage;
                 })
                 .flatMap(applicationPageService::createPage);
@@ -115,15 +114,21 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
-    private Mono<Page> createPage(Page page) {
+    private Mono<Page> createPage(Application app, Page page) {
         Mono<Page> pageMono = pageService
                 .findByName(page.getName())
-                .switchIfEmpty(applicationMono
+                .switchIfEmpty(applicationPageService.createApplication(app)
                         .map(application -> {
+                            log.debug("*** Created a new app: {} for page: {}", application, page);
+                            log.debug("** Got applicationId: {}", application.getId());
                             page.setApplicationId(application.getId());
                             return page;
                         })
-                        .flatMap(applicationPageService::createPage));
+                        .flatMap(applicationPageService::createPage))
+                .map(pg -> {
+                    log.debug("Found the page: {}", pg);
+                    return pg;
+                });
         return pageMono;
     }
 
@@ -143,7 +148,9 @@ public class LayoutServiceTest {
         obj.put("key", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Page> pageMono = createPage(testPage);
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutInvalidPageId-Test");
+        Mono<Page> pageMono = createPage(app, testPage);
 
         Mono<Layout> startLayoutMono = pageMono
                 .switchIfEmpty(Mono.error(new Exception("No page found")))
@@ -176,7 +183,10 @@ public class LayoutServiceTest {
         Page testPage = new Page();
         testPage.setName("LayoutServiceTest updateLayoutValidPageId");
 
-        Mono<Page> pageMono = createPage(testPage);
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-Test");
+
+        Mono<Page> pageMono = createPage(app, testPage).cache();
 
         Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 

@@ -143,7 +143,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void validGetApplications() {
         Application application = new Application();
-        application.setName("validGetApplicationByName-Test");
+        application.setName("validGetApplications-Test");
 
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
