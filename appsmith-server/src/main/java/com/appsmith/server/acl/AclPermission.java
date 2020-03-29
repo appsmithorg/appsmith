@@ -16,8 +16,13 @@ public enum AclPermission {
     UPDATE("update", null),
     DELETE("delete", null),
 
-    USER_MANAGE_ORGANIZATIONS("manage:userOrganiation", User.class),
-    USER_READ_ORGANIZATIONS("read:userOrganiation", User.class),
+    USER_MANAGE_ORGANIZATIONS("manage:userOrganization", User.class),
+    USER_READ_ORGANIZATIONS("read:userOrganization", User.class),
+
+    // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
+    READ_USERS("read:users", User.class),
+    MANAGE_USERS("manage:users", User.class),
+    RESET_PASSWORD_USERS("resetPassword:users", User.class),
 
     MANAGE_ORGANIZATIONS("manage:organizations", Organization.class),
     READ_ORGANIZATIONS("read:organizations", Organization.class),

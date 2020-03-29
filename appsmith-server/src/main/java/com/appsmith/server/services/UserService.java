@@ -27,8 +27,6 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> confirmInviteUser(InviteUser inviteUser, String originHeader);
 
-    Mono<Collection<GrantedAuthority>> getAnonymousAuthorities();
-
     Mono<UserProfileDTO> getUserProfile();
 
     Mono<User> createUser(User user, String originHeader);

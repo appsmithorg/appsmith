@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +16,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
@@ -51,25 +55,32 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono1)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("Random-UserId-%Not-In_The-System_For_SUre")))
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER, "Random-UserId-%Not-In_The-System_For_SUre")))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void updateUserWithValidOrganization() {
-        User updateUser = new User();
-        //Add valid organization id to the updateUser object.
-        organizationMono
-                .map(organization -> {
-                    updateUser.setCurrentOrganizationId(organization.getId());
-                    return updateUser;
-                }).block();
+        // Create a new organization
+        Organization updateOrg = new Organization();
+        updateOrg.setName("UserServiceTest Update Org");
 
-        Mono<User> userMono1 = userMono.flatMap(user -> userService.update(user.getId(), updateUser));
-        StepVerifier.create(userMono1)
-                .assertNext(updatedUserInRepository -> {
-                    assertThat(updatedUserInRepository.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
+        User updateUser = new User();
+
+        Mono<User> userMono1 = userService.findByEmail("api_user")
+                .switchIfEmpty(Mono.error(new Exception("Unable to find user")));
+
+        //Add valid organization id to the updateUser object.
+        Mono<User> userMono = organizationService.create(updateOrg)
+                .flatMap(org -> {
+                    updateUser.setCurrentOrganizationId(org.getId());
+                    return userMono1.flatMap(user -> userService.update(user.getId(), updateUser));
+                });
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
                 })
                 .verifyComplete();
     }
