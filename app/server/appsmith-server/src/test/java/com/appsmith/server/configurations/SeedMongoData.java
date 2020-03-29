@@ -32,6 +32,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -48,29 +49,40 @@ public class SeedMongoData {
                            ReactiveMongoTemplate mongoTemplate) {
 
         log.info("Seeding the data");
+        final String API_USER_EMAIL = "api_user";
+        final String TEST_USER_EMAIL = "usertest@usertest.com";
+
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of(API_USER_EMAIL))
                 .build();
 
         Policy manageAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of(API_USER_EMAIL))
                 .build();
 
         Policy userManageOrgPolicy = Policy.builder().permission(USER_MANAGE_ORGANIZATIONS.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of(API_USER_EMAIL))
                 .build();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of(API_USER_EMAIL))
                 .build();
 
         Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
+        Policy readApiUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
+        Policy readTestUserPolicy = Policy.builder().permission(READ_USERS.getValue())
+                .users(Set.of(TEST_USER_EMAIL))
                 .build();
 
         Object[][] userData = {
-                {"user test", "usertest@usertest.com", UserState.ACTIVATED, new HashSet<>()},
-                {"api_user", "api_user", UserState.ACTIVATED, Set.of(userManageOrgPolicy)},
+                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, Set.of(readTestUserPolicy)},
+                {"api_user", API_USER_EMAIL, UserState.ACTIVATED, Set.of(userManageOrgPolicy, readApiUserPolicy)},
         };
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization", Set.of(manageAppPolicy)}

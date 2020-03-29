@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono;
 
 @Repository
 @AclEntity("users")
-public interface UserRepository extends BaseRepository<User, String> {
-
+public interface UserRepository extends BaseRepository<User, String>, CustomUserRepository {
     Mono<User> findByEmail(String email);
 }

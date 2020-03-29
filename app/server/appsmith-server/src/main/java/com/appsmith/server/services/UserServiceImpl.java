@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,12 +36,14 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 
 @Slf4j
 @Service
@@ -165,7 +166,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         log.debug("Password reset Token: {} for email: {}", token, email);
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        Mono<User> userMono = repository.findByEmail(email)
+        Mono<User> userMono = repository.findByEmail(email, RESET_PASSWORD_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
 
         // Generate the password reset link for the user
@@ -225,7 +226,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
 
                     return repository
-                            .findByEmail(email)
+                            .findByEmail(email, RESET_PASSWORD_USERS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", email)))
                             .map(user -> {
                                 user.setPasswordResetInitiated(true);
@@ -249,7 +250,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user) {
 
         return repository
-                .findByEmail(user.getEmail())
+                .findByEmail(user.getEmail(), RESET_PASSWORD_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", user.getEmail())))
                 .flatMap(userFromDb -> {
                     if (!userFromDb.getPasswordResetInitiated()) {
@@ -382,7 +383,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // If the email Id is not found in the users collection, it means this is a new user. We still want the mono to emit
         // so that the flow can continue. Hence, returning empty user object.
-        Mono<User> userMono = repository.findByEmail(inviteUser.getEmail())
+        Mono<User> userMono = repository.findByEmail(inviteUser.getEmail(), RESET_PASSWORD_USERS)
                 .switchIfEmpty(Mono.just(new User()));
 
         return Mono.zip(inviteUserMono, userMono, (newUser, user) -> {
@@ -406,12 +407,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     .flatMap(userToDelete -> inviteUserRepository.delete(userToDelete))
                     .thenReturn(true);
         }).flatMap(result -> result);
-    }
-
-    @Override
-    public Mono<Collection<GrantedAuthority>> getAnonymousAuthorities() {
-        return repository.findByEmail("anonymousUser")
-                .map(user -> user.getAuthorities());
     }
 
     @Override
@@ -485,7 +480,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository.findById(id);
+        Mono<User> userFromRepository = repository.findById(id, READ_USERS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         if (userUpdate.getPassword() != null) {
             // The password is being updated. Hash it first and then store it
@@ -496,7 +492,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(this::validateUpdate)
                 //Once the new update has been validated, update the user with the new fields.
                 .then(userFromRepository)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, id)))
                 .map(existingUser -> {
                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
                     return existingUser;
