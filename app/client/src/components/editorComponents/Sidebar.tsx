@@ -21,7 +21,7 @@ const SidebarWrapper = styled.div`
 
 export const Sidebar = () => {
   return (
-    <SidebarWrapper>
+    <SidebarWrapper className="t--sidebar">
       <Switch>
         <AppRoute
           exact

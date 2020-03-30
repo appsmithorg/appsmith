@@ -31,6 +31,7 @@ const CreatePageButton = (props: CreatePageProps) => {
   if (isCreatePageFieldVisible) {
     content = (
       <EditableText
+        className="t--page-name-input"
         type="text"
         placeholder="Enter page name"
         isEditing
@@ -41,6 +42,7 @@ const CreatePageButton = (props: CreatePageProps) => {
   } else {
     content = (
       <Button
+        className="t--add-page-btn"
         loading={props.loading}
         text="Add Page"
         icon="plus"

@@ -12,6 +12,7 @@ type EditableTextProps = {
   placeholder: string;
   onChange?: (value: string) => void;
   value?: string;
+  className?: string;
 };
 
 const EditableTextWrapper = styled.div<{ isEditing: boolean }>`
