@@ -1,8 +1,8 @@
 import React from "react";
 import {
-  AnchorButton,
   IButtonProps,
   MaybeElement,
+  Button,
   IconName,
 } from "@blueprintjs/core";
 import styled, { css } from "styled-components";
@@ -29,7 +29,7 @@ const ButtonColorStyles = css<ButtonStyleProps>`
 `;
 
 const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
-  <AnchorButton {..._.omit(props, ["accent", "filled"])} />
+  <Button {..._.omit(props, ["accent", "filled"])} />
 ))<ButtonStyleProps>`
   &&&& {
     ${ButtonColorStyles};
