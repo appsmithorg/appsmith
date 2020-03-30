@@ -85,6 +85,7 @@ const PageListItem = withTheme((props: PageListItemProps) => {
     <PageListItemWrapper
       onClick={() => props.switchPage(props.id)}
       active={props.active}
+      className={`t--page-sidebar-${props.name}`}
     >
       <div>
         {pageIcon}
@@ -103,7 +104,7 @@ const PageListItem = withTheme((props: PageListItemProps) => {
           icon: "MORE_VERTICAL_CONTROL",
           iconSize: props.theme.fontSizes[6],
         }}
-        className="more"
+        className="more t--page-sidebar-menu-actions"
       />
     </PageListItemWrapper>
   );

@@ -47,7 +47,11 @@ export const SideNavItem = (props: SideNavItemProps) => {
       }}
     >
       <MenuItem
-        className={props.loading ? Classes.SKELETON : Classes.FILL}
+        className={
+          props.loading
+            ? Classes.SKELETON
+            : `${Classes.FILL} t--page-nav-${props.text}`
+        }
         active={!!match}
         text={menuItemContent}
         tagName="div"
