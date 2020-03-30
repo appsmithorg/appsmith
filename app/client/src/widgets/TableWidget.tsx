@@ -15,7 +15,10 @@ import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
-function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
+function constructColumns(
+  data: object[],
+  hiddenColumns?: string[],
+): ColumnModel[] | ColumnDirTypecast[] {
   const cols: ColumnModel[] | ColumnDirTypecast[] = [];
   const listItemWithAllProperties = {};
   data.forEach(dataItem => {
@@ -24,7 +27,7 @@ function constructColumns(data: object[]): ColumnModel[] | ColumnDirTypecast[] {
   forIn(listItemWithAllProperties, (value: any, key: string) => {
     cols.push({
       field: key,
-      width: 200,
+      visible: !hiddenColumns?.includes(key),
     });
   });
   return cols;
@@ -56,8 +59,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { tableData } = this.props;
-    const columns = constructColumns(tableData);
+    const { tableData, hiddenColumns } = this.props;
+    const columns = constructColumns(tableData, hiddenColumns);
 
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
@@ -90,6 +93,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         updatePageNo={(pageNo: number) => {
           super.updateWidgetMetaProperty("pageNo", pageNo);
         }}
+        updateHiddenColumns={this.updateHiddenColumns}
         resetSelectedRowIndex={this.resetSelectedRowIndex}
         updatePageSize={(pageSize: number) => {
           super.updateWidgetMetaProperty("pageSize", pageSize);
@@ -97,6 +101,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       />
     );
   }
+
+  updateHiddenColumns = (hiddenColumns?: string[]) => {
+    this.updateWidgetProperty("hiddenColumns", hiddenColumns);
+  };
 
   onCommandClick = (action: string) => {
     super.executeAction({
@@ -171,6 +179,7 @@ export interface TableWidgetProps extends WidgetProps {
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
+  hiddenColumns?: string[];
 }
 
 export default TableWidget;
