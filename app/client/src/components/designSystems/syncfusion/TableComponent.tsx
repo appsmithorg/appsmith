@@ -22,6 +22,11 @@ import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { Classes } from "@blueprintjs/core";
 import { TablePagination } from "../appsmith/TablePagination";
+import {
+  AUTOFIT_ALL_COLUMNS,
+  AUTOFIT_THIS_COLUMN,
+  AUTOFIT_COLUMN,
+} from "constants/messages";
 
 export interface TableComponentProps {
   data: object[];
@@ -39,6 +44,7 @@ export interface TableComponentProps {
   serverSidePaginationEnabled: boolean;
   updatePageSize: Function;
   updatePageNo: Function;
+  updateHiddenColumns: Function;
   resetSelectedRowIndex: Function;
   selectedRowIndex: number;
 }
@@ -184,14 +190,22 @@ const TableComponent = memo(
     function columnMenuOpen(args: ColumnMenuOpenEventArgs) {
       for (const item of args.items) {
         if (item.text) {
-          if (item.text === "Autofit all columns") {
+          if (item.text === AUTOFIT_ALL_COLUMNS) {
             (item as ColumnMenuItemModel).hide = true;
           }
-          if (item.text === "Autofit this column") {
-            (item as ColumnMenuItemModel).text = "Autofit column";
+          if (item.text === AUTOFIT_THIS_COLUMN) {
+            (item as ColumnMenuItemModel).text = AUTOFIT_COLUMN;
           }
         }
       }
+    }
+    function columnMenuClick() {
+      props.updateHiddenColumns(
+        grid.current
+          ?.getColumns()
+          .filter(column => !column.visible)
+          .map(col => col.field),
+      );
     }
 
     return (
@@ -199,6 +213,7 @@ const TableComponent = memo(
         <StyledGridComponent
           selectionSettings={settings}
           dataSource={props.data}
+          columnMenuClick={columnMenuClick}
           dataBound={() => {
             if (pager.current) {
               pager.current.totalRecordsCount = props.data.length;
@@ -230,6 +245,7 @@ const TableComponent = memo(
                   key={col.field}
                   field={col.field}
                   width={200}
+                  visible={col.visible}
                 />
               );
             })}
@@ -263,9 +279,21 @@ const TableComponent = memo(
     );
   },
   (prevProps, nextProps) => {
+    const dataNotEqual =
+      JSON.stringify(nextProps.data) !== JSON.stringify(prevProps.data);
+
+    if (
+      (dataNotEqual &&
+        nextProps.data.length !== 0 &&
+        prevProps.data.length !== 0) ||
+      (nextProps.data.length === 0 && prevProps.data.length > 0)
+    ) {
+      nextProps.updateHiddenColumns(undefined);
+    }
+
     const propsNotEqual =
       nextProps.isLoading !== prevProps.isLoading ||
-      JSON.stringify(nextProps.data) !== JSON.stringify(prevProps.data) ||
+      dataNotEqual ||
       nextProps.height !== prevProps.height ||
       JSON.stringify(nextProps.columnActions) !==
         JSON.stringify(prevProps.columnActions) ||
