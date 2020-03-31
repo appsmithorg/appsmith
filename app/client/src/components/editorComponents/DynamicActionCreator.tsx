@@ -134,7 +134,7 @@ const getPageNameSelectedValue = (value: string) => {
   return matches.length ? matches[0][2] : "none";
 };
 
-const getTextArgValue = (value: string) => {
+export const getTextArgValue = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
     const stringValue = matches[0][2];
@@ -279,6 +279,8 @@ type ReduxStateProps = {
 
 interface Props {
   value: string;
+  isValid: boolean;
+  validationMessage?: string;
   onValueChange: (newValue: string) => void;
 }
 
@@ -426,7 +428,8 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                     label={arg.label}
                     value={arg.getSelectedValue(value, false)}
                     onChange={e => handleUpdate(e, arg.valueChangeHandler)}
-                    isValid={true}
+                    isValid={this.props.isValid}
+                    validationMessage={this.props.validationMessage}
                   />
                 </ControlWrapper>
               );

@@ -55,6 +55,8 @@ class ColumnActionSelectorControl extends BaseControl<
                 />
                 <DynamicActionCreator
                   value={columnAction.dynamicTrigger}
+                  isValid={(columnAction as any).isValid}
+                  validationMessage={(columnAction as any).message}
                   onValueChange={this.updateColumnActionFunction.bind(
                     this,
                     columnAction,

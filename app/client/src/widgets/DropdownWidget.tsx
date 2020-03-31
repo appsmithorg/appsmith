@@ -23,6 +23,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       defaultOptionValue: (value: string | string[], props?: WidgetProps) => {
         let values = value;
 
