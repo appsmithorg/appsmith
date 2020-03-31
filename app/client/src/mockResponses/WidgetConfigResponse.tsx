@@ -6,7 +6,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Submit",
       buttonStyle: "PRIMARY_BUTTON",
       rows: 1,
-      columns: 5,
+      columns: 2,
       widgetName: "Button",
       isDisabled: false,
       isVisible: true,
@@ -16,7 +16,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       text: "Label me",
       textStyle: "LABEL",
       rows: 1,
-      columns: 3,
+      columns: 4,
       widgetName: "Text",
     },
     RICH_TEXT_EDITOR_WIDGET: {
@@ -33,14 +33,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
-      columns: 3,
+      columns: 2,
       widgetName: "Image",
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
       label: "Label me",
       rows: 1,
-      columns: 8,
+      columns: 5,
       widgetName: "Input",
     },
     SWITCH_WIDGET: {
@@ -55,6 +55,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 8,
       columns: 8,
       widgetName: "Container",
+      containerStyle: "card",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+            },
+          },
+        ],
+      },
     },
     SPINNER_WIDGET: {
       rows: 1,
@@ -73,7 +89,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7,
-      columns: 14,
+      columns: 10,
       label: "Data",
       widgetName: "Table",
       tableData: [
@@ -137,7 +153,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     RADIO_GROUP_WIDGET: {
       rows: 2,
-      columns: 5,
+      columns: 3,
       label: "Label",
       options: [
         { id: "1", label: "Alpha", value: "1" },
@@ -163,6 +179,70 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
+    },
+    MODAL_WIDGET: {
+      rows: 456,
+      columns: 456,
+      size: "MODAL_SMALL",
+      canEscapeKeyClose: true,
+      detachFromLayout: true,
+      canOutsideClickClose: true,
+      shouldScrollContents: true,
+      isVisible: false,
+      widgetName: "Modal",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: "TEXT_WIDGET",
+                    position: { left: 0, top: 0 },
+                    size: { rows: 1, cols: 16 },
+                    props: {
+                      text: "Modal Title",
+                      textStyle: "HEADING",
+                    },
+                  },
+                  {
+                    type: "BUTTON_WIDGET",
+                    position: { left: 10, top: 4 },
+                    size: { rows: 1, cols: 3 },
+                    props: {
+                      text: "Cancel",
+                      buttonStyle: "SECONDARY_BUTTON",
+                    },
+                  },
+                  {
+                    type: "BUTTON_WIDGET",
+                    position: { left: 13, top: 4 },
+                    size: { rows: 1, cols: 3 },
+                    props: {
+                      text: "Confirm",
+                      buttonStyle: "PRIMARY_BUTTON",
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+    CANVAS_WIDGET: {
+      rows: 0,
+      columns: 0,
+      widgetName: "Canvas",
     },
     CHART_WIDGET: {
       rows: 8,
@@ -214,37 +294,53 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 13,
       columns: 6,
       widgetName: "Form",
+      backgroundColor: "white",
+      children: [],
       blueprint: {
         view: [
           {
-            type: "TEXT_WIDGET",
-            size: { rows: 1, cols: 12 },
+            type: "CANVAS_WIDGET",
             position: { top: 0, left: 0 },
             props: {
-              text: "Title",
-              textStyle: "HEADING",
-            },
-          },
-          {
-            type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 4 },
-            position: { top: 11, left: 12 },
-            props: {
-              text: "Submit",
-              buttonStyle: "PRIMARY_BUTTON",
-              disabledWhenInvalid: true,
-              resetFormOnClick: false,
-            },
-          },
-          {
-            type: "FORM_BUTTON_WIDGET",
-            size: { rows: 1, cols: 4 },
-            position: { top: 11, left: 8 },
-            props: {
-              text: "Reset",
-              buttonStyle: "SECONDARY_BUTTON",
-              disabledWhenInvalid: false,
-              resetFormOnClick: true,
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              blueprint: {
+                view: [
+                  {
+                    type: "TEXT_WIDGET",
+                    size: { rows: 1, cols: 12 },
+                    position: { top: 0, left: 0 },
+                    props: {
+                      text: "Title",
+                      textStyle: "HEADING",
+                    },
+                  },
+                  {
+                    type: "FORM_BUTTON_WIDGET",
+                    size: { rows: 1, cols: 4 },
+                    position: { top: 11, left: 12 },
+                    props: {
+                      text: "Submit",
+                      buttonStyle: "PRIMARY_BUTTON",
+                      disabledWhenInvalid: true,
+                      resetFormOnClick: false,
+                    },
+                  },
+                  {
+                    type: "FORM_BUTTON_WIDGET",
+                    size: { rows: 1, cols: 4 },
+                    position: { top: 11, left: 8 },
+                    props: {
+                      text: "Reset",
+                      buttonStyle: "SECONDARY_BUTTON",
+                      disabledWhenInvalid: false,
+                      resetFormOnClick: true,
+                    },
+                  },
+                ],
+              },
             },
           },
         ],

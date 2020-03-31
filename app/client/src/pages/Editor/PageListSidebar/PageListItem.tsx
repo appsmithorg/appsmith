@@ -79,12 +79,13 @@ const PageListItem = withTheme((props: PageListItemProps) => {
   const pageIcon = props.isDefault ? (
     MenuIcons.HOMEPAGE_ICON({ width: 28, height: 28 })
   ) : (
-    <LetterIcon text={props.name[0]} />
+    <LetterIcon text={String.fromCodePoint(props.name.codePointAt(0) || 0)} />
   );
   return (
     <PageListItemWrapper
       onClick={() => props.switchPage(props.id)}
       active={props.active}
+      className={`t--page-sidebar-${props.name}`}
     >
       <div>
         {pageIcon}
@@ -103,7 +104,7 @@ const PageListItem = withTheme((props: PageListItemProps) => {
           icon: "MORE_VERTICAL_CONTROL",
           iconSize: props.theme.fontSizes[6],
         }}
-        className="more"
+        className="more t--page-sidebar-menu-actions"
       />
     </PageListItemWrapper>
   );

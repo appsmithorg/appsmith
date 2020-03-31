@@ -79,7 +79,6 @@ class OptionControl extends BaseControl<
   }
   render() {
     const { renderOptions } = this.state;
-    debugger;
     return (
       <React.Fragment>
         {renderOptions.map((option, index) => {

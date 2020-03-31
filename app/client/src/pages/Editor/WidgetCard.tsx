@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDrag, DragSourceMonitor, DragPreviewImage } from "react-dnd";
 import blankImage from "assets/images/blank.png";
 import { WidgetCardProps } from "widgets/BaseWidget";
@@ -9,6 +9,7 @@ import {
   useShowPropertyPane,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { generateReactKey } from "utils/generators";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -62,9 +63,11 @@ export const IconLabel = styled.h5`
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const WidgetCard = (props: CardProps) => {
   const { setIsDragging } = useWidgetDragResize();
+  // Generate a new widgetId which can be used in the future for this widget.
+  const [widgetId, setWidgetId] = useState(generateReactKey());
   const showPropertyPane = useShowPropertyPane();
   const [, drag, preview] = useDrag({
-    item: props.details,
+    item: { ...props.details, widgetId },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -82,6 +85,8 @@ const WidgetCard = (props: CardProps) => {
         widgetName: props.details.widgetCardName,
         didDrop: monitor.didDrop(),
       });
+      // We've finished dragging, generate a new widgetId to be used for next drag.
+      setWidgetId(generateReactKey());
       setIsDragging && setIsDragging(false);
     },
   });

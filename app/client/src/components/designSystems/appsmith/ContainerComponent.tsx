@@ -1,10 +1,20 @@
-import React, { forwardRef, Ref, ReactNode } from "react";
-import styled from "styled-components";
+import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
+import { generateClassName, getCanvasClassName } from "utils/generators";
 
-const StyledContainerComponent = styled.div<ContainerComponentProps>`
+const scrollContents = css`
+  overflow-y: auto;
+  position: absolute;
+`;
+
+const StyledContainerComponent = styled.div<
+  ContainerComponentProps & {
+    ref: RefObject<HTMLDivElement>;
+  }
+>`
   ${props =>
     props.containerStyle !== "none"
       ? `
@@ -17,30 +27,38 @@ const StyledContainerComponent = styled.div<ContainerComponentProps>`
       : ""}
   height: 100%;
   width: 100%;
-  background: ${props =>
-    props.isMainContainer ? "none" : props.backgroundColor};
+  background: ${props => props.backgroundColor};
   box-shadow: ${props =>
-    props.isMainContainer
-      ? "none"
-      : "0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2)"};
-  position: relative;
+    props.containerStyle === "card"
+      ? "0 1px 1px 0 rgba(60,75,100,.14),0 2px 1px -1px rgba(60,75,100,.12),0 1px 3px 0 rgba(60,75,100,.2)"
+      : "none"};
   ${props => (!props.isVisible ? invisible : "")};
+  overflow: hidden;
+  ${props => (props.shouldScrollContents ? scrollContents : "")}
 }`;
 
-/* eslint-disable react/display-name */
-const ContainerComponent = forwardRef(
-  (props: ContainerComponentProps, ref: Ref<HTMLDivElement>) => {
-    return (
-      <StyledContainerComponent {...props} ref={ref}>
-        {props.children}
-      </StyledContainerComponent>
-    );
-  },
-);
-
-ContainerComponent.defaultProps = {
-  containerStyle: "card",
-  backgroundColor: "white",
+const ContainerComponent = (props: ContainerComponentProps) => {
+  const containerStyle = props.containerStyle || "card";
+  const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!props.shouldScrollContents) {
+      containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [props.shouldScrollContents]);
+  return (
+    <StyledContainerComponent
+      {...props}
+      ref={containerRef}
+      containerStyle={containerStyle}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
+      className={`${
+        props.shouldScrollContents ? getCanvasClassName() : ""
+      } ${generateClassName(props.widgetId)}`}
+    >
+      {props.children}
+    </StyledContainerComponent>
+  );
 };
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
@@ -50,7 +68,7 @@ export interface ContainerComponentProps extends ComponentProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;
-  isMainContainer: boolean;
+  shouldScrollContents?: boolean;
 }
 
 export default ContainerComponent;

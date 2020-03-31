@@ -246,6 +246,7 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   sidebarWidth: string;
+  canvasPadding: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -381,6 +382,7 @@ export const theme: Theme = {
   ],
   sidebarWidth: "300px",
   headerHeight: "50px",
+  canvasPadding: "20px 0 200px 0",
   sideNav: {
     maxWidth: 300,
     minWidth: 50,

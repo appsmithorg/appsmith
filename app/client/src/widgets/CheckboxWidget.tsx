@@ -16,6 +16,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       ...BASE_WIDGET_VALIDATION,
       label: VALIDATION_TYPES.TEXT,
       defaultCheckedState: VALIDATION_TYPES.BOOLEAN,
+      onCheckChange: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

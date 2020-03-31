@@ -11,26 +11,31 @@ import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import WidgetFactory from "utils/WidgetFactory";
-import { widgetOperationParams, noCollision } from "utils/WidgetPropsUtils";
+import {
+  widgetOperationParams,
+  noCollision,
+  getCanvasSnapRows,
+} from "utils/WidgetPropsUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import {
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
+  GridDefaults,
 } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
-import { theme } from "constants/DefaultTheme";
 import {
   useShowPropertyPane,
   useWidgetSelection,
+  useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
   snapColumnSpace: number;
   snapRowSpace: number;
+  minHeight: number;
 };
 
 type DropTargetBounds = {
@@ -42,6 +47,10 @@ type DropTargetBounds = {
 
 const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
+  width: 100%;
+  position: relative;
+  background: none;
+  user-select: none;
 `;
 
 /*
@@ -49,23 +58,16 @@ const StyledDropTarget = styled.div`
   an update of the main container's rows
 */
 export const DropTargetContext: Context<{
-  updateDropTargetRows?: (row: number) => boolean;
-  persistDropTargetRows?: (widgetId: string, rows: number) => void;
+  updateDropTargetRows?: (widgetId: string, row: number) => boolean;
+  persistDropTargetRows?: () => void;
 }> = createContext({});
 
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
-  // Hook to keep the offset of the drop target container in state
-  const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
-  const showPropertyPane = useShowPropertyPane();
-  const { selectWidget, focusWidget } = useWidgetSelection();
+  const canDropTargetExtend = props.canExtend;
 
-  const [rows, setRows] = useState(props.snapRows);
-  useEffect(() => {
-    setRows(props.snapRows);
-  }, [props.snapRows]);
-  const { updateWidget, occupiedSpaces, updateWidgetProperty } = useContext(
-    EditorContext,
-  );
+  const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+
+  const { updateWidget, occupiedSpaces } = useContext(EditorContext);
 
   const selectedWidget = useSelector(
     (state: AppState) => state.ui.editor.selectedWidget,
@@ -86,47 +88,47 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     (state: AppState) => state.entities.canvasWidgets[props.widgetId].children,
   );
 
-  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
-    if (props.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-      const occupiedSpacesByChildren =
-        occupiedSpaces && occupiedSpaces[MAIN_CONTAINER_WIDGET_ID];
+  const occupiedSpacesByChildren =
+    occupiedSpaces && occupiedSpaces[props.widgetId];
 
-      const rowsToPersist = calculateDropTargetRows(
-        widgetId,
-        widgetBottomRow,
-        rows,
-        occupiedSpacesByChildren,
-      );
-      setRows(rowsToPersist);
+  const [dropTargetOffset, setDropTargetOffset] = useState({ x: 0, y: 0 });
+  const [rows, setRows] = useState(snapRows);
 
-      /* Update the main container's rows, ONLY if it has changed since the last render */
-      if (props.snapRows !== rowsToPersist) {
-        updateWidgetProperty &&
-          updateWidgetProperty(props.widgetId, "snapRows", rowsToPersist);
-        updateWidgetProperty &&
-          updateWidgetProperty(
-            props.widgetId,
-            "bottomRow",
-            Math.round(
-              (rowsToPersist * props.snapRowSpace) / props.parentRowSpace,
-            ),
-          );
-      }
+  const showPropertyPane = useShowPropertyPane();
+  const { selectWidget, focusWidget } = useWidgetSelection();
+  const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
+
+  useEffect(() => {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    setRows(snapRows);
+  }, [props.bottomRow, props.canExtend]);
+
+  const persistDropTargetRows = () => {
+    const rowsToPersist = Math.max(
+      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      rows,
+    );
+    setRows(rowsToPersist);
+    if (canDropTargetExtend) {
+      updateCanvasSnapRows(props.widgetId, rowsToPersist);
     }
   };
 
   /* Update the rows of the main container based on the current widget's (dragging/resizing) bottom row */
-  const updateDropTargetRows = (widgetBottomRow: number) => {
-    if (props.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-      /* If the widget has reached the penultimate row of the main container */
-      if (widgetBottomRow > rows - 1) {
-        setRows(rows + 2);
+  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+    if (canDropTargetExtend) {
+      const newRows = calculateDropTargetRows(
+        widgetId,
+        widgetBottomRow,
+        props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+        occupiedSpacesByChildren,
+      );
+      if (rows !== newRows) {
+        setRows(newRows);
         return true;
-        // If the current widget's (dragging/resizing) bottom row has moved back up
       }
       return false;
     }
-
     return false;
   };
 
@@ -140,6 +142,11 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   // Make this component a drop target
   const [{ isExactlyOver }, drop] = useDrop({
     accept: Object.values(WidgetFactory.getWidgetTypes()),
+    options: {
+      arePropsEqual: () => {
+        return true;
+      },
+    },
     drop(widget: WidgetProps & Partial<WidgetConfigProps>, monitor) {
       // Make sure we're dropping in this container.
       if (isExactlyOver) {
@@ -159,20 +166,8 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           showPropertyPane(updateWidgetParams.payload.newWidgetId);
 
         // Select the widget if it is a new widget
-        selectWidget &&
-          updateWidgetParams.payload.newWidgetId &&
-          selectWidget(updateWidgetParams.payload.newWidgetId);
-
-        /* currently dropped widget's bottom row */
-        const droppedWidgetBottomRow = updateWidgetParams.payload.rows
-          ? updateWidgetParams.payload.topRow + updateWidgetParams.payload.rows
-          : updateWidgetParams.payload.topRow +
-            (widget.bottomRow - widget.topRow);
-
-        persistDropTargetRows(
-          widget.widgetId || updateWidgetParams.payload.newWidgetId,
-          droppedWidgetBottomRow,
-        );
+        selectWidget && selectWidget(widget.widgetId);
+        persistDropTargetRows();
 
         /* Finally update the widget */
         updateWidget &&
@@ -186,10 +181,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     },
     // Collect isOver for ui transforms when hovering over this component
     collect: (monitor: DropTargetMonitor) => ({
-      isOver:
-        (monitor.isOver({ shallow: true }) &&
-          props.widgetId !== monitor.getItem().widgetId) ||
-        (monitor.isOver() && props.widgetId !== monitor.getItem().widgetId),
       isExactlyOver: monitor.isOver({ shallow: true }),
     }),
     // Only allow drop if the drag object is directly over this component
@@ -206,7 +197,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           dropTargetOffset,
           spacesOccupiedBySiblingWidgets,
           rows,
-          props.snapColumns,
+          GridDefaults.DEFAULT_GRID_COLUMNS,
         );
         return !hasCollision;
       }
@@ -230,25 +221,15 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
       showPropertyPane && showPropertyPane();
     }
   };
-
-  const width =
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? `calc(100% - ${WIDGET_PADDING * 2}px)`
-      : "100%";
-
-  const height =
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? `${rows * props.snapRowSpace}px`
-      : "100%";
-
-  const marginTop =
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID ? `${theme.spaces[9]}px` : 0;
-  const marginBottom =
-    props.widgetId === MAIN_CONTAINER_WIDGET_ID ? "500px" : 0;
+  const height = canDropTargetExtend
+    ? `${Math.max(rows * props.snapRowSpace, props.minHeight)}px`
+    : "100%";
 
   const border =
-    (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "1px solid #ccc"
+    (isResizing || isDragging) &&
+    isExactlyOver &&
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? "1px solid #DDDDDD"
       : "1px solid transparent";
 
   return (
@@ -259,20 +240,14 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         onClick={handleFocus}
         ref={drop}
         style={{
-          position: "relative",
-          width,
           height,
-          marginTop,
-          marginBottom,
-          userSelect: "none",
-          opacity: 0.99,
-          background: "none",
           border,
         }}
       >
         {props.children}
         <DragLayerComponent
           parentWidgetId={props.widgetId}
+          canDropTargetExtend={canDropTargetExtend}
           parentRowHeight={props.snapRowSpace}
           parentColumnWidth={props.snapColumnSpace}
           visible={isExactlyOver || isChildResizing}

@@ -17,6 +17,7 @@ import { Spinner } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import { getCanvasClassName } from "utils/generators";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -87,7 +88,9 @@ const WidgetsEditor = (props: EditorProps) => {
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer>{node}</CanvasContainer>
+        <CanvasContainer className={getCanvasClassName()}>
+          {node}
+        </CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>
   );

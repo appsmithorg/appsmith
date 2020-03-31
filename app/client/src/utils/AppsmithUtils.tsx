@@ -10,6 +10,7 @@ import _ from "lodash";
 import moment from "moment-timezone";
 import ValidationRegistry from "./ValidationRegistry";
 import * as log from "loglevel";
+import { LogLevelDesc } from "loglevel";
 
 export const createReducer = (
   initialState: any,
@@ -40,8 +41,7 @@ export const appInitializer = () => {
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
-
-  log.setLevel(appsmithConfigs.logLevel);
+  log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont
@@ -90,4 +90,11 @@ export const convertToString = (value: any): string => {
   }
   if (_.isString(value)) return value;
   return value.toString();
+};
+
+const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
+  let logLevel = configLevel;
+  const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+  if (localStorageLevel) logLevel = localStorageLevel;
+  return logLevel;
 };

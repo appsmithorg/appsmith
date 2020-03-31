@@ -33,56 +33,104 @@ import {
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
-import { WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { buildWidgetBlueprint } from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
+import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import ValidationFactory from "utils/ValidationFactory";
+
+function* getChildWidgetProps(
+  parent: ContainerWidgetProps<WidgetProps>,
+  params: WidgetAddChild,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+) {
+  const { leftColumn, topRow, newWidgetId, props, type } = params;
+  let { rows, columns, parentColumnSpace, parentRowSpace } = params;
+  let minHeight = undefined;
+  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+  const defaultConfig = yield select(getDefaultWidgetConfig, type);
+
+  if (type === WidgetTypes.CANVAS_WIDGET) {
+    columns =
+      (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
+    parentColumnSpace = 1;
+    rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
+    parentRowSpace = 1;
+    minHeight = rows;
+  }
+
+  const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
+
+  const widget = generateWidgetProps(
+    parent,
+    type,
+    leftColumn,
+    topRow,
+    parentRowSpace,
+    parentColumnSpace,
+    getNextEntityName(defaultConfig.widgetName, widgetNames),
+    widgetProps,
+  );
+
+  widget.widgetId = newWidgetId;
+  return widget;
+}
+type GeneratedWidgetPayload = {
+  widgetId: string;
+  widgets: { [widgetId: string]: FlattenedWidgetProps };
+};
+function* generateChildWidgets(
+  parent: ContainerWidgetProps<WidgetProps>,
+  params: WidgetAddChild,
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+): any {
+  const widget = yield getChildWidgetProps(parent, params, widgets);
+  if (widget.blueprint) {
+    const childWidgetList: WidgetAddChild[] = yield call(
+      buildWidgetBlueprint,
+      widget.blueprint,
+      widget.widgetId,
+    );
+    const childPropsList: GeneratedWidgetPayload[] = yield all(
+      childWidgetList.map((props: WidgetAddChild) => {
+        return generateChildWidgets(widget, props, widgets);
+      }),
+    );
+    widget.children = [];
+    childPropsList.forEach((props: GeneratedWidgetPayload) => {
+      widget.children.push(props.widgetId);
+      widgets = props.widgets;
+    });
+  }
+  widgets[widget.widgetId] = widget;
+
+  return { widgetId: widget.widgetId, widgets };
+}
 
 export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
-    const {
-      widgetId,
-      type,
-      leftColumn,
-      topRow,
-      columns,
-      rows,
-      parentRowSpace,
-      parentColumnSpace,
-      newWidgetId,
-      props,
-    } = addChildAction.payload;
-    const widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const { widgetId } = addChildAction.payload;
+
+    // Get the current parent widget whose child will be the new widget.
+    const parent: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    // Get all the widgets from the canvasWidgetsReducer
     const widgets = yield select(getWidgets);
-    const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
-    const defaultWidgetConfig = yield select(getDefaultWidgetConfig, type);
-    const childWidget = generateWidgetProps(
-      widget, // parent,
-      type,
-      leftColumn,
-      topRow,
-      columns,
-      rows,
-      parentRowSpace,
-      parentColumnSpace,
-      getNextEntityName(defaultWidgetConfig.widgetName, widgetNames),
-      { ...defaultWidgetConfig, ...props },
+    // Generate the full WidgetProps of the widget to be added.
+    const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+      parent,
+      addChildAction.payload,
+      widgets,
     );
-    childWidget.widgetId = newWidgetId;
-    widgets[childWidget.widgetId] = childWidget;
-    if (widget && widget.children) {
-      widget.children.push(childWidget.widgetId);
+
+    // Update widgets to put back in the canvasWidgetsReducer
+    // TODO(abhinav): This won't work if dont already have an empty children: []
+    if (parent.children) {
+      parent.children.push(childWidgetPayload.widgetId);
     }
-    widgets[widgetId] = widget;
+    widgets[parent.widgetId] = parent;
+
     yield put(updateAndSaveLayout(widgets));
-    if (defaultWidgetConfig.blueprint) {
-      yield call(
-        buildWidgetBlueprint,
-        defaultWidgetConfig.blueprint,
-        newWidgetId,
-      );
-    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -98,12 +146,30 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     const { widgetId, parentId } = deleteAction.payload;
     const widgets = yield select(getWidgets);
+    const widget = yield select(getWidget, widgetId);
     const parent = yield select(getWidget, parentId);
+
+    // Remove entry from parent's children
     parent.children = parent.children.filter(
       (child: string) => child !== widgetId,
     );
-    delete widgets[widgetId];
     widgets[parentId] = parent;
+
+    // Remove child widgets if any
+    if (widget.children && widget.children.length > 0) {
+      yield all(
+        widget.children.map((child: string) => {
+          return deleteSaga({
+            type: "",
+            payload: { parentId: widget.widgetId, widgetId: child },
+          });
+        }),
+      );
+    }
+
+    // Remove widget
+    delete widgets[widgetId];
+
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -169,12 +235,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     let widget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     const widgets = yield select(getWidgets);
 
-    if (
-      widget.type === WidgetTypes.CONTAINER_WIDGET ||
-      WidgetTypes.FORM_WIDGET
-    ) {
-      widget.snapRows = bottomRow - topRow - 1;
-    }
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
 
@@ -272,6 +332,7 @@ function* setWidgetDynamicPropertySaga(
       widget.type,
       propertyName,
       propertyValue,
+      widget,
     );
     yield put(updateWidgetProperty(widgetId, propertyName, parsed));
   }
@@ -306,6 +367,26 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   }
 }
 
+function* updateCanvasSize(
+  action: ReduxAction<{ canvasWidgetId: string; snapRows: number }>,
+) {
+  const { canvasWidgetId, snapRows } = action.payload;
+  const canvasWidget = yield select(getWidget, canvasWidgetId);
+
+  const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
+
+  const newBottomRow = Math.round(
+    snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+  /* Update the canvas's rows, ONLY if it has changed since the last render */
+  if (originalSnapRows !== newBottomRow) {
+    // TODO(abhinav): This considers that the topRow will always be zero
+    // Check this out when non canvas widgets are updating snapRows
+    // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
+    yield put(updateWidgetProperty(canvasWidgetId, "bottomRow", newBottomRow));
+  }
+}
+
 export default function* widgetOperationSagas() {
   yield all([
     takeEvery(ReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
@@ -324,5 +405,6 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
       resetChildrenMetaSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
   ]);
 }

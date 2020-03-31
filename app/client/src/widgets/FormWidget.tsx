@@ -19,11 +19,13 @@ class FormWidget extends ContainerWidget {
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    if (childWidgetData.type === "FORM_BUTTON_WIDGET" && this.props.children) {
-      const isInvalid = this.checkInvalidChildren(this.props.children);
-      if (isInvalid) childWidgetData.isFormValid = false;
-      // Add submit and reset handlers
-      childWidgetData.onReset = this.handleResetInputs;
+    if (childWidgetData.children) {
+      const isInvalid = this.checkInvalidChildren(childWidgetData.children);
+      childWidgetData.children.forEach((grandChild: WidgetProps) => {
+        if (isInvalid) grandChild.isFormValid = false;
+        // Add submit and reset handlers
+        grandChild.onReset = this.handleResetInputs;
+      });
     }
     return super.renderChildWidget(childWidgetData);
   }

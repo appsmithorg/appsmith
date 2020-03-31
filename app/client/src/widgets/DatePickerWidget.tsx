@@ -26,6 +26,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       maxDate: VALIDATION_TYPES.DATE,
       minDate: VALIDATION_TYPES.DATE,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      onDateSelected: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

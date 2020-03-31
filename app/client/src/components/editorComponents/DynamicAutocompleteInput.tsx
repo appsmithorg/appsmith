@@ -40,7 +40,7 @@ const getBorderStyle = (
 const HintStyles = createGlobalStyle`
   .CodeMirror-hints {
     position: absolute;
-    z-index: 10;
+    z-index: 20;
     overflow: hidden;
     list-style: none;
     margin: 0;

@@ -6,9 +6,11 @@ import {
   PopoverPosition,
   Classes,
   PopoverInteractionKind,
+  Icon,
 } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
 import { MenuIcons } from "icons/MenuIcons";
-import { Intent } from "constants/DefaultTheme";
+import { Intent, IntentColors } from "constants/DefaultTheme";
 import { Direction, Directions } from "utils/helpers";
 import { getDirectionBased } from "./dropdownHelpers";
 import { Theme } from "constants/DefaultTheme";
@@ -44,6 +46,28 @@ export type CustomizedDropdownProps = {
   openOnHover?: boolean;
 };
 
+const getIcon = (icon?: string, intent?: Intent) => {
+  if (icon) {
+    if (MenuIcons[icon]) {
+      return MenuIcons[icon]({
+        color: IntentColors[intent || "secondary"],
+        width: 16,
+        height: 16,
+      });
+    }
+    const iconNames = Object.values({ ...IconNames });
+    if (iconNames.indexOf(icon as IconName) > -1) {
+      return (
+        <Icon
+          icon={icon as IconName}
+          iconSize={16}
+          color={intent ? IntentColors[intent] : IntentColors["secondary"]}
+        />
+      );
+    }
+  }
+};
+
 const getContentSection = (section: CustomizedDropdownOptionSection) => {
   return (
     <React.Fragment>
@@ -71,13 +95,7 @@ const getContentSection = (section: CustomizedDropdownOptionSection) => {
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
-  const icon =
-    props.trigger.icon &&
-    MenuIcons[props.trigger.icon]({
-      color: props.theme.colors.info,
-      width: 16,
-      height: 16,
-    });
+  const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
       {icon && <div>{icon}</div>}

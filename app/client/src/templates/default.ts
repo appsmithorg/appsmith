@@ -2,15 +2,16 @@ import { generateReactKey } from "utils/generators";
 
 export default {
   widgetName: "MainContainer",
-  backgroundColor: "#FFFFFF",
+  backgroundColor: "none",
   rightColumn: 1242,
   snapColumns: 16,
   widgetId: "0",
   topRow: 0,
-  bottomRow: 1318,
-  snapRows: 34.68421052631579,
+  bottomRow: 1292,
   parentRowSpace: 1,
-  type: "CONTAINER_WIDGET",
+  type: "CANVAS_WIDGET",
+  detachFromLayout: true,
+  minHeight: 1292,
   dynamicBindings: {},
   parentColumnSpace: 1,
   leftColumn: 0,
@@ -19,6 +20,7 @@ export default {
       backgroundColor: "#FFFFFF",
       widgetName: "Container1",
       type: "CONTAINER_WIDGET",
+      containerStyle: "card",
       isVisible: true,
       isLoading: false,
       parentColumnSpace: 75.25,
@@ -29,7 +31,6 @@ export default {
       topRow: 0,
       bottomRow: 9,
       snapColumns: 16,
-      snapRows: 8,
       orientation: "VERTICAL",
       children: [
         {
@@ -55,6 +56,7 @@ export default {
       backgroundColor: "#FFFFFF",
       widgetName: "Container3",
       type: "CONTAINER_WIDGET",
+      containerStyle: "card",
       isVisible: true,
       isLoading: false,
       parentColumnSpace: 75.25,
@@ -65,7 +67,6 @@ export default {
       topRow: 9,
       bottomRow: 23,
       snapColumns: 16,
-      snapRows: 13,
       orientation: "VERTICAL",
       children: [
         {
@@ -91,6 +92,7 @@ export default {
       backgroundColor: "#FFFFFF",
       widgetName: "Container4",
       type: "CONTAINER_WIDGET",
+      containerStyle: "card",
       isVisible: true,
       isLoading: false,
       parentColumnSpace: 75.25,
@@ -101,7 +103,6 @@ export default {
       topRow: 0,
       bottomRow: 9,
       snapColumns: 16,
-      snapRows: 8,
       orientation: "VERTICAL",
       children: [
         {

@@ -12,6 +12,7 @@ type EditableTextProps = {
   placeholder: string;
   onChange?: (value: string) => void;
   value?: string;
+  className?: string;
 };
 
 const EditableTextWrapper = styled.div<{ isEditing: boolean }>`
@@ -38,7 +39,11 @@ export const EditableText = (props: EditableTextProps) => {
     setIsEditing(props.isEditing);
   }, [props.isEditing]);
 
-  const edit = () => setIsEditing(true);
+  const edit = (e: any) => {
+    setIsEditing(true);
+    e.preventDefault();
+    e.stopPropagation();
+  };
   const onChange = (value: string) => {
     props.onTextChanged(value);
     setIsEditing(false);

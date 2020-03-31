@@ -2,6 +2,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import {
   ExecuteActionPayload,
@@ -40,5 +41,11 @@ export const disableDragAction = (
     payload: {
       disable,
     },
+  };
+};
+
+export const createModalAction = (): ReduxActionWithoutPayload => {
+  return {
+    type: ReduxActionTypes.CREATE_MODAL_INIT,
   };
 };

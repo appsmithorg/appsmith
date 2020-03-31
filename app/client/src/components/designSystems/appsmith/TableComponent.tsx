@@ -65,11 +65,11 @@ export default class SelectableTable extends React.PureComponent<
   };
 
   render() {
-    const { data, isLoading, onRowClick, ...rest } = this.props;
+    const { data, isLoading, ...rest } = this.props;
     const dataWithLoadingState = data.map(rowData => {
       return {
         ...rowData,
-        isLoading: this.props.isLoading,
+        isLoading,
       };
     });
     return (
