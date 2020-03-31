@@ -50,12 +50,12 @@ export const getWidgetPropsForPropertyPane = createSelector(
     if (evaluatedWidget.invalidProps) {
       const { invalidProps, validationMessages } = evaluatedWidget;
       return {
-        ...evaluatedWidget,
+        ...widget,
         invalidProps,
         validationMessages,
       };
     }
-    return evaluatedWidget;
+    return widget;
   },
 );
 
