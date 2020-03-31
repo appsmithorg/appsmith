@@ -240,8 +240,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       if (value.indexOf("navigateToUrl") !== -1) {
         const url = getTextArgValue(value);
         const isValidUrl = URL_REGEX.test(url);
-        console.log(url, isValidUrl);
-        debugger;
         if (!isValidUrl) {
           return {
             isValid: false,
