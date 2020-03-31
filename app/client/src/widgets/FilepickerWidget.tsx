@@ -37,6 +37,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
       allowedFileTypes: VALIDATION_TYPES.ARRAY,
       files: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

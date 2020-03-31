@@ -1,7 +1,7 @@
-var widgetsPage = require("../../locators/Widgets.json");
-var loginPage = require("../../locators/LoginPage.json");
+const widgetsPage = require("../../locators/Widgets.json");
+const loginPage = require("../../locators/LoginPage.json");
 const loginData = require("../../fixtures/user.json");
-var commonlocators = require("../../locators/commonlocators.json");
+const commonlocators = require("../../locators/commonlocators.json");
 
 context("Cypress test", function() {
   it("Container Widget Functionality", function() {

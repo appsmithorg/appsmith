@@ -17,9 +17,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       label: VALIDATION_TYPES.TEXT,
       options: VALIDATION_TYPES.OPTIONS_DATA,
       selectedOptionValue: VALIDATION_TYPES.TEXT,
-      onSelectionChange: VALIDATION_TYPES.TEXT,
       defaultOptionValue: VALIDATION_TYPES.TEXT,
       isRequired: VALIDATION_TYPES.BOOLEAN,
+      onSelectionChange: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
   static getDerivedPropertiesMap() {
