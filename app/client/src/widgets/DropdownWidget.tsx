@@ -13,7 +13,6 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "utils/Validators";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
-  defaultValueConsumed = false;
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -45,6 +44,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
               }
             }
           }
+        }
+
+        if (Array.isArray(values)) {
+          values = _.uniq(values);
         }
 
         return {
@@ -92,7 +95,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         if (selectedIndex > -1) {
           selectionOptions.push(selectedIndex);
         }
-      } else {
+      } else if (this.props.selectionType === "MULTI_SELECT") {
         (this.props.defaultOptionValue as string[]).forEach(optionValue => {
           const selectedIndex = _.findIndex(this.props.options, option => {
             return option.value.toString() === optionValue.toString();
@@ -105,27 +108,19 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
       if (selectionOptions.length > 0) {
         this.updateWidgetMetaProperty("selectedIndex", selectionOptions[0]);
-        this.updateWidgetMetaProperty("selectedIndexArr", selectionOptions[0]);
+        this.updateWidgetMetaProperty("selectedIndexArr", selectionOptions);
       }
     }
   }
 
   componentDidUpdate(prevProps: DropdownWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (
-      JSON.stringify(prevProps.options) !== JSON.stringify(this.props.options)
-    ) {
-      this.updateWidgetMetaProperty("selectedIndex", undefined);
-      this.updateWidgetMetaProperty("selectedIndexArr", []);
-      this.defaultValueConsumed = false;
-    }
-    if (this.props.defaultOptionValue && !this.defaultValueConsumed) {
+
+    if (this.props.defaultOptionValue) {
       if (
-        (this.props.selectedIndex !== prevProps.selectedIndex &&
-          this.props.selectedIndex === undefined) ||
-        this.props.defaultOptionValue !== prevProps.defaultOptionValue
+        this.props.defaultOptionValue.toString() !==
+        prevProps.defaultOptionValue?.toString()
       ) {
-        this.defaultValueConsumed = true;
         const selectionOptions: number[] = [];
         if (this.props.selectionType === "SINGLE_SELECT") {
           const selectedIndex = _.findIndex(this.props.options, option => {
