@@ -197,6 +197,7 @@ export const getValidatedTree = (tree: any) => {
           entity.type,
           property,
           value,
+          entity,
         );
         parsedEntity[property] = parsed;
         if (!isValid) {
@@ -415,6 +416,7 @@ export function dependencySortedEvaluateDataTree(
             entity.type,
             propertyPath,
             result,
+            entity,
           );
           result = parsed;
           if (!isValid) {

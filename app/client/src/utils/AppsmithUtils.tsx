@@ -11,7 +11,6 @@ import moment from "moment-timezone";
 import ValidationRegistry from "./ValidationRegistry";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import { AppsmithUIConfigs } from "configs/types";
 
 export const createReducer = (
   initialState: any,

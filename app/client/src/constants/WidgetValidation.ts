@@ -1,3 +1,5 @@
+import { WidgetProps } from "widgets/BaseWidget";
+
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {
   TEXT: "TEXT",
@@ -18,4 +20,4 @@ export type ValidationResponse = {
 };
 
 export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];
-export type Validator = (value: any) => ValidationResponse;
+export type Validator = (value: any, props?: WidgetProps) => ValidationResponse;

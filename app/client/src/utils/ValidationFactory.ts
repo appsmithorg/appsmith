@@ -6,6 +6,7 @@ import {
   ValidationType,
   Validator,
 } from "constants/WidgetValidation";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const BASE_WIDGET_VALIDATION = {
   isLoading: VALIDATION_TYPES.BOOLEAN,
@@ -13,7 +14,10 @@ export const BASE_WIDGET_VALIDATION = {
   isDisabled: VALIDATION_TYPES.BOOLEAN,
 };
 
-export type WidgetPropertyValidationType = Record<string, ValidationType>;
+export type WidgetPropertyValidationType = Record<
+  string,
+  ValidationType | Validator
+>;
 
 class ValidationFactory {
   static validationMap: Map<ValidationType, Validator> = new Map();
@@ -29,14 +33,22 @@ class ValidationFactory {
     widgetType: WidgetType,
     property: string,
     value: any,
+    //TODO: Satbir: Figure out a way to declare the right type.
+    props?: WidgetProps,
   ): ValidationResponse {
     const propertyValidationTypes = WidgetFactory.getWidgetPropertyValidationMap(
       widgetType,
     );
-    const validationType = propertyValidationTypes[property];
-    const validator = this.validationMap.get(validationType);
+    const validationTypeOrValidator = propertyValidationTypes[property];
+    let validator;
+
+    if (typeof validationTypeOrValidator === "function") {
+      validator = validationTypeOrValidator;
+    } else {
+      validator = this.validationMap.get(validationTypeOrValidator);
+    }
     if (validator) {
-      return validator(value);
+      return validator(value, props);
     } else {
       return { isValid: true, parsed: value };
     }
