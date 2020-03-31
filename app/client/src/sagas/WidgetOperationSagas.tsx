@@ -332,6 +332,7 @@ function* setWidgetDynamicPropertySaga(
       widget.type,
       propertyName,
       propertyValue,
+      widget,
     );
     yield put(updateWidgetProperty(widgetId, propertyName, parsed));
   }
