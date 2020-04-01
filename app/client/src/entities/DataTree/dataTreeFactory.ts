@@ -33,6 +33,17 @@ export interface DataTreeAction extends Omit<ActionData, "data"> {
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
+export interface DataTreeUrl {
+  queryParams: Record<string, string>;
+  protocol: string;
+  host: string;
+  hostname: string;
+  port: string;
+  pathname: string;
+  hash: string;
+  href: string;
+}
+
 export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
@@ -40,6 +51,7 @@ export interface DataTreeWidget extends WidgetProps {
 export type DataTreeEntity =
   | DataTreeAction
   | DataTreeWidget
+  | DataTreeUrl
   | ActionDispatcher<any, any>;
 
 export type DataTree = {
@@ -50,10 +62,16 @@ type DataTreeSeed = {
   actions: ActionDataState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
+  url: DataTreeUrl;
 };
 
 export class DataTreeFactory {
-  static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
+  static create({
+    actions,
+    widgets,
+    widgetsMeta,
+    url,
+  }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     dataTree.actionPaths = [
       "navigateTo",
@@ -89,10 +107,10 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
-    dataTree.navigateTo = function(pageName: string) {
+    dataTree.navigateTo = function(pageName: string, params: object) {
       return {
         type: "NAVIGATE_TO",
-        payload: { pageName },
+        payload: { pageName, params },
       };
     };
 
@@ -110,6 +128,7 @@ export class DataTreeFactory {
       };
     };
 
+    dataTree.url = url;
     dataTree.showModal = function(modalName: string) {
       return {
         type: "SHOW_MODAL_BY_NAME",
