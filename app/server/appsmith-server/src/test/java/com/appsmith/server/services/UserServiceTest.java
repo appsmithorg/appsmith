@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
@@ -120,7 +121,8 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    @WithMockAppsmithUser
+//    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
     public void createNewUserValid() {
         User newUser = new User();
         newUser.setEmail("new-user-email@email.com");
