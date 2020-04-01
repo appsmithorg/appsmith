@@ -22,17 +22,17 @@ public class ItemServiceImpl implements ItemService {
     private final ApiTemplateService apiTemplateService;
     private final ActionService actionService;
     private final PluginService pluginService;
-    private final ProviderService providerService;
+    private final MarketplaceService marketplaceService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
                            ActionService actionService,
                            PluginService pluginService,
-                           ProviderService providerService) {
+                           MarketplaceService marketplaceService) {
         this.apiTemplateService = apiTemplateService;
         this.actionService = actionService;
         this.pluginService = pluginService;
-        this.providerService = providerService;
+        this.marketplaceService = marketplaceService;
     }
 
     @Override
@@ -78,9 +78,6 @@ public class ItemServiceImpl implements ItemService {
         documentation.setText(apiTemplate.getApiTemplateConfiguration().getDocumentation());
         documentation.setUrl(apiTemplate.getApiTemplateConfiguration().getDocumentationUrl());
         action.setDocumentation(documentation);
-        /** TODO
-         * Also hit the Marketplace to update the number of imports.
-         */
 
         // Set Action Fields
         action.setActionConfiguration(apiTemplate.getActionConfiguration());
@@ -89,12 +86,15 @@ public class ItemServiceImpl implements ItemService {
             action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
         }
 
-        return pluginService
+        return marketplaceService
+                // First hit the marketplace to update the statistics and to subscribe to the provider in case it hasn't
+                .subscribeAndUpdateStatisticsOfProvider(action.getProviderId())
+
                 // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
                 /** TODO
                  * Scraper should set the correct package name (rapidapi-plugin) instead of restapi-plugin
                  */
-                .findByPackageName(RAPID_API_PLUGIN)
+                .then(pluginService.findByPackageName(RAPID_API_PLUGIN))
                 .map(plugin -> {
                     //Set Datasource
                     Datasource datasource = new Datasource();

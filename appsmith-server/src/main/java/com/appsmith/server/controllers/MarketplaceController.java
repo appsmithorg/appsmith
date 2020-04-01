@@ -13,11 +13,14 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.SearchResponseDTO;
+import com.appsmith.server.services.MarketplaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,11 +32,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping(Url.MARKETPLACE_URL)
+@Slf4j
 public class MarketplaceController {
     private final ObjectMapper objectMapper;
+    private final MarketplaceService marketplaceService;
 
-    public MarketplaceController(ObjectMapper objectMapper) {
+    public MarketplaceController(ObjectMapper objectMapper,
+                                 MarketplaceService marketplaceService) {
         this.objectMapper = objectMapper;
+        this.marketplaceService = marketplaceService;
     }
 
     @GetMapping("/search")
@@ -111,4 +118,26 @@ public class MarketplaceController {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
 
     }
+
+    @GetMapping("/templates")
+    public Mono<ResponseDTO<List<ApiTemplate>>> getAllTemplatesFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
+        log.debug("Going to get all templates from Marketplace");
+        return marketplaceService.getTemplates(params)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @GetMapping("/providers")
+    public Mono<ResponseDTO<List<Provider>>> getAllProvidersFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
+        log.debug("Going to get all providers from Marketplace");
+        return marketplaceService.getProviders(params)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @GetMapping("/categories")
+    public Mono<ResponseDTO<List<String>>> getAllCategoriesFromMarketplace() {
+        log.debug("Going to get all categories from Marketplace");
+        return marketplaceService.getCategories()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
 }
