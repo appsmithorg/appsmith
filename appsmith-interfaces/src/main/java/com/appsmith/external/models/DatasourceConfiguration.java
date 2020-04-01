@@ -15,17 +15,19 @@ import java.util.List;
 @Document
 public class DatasourceConfiguration {
 
-    String url;
+    Connection connection;
+
+    List<Endpoint> endpoints;
 
     AuthenticationDTO authentication;
 
+    SSHConnection sshProxy;
+
     List<Property> properties;
 
-    //For REST API
+    // For REST API.
+    String url;
+
     List<Property> headers;
 
-    //This field is for plugins which allow the database name to be specified outside of the connection URL. The
-    //expectation from the plugins is that if the database name has been provided via this field, the database name
-    //should be according to this, else if database name is null, pick the database name from the URL.
-    String databaseName;
 }

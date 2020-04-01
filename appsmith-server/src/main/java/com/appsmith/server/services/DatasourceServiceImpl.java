@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -26,7 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 
 @Slf4j
@@ -81,7 +83,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         return datasourceMono
                 .map(dbDatasource -> {
-                    copyNewFieldValuesIntoOldObject(datasource, dbDatasource);
+                    copyNestedNonNullProperties(datasource, dbDatasource);
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository);
@@ -90,9 +92,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
-        Mono<User> userMono = sessionUserService.getCurrentUser();
 
-        if (datasource.getName() == null || datasource.getName().trim().isEmpty()) {
+        if (!StringUtils.hasText(datasource.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
@@ -103,8 +104,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.just(datasource);
         }
 
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+
         Mono<Organization> organizationMono = userMono
-                .flatMap(user -> organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), datasource.getPluginId()))
+                .flatMap(user -> organizationService.findByIdAndPluginsPluginId(
+                        user.getCurrentOrganizationId(), datasource.getPluginId()))
                 .switchIfEmpty(Mono.defer(() -> {
                     datasource.setIsValid(false);
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
@@ -132,14 +136,13 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     PluginExecutor pluginExecutor = tuple.getT2();
-                    Boolean isDatasourceConfigValid = false;
-                    if (pluginExecutor != null && datasource1.getDatasourceConfiguration() != null) {
-                        isDatasourceConfigValid = pluginExecutor.isDatasourceValid(datasource1.getDatasourceConfiguration());
-                    }
-                    if (!isDatasourceConfigValid) {
+
+                    DatasourceConfiguration datasourceConfiguration = datasource1.getDatasourceConfiguration();
+                    if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
                         datasource1.setIsValid(false);
                         invalids.add(AppsmithError.INVALID_DATASOURCE_CONFIGURATION.getMessage());
                     }
+
                     datasource1.setInvalids(invalids);
                     return Mono.just(datasource1);
                 });
