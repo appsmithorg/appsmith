@@ -24,7 +24,8 @@ public enum AppsmithError {
     NO_CONFIGURATION_FOUND_IN_ACTION(400, 4016, "No action configuration found. Please configure it and try again."),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name."),
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Page {0} does not belong to the application {1}"),
-    NO_DSL_FOUND_IN_PAGE(400, 4029, "The page {0} doesn't have a DSL. This is an unexpected state"),
+    PAGINATED_API_PAGE_SIZE_MISSING(400, 4019, "This is a paginated API. Page and size are mandatory paramters"),
+    NO_DSL_FOUND_IN_PAGE(400, 4020, "The page {0} doesn't have a DSL. This is an unexpected state"),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain provided. Please sign in with a valid work email ID"),
     INVALID_PASSWORD_RESET(400, 4020, "Unable to reset the password. Please initiate a request via 'forgot password' link to reset your password"),
     LOGIN_INTERNAL_ERROR(401, 4021, "Internal error while trying to login"),
@@ -39,7 +40,8 @@ public enum AppsmithError {
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again."),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while downloading it. Check the jar location & try again."),
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}"),
-    PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint");
+    PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint"),
+    MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please check the internet connection");
 
 
     private Integer httpErrorCode;
