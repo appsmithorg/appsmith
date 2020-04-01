@@ -94,7 +94,8 @@
     "toposort": "^2.0.2",
     "ts-loader": "^6.0.4",
     "typescript": "^3.6.3",
-    "unescape-js": "^1.1.4"
+    "unescape-js": "^1.1.4",
+    "url-search-params-polyfill": "^8.0.0"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
