@@ -57,7 +57,8 @@ public class MongoPlugin extends BasePlugin {
 
             MongoClientURI mongoClientURI = new MongoClientURI(datasourceConfiguration.getUrl());
 
-            String databaseName = datasourceConfiguration.getDatabaseName();
+            // CONFIRM: Verify that the database name correctly shows up here.
+            String databaseName = datasourceConfiguration.getAuthentication().getDatabaseName();
             if (databaseName == null) {
                 databaseName = mongoClientURI.getDatabase();
             }
