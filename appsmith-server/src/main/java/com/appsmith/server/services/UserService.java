@@ -4,10 +4,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
-import org.springframework.security.core.GrantedAuthority;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
 
 public interface UserService extends CrudService<User, String> {
 

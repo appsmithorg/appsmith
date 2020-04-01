@@ -1,6 +1,5 @@
 package com.appsmith.server.configurations.mongo;
 
-import com.appsmith.server.services.AclEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.repository.query.ReactivePartTreeMongoQuery;

@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface PluginRepository extends BaseRepository<Plugin, String> {
+public interface PluginRepository extends BaseRepository<Plugin, String>, CustomPluginRepository {
     Mono<Plugin> findByName(String name);
 
     Mono<Plugin> findByPackageName(String packageName);

@@ -11,12 +11,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
+
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,4 +105,39 @@ public class UserServiceTest {
                 .verify();
     }
 
+    @Test
+    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    public void createNewUserFormSignupNullPassword() {
+        User newUser = new User();
+        newUser.setEmail("new-user-email@email.com");
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+               .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                       throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    public void createNewUserValid() {
+        User newUser = new User();
+        newUser.setEmail("new-user-email@email.com");
+        newUser.setPassword("new-user-test-password");
+
+        Mono<User> userMono = userService.create(newUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    log.debug("{}", user.getPolicies());
+                    assertThat(user).isNotNull();
+                    assertThat(user.getId()).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
+                    assertThat(user.getName()).isEqualTo("new-user-email@email.com");
+                    assertThat(user.getPolicies()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
 }
+

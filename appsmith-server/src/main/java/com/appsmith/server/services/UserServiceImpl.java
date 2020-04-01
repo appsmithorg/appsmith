@@ -1,5 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -36,14 +39,18 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
@@ -59,6 +66,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final InviteUserRepository inviteUserRepository;
     private final UserOrganizationService userOrganizationService;
     private final ApplicationRepository applicationRepository;
+    private final PolicyGenerator policyGenerator;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
@@ -82,7 +90,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            EmailSender emailSender,
                            InviteUserRepository inviteUserRepository,
                            UserOrganizationService userOrganizationService,
-                           ApplicationRepository applicationRepository) {
+                           ApplicationRepository applicationRepository,
+                           PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -94,6 +103,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.inviteUserRepository = inviteUserRepository;
         this.userOrganizationService = userOrganizationService;
         this.applicationRepository = applicationRepository;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -414,6 +424,34 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return createUser(user, null);
     }
 
+    private Set<Policy> crudUserPolicy(User user) {
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .users(Set.of(user.getUsername())).build();
+
+        Policy manageUserOrgPolicy = Policy.builder()
+                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of(user.getUsername())).build();
+
+        user.getPolicies().addAll(Set.of(manageUserPolicy, manageUserOrgPolicy));
+
+        Set<Policy> policySet = user.getPolicies().stream()
+                .filter(policy ->
+                        policy.getPermission().equals(MANAGE_USERS.getValue()) ||
+                                policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
+                ).collect(Collectors.toSet());
+
+        Set<Policy> documentPolicies = policySet.stream()
+                .map(policy -> {
+                    AclPermission aclPermission = AclPermission
+                            .getPermissionByValue(policy.getPermission(), User.class);
+                    // Get all the child policies for the given policy and aclPermission
+                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
+                }).flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+        return documentPolicies;
+    }
+
     /**
      * This function creates a new user in the system. Primarily used by new users signing up for the first time on the
      * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
@@ -434,6 +472,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (LoginSource.FORM.equals(user.getSource())) {
+            if (user.getPassword() == null || user.getPassword().isBlank()) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
+            }
             user.setPassword(this.passwordEncoder.encode(user.getPassword()));
         }
 
@@ -449,6 +490,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         String personalOrganizationName = firstName + "'s Personal Organization";
         personalOrg.setName(personalOrganizationName);
+
+        // Set the permissions for the user
+        user.getPolicies().addAll(crudUserPolicy(user));
 
         // Save the new user
         Mono<User> savedUserMono = super.create(user);

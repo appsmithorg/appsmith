@@ -1,9 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -23,7 +21,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.userAcl;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -66,7 +63,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.READ)));
+                    query.addCriteria(notDeleted());
 
                     return mongoOperations.query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -82,11 +79,11 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, AclPermission.READ)));
                     return mongoOperations.find(query, entityInformation.getJavaType(), entityInformation.getCollectionName());
                 });
     }
 
+    // TODO: This doesn't work for some reason.
     @Override
     public Flux<T> findAll(Example example, Sort sort) {
         Assert.notNull(example, "Sample must not be null!");
@@ -97,15 +94,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
 
-                    Query exampleQuery = new Query(new Criteria().alike(example)) //
-                            .collation(entityInformation.getCollation()) //
-                            .with(sort);
-
                     Query query = new Query(notDeleted())
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
-                    query.addCriteria(new Criteria().andOperator(userAcl((User) principal, AclPermission.READ),
-                            new Criteria().alike(example)));
+                    query.addCriteria(new Criteria().alike(example));
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });
@@ -137,7 +129,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.DELETE)));
+                    query.addCriteria(notDeleted());
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
@@ -157,7 +149,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .flatMap(principal -> {
                     Query query = new Query();
                     query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, AclPermission.DELETE)));
+                    query.addCriteria(notDeleted());
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
