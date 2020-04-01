@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;

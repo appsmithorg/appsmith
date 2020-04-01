@@ -4,7 +4,6 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -48,7 +49,7 @@ public abstract class BaseDomain implements Persistable<String> {
     protected Boolean deleted = false;
 
     @JsonIgnore
-    protected Set<Policy> policies;
+    protected Set<Policy> policies = new HashSet<>();
 
     @Override
     public boolean isNew() {

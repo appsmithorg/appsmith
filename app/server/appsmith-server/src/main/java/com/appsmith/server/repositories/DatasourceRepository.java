@@ -6,7 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface DatasourceRepository extends BaseRepository<Datasource, String> {
+public interface DatasourceRepository extends BaseRepository<Datasource, String>, CustomDatasourceRepository {
     Mono<Datasource> findByName(String name);
 
     Mono<Datasource> findByIdAndOrganizationId(String id, String organizationId);

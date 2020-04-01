@@ -11,9 +11,9 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -121,31 +121,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    public Flux<T> findAll(Example<T> example, Sort sort, AclPermission aclPermission) {
-        Assert.notNull(example, "Sample must not be null!");
-        Assert.notNull(sort, "Sort must not be null!");
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-
-                    Query query = new Query().addCriteria(
-                            new Criteria().andOperator(notDeleted(), userAcl((User) principal, aclPermission),
-                                    new Criteria().alike(example))
-                    ).with(sort);
-
-                    return mongoOperations.query(this.genericDomain)
-                            .matching(query)
-                            .all();
-                });
-    }
-
-    public Flux<T> findAll(Example<T> example, AclPermission aclPermission) {
-        Assert.notNull(example, "Example must not be null!");
-        return findAll(example, Sort.unsorted(), aclPermission);
-    }
-
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -154,7 +129,11 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     Query query = new Query();
                     criterias.stream()
                             .forEach(criteria -> query.addCriteria(criteria));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    if (aclPermission == null) {
+                        query.addCriteria(new Criteria().andOperator(notDeleted()));
+                    } else {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    }
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
@@ -162,7 +141,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    protected Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
+    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
@@ -170,11 +149,16 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     Query query = new Query();
                     criterias.stream()
                             .forEach(criteria -> query.addCriteria(criteria));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    if (aclPermission == null) {
+                        query.addCriteria(new Criteria().andOperator(notDeleted()));
+                    } else {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    }
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .all();
                 });
     }
+
 }

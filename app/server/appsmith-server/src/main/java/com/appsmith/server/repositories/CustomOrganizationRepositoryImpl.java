@@ -3,14 +3,10 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.QOrganization;
-import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
