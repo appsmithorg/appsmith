@@ -292,7 +292,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 else if (param.getValue() == null) {
                     param.setValue("");
                 } else {
-                    String value = StringEscapeUtils.escapeJava(StringEscapeUtils.escapeJava(param.getValue()));
+                    String value = StringEscapeUtils.escapeJava(param.getValue());
                     param.setValue(value);
                 }
             }
