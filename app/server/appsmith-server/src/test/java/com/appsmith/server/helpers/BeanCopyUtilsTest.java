@@ -1,10 +1,8 @@
-package com.appsmith.server.utils;
+package com.appsmith.server.helpers;
 
-import com.appsmith.server.helpers.BeanCopyUtils;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.time.LocalDate;
 
