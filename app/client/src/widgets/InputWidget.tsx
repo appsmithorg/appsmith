@@ -34,7 +34,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       inputValidators: VALIDATION_TYPES.ARRAY,
       focusIndex: VALIDATION_TYPES.NUMBER,
       isAutoFocusEnabled: VALIDATION_TYPES.BOOLEAN,
-      onTextChanged: VALIDATION_TYPES.TEXT,
+      onTextChanged: VALIDATION_TYPES.ACTION_SELECTOR,
       isRequired: VALIDATION_TYPES.BOOLEAN,
       isValid: VALIDATION_TYPES.BOOLEAN,
     };
