@@ -1,10 +1,9 @@
-const widgetsPage = require("../../locators/Widgets.json");
-const loginPage = require("../../locators/LoginPage.json");
-const loginData = require("../../fixtures/user.json");
-const commonlocators = require("../../locators/commonlocators.json");
+const widgetsPage = require("../../../locators/Widgets.json");
+const commonlocators = require("../../../locators/commonlocators.json");
 
 context("Cypress test", function() {
   it("Text Widget Functionality", function() {
+    cy.NavigateToCommonWidgets();
     cy.get(widgetsPage.textWidget)
       .first()
       .trigger("mouseover");
@@ -15,9 +14,13 @@ context("Cypress test", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
-      .type("{meta}a")
+      .type("{ctrl}{shift}{downarrow}")
       .clear({ force: true })
+      .should("be.empty")
       .type("Test text");
+    cy.get(".CodeMirror textarea")
+      .first()
+      .should("have.value", "Test text");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 });

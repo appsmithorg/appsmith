@@ -7,7 +7,7 @@
     "inputdatatypeplaceholder":".t--property-control-placeholder",
     "buttonWidget":".t--draggable-buttonwidget",
     "textWidget":".t--draggable-textwidget",
-    "tableWidget":".t--draggable-tablewidget"
-    
+    "tableWidget":".t--draggable-tablewidget",
+    "dropdown":"/html/body/div[3]/div/div[4]/div[2]/div[2]/div[2]/span/span/button"
 
 }

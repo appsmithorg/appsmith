@@ -12,7 +12,7 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-
+require("cypress-xpath");
 const loginData = require("../fixtures/user.json");
 const inputData = require("../fixtures/inputdata.json");
 
@@ -27,8 +27,6 @@ beforeEach(function() {
   Cypress.Cookies.preserveOnce("session_id", "remember_token");
 });
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
 after(function() {
   cy.PublishtheApp();
 });

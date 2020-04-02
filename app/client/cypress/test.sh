@@ -1,1 +1,1 @@
-$(npm bin)/cypress run CYPRESS_BASE_URL='http://dev.appsmith.com:3000/' --spec "cypress/integration/*/*"
+$(npm bin)/cypress run CYPRESS_BASE_URL='http://dev.appsmith.com:3000/' --spec "cypress/integration/Smoke_TestSuite/*/*"

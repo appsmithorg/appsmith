@@ -1,0 +1,9 @@
+{
+    "checkboxWidget": ".t--draggable-checkboxwidget",
+    "dropdownWidget": ".t--draggable-dropdownwidget",
+    "dropdownSelectionType": "/html/body/div[2]/div/div[3]/div[2]/div[2]/div[2]/span/span/div/button",
+    "radioWidget": ".t--draggable-radiogroupwidget",
+    "radioOnSelectionChangeDropdown": "/html/body/div[2]/div/div[4]/div[2]/div/div[2]/span/span/button"
+    
+    
+}

@@ -1,0 +1,7 @@
+{
+    "pagesIcon": ".t--nav-link-manage-pages",
+    "commonWidgets": "//*[@id='root']/div[2]/div/div[1]/div[2]/div[1]",
+    "formWidgets": "//*[@id='root']/div[2]/div/div[1]/div[2]/div[2]/div/div[2]/div/span",
+    "widgetsEditor": ".t--nav-link-widgets-editor"
+
+}
