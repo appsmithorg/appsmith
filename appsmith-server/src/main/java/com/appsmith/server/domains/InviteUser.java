@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.acl.AppsmithRole;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -14,4 +15,6 @@ public class InviteUser extends User {
 
     @Indexed(unique = true, expireAfterSeconds = 3600)
     String token;
+
+    AppsmithRole role;
 }

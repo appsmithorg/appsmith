@@ -41,12 +41,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -278,6 +281,92 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             .flatMap(repository::save)
                             .thenReturn(true);
                 });
+    }
+
+    /**
+     * This function invites a mnew user to the given applicationId. The role for the user is determined
+     * by the
+     *
+     * @param user
+     * @param originHeader
+     * @param applicationId
+     * @return
+     */
+    @Override
+    public Mono<User> inviteUserToApplication(InviteUser inviteUser, String originHeader, String applicationId) {
+        if (originHeader == null || originHeader.isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
+
+        // Create an invite token for the user. This token is linked to the email ID and the organization to which the
+        // user was invited.
+        String token = UUID.randomUUID().toString();
+
+        // Get the application details to which the user is being invited to. The current user must have MANAGE_APPLICATION
+        // permission on this app
+        Mono<Application> applicationMono = applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
+
+        // Check if the new user is already a part of the appsmith ecosystem. If yes, then simply
+        // add the user with the required permissions to the application
+        Mono<User> userByEmail = repository.findByEmail(inviteUser.getEmail())
+                .defaultIfEmpty(new User());
+
+        Mono<Application> updatedApplication = Mono.zip(applicationMono, userByEmail)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    User newUser = tuple.getT2();
+                    if (newUser.getId() == null) {
+                        // The user is not a part of the Appsmith ecosystem. Create an invite token for the user and send an email
+                        // TODO: Check if we can still add the user details to the application policies.
+                        handleNewUserInvite(inviteUser, application);
+                    }
+
+                    Set<AclPermission> invitePermissions = inviteUser.getRole().getPermissions();
+                    // Append the permissions to the application
+                    Map<String, Policy> policyMap = invitePermissions.stream()
+                            .map(perm -> {
+                                Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, inviteUser);
+                                return policiesForUser;
+                            })
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+
+                    // Append the user to the existing permission policy if it already exists.
+                    for (Policy policy : application.getPolicies()) {
+                        String permission = policy.getPermission();
+                        if (policyMap.containsKey(permission)) {
+                            policy.getUsers().addAll(policyMap.get(permission).getUsers());
+                            if (policy.getGroups() == null) {
+                                policy.setGroups(new HashSet<>());
+                            }
+                            if (policyMap.get(permission).getGroups() != null) {
+                                policy.getGroups().addAll(policyMap.get(permission).getGroups());
+                            }
+                            // Remove this permission from the policyMap
+                            policyMap.remove(permission);
+                        }
+                    }
+
+                    // For all the remaining policies, just add them to the set
+                    application.getPolicies().addAll(policyMap.values());
+
+                    return application;
+
+                    // Append the required permissions to all the pages
+
+                    // Append the required permissions to all the actions
+                })
+                .flatMap(application -> applicationRepository.save(application));
+
+        Mono<User> userMono = updatedApplication
+                .thenReturn(inviteUser);
+
+        return userMono;
+    }
+
+    private User handleNewUserInvite(InviteUser inviteUser, Application application) {
+        return inviteUser;
     }
 
     /**
