@@ -14,8 +14,10 @@ export const StyledImage = styled.div<StyledImageProps>`
   flex-direction: "row";
   background: ${props => props.backgroundColor};
   background-image: url("${props => {
-    return props.imageUrl || props.defaultImageUrl;
-  }}");
+    return props.imageUrl;
+  }}"), url("${props => {
+  return props.defaultImageUrl;
+}}");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
