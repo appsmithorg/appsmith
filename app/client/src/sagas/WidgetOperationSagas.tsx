@@ -50,7 +50,6 @@ function* getChildWidgetProps(
   let minHeight = undefined;
   const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
   const defaultConfig = yield select(getDefaultWidgetConfig, type);
-
   if (type === WidgetTypes.CANVAS_WIDGET) {
     columns =
       (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
@@ -58,6 +57,7 @@ function* getChildWidgetProps(
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
     minHeight = rows;
+    if (props) props.children = [];
   }
 
   const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };

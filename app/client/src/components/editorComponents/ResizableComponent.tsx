@@ -1,6 +1,5 @@
-import React, { useContext, useMemo, useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { XYCoord } from "react-dnd";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
 import {
@@ -73,17 +72,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
       : undefined;
-
-  const maxBottomRowOfChildWidgets: number | undefined = useMemo(() => {
-    if (props.type === WidgetTypes.CONTAINER_WIDGET) {
-      const occupiedSpacesByChildren =
-        occupiedSpaces && occupiedSpaces[props.widgetId];
-      return occupiedSpacesByChildren?.reduce((prev: number, next) => {
-        if (next.bottom > prev) return next.bottom;
-        return prev;
-      }, 0);
-    }
-  }, [occupiedSpaces, props.type, props.widgetId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -169,17 +157,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     }
 
     if (!updated) {
-      if (
-        // If this is a container widget, the maxBottomRow of child widgets should be one less than the max bottom row of the new row cols
-        maxBottomRowOfChildWidgets &&
-        newRowCols &&
-        props.type === WidgetTypes.CONTAINER_WIDGET &&
-        newRowCols.bottomRow - newRowCols.topRow - 1 <
-          maxBottomRowOfChildWidgets
-      ) {
-        return true;
-      }
-
       if (
         boundingElementClientRect &&
         newRowCols.bottomRow * props.parentRowSpace >
