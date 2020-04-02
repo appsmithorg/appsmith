@@ -1,7 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.WithMockAppsmithUser;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -12,21 +15,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,6 +35,9 @@ public class UserServiceTest {
 
     @Autowired
     OrganizationService organizationService;
+
+    @Autowired
+    ApplicationService applicationService;
 
     Mono<User> userMono;
 
@@ -115,14 +112,13 @@ public class UserServiceTest {
         Mono<User> userMono = userService.create(newUser);
 
         StepVerifier.create(userMono)
-               .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                       throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_CREDENTIALS.getMessage()))
                 .verify();
     }
 
     @Test
     @WithMockAppsmithUser
-//    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
     public void createNewUserValid() {
         User newUser = new User();
         newUser.setEmail("new-user-email@email.com");
@@ -138,6 +134,42 @@ public class UserServiceTest {
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteUserToApplicationValid() {
+        InviteUser inviteUser = new InviteUser();
+        inviteUser.setEmail("inviteUserToApplication@test.com");
+        inviteUser.setRole(AppsmithRole.APPLICATION_ADMIN);
+
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications")
+                .switchIfEmpty(Mono.error(new Exception("No such app")));
+
+        Mono<User> userMono = applicationMono.flatMap(application -> {
+            log.debug("In the userMono with application policies: {}", application.getPolicies());
+            return userService.inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId());
+        }).cache();
+
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"))
+                .map(application -> {
+                    log.debug("In the updatedAppMono with app policies: {}", application.getPolicies());
+                    return application;
+                });
+
+        StepVerifier.create(Mono.zip(updatedApplication, userMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+                    log.debug("Got the invited user: {}", user);
+                    log.debug("Got the application: {}", application);
+                    log.debug("Got application policies: {}", application.getPolicies());
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(user).isNotNull();
                 })
                 .verifyComplete();
     }

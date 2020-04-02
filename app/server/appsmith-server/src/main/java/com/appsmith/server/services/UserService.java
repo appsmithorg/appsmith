@@ -18,6 +18,8 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
+    Mono<User> inviteUserToApplication(InviteUser inviteUser, String originHeader, String applicationId);
+
     Mono<User> inviteUser(User user, String originHeader);
 
     Mono<Boolean> verifyInviteToken(String email, String token);
