@@ -356,7 +356,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         Map<String, String> replaceParamsMap = executeActionDTO
                                 .getParams()
                                 .stream()
-                                .collect(Collectors.toMap(Param::getKey, Param::getValue,
+                                .collect(Collectors.toMap(
+                                        // Trimming here for good measure. If the keys have space on either side,
+                                        // Mustache won't be able to find the key.
+                                        p -> p.getKey().trim(),
+                                        Param::getValue,
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
