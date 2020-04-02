@@ -41,6 +41,9 @@ public class Provider extends BaseDomain {
 
     String planSubscribed;
 
+    /**
+     * TODO : Once the marketplace is up, remove the default values from here. Let the Marketplace handle the defaults.
+     */
     Boolean isVisible = true;
 
     Integer sortOrder = 1000;

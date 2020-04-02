@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -156,6 +158,56 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createAndUpdateDatasourceValidDB() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+
+        Datasource datasource = new Datasource();
+        datasource.setName("test db datasource");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.ReadOnly);
+        connection.setType(Connection.Type.ReplicaSet);
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.CACertificate);
+        sslDetails.setKeyFile("ssl_key_file_id");
+        sslDetails.setCertificateFile("ssl_cert_file_id");
+        connection.setSsl(sslDetails);
+        datasourceConfiguration.setConnection(connection);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        datasource.setOrganizationId("fixme-put-valid-org-id-here");
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                }).flatMap(datasourceService::create)
+                .flatMap(datasource1 -> {
+                    Datasource updates = new Datasource();
+                    DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
+                    Connection connection1 = new Connection();
+                    SSLDetails ssl = new SSLDetails();
+                    ssl.setKeyFile("ssl_key_file_id");
+                    connection1.setSsl(ssl);
+                    datasourceConfiguration1.setConnection(connection1);
+                    return datasourceService.update(datasource1.getId(), updates);
+                });
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile()).isEqualTo("ssl_key_file_id");
                 })
                 .verifyComplete();
     }
