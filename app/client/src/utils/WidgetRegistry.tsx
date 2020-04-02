@@ -106,7 +106,7 @@ class WidgetBuilderRegistry {
       },
       CheckboxWidget.getPropertyValidationMap(),
       CheckboxWidget.getDerivedPropertiesMap(),
-      ContainerWidget.getTriggerPropertyMap(),
+      CheckboxWidget.getTriggerPropertyMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
