@@ -22,7 +22,10 @@ context("Cypress test", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .should("have.value", "Test Radio");
-    cy.xpath(formWidgetsPage.radioOnSelectionChangeDropdown)
+    cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
+      .find("> div")
+      .eq(1)
+      .find("> span > span > button")
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()

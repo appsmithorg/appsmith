@@ -22,14 +22,19 @@ context("Cypress test", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .should("have.value", "Test Dropdown");
-    cy.xpath(formWidgetsPage.dropdownSelectionType)
+    cy.get(formWidgetsPage.dropdownSelectionType)
+      .find("> div")
+      .eq(1)
+      .find("> span > span > div > button")
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()
       .eq(1)
       .click();
-    cy.xpath(formWidgetsPage.dropdownSelectionType)
-      .find("> span")
+    cy.get(formWidgetsPage.dropdownSelectionType)
+      .find("> div")
+      .eq(1)
+      .find("> span > span > div > button > span")
       .eq(0)
       .should("have.text", "Multi Select");
     cy.get(commonlocators.editPropCrossButton).click();
