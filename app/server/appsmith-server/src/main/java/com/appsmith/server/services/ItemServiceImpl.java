@@ -86,9 +86,10 @@ public class ItemServiceImpl implements ItemService {
             action.setCacheResponse(apiTemplate.getApiTemplateConfiguration().getSampleResponse().getBody().toString());
         }
 
+        log.debug("Going to subscribe marketplace provider : {} and then create action", apiTemplate.getProviderId());
         return marketplaceService
                 // First hit the marketplace to update the statistics and to subscribe to the provider in case it hasn't
-                .subscribeAndUpdateStatisticsOfProvider(action.getProviderId())
+                .subscribeAndUpdateStatisticsOfProvider(apiTemplate.getProviderId())
 
                 // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
                 /** TODO
