@@ -31,6 +31,7 @@ class ButtonWidget extends BaseWidget<
       ...BASE_WIDGET_VALIDATION,
       text: VALIDATION_TYPES.TEXT,
       buttonStyle: VALIDATION_TYPES.TEXT,
+      onClick: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 
