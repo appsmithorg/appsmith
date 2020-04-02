@@ -59,7 +59,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   }
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{ this.isRequired ? !!this.selectedOption.value : true }}`,
+      isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
       selectedOption: `{{
         this.selectionType === 'SINGLE_SELECT'
           ? this.options[this.selectedIndex]
