@@ -59,7 +59,7 @@ const StyledDropTarget = styled.div`
 */
 export const DropTargetContext: Context<{
   updateDropTargetRows?: (widgetId: string, row: number) => boolean;
-  persistDropTargetRows?: () => void;
+  persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
 export const DropTargetComponent = (props: DropTargetComponentProps) => {
@@ -103,10 +103,16 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     setRows(snapRows);
   }, [props.bottomRow, props.canExtend]);
 
-  const persistDropTargetRows = () => {
+  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+    const newRows = calculateDropTargetRows(
+      widgetId,
+      widgetBottomRow,
+      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      occupiedSpacesByChildren,
+    );
     const rowsToPersist = Math.max(
       props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      rows,
+      newRows,
     );
     setRows(rowsToPersist);
     if (canDropTargetExtend) {
@@ -123,7 +129,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,
       );
-      if (rows !== newRows) {
+      if (rows < newRows) {
         setRows(newRows);
         return true;
       }
@@ -159,6 +165,11 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
           props.widgetId,
         );
 
+        // const widgetBottomRow = getWidgetBottomRow(widget, updateWidgetParams);
+        const widgetBottomRow =
+          updateWidgetParams.payload.topRow +
+          (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+
         // Only show propertypane if this is a new widget.
         // If it is not a new widget, then let the DraggableComponent handle it.
         showPropertyPane &&
@@ -167,7 +178,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
 
         // Select the widget if it is a new widget
         selectWidget && selectWidget(widget.widgetId);
-        persistDropTargetRows();
+        persistDropTargetRows(widget.widgetId, widgetBottomRow);
 
         /* Finally update the widget */
         updateWidget &&

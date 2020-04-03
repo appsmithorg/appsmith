@@ -29,11 +29,12 @@ import {
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaProperty } from "actions/metaActions";
 
-export function* createModalSaga() {
+export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
     const modalWidgetId = generateReactKey();
     const props: WidgetAddChild = {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
+      widgetName: action.payload.modalName,
       type: WidgetTypes.MODAL_WIDGET,
       newWidgetId: modalWidgetId,
       parentRowSpace: 1,

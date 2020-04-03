@@ -204,7 +204,8 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     );
 
     if (newRowCols) {
-      persistDropTargetRows && persistDropTargetRows();
+      persistDropTargetRows &&
+        persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }

@@ -44,6 +44,13 @@ export const getDefaultWidgetConfig = (
   return {};
 };
 
+export const getWidgetNamePrefix = (
+  state: AppState,
+  type: WidgetType,
+): string => {
+  return state.entities.widgetConfig.config[type].widgetName;
+};
+
 export const getDefaultPageId = (state: AppState, pageId?: string): string => {
   const { pages } = state.entities.pageList;
   const page = pages.find(page => page.pageId === pageId);

@@ -22,7 +22,8 @@ type ActionTypeDropdownProps = {
   onSelect: (value: string) => void;
   createButton?: {
     text: string;
-    onClick: () => void;
+    args: string[];
+    onClick: (...args: any) => void;
   };
 };
 
@@ -79,14 +80,23 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
       this.props.options.length > 0 && this.props.options.map(this.renderItem);
     let createBtn: React.ReactNode;
     if (this.props.createButton) {
+      const btnClick = () => {
+        this.props.createButton?.onClick(...this.props.createButton.args);
+        const optionVal = this.props.createButton?.args.join(", ");
+        optionVal &&
+          this.handleSelect({
+            id: optionVal,
+            label: optionVal,
+            value: `'${optionVal}'`,
+          });
+      };
       createBtn = (
         <Button
           text={`Create ${this.props.createButton.text}`}
           icon="plus"
-          intent="primary"
+          intent="none"
+          onClick={btnClick}
           className="t--create-modal-btn"
-          onClick={this.props.createButton?.onClick}
-          fluid
         />
       );
     }

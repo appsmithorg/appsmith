@@ -2,6 +2,8 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { getExistingWidgetNames, getWidgetNamePrefix } from "sagas/selectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
@@ -19,4 +21,13 @@ export const getModalDropdownList = createSelector(
       value: `'${widget.widgetName}'`,
     }));
   },
+);
+
+const getModalNamePrefix = (state: AppState) =>
+  getWidgetNamePrefix(state, WidgetTypes.MODAL_WIDGET);
+
+export const getNextModalName = createSelector(
+  getExistingWidgetNames,
+  getModalNamePrefix,
+  (names, prefix) => getNextEntityName(prefix, names),
 );

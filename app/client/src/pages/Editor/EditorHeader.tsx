@@ -14,13 +14,8 @@ import {
   PAGE_LIST_EDITOR_URL,
 } from "constants/routes";
 import { Directions } from "utils/helpers";
-import { useSelector } from "react-redux";
-import { getModalDropdownList } from "selectors/widgetSelectors";
 
-import {
-  PageListPayload,
-  ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+import { PageListPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown, {
@@ -135,52 +130,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     openOnHover: false,
   };
 
-  const modals = useSelector(getModalDropdownList);
-
-  const modalSelectorData: CustomizedDropdownProps = {
-    sections: [
-      {
-        isSticky: true,
-        options: [
-          {
-            content: (
-              <Button text="Create Modal" icon="plus" iconAlignment="left" />
-            ),
-            onSelect: () =>
-              getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-                type: ReduxActionTypes.CREATE_MODAL_INIT,
-              }),
-          },
-        ],
-      },
-      {
-        options:
-          modals && modals.length > 0
-            ? modals.map(modal => {
-                return {
-                  content: modal.label,
-                  onSelect: () =>
-                    getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-                      type: ReduxActionTypes.SHOW_MODAL,
-                      payload: {
-                        modalId: modal.id,
-                      },
-                    }),
-                  shouldCloseDropdown: true,
-                };
-              })
-            : [],
-      },
-    ],
-    trigger: {
-      icon: "eye-open",
-      intent: "primary",
-      iconAlignment: "left",
-    },
-    openDirection: Directions.BOTTOM,
-    openOnHover: false,
-  };
-
   return (
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
@@ -190,7 +139,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
         {props.isSaving ? "Saving..." : "All changes saved"}
       </LoadingContainer>
       <PreviewPublishSection>
-        <CustomizedDropdown {...modalSelectorData} />
         <Tooltip
           disabled={!props.publishedTime}
           content={
