@@ -2,6 +2,7 @@
     "searchInput": "input[type='text']",
     "appEditIcon": ".t--application-edit-link",
     "publishButton":".t--application-publish-btn",
-    "publishCrossButton":"span[icon='small-cross']"
+    "publishCrossButton":"span[icon='small-cross']",
+    "homePageID":"//div[@id='root']"
     
 }
