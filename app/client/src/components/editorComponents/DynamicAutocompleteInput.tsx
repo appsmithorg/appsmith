@@ -180,6 +180,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
+  autoCompleteVisible: boolean;
 };
 
 class DynamicAutocompleteInput extends Component<Props, State> {
@@ -190,6 +191,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     super(props);
     this.state = {
       isFocused: false,
+      autoCompleteVisible: false,
     };
   }
 
@@ -319,7 +321,14 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
+        this.setState({
+          autoCompleteVisible: true,
+        });
         cm.showHint(cm);
+      } else {
+        this.setState({
+          autoCompleteVisible: false,
+        });
       }
     }
   };
@@ -345,7 +354,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
-      showError = hasError && this.state.isFocused;
+      showError =
+        hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
