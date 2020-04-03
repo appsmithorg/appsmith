@@ -37,7 +37,7 @@ Cypress.Commands.add("NavigateToFormWidgets", () => {
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
-  cy.xpath("//div[@id='root']").contains("All changes saved");
+  cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.window().then(win => {
     cy.get(homePage.publishCrossButton).click();

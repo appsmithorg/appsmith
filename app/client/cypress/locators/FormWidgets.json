@@ -5,7 +5,6 @@
     "radioWidget": ".t--draggable-radiogroupwidget",
     "radioOnSelectionChangeDropdown": ".t--property-control-onselectionchange",
     "datepickerWidget":".t--draggable-datepickerwidget",
-    "filepickerWidget":".t--draggable-filepickerwidget"
-    
-    
+    "filepickerWidget":".t--draggable-filepickerwidget",
+    "formWidget":".t--draggable-formwidget"
 }
