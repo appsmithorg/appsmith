@@ -84,6 +84,7 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
           text={`Create ${this.props.createButton.text}`}
           icon="plus"
           intent="primary"
+          className="t--create-modal-btn"
           onClick={this.props.createButton?.onClick}
           fluid
         />
@@ -101,6 +102,9 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
           <BlueprintButton
             rightIcon={IconNames.CHEVRON_DOWN}
             text={selectedOption.label}
+            className={`t--open-dropdown-${this.props.defaultText
+              .split(" ")
+              .join("-")}`}
           />
         </StyledPopover>
       </StyledDropDownContainer>

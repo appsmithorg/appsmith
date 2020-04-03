@@ -83,7 +83,10 @@ export const ModalComponent = (props: ModalComponentProps) => {
         enforceFocus={false}
       >
         <div>
-          <CloseModalTrigger onClick={props.onClose} />
+          <CloseModalTrigger
+            onClick={props.onClose}
+            className="t--modal-close"
+          />
           <Content
             scroll={props.scrollContents}
             className={`${getCanvasClassName()} ${props.className}`}

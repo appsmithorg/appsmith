@@ -493,7 +493,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={this.props.modalDropdown || []}
                     selectedValue={arg.getSelectedValue(value, false) as string}
-                    defaultText={"Select Modal"}
+                    defaultText="Select Modal"
                     createButton={
                       arg.create && {
                         text: arg.create.text,
