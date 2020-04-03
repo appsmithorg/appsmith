@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
-import com.appsmith.external.models.Provider;
 import com.appsmith.server.configurations.MarketplaceConfig;
+import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,7 +58,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     }
 
     @Override
-    public Mono<List<Provider>> getProviders(MultiValueMap<String, String> params) {
+    public Mono<ProviderPaginatedDTO> getProviders(MultiValueMap<String, String> params) {
         URI uri = buildFullURI(params, PROVIDER_PATH);
 
         return webClient
@@ -67,13 +67,13 @@ public class MarketplaceServiceImpl implements MarketplaceService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(stringBody -> {
-                    List<Provider> providerList = null;
+                    ProviderPaginatedDTO providersPaginated = null;
                     try {
-                        providerList = objectMapper.readValue(stringBody, ArrayList.class);
+                        providersPaginated = objectMapper.readValue(stringBody, ProviderPaginatedDTO.class);
                     } catch (JsonProcessingException e) {
                         return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
                     }
-                    return Mono.just(providerList);
+                    return Mono.just(providersPaginated);
                 })
                 .timeout(Duration.ofMillis(timeoutInMillis))
                 .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
