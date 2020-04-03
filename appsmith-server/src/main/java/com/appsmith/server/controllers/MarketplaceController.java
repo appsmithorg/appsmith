@@ -11,6 +11,7 @@ import com.appsmith.external.models.Statistics;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.SearchResponseDTO;
 import com.appsmith.server.services.MarketplaceService;
@@ -127,7 +128,7 @@ public class MarketplaceController {
     }
 
     @GetMapping("/providers")
-    public Mono<ResponseDTO<List<Provider>>> getAllProvidersFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<ProviderPaginatedDTO>> getAllProvidersFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all providers from Marketplace");
         return marketplaceService.getProviders(params)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
