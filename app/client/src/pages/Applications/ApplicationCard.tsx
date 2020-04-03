@@ -5,7 +5,7 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Tooltip, Classes } from "@blueprintjs/core";
+import { Card, Tooltip, Classes, Icon } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import {
@@ -17,6 +17,8 @@ import { ControlIcons } from "icons/ControlIcons";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
+import IconComponent from "components/designSystems/blueprint/IconComponent";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -128,6 +130,11 @@ const viewControlIcon = ControlIcons.VIEW_CONTROL({
   height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
   color: theme.colors.secondary,
 });
+const editControlIcon = ControlIcons.EDIT_CONTROL({
+  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
+  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
+  color: Colors.HIT_GRAY,
+});
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -185,10 +192,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Link to={viewApplicationURL}>
+        <Link to={editApplicationURL}>
           <Control className="control">
-            <Tooltip content="Launch App" hoverOpenDelay={500}>
-              {viewControlIcon}
+            <Tooltip content="Edit" hoverOpenDelay={500}>
+              {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
             </Tooltip>
           </Control>
         </Link>
@@ -202,14 +209,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <Link className="t--application-edit-link" to={editApplicationURL}>
+      <Link className="t--application-edit-link" to={viewApplicationURL}>
         <ApplicationImage className="image-container">
           <Control className="control">
             <Button
               filled
-              text="Edit"
+              text="Launch"
               intent="primary"
-              icon="edit"
+              icon="play"
               iconAlignment="left"
               size="small"
               className="t--application-edit-btn"

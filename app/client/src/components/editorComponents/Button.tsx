@@ -41,7 +41,7 @@ const StyledButton = styled(BlueprintButton)<{
 }>`
   ${buttonStyles}
 `;
-const StyledAnchorButton = styled(BlueprintAnchorButton)<{
+export const StyledAnchorButton = styled(BlueprintAnchorButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
