@@ -10,6 +10,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.pf4j.Extension;
@@ -31,6 +32,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 public class RestApiPlugin extends BasePlugin {
     private static int MAX_REDIRECTS = 5;
@@ -50,9 +52,10 @@ public class RestApiPlugin extends BasePlugin {
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
-            String requestBody = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
+            boolean isContentTypeJsonInRequest = false;
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
@@ -62,13 +65,14 @@ public class RestApiPlugin extends BasePlugin {
             WebClient.Builder webClientBuilder = WebClient.builder();
 
             if (datasourceConfiguration.getHeaders() != null) {
-                addHeadersToRequest(webClientBuilder, datasourceConfiguration.getHeaders());
+                isContentTypeJsonInRequest = addHeadersToRequestAndAscertainContentType(webClientBuilder, datasourceConfiguration.getHeaders(),
+                        isContentTypeJsonInRequest);
             }
 
             if (actionConfiguration.getHeaders() != null) {
-                addHeadersToRequest(webClientBuilder, actionConfiguration.getHeaders());
+                isContentTypeJsonInRequest = addHeadersToRequestAndAscertainContentType(webClientBuilder, actionConfiguration.getHeaders(),
+                        isContentTypeJsonInRequest);
             }
-
 
             URI uri = null;
             try {
@@ -80,7 +84,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             WebClient client = webClientBuilder.build();
-            return httpCall(client, httpMethod, uri, requestBody, 0)
+            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, isContentTypeJsonInRequest)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
@@ -146,15 +150,26 @@ public class RestApiPlugin extends BasePlugin {
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBody, int iteration) {
+        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
+                                              int iteration, boolean isJsonContentType) {
             if (iteration == MAX_REDIRECTS) {
                 System.out.println("Exceeded the http redirect limits. Returning error");
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Exceeded the HTTO redirect limits of " + MAX_REDIRECTS));
             }
+
+            Object requestBodyAsObject;
+            if (isJsonContentType) {
+                GsonBuilder gson = new GsonBuilder();
+                Map<String, String> requestBodyAsMap = gson.create().fromJson(requestBodyAsString, Map.class);
+                requestBodyAsObject = requestBodyAsMap;
+            } else {
+                requestBodyAsObject = requestBodyAsString;
+            }
+
             return webClient
                     .method(httpMethod)
                     .uri(uri)
-                    .body(BodyInserters.fromObject(requestBody))
+                    .body(BodyInserters.fromObject(requestBodyAsObject))
                     .exchange()
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(res -> {
@@ -174,7 +189,8 @@ public class RestApiPlugin extends BasePlugin {
                             } catch (URISyntaxException e) {
                                 e.printStackTrace();
                             }
-                            return httpCall(webClient, httpMethod, redirectUri, requestBody, iteration + 1);
+                            return httpCall(webClient, httpMethod, redirectUri, requestBodyAsString, iteration + 1,
+                                    isJsonContentType);
                         }
                         return Mono.just(response);
                     });
@@ -206,12 +222,19 @@ public class RestApiPlugin extends BasePlugin {
             }
         }
 
-        private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {
+        private boolean addHeadersToRequestAndAscertainContentType(WebClient.Builder webClientBuilder,
+                                                                   List<Property> headers,
+                                                                   boolean isContentTypeJson) {
             for (Property header : headers) {
                 if (header.getKey() != null && !header.getKey().isEmpty()) {
                     webClientBuilder.defaultHeader(header.getKey(), header.getValue());
+                    if (header.getKey().equals("Content-Type") &&
+                            header.getValue().equals(MediaType.APPLICATION_JSON_VALUE)) {
+                        isContentTypeJson = true;
+                    }
                 }
             }
+            return isContentTypeJson;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {
