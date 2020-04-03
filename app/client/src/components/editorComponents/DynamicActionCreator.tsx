@@ -2,13 +2,19 @@ import React, { ChangeEvent } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { ReduxActionWithoutPayload } from "constants/ReduxActionConstants";
+import {
+  ReduxActionWithoutPayload,
+  ReduxAction,
+} from "constants/ReduxActionConstants";
 import _ from "lodash";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
-import StyledDropdown from "components/editorComponents/StyledDropdown";
+import StyledDropdown from "components/editorComponents/DynamicActionSelectorDropdown";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { getModalDropdownList } from "selectors/widgetSelectors";
+import {
+  getModalDropdownList,
+  getNextModalName,
+} from "selectors/widgetSelectors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { createModalAction } from "actions/widgetActions";
@@ -34,7 +40,7 @@ type ActionCreatorArgumentConfig = {
   field: string;
   create?: {
     text: string;
-    dispatchPayload: ReduxActionWithoutPayload;
+    action: (...args: any) => ReduxAction<any>;
   };
   valueChangeHandler: ValueChangeHandler;
   getSelectedValue: (value: string, returnArguments: boolean) => ValueType;
@@ -265,7 +271,7 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
         field: "MODAL_SELECTOR_FIELD",
         create: {
           text: "Modal",
-          dispatchPayload: createModalAction(),
+          action: createModalAction,
         },
         valueChangeHandler: handlePageNameArgSelect,
         getSelectedValue: getPageNameSelectedValue,
@@ -342,6 +348,7 @@ type ReduxStateProps = {
   actions: ActionDataState;
   pageNameDropdown: DropdownOption[];
   modalDropdown?: DropdownOption[];
+  nextModalName: string;
   dispatchAction: (payload: ReduxActionWithoutPayload) => void;
 };
 
@@ -497,14 +504,18 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                     createButton={
                       arg.create && {
                         text: arg.create.text,
-                        onClick: () =>
+                        args: [this.props.nextModalName],
+                        onClick: (...args: any) => {
                           arg.create &&
-                          this.props.dispatchAction(arg.create.dispatchPayload),
+                            this.props.dispatchAction(
+                              arg.create.action(...args),
+                            );
+                        },
                       }
                     }
-                    onSelect={value =>
-                      handleUpdate(value, arg.valueChangeHandler)
-                    }
+                    onSelect={value => {
+                      handleUpdate(value, arg.valueChangeHandler);
+                    }}
                   />
                 </ControlWrapper>
               );
@@ -604,6 +615,7 @@ const mapStateToProps = (state: AppState) => ({
     value: `'${p.pageName}'`,
   })),
   modalDropdown: getModalDropdownList(state),
+  nextModalName: getNextModalName(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

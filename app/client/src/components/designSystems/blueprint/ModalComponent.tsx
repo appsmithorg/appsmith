@@ -24,6 +24,7 @@ const Container = styled.div<{
       justify-content: center;
       align-items: center;
       & .${Classes.OVERLAY_CONTENT} {
+        margin-top: -${props => props.theme.headerHeight};
         width: ${props => props.width}px;
         min-height: ${props => props.height}px;
         background: white;

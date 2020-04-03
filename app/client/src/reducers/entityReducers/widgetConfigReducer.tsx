@@ -37,6 +37,7 @@ export interface WidgetConfigProps {
   rows: number;
   columns: number;
   blueprint?: WidgetBlueprint;
+  widgetName: string;
 }
 
 export interface WidgetConfigReducerState {

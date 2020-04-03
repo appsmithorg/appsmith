@@ -46,10 +46,13 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, topRow, newWidgetId, props, type } = params;
-  let { rows, columns, parentColumnSpace, parentRowSpace } = params;
+  let { rows, columns, parentColumnSpace, parentRowSpace, widgetName } = params;
   let minHeight = undefined;
-  const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
   const defaultConfig = yield select(getDefaultWidgetConfig, type);
+  if (!widgetName) {
+    const widgetNames = Object.keys(widgets).map(w => widgets[w].widgetName);
+    widgetName = getNextEntityName(defaultConfig.widgetName, widgetNames);
+  }
   if (type === WidgetTypes.CANVAS_WIDGET) {
     columns =
       (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
@@ -69,7 +72,7 @@ function* getChildWidgetProps(
     topRow,
     parentRowSpace,
     parentColumnSpace,
-    getNextEntityName(defaultConfig.widgetName, widgetNames),
+    widgetName,
     widgetProps,
   );
 
