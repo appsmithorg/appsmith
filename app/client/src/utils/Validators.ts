@@ -47,6 +47,25 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.REGEX]: (value: any): ValidationResponse => {
+    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.TEXT](
+      value,
+    );
+
+    if (isValid) {
+      try {
+        new RegExp(parsed);
+      } catch (e) {
+        return {
+          isValid: false,
+          parsed: parsed,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: regex`,
+        };
+      }
+    }
+
+    return { isValid, parsed, message };
+  },
   [VALIDATION_TYPES.NUMBER]: (value: any): ValidationResponse => {
     let parsed = value;
     if (_.isUndefined(value)) {

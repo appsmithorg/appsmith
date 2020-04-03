@@ -24,7 +24,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       defaultText: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
       text: VALIDATION_TYPES.TEXT,
-      regex: VALIDATION_TYPES.TEXT,
+      regex: VALIDATION_TYPES.REGEX,
       errorMessage: VALIDATION_TYPES.TEXT,
       placeholderText: VALIDATION_TYPES.TEXT,
       maxChars: VALIDATION_TYPES.NUMBER,

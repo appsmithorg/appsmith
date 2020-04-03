@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {
   TEXT: "TEXT",
+  REGEX: "REGEX",
   NUMBER: "NUMBER",
   BOOLEAN: "BOOLEAN",
   OBJECT: "OBJECT",
