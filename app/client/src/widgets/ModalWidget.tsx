@@ -67,7 +67,9 @@ class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           onClose={this.closeModal}
           width={MODAL_SIZE[this.props.size].width}
           height={MODAL_SIZE[this.props.size].height}
-          className={generateClassName(this.props.widgetId)}
+          className={`t--modal-widget ${generateClassName(
+            this.props.widgetId,
+          )}`}
           canOutsideClickClose={!!this.props.canOutsideClickClose}
           canEscapeKeyClose={!!this.props.canEscapeKeyClose}
           scrollContents={!!this.props.shouldScrollContents}
