@@ -60,7 +60,7 @@ public class DatabaseChangelog {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn("postgres-plugin already present in database.", e);
+            log.warn("postgres-plugin already present in database.");
         }
 
         Plugin plugin2 = new Plugin();
@@ -72,7 +72,7 @@ public class DatabaseChangelog {
         try {
             mongoTemplate.insert(plugin2);
         } catch (DuplicateKeyException e) {
-            log.warn("restapi-plugin already present in database.", e);
+            log.warn("restapi-plugin already present in database.");
         }
     }
 
