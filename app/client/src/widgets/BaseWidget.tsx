@@ -135,7 +135,10 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
-  ) {
+  ): {
+    componentWidth: number;
+    componentHeight: number;
+  } {
     return {
       componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,

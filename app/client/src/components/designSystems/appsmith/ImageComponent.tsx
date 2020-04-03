@@ -8,16 +8,17 @@ export interface StyledImageProps {
   backgroundColor?: string;
 }
 
-export const StyledImage = styled.div<StyledImageProps>`
+export const StyledImage = styled.div<
+  StyledImageProps & {
+    imageError: boolean;
+  }
+>`
   position: relative;
   display: flex;
   flex-direction: "row";
   background: ${props => props.backgroundColor};
-  background-image: url("${props => {
-    return props.imageUrl;
-  }}"), url("${props => {
-  return props.defaultImageUrl;
-}}");
+  background-image: url("${props =>
+    props.imageError ? props.defaultImageUrl : props.imageUrl}");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -25,15 +26,48 @@ export const StyledImage = styled.div<StyledImageProps>`
   width: 100%;
 `;
 
-class ImageComponent extends React.Component<ImageComponentProps> {
+class ImageComponent extends React.Component<
+  ImageComponentProps,
+  {
+    imageError: boolean;
+  }
+> {
+  constructor(props: ImageComponentProps) {
+    super(props);
+    this.state = {
+      imageError: false,
+    };
+  }
   render() {
     return (
       <StyledImage
         className={this.props.isLoading ? "bp3-skeleton" : ""}
+        imageError={this.state.imageError}
         {...this.props}
-      ></StyledImage>
+      >
+        <img
+          style={{
+            display: "none",
+          }}
+          src={this.props.imageUrl}
+          onError={this.onImageError}
+          onLoad={this.onImageLoad}
+        ></img>
+      </StyledImage>
     );
   }
+
+  onImageError = () => {
+    this.setState({
+      imageError: true,
+    });
+  };
+
+  onImageLoad = () => {
+    this.setState({
+      imageError: false,
+    });
+  };
 }
 
 export interface ImageComponentProps extends ComponentProps {
