@@ -13,7 +13,6 @@ import {
   PopoverPosition,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import Button from "components/editorComponents/Button";
 
 type ActionTypeDropdownProps = {
   options: DropdownOption[];
@@ -91,11 +90,10 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
           });
       };
       createBtn = (
-        <Button
-          text={`Create ${this.props.createButton.text}`}
-          icon="plus"
-          intent="none"
+        <StyledMenuItem
           onClick={btnClick}
+          icon="plus"
+          text={`Create ${this.props.createButton.text}`}
           className="t--create-modal-btn"
         />
       );
