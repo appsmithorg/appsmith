@@ -8,6 +8,7 @@ const Charts = require("fusioncharts/fusioncharts.charts");
 const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
 Charts(FusionCharts);
 FusionTheme(FusionCharts);
+FusionCharts.options.creditLabel = false;
 
 export interface ChartComponentProps {
   chartType: ChartType;
