@@ -17,7 +17,6 @@ import { ControlIcons } from "icons/ControlIcons";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
-import IconComponent from "components/designSystems/blueprint/IconComponent";
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled(Card)`
