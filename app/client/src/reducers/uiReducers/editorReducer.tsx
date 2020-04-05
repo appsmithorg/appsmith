@@ -64,7 +64,9 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.publishingError = false;
     return { ...state };
   },
-  [ReduxActionTypes.PUBLISH_APPLICATION_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.PUBLISH_APPLICATION_ERROR]: (
+    state: EditorReduxState,
+  ) => {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = true;
     return { ...state };
@@ -82,6 +84,11 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.saving = false;
+    return { ...state };
+  },
+  [ReduxActionTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
+    state.loadingStates.saving = false;
+    state.loadingStates.savingError = true;
     return { ...state };
   },
   [ReduxActionTypes.UPDATE_CANVAS]: (

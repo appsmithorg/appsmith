@@ -1,12 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import moment from "moment";
-import {
-  Breadcrumbs,
-  IBreadcrumbProps,
-  Tooltip,
-  Position,
-} from "@blueprintjs/core";
+import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
 import {
   BASE_URL,
   APPLICATIONS_URL,
@@ -54,6 +48,7 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
 
 type EditorHeaderProps = {
   isSaving?: boolean;
+  pageSaveError?: boolean;
   pageName?: string;
   onPublish: () => void;
   onCreatePage: (name: string) => void;
@@ -130,34 +125,30 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     openOnHover: false,
   };
 
+  let saveStatusMessage = "";
+  if (props.isSaving) {
+    saveStatusMessage = "Saving...";
+  }
+  if (!props.isSaving && !props.pageSaveError) {
+    saveStatusMessage = "All changes saved";
+  }
+
   return (
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
 
-      <LoadingContainer>
-        {props.isSaving ? "Saving..." : "All changes saved"}
-      </LoadingContainer>
+      <LoadingContainer>{saveStatusMessage}</LoadingContainer>
       <PreviewPublishSection>
-        <Tooltip
-          disabled={!props.publishedTime}
-          content={
-            props.publishedTime
-              ? `Last published ${moment(props.publishedTime).fromNow()}`
-              : ""
-          }
-          position={Position.LEFT}
-        >
-          <Button
-            onClick={props.onPublish}
-            text="Publish"
-            loading={props.isPublishing}
-            intent="primary"
-            filled
-            size="small"
-            className="t--application-publish-btn"
-          />
-        </Tooltip>
+        <Button
+          onClick={props.onPublish}
+          text="Publish"
+          loading={props.isPublishing}
+          intent="primary"
+          filled
+          size="small"
+          className="t--application-publish-btn"
+        />
       </PreviewPublishSection>
     </StyledHeader>
   );

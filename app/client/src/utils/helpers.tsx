@@ -1,3 +1,4 @@
+import { GridDefaults } from "constants/WidgetConstants";
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -42,10 +43,16 @@ export const getScrollByPixels = function(
 ): number {
   const bounding = elem.getBoundingClientRect();
   const scrollParentBounds = scrollParent.getBoundingClientRect();
-  if (bounding.top - scrollParentBounds.top < SCROLL_THESHOLD)
-    return -bounding.height;
+  const scrollAmount =
+    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+  if (
+    bounding.top > 0 &&
+    bounding.top - scrollParentBounds.top < SCROLL_THESHOLD
+  )
+    return -scrollAmount;
   if (scrollParentBounds.bottom - bounding.bottom < SCROLL_THESHOLD)
-    return bounding.height;
+    return scrollAmount;
   return 0;
 };
 

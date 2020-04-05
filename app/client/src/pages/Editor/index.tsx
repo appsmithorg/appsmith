@@ -73,7 +73,7 @@ class Editor extends Component<EditorProps> {
   componentDidUpdate(previously: EditorProps) {
     if (
       previously.isPublishing &&
-      !(this.props.isPublishing && this.props.errorPublishing)
+      !(this.props.isPublishing || this.props.errorPublishing)
     ) {
       this.setState({
         isDialogOpen: true,
