@@ -189,7 +189,7 @@ function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
       PageApi.savePage,
       savePageRequest,
     );
-    const isValidResponse = validateResponse(savePageResponse);
+    const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       yield put(savePageSuccess(savePageResponse));
     }

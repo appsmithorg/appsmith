@@ -76,7 +76,8 @@ export const TERMS_AND_CONDITIONS_LINK = "Terms and Conditions";
 
 export const ERROR_500 =
   "We apologize, Something went wrong. We're working to fix things.";
-
+export const ERROR_0 =
+  "We could not connect to our servers. Please check your network connection";
 export const ERROR_401 =
   "We are unable to verify your identity. Please login again.";
 export const ERROR_403 =
