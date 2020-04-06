@@ -20,7 +20,12 @@ public class BeanCopyUtilsTest {
         private Integer age;
         private Boolean isApproved;
         private LocalDate joinDate;
+        private Gender gender;
         private Person mentor = null;
+    }
+
+    enum Gender {
+        Male, Female
     }
 
     @Test
@@ -33,6 +38,7 @@ public class BeanCopyUtilsTest {
                 25,
                 true,
                 LocalDate.of(2000, 1, 1),
+                Gender.Male,
                 null
         );
 
@@ -41,6 +47,7 @@ public class BeanCopyUtilsTest {
         assertThat(target.getAge()).isEqualTo(30);
         assertThat(target.getIsApproved()).isEqualTo(true);
         assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
+        assertThat(target.getGender()).isEqualTo(Gender.Male);
     }
 
     @Test
@@ -54,11 +61,13 @@ public class BeanCopyUtilsTest {
                 25,
                 true,
                 LocalDate.of(2000, 1, 1),
+                Gender.Male,
                 new Person(
                         "Leia",
                         25,
                         true,
                         LocalDate.of(2000, 1, 1),
+                        Gender.Male,
                         null
                 )
         );
@@ -80,12 +89,35 @@ public class BeanCopyUtilsTest {
                 25,
                 true,
                 LocalDate.of(2000, 1, 1),
+                Gender.Male,
                 null
         );
 
         BeanCopyUtils.copyNestedNonNullProperties(source, target);
         assertThat(target.getName()).isEqualTo("Luke");
         assertThat(target.getMentor().getName()).isEqualTo("The new mentor name");
+    }
+
+    @Test
+    public void copyEnumValue() {
+        Person source = new Person();
+        source.setGender(Gender.Female);
+
+        Person target = new Person(
+                "Luke",
+                25,
+                true,
+                LocalDate.of(2000, 1, 1),
+                Gender.Male,
+                null
+        );
+
+        BeanCopyUtils.copyNestedNonNullProperties(source, target);
+        assertThat(target.getName()).isEqualTo("Luke");
+        assertThat(target.getAge()).isEqualTo(25);
+        assertThat(target.getIsApproved()).isEqualTo(true);
+        assertThat(target.getJoinDate()).isEqualTo(LocalDate.of(2000, 1, 1));
+        assertThat(target.getGender()).isEqualTo(Gender.Female);
     }
 
 }
