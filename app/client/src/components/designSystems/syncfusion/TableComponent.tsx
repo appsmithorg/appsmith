@@ -62,6 +62,9 @@ const StyledGridComponent = styled(GridComponent)`
       height: calc(100% - 50px);
       overflow: auto;
     }
+    .e-gridpager {
+      display: none;
+    }
   }
 `;
 
@@ -220,6 +223,7 @@ const TableComponent = memo(
             }
             if (grid.current) {
               props.height && reCalculatePageSize(grid, props.height);
+              debugger;
               grid.current.selectionModule.selectRow(props.selectedRowIndex);
             }
           }}
