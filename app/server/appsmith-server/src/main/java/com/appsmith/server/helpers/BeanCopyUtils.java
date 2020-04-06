@@ -6,9 +6,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public final class BeanCopyUtils {
@@ -87,6 +85,6 @@ public final class BeanCopyUtils {
     }
 
     public static boolean isDomainModel(Class<?> type) {
-        return type.getPackageName().startsWith("com.appsmith.");
+        return !type.isEnum() && type.getPackageName().startsWith("com.appsmith.");
     }
 }
