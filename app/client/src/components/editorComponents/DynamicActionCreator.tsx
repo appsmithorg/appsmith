@@ -302,12 +302,12 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
         valueChangeHandler: handlePageNameArgSelect,
         getSelectedValue: getPageNameSelectedValue,
       },
-      {
-        label: "params",
-        field: "KEY_VALUE_FIELD",
-        valueChangeHandler: handlePageParamsArgSelect,
-        getSelectedValue: getPageParamsSelectedValue,
-      },
+      // {
+      //   label: "params",
+      //   field: "KEY_VALUE_FIELD",
+      //   valueChangeHandler: handlePageParamsArgSelect,
+      //   getSelectedValue: getPageParamsSelectedValue,
+      // },
     ],
   },
   {
