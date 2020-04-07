@@ -250,6 +250,8 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   );
   if (values.id === id) {
     yield put(initialize(API_EDITOR_FORM_NAME, action));
+  } else {
+    yield put(changeApi(id));
   }
 }
 
