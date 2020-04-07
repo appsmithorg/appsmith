@@ -62,16 +62,11 @@ type DataTreeSeed = {
   actions: ActionDataState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
-  url: DataTreeUrl;
+  url?: DataTreeUrl;
 };
 
 export class DataTreeFactory {
-  static create({
-    actions,
-    widgets,
-    widgetsMeta,
-    url,
-  }: DataTreeSeed): DataTree {
+  static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     dataTree.actionPaths = [
       "navigateTo",
@@ -128,7 +123,7 @@ export class DataTreeFactory {
       };
     };
 
-    dataTree.url = url;
+    // dataTree.url = url;
     dataTree.showModal = function(modalName: string) {
       return {
         type: "SHOW_MODAL_BY_NAME",

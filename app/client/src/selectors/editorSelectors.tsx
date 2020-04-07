@@ -120,7 +120,6 @@ export const getWidgetCards = createSelector(
 export const getCanvasWidgetDsl = createSelector(
   getEntities,
   evaluateDataTree,
-  getPageWidgetId,
   (
     entities: AppState["entities"],
     evaluatedDataTree,
