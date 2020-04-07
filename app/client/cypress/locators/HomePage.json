@@ -1,6 +1,6 @@
 {
     "searchInput": "input[type='text']",
-    "appEditIcon": ".t--application-edit-link",
+    "appEditIcon": "span[icon='edit']",
     "publishButton":".t--application-publish-btn",
     "publishCrossButton":"span[icon='small-cross']",
     "homePageID":"//div[@id='root']"
