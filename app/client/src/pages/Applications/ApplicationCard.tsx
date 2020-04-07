@@ -5,7 +5,7 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Tooltip, Classes } from "@blueprintjs/core";
+import { Card, Tooltip, Classes, Icon } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import {
@@ -13,10 +13,10 @@ import {
   getBorderCSSShorthand,
   getColorWithOpacity,
 } from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled(Card)`
   display: flex;
@@ -74,9 +74,18 @@ const ApplicationTitle = styled.div`
   border-top: ${props => getBorderCSSShorthand(props.theme.card.divider)};
   font-weight: ${props => props.theme.fontWeights[2]};
   font-size: ${props => props.theme.fontSizes[4]}px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
   & {
-    span {
-      display: inline-block;
+    & > {
+      span:first-of-type {
+        display: inline-block;
+        width: 80%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
     }
     .control {
       z-index: 1;
@@ -122,13 +131,8 @@ const Control = styled.button<{ fixed?: boolean }>`
 `;
 
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
-const ViewIcon = ControlIcons.VIEW_CONTROL;
-const viewIconProps = {
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  color: theme.colors.secondary,
-};
-const viewControlIcon = <ViewIcon {...viewIconProps} />;
+
+const editControl = <Icon icon="edit" color={Colors.HIT_GRAY} />;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -186,10 +190,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Link to={viewApplicationURL}>
+        <Link className="t--application-edit-link" to={editApplicationURL}>
           <Control className="control">
-            <Tooltip content="Launch App" hoverOpenDelay={500}>
-              {viewControlIcon}
+            <Tooltip content="Edit" hoverOpenDelay={500}>
+              {editControl}
             </Tooltip>
           </Control>
         </Link>
@@ -203,14 +207,14 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <Link className="t--application-edit-link" to={editApplicationURL}>
+      <Link className="t--application-view-link" to={viewApplicationURL}>
         <ApplicationImage className="image-container">
           <Control className="control">
             <Button
               filled
-              text="Edit"
+              text="Launch"
               intent="primary"
-              icon="edit"
+              icon="play"
               iconAlignment="left"
               size="small"
               className="t--application-edit-btn"
