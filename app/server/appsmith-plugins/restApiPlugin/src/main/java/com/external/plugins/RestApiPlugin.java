@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -37,6 +38,13 @@ import java.util.Map;
 public class RestApiPlugin extends BasePlugin {
     private static int MAX_REDIRECTS = 5;
     private static ObjectMapper objectMapper;
+
+    // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
+    // `WebClient` instance was loaded as an auto-wired bean.
+    public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies
+            .builder()
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
+            .build();
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -83,7 +91,8 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
             }
 
-            WebClient client = webClientBuilder.build();
+            WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
+
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, isContentTypeJsonInRequest)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
