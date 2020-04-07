@@ -223,7 +223,6 @@ const TableComponent = memo(
             }
             if (grid.current) {
               props.height && reCalculatePageSize(grid, props.height);
-              debugger;
               grid.current.selectionModule.selectRow(props.selectedRowIndex);
             }
           }}
