@@ -3,11 +3,12 @@
     "inputWidget":".t--draggable-inputwidget",
     "togglebutton":"input[type='checkbox']",
     "inputPropsDataType":".t--property-control-datatype",
-    "inputdatatypedropdownicon": "./html/body/div[6]/div/div[3]/div[2]/div[2]/div[2]/span/span/div/button/span[2]",
     "inputdatatypeplaceholder":".t--property-control-placeholder",
     "buttonWidget":".t--draggable-buttonwidget",
     "textWidget":".t--draggable-textwidget",
     "tableWidget":".t--draggable-tablewidget",
-    "dropdown":"/html/body/div[3]/div/div[4]/div[2]/div[2]/div[2]/span/span/button"
+    "tableOnRowSelected":".t--property-control-onrowselected",
+    "dropdownSelectButton":".t--open-dropdown-Select",
+    "buttonOnClick": ".t--property-control-onclick"
 
 }

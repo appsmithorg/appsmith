@@ -11,7 +11,7 @@ context("Cypress test", function() {
       .get(commonlocators.editIcon)
       .first()
       .click();
-    //Checking the edit props for container and also the properties of container
+    //Checking the edit props for container changing the background color of container
     cy.get(".CodeMirror textarea")
       .focus()
       .type("{ctrl}{shift}{downarrow}")

@@ -11,6 +11,7 @@ context("Cypress test", function() {
       .get(commonlocators.editIcon)
       .first()
       .click();
+    //Changing the text on the text widget
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
