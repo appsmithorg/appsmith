@@ -46,6 +46,7 @@ function UnderlinedLabel({
                 }
               : {}
           }
+          className={`t--property-control-label`}
         >
           {label}
         </label>

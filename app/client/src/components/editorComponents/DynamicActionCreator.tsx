@@ -94,7 +94,7 @@ const handlePageNameArgSelect = (
     `{{$1(${args.join(",")})}}`,
   );
 };
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const handlePageParamsArgSelect = (
   changeValue: ValueType,
   currentValue: string,
@@ -111,6 +111,7 @@ const handlePageParamsArgSelect = (
     `{{$1(${args.join(",")})}}`,
   );
 };
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const handleTextArgChange = (
   changeValue: ValueType,
@@ -172,6 +173,7 @@ const getPageNameSelectedValue = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   return matches.length ? matches[0][2].split(",")[0] : "none";
 };
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 const getPageParamsSelectedValue = (value: ValueType) => {
   const match = getPageSelectedParamsObject(value as string);
@@ -184,6 +186,7 @@ const getPageParamsSelectedValue = (value: ValueType) => {
   });
   return keyPairs;
 };
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const getPageSelectedParamsObject = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
