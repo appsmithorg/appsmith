@@ -179,6 +179,12 @@ class AnalyticsUtil {
       windowDoc.analytics.identify(userId, userData);
     }
   }
+
+  static reset() {
+    const windowDoc: any = window;
+    windowDoc.analytics.reset();
+    windowDoc.mixpanel.reset();
+  }
 }
 
 export default AnalyticsUtil;
