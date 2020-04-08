@@ -94,7 +94,7 @@ public class RestApiPlugin extends BasePlugin {
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, isContentTypeJsonInRequest)
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                        .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
                         // Find the media type of the response to parse the body as required.
