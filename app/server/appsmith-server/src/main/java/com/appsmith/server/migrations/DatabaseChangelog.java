@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.domains.*;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -49,6 +50,15 @@ public class DatabaseChangelog {
         }
     }
 
+    private static void dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
+        try {
+            mongoTemplate.indexOps(entityClass).dropIndex(name);
+        } catch (UncategorizedMongoDbException ignored) {
+            // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
+            // has been removed.
+        }
+    }
+
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
     public void initialPlugins(MongoTemplate mongoTemplate) {
         Plugin plugin1 = new Plugin();
@@ -78,12 +88,7 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "002", id = "remove-org-name-index", author = "")
     public void removeOrgNameIndex(MongoTemplate mongoTemplate) {
-        try {
-            mongoTemplate.indexOps(Organization.class).dropIndex("name");
-        } catch (UncategorizedMongoDbException ignored) {
-            // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
-            // has been removed.
-        }
+        dropIndexIfExists(mongoTemplate, Organization.class, "name");
     }
 
     @ChangeSet(order = "003", id = "add-org-slugs", author = "")
@@ -186,6 +191,23 @@ public class DatabaseChangelog {
                 createdAtIndex,
                 makeIndex("email").unique()
         );
+    }
+
+    @ChangeSet(order = "005", id = "application-deleted-at", author = "")
+    public void addApplicationDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+                makeIndex("organizationId", "name", "deletedAt")
+                        .unique().named("organization_application_deleted_compound_index")
+        );
+
+        for (Application application : mongoTemplate.findAll(Application.class)) {
+            if (application.isDeleted()) {
+                application.setDeletedAt(application.getUpdatedAt());
+                mongoTemplate.save(application);
+            }
+        }
     }
 
 }
