@@ -1,38 +1,39 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.*;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
+
+import static com.appsmith.external.models.Connection.Mode.ReadOnly;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
 
-    private static ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
-    static String JDBC_DRIVER = "org.postgresql.Driver";
+    static final String JDBC_DRIVER = "org.postgresql.Driver";
+
+    private static final String USER = "user";
+    private static final String PASSWORD = "password";
+    private static final String SSL = "ssl";
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
-        this.objectMapper = new ObjectMapper();
     }
 
     /**
@@ -47,58 +48,95 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<Object> execute(Object connection,
+        public Mono<Object> execute(@NonNull Object connection,
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
-            Assert.notNull(conn);
 
-            ArrayList list = new ArrayList(50);
+            Map<String, Object> queryJson = actionConfiguration.getQuery();
+            String query = (String) queryJson.get("cmd");
+
+            if (query == null) {
+                return pluginErrorMono("Missing required parameter: Query.");
+            }
+
+            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
             try {
                 Statement statement = conn.createStatement();
-                Map<String, Object> queryJson = actionConfiguration.getQuery();
-                String query = (String) queryJson.get("cmd");
                 ResultSet resultSet = statement.executeQuery(query);
                 ResultSetMetaData metaData = resultSet.getMetaData();
-                Integer colCount = metaData.getColumnCount();
+                int colCount = metaData.getColumnCount();
                 while (resultSet.next()) {
-                    HashMap row = new HashMap(colCount);
+                    Map<String, Object> row = new HashMap<>(colCount);
                     for (int i = 1; i <= colCount; i++) {
                         row.put(metaData.getColumnName(i), resultSet.getObject(i));
                     }
-                    list.add(row);
+                    rowsList.add(row);
                 }
+
             } catch (SQLException e) {
-                log.error("", e);
+                return pluginErrorMono(e);
+
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(list));
+            result.setBody(objectMapper.valueToTree(rowsList));
             result.setShouldCacheResponse(true);
             System.out.println("In the PostgresPlugin, got action execution result: " + result.toString());
             return Mono.just(result);
         }
 
+        private Mono<Object> pluginErrorMono(Object... args) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, args));
+        }
+
         @Override
         public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            Connection conn = null;
             try {
-                // Load the class into JVM
                 Class.forName(JDBC_DRIVER);
-
-                // Create the connection
-                conn = DriverManager.getConnection(datasourceConfiguration.getUrl(),
-                        datasourceConfiguration.getAuthentication().getUsername(),
-                        datasourceConfiguration.getAuthentication().getPassword());
-                return conn;
             } catch (ClassNotFoundException e) {
-                log.error("", e);
-            } catch (SQLException e) {
-                log.error("", e);
+                return pluginErrorMono("Error loading Postgres JDBC Driver class.");
             }
-            // Connection wasn't created. Return null
-            return null;
+
+            String url;
+            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+
+            Properties properties = new Properties();
+            properties.putAll(Map.of(
+                    USER, authentication.getUsername(),
+                    PASSWORD, authentication.getPassword(),
+                    // TODO: Set SSL connection parameters.
+                    SSL, datasourceConfiguration.getConnection().getSsl() != null
+            ));
+
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                url = datasourceConfiguration.getUrl();
+
+            } else {
+                StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    urlBuilder
+                            .append(endpoint.getHost())
+                            .append(':')
+                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                            .append('/')
+                            .append(authentication.getDatabaseName());
+                }
+                url = urlBuilder.toString();
+
+            }
+
+            try {
+                Connection connection = DriverManager.getConnection(url, properties);
+                connection.setReadOnly(ReadOnly.equals(datasourceConfiguration.getConnection().getMode()));
+                return connection;
+
+            } catch (SQLException e) {
+                return pluginErrorMono("Error connecting to Postgres.");
+
+            }
         }
 
         @Override
@@ -109,17 +147,24 @@ public class PostgresPlugin extends BasePlugin {
                     conn.close();
                 }
             } catch (SQLException e) {
-                log.error("", e);
-                try {
-                    throw new PluginException(e);
-                } catch (PluginException ex) {
-                    ex.printStackTrace();
-                }
+                log.error("Error closing Postgres Connection.", e);
             }
         }
 
+        @SuppressWarnings("RedundantIfStatement")
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+        public Boolean isDatasourceValid(@NonNull DatasourceConfiguration datasourceConfiguration) {
+
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                return false;
+            }
+
+            if (datasourceConfiguration.getAuthentication() == null
+                    || datasourceConfiguration.getAuthentication().getUsername() == null
+                    || datasourceConfiguration.getAuthentication().getPassword() == null) {
+                return false;
+            }
+
             return true;
         }
 
