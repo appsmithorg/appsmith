@@ -49,6 +49,7 @@ class ImageComponent extends React.Component<
           style={{
             display: "none",
           }}
+          alt={this.props.widgetName}
           src={this.props.imageUrl}
           onError={this.onImageError}
           onLoad={this.onImageLoad}

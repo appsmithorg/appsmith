@@ -11,7 +11,7 @@ import {
   URL_HTTP_VALIDATION_ERROR,
 } from "constants/messages";
 import { getTextArgValue } from "components/editorComponents/DynamicActionCreator";
-const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
