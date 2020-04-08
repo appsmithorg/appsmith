@@ -44,12 +44,21 @@ public abstract class BaseDomain implements Persistable<String> {
     @LastModifiedBy
     protected String modifiedBy;
 
+    // Deprecating this so we can move on to using `deletedAt` for all domain models.
+    @Deprecated(forRemoval = true)
     protected Boolean deleted = false;
+
+    protected Instant deletedAt = null;
 
     @JsonIgnore
     @Override
     public boolean isNew() {
         return this.getId() == null;
+    }
+
+    @JsonIgnore
+    public boolean isDeleted() {
+        return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
     }
 
 }
