@@ -6,7 +6,8 @@ context("Cypress test", function() {
     cy.NavigateToCommonWidgets();
     cy.get(".t--nav-link-widgets-editor").click();
     cy.get(widgetsPage.buttonWidget).click({ force: true });
-    //Checking the edit props for Button
+
+    //Changing the text on the Button
     cy.get(".CodeMirror textarea")
       .focus()
       .type("{ctrl}{shift}{downarrow}")
@@ -16,6 +17,20 @@ context("Cypress test", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .should("have.value", "Test Button Text");
-    cy.get(commonlocators.editPropCrossButton).click();
+
+    //Select and verify the Show Modal from the onClick dropdown
+    cy.get(widgetsPage.buttonOnClick)
+      .get(commonlocators.dropdownSelectButton)
+      .click({ force: true })
+      .get("ul.bp3-menu")
+      .children()
+      .contains("Show Modal")
+      .click();
+    cy.get(widgetsPage.buttonOnClick)
+      .get(commonlocators.dropdownSelectButton)
+      .find(".bp3-button-text")
+      .should("have.text", "Show Modal");
+    //Verify Modal Widget
+    cy.CreateModal();
   });
 });

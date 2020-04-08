@@ -11,7 +11,7 @@ context("Cypress test", function() {
       .get(commonlocators.editIcon)
       .first()
       .click();
-    //Checking the edit props for container and also the properties of container
+    //Checking the edit props for container and changing the Input label name
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -22,6 +22,7 @@ context("Cypress test", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .should("have.value", "Test Input Label");
+
     cy.get(commonlocators.editPropCrossButton).click();
   });
 });

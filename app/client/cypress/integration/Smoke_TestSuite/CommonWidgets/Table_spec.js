@@ -22,12 +22,20 @@ context("Cypress test", function() {
       .type("{{UsersApi.data}}", {
         parseSpecialCharSequences: false,
       });
-    cy.xpath(widgetsPage.dropdown)
+
+    cy.get(widgetsPage.tableOnRowSelected)
+      .get(commonlocators.dropdownSelectButton)
+      .first()
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()
-      .eq(3)
+      .contains("Navigate to URL")
       .click();
+    cy.get(widgetsPage.tableOnRowSelected)
+      .get(commonlocators.dropdownSelectButton)
+      .first()
+      .find("> .bp3-button-text")
+      .should("have.text", "Navigate to URL");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 });
