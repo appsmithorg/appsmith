@@ -10,7 +10,7 @@ import lombok.*;
 public class SSHConnection {
 
     public enum AuthType {
-        PrivateKey, Password
+        IDENTITY_FILE, PASSWORD
     }
 
     String host;
