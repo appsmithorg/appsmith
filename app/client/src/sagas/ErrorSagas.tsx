@@ -8,7 +8,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { DEFAULT_ERROR_MESSAGE, DEFAULT_ACTION_ERROR } from "constants/errors";
 import { ApiResponse } from "api/ApiResponses";
 import { put, takeLatest, call } from "redux-saga/effects";
-import { ERROR_500, ERROR_0 } from "constants/messages";
+import { ERROR_401, ERROR_500, ERROR_0 } from "constants/messages";
 import { ToastType } from "react-toastify";
 
 export function* callAPI(apiCall: any, requestPayload: any) {
@@ -20,6 +20,8 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 }
 const getErrorMessage = (code: number) => {
   switch (code) {
+    case 401:
+      return ERROR_401;
     case 500:
       return ERROR_500;
     case 0:
@@ -28,6 +30,9 @@ const getErrorMessage = (code: number) => {
 };
 
 export function* validateResponse(response: ApiResponse | any) {
+  if (!response) {
+    throw Error("");
+  }
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }

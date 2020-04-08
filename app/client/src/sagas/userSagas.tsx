@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all } from "redux-saga/effects";
+import { call, takeLatest, put, all, delay } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -275,6 +275,10 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
         applications,
         currentOrganization,
       };
+      AnalyticsUtil.identifyUser(finalData.id, finalData);
+      Sentry.configureScope(function(scope) {
+        scope.setUser({ email: finalData.email, id: finalData.id });
+      });
       yield put({
         type: ReduxActionTypes.FETCH_USER_SUCCESS,
         payload: finalData,
@@ -284,22 +288,20 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
     return yield false;
   } catch (error) {
     console.log(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_ERROR,
-      payload: {
-        error,
-      },
-    });
+    if (error) {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_USER_ERROR,
+        payload: {
+          error,
+        },
+      });
+    }
   }
 }
 
 export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
   const me = yield call(fetchUserSaga, action);
   if (me) {
-    AnalyticsUtil.identifyUser(me.id, me);
-    Sentry.configureScope(function(scope) {
-      scope.setUser({ email: me.email, id: me.id });
-    });
     resetAuthExpiration();
     yield put({
       type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,
@@ -362,6 +364,7 @@ export function* logoutSaga() {
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
       yield put(fetchCurrentUser());
     }
