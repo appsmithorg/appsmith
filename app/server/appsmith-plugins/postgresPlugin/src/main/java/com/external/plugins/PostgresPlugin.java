@@ -10,7 +10,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
-import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -19,7 +18,7 @@ import java.sql.Connection;
 import java.sql.*;
 import java.util.*;
 
-import static com.appsmith.external.models.Connection.Mode.ReadOnly;
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
@@ -130,7 +129,7 @@ public class PostgresPlugin extends BasePlugin {
 
             try {
                 Connection connection = DriverManager.getConnection(url, properties);
-                connection.setReadOnly(ReadOnly.equals(datasourceConfiguration.getConnection().getMode()));
+                connection.setReadOnly(READ_ONLY.equals(datasourceConfiguration.getConnection().getMode()));
                 return connection;
 
             } catch (SQLException e) {
