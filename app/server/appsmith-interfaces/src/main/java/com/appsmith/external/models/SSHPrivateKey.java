@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class SSHPrivateKey {
 
-    String keyFile;
+    UploadedFile keyFile;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
