@@ -14,11 +14,10 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
-  cy.get(homePage.appEditIcon).should("be.visible");
   cy.wait(2000);
   cy.get(homePage.appEditIcon)
     .first()
-    .click();
+    .click({ force: true });
   cy.get("#loading").should("not.exist");
 });
 
