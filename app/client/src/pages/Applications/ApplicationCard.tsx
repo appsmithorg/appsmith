@@ -13,7 +13,6 @@ import {
   getBorderCSSShorthand,
   getColorWithOpacity,
 } from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
