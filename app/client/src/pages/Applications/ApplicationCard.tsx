@@ -74,18 +74,9 @@ const ApplicationTitle = styled.div`
   border-top: ${props => getBorderCSSShorthand(props.theme.card.divider)};
   font-weight: ${props => props.theme.fontWeights[2]};
   font-size: ${props => props.theme.fontSizes[4]}px;
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
   & {
-    & > {
-      span:first-of-type {
-        display: inline-block;
-        width: 80%;
-        text-overflow: ellipsis;
-        overflow: hidden;
-      }
+    span {
+      display: inline-block;
     }
     .control {
       z-index: 1;
@@ -131,8 +122,6 @@ const Control = styled.button<{ fixed?: boolean }>`
 `;
 
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
-
-const editControl = <Icon icon="edit" color={Colors.HIT_GRAY} />;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
@@ -190,10 +179,10 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Link className="t--application-edit-link" to={editApplicationURL}>
+        <Link to={editApplicationURL} className="t--application-edit-link">
           <Control className="control">
             <Tooltip content="Edit" hoverOpenDelay={500}>
-              {editControl}
+              {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
             </Tooltip>
           </Control>
         </Link>
