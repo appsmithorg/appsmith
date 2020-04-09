@@ -1,11 +1,9 @@
 import React, { useEffect, ReactNode } from "react";
 import { connect } from "react-redux";
-import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Canvas from "./Canvas";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
-import { fetchPage } from "actions/pageActions";
 import {
   getIsFetchingPage,
   getCurrentPageId,
@@ -13,13 +11,13 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { BuilderRouteParams } from "constants/routes";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import { getCanvasClassName } from "utils/generators";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -48,16 +46,13 @@ const CanvasContainer = styled.section`
 
 type EditorProps = {
   widgets?: ContainerWidgetProps<WidgetProps>;
-  fetchPage: (pageId: string, width?: number) => void;
   currentPageId?: string;
   isFetchingPage: boolean;
   currentPageName?: string;
 };
 
 const WidgetsEditor = (props: EditorProps) => {
-  const params = useParams<BuilderRouteParams>();
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const { pageId } = params;
 
   useEffect(() => {
     if (
@@ -76,12 +71,6 @@ const WidgetsEditor = (props: EditorProps) => {
     focusWidget && focusWidget();
     selectWidget && selectWidget();
   };
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    if (pageId !== props.currentPageId) {
-      props.fetchPage(pageId);
-    }
-  }, [pageId]);
 
   const pageLoading = (
     <Centered>
@@ -99,7 +88,9 @@ const WidgetsEditor = (props: EditorProps) => {
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer>{node}</CanvasContainer>
+        <CanvasContainer className={getCanvasClassName()}>
+          {node}
+        </CanvasContainer>
       </EditorWrapper>
     </EditorContextProvider>
   );
@@ -114,10 +105,4 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
-  return {
-    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(WidgetsEditor);
+export default connect(mapStateToProps)(WidgetsEditor);

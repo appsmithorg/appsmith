@@ -92,6 +92,7 @@ export const updateAndSaveLayout = (widgets: FlattenedWidgetProps) => {
 
 export type WidgetAddChild = {
   widgetId: string;
+  widgetName?: string;
   type: WidgetType;
   leftColumn: number;
   topRow: number;

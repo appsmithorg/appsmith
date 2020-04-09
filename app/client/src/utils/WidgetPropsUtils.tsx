@@ -1,11 +1,5 @@
 import { FetchPageResponse } from "api/PageApi";
-// import {
-//   CANVAS_DEFAULT_WIDTH_PX,
-//   CANVAS_DEFAULT_HEIGHT_PX,
-//   CANVAS_BACKGROUND_COLOR,
-//   CANVAS_DEFAULT_GRID_HEIGHT_PX,
-//   CANVAS_DEFAULT_GRID_WIDTH_PX,
-// } from "constants/AppConstants";
+import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { XYCoord } from "react-dnd";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
@@ -19,11 +13,11 @@ import {
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { generateReactKey } from "utils/generators";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
 import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
 import defaultTemplate from "templates/default";
+import { generateReactKey } from "./generators";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -31,7 +25,7 @@ export type WidgetOperationParams = {
   payload: any;
 };
 
-const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
+const { DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
 type Rect = {
   top: number;
   left: number;
@@ -39,45 +33,87 @@ type Rect = {
   bottom: number;
 };
 
-// const defaultDSL = {
-//   type: WidgetTypes.CONTAINER_WIDGET,
-//   widgetId: MAIN_CONTAINER_WIDGET_ID,
-//   widgetName: MAIN_CONTAINER_WIDGET_NAME,
-
-//   backgroundColor: CANVAS_BACKGROUND_COLOR,
-//   children: [],
-
-//   leftColumn: 0,
-//   rightColumn: CANVAS_DEFAULT_WIDTH_PX,
-//   parentColumnSpace: CANVAS_DEFAULT_GRID_WIDTH_PX,
-//   snapColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
-
-//   topRow: 0,
-//   bottomRow: CANVAS_DEFAULT_HEIGHT_PX,
-//   parentRowSpace: CANVAS_DEFAULT_GRID_HEIGHT_PX,
-//   // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
-//   // Widget padding: 8px
-//   // Container padding: 12px;
-//   // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
-//   snapRows: CANVAS_DEFAULT_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-// };
-
 const defaultDSL = defaultTemplate;
+
+const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
+  if (
+    dsl.type === WidgetTypes.CONTAINER_WIDGET ||
+    dsl.type === WidgetTypes.FORM_WIDGET
+  ) {
+    if (
+      !(
+        dsl.children &&
+        dsl.children.length > 0 &&
+        (dsl.children[0].type === WidgetTypes.CANVAS_WIDGET ||
+          dsl.children[0].type === WidgetTypes.FORM_WIDGET)
+      )
+    ) {
+      const canvas = {
+        ...dsl,
+        type: WidgetTypes.CANVAS_WIDGET,
+        detachFromLayout: true,
+        topRow: 0,
+        leftColumn: 0,
+        rightColumn: dsl.parentColumnSpace * (dsl.rightColumn - dsl.leftColumn),
+        bottomRow: dsl.parentRowSpace * (dsl.bottomRow - dsl.topRow),
+        widgetName: generateReactKey(),
+        widgetId: generateReactKey(),
+        parentRowSpace: 1,
+        parentColumnSpace: 1,
+        containerStyle: "none",
+        canExtend: false,
+        isVisible: true,
+      };
+      delete canvas.dynamicBindings;
+      delete canvas.dynamicProperties;
+      if (canvas.children && canvas.children.length > 0)
+        canvas.children = canvas.children.map(updateContainers);
+      dsl.children = [{ ...canvas }];
+    }
+  }
+  return dsl;
+};
+
+// A rudimentary transform function which updates the DSL based on its version.
+// A more modular approach needs to be designed.
+const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+  if (currentDSL.version === undefined) {
+    // Since this top level widget is a CANVAS_WIDGET,
+    // DropTargetComponent needs to know the minimum height the canvas can take
+    // See DropTargetUtils.ts
+    currentDSL.minHeight = CANVAS_DEFAULT_HEIGHT_PX;
+    // For the first time the DSL is created, remove one row from the total possible rows
+    // to adjust for padding and margins.
+    currentDSL.snapRows =
+      Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
+
+    // Force the width of the canvas to 1224 px
+    currentDSL.rightColumn = 1224;
+    // The canvas is a CANVAS_WIDGET whichdoesn't have a background or borders by default
+    currentDSL.backgroundColor = "none";
+    currentDSL.containerStyle = "none";
+    currentDSL.type = WidgetTypes.CANVAS_WIDGET;
+    currentDSL.detachFromLayout = true;
+    currentDSL.canExtend = true;
+
+    // Update version to make sure this doesn't run everytime.
+    currentDSL.version = 1;
+  }
+
+  if (currentDSL.version === 1) {
+    if (currentDSL.children && currentDSL.children.length > 0)
+      currentDSL.children = currentDSL.children.map(updateContainers);
+    currentDSL.version = 2;
+  }
+
+  return currentDSL;
+};
 
 export const extractCurrentDSL = (
   fetchPageResponse: FetchPageResponse,
 ): ContainerWidgetProps<WidgetProps> => {
   const currentDSL = fetchPageResponse.data.layouts[0].dsl || defaultDSL;
-  // 1 row needs to be removed, as padding top and bottom takes up some 1 row worth of space.
-  // Widget padding: 8px
-  // Container padding: 12px;
-  // Total = (8 + 12) * 2 = GridDefaults.DEFAULT_GRID_ROW_HEIGHT = 40
-  currentDSL.snapRows =
-    Math.floor(currentDSL.bottomRow / DEFAULT_GRID_ROW_HEIGHT) - 1;
-
-  currentDSL.rightColumn = 1224;
-
-  return currentDSL;
+  return transformDSL(currentDSL);
 };
 
 export const getDropZoneOffsets = (
@@ -210,7 +246,7 @@ export const widgetOperationParams = (
   );
   // If this is an existing widget, we'll have the widgetId
   // Therefore, this is a move operation on drop of the widget
-  if (widget.widgetId) {
+  if (widget.widgetName) {
     return {
       operation: WidgetOperations.MOVE,
       widgetId: widget.widgetId,
@@ -233,12 +269,12 @@ export const widgetOperationParams = (
     widgetId: parentWidgetId,
     payload: {
       type: widget.type,
-      newWidgetId: generateReactKey(),
       leftColumn,
       topRow,
       ...widgetDimensions,
       parentRowSpace,
       parentColumnSpace,
+      newWidgetId: widget.widgetId,
     },
   };
 };
@@ -254,9 +290,6 @@ export const updateWidgetPosition = (
     rightColumn: leftColumn + (widget.rightColumn - widget.leftColumn),
     bottomRow: topRow + (widget.bottomRow - widget.topRow),
   };
-  if (widget.type === WidgetTypes.CONTAINER_WIDGET) {
-    widget.snapRows = newPositions.bottomRow - newPositions.topRow - 1;
-  }
 
   return {
     ...widget,
@@ -264,37 +297,46 @@ export const updateWidgetPosition = (
   };
 };
 
+export const getCanvasSnapRows = (
+  bottomRow: number,
+  canExtend: boolean,
+): number => {
+  const totalRows = Math.floor(
+    bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+
+  // Canvas Widgets do not need to accomodate for widget and container padding.
+  // Only when they're extensible
+  if (canExtend) {
+    return totalRows;
+  }
+  // When Canvas widgets are not extensible
+  return totalRows - 1;
+};
+
+export const getSnapColumns = (): number => {
+  return GridDefaults.DEFAULT_GRID_COLUMNS;
+};
+
 export const generateWidgetProps = (
   parent: ContainerWidgetProps<WidgetProps>,
   type: WidgetType,
   leftColumn: number,
   topRow: number,
-  columns: number,
-  rows: number,
   parentRowSpace: number,
   parentColumnSpace: number,
   widgetName: string,
   widgetConfig: Partial<WidgetProps>,
-): Partial<ContainerWidgetProps<WidgetProps>> => {
-  if (parent && parent.snapColumns && parent.snapRows) {
+): ContainerWidgetProps<WidgetProps> => {
+  if (parent) {
     const sizes = {
       leftColumn,
-      rightColumn: leftColumn + columns,
+      rightColumn: leftColumn + widgetConfig.columns,
       topRow,
-      bottomRow: topRow + rows,
+      bottomRow: topRow + widgetConfig.rows,
     };
-    let others = {};
-    if (
-      type === WidgetTypes.CONTAINER_WIDGET ||
-      type === WidgetTypes.FORM_WIDGET
-    ) {
-      others = {
-        snapColumns: DEFAULT_GRID_COLUMNS,
-        snapRows: rows - 1,
-        orientation: "VERTICAL",
-        children: [],
-      };
-    }
+
+    const others = {};
     const derivedProperties = DerivedPropFactory.getDerivedPropertiesOfWidgetType(
       type,
       widgetName,
@@ -303,11 +345,11 @@ export const generateWidgetProps = (
     Object.keys(derivedProperties).forEach(prop => {
       dynamicBindings[prop] = true;
     });
-    return {
+    const props = {
+      isVisible: true,
       ...widgetConfig,
       type,
       widgetName,
-      isVisible: true,
       isLoading: false,
       parentColumnSpace,
       parentRowSpace,
@@ -316,14 +358,13 @@ export const generateWidgetProps = (
       ...others,
       ...derivedProperties,
     };
+
+    delete props.rows;
+    delete props.columns;
+    return props;
   } else {
     if (parent) {
       throw Error("Failed to create widget: Parent's size cannot be calculate");
     } else throw Error("Failed to create widget: Parent was not provided ");
   }
-};
-
-export default {
-  extractCurrentDSL,
-  generateWidgetProps,
 };

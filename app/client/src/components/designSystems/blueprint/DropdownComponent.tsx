@@ -27,6 +27,16 @@ import styled, {
   BlueprintInputTransform,
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import Fuse from "fuse.js";
+
+const FUSE_OPTIONS = {
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  minMatchCharLength: 3,
+  findAllMatches: true,
+  keys: ["label", "value"],
+};
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const MultiDropDown = MultiSelect.ofType<DropdownOption>();
@@ -173,8 +183,8 @@ const StyledMultiDropDown = styled(MultiDropDown)`
         color: ${Colors.SLATE_GRAY};
       }
       .${Classes.INPUT_GHOST} {
-        width: 0px;
         flex: 0 0 auto;
+        margin: 0;
       }
     }
   }
@@ -215,7 +225,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <StyledSingleDropDown
               className={this.props.isLoading ? Classes.SKELETON : ""}
               items={this.props.options}
-              filterable={false}
+              filterable={true}
               itemRenderer={this.renderSingleSelectItem}
               onItemSelect={this.onItemSelect}
               popoverProps={{
@@ -223,6 +233,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 usePortal: true,
                 popoverClassName: "select-popover-wrapper",
               }}
+              itemListPredicate={this.itemListPredicate}
             >
               <Button
                 rightIcon={IconNames.CHEVRON_DOWN}
@@ -239,6 +250,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             <StyledMultiDropDown
               className={this.props.isLoading ? Classes.SKELETON : ""}
               items={this.props.options}
+              itemListPredicate={this.itemListPredicate}
               placeholder={this.props.placeholder}
               tagRenderer={this.renderTag}
               itemRenderer={this.renderMultiSelectItem}
@@ -246,7 +258,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               tagInputProps={{
                 onRemove: this.onItemRemoved,
                 tagProps: { minimal: true },
-                inputProps: { readOnly: true },
+                // inputProps: { readOnly: true },
                 rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
               }}
               onItemSelect={this.onItemSelect}
@@ -262,12 +274,17 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     );
   }
 
+  itemListPredicate(query: string, items: DropdownOption[]) {
+    const fuse = new Fuse(items, FUSE_OPTIONS);
+    return query ? fuse.search(query) : items;
+  }
+
   onItemSelect = (item: DropdownOption): void => {
     this.props.onOptionSelected(item);
   };
 
   onItemRemoved = (_tag: string, index: number) => {
-    this.props.onOptionRemoved(index);
+    this.props.onOptionRemoved(this.props.selectedIndexArr[index]);
   };
 
   renderTag = (option: DropdownOption) => {

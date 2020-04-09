@@ -7,7 +7,7 @@ import {
   StyledMenuItem,
 } from "components/propertyControls/StyledControls";
 import {
-  Button,
+  Button as BlueprintButton,
   Menu,
   PopoverInteractionKind,
   PopoverPosition,
@@ -19,6 +19,11 @@ type ActionTypeDropdownProps = {
   selectedValue: string;
   defaultText: string;
   onSelect: (value: string) => void;
+  createButton?: {
+    text: string;
+    args: string[];
+    onClick: (...args: any) => void;
+  };
 };
 
 class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
@@ -59,26 +64,55 @@ class StyledDropdown extends React.Component<ActionTypeDropdownProps> {
     let selectedOption = {
       label: this.props.defaultText,
     };
-    this.props.options.forEach(o => {
-      if (o.value === selectedValue) {
-        selectedOption = o;
-      } else {
-        const childOption = _.find(o.children, {
-          value: this.props.selectedValue,
-        });
-        if (childOption) selectedOption = childOption;
-      }
-    });
+    this.props.options.length > 0 &&
+      this.props.options.forEach(o => {
+        if (o.value === selectedValue) {
+          selectedOption = o;
+        } else {
+          const childOption = _.find(o.children, {
+            value: this.props.selectedValue,
+          });
+          if (childOption) selectedOption = childOption;
+        }
+      });
+    const list =
+      this.props.options.length > 0 && this.props.options.map(this.renderItem);
+    let createBtn: React.ReactNode;
+    if (this.props.createButton) {
+      const btnClick = () => {
+        this.props.createButton?.onClick(...this.props.createButton.args);
+        const optionVal = this.props.createButton?.args.join(", ");
+        optionVal &&
+          this.handleSelect({
+            id: optionVal,
+            label: optionVal,
+            value: `'${optionVal}'`,
+          });
+      };
+      createBtn = (
+        <StyledMenuItem
+          onClick={btnClick}
+          icon="plus"
+          text={`Create ${this.props.createButton.text}`}
+          className="t--create-modal-btn"
+        />
+      );
+    }
+    const popoverContent = (
+      <Menu>
+        {createBtn}
+        {list}
+      </Menu>
+    );
     return (
       <StyledDropDownContainer>
-        <StyledPopover
-          usePortal={true}
-          minimal={true}
-          content={<Menu>{this.props.options.map(this.renderItem)}</Menu>}
-        >
-          <Button
+        <StyledPopover usePortal={true} minimal={true} content={popoverContent}>
+          <BlueprintButton
             rightIcon={IconNames.CHEVRON_DOWN}
             text={selectedOption.label}
+            className={`t--open-dropdown-${this.props.defaultText
+              .split(" ")
+              .join("-")}`}
           />
         </StyledPopover>
       </StyledDropDownContainer>

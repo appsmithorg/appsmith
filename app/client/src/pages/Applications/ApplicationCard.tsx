@@ -13,7 +13,6 @@ import {
   getBorderCSSShorthand,
   getColorWithOpacity,
 } from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
@@ -124,17 +123,6 @@ const Control = styled.button<{ fixed?: boolean }>`
 
 const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
 
-const viewControlIcon = ControlIcons.VIEW_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  color: theme.colors.secondary,
-});
-const editControlIcon = ControlIcons.EDIT_CONTROL({
-  width: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  height: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX - 1],
-  color: Colors.HIT_GRAY,
-});
-
 type ApplicationCardProps = {
   application: ApplicationPayload;
   loading: boolean;
@@ -191,7 +179,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Link to={editApplicationURL}>
+        <Link to={editApplicationURL} className="t--application-edit-link">
           <Control className="control">
             <Tooltip content="Edit" hoverOpenDelay={500}>
               {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
@@ -208,7 +196,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
           className="more"
         />
       </ApplicationTitle>
-      <Link className="t--application-edit-link" to={viewApplicationURL}>
+      <Link className="t--application-view-link" to={viewApplicationURL}>
         <ApplicationImage className="image-container">
           <Control className="control">
             <Button

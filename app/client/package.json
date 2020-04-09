@@ -94,7 +94,8 @@
     "toposort": "^2.0.2",
     "ts-loader": "^6.0.4",
     "typescript": "^3.6.3",
-    "unescape-js": "^1.1.4"
+    "unescape-js": "^1.1.4",
+    "url-search-params-polyfill": "^8.0.0"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
@@ -140,6 +141,7 @@
     "babel-loader": "^8.0.6",
     "cypress": "^4.1.0",
     "cypress-multi-reporters": "^1.2.4",
+    "cypress-xpath": "^1.4.0",
     "dotenv": "^8.1.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.1.0",

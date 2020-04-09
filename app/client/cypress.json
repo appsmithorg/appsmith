@@ -1,7 +1,7 @@
 {
   "baseUrl":"http://dev.appsmith.com:3000/",
-  "defaultCommandTimeout": 5000,
-  "pageLoadTimeout": 30000,
+  "defaultCommandTimeout": 10000,
+  "pageLoadTimeout": 20000,
 
   "reporter": "mochawesome",
   "reporterOptions": {

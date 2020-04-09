@@ -6,7 +6,12 @@ import {
   Validator,
 } from "constants/WidgetValidation";
 import moment from "moment";
-import { WIDGET_TYPE_VALIDATION_ERROR } from "constants/messages";
+import {
+  WIDGET_TYPE_VALIDATION_ERROR,
+  URL_HTTP_VALIDATION_ERROR,
+} from "constants/messages";
+import { getTextArgValue } from "components/editorComponents/DynamicActionCreator";
+const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
@@ -41,6 +46,25 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
     }
     return { isValid, parsed };
+  },
+  [VALIDATION_TYPES.REGEX]: (value: any): ValidationResponse => {
+    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.TEXT](
+      value,
+    );
+
+    if (isValid) {
+      try {
+        new RegExp(parsed);
+      } catch (e) {
+        return {
+          isValid: false,
+          parsed: parsed,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: regex`,
+        };
+      }
+    }
+
+    return { isValid, parsed, message };
   },
   [VALIDATION_TYPES.NUMBER]: (value: any): ValidationResponse => {
     let parsed = value;
@@ -228,6 +252,54 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       isValid,
       parsed,
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+    };
+  },
+  [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {
+    if (_.isString(value)) {
+      if (value.indexOf("navigateToUrl") !== -1) {
+        const url = getTextArgValue(value);
+        const isValidUrl = URL_REGEX.test(url);
+        if (!isValidUrl) {
+          return {
+            isValid: false,
+            parsed: value,
+            message: `${URL_HTTP_VALIDATION_ERROR}`,
+          };
+        }
+      }
+    }
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  },
+  [VALIDATION_TYPES.ARRAY_ACTION_SELECTOR]: (
+    value: any,
+  ): ValidationResponse => {
+    const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+    );
+    let isValidFinal = isValid;
+    let finalParsed = parsed.slice();
+    if (isValid) {
+      finalParsed = parsed.map((value: any) => {
+        const { isValid, message } = VALIDATORS[
+          VALIDATION_TYPES.ACTION_SELECTOR
+        ](value.dynamicTrigger);
+
+        isValidFinal = isValidFinal && isValid;
+        return {
+          ...value,
+          message: message,
+          isValid: isValid,
+        };
+      });
+    }
+
+    return {
+      isValid: isValidFinal,
+      parsed: finalParsed,
+      message: message,
     };
   },
 };

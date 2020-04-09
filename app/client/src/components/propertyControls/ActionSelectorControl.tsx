@@ -14,6 +14,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     return (
       <DynamicActionCreator
         value={propertyValue}
+        isValid={this.props.isValid}
+        validationMessage={this.props.validationMessage}
         onValueChange={this.handleValueUpdate}
       />
     );

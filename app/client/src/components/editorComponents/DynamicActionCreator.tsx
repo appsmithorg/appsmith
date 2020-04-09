@@ -2,12 +2,22 @@ import React, { ChangeEvent } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { DropdownOption } from "widgets/DropdownWidget";
+import {
+  ReduxActionWithoutPayload,
+  ReduxAction,
+} from "constants/ReduxActionConstants";
 import _ from "lodash";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
-import StyledDropdown from "components/editorComponents/StyledDropdown";
+import StyledDropdown from "components/editorComponents/DynamicActionSelectorDropdown";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import {
+  getModalDropdownList,
+  getNextModalName,
+} from "selectors/widgetSelectors";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
+import { createModalAction } from "actions/widgetActions";
 
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
@@ -19,12 +29,21 @@ const ALERT_STYLE_OPTIONS = [
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
 
-type ValueChangeHandler = (changeValue: string, currentValue: string) => string;
+type ValueType = string | DropdownOption[];
+
+type ValueChangeHandler = (
+  changeValue: ValueType,
+  currentValue: string,
+) => string;
 type ActionCreatorArgumentConfig = {
   label: string;
   field: string;
+  create?: {
+    text: string;
+    action: (...args: any) => ReduxAction<any>;
+  };
   valueChangeHandler: ValueChangeHandler;
-  getSelectedValue: (value: string, returnArguments: boolean) => string;
+  getSelectedValue: (value: string, returnArguments: boolean) => ValueType;
 };
 
 interface ActionCreatorDropdownOption extends DropdownOption {
@@ -32,7 +51,7 @@ interface ActionCreatorDropdownOption extends DropdownOption {
 }
 
 const handleTopLevelFuncUpdate: ValueChangeHandler = (
-  value: string,
+  value: ValueType,
 ): string => {
   return value === "none" ? "" : `{{${value}()}}`;
 };
@@ -62,37 +81,66 @@ const handleApiArgSelect = (
   );
 };
 
-const handlePageNameArgSelect = (changeValue: string, currentValue: string) => {
-  return currentValue.replace(ACTION_TRIGGER_REGEX, `{{$1(${changeValue})}}`);
+const handlePageNameArgSelect = (
+  changeValue: ValueType,
+  currentValue: string,
+) => {
+  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
+  const args = matches[0][2].split(",");
+  args[0] = `${changeValue}`;
+
+  return currentValue.replace(
+    ACTION_TRIGGER_REGEX,
+    `{{$1(${args.join(",")})}}`,
+  );
 };
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const handlePageParamsArgSelect = (
+  changeValue: ValueType,
+  currentValue: string,
+) => {
+  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
+  const args = matches[0][2].split(",").slice(0, 2);
+  const paramsObject: Record<string, string> = {};
+  (changeValue as DropdownOption[]).forEach(pageParam => {
+    paramsObject[pageParam.label] = pageParam.value;
+  });
+  args[1] = JSON.stringify(paramsObject);
+  return currentValue.replace(
+    ACTION_TRIGGER_REGEX,
+    `{{$1(${args.join(",")})}}`,
+  );
+};
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const handleTextArgChange = (
-  changeValue: string,
+  changeValue: ValueType,
   currentValue: string,
 ): string => {
   return currentValue.replace(ACTION_TRIGGER_REGEX, `{{$1('${changeValue}')}}`);
 };
 
 const handleAlertTextChange = (
-  changeValue: string,
+  changeValue: ValueType,
   currentValue: string,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
   args[0] = `'${changeValue}'`;
-  return currentValue.replace(
+  const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
   );
+  return result;
 };
 
 const handleAlertTypeChange = (
-  changeValue: string,
+  changeValue: ValueType,
   currentValue: string,
 ): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  args[1] = changeValue;
+  args[1] = changeValue as string;
   return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -123,10 +171,41 @@ const getApiArgumentValue = (
 
 const getPageNameSelectedValue = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  return matches.length ? matches[0][2] : "none";
+  return matches.length ? matches[0][2].split(",")[0] : "none";
+};
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+const getPageParamsSelectedValue = (value: ValueType) => {
+  const match = getPageSelectedParamsObject(value as string);
+  const keyPairs: DropdownOption[] = [];
+  Object.keys(match).forEach((key: string) => {
+    keyPairs.push({
+      label: key,
+      value: match[key],
+    });
+  });
+  return keyPairs;
+};
+/* eslint-enable @typescript-eslint/no-unused-vars */
+
+const getPageSelectedParamsObject = (value: string) => {
+  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  let match: Record<string, string> = {};
+
+  if (matches.length) {
+    try {
+      match = JSON.parse(
+        matches[0][2].substring(
+          matches[0][2].indexOf(",") + 1,
+          matches[0][2].length,
+        ),
+      );
+    } catch {}
+  }
+  return match;
 };
 
-const getTextArgValue = (value: string) => {
+export const getTextArgValue = (value: string) => {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length) {
     const stringValue = matches[0][2];
@@ -171,7 +250,7 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
         label: "onSuccess",
         field: "ACTION_SELECTOR_FIELD",
         valueChangeHandler: (changeValue, currentValue) =>
-          handleApiArgSelect(changeValue, currentValue, "onSuccess"),
+          handleApiArgSelect(changeValue as string, currentValue, "onSuccess"),
         getSelectedValue: (value: string, returnArgs = false) =>
           getApiArgumentValue(value, "onSuccess", returnArgs),
       },
@@ -179,9 +258,39 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
         label: "onError",
         field: "ACTION_SELECTOR_FIELD",
         valueChangeHandler: (changeValue, currentValue) =>
-          handleApiArgSelect(changeValue, currentValue, "onError"),
+          handleApiArgSelect(changeValue as string, currentValue, "onError"),
         getSelectedValue: (value: string, returnArgs = false) =>
           getApiArgumentValue(value, "onError", returnArgs),
+      },
+    ],
+  },
+  {
+    label: "Show Modal",
+    value: "showModal",
+    id: "showModal",
+    arguments: [
+      {
+        label: "Modal Name",
+        field: "MODAL_SELECTOR_FIELD",
+        create: {
+          text: "Modal",
+          action: createModalAction,
+        },
+        valueChangeHandler: handlePageNameArgSelect,
+        getSelectedValue: getPageNameSelectedValue,
+      },
+    ],
+  },
+  {
+    label: "Close Modal",
+    value: "closeModal",
+    id: "closeModal",
+    arguments: [
+      {
+        label: "Modal Name",
+        field: "MODAL_SELECTOR_FIELD",
+        valueChangeHandler: handlePageNameArgSelect,
+        getSelectedValue: getPageNameSelectedValue,
       },
     ],
   },
@@ -196,6 +305,12 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
         valueChangeHandler: handlePageNameArgSelect,
         getSelectedValue: getPageNameSelectedValue,
       },
+      // {
+      //   label: "params",
+      //   field: "KEY_VALUE_FIELD",
+      //   valueChangeHandler: handlePageParamsArgSelect,
+      //   getSelectedValue: getPageParamsSelectedValue,
+      // },
     ],
   },
   {
@@ -235,10 +350,15 @@ export const PropertyPaneActionDropdownOptions: ActionCreatorDropdownOption[] = 
 type ReduxStateProps = {
   actions: ActionDataState;
   pageNameDropdown: DropdownOption[];
+  modalDropdown?: DropdownOption[];
+  nextModalName: string;
+  dispatchAction: (payload: ReduxActionWithoutPayload) => void;
 };
 
 interface Props {
   value: string;
+  isValid: boolean;
+  validationMessage?: string;
   onValueChange: (newValue: string) => void;
 }
 
@@ -256,15 +376,18 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
   };
 
   handleValueUpdate = (
-    updateValueOrEvent: string | ChangeEvent<HTMLTextAreaElement>,
+    updateValueOrEvent: ValueType | ChangeEvent<HTMLTextAreaElement>,
     valueUpdateHandler: ValueChangeHandler,
   ) => {
     const { value, onValueChange } = this.props;
     let updateValue = updateValueOrEvent;
-    if (typeof updateValueOrEvent !== "string") {
-      updateValue = updateValueOrEvent.target.value;
+    if (
+      typeof updateValueOrEvent !== "string" &&
+      (updateValueOrEvent as any).target
+    ) {
+      updateValue = (updateValueOrEvent as any).target.value;
     }
-    const newValue = valueUpdateHandler(updateValue as string, value);
+    const newValue = valueUpdateHandler(updateValue as ValueType, value);
     onValueChange(newValue);
   };
 
@@ -272,7 +395,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
     argValue: string,
     allOptions: ActionCreatorDropdownOption[],
     parentChangeHandler: (
-      updateValueOrEvent: string | ChangeEvent<HTMLTextAreaElement>,
+      updateValueOrEvent: ValueType | ChangeEvent<HTMLTextAreaElement>,
       valueUpdateHandler: ValueChangeHandler,
     ) => void,
     argumentConfig: ActionCreatorArgumentConfig,
@@ -288,15 +411,18 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
         }
       });
     const handleValueUpdate = (
-      updateValueOrEvent: string | ChangeEvent<HTMLTextAreaElement>,
+      updateValueOrEvent: ValueType | ChangeEvent<HTMLTextAreaElement>,
       valueUpdateHandler: ValueChangeHandler,
     ) => {
       let updateValue = updateValueOrEvent;
-      if (typeof updateValueOrEvent !== "string") {
-        updateValue = updateValueOrEvent.target.value;
+      if (
+        typeof updateValueOrEvent !== "string" &&
+        (updateValueOrEvent as any).target
+      ) {
+        updateValue = (updateValueOrEvent as any).target.value;
       }
       const tempArg = `{{${subArgValue}${subArguments}}}`;
-      const newValue = valueUpdateHandler(updateValue as string, tempArg);
+      const newValue = valueUpdateHandler(updateValue as ValueType, tempArg);
       const newArgValue = newValue.substring(2, newValue.length - 2);
       parentChangeHandler(newArgValue, argumentConfig.valueChangeHandler);
     };
@@ -314,7 +440,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
     selectedOption: ActionCreatorDropdownOption,
     allOptions: ActionCreatorDropdownOption[],
     handleUpdate: (
-      updateValueOrEvent: string | ChangeEvent<HTMLTextAreaElement>,
+      updateValueOrEvent: ValueType | ChangeEvent<HTMLTextAreaElement>,
       valueUpdateHandler: ValueChangeHandler,
     ) => void,
   ) => {
@@ -328,7 +454,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <label>{arg.label}</label>
                   <StyledDropdown
                     options={allOptions}
-                    selectedValue={arg.getSelectedValue(value, false)}
+                    selectedValue={arg.getSelectedValue(value, false) as string}
                     defaultText={"Select Action"}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
@@ -348,11 +474,51 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <label>{arg.label}</label>
                   <StyledDropdown
                     options={this.props.pageNameDropdown}
-                    selectedValue={arg.getSelectedValue(value, false)}
+                    selectedValue={arg.getSelectedValue(value, false) as string}
                     defaultText={"Select Page"}
-                    onSelect={value =>
-                      handleUpdate(value, arg.valueChangeHandler)
+                    onSelect={newValue => {
+                      handleUpdate(newValue, arg.valueChangeHandler);
+                    }}
+                  />
+                </ControlWrapper>
+              );
+            case "KEY_VALUE_FIELD":
+              return (
+                <ControlWrapper key={arg.label}>
+                  <KeyValueComponent
+                    pairs={
+                      arg.getSelectedValue(value, false) as DropdownOption[]
                     }
+                    addLabel={"QueryParam"}
+                    updatePairs={(pageParams: DropdownOption[]) => {
+                      handleUpdate(pageParams as any, arg.valueChangeHandler);
+                    }}
+                  />
+                </ControlWrapper>
+              );
+            case "MODAL_SELECTOR_FIELD":
+              return (
+                <ControlWrapper key={arg.label}>
+                  <label>{arg.label}</label>
+                  <StyledDropdown
+                    options={this.props.modalDropdown || []}
+                    selectedValue={arg.getSelectedValue(value, false) as string}
+                    defaultText="Select Modal"
+                    createButton={
+                      arg.create && {
+                        text: arg.create.text,
+                        args: [this.props.nextModalName],
+                        onClick: (...args: any) => {
+                          arg.create &&
+                            this.props.dispatchAction(
+                              arg.create.action(...args),
+                            );
+                        },
+                      }
+                    }
+                    onSelect={value => {
+                      handleUpdate(value, arg.valueChangeHandler);
+                    }}
                   />
                 </ControlWrapper>
               );
@@ -362,9 +528,10 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <label>{arg.label}</label>
                   <InputText
                     label={arg.label}
-                    value={arg.getSelectedValue(value, false)}
+                    value={arg.getSelectedValue(value, false) as string}
                     onChange={e => handleUpdate(e, arg.valueChangeHandler)}
-                    isValid={true}
+                    isValid={this.props.isValid}
+                    validationMessage={this.props.validationMessage}
                   />
                 </ControlWrapper>
               );
@@ -375,7 +542,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
                   <StyledDropdown
                     options={ALERT_STYLE_OPTIONS}
                     defaultText={"Select type"}
-                    selectedValue={arg.getSelectedValue(value, false)}
+                    selectedValue={arg.getSelectedValue(value, false) as string}
                     onSelect={value =>
                       handleUpdate(value, arg.valueChangeHandler)
                     }
@@ -409,6 +576,7 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
         return o;
       }
     });
+
     let selectedOption = actionOptions[0];
     actionOptions.forEach(o => {
       if (
@@ -442,13 +610,24 @@ class DynamicActionCreator extends React.Component<Props & ReduxStateProps> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: AppState) => ({
   actions: getActionsForCurrentPage(state),
   pageNameDropdown: state.entities.pageList.pages.map(p => ({
     label: p.pageName,
     id: p.pageId,
     value: `'${p.pageName}'`,
   })),
+  modalDropdown: getModalDropdownList(state),
+  nextModalName: getNextModalName(state),
 });
 
-export default connect(mapStateToProps)(DynamicActionCreator);
+const mapDispatchToProps = (dispatch: any) => {
+  return {
+    dispatchAction: (payload: ReduxActionWithoutPayload) => dispatch(payload),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DynamicActionCreator);

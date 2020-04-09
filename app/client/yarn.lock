@@ -4992,6 +4992,11 @@ cypress-multi-reporters@^1.2.4:
     debug "^4.1.1"
     lodash "^4.17.11"
 
+cypress-xpath@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/cypress-xpath/-/cypress-xpath-1.4.0.tgz#0a7d1a8c59c263f01060d1d04a69f1b0337b06ff"
+  integrity sha512-rRSp3n48rycYkbUJc/n5uxcCUWwhdqufcw7SwkJS/R69NNC3tibCdPw46QuYk1V0KT/X/AY9p7VLIXWzNnm1TA==
+
 cypress@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-4.1.0.tgz#295f115d2e8a08fff2760ab49d94d876f5877aee"
@@ -13797,6 +13802,11 @@ url-parse@^1.4.3:
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
+
+url-search-params-polyfill@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/url-search-params-polyfill/-/url-search-params-polyfill-8.0.0.tgz#17415ca6815ff0661e07737b84bcc28e708a7875"
+  integrity sha512-X4BTaEq1UMz9bTbMKQ6r+CippkKBsFWHiP9wycQc7aHH2Ml/Iieuo44+GJDb77pfP71bONYA/nUd4iokYAxVRQ==
 
 url@0.11.0, url@^0.11.0:
   version "0.11.0"

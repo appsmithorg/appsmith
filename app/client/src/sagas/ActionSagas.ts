@@ -264,7 +264,7 @@ export function* executeActionSaga(
 }
 
 function* navigateActionSaga(
-  action: { pageName: string },
+  action: { pageName: string; params: Record<string, string> },
   event: ExecuteActionPayloadEvent,
 ) {
   const pageList = yield select(getPageList);
@@ -272,9 +272,14 @@ function* navigateActionSaga(
   const page = _.find(pageList, { pageName: action.pageName });
   if (page) {
     // TODO need to make this check via RENDER_MODE;
-    const path = history.location.pathname.endsWith("/edit")
-      ? BUILDER_PAGE_URL(applicationId, page.pageId)
-      : getApplicationViewerPageURL(applicationId, page.pageId);
+    const path =
+      history.location.pathname.indexOf("/edit") !== -1
+        ? BUILDER_PAGE_URL(applicationId, page.pageId, action.params)
+        : getApplicationViewerPageURL(
+            applicationId,
+            page.pageId,
+            action.params,
+          );
     history.push(path);
     if (event.callback) event.callback({ success: true });
   } else {
@@ -293,6 +298,7 @@ export function* executeActionTriggers(
     case "NAVIGATE_TO":
       AnalyticsUtil.logEvent("NAVIGATE", {
         pageName: trigger.payload.pageName,
+        pageParams: trigger.payload.pageParams,
       });
       yield call(navigateActionSaga, trigger.payload, event);
       break;
@@ -318,6 +324,14 @@ export function* executeActionTriggers(
         message: trigger.payload.message,
         type: trigger.payload.style,
       });
+      if (event.callback) event.callback({ success: true });
+      break;
+    case "SHOW_MODAL_BY_NAME":
+      yield put(trigger);
+      if (event.callback) event.callback({ success: true });
+      break;
+    case "CLOSE_MODAL":
+      yield put(trigger);
       if (event.callback) event.callback({ success: true });
       break;
     default:

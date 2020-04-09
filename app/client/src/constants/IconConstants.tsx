@@ -6,6 +6,8 @@ export type IconProps = {
   height?: number;
   color?: Color;
   background?: Color;
+  onClick?: (e?: any) => void;
+  className?: string;
 };
 
 export const IconWrapper = styled.div<IconProps>`

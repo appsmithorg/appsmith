@@ -1,4 +1,4 @@
-import React, { useState, memo } from "react";
+import React, { useState, memo, useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText from "components/editorComponents/EditableText";
@@ -20,10 +20,10 @@ type PropertyPaneTitleProps = {
 /* eslint-disable react/display-name */
 const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const dispatch = useDispatch();
-  const updating = useSelector(
-    (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
-  );
-
+  const { updating, updateError } = useSelector((state: AppState) => ({
+    updating: state.ui.editor.loadingStates.updatingWidgetName,
+    updateError: state.ui.editor.loadingStates.updateWidgetNameError,
+  }));
   const widgets = useSelector(getExistingWidgetNames);
 
   const [name, setName] = useState(props.title);
@@ -45,6 +45,11 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const textChanged = (value: string) => {
     setName(value.replace(/\W+/, "_").slice(0, 30));
   };
+  useEffect(() => {
+    if (updateError) {
+      setName(props.title);
+    }
+  }, [updateError, props.title]);
 
   return props.widgetId ? (
     <Wrapper>

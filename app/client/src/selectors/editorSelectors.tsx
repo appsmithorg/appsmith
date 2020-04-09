@@ -14,7 +14,6 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -121,7 +120,6 @@ export const getWidgetCards = createSelector(
 export const getCanvasWidgetDsl = createSelector(
   getEntities,
   evaluateDataTree,
-  getPageWidgetId,
   (
     entities: AppState["entities"],
     evaluatedDataTree,
@@ -170,10 +168,7 @@ export const getOccupiedSpaces = createSelector(
     // Get all widgets with type "CONTAINER_WIDGET" and has children
     const containerWidgets: FlattenedWidgetProps[] = Object.values(
       widgets,
-    ).filter(
-      widget =>
-        widget.type === WidgetTypes.CONTAINER_WIDGET || WidgetTypes.FORM_WIDGET,
-    );
+    ).filter(widget => widget.children && widget.children.length > 0);
 
     // If we have any container widgets
     if (containerWidgets) {
@@ -183,7 +178,8 @@ export const getOccupiedSpaces = createSelector(
         const childWidgets = Object.keys(widgets).filter(
           widgetId =>
             containerWidget.children &&
-            containerWidget.children.indexOf(widgetId) > -1,
+            containerWidget.children.indexOf(widgetId) > -1 &&
+            !widgets[widgetId].detachFromLayout,
         );
         // Get the occupied spaces in this container
         // Assign it to the containerWidgetId key in occupiedSpaces

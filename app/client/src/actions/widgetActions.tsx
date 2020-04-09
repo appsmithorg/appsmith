@@ -42,3 +42,14 @@ export const disableDragAction = (
     },
   };
 };
+
+export const createModalAction = (
+  modalName: string,
+): ReduxAction<{ modalName: string }> => {
+  return {
+    type: ReduxActionTypes.CREATE_MODAL_INIT,
+    payload: {
+      modalName,
+    },
+  };
+};

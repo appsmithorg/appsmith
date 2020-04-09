@@ -135,6 +135,7 @@ export function* fetchPageSaga(
       yield put(executePageLoadActions(canvasWidgetsPayload.pageActions));
     }
   } catch (error) {
+    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {
@@ -188,7 +189,7 @@ function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
       PageApi.savePage,
       savePageRequest,
     );
-    const isValidResponse = validateResponse(savePageResponse);
+    const isValidResponse = yield validateResponse(savePageResponse);
     if (isValidResponse) {
       yield put(savePageSuccess(savePageResponse));
     }

@@ -10,6 +10,7 @@ import {
 } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { VALIDATORS } from "utils/Validators";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -21,12 +22,44 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       selectionType: VALIDATION_TYPES.TEXT,
       selectedIndexArr: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
-      defaultOptionValue: VALIDATION_TYPES.TEXT,
+      onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      defaultOptionValue: (value: string | string[], props?: WidgetProps) => {
+        let values = value;
+
+        if (props) {
+          if (props.selectionType === "SINGLE_SELECT") {
+            return VALIDATORS[VALIDATION_TYPES.TEXT](value);
+          } else if (props.selectionType === "MULTI_SELECT") {
+            if (typeof value === "string") {
+              try {
+                values = JSON.parse(value);
+                if (!Array.isArray(values)) {
+                  throw new Error();
+                }
+              } catch {
+                values = value.split(",");
+                if (values.length > 0) {
+                  values = values.map(value => value.trim());
+                }
+              }
+            }
+          }
+        }
+
+        if (Array.isArray(values)) {
+          values = _.uniq(values);
+        }
+
+        return {
+          isValid: true,
+          parsed: values,
+        };
+      },
     };
   }
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{ this.isRequired ? !!this.selectedOption.value : true }}`,
+      isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
       selectedOption: `{{
         this.selectionType === 'SINGLE_SELECT'
           ? this.options[this.selectedIndex]
@@ -51,34 +84,70 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   componentDidMount() {
     super.componentDidMount();
     if (this.props.defaultOptionValue) {
-      const selectedIndex = _.findIndex(this.props.options, option => {
-        return option.value === this.props.defaultOptionValue;
-      });
-      this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+      const selectionOptions: number[] = [];
+      if (this.props.selectionType === "SINGLE_SELECT") {
+        const selectedIndex = _.findIndex(this.props.options, option => {
+          return (
+            option.value.toString() ===
+            (this.props.defaultOptionValue as string).toString()
+          );
+        });
+        if (selectedIndex > -1) {
+          selectionOptions.push(selectedIndex);
+        }
+      } else if (this.props.selectionType === "MULTI_SELECT") {
+        (this.props.defaultOptionValue as string[]).forEach(optionValue => {
+          const selectedIndex = _.findIndex(this.props.options, option => {
+            return option.value.toString() === optionValue.toString();
+          });
+          if (selectedIndex > -1) {
+            selectionOptions.push(selectedIndex);
+          }
+        });
+      }
+
+      if (selectionOptions.length > 0) {
+        this.updateWidgetMetaProperty("selectedIndex", selectionOptions[0]);
+        this.updateWidgetMetaProperty("selectedIndexArr", selectionOptions);
+      }
     }
   }
 
   componentDidUpdate(prevProps: DropdownWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (
-      JSON.stringify(prevProps.options) !== JSON.stringify(this.props.options)
-    ) {
-      this.updateWidgetMetaProperty("selectedIndex", undefined);
-      this.updateWidgetMetaProperty("selectedIndexArr", []);
-    }
+
     if (this.props.defaultOptionValue) {
       if (
-        (this.props.selectedIndex !== prevProps.selectedIndex &&
-          this.props.selectedIndex === undefined) ||
-        this.props.defaultOptionValue !== prevProps.defaultOptionValue
+        this.props.defaultOptionValue.toString() !==
+        prevProps.defaultOptionValue?.toString()
       ) {
-        const selectedIndex = _.findIndex(this.props.options, option => {
-          return option.value === this.props.defaultOptionValue;
-        });
-        if (selectedIndex > -1) {
-          this.updateWidgetMetaProperty("selectedIndex", selectedIndex);
+        const selectionOptions: number[] = [];
+        if (this.props.selectionType === "SINGLE_SELECT") {
+          const selectedIndex = _.findIndex(this.props.options, option => {
+            return (
+              option.value.toString() ===
+              (this.props.defaultOptionValue as string).toString()
+            );
+          });
+          if (selectedIndex > -1) {
+            selectionOptions.push(selectedIndex);
+          }
+        } else {
+          (this.props.defaultOptionValue as string[]).forEach(optionValue => {
+            const selectedIndex = _.findIndex(this.props.options, option => {
+              return option.value.toString() === optionValue.toString();
+            });
+            if (selectedIndex > -1) {
+              selectionOptions.push(selectedIndex);
+            }
+          });
+        }
+        if (selectionOptions.length > 0) {
+          this.updateWidgetMetaProperty("selectedIndexArr", selectionOptions);
+          this.updateWidgetMetaProperty("selectedIndex", selectionOptions[0]);
         } else {
           this.updateWidgetMetaProperty("selectedIndex", undefined);
+          this.updateWidgetMetaProperty("selectedIndexArr", []);
         }
       }
     }
@@ -177,7 +246,7 @@ export interface DropdownWidgetProps extends WidgetProps {
   selectionType: SelectionType;
   options?: DropdownOption[];
   onOptionChange?: string;
-  defaultOptionValue?: string;
+  defaultOptionValue?: string | string[];
   isRequired: boolean;
 }
 

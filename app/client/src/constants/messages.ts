@@ -76,12 +76,14 @@ export const TERMS_AND_CONDITIONS_LINK = "Terms and Conditions";
 
 export const ERROR_500 =
   "We apologize, Something went wrong. We're working to fix things.";
-
+export const ERROR_0 =
+  "We could not connect to our servers. Please check your network connection";
 export const ERROR_401 =
   "We are unable to verify your identity. Please login again.";
 export const ERROR_403 =
   "Permission Denied. Please contact your admin to gain access.";
 export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";
+export const URL_HTTP_VALIDATION_ERROR = "Please enter a valid URL";
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST =
   "Invalid Email address(es) found:";
@@ -120,3 +122,7 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
 export const DELETING_APPLICATION = "Deleting application...";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
+
+export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
+export const AUTOFIT_THIS_COLUMN = "Autofit this column";
+export const AUTOFIT_COLUMN = "Autofit column";

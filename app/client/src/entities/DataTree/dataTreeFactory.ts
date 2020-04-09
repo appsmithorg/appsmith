@@ -33,6 +33,17 @@ export interface DataTreeAction extends Omit<ActionData, "data"> {
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
+export interface DataTreeUrl {
+  queryParams: Record<string, string>;
+  protocol: string;
+  host: string;
+  hostname: string;
+  port: string;
+  pathname: string;
+  hash: string;
+  href: string;
+}
+
 export interface DataTreeWidget extends WidgetProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
@@ -40,6 +51,7 @@ export interface DataTreeWidget extends WidgetProps {
 export type DataTreeEntity =
   | DataTreeAction
   | DataTreeWidget
+  | DataTreeUrl
   | ActionDispatcher<any, any>;
 
 export type DataTree = {
@@ -50,12 +62,19 @@ type DataTreeSeed = {
   actions: ActionDataState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
+  url?: DataTreeUrl;
 };
 
 export class DataTreeFactory {
   static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
-    dataTree.actionPaths = ["navigateTo", "navigateToUrl", "showAlert"];
+    dataTree.actionPaths = [
+      "navigateTo",
+      "navigateToUrl",
+      "showAlert",
+      "showModal",
+      "closeModal",
+    ];
     actions.forEach(a => {
       dataTree[a.config.name] = {
         ...a,
@@ -83,10 +102,10 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
-    dataTree.navigateTo = function(pageName: string) {
+    dataTree.navigateTo = function(pageName: string, params: object) {
       return {
         type: "NAVIGATE_TO",
-        payload: { pageName },
+        payload: { pageName, params },
       };
     };
 
@@ -101,6 +120,20 @@ export class DataTreeFactory {
       return {
         type: "SHOW_ALERT",
         payload: { message, style },
+      };
+    };
+
+    // dataTree.url = url;
+    dataTree.showModal = function(modalName: string) {
+      return {
+        type: "SHOW_MODAL_BY_NAME",
+        payload: { modalName },
+      };
+    };
+    dataTree.closeModal = function(modalName: string) {
+      return {
+        type: "CLOSE_MODAL",
+        payload: { modalName },
       };
     };
 

@@ -20,13 +20,14 @@ import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
 import { ChartWidgetProps } from "../../widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
+import { ModalWidgetProps } from "widgets/ModalWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
 export type WidgetBlueprint = {
   view: Array<{
     type: string;
-    size: { rows: number; cols: number };
+    size?: { rows: number; cols: number };
     position: { top?: number; left?: number };
     props: Record<string, any>;
   }>;
@@ -36,6 +37,7 @@ export interface WidgetConfigProps {
   rows: number;
   columns: number;
   blueprint?: WidgetBlueprint;
+  widgetName: string;
 }
 
 export interface WidgetConfigReducerState {
@@ -57,9 +59,12 @@ export interface WidgetConfigReducerState {
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
+    MODAL_WIDGET: Partial<ModalWidgetProps> & WidgetConfigProps;
     CHART_WIDGET: Partial<ChartWidgetProps> & WidgetConfigProps;
     FORM_WIDGET: Partial<FormWidgetProps> & WidgetConfigProps;
     FORM_BUTTON_WIDGET: Partial<FormButtonWidgetProps> & WidgetConfigProps;
+    CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
+      WidgetConfigProps;
   };
   configVersion: number;
 }

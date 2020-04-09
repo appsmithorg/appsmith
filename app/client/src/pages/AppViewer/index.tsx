@@ -96,7 +96,6 @@ class AppViewer extends Component<
       <EditorContext.Provider
         value={{
           executeAction: this.props.executeAction,
-          updateWidgetProperty: this.props.updateWidgetProperty,
           updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
           resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
         }}

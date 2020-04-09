@@ -1,9 +1,5 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useRef } from "react";
 import { XYCoord } from "react-dnd";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 
 import {
@@ -27,7 +23,7 @@ import {
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import { isDropZoneOccupied, getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
   LeftHandleStyles,
@@ -40,6 +36,8 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { scrollElementIntoParentCanvasView } from "utils/helpers";
+import { getNearestParentCanvas } from "utils/generators";
 
 export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
   paddingOffset: number;
@@ -47,6 +45,7 @@ export type ResizableComponentProps = ContainerWidgetProps<WidgetProps> & {
 
 /* eslint-disable react/display-name */
 export const ResizableComponent = (props: ResizableComponentProps) => {
+  const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
   const { updateDropTargetRows, persistDropTargetRows } = useContext(
@@ -73,17 +72,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
       ? occupiedSpaces[props.parentId]
       : undefined;
-
-  const maxBottomRowOfChildWidgets: number | undefined = useMemo(() => {
-    if (props.type === WidgetTypes.CONTAINER_WIDGET) {
-      const occupiedSpacesByChildren =
-        occupiedSpaces && occupiedSpaces[props.widgetId];
-      return occupiedSpacesByChildren?.reduce((prev: number, next) => {
-        if (next.bottom > prev) return next.bottom;
-        return prev;
-      }, 0);
-    }
-  }, [occupiedSpaces, props.type, props.widgetId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -128,8 +116,11 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       newDimensions.height / props.parentRowSpace;
     // Make sure to calculate collision IF we don't update the main container's rows
     let updated = false;
-    if (updateDropTargetRows && props.parentId === MAIN_CONTAINER_WIDGET_ID) {
-      updated = updateDropTargetRows(bottom);
+    if (updateDropTargetRows) {
+      updated = updateDropTargetRows(props.widgetId, bottom);
+      const el = resizableRef.current;
+      const scrollParent = getNearestParentCanvas(resizableRef.current);
+      scrollElementIntoParentCanvasView(el, scrollParent);
     }
 
     const delta: UIElementSize = {
@@ -141,6 +132,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
       position,
       props,
     );
+
+    if (newRowCols.rightColumn > getSnapColumns()) {
+      return true;
+    }
 
     if (
       newRowCols.rightColumn - newRowCols.leftColumn < 1 ||
@@ -162,17 +157,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
     }
 
     if (!updated) {
-      if (
-        // If this is a container widget, the maxBottomRow of child widgets should be one less than the max bottom row of the new row cols
-        maxBottomRowOfChildWidgets &&
-        newRowCols &&
-        props.type === WidgetTypes.CONTAINER_WIDGET &&
-        newRowCols.bottomRow - newRowCols.topRow - 1 <
-          maxBottomRowOfChildWidgets
-      ) {
-        return true;
-      }
-
       if (
         boundingElementClientRect &&
         newRowCols.bottomRow * props.parentRowSpace >
@@ -221,7 +205,6 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
 
     if (newRowCols) {
       persistDropTargetRows &&
-        props.parentId === MAIN_CONTAINER_WIDGET_ID &&
         persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
@@ -265,6 +248,7 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
 
   return (
     <Resizable
+      ref={resizableRef}
       handles={{
         left: LeftHandleStyles,
         top: TopHandleStyles,

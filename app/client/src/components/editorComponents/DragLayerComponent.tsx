@@ -1,7 +1,8 @@
 import React, {
   useContext,
+  useEffect,
   useLayoutEffect,
-  MutableRefObject,
+  RefObject,
   useRef,
 } from "react";
 import styled from "styled-components";
@@ -9,18 +10,24 @@ import { useDragLayer, XYCoord } from "react-dnd";
 import DropZone from "./Dropzone";
 import { noCollision, currentDropRow } from "utils/WidgetPropsUtils";
 import { OccupiedSpace } from "constants/editorConstants";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  CONTAINER_GRID_PADDING,
-} from "constants/WidgetConstants";
+import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
-const WrappedDragLayer = styled.div<{ columnWidth: number; rowHeight: number }>`
+import { scrollElementIntoParentCanvasView } from "utils/helpers";
+import { getNearestParentCanvas } from "utils/generators";
+
+const WrappedDragLayer = styled.div<{
+  columnWidth: number;
+  rowHeight: number;
+  ref: RefObject<HTMLDivElement>;
+}>`
   position: absolute;
   pointer-events: none;
+  left: 0;
+  top: 0;
   left: ${CONTAINER_GRID_PADDING}px;
   top: ${CONTAINER_GRID_PADDING}px;
-  height: calc(100% - ${2 * CONTAINER_GRID_PADDING}px);
-  width: calc(100% - ${2 * CONTAINER_GRID_PADDING}px);
+  height: calc(100% - ${CONTAINER_GRID_PADDING}px);
+  width: calc(100% - ${CONTAINER_GRID_PADDING}px);
 
   background-image: radial-gradient(
     circle,
@@ -34,6 +41,7 @@ const WrappedDragLayer = styled.div<{ columnWidth: number; rowHeight: number }>`
 
 type DragLayerProps = {
   parentRowHeight: number;
+  canDropTargetExtend: boolean;
   parentColumnWidth: number;
   visible: boolean;
   occupiedSpaces?: OccupiedSpace[];
@@ -47,9 +55,19 @@ type DragLayerProps = {
 
 const DragLayerComponent = (props: DragLayerProps) => {
   const { updateDropTargetRows } = useContext(DropTargetContext);
-  const dropTargetMask: MutableRefObject<HTMLDivElement | null> = React.useRef(
-    null,
-  );
+  const dropTargetMask: RefObject<HTMLDivElement> = React.useRef(null);
+  const dropZoneRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = dropZoneRef.current;
+    const scrollParent: Element | null = getNearestParentCanvas(
+      dropTargetMask.current,
+    );
+    if (dropTargetMask.current) {
+      if (el && props.canDropTargetExtend) {
+        scrollElementIntoParentCanvasView(el, scrollParent);
+      }
+    }
+  });
 
   const dropTargetOffset = useRef({
     x: 0,
@@ -74,10 +92,10 @@ const DragLayerComponent = (props: DragLayerProps) => {
   );
 
   if (
-    props.visible &&
-    props.parentWidgetId === MAIN_CONTAINER_WIDGET_ID &&
     currentOffset &&
-    props.parentRows
+    props.isOver &&
+    props.canDropTargetExtend &&
+    isDragging
   ) {
     const row = currentDropRow(
       props.parentRowHeight,
@@ -86,7 +104,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
       widget,
     );
 
-    updateDropTargetRows && updateDropTargetRows(row);
+    updateDropTargetRows && updateDropTargetRows(widget.widgetId, row);
   }
 
   let widgetWidth = 0;
@@ -111,7 +129,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
     }
   });
 
-  if ((!isDragging || !props.visible) && !props.isResizing) {
+  if ((!isDragging || !props.visible || !props.isOver) && !props.isResizing) {
     return null;
   }
 
@@ -141,6 +159,7 @@ const DragLayerComponent = (props: DragLayerProps) => {
             height={widgetHeight}
             currentOffset={currentOffset as XYCoord}
             canDrop={canDrop}
+            ref={dropZoneRef}
           />
         )}
     </WrappedDragLayer>

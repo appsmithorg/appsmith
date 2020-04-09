@@ -164,6 +164,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}
+            normalize={value => value.trim()}
             singleLine
           />
         </FormRow>

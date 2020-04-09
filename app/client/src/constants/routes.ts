@@ -28,9 +28,13 @@ export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
 export const BUILDER_PAGE_URL = (
   applicationId?: string,
   pageId?: string,
+  params?: Record<string, string>,
 ): string => {
   if (!pageId) return APPLICATIONS_URL;
-  return `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit`;
+  const queryParams = convertToQueryParams(params);
+  return (
+    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryParams
+  );
 };
 
 export const API_EDITOR_URL = (
@@ -58,7 +62,26 @@ export const getApplicationViewerURL = (
 export const getApplicationViewerPageURL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
-): string => `/applications/${applicationId}/pages/${pageId}`;
+  params: Record<string, string> = {},
+): string => {
+  const url = `/applications/${applicationId}/pages/${pageId}`;
+  const queryParams = convertToQueryParams(params);
+  return url + queryParams;
+};
+
+function convertToQueryParams(params: Record<string, string> = {}): string {
+  const paramKeys = Object.keys(params);
+  let queryParams = "";
+  if (paramKeys) {
+    paramKeys.forEach((paramKey: string, index: number) => {
+      const value = params[paramKey];
+      if (paramKey && value) {
+        queryParams = queryParams + `&${paramKey}=${value}`;
+      }
+    });
+  }
+  return queryParams ? "?" + queryParams : "";
+}
 
 export const EDITOR_ROUTES = [
   {

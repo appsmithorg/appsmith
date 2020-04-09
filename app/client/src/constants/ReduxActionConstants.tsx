@@ -151,6 +151,12 @@ export const ReduxActionTypes: { [key: string]: string } = {
   EXECUTE_API_ACTION_REQUEST: "EXECUTE_API_ACTION_REQUEST",
   EXECUTE_API_ACTION_SUCCESS: "EXECUTE_API_ACTION_SUCCESS",
   SET_WIDGET_DYNAMIC_PROPERTY: "SET_WIDGET_DYNAMIC_PROPERTY",
+  SHOW_MODAL: "SHOW_MODAL",
+  SHOW_MODAL_BY_NAME: "SHOW_MODAL_BY_NAME",
+  CLOSE_MODAL: "CLOSE_MODAL",
+  CREATE_MODAL_INIT: "CREATE_MODAL_INIT",
+  CREATE_MODAL_SUCCESS: "CREATE_MODAL_SUCCESS",
+  UPDATE_CANVAS_SIZE: "UPDATE_CANVAS_SIZE",
   UPDATE_CURRENT_PAGE: "UPDATE_CURRENT_PAGE",
 };
 
@@ -216,6 +222,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   UPDATE_WIDGET_NAME_ERROR: "UPDATE_WIDGET_NAME_ERROR",
   FETCH_ACTIONS_FOR_PAGE_ERROR: "FETCH_ACTIONS_FOR_PAGE_ERROR",
   EXECUTE_API_ACTION_ERROR: "EXECUTE_API_ACTION_ERROR",
+  CREATE_MODAL_ERROR: "CREATE_MODAL_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {
@@ -300,6 +307,9 @@ export type SavePageSuccessPayload = {};
 
 export type InitializeEditorPayload = {
   applicationId: string;
+  pageId: string;
 };
 
-export type FetchPageListPayload = InitializeEditorPayload;
+export type FetchPageListPayload = {
+  applicationId: string;
+};

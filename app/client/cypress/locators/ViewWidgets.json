@@ -1,0 +1,5 @@
+{
+    "imageWidget": ".t--draggable-imagewidget",
+    "chartWidget": ".t--draggable-chartwidget",
+    "chartSelectChartType": ".t--property-control-charttype"
+}

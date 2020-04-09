@@ -3,59 +3,63 @@ import _ from "lodash";
 
 import ContainerComponent, {
   ContainerStyle,
-  ContainerComponentProps,
 } from "components/designSystems/appsmith/ContainerComponent";
-import { ContainerOrientation, WidgetType } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { Color } from "constants/Colors";
-import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import {
   GridDefaults,
   CONTAINER_GRID_PADDING,
   WIDGET_PADDING,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 
-import ResizeBoundsContainerComponent from "components/editorComponents/ResizeBoundsContainerComponent";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 
-const { DEFAULT_GRID_COLUMNS, DEFAULT_GRID_ROW_HEIGHT } = GridDefaults;
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
-  ContainerWidgetState
+  WidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
-    this.state = {
-      componentWidth: 0,
-      componentHeight: 0,
-      snapColumnSpace: 0,
-      snapRowSpace: 0,
-      meta: {},
+  }
+  getSnapSpaces = () => {
+    const { componentWidth } = this.getComponentDimensions();
+    return {
+      snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      snapColumnSpace: componentWidth
+        ? (componentWidth - (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
+          GridDefaults.DEFAULT_GRID_COLUMNS
+        : 0,
     };
-  }
-
-  componentDidUpdate(previousProps: ContainerWidgetProps<WidgetProps>) {
-    super.componentDidUpdate(previousProps);
-    let snapColumnSpace = this.state.snapColumnSpace;
-    if (this.state.componentWidth)
-      snapColumnSpace =
-        (this.state.componentWidth -
-          (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2) /
-        (this.props.snapColumns || DEFAULT_GRID_COLUMNS);
-    if (this.state.snapColumnSpace !== snapColumnSpace) {
-      this.setState({
-        snapColumnSpace,
-        snapRowSpace: DEFAULT_GRID_ROW_HEIGHT,
-      });
-    }
-  }
+  };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    childWidgetData.parentColumnSpace = this.state.snapColumnSpace;
-    childWidgetData.parentRowSpace = this.state.snapRowSpace;
+    // For now, isVisible prop defines whether to render a detached widget
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+      return null;
+    }
+
+    const snapSpaces = this.getSnapSpaces();
+    const { componentWidth, componentHeight } = this.getComponentDimensions();
+
+    if (childWidgetData.type !== WidgetTypes.CANVAS_WIDGET) {
+      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+    } else {
+      // This is for the detached child like the default CANVAS_WIDGET child
+
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.bottomRow = this.props.shouldScrollContents
+        ? childWidgetData.bottomRow
+        : componentHeight;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.shouldScrollContents = false;
+      childWidgetData.canExtend = this.props.shouldScrollContents;
+    }
+
     childWidgetData.parentId = this.props.widgetId;
+
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
@@ -64,61 +68,33 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      _.sortBy(this.props.children, child => child.topRow),
+      _.sortBy(_.compact(this.props.children), child => child.topRow),
       this.renderChildWidget,
     );
   };
 
-  renderAsDropTarget() {
+  renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
-      <DropTargetComponent {...this.props} {...this.state}>
-        <ResizeBoundsContainerComponent {...this.props}>
-          {this.renderChildren()}
-        </ResizeBoundsContainerComponent>
-      </DropTargetComponent>
-    );
-  }
-
-  getContainerComponentProps = (): ContainerComponentProps => ({
-    ...this.props,
-    isMainContainer: this.props.widgetId === MAIN_CONTAINER_WIDGET_ID,
-    backgroundColor: this.props.backgroundColor || "white",
-  });
-
-  renderAsContainerComponent() {
-    return (
-      <ContainerComponent {...this.getContainerComponentProps()}>
+      <ContainerComponent {...props}>
         {this.renderChildren()}
       </ContainerComponent>
     );
   }
 
   getPageView() {
-    return this.renderAsContainerComponent();
-  }
-
-  getCanvasView() {
-    return this.renderAsDropTarget();
+    return this.renderAsContainerComponent(this.props);
   }
 
   getWidgetType(): WidgetType {
-    return "CONTAINER_WIDGET";
+    return WidgetTypes.CONTAINER_WIDGET;
   }
-}
-
-export interface ContainerWidgetState extends WidgetState {
-  snapColumnSpace: number;
-  snapRowSpace: number;
 }
 
 export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
-  snapColumns?: number;
-  snapRows?: number;
-  orientation?: ContainerOrientation;
-  backgroundColor?: Color;
   containerStyle?: ContainerStyle;
+  shouldScrollContents?: boolean;
 }
 
 export default ContainerWidget;

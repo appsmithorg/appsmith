@@ -22,11 +22,6 @@ class ButtonWidget extends BaseWidget<
     super(props);
     this.onButtonClickBound = this.onButtonClick.bind(this);
     this.state = {
-      // TODO these values dont have any bearing on the actual component height
-      // at this level. The widget state should not define this
-      componentHeight: 0,
-      componentWidth: 0,
-      meta: {},
       isLoading: false,
     };
   }
@@ -36,6 +31,7 @@ class ButtonWidget extends BaseWidget<
       ...BASE_WIDGET_VALIDATION,
       text: VALIDATION_TYPES.TEXT,
       buttonStyle: VALIDATION_TYPES.TEXT,
+      onClick: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

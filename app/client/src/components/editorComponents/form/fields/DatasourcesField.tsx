@@ -62,13 +62,18 @@ const mapDispatchToProps = (
       appName: ownProps.appName,
       dataSource: value,
     });
+    // "https://example.com/ "
+    // "https://example.com "
+    const trimmedValue = value.trim();
     dispatch(
       createDatasource({
         // Datasource name should not end with /
-        name: value.endsWith("/") ? value.slice(0, -1) : value,
+        name: trimmedValue.endsWith("/")
+          ? trimmedValue.slice(0, -1)
+          : trimmedValue,
         datasourceConfiguration: {
           // Datasource url should end with /
-          url: value.endsWith("/") ? value : `${value}/`,
+          url: trimmedValue.endsWith("/") ? trimmedValue : `${trimmedValue}/`,
         },
         pluginId: ownProps.pluginId,
         appName: ownProps.appName,

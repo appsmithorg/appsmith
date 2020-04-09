@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, forwardRef, Ref } from "react";
 import { XYCoord } from "react-dnd";
 import styled from "styled-components";
 import { snapToGrid } from "utils/helpers";
@@ -41,8 +41,6 @@ type DropZoneProps = {
   canDrop: boolean;
 };
 
-/* eslint-disable react/display-name */
-
 const getSnappedXY = (
   parentColumnWidth: number,
   parentRowHeight: number,
@@ -61,67 +59,73 @@ const getSnappedXY = (
     Y: topRow * parentRowHeight,
   };
 };
-export const DropZone = (props: DropZoneProps) => {
-  const [{ X, Y }, setXY] = useSpring(() => ({
-    X: props.currentOffset.x - props.parentOffset.x,
-    Y: props.currentOffset.y - props.parentOffset.y,
-    config: SPRING_CONFIG,
-  }));
 
-  const [{ snappedX, snappedY }, setSnappedXY] = useSpring(() => ({
-    snappedX: props.currentOffset.x - props.parentOffset.x,
-    snappedY: props.currentOffset.y - props.parentOffset.y,
-    config: SPRING_CONFIG,
-  }));
+/* eslint-disable react/display-name */
 
-  useEffect(() => {
-    setXY({
+export const DropZone = forwardRef(
+  (props: DropZoneProps, ref: Ref<HTMLDivElement>) => {
+    const [{ X, Y }, setXY] = useSpring(() => ({
       X: props.currentOffset.x - props.parentOffset.x,
       Y: props.currentOffset.y - props.parentOffset.y,
-    });
-    const snappedXY = getSnappedXY(
+      config: SPRING_CONFIG,
+    }));
+
+    const [{ snappedX, snappedY }, setSnappedXY] = useSpring(() => ({
+      snappedX: props.currentOffset.x - props.parentOffset.x,
+      snappedY: props.currentOffset.y - props.parentOffset.y,
+      config: SPRING_CONFIG,
+    }));
+
+    useEffect(() => {
+      setXY({
+        X: props.currentOffset.x - props.parentOffset.x,
+        Y: props.currentOffset.y - props.parentOffset.y,
+      });
+      const snappedXY = getSnappedXY(
+        props.parentColumnWidth,
+        props.parentRowHeight,
+        props.currentOffset,
+        props.parentOffset,
+      );
+      setSnappedXY({
+        snappedX: snappedXY.X,
+        snappedY: snappedXY.Y,
+      });
+    }, [
       props.parentColumnWidth,
       props.parentRowHeight,
       props.currentOffset,
       props.parentOffset,
+      setSnappedXY,
+      setXY,
+    ]);
+    return (
+      <React.Fragment>
+        <AnimatedDropZone
+          ref={ref}
+          width={props.width * props.parentColumnWidth}
+          height={props.height * props.parentRowHeight}
+          style={{
+            transform: interpolate(
+              [X, Y],
+              (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
+            ),
+          }}
+        />
+        <AnimatedSnappingDropZone
+          width={props.width * props.parentColumnWidth}
+          height={props.height * props.parentRowHeight}
+          candrop={props.canDrop}
+          style={{
+            transform: interpolate(
+              [snappedX, snappedY],
+              (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
+            ),
+          }}
+        />
+      </React.Fragment>
     );
-    setSnappedXY({
-      snappedX: snappedXY.X,
-      snappedY: snappedXY.Y,
-    });
-  }, [
-    props.parentColumnWidth,
-    props.parentRowHeight,
-    props.currentOffset,
-    props.parentOffset,
-    setSnappedXY,
-    setXY,
-  ]);
-  return (
-    <React.Fragment>
-      <AnimatedDropZone
-        width={props.width * props.parentColumnWidth}
-        height={props.height * props.parentRowHeight}
-        style={{
-          transform: interpolate(
-            [X, Y],
-            (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
-          ),
-        }}
-      />
-      <AnimatedSnappingDropZone
-        width={props.width * props.parentColumnWidth}
-        height={props.height * props.parentRowHeight}
-        candrop={props.canDrop}
-        style={{
-          transform: interpolate(
-            [snappedX, snappedY],
-            (x: number, y: number) => `translate3d(${x}px,${y}px,0)`,
-          ),
-        }}
-      />
-    </React.Fragment>
-  );
-};
+  },
+);
 
 export default DropZone;

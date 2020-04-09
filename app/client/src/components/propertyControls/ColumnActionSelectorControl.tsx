@@ -16,11 +16,15 @@ export interface ColumnAction {
   dynamicTrigger: string;
 }
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 5px 5px;
+  padding: 5px 0px;
   position: absolute;
-  right: 0px;
+  right: 8px;
   cursor: pointer;
-  top: 23px;
+  top: 0px;
+`;
+
+const Wrapper = styled.div`
+  margin-bottom: 8px;
 `;
 
 class ColumnActionSelectorControl extends BaseControl<
@@ -38,22 +42,28 @@ class ColumnActionSelectorControl extends BaseControl<
                   position: "relative",
                 }}
               >
-                <InputText
-                  label={columnAction.label}
-                  value={columnAction.label}
-                  onChange={this.updateColumnActionLabel.bind(
-                    this,
-                    columnAction,
-                  )}
-                  isValid={true}
-                />
-                <DynamicActionCreator
-                  value={columnAction.dynamicTrigger}
-                  onValueChange={this.updateColumnActionFunction.bind(
-                    this,
-                    columnAction,
-                  )}
-                />
+                <Wrapper>
+                  <InputText
+                    label={columnAction.label}
+                    value={columnAction.label}
+                    onChange={this.updateColumnActionLabel.bind(
+                      this,
+                      columnAction,
+                    )}
+                    isValid={true}
+                  />
+                </Wrapper>
+                <Wrapper>
+                  <DynamicActionCreator
+                    value={columnAction.dynamicTrigger}
+                    isValid={(columnAction as any).isValid}
+                    validationMessage={(columnAction as any).message}
+                    onValueChange={this.updateColumnActionFunction.bind(
+                      this,
+                      columnAction,
+                    )}
+                  />
+                </Wrapper>
                 <StyledDeleteIcon
                   height={20}
                   width={20}
