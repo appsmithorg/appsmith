@@ -30,9 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -250,10 +248,10 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-            // Since the datasource is created by rapid api & not by the user and it can't be edited
-            // Assume that everything is good. Return true.
-            return true;
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            // Since the datasource is created by rapid api & not by the user and it can't be edited.
+            // Assume that everything is good. Return as valid.
+            return new HashSet<>();
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {

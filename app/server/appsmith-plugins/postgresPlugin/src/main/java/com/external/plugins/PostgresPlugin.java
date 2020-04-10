@@ -12,11 +12,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -150,21 +152,38 @@ public class PostgresPlugin extends BasePlugin {
             }
         }
 
-        @SuppressWarnings("RedundantIfStatement")
         @Override
-        public Boolean isDatasourceValid(@NonNull DatasourceConfiguration datasourceConfiguration) {
+        public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+            Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                return false;
+                invalids.add("Missing endpoint.");
             }
 
-            if (datasourceConfiguration.getAuthentication() == null
-                    || datasourceConfiguration.getAuthentication().getUsername() == null
-                    || datasourceConfiguration.getAuthentication().getPassword() == null) {
-                return false;
+            if (datasourceConfiguration.getConnection() != null
+                    && datasourceConfiguration.getConnection().getMode() == null) {
+                invalids.add("Missing Connection Mode.");
             }
 
-            return true;
+            if (datasourceConfiguration.getAuthentication() == null) {
+                invalids.add("Authentication details missing.");
+
+            } else {
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                    invalids.add("Missing username for authentication.");
+                }
+
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                    invalids.add("Missing password for authentication.");
+                }
+
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                    invalids.add("Missing database name.");
+                }
+
+            }
+
+            return invalids;
         }
 
     }
