@@ -1,4 +1,6 @@
 // Events
+import * as log from "loglevel";
+
 export type EventName =
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -168,7 +170,7 @@ class AnalyticsUtil {
     if (windowDoc.analytics) {
       windowDoc.analytics.track(eventName, finalEventData);
     } else {
-      console.log("Event fired", eventName, finalEventData);
+      log.debug("Event fired", eventName, finalEventData);
     }
   }
 

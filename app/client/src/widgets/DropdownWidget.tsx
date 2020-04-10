@@ -60,18 +60,8 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{this.isRequired ? this.selectionType === 'SINGLE_SELECT' ? !!this.selectedOption : !!this.selectedIndexArr && this.selectedIndexArr.length > 0 : true}}`,
-      selectedOption: `{{
-        this.selectionType === 'SINGLE_SELECT'
-          ? this.options[this.selectedIndex]
-          : undefined
-      }}`,
-      selectedOptionArr: `{{
-        this.selectionType === "MULTI_SELECT"
-          ? this.options.filter((opt, index) =>
-              _.includes(this.selectedIndexArr, index),
-            )
-          : undefined
-      }}`,
+      selectedOption: `{{this.selectionType === 'SINGLE_SELECT' ? this.options[this.selectedIndex] : undefined}}`,
+      selectedOptionArr: `{{this.selectionType === "MULTI_SELECT" ? this.options.filter((opt, index) => _.includes(this.selectedIndexArr, index)) : undefined}}`,
     };
   }
 

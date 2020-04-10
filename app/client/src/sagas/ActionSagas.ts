@@ -528,9 +528,9 @@ export function* runApiActionSaga(
 
       const actionString = JSON.stringify(action);
       if (isDynamicValue(actionString)) {
-        const { paths } = getDynamicBindings(actionString);
+        const { jsSnippets } = getDynamicBindings(actionString);
         // Replace cause the existing keys could have been updated
-        jsonPathKeys = paths.filter(path => !!path);
+        jsonPathKeys = jsSnippets.filter(jsSnippet => !!jsSnippet);
       } else {
         jsonPathKeys = [];
       }
