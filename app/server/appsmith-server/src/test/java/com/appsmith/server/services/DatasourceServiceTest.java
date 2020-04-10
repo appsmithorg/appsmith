@@ -22,6 +22,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -60,9 +63,9 @@ public class DatasourceServiceTest {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("In the datasourceValidate");
-            return true;
+            return new HashSet<>();
         }
     }
 

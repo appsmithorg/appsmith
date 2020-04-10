@@ -32,8 +32,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RestApiPlugin extends BasePlugin {
     private static int MAX_REDIRECTS = 5;
@@ -216,19 +218,21 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            Set<String> invalids = new HashSet<>();
+
             if (datasourceConfiguration.getUrl() == null) {
-                System.out.println("URL is null. Data validation failed");
-                return false;
+                invalids.add("Missing URL.");
             }
-            // Check for URL validity
+
             try {
+                // Check for URL validity
                 new URL(datasourceConfiguration.getUrl()).toURI();
-                return true;
             } catch (Exception e) {
-                System.out.println("URL is invalid. Data validation failed");
-                return false;
+                invalids.add("Invalid URL: '" + e.getMessage() + "'");
             }
+
+            return invalids;
         }
 
         private boolean addHeadersToRequestAndAscertainContentType(WebClient.Builder webClientBuilder,

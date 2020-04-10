@@ -139,11 +139,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
                     DatasourceConfiguration datasourceConfiguration = datasource1.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
-                        datasource1.setIsValid(false);
-                        invalids.add(AppsmithError.INVALID_DATASOURCE_CONFIGURATION.getMessage());
+                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
                     datasource1.setInvalids(invalids);
+                    if (!invalids.isEmpty()) {
+                        datasource1.setIsValid(false);
+                    }
+
                     return Mono.just(datasource1);
                 });
     }

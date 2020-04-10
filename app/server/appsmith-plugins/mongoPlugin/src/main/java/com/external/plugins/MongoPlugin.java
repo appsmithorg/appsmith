@@ -19,6 +19,8 @@ import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 public class MongoPlugin extends BasePlugin {
@@ -127,8 +129,9 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-            return true;
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            // TODO: Apply validations for MongoDB datasource.
+            return new HashSet<>();
         }
 
     }
