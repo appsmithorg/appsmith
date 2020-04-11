@@ -1,6 +1,9 @@
 import _ from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
-import { DATA_BIND_REGEX } from "constants/BindingsConstants";
+import {
+  DATA_BIND_REGEX,
+  DATA_BIND_REGEX_GLOBAL,
+} from "constants/BindingsConstants";
 import ValidationFactory from "./ValidationFactory";
 import JSExecutionManagerSingleton, {
   JSExecutorResult,
@@ -15,13 +18,14 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import * as log from "loglevel";
+import equal from "fast-deep-equal/es6";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
-  const withBindings = string.replace(DATA_BIND_REGEX, "{{ }}");
+  const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
   return JSON.parse(withBindings);
 };
-
+// referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
@@ -90,10 +94,10 @@ const getAllPaths = (
 
 export const getDynamicBindings = (
   dynamicString: string,
-): { bindings: string[]; paths: string[] } => {
+): { mustaches: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
-    return { bindings: [], paths: [] };
+    return { mustaches: [], jsSnippets: [] };
   }
   const sanitisedString = dynamicString.trim();
   // Get the {{binding}} bound values
@@ -101,13 +105,13 @@ export const getDynamicBindings = (
   // Get the "binding" path values
   const paths = bindings.map(binding => {
     const length = binding.length;
-    const matches = binding.match(DATA_BIND_REGEX);
+    const matches = isDynamicValue(binding);
     if (matches) {
       return binding.substring(2, length - 2);
     }
     return "";
   });
-  return { bindings, paths };
+  return { mustaches: bindings, jsSnippets: paths };
 };
 
 // Paths are expected to have "{name}.{path}" signature
@@ -150,28 +154,28 @@ export const getDynamicValue = (
   includeTriggers = false,
 ): JSExecutorResult => {
   // Get the {{binding}} bound values
-  const { bindings, paths } = getDynamicBindings(dynamicBinding);
-  if (bindings.length) {
+  const { mustaches, jsSnippets } = getDynamicBindings(dynamicBinding);
+  if (mustaches.length) {
     // Get the Data Tree value of those "binding "paths
-    const values = paths.map((p, i) => {
-      if (p) {
-        const result = evaluateDynamicBoundValue(data, p, callBackData);
+    const values = jsSnippets.map((jsSnippet, index) => {
+      if (jsSnippet) {
+        const result = evaluateDynamicBoundValue(data, jsSnippet, callBackData);
         if (includeTriggers) {
           return result;
         } else {
           return { result: result.result };
         }
       } else {
-        return { result: bindings[i], triggers: [] };
+        return { result: mustaches[index], triggers: [] };
       }
     });
 
     // if it is just one binding, no need to create template string
-    if (bindings.length === 1) return values[0];
+    if (mustaches.length === 1) return values[0];
     // else return a string template with bindings
     const templateString = createDynamicValueString(
       dynamicBinding,
-      bindings,
+      mustaches,
       values.map(v => v.result),
     );
     return {
@@ -211,54 +215,66 @@ export const getValidatedTree = (tree: any) => {
   }, tree);
 };
 
-function instrumentedGetEvaluatedDataTree(): (dataTree: DataTree) => DataTree {
-  let count = 0;
-  return (dataTree: DataTree) => {
-    // increase count
-    count++;
-    // count total time taken
-    const totalStart = performance.now();
+// let dynamicDependencyMapCache: Array<[string, string]> = [];
+// let oldDataTree: DataTree = {};
+//
+// let dataTreeCache: DataTree = {};
+// let lastCacheTime = 0;
 
-    // Create Dependencies DAG
-    const createDepsStart = performance.now();
-    const dynamicDependencyMap = createDependencyTree(dataTree);
-    const createDepsEnd = performance.now();
+export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
+  // count total time taken
+  const totalStart = performance.now();
+  // Dont evaluate if called again in 60 ms
+  // if (totalStart - lastCacheTime < 60) {
+  //   return dataTreeCache;
+  // }
+  // lastCacheTime = totalStart;
 
-    // Evaluate Tree
-    const evaluatedTreeStart = performance.now();
-    const evaluatedTree = dependencySortedEvaluateDataTree(
-      dataTree,
-      dynamicDependencyMap,
-    );
-    const evaluatedTreeEnd = performance.now();
+  // const cleanDataTree = _.omit(dataTree, [
+  //   ...dataTree.actionPaths,
+  //   "__proto__",
+  // ]);
+  // const isCacheHit = equal(oldDataTree, cleanDataTree);
+  // oldDataTree = cleanDataTree;
+  // log.debug("dependencyTree cacheHit " + isCacheHit);
 
-    // Set Loading Widgets
-    const loadingTreeStart = performance.now();
-    const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
-    const loadingTreeEnd = performance.now();
+  // Create Dependencies DAG
+  const createDepsStart = performance.now();
+  const dynamicDependencyMap = createDependencyTree(dataTree);
+  // dynamicDependencyMapCache = dynamicDependencyMap;
+  const createDepsEnd = performance.now();
 
-    // Validate Widgets
-    const validated = getValidatedTree(treeWithLoading);
+  // Evaluate Tree
+  const evaluatedTreeStart = performance.now();
+  const evaluatedTree = dependencySortedEvaluateDataTree(
+    dataTree,
+    dynamicDependencyMap,
+  );
+  const evaluatedTreeEnd = performance.now();
 
-    // End counting total time
-    const endStart = performance.now();
+  // Set Loading Widgets
+  const loadingTreeStart = performance.now();
+  const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
+  const loadingTreeEnd = performance.now();
 
-    // Log time taken and count
-    const timeTaken = {
-      total: (endStart - totalStart).toFixed(2),
-      createDeps: (createDepsEnd - createDepsStart).toFixed(2),
-      evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
-      loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
-    };
-    log.debug("data tree evaluated", {
-      timeTaken,
-      count,
-    });
-    return validated;
+  // Validate Widgets
+  const validated = getValidatedTree(treeWithLoading);
+
+  // End counting total time
+  const endStart = performance.now();
+
+  // Log time taken and count
+  const timeTaken = {
+    total: (endStart - totalStart).toFixed(2),
+    createDeps: (createDepsEnd - createDepsStart).toFixed(2),
+    evaluate: (evaluatedTreeEnd - evaluatedTreeStart).toFixed(2),
+    loading: (loadingTreeEnd - loadingTreeStart).toFixed(2),
   };
+  log.debug("data tree evaluated");
+  log.debug(timeTaken);
+  // dataTreeCache = validated;
+  return validated;
 }
-
-export const getEvaluatedDataTree = instrumentedGetEvaluatedDataTree();
 
 type DynamicDependencyMap = Record<string, Array<string>>;
 export const createDependencyTree = (
@@ -270,8 +286,10 @@ export const createDependencyTree = (
     const entity = dataTree[entityKey] as WidgetProps;
     if (entity && entity.dynamicBindings) {
       Object.keys(entity.dynamicBindings).forEach(prop => {
-        const { paths } = getDynamicBindings(entity[prop]);
-        dependencyMap[`${entityKey}.${prop}`] = paths.filter(p => !!p);
+        const { jsSnippets } = getDynamicBindings(entity[prop]);
+        dependencyMap[`${entityKey}.${prop}`] = jsSnippets.filter(
+          jsSnippet => !!jsSnippet,
+        );
       });
     }
   });
@@ -375,6 +393,9 @@ export const getEntityDependencies = (
   return [];
 };
 
+const cache: Map<string, any> = new Map();
+const dependencyCache: Map<string, any[]> = new Map();
+
 export function dependencySortedEvaluateDataTree(
   dataTree: DataTree,
   dependencyTree: Array<[string, string]>,
@@ -389,42 +410,87 @@ export function dependencySortedEvaluateDataTree(
     const sortEnd = performance.now();
     // evaluate and replace values
     const evalStart = performance.now();
+    const dependencyMap: any = {};
+    dependencyTree.forEach(dependencyArr => {
+      const propertyPath = dependencyArr[0];
+      if (dependencyMap[propertyPath]) {
+        dependencyMap[propertyPath].push(dependencyArr[1]);
+      } else {
+        dependencyMap[propertyPath] = [dependencyArr[1]];
+      }
+    });
     const final = sortedDependencies.reduce(
-      (currentTree: DataTree, path: string) => {
-        const entityName = path.split(".")[0];
+      (currentTree: DataTree, propertyPath: string) => {
+        const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
-        let result = _.get(currentTree as any, path);
-        if (isDynamicValue(result)) {
+        let unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+        let evalPropertyValue = unEvalPropertyValue;
+        const requiresEval = isDynamicValue(unEvalPropertyValue);
+        if (requiresEval) {
           try {
-            const dynamicResult = getDynamicValue(result, currentTree);
-            result = dynamicResult.result;
+            const propertyDependencies = dependencyMap[propertyPath];
+            const currentDependencyValues = propertyDependencies
+              ? propertyDependencies
+                  .map((path: string) => {
+                    //*** Remove current path from data tree because cached value contains evaluated version while this contains unevaluated version */
+                    const cleanDataTree = _.omit(currentTree, [propertyPath]);
+                    return _.get(cleanDataTree, path);
+                  })
+                  .filter((data: any) => {
+                    return data !== undefined;
+                  })
+              : undefined;
+            const cachedDependencyValues = dependencyCache.get(propertyPath);
+            const cacheObj = cache.get(propertyPath);
+            const isCacheHit =
+              cacheObj &&
+              equal(cacheObj.unEvalVal, unEvalPropertyValue) &&
+              cachedDependencyValues !== undefined &&
+              equal(currentDependencyValues, cachedDependencyValues);
+            if (isCacheHit) {
+              evalPropertyValue = cacheObj.evalVal;
+            } else {
+              log.debug("eval " + propertyPath);
+              const dynamicResult = getDynamicValue(
+                unEvalPropertyValue,
+                currentTree,
+              );
+              evalPropertyValue = dynamicResult.result;
+              cache.set(propertyPath, {
+                evalVal: evalPropertyValue,
+                unEvalVal: unEvalPropertyValue,
+              });
+              dependencyCache.set(propertyPath, currentDependencyValues);
+              evalPropertyValue = dynamicResult.result;
+            }
           } catch (e) {
             console.error(e);
-            result = undefined;
+            evalPropertyValue = undefined;
+            unEvalPropertyValue = undefined;
           }
         }
         if (
           "ENTITY_TYPE" in entity &&
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
         ) {
-          const propertyPath = path.split(".")[1];
+          const propertyName = propertyPath.split(".")[1];
           const {
             parsed,
             isValid,
             message,
           } = ValidationFactory.validateWidgetProperty(
             entity.type,
-            propertyPath,
-            result,
+            propertyName,
+            evalPropertyValue,
             entity,
           );
-          result = parsed;
+          evalPropertyValue = parsed;
           if (!isValid) {
-            _.set(entity, `invalidProps.${propertyPath}`, true);
-            _.set(entity, `validationMessages.${propertyPath}`, message);
+            _.set(entity, `invalidProps.${propertyName}`, true);
+            _.set(entity, `validationMessages.${propertyName}`, message);
           }
         }
-        return _.set(currentTree, path, result);
+        return _.set(currentTree, propertyPath, evalPropertyValue);
       },
       tree,
     );
