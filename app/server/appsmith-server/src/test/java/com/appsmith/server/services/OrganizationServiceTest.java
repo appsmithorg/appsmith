@@ -34,7 +34,6 @@ public class OrganizationServiceTest {
         organization.setName("Test Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
-        organization.setSlug("test-name");
     }
 
     /* Tests for the Create Organization Flow */
@@ -68,6 +67,7 @@ public class OrganizationServiceTest {
         StepVerifier.create(organizationResponse)
                 .assertNext(organization1 -> {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
+                    assertThat(organization1.getSlug() != null);
                 })
                 .verifyComplete();
     }
