@@ -8,6 +8,7 @@ import {
   ExecuteErrorPayload,
   PageAction,
 } from "constants/ActionConstants";
+import { BatchAction, batchAction } from "actions/batchActions";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -53,3 +54,11 @@ export const createModalAction = (
     },
   };
 };
+
+export const focusWidget = (
+  widgetId?: string,
+): BatchAction<{ widgetId?: string }> =>
+  batchAction({
+    type: ReduxActionTypes.FOCUS_WIDGET,
+    payload: { widgetId },
+  });

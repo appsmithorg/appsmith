@@ -235,8 +235,11 @@ abstract class BaseWidget<
   // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
   // This would involve making all widgets which have "states" to not have states,
   // as they're extending this one.
-  shouldComponentUpdate(nextProps: WidgetProps) {
-    return !shallowequal(nextProps, this.props);
+  shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
+    return (
+      !shallowequal(nextProps, this.props) ||
+      !shallowequal(nextState, this.state)
+    );
   }
 
   private getPositionStyle(): BaseStyle {
@@ -278,7 +281,7 @@ export interface BaseStyle {
 
 export type WidgetState = {};
 
-export interface WidgetBuilder<T extends WidgetProps> {
+export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 

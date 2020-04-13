@@ -12,10 +12,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
-class ButtonWidget extends BaseWidget<
-  ButtonWidgetProps,
-  WidgetState & { isLoading: boolean }
-> {
+class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
 
   constructor(props: ButtonWidgetProps) {
@@ -96,6 +93,10 @@ export interface ButtonWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   buttonType?: ButtonType;
+}
+
+interface ButtonWidgetState extends WidgetState {
+  isLoading: boolean;
 }
 
 export default ButtonWidget;

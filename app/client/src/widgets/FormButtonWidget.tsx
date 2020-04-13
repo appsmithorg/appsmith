@@ -14,7 +14,7 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
-  WidgetState & { isLoading: boolean }
+  FormButtonWidgetState
 > {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
 
@@ -112,6 +112,10 @@ export interface FormButtonWidgetProps extends WidgetProps {
   resetFormOnClick?: boolean;
   onReset?: () => void;
   disabledWhenInvalid?: boolean;
+}
+
+export interface FormButtonWidgetState extends WidgetState {
+  isLoading: boolean;
 }
 
 export default FormButtonWidget;

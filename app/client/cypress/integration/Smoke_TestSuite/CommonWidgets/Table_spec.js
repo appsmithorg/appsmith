@@ -21,7 +21,9 @@ context("Cypress test", function() {
       .should("be.empty")
       .type("{{UsersApi.data}}", {
         parseSpecialCharSequences: false,
-      });
+        force: true,
+      })
+      .wait(5000);
 
     cy.get(widgetsPage.tableOnRowSelected)
       .get(commonlocators.dropdownSelectButton)

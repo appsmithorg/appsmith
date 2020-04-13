@@ -1,5 +1,6 @@
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { focusWidget } from "actions/widgetActions";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -41,8 +42,7 @@ export const useWidgetSelection = () => {
     selectWidget: (widgetId?: string) => {
       dispatch({ type: ReduxActionTypes.SELECT_WIDGET, payload: { widgetId } });
     },
-    focusWidget: (widgetId?: string) =>
-      dispatch({ type: ReduxActionTypes.FOCUS_WIDGET, payload: { widgetId } }),
+    focusWidget: (widgetId?: string) => dispatch(focusWidget(widgetId)),
   };
 };
 

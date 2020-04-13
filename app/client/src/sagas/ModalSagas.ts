@@ -28,6 +28,7 @@ import {
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaProperty } from "actions/metaActions";
+import { focusWidget } from "actions/widgetActions";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -94,10 +95,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
     type: ReduxActionTypes.SELECT_WIDGET,
     payload: { widgetId: action.payload.modalId },
   });
-  yield put({
-    type: ReduxActionTypes.FOCUS_WIDGET,
-    payload: { widgetId: action.payload.modalId },
-  });
+  yield put(focusWidget(action.payload.modalId));
 
   // Then show the modal we would like to show.
   yield put(
