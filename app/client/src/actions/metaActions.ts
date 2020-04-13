@@ -1,4 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { BatchAction, batchAction } from "actions/batchActions";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;
@@ -9,26 +10,26 @@ export const updateWidgetMetaProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): ReduxAction<UpdateWidgetMetaPropertyPayload> => {
-  return {
+): BatchAction<UpdateWidgetMetaPropertyPayload> => {
+  return batchAction({
     type: ReduxActionTypes.SET_META_PROP,
     payload: {
       widgetId,
       propertyName,
       propertyValue,
     },
-  };
+  });
 };
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
-): ReduxAction<{ widgetId: string }> => {
-  return {
+): BatchAction<{ widgetId: string }> => {
+  return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
     payload: {
       widgetId,
     },
-  };
+  });
 };
 
 export const resetChildrenMetaProperty = (

@@ -158,6 +158,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CREATE_MODAL_SUCCESS: "CREATE_MODAL_SUCCESS",
   UPDATE_CANVAS_SIZE: "UPDATE_CANVAS_SIZE",
   UPDATE_CURRENT_PAGE: "UPDATE_CURRENT_PAGE",
+  BATCHED_UPDATE: "BATCHED_UPDATE",
+  EXECUTE_BATCH: "EXECUTE_BATCH",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

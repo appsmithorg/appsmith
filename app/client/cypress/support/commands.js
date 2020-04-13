@@ -74,7 +74,7 @@ Cypress.Commands.add("CreateModal", () => {
 Cypress.Commands.add("PublishtheApp", () => {
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
-  cy.window().then(win => {
-    cy.get(homePage.publishCrossButton).click();
-  });
+  // cy.window().then(win => {
+  //   cy.get(homePage.publishCrossButton).click();
+  // });
 });

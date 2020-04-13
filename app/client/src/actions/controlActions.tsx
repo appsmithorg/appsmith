@@ -1,5 +1,6 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
+import { BatchAction, batchAction } from "actions/batchActions";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
@@ -22,15 +23,15 @@ export const updateWidgetProperty = (
   widgetId: string,
   propertyName: string,
   propertyValue: any,
-): ReduxAction<UpdateWidgetPropertyPayload> => {
-  return {
+): BatchAction<UpdateWidgetPropertyPayload> => {
+  return batchAction({
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
     payload: {
       widgetId,
       propertyName,
       propertyValue,
     },
-  };
+  });
 };
 
 export const setWidgetDynamicProperty = (
