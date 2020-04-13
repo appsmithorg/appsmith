@@ -317,7 +317,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         if (pageId != null) {
             params.add(FieldName.PAGE_ID, pageId);
         }
-        Flux<Action> actionsInPageFlux = actionService.get(params);
 
         Mono<Page> updatePageMono = pageService
                 .findById(pageId)
@@ -349,7 +348,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return Mono.just(page);
                 });
 
-        Mono<Set<Object>> updateActionsMono = actionsInPageFlux
+        Mono<Set<String>> updateActionsMono = actionService
+                .findByPageId(pageId)
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
                  * to look for replacement pattern.
@@ -359,7 +359,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     ActionConfiguration actionConfiguration = action.getActionConfiguration();
                     Set<String> jsonPathKeys = action.getJsonPathKeys();
 
-                    if (jsonPathKeys != null || !jsonPathKeys.isEmpty()) {
+                    if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
                         // Since json path keys actually contain the entire inline js function instead of just the widget/action
                         // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
                         // in the set and see if the old name is a substring of the json path key.
@@ -387,11 +387,14 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         return Mono.just(action);
                     }
                 })
+                .map(savedAction -> savedAction.getName())
                 .collect(toSet());
 
-        return updateActionsMono
-                .then(updatePageMono)
-                .flatMap(page -> {
+        return Mono.zip(updateActionsMono, updatePageMono)
+                .flatMap(tuple -> {
+                    Set<String> updatedActionNames = tuple.getT1();
+                    Page page = tuple.getT2();
+                    log.debug("Actions updated due to refactor name in page {} are : {}", pageId, updatedActionNames);
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
                         if (layout.getId().equals(layoutId)) {

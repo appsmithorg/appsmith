@@ -464,6 +464,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return configuration;
     }
 
+    @Override
+    public Flux<Action> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
+    }
+
     /**
      * @param template    : This is the string which contains {{key}} which would be replaced with value
      * @param name        : This is the class name of the object from which template string was created
