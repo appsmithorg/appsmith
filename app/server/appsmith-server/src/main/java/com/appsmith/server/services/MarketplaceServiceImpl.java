@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
+import com.appsmith.external.models.Provider;
 import com.appsmith.server.configurations.MarketplaceConfig;
 import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -139,6 +140,28 @@ public class MarketplaceServiceImpl implements MarketplaceService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(Boolean.class);
+    }
+
+    @Override
+    public Mono<Provider> getProviderById(String id) {
+        URI uri = buildFullURI(null, PROVIDER_PATH + "/" + id);
+
+        return webClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(String.class)
+                .flatMap(stringBody -> {
+                    Provider provider = null;
+                    try {
+                        provider = objectMapper.readValue(stringBody, Provider.class);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
+                    }
+                    return Mono.just(provider);
+                })
+                .timeout(Duration.ofMillis(timeoutInMillis))
+                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
