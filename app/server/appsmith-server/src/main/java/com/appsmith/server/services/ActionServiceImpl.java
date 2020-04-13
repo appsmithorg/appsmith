@@ -66,7 +66,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
-    private final ProviderService providerService;
+    private final MarketplaceService marketplaceService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -82,7 +82,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
-                             ProviderService providerService) {
+                             MarketplaceService marketplaceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -92,7 +92,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
-        this.providerService = providerService;
+        this.marketplaceService = marketplaceService;
     }
 
     private Boolean validateActionName(String name) {
@@ -556,8 +556,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Action> providerUpdateMono = null;
         if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
 
-            providerUpdateMono = providerService
-                    .getById(action.getProviderId())
+            providerUpdateMono = marketplaceService
+                    .getProviderById(action.getProviderId())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
                     .map(provider -> {
                         ActionProvider actionProvider = new ActionProvider();
