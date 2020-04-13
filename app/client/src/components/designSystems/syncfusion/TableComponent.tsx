@@ -84,31 +84,32 @@ const TableComponent = memo(
   (props: TableComponentProps) => {
     const grid: GridRef = useRef(null);
     const pager: PagerRef = useRef(null);
-
     function disableBubbling(e: any) {
       e.preventDefault();
       e.stopPropagation();
     }
-    /* eslint-disable react-hooks/exhaustive-deps */
-    useEffect(() => {
+    const handleCreated = () => {
       if (grid.current && grid.current.element) {
         const header = grid.current.getHeaderContent();
         header.addEventListener("mousedown", disableBubbling);
       }
-      return () => {
-        /* eslint-disable react-hooks/exhaustive-deps */
-        if (grid.current && grid.current.element) {
-          const headers = grid.current.element.getElementsByClassName(
-            "e-gridheader",
-          );
-          for (let i = 0; i < headers.length; i++) {
-            const header = headers[i];
-            header.removeEventListener("mousedown", disableBubbling);
-          }
+    };
+
+    const handleDestroy = () => {
+      /* It is as concern whether this will still propagate to the
+      internal of syncfusion, resulting in a full cleanup of all 
+      eventhandlers, components, etc.
+      */
+      if (grid.current && grid.current.element) {
+        const headers = grid.current.element.getElementsByClassName(
+          "e-gridheader",
+        );
+        for (let i = 0; i < headers.length; i++) {
+          const header = headers[i];
+          header.removeEventListener("mousedown", disableBubbling);
         }
-      };
-      /* eslint-disable react-hooks/exhaustive-deps */
-    }, [grid.current]);
+      }
+    };
 
     useEffect(() => {
       if (grid.current && grid.current.getPager()) {
@@ -160,12 +161,6 @@ const TableComponent = memo(
         }
       }
     }
-    function columnDrop() {
-      props.disableDrag(false);
-    }
-    function columnDragStart() {
-      props.disableDrag(true);
-    }
 
     const commands: CommandModel[] = (props.columnActions || []).map(action => {
       return {
@@ -211,9 +206,15 @@ const TableComponent = memo(
       );
     }
 
+    const handleResizeStart = (args: any) => {
+      args.e.stopPropagation();
+    };
+
     return (
       <TableContainer className={props.isLoading ? Classes.SKELETON : ""}>
         <StyledGridComponent
+          created={handleCreated}
+          destroy={handleDestroy}
           selectionSettings={settings}
           dataSource={props.data}
           columnMenuClick={columnMenuClick}
@@ -227,14 +228,13 @@ const TableComponent = memo(
             }
           }}
           rowSelected={rowSelected}
+          resizeStart={handleResizeStart}
           ref={grid}
           width={"100%"}
           allowPaging={!props.serverSidePaginationEnabled}
           allowReordering={true}
           allowResizing={true}
           showColumnMenu={true}
-          columnDragStart={columnDragStart}
-          columnDrop={columnDrop}
           commandClick={onCommandClick}
           columnMenuOpen={columnMenuOpen}
         >
