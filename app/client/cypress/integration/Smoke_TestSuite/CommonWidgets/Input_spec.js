@@ -18,10 +18,8 @@ context("Cypress test", function() {
       .type("{ctrl}{shift}{downarrow}")
       .clear({ force: true })
       .should("be.empty")
-      .type("Test Input Label");
-    cy.get(".CodeMirror textarea")
-      .first()
-      .should("have.value", "Test Input Label");
+      .type("Test Input Label", { force: true })
+      .wait(5000);
 
     cy.get(commonlocators.editPropCrossButton).click();
   });

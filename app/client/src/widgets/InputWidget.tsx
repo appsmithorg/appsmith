@@ -16,7 +16,13 @@ import {
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
 
-class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = {
+      text: "",
+    };
+  }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
@@ -54,7 +60,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   componentDidMount() {
     super.componentDidMount();
     const text = this.props.defaultText || "";
-    this.updateWidgetMetaProperty("text", text);
+    this.setState({ text }, () => {
+      this.updateWidgetMetaProperty("text", text);
+    });
   }
 
   componentDidUpdate(prevProps: InputWidgetProps) {
@@ -63,12 +71,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       (this.props.text !== prevProps.text && this.props.text === undefined) ||
       this.props.defaultText !== prevProps.defaultText
     ) {
-      this.updateWidgetMetaProperty("text", this.props.defaultText);
+      const text = this.props.defaultText || "";
+      this.setState({ text }, () => {
+        this.updateWidgetMetaProperty("text", text);
+      });
     }
   }
 
   onValueChange = (value: string) => {
-    this.updateWidgetMetaProperty("text", value);
+    this.setState({ text: value }, () => {
+      this.updateWidgetMetaProperty("text", value);
+    });
     if (!this.props.isDirty) {
       this.updateWidgetMetaProperty("isDirty", true);
     }
@@ -87,7 +100,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const value = this.props.text || "";
+    const value = this.state.text || "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const conditionalProps: Partial<InputComponentProps> = {};
@@ -162,6 +175,10 @@ export interface InputWidgetProps extends WidgetProps {
   isRequired?: boolean;
   isFocused?: boolean;
   isDirty?: boolean;
+}
+
+interface InputWidgetState extends WidgetState {
+  text: string;
 }
 
 export default InputWidget;

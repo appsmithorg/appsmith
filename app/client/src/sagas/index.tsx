@@ -13,6 +13,7 @@ import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
 import orgSagas from "./OrgSagas";
 import modalSagas from "./ModalSagas";
+import batchSagas from "./BatchSagas";
 
 export function* rootSaga() {
   yield all([
@@ -30,5 +31,6 @@ export function* rootSaga() {
     spawn(pluginSagas),
     spawn(orgSagas),
     spawn(modalSagas),
+    spawn(batchSagas),
   ]);
 }

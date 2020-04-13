@@ -3,6 +3,7 @@ import {
   WidgetBuilder,
   WidgetProps,
   WidgetDataProps,
+  WidgetState,
 } from "widgets/BaseWidget";
 import {
   WidgetPropertyValidationType,
@@ -15,7 +16,10 @@ export type DerivedPropertiesMap = Record<string, string>;
 export type TriggerPropertiesMap = Record<string, true>;
 
 class WidgetFactory {
-  static widgetMap: Map<WidgetType, WidgetBuilder<WidgetProps>> = new Map();
+  static widgetMap: Map<
+    WidgetType,
+    WidgetBuilder<WidgetProps, WidgetState>
+  > = new Map();
   static widgetPropValidationMap: Map<
     WidgetType,
     WidgetPropertyValidationType
@@ -35,7 +39,7 @@ class WidgetFactory {
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
-    widgetBuilder: WidgetBuilder<WidgetProps>,
+    widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     triggerPropertiesMap: TriggerPropertiesMap,

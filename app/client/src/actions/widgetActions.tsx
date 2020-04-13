@@ -53,3 +53,10 @@ export const createModalAction = (
     },
   };
 };
+
+export const focusWidget = (
+  widgetId?: string,
+): ReduxAction<{ widgetId?: string }> => ({
+  type: ReduxActionTypes.FOCUS_WIDGET,
+  payload: { widgetId },
+});
