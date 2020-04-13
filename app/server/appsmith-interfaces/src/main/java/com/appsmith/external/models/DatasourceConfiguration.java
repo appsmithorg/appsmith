@@ -23,11 +23,17 @@ public class DatasourceConfiguration {
 
     SSHConnection sshProxy;
 
+    Boolean sshProxyEnabled;
+
     List<Property> properties;
 
     // For REST API.
     String url;
 
     List<Property> headers;
+
+    public boolean isSshProxyEnabled() {
+        return sshProxyEnabled == null ? false : sshProxyEnabled;
+    }
 
 }
