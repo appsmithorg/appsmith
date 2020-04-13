@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Layout;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 import static java.util.stream.Collectors.toSet;
 
@@ -41,6 +43,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final PageService pageService;
     private final ObjectMapper objectMapper;
     private final ApplicationPageService applicationPageService;
+    private final AnalyticsService analyticsService;
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
      * e.g. for the given JS function using action with name "fetchUsers"
@@ -60,11 +63,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public LayoutActionServiceImpl(ActionService actionService,
                                    PageService pageService,
                                    ObjectMapper objectMapper,
-                                   ApplicationPageService applicationPageService) {
+                                   ApplicationPageService applicationPageService,
+                                   AnalyticsService analyticsService) {
         this.actionService = actionService;
         this.pageService = pageService;
         this.objectMapper = objectMapper;
         this.applicationPageService = applicationPageService;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -494,5 +499,72 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return true;
                 });
+    }
+
+    /**
+     * This function updates an existing action in the DB. We are completely overriding the base update function to
+     * ensure that we can populate the JsonPathKeys field in the ActionConfiguration based on any changes that may
+     * have happened in the action object.
+     * <p>
+     * After updating the action, page layout needs to be updated to update the page load actions with the new json
+     * path keys.
+     * <p>
+     * Calling the base function would make redundant DB calls and slow down this API unnecessarily.
+     *
+     * @param id
+     * @param action
+     * @return
+     */
+    @Override
+    public Mono<Action> updateAction(String id, Action action) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        Mono<Action> dbActionMono = actionService.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
+
+        return dbActionMono
+                .map(dbAction -> {
+                    copyNewFieldValuesIntoOldObject(action, dbAction);
+                    return dbAction;
+                })
+                .flatMap(actionService::validateAndSaveActionToRepository)
+                .flatMap(savedAction -> {
+                    // Now that the action has been saved, update the page layout as well
+                    String pageId = savedAction.getPageId();
+                    Mono<Object> updateLayoutsMono = null;
+                    if (pageId != null) {
+                        updateLayoutsMono = pageService.findById(pageId)
+                                .map(page -> {
+                                    if (page.getLayouts() == null) {
+                                        return Mono.empty();
+                                    }
+
+                                    return page.getLayouts()
+                                            .stream()
+                                            /*
+                                             * subscribe() is being used here because within a stream, the master subscriber provided
+                                             * by spring framework does not get attached here leading to the updateLayout mono not
+                                             * emitting. The same is true for the updateLayout call for the new page.
+                                             */
+                                            .map(layout -> this.updateLayout(page.getId(), layout.getId(), layout).subscribe())
+                                            .collect(toSet());
+                                });
+                    }
+                    if (updateLayoutsMono != null) {
+                        return updateLayoutsMono
+                                .then(Mono.just(savedAction));
+                    }
+                    return Mono.just(savedAction);
+                })
+                .map(savedAction -> {
+                            Action act = (Action) savedAction;
+                            analyticsService
+                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
+                                            act);
+                            return act;
+                        }
+                );
     }
 }
