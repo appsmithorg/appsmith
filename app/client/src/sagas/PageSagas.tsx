@@ -21,7 +21,6 @@ import PageApi, {
   FetchPageResponse,
   SavePageResponse,
   FetchPageRequest,
-  SavePageRequest,
   FetchPublishedPageRequest,
   FetchPublishedPageResponse,
   CreatePageRequest,
@@ -37,7 +36,6 @@ import {
   select,
   put,
   takeLatest,
-  takeEvery,
   all,
   debounce,
 } from "redux-saga/effects";
@@ -45,7 +43,7 @@ import history from "utils/history";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { getEditorConfigs } from "./selectors";
+import { getEditorConfigs, getWidgets } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -182,8 +180,10 @@ export function* fetchPublishedPageSaga(
   }
 }
 
-function* savePageSaga(savePageAction: ReduxAction<SavePageRequest>) {
-  const savePageRequest = savePageAction.payload;
+function* savePageSaga() {
+  const widgets = yield select(getWidgets);
+  const editorConfigs = yield select(getEditorConfigs) as any;
+  const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
   try {
     const savePageResponse: SavePageResponse = yield call(
       PageApi.savePage,
@@ -219,16 +219,10 @@ function getLayoutSavePayload(
   };
 }
 
-export function* saveLayoutSaga(
-  action: ReduxAction<{ widgets: FlattenedWidgetProps }>,
-) {
+export function* saveLayoutSaga() {
   try {
-    const { widgets } = action.payload;
-    const editorConfigs = yield select(getEditorConfigs) as any;
-
     yield put({
       type: ReduxActionTypes.SAVE_PAGE_INIT,
-      payload: getLayoutSavePayload(widgets, editorConfigs),
     });
   } catch (error) {
     yield put({
@@ -386,8 +380,7 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       fetchPublishedPageSaga,
     ),
-    takeEvery(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-
+    takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLatest(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLatest(ReduxActionTypes.FETCH_PAGE_LIST_INIT, fetchPageListSaga),
     takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
