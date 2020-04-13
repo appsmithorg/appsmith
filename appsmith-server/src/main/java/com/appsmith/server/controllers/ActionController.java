@@ -8,7 +8,6 @@ import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ActionService;
 import com.appsmith.server.services.LayoutActionService;

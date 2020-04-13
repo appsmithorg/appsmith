@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
 
 @Slf4j
@@ -96,42 +95,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.providerService = providerService;
     }
 
-    /**
-     * This function updates an existing action in the DB. We are completely overriding the base update function to
-     * ensure that we can populate the JsonPathKeys field in the ActionConfiguration based on any changes that may
-     * have happened in the action object.
-     * <p>
-     * Calling the base function would make redundant DB calls and slow down this API unnecessarily.
-     *
-     * @param id
-     * @param action
-     * @return
-     */
-    @Override
-    public Mono<Action> update(String id, Action action) {
-        Set<String> invalids = new HashSet<>();
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        Mono<Action> dbActionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
-
-        return dbActionMono
-                .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(action, dbAction);
-                    return dbAction;
-                })
-                .flatMap(this::validateAndSaveActionToRepository)
-                .map(act -> {
-                            analyticsService
-                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
-                                            act);
-                            return act;
-                        }
-                );
-    }
-
     private Boolean validateActionName(String name) {
         boolean isValidName = SourceVersion.isName(name);
         String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
@@ -158,7 +121,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(this::validateAndSaveActionToRepository);
     }
 
-    private Mono<Action> validateAndSaveActionToRepository(Action action) {
+    @Override
+    public Mono<Action> validateAndSaveActionToRepository(Action action) {
         //Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
         action.setIsValid(true);
@@ -462,6 +426,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             log.error("Exception caught while substituting values in mustache template.", e);
         }
         return configuration;
+    }
+
+    @Override
+    public Mono<Action> findById(String id) {
+        return repository.findById(id);
     }
 
     @Override

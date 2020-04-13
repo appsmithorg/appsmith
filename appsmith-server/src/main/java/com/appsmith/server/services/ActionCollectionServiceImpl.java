@@ -23,12 +23,15 @@ import java.util.List;
 public class ActionCollectionServiceImpl implements ActionCollectionService {
     private final ActionService actionService;
     private final CollectionService collectionService;
+    private final LayoutActionService layoutActionService;
 
     @Autowired
     public ActionCollectionServiceImpl(ActionService actionService,
-                                       CollectionService collectionService) {
+                                       CollectionService collectionService,
+                                       LayoutActionService layoutActionService) {
         this.actionService = actionService;
         this.collectionService = collectionService;
+        this.layoutActionService = layoutActionService;
     }
 
     /**
@@ -120,7 +123,7 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
     public Mono<Action> updateAction(String id, Action action) {
         //The change was not in CollectionId, just go ahead and update normally
         if (action.getCollectionId() == null) {
-            return actionService.update(id, action);
+            return layoutActionService.updateAction(id, action);
         } else if (action.getCollectionId().length() == 0) {
             //The Action has been removed from existing collection.
             return actionService
@@ -129,7 +132,7 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                     .flatMap(action1 -> {
                         log.debug("Action {} has been removed from its collection.", action1.getId());
                         action.setCollectionId(null);
-                        return actionService.update(id, action)
+                        return layoutActionService.updateAction(id, action)
                                 .flatMap(updatedAction -> {
                                     updatedAction.setCollectionId(null);
                                     return actionService.save(updatedAction);
@@ -149,7 +152,7 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
                     .flatMap(action1 -> collectionService.addSingleActionToCollection(action.getCollectionId(), action1))
                     .flatMap(action1 -> {
                         log.debug("Action {} removed from its previous collection and added to the new collection", action1.getId());
-                        return actionService.update(id, action);
+                        return layoutActionService.updateAction(id, action);
                     });
         }
     }
