@@ -23,4 +23,5 @@ public interface ActionService extends CrudService<Action, String> {
 
     Object variableSubstitution(Object configuration, Map<String, String> replaceParamsMap);
 
+    Flux<Action> findByPageId(String pageId);
 }
