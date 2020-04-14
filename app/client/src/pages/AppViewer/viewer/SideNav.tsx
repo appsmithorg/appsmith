@@ -20,7 +20,7 @@ const SideNavWrapper = styled.div<{
       props.open
         ? props.theme.sideNav.maxWidth
         : props.theme.sideNav.minWidth}px;
-    transition: width 0.1s ease-in;
+    transition: width 0.2s ease-in;
     height: 100%;
     & ul {
       min-width: ${props => props.theme.sideNav.minWidth}px;

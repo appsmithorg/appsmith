@@ -384,7 +384,7 @@ export const theme: Theme = {
   headerHeight: "50px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
-    maxWidth: 300,
+    maxWidth: 220,
     minWidth: 50,
     bgColor: Colors.OXFORD_BLUE,
     fontColor: Colors.WHITE,
