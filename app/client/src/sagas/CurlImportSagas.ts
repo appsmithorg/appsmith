@@ -24,11 +24,10 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
   let { curl } = action.payload;
   try {
-    if (curl.charAt(0) === '"' && curl.charAt(curl.length - 1) === '"') {
-      curl = curl;
-    } else {
-      curl = '"' + curl + '"';
-    }
+    // Transform to add quotes if not present
+    curl = `${curl.charAt(0) !== '"' ? '"' : ""}${curl}${
+      curl.charAt(curl.length - 1) !== '"' ? '"' : ""
+    }`;
     const request: CurlImportRequest = { type, pageId, name, curl };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);

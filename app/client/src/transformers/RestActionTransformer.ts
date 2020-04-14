@@ -1,4 +1,3 @@
-import { RestAction } from "api/ActionAPI";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 
 export const transformRestAction = (data: any): any => {
