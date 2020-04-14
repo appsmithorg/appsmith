@@ -1,6 +1,5 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
 import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
@@ -21,7 +20,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     );
   }
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "ACTION_SELECTOR";
   }
 }

@@ -1,20 +1,21 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+export default "switch_widget";
+// import React from "react";
+// import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+// import { WidgetType } from "constants/WidgetConstants";
 
-class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
-  getPageView() {
-    return <div />;
-  }
+// class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
+//   getPageView() {
+//     return <div />;
+//   }
 
-  getWidgetType(): WidgetType {
-    return "SWITCH_WIDGET";
-  }
-}
+//   getWidgetType(): WidgetType {
+//     return "SWITCH_WIDGET";
+//   }
+// }
 
-export interface SwitchWidgetProps extends WidgetProps {
-  isOn: boolean;
-  label: string;
-}
+// export interface SwitchWidgetProps extends WidgetProps {
+//   isOn: boolean;
+//   label: string;
+// }
 
-export default SwitchWidget;
+// export default SwitchWidget;

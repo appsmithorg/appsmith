@@ -1,26 +1,16 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { InputControlProps } from "components/propertyControls/InputTextControl";
-import { DropDownControlProps } from "components/propertyControls/DropDownControl";
-import { ControlProps } from "components/propertyControls/BaseControl";
+import { PropertyControlPropsType } from "components/propertyControls";
 import { WidgetType } from "constants/WidgetConstants";
 
 const initialState: PropertyPaneConfigState = {
   configVersion: 0,
 };
 
-export type ControlConfig =
-  | InputControlProps
-  | DropDownControlProps
-  | ControlProps;
-
-export type SectionOrientation = "HORIZONTAL" | "VERTICAL";
-
 export interface PropertySection {
   id: string;
-  sectionName?: string;
-  orientation?: SectionOrientation;
-  children: (ControlConfig | PropertySection)[];
+  sectionName: string;
+  children: (Partial<PropertyControlPropsType> | PropertySection)[];
 }
 
 export type PropertyConfig = Record<WidgetType, PropertySection[]>;

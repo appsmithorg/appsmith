@@ -141,15 +141,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
   }
 }
 
-export type InputType =
-  | "TEXT"
-  | "NUMBER"
-  | "INTEGER"
-  | "PHONE_NUMBER"
-  | "EMAIL"
-  | "PASSWORD"
-  | "CURRENCY"
-  | "SEARCH";
+export const InputTypes: { [key: string]: string } = {
+  TEXT: "TEXT",
+  NUMBER: "NUMBER",
+  INTEGER: "INTEGER",
+  PHONE_NUMBER: "PHONE_NUMBER",
+  EMAIL: "EMAIL",
+  PASSWORD: "PASSWORD",
+  CURRENCY: "CURRENCY",
+  SEARCH: "SEARCH",
+};
+
+export type InputType = typeof InputTypes[keyof typeof InputTypes];
 
 export interface InputValidator {
   validationRegex: string;

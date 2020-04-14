@@ -94,6 +94,7 @@ class PropertyPane extends Component<
           }}
           size={theme.spaces[5]}
           color={theme.colors.paneSectionLabel}
+          className={"t--property-pane-close-btn"}
         />
         <Divider />
         {!_.isNil(propertySections)
@@ -119,13 +120,7 @@ class PropertyPane extends Component<
         ) : (
           undefined
         )}
-        <div
-          style={
-            propertySection.orientation === "HORIZONTAL"
-              ? { flexDirection: "row" }
-              : { flexDirection: "column" }
-          }
-        >
+        <div>
           {_.map(
             propertySection.children,
             (propertyControlOrSection: ControlProps | PropertySection) => {

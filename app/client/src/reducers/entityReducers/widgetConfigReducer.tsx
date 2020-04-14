@@ -8,8 +8,6 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
-import { SwitchWidgetProps } from "widgets/SwitchWidget";
-import { SpinnerWidgetProps } from "widgets/SpinnerWidget";
 import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
 import { TableWidgetProps } from "../../widgets/TableWidget";
 import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
@@ -21,6 +19,7 @@ import { ChartWidgetProps } from "../../widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
+import { IconWidgetProps } from "widgets/IconWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -48,10 +47,8 @@ export interface WidgetConfigReducerState {
     INPUT_WIDGET: Partial<InputWidgetProps> & WidgetConfigProps;
     RICH_TEXT_EDITOR_WIDGET: Partial<RichTextEditorWidgetProps> &
       WidgetConfigProps;
-    SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
-    SPINNER_WIDGET: Partial<SpinnerWidgetProps> & WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
@@ -65,6 +62,7 @@ export interface WidgetConfigReducerState {
     FORM_BUTTON_WIDGET: Partial<FormButtonWidgetProps> & WidgetConfigProps;
     CANVAS_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
+    ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

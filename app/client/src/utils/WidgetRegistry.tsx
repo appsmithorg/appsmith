@@ -3,7 +3,6 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import TextWidget, { TextWidgetProps } from "widgets/TextWidget";
 import InputWidget, { InputWidgetProps } from "widgets/InputWidget";
-import SpinnerWidget, { SpinnerWidgetProps } from "widgets/SpinnerWidget";
 import CheckboxWidget, { CheckboxWidgetProps } from "widgets/CheckboxWidget";
 import RadioGroupWidget, {
   RadioGroupWidgetProps,
@@ -30,6 +29,7 @@ import FormWidget from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
 } from "widgets/FormButtonWidget";
+import IconWidget, { IconWidgetProps } from "widgets/IconWidget";
 
 import CanvasWidget from "widgets/CanvasWidget";
 
@@ -71,18 +71,6 @@ class WidgetBuilderRegistry {
       ButtonWidget.getPropertyValidationMap(),
       ButtonWidget.getDerivedPropertiesMap(),
       ButtonWidget.getTriggerPropertyMap(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "SPINNER_WIDGET",
-      {
-        buildWidget(widgetData: SpinnerWidgetProps): JSX.Element {
-          return <SpinnerWidget {...widgetData} />;
-        },
-      },
-      SpinnerWidget.getPropertyValidationMap(),
-      SpinnerWidget.getDerivedPropertiesMap(),
-      SpinnerWidget.getTriggerPropertyMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -248,6 +236,18 @@ class WidgetBuilderRegistry {
       CanvasWidget.getPropertyValidationMap(),
       CanvasWidget.getDerivedPropertiesMap(),
       CanvasWidget.getTriggerPropertyMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_WIDGET,
+      {
+        buildWidget(widgetProps: IconWidgetProps): JSX.Element {
+          return <IconWidget {...widgetProps} />;
+        },
+      },
+      IconWidget.getPropertyValidationMap(),
+      IconWidget.getDerivedPropertiesMap(),
+      IconWidget.getTriggerPropertyMap(),
     );
   }
 }

@@ -34,7 +34,10 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import { buildWidgetBlueprint } from "sagas/WidgetBlueprintSagas";
+import {
+  buildWidgetBlueprint,
+  executeWidgetBlueprintOperations,
+} from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -89,7 +92,8 @@ function* generateChildWidgets(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): any {
   const widget = yield getChildWidgetProps(parent, params, widgets);
-  if (widget.blueprint) {
+  widgets[widget.widgetId] = widget;
+  if (widget.blueprint && widget.blueprint.view) {
     const childWidgetList: WidgetAddChild[] = yield call(
       buildWidgetBlueprint,
       widget.blueprint,
@@ -106,8 +110,20 @@ function* generateChildWidgets(
       widgets = props.widgets;
     });
   }
-  widgets[widget.widgetId] = widget;
 
+  widgets[widget.widgetId] = widget;
+  if (
+    widget.blueprint &&
+    widget.blueprint.operations &&
+    widget.blueprint.operations.length > 0
+  ) {
+    widgets = yield call(
+      executeWidgetBlueprintOperations,
+      widget.blueprint.operations,
+      widgets,
+      widget.widgetId,
+    );
+  }
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -135,6 +151,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
+    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {

@@ -2,7 +2,6 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
-import { ControlType } from "constants/PropertyControlConstants";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 
 export function InputText(props: {
@@ -75,7 +74,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     this.updateProperty(this.props.propertyName, value);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "INPUT_TEXT";
   }
 }
