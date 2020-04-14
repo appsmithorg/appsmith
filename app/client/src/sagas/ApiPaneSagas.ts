@@ -10,7 +10,8 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME, API_HOME_SCREEN_FORM } from "constants/forms";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
 import {
@@ -29,6 +30,7 @@ import {
   UNIQUE_NAME_ERROR,
   VALID_FUNCTION_NAME_ERROR,
 } from "constants/messages";
+import { fetchProvidersWithCategory } from "actions/providerActions";
 
 const getApiDraft = (state: AppState, id: string) => {
   const drafts = state.ui.apiPane.drafts;
@@ -62,6 +64,7 @@ function* syncApiParamsSaga(
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
+
   if (field === "actionConfiguration.path") {
     if (value.indexOf("?") > -1) {
       const paramsString = value.substr(value.indexOf("?") + 1);
@@ -125,7 +128,70 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
   const action = yield select(getAction, id);
   const draft = yield select(getApiDraft, id);
-  const data = _.isEmpty(draft) ? action : draft;
+  let fromDraft = false;
+  let data = {} as any;
+  if (_.isEmpty(draft)) {
+    data = {
+      displayFormat: "",
+      ...action,
+      actionConfiguration: {
+        headers: [
+          { key: "", value: "" },
+          { key: "", value: "" },
+        ],
+        queryParameters: [
+          { key: "", value: "" },
+          { key: "", value: "" },
+        ],
+        path: "",
+        ...action.actionConfiguration,
+      },
+    };
+  } else {
+    fromDraft = true;
+    data = draft;
+  }
+  if (data.actionConfiguration.path) {
+    if (data.actionConfiguration.path.charAt(0) === "/")
+      data.actionConfiguration.path = data.actionConfiguration.path.substring(
+        1,
+      );
+  }
+
+  if (
+    data.actionConfiguration.httpMethod !== "GET" &&
+    !fromDraft &&
+    !data.providerId
+  ) {
+    let contentType;
+    const headers = data.actionConfiguration.headers;
+    if (headers) {
+      contentType = headers.find(
+        (header: any) => header.key === "content-type",
+      );
+    }
+    const actionConfigurationBody = data.actionConfiguration.body;
+    data.actionConfiguration.body = [];
+    if (contentType) {
+      if (
+        contentType.value === POST_BODY_FORMAT_OPTIONS[0].value &&
+        data.actionConfiguration.body
+      ) {
+        data.actionConfiguration.body[0] = actionConfigurationBody;
+      } else {
+        if (typeof actionConfigurationBody !== "object") {
+          data.actionConfiguration.body[1] = JSON.parse(
+            actionConfigurationBody,
+          );
+        } else {
+          data.actionConfiguration.body[1] = actionConfigurationBody;
+        }
+      }
+    } else {
+      data.displayFormat = POST_BODY_FORMAT_OPTIONS[0].value;
+    }
+  }
+
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
   if (data.actionConfiguration && data.actionConfiguration.queryParameters) {
@@ -141,18 +207,21 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 function* updateDraftsSaga() {
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  const { values, initialValues } = yield select(
+    getFormData,
+    API_EDITOR_FORM_NAME,
+  );
   if (!values.id) return;
-  const action = yield select(getAction, values.id);
-  if (_.isEqual(values, action)) {
-    yield put({
-      type: ReduxActionTypes.DELETE_API_DRAFT,
-      payload: { id: values.id },
-    });
-  } else {
+
+  if (!_.isEqual(values, initialValues)) {
     yield put({
       type: ReduxActionTypes.UPDATE_API_DRAFT,
       payload: { id: values.id, draft: values },
+    });
+  } else {
+    yield put({
+      type: ReduxActionTypes.DELETE_API_DRAFT,
+      payload: { id: values.id },
     });
   }
 }
@@ -198,15 +267,66 @@ function* validateInputSaga(
     },
   });
 }
+
+function* updateFormFields(
+  actionPayload: ReduxActionWithMeta<string, { field: string }>,
+) {
+  const field = actionPayload.meta.field;
+  const value = actionPayload.payload;
+
+  if (field === "actionConfiguration.httpMethod") {
+    if (value !== "GET") {
+      const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+      const { actionConfiguration } = values;
+      const actionConfigurationHeaders = actionConfiguration.headers;
+      let contentType;
+
+      if (actionConfigurationHeaders) {
+        contentType = actionConfigurationHeaders.find(
+          (header: any) => header.key === "content-type",
+        );
+      }
+
+      if (!contentType) {
+        yield put(
+          autofill(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
+            ...actionConfigurationHeaders,
+            {
+              key: "content-type",
+              value: POST_BODY_FORMAT_OPTIONS[0].value,
+            },
+          ]),
+        );
+        yield put(
+          autofill(
+            API_EDITOR_FORM_NAME,
+            "displayFormat",
+            POST_BODY_FORMAT_OPTIONS[0].value,
+          ),
+        );
+      }
+    } else {
+      yield put(autofill(API_EDITOR_FORM_NAME, "displayFormat", ""));
+    }
+  }
+}
+
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form } = actionPayload.meta;
+  if (form === API_HOME_SCREEN_FORM) {
+    yield put(
+      fetchProvidersWithCategory({ category: actionPayload.payload, page: 1 }),
+    );
+    return;
+  }
   if (form !== API_EDITOR_FORM_NAME) return;
   yield all([
     call(validateInputSaga, actionPayload),
     call(updateDraftsSaga),
     call(syncApiParamsSaga, actionPayload),
+    call(updateFormFields, actionPayload),
   ]);
 }
 
@@ -267,5 +387,6 @@ export default function* root() {
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }

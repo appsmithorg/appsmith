@@ -13,6 +13,7 @@ import "codemirror/addon/display/autorefresh";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
@@ -27,6 +28,7 @@ const getBorderStyle = (
     hasError: boolean;
     singleLine: boolean;
     isFocused: boolean;
+    disabled?: boolean;
   },
 ) => {
   if (props.hasError) return props.theme.colors.error;
@@ -79,6 +81,7 @@ const Wrapper = styled.div<{
   hasError: boolean;
   singleLine: boolean;
   isFocused: boolean;
+  disabled?: boolean;
 }>`
   ${props =>
     props.singleLine && props.isFocused
@@ -91,7 +94,8 @@ const Wrapper = styled.div<{
   `
       : `z-index: 0; position: relative`}
   background-color: ${props =>
-    props.editorTheme === THEMES.DARK ? "#272822" : "#fff"}
+    props.editorTheme === THEMES.DARK ? "#272822" : "#fff"};
+  background-color: ${props => props.disabled && "#eef2f5"};
   border: 1px solid;
   border-color: ${getBorderStyle};
   border-radius: 4px;
@@ -115,6 +119,13 @@ const Wrapper = styled.div<{
       border-radius: 4px;
       height: auto;
     }
+    ${props =>
+      props.disabled &&
+      `
+    .CodeMirror-cursor {
+      display: none !important;
+    }
+    `}
     .CodeMirror pre.CodeMirror-placeholder {
       color: #a3b3bf;
     }
@@ -128,6 +139,25 @@ const Wrapper = styled.div<{
       }
     }
     `}
+  }
+  && {
+    .CodeMirror-lines {
+      background-color: ${props => props.disabled && "#eef2f5"};
+      cursor: ${props => (props.disabled ? "not-allowed" : "text")}
+    }
+  }
+  .bp3-popover-target {
+    padding-right: 10px;
+    padding-top: 5px;
+  }
+  .leftImageStyles {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+  }
+  .linkStyles {
+    margin: 5px;
+    margin-right: 11px;
   }
 `;
 
@@ -149,6 +179,9 @@ const IconContainer = styled.div`
       }
     }
   }
+  .bp3-popover-target {
+    padding-right: 10px;
+  }
 `;
 
 const THEMES = {
@@ -165,12 +198,17 @@ interface ReduxStateProps {
 export type DynamicAutocompleteInputProps = {
   placeholder?: string;
   leftIcon?: Function;
+  rightIcon?: Function;
+  description?: string;
   height?: number;
   theme?: THEME;
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   allowTabIndent?: boolean;
   singleLine: boolean;
+  disabled?: boolean;
+  leftImage?: string;
+  link?: string;
 };
 
 type Props = ReduxStateProps &
@@ -199,7 +237,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     if (this.textArea.current) {
       const options: EditorConfiguration = {};
       if (this.props.theme === "DARK") options.theme = "monokai";
-      if (!this.props.input.onChange) options.readOnly = true;
+      if (!this.props.input.onChange || this.props.disabled) {
+        options.readOnly = true;
+        options.scrollbarStyle = "null";
+      }
       if (this.props.showLineNumbers) options.lineNumbers = true;
       const extraKeys: Record<string, any> = {
         "Ctrl-Space": "autocomplete",
@@ -350,7 +391,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   render() {
-    const { input, meta, theme, singleLine } = this.props;
+    const { input, meta, theme, singleLine, disabled } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
@@ -364,17 +405,45 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           hasError={hasError}
           singleLine={singleLine}
           isFocused={this.state.isFocused}
+          disabled={disabled}
         >
           <HintStyles />
           <IconContainer>
             {this.props.leftIcon && <this.props.leftIcon />}
           </IconContainer>
+
+          {this.props.leftImage && (
+            <img
+              src={this.props.leftImage}
+              alt="img"
+              className="leftImageStyles"
+            />
+          )}
+
           <textarea
             ref={this.textArea}
             {..._.omit(this.props.input, ["onChange", "value"])}
             defaultValue={input.value}
             placeholder={this.props.placeholder}
           />
+          {this.props.link && (
+            <React.Fragment>
+              <a
+                href={this.props.link}
+                target="_blank"
+                className="linkStyles"
+                rel="noopener noreferrer"
+              >
+                API documentation
+              </a>
+            </React.Fragment>
+          )}
+          {this.props.rightIcon && (
+            <HelperTooltip
+              description={this.props.description}
+              rightIcon={this.props.rightIcon}
+            />
+          )}
         </Wrapper>
       </ErrorTooltip>
     );
