@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
@@ -558,7 +559,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
             providerUpdateMono = marketplaceService
                     .getProviderById(action.getProviderId())
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
+                    .switchIfEmpty(Mono.just(new Provider()))
                     .map(provider -> {
                         ActionProvider actionProvider = new ActionProvider();
                         actionProvider.setName(provider.getName());
