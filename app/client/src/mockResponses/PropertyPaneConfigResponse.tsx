@@ -94,7 +94,28 @@ const PropertyPaneConfigResponse = {
         sectionName: "General",
         children: [
           {
-            id: "7.1.1",
+            id: "7.1.4",
+            helpText: "Enable PDF Export",
+            propertyName: "exportPDF",
+            label: "PDF Export",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.5",
+            helpText: "Enable Excel Export",
+            propertyName: "exportExcel",
+            label: "Excel Export",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.6",
+            helpText: "Enable CSV Export",
+            propertyName: "exportCsv",
+            label: "CSV Export",
+            controlType: "SWITCH",
+          },
+          {
+            id: "7.1.7",
             helpText:
               "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
             propertyName: "tableData",
