@@ -1,7 +1,17 @@
-import React from "react";
-import { reduxForm, InjectedFormProps, FormSubmitHandler } from "redux-form";
-import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import {
+  reduxForm,
+  InjectedFormProps,
+  FormSubmitHandler,
+  formValueSelector,
+} from "redux-form";
+import {
+  HTTP_METHOD_OPTIONS,
+  HTTP_METHODS,
+} from "constants/ApiEditorConstants";
 import styled from "styled-components";
+import PostBodyData from "./PostBodyData";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
@@ -22,6 +32,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   height: calc(100vh - ${props => props.theme.headerHeight});
+  overflow: auto;
   width: 100%;
   ${FormLabel} {
     padding: ${props => props.theme.spaces[3]}px;
@@ -29,7 +40,7 @@ const Form = styled.form`
   ${FormRow} {
     padding: ${props => props.theme.spaces[2]}px;
     & > * {
-      margin-right: 5px;
+      margin-right: 10px;
     }
     ${FormLabel} {
       padding: 0;
@@ -40,20 +51,24 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   padding-top: 10px;
+  padding-left: 17px;
 `;
 
 const SecondaryWrapper = styled.div`
   display: flex;
   height: 100%;
   border-top: 1px solid #d0d7dd;
+  margin-top: 15px;
 `;
 
 const RequestParamsWrapper = styled.div`
   flex: 4;
   border-right: 1px solid #d0d7dd;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-top: 6px;
+  padding-left: 17px;
+  padding-right: 10px;
 `;
 
 const ActionButtons = styled.div`
@@ -68,8 +83,8 @@ const ActionButton = styled(BaseButton)`
   }
 `;
 
-const JSONEditorFieldWrapper = styled.div`
-  margin: 5px;
+const HeadersSection = styled.div`
+  margin-bottom: 32px;
 `;
 
 const DatasourceWrapper = styled.div`
@@ -85,7 +100,6 @@ const TabbedViewContainer = styled.div`
 interface APIFormProps {
   pluginId: string;
   allowSave: boolean;
-  allowPostBody: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
   onSaveClick: () => void;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -95,6 +109,15 @@ interface APIFormProps {
   isDeleting: boolean;
   paginationType: PaginationType;
   appName: string;
+  actionConfiguration?: any;
+  displayFormat: string;
+  httpMethodFromForm: string;
+  actionConfigurationBody: object | string;
+  actionConfigurationHeaders?: any;
+  contentType: {
+    key: string;
+    value: string;
+  };
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
@@ -103,7 +126,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
     pluginId,
     allowSave,
-    allowPostBody,
     onSaveClick,
     onDeleteClick,
     onRunClick,
@@ -111,7 +133,28 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     isDeleting,
     isRunning,
     isSaving,
+    actionConfiguration,
+    actionConfigurationHeaders,
+    actionConfigurationBody,
+    httpMethodFromForm,
+    contentType,
+    displayFormat,
   } = props;
+  const allowPostBody =
+    httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
+  useEffect(() => {
+    if (allowPostBody) {
+      if (contentType) {
+        if (!displayFormat) {
+          props.change("displayFormat", contentType.value);
+        } else {
+          contentType.value = displayFormat;
+          props.change("contentType.value", displayFormat);
+        }
+      }
+    }
+  });
+
   return (
     <Form onSubmit={handleSubmit}>
       {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
@@ -178,27 +221,25 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 title: "API Input",
                 panelComponent: (
                   <RequestParamsWrapper>
-                    <KeyValueFieldArray
-                      name="actionConfiguration.headers"
-                      label="Headers"
-                    />
+                    <HeadersSection>
+                      <KeyValueFieldArray
+                        name="actionConfiguration.headers"
+                        label="Headers"
+                        actionConfig={
+                          actionConfiguration && actionConfigurationHeaders
+                        }
+                        placeholder="Value"
+                      />
+                    </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
                     />
                     {allowPostBody && (
-                      <React.Fragment>
-                        <FormLabel>{"Post Body"}</FormLabel>
-                        <JSONEditorFieldWrapper>
-                          <DynamicTextField
-                            name="actionConfiguration.body"
-                            height={300}
-                            showLineNumbers
-                            allowTabIndent
-                            singleLine={false}
-                          />
-                        </JSONEditorFieldWrapper>
-                      </React.Fragment>
+                      <PostBodyData
+                        actionConfiguration={actionConfigurationBody}
+                        change={props.change}
+                      />
                     )}
                   </RequestParamsWrapper>
                 ),
@@ -223,7 +264,35 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default reduxForm<RestAction, APIFormProps>({
-  form: API_EDITOR_FORM_NAME,
-  enableReinitialize: true,
-})(ApiEditorForm);
+const selector = formValueSelector(API_EDITOR_FORM_NAME);
+
+export default connect(state => {
+  const displayFormat = selector(state, "displayFormat");
+  const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
+  const actionConfiguration = selector(state, "actionConfiguration");
+  const actionConfigurationBody = selector(state, "actionConfiguration.body");
+  const actionConfigurationHeaders = selector(
+    state,
+    "actionConfiguration.headers",
+  );
+  let contentType;
+  if (actionConfigurationHeaders) {
+    contentType = actionConfigurationHeaders.find(
+      (header: any) => header.key === "content-type",
+    );
+  }
+
+  return {
+    displayFormat,
+    httpMethodFromForm,
+    actionConfiguration,
+    actionConfigurationBody,
+    contentType,
+    actionConfigurationHeaders,
+  };
+})(
+  reduxForm<RestAction, APIFormProps>({
+    form: API_EDITOR_FORM_NAME,
+    destroyOnUnmount: false,
+  })(ApiEditorForm),
+);

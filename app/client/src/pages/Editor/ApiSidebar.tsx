@@ -15,10 +15,11 @@ import {
 import { changeApi, initApiPane } from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
 import { getPluginIdOfName } from "selectors/entitiesSelector";
-import { DEFAULT_API_ACTION, PLUGIN_NAME } from "constants/ApiEditorConstants";
+import { PLUGIN_NAME } from "constants/ApiEditorConstants";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -51,6 +52,7 @@ const ActionName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100px;
 `;
 
 interface ReduxStateProps {
@@ -91,19 +93,6 @@ class ApiSidebar extends React.Component<Props> {
     }
     return nextProps.actions !== this.props.actions;
   }
-
-  handleCreateNew = () => {
-    const { actions } = this.props;
-    const { pageId } = this.props.match.params;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newName = getNextEntityName("Api", pageApiNames);
-    this.props.createAction({ ...DEFAULT_API_ACTION, name: newName, pageId });
-    AnalyticsUtil.logEvent("CREATE_API_CLICK", {
-      apiName: newName,
-    });
-  };
 
   handleApiChange = (actionId: string) => {
     this.props.onApiChange(actionId);
@@ -169,6 +158,18 @@ class ApiSidebar extends React.Component<Props> {
     );
   };
 
+  handleCreateNewApiClick = (selectedPageId: string) => {
+    const { history } = this.props;
+    const { pageId, applicationId } = this.props.match.params;
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        applicationId,
+        pageId,
+        selectedPageId,
+      ),
+    );
+  };
+
   render() {
     const {
       apiPane: { isFetching, drafts },
@@ -187,11 +188,12 @@ class ApiSidebar extends React.Component<Props> {
         selectedItemId={apiId}
         draftIds={Object.keys(drafts)}
         itemRender={this.renderItem}
-        onItemCreateClick={this.handleCreateNew}
+        onItemCreateClick={this.handleCreateNewApiClick}
         onItemSelected={this.handleApiChange}
         moveItem={this.handleMove}
         copyItem={this.handleCopy}
         deleteItem={this.handleDelete}
+        createButtonTitle="Create new API"
       />
     );
   }

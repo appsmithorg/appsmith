@@ -6,6 +6,9 @@ import {
   BUILDER_URL,
   API_EDITOR_ID_URL,
   PAGE_LIST_EDITOR_URL,
+  getCurlImportPageURL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  getProviderTemplatesURL,
 } from "constants/routes";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import ApiSidebar from "pages/Editor/ApiSidebar";
@@ -46,6 +49,25 @@ export const Sidebar = () => {
           path={PAGE_LIST_EDITOR_URL()}
           component={PageListSidebar}
           name={"PageListSidebar"}
+        />
+        <AppRoute
+          exact
+          path={getCurlImportPageURL()}
+          component={ApiSidebar}
+          name={"ApiSidebar"}
+        />
+        <AppRoute
+          exact
+          path={getProviderTemplatesURL()}
+          component={ApiSidebar}
+          name={"ApiSidebar"}
+        />
+
+        <AppRoute
+          exact
+          path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
+          component={ApiSidebar}
+          name={"ApiSidebar"}
         />
       </Switch>
     </SidebarWrapper>

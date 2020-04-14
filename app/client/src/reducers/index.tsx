@@ -21,7 +21,10 @@ import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
+import { ImportedCollectionsReduxState } from "reducers/uiReducers/importedCollectionsReducer";
+import { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
 import { MetaState } from "./entityReducers/metaReducer";
+import { ImportReduxState } from "reducers/uiReducers/importReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -44,6 +47,9 @@ export interface AppState {
     orgs: OrgReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
+    importedCollections: ImportedCollectionsReduxState;
+    providers: ProvidersReduxState;
+    imports: ImportReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

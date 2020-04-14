@@ -6,6 +6,8 @@ export interface Plugin {
   id: string;
   name: string;
   type: "API" | "DB";
+  packageName: string;
+  uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
 }
 
 class PluginsApi extends Api {

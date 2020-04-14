@@ -12,3 +12,5 @@ export const RESET_PASSWORD_FORM_NAME = "ResetPasswordForm";
 export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";
 
 export const CREATE_ORGANIZATION_FORM_NAME = "CreateOrganizationForm";
+export const CURL_IMPORT_FORM = "CurlImportForm";
+export const API_HOME_SCREEN_FORM = "APIHomeScreenForm";

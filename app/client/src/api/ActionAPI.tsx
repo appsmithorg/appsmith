@@ -33,6 +33,15 @@ export interface Property {
   value: string;
 }
 
+export interface BodyFormData {
+  editable: boolean;
+  mandatory: boolean;
+  description: string;
+  key: string;
+  value?: string;
+  type: string;
+}
+
 export interface APIConfigRequest {
   headers: Property[];
   httpMethod: string;
@@ -40,6 +49,7 @@ export interface APIConfigRequest {
   body: JSON | string | Record<string, any> | null;
   queryParameters: Property[];
   paginationType: PaginationType;
+  bodyFormData: BodyFormData[];
 }
 
 export interface QueryConfig {
@@ -60,6 +70,31 @@ export interface RestAction {
   actionConfiguration: Partial<APIConfigRequest>;
   jsonPathKeys: string[];
   cacheResponse?: string;
+  pluginId: string;
+}
+
+export interface RapidApiAction {
+  id: string;
+  name: string;
+  datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
+  pluginType: string;
+  pageId: string;
+  actionConfiguration: Partial<APIConfigRequest>;
+  jsonPathKeys: string[];
+  cacheResponse?: string;
+  templateId: string;
+  proverId: string;
+  provider: ProviderInfo;
+  pluginId: string;
+  documentation: { text: string };
+}
+
+export interface ProviderInfo {
+  name: string;
+  imageUrl: string;
+  url: string;
+  description: string;
+  credentialSteps: string;
 }
 
 export type PaginationField = "PREV" | "NEXT";

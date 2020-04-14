@@ -12,6 +12,8 @@ type DropdownProps = {
   input: WrappedFieldInputProps;
   placeholder: string;
   width?: number;
+  isSearchable?: boolean;
+  isDisabled?: boolean;
 };
 
 const selectStyles = {
@@ -56,6 +58,8 @@ export const BaseDropdown = (props: DropdownProps) => {
       {...input}
       width={props.width}
       onChange={value => input.onChange(value)}
+      isSearchable={props.isSearchable}
+      isDisabled={props.isDisabled}
     />
   );
 };

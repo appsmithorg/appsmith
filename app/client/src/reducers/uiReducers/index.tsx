@@ -10,6 +10,9 @@ import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
+import importedCollectionsReducer from "./importedCollectionsReducer";
+import providersReducer from "./providerReducer";
+import importReducer from "./importReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -23,5 +26,8 @@ const uiReducer = combineReducers({
   orgs: orgReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
+  importedCollections: importedCollectionsReducer,
+  providers: providersReducer,
+  imports: importReducer,
 });
 export default uiReducer;

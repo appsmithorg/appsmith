@@ -13,6 +13,7 @@ import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
+import { Colors } from "constants/Colors";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -30,7 +31,7 @@ const ResponseMetaInfo = styled.div`
 
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${props =>
-    props.code.match(/2\d\d/) ? props.theme.colors.primary : "red"};
+    props.code.match(/2\d\d/) ? props.theme.colors.primary : Colors.RED};
 `;
 
 const TableWrapper = styled.div`
