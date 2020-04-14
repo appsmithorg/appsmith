@@ -1,4 +1,5 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -43,12 +44,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5,
       widgetName: "Input",
     },
-    SWITCH_WIDGET: {
-      isOn: false,
-      label: "Switch",
+    // SWITCH_WIDGET: {
+    //   isOn: false,
+    //   label: "Switch",
+    //   rows: 1,
+    //   columns: 4,
+    //   widgetName: "Switch",
+    // },
+    ICON_WIDGET: {
+      widgetName: "Icon",
       rows: 1,
-      columns: 4,
-      widgetName: "Switch",
+      columns: 1,
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
@@ -71,11 +77,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-    },
-    SPINNER_WIDGET: {
-      rows: 1,
-      columns: 1,
-      widgetName: "Spinner",
     },
     DATE_PICKER_WIDGET: {
       enableTimePicker: true,
@@ -206,9 +207,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               blueprint: {
                 view: [
                   {
+                    type: "ICON_WIDGET",
+                    position: { left: 15, top: 0 },
+                    size: { rows: 1, cols: 1 },
+                    props: {
+                      iconName: "cross",
+                      iconSize: 24,
+                      color: "#040627",
+                    },
+                  },
+                  {
                     type: "TEXT_WIDGET",
                     position: { left: 0, top: 0 },
-                    size: { rows: 1, cols: 16 },
+                    size: { rows: 1, cols: 15 },
                     props: {
                       text: "Modal Title",
                       textStyle: "HEADING",
@@ -230,6 +241,31 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Confirm",
                       buttonStyle: "PRIMARY_BUTTON",
+                    },
+                  },
+                ],
+                operations: [
+                  {
+                    type: "MODIFY_PROPS",
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const iconChild =
+                        widget.children &&
+                        widget.children.find(
+                          child => child.type === "ICON_WIDGET",
+                        );
+
+                      if (iconChild && parent) {
+                        return [
+                          {
+                            widgetId: iconChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
                     },
                   },
                 ],

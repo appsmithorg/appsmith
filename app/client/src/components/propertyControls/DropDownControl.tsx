@@ -4,7 +4,6 @@ import { Button, MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { ControlType } from "constants/PropertyControlConstants";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
@@ -57,7 +56,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return selectedOption.value === this.props.propertyValue;
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "DROP_DOWN";
   }
 }

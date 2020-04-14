@@ -2,7 +2,6 @@ import React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
@@ -128,7 +127,7 @@ class ColumnActionSelectorControl extends BaseControl<
     this.updateProperty(this.props.propertyName, update);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "COLUMN_ACTION_SELECTOR";
   }
 }

@@ -1,4 +1,6 @@
 import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
 import { call } from "redux-saga/effects";
 
@@ -30,4 +32,63 @@ export function* buildWidgetBlueprint(
 ) {
   const widgetProps = yield call(buildView, blueprint.view, widgetId);
   return widgetProps;
+}
+
+export type UpdatePropertyArgs = {
+  widgetId: string;
+  propertyName: string;
+  propertyValue: any;
+};
+export type BlueprintOperationAddActionFn = () => void;
+export type BlueprintOperationModifyPropsFn = (
+  widget: WidgetProps & { children?: WidgetProps[] },
+  parent?: WidgetProps,
+) => UpdatePropertyArgs[] | undefined;
+
+export type BlueprintOperationFunction =
+  | BlueprintOperationModifyPropsFn
+  | BlueprintOperationAddActionFn;
+
+export enum BlueprintOperationTypes {
+  MODIFY_PROPS = "MODIFY_PROPS",
+  ADD_ACTION = "ADD_ACTION",
+}
+
+export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
+
+export type BlueprintOperation = {
+  type: BlueprintOperationType;
+  fn: BlueprintOperationFunction;
+};
+
+export function* executeWidgetBlueprintOperations(
+  operations: BlueprintOperation[],
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+  widgetId: string,
+) {
+  operations.forEach((operation: BlueprintOperation) => {
+    switch (operation.type) {
+      case BlueprintOperationTypes.MODIFY_PROPS:
+        const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
+          ...widgets[widgetId],
+        };
+        if (widget.children && widget.children.length > 0) {
+          widget.children = (widget.children as string[]).map(
+            (childId: string) => widgets[childId],
+          ) as WidgetProps[];
+        }
+        const updatePropertyPayloads:
+          | UpdatePropertyArgs[]
+          | undefined = (operation.fn as BlueprintOperationModifyPropsFn)(
+          widget as WidgetProps & { children?: WidgetProps[] },
+          widgets[widget.parentId],
+        );
+        updatePropertyPayloads &&
+          updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
+            widgets[params.widgetId][params.propertyName] =
+              params.propertyValue;
+          });
+    }
+  });
+  return yield widgets;
 }

@@ -6,6 +6,7 @@ type CloseButtonProps = {
   color: Color;
   size: number;
   onClick: React.MouseEventHandler;
+  className?: string;
 };
 
 const StyledButton = styled(Button)<CloseButtonProps>`
@@ -22,5 +23,12 @@ const StyledButton = styled(Button)<CloseButtonProps>`
 `;
 
 export const CloseButton = (props: CloseButtonProps) => {
-  return <StyledButton {...props} rightIcon="cross" minimal />;
+  return (
+    <StyledButton
+      className={props.className}
+      {...props}
+      rightIcon="cross"
+      minimal
+    />
+  );
 };

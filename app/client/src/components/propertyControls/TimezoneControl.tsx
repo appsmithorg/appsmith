@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledTimeZonePicker } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import moment from "moment-timezone";
 import "../../../node_modules/@blueprintjs/timezone/lib/css/blueprint-timezone.css";
 
@@ -21,7 +20,7 @@ class TimeZoneControl extends BaseControl<TimeZoneControlProps> {
     this.updateProperty(this.props.propertyName, timezone);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "TIME_ZONE";
   }
 }
