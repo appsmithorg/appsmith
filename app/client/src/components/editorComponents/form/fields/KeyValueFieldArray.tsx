@@ -25,7 +25,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
         props.fields.push({ key: "", value: "" });
       }
     }
-  }, [props.fields]);
+  }, [props.fields, props.pushFields]);
 
   return (
     <React.Fragment>
@@ -68,7 +68,6 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     rightIcon={
                       props.actionConfig[index].description && props.rightIcon
                     }
-                    noArrows
                     description={props.actionConfig[index].description}
                     disabled={
                       props.actionConfig[index].editable ||
