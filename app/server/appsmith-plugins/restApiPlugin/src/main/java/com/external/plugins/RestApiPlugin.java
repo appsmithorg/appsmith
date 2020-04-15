@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
@@ -27,6 +28,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -208,8 +212,8 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.empty();
         }
 
         @Override
@@ -233,6 +237,28 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            URL url;
+            try {
+                url = new URL(datasourceConfiguration.getUrl());
+            } catch (MalformedURLException e) {
+                return Mono.just(new DatasourceTestResult("Invalid URL: '" + e.getMessage() + "'."));
+            }
+
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 300);
+
+            } catch (IOException e) {
+                return Mono.just(
+                        new DatasourceTestResult("Failed to reach API endpoint: '" + e.getMessage() + "'.")
+                );
+
+            }
+
+            return Mono.just(new DatasourceTestResult());
         }
 
         private boolean addHeadersToRequestAndAscertainContentType(WebClient.Builder webClientBuilder,

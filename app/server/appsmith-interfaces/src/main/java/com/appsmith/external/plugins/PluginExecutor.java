@@ -2,6 +2,7 @@ package com.appsmith.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -28,7 +29,7 @@ public interface PluginExecutor extends ExtensionPoint {
      * @param datasourceConfiguration
      * @return Connection object
      */
-    Object datasourceCreate(DatasourceConfiguration datasourceConfiguration);
+    Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration);
 
     /**
      * This function is used to bring down/destroy the connection to the data source.
@@ -42,4 +43,6 @@ public interface PluginExecutor extends ExtensionPoint {
     }
 
     Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration);
+
+    Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration);
 }

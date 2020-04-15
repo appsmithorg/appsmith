@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -114,10 +115,9 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             MongoClientURI mongoClientURI = new MongoClientURI(datasourceConfiguration.getUrl());
-            return new MongoClient(mongoClientURI);
+            return Mono.just(new MongoClient(mongoClientURI));
         }
 
         @Override
@@ -132,6 +132,11 @@ public class MongoPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             // TODO: Apply validations for MongoDB datasource.
             return new HashSet<>();
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new DatasourceTestResult());
         }
 
     }
