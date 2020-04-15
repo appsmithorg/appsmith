@@ -12,7 +12,7 @@ FusionCharts.options.creditLabel = false;
 
 export interface ChartComponentProps {
   chartType: ChartType;
-  chartData: ChartData[];
+  chartData: ChartData[] | ChartDataPoint[];
   xAxisName: string;
   yAxisName: string;
   chartName: string;
@@ -143,23 +143,29 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartDataSource = () => {
+    let chartData: ChartData[];
+    if (!Array.isArray(this.props.chartData[0])) {
+      chartData = [{ data: this.props.chartData as ChartDataPoint[] }];
+    } else {
+      chartData = this.props.chartData as ChartData[];
+    }
     if (
       this.props.chartData.length === 1 ||
       this.props.chartType === "PIE_CHART"
     ) {
       return {
         chart: this.getChartConfig(),
-        data: this.getChartData(this.props.chartData),
+        data: this.getChartData(chartData),
       };
     } else {
       return {
         chart: this.getChartConfig(),
         categories: [
           {
-            category: this.getChartCategories(this.props.chartData),
+            category: this.getChartCategories(chartData),
           },
         ],
-        dataset: this.getChartDataset(this.props.chartData),
+        dataset: this.getChartDataset(chartData),
       };
     }
   };
@@ -176,10 +182,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       },
       categories: [
         {
-          category: this.getChartCategories(this.props.chartData),
+          category: this.getChartCategories(
+            this.props.chartData as ChartData[],
+          ),
         },
       ],
-      dataset: this.getChartDataset(this.props.chartData),
+      dataset: this.getChartDataset(this.props.chartData as ChartData[]),
     };
   };
 
