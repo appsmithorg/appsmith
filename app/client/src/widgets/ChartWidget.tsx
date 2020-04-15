@@ -1,9 +1,13 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ChartComponent from "components/designSystems/appsmith/ChartComponent";
+// import ChartComponent from "components/designSystems/appsmith/ChartComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+
+const ChartComponent = lazy(() =>
+  import("components/designSystems/appsmith/ChartComponent"),
+);
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -17,17 +21,19 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <ChartComponent
-        key={this.props.widgetId}
-        isVisible={this.props.isVisible}
-        chartType={this.props.chartType}
-        xAxisName={this.props.xAxisName}
-        yAxisName={this.props.yAxisName}
-        chartName={this.props.chartName}
-        chartData={this.props.chartData}
-        widgetId={this.props.widgetId}
-        allowHorizontalScroll={this.props.allowHorizontalScroll}
-      />
+      <Suspense fallback={null}>
+        <ChartComponent
+          key={this.props.widgetId}
+          isVisible={this.props.isVisible}
+          chartType={this.props.chartType}
+          xAxisName={this.props.xAxisName}
+          yAxisName={this.props.yAxisName}
+          chartName={this.props.chartName}
+          chartData={this.props.chartData}
+          widgetId={this.props.widgetId}
+          allowHorizontalScroll={this.props.allowHorizontalScroll}
+        />
+      </Suspense>
     );
   }
 

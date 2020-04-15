@@ -1,11 +1,14 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-import RichtextEditorComponent from "components/designSystems/appsmith/RichTextEditorComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+
+const RichtextEditorComponent = lazy(() =>
+  import("components/designSystems/appsmith/RichTextEditorComponent"),
+);
 
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
@@ -57,15 +60,17 @@ class RichTextEditorWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <RichtextEditorComponent
-        onValueChange={this.onValueChange}
-        defaultValue={this.props.text}
-        widgetId={this.props.widgetId}
-        placeholder={this.props.placeholder}
-        key={this.props.widgetId}
-        isDisabled={this.props.isDisabled}
-        isVisible={this.props.isVisible}
-      />
+      <Suspense fallback={null}>
+        <RichtextEditorComponent
+          onValueChange={this.onValueChange}
+          defaultValue={this.props.text}
+          widgetId={this.props.widgetId}
+          placeholder={this.props.placeholder}
+          key={this.props.widgetId}
+          isDisabled={this.props.isDisabled}
+          isVisible={this.props.isVisible}
+        />
+      </Suspense>
     );
   }
 
