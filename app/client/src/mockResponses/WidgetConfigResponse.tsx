@@ -21,12 +21,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Text",
     },
     RICH_TEXT_EDITOR_WIDGET: {
-      text: "This is the initial <b>content</b> of the editor",
+      defaultText: "This is the initial <b>content</b> of the editor",
       rows: 5,
       columns: 8,
       isDisabled: false,
       isVisible: true,
       widgetName: "RichTextEditor",
+      isDefaultClickDisabled: true,
     },
     IMAGE_WIDGET: {
       defaultImage:
@@ -79,7 +80,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     DATE_PICKER_WIDGET: {
-      enableTimePicker: true,
       isDisabled: false,
       datePickerType: "DATE_PICKER",
       rows: 1,
@@ -87,6 +87,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       label: "Date",
       widgetName: "DatePicker",
+      defaultDate: {
+        dateValue: new Date().getTime(),
+        timezone: "",
+        isTimeEnabled: true,
+      },
     },
     TABLE_WIDGET: {
       rows: 7,
@@ -180,6 +185,45 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
+    },
+    TABS_WIDGET: {
+      rows: 7,
+      columns: 8,
+      shouldScrollContents: false,
+      widgetName: "Tabs",
+      tabs: [
+        { label: "Tab 1", id: "tab1" },
+        { label: "Tab 2", id: "tab2" },
+      ],
+      selectedTab: "Tab 1",
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            size: { rows: 6, cols: 16 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              tabId: "tab1",
+            },
+          },
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            size: { rows: 6, cols: 16 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              tabId: "tab2",
+            },
+          },
+        ],
+      },
     },
     MODAL_WIDGET: {
       rows: 456,
@@ -286,34 +330,40 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Chart",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
+      allowHorizontalScroll: false,
       chartData: [
         {
-          x: "Mon",
-          y: 10000,
-        },
-        {
-          x: "Tue",
-          y: 12000,
-        },
-        {
-          x: "Wed",
-          y: 32000,
-        },
-        {
-          x: "Thu",
-          y: 28000,
-        },
-        {
-          x: "Fri",
-          y: 14000,
-        },
-        {
-          x: "Sat",
-          y: 19000,
-        },
-        {
-          x: "Sun",
-          y: 36000,
+          seriesName: "",
+          data: [
+            {
+              x: "Mon",
+              y: 10000,
+            },
+            {
+              x: "Tue",
+              y: 12000,
+            },
+            {
+              x: "Wed",
+              y: 32000,
+            },
+            {
+              x: "Thu",
+              y: 28000,
+            },
+            {
+              x: "Fri",
+              y: 14000,
+            },
+            {
+              x: "Sat",
+              y: 19000,
+            },
+            {
+              x: "Sun",
+              y: 36000,
+            },
+          ],
         },
       ],
       xAxisName: "Last Week",
@@ -381,6 +431,20 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
+    },
+    MAP_WIDGET: {
+      rows: 12,
+      columns: 8,
+      isDisabled: false,
+      isVisible: true,
+      widgetName: "Map",
+      enableSearch: true,
+      enableCreateMarker: true,
+      zoomLevel: 50,
+      enablePickLocation: true,
+      allowZoom: true,
+      mapCenter: { lat: -34.397, lng: 150.644 },
+      defaultMarkers: [{ lat: -34.397, lng: 150.644, title: "Test A" }],
     },
   },
   configVersion: 1,

@@ -67,7 +67,6 @@ function* getChildWidgetProps(
   }
 
   const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
-
   const widget = generateWidgetProps(
     parent,
     type,
@@ -257,7 +256,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
-
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({

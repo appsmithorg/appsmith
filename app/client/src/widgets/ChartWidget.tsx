@@ -8,7 +8,6 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      chartData: VALIDATION_TYPES.CHART_DATA,
       xAxisName: VALIDATION_TYPES.TEXT,
       yAxisName: VALIDATION_TYPES.TEXT,
       chartName: VALIDATION_TYPES.TEXT,
@@ -27,6 +26,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
         chartName={this.props.chartName}
         chartData={this.props.chartData}
         widgetId={this.props.widgetId}
+        allowHorizontalScroll={this.props.allowHorizontalScroll}
       />
     );
   }
@@ -44,9 +44,14 @@ export type ChartType =
   | "AREA_CHART"
   | "SCATTER_CHART";
 
-export interface ChartData {
+export interface ChartDataPoint {
   x: any;
   y: any;
+}
+
+export interface ChartData {
+  seriesName?: string;
+  data: ChartDataPoint[];
 }
 
 export interface ChartWidgetProps extends WidgetProps {
@@ -56,6 +61,7 @@ export interface ChartWidgetProps extends WidgetProps {
   yAxisName: string;
   chartName: string;
   isVisible?: boolean;
+  allowHorizontalScroll: boolean;
 }
 
 export default ChartWidget;

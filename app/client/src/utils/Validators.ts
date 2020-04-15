@@ -211,6 +211,23 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
+  [VALIDATION_TYPES.MARKERS]: (value: any): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+    if (!isValid) {
+      return {
+        isValid,
+        parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+      };
+    } else if (!_.every(parsed, datum => _.isObject(datum))) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Marker Data`,
+      };
+    }
+    return { isValid, parsed };
+  },
   [VALIDATION_TYPES.OPTIONS_DATA]: (value: any): ValidationResponse => {
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
     if (!isValid) {

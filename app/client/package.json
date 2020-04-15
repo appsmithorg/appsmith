@@ -73,6 +73,7 @@
     "react-dnd-html5-backend": "^9.3.4",
     "react-dnd-touch-backend": "^9.4.0",
     "react-dom": "^16.7.0",
+    "react-google-maps": "^9.4.5",
     "react-helmet": "^5.2.1",
     "react-infinite-scroller": "^1.2.4",
     "react-json-view": "^1.19.1",

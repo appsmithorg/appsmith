@@ -101,6 +101,7 @@ export type WidgetAddChild = {
   parentRowSpace: number;
   parentColumnSpace: number;
   newWidgetId: string;
+  tabId: string;
   props?: Record<string, any>;
 };
 

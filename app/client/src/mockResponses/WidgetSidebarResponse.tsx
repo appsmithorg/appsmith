@@ -106,11 +106,21 @@ const WidgetSidebarResponse: {
       widgetCardName: "Chart",
       key: generateReactKey(),
     },
+    {
+      type: "MAP_WIDGET",
+      widgetCardName: "Map",
+      key: generateReactKey(),
+    },
   ],
   ["Layout widgets"]: [
     {
       type: "CONTAINER_WIDGET",
       widgetCardName: "Container",
+      key: generateReactKey(),
+    },
+    {
+      type: "TABS_WIDGET",
+      widgetCardName: "Tabs",
       key: generateReactKey(),
     },
   ],

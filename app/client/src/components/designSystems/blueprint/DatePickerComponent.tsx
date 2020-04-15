@@ -8,6 +8,7 @@ import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import { DatePickerType } from "widgets/DatePickerWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { TimePrecision } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 
 const StyledControlGroup = styled(ControlGroup)`
@@ -45,19 +46,34 @@ const StyledControlGroup = styled(ControlGroup)`
   }
   &&& {
     input {
-      border: 1px solid #a1acb3;
-      border-radius: 4px;
+      border: 1px solid ${Colors.HIT_GRAY};
+      border-radius: ${props => props.theme.radii[1]}px;
       box-shadow: none;
-      color: #2e3d49;
-      font-size: 14px;
+      color: ${Colors.OXFORD_BLUE};
+      font-size: ${props => props.theme.fontSizes[3]}px;
     }
   }
 `;
 
 class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   render() {
+    const now = moment();
+    const year = now.get("year");
+    const month = now.get("month");
+    const date = now.get("date");
+    const minDate = now.clone().set({ month, date: date - 1, year: year - 20 });
+    const maxDate = now.clone().set({ month, date: date + 1, year: year + 20 });
+    const selectedDate = new Date(
+      new Date(this.props.selectedDate || "").getTime() +
+        this.getOffset(new Date(this.props.selectedDate || "")),
+    );
     return (
-      <StyledControlGroup fill>
+      <StyledControlGroup
+        fill
+        onClick={(e: any) => {
+          e.stopPropagation();
+        }}
+      >
         {this.props.label && (
           <Label
             className={
@@ -77,18 +93,14 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
             placeholder={this.props.dateFormat}
             disabled={this.props.isDisabled}
             showActionsBar={true}
-            timePickerProps={
-              this.props.enableTimePicker
-                ? {
-                    useAmPm: true,
-                    value: this.props.selectedDate,
-                    showArrowButtons: true,
-                  }
-                : undefined
+            timePrecision={
+              this.props.enableTimePicker ? TimePrecision.MINUTE : undefined
             }
-            closeOnSelection={true}
+            closeOnSelection
             onChange={this.onDateSelected}
-            value={this.props.selectedDate}
+            value={selectedDate}
+            maxDate={maxDate.toDate()}
+            minDate={minDate.toDate()}
           />
         ) : (
           <DateRangeInput
@@ -106,30 +118,28 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
     );
   }
 
+  getOffset = (date: Date) => {
+    const timezone = this.props.timezone || moment.tz.guess();
+    return moment.tz.zone(timezone)!.utcOffset(date.getTime()) * 60 * 1000;
+  };
+
   formatDate = (date: Date): string => {
     let dateFormat = "DD/MM/YYYY";
     if (this.props.enableTimePicker) {
       dateFormat = "DD/MM/YYYY HH:mm";
     }
-    if (this.props.timezone) {
-      return moment(date)
-        .tz(this.props.timezone)
-        .format(dateFormat);
-    }
     return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    if (this.props.timezone) {
-      return moment(dateStr)
-        .tz(this.props.timezone)
-        .toDate();
-    }
     return moment(dateStr).toDate();
   };
 
   onDateSelected = (selectedDate: Date) => {
-    this.props.onDateSelected(selectedDate);
+    const dateValue = new Date(
+      selectedDate.getTime() - this.getOffset(selectedDate),
+    ).getTime();
+    this.props.onDateSelected(new Date(dateValue));
   };
 }
 

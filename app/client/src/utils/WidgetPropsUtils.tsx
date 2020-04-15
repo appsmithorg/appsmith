@@ -359,7 +359,6 @@ export const generateWidgetProps = (
       ...derivedProperties,
       parentId: parent.widgetId,
     };
-
     delete props.rows;
     delete props.columns;
     return props;

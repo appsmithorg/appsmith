@@ -91,6 +91,15 @@ abstract class BaseWidget<
     disableDrag && disable !== undefined && disableDrag(disable);
   }
 
+  updateWidget(
+    operationName: string,
+    widgetId: string,
+    widgetProperties: any,
+  ): void {
+    const { updateWidget } = this.context;
+    updateWidget && updateWidget(operationName, widgetId, widgetProperties);
+  }
+
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     const { updateWidgetProperty } = this.context;
     const { widgetId } = this.props;
