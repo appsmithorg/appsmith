@@ -225,6 +225,7 @@ export const StyledSwitch = styled(Switch)`
 `;
 
 export const StyledDynamicInput = styled.div`
+  width: 100%;
   &&& {
     input {
       border: none;
@@ -248,14 +249,11 @@ export const StyledInputGroup = styled(InputGroup)`
 `;
 
 export const StyledDatePicker = styled(DateInput)`
-  & {
-    input {
-      placeholderText: ${props => props.placeholder};
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
-    }
+  > input {
+    color: ${props => props.theme.colors.textOnDarkBG};
+    background: ${props => props.theme.colors.paneInputBG};
+    border: 1px solid green;
   }
-}
 `;
 
 export const StyledTimeZonePicker = styled(TimezonePicker)`

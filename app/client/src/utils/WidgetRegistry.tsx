@@ -13,11 +13,16 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import TabsWidget, {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+} from "widgets/TabsWidget";
 import ModalWidget, { ModalWidgetProps } from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
 } from "widgets/RichTextEditorWidget";
 import ChartWidget, { ChartWidgetProps } from "widgets/ChartWidget";
+import MapWidget, { MapWidgetProps } from "widgets/MapWidget";
 
 import FilePickerWidget, {
   FilePickerWidgetProps,
@@ -166,6 +171,19 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getTriggerPropertyMap(),
     );
     WidgetFactory.registerWidgetBuilder(
+      "TABS_WIDGET",
+      {
+        buildWidget(
+          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
+        ): JSX.Element {
+          return <TabsWidget {...widgetProps} />;
+        },
+      },
+      TabsWidget.getPropertyValidationMap(),
+      TabsWidget.getDerivedPropertiesMap(),
+      TabsWidget.getTriggerPropertyMap(),
+    );
+    WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
       {
         buildWidget(widgetProps: ModalWidgetProps): JSX.Element {
@@ -222,6 +240,18 @@ class WidgetBuilderRegistry {
       FormButtonWidget.getPropertyValidationMap(),
       FormButtonWidget.getDerivedPropertiesMap(),
       FormButtonWidget.getTriggerPropertyMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "MAP_WIDGET",
+      {
+        buildWidget(widgetProps: MapWidgetProps): JSX.Element {
+          return <MapWidget {...widgetProps} />;
+        },
+      },
+      MapWidget.getPropertyValidationMap(),
+      MapWidget.getDerivedPropertiesMap(),
+      MapWidget.getTriggerPropertyMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(

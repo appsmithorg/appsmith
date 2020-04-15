@@ -18,9 +18,11 @@ import MultiSelectControl, {
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
-import TimeZoneControl, {
-  TimeZoneControlProps,
-} from "components/propertyControls/TimezoneControl";
+import ChartDataControl from "components/propertyControls/ChartDataControl";
+import LocationSearchControl from "components/propertyControls/LocationSearchControl";
+import StepControl, {
+  StepControlProps,
+} from "components/propertyControls/StepControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import MultiSwitchControl, {
@@ -35,10 +37,12 @@ export const PropertyControls = {
   CodeEditorControl,
   MultiSelectControl,
   DatePickerControl,
-  TimeZoneControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
   MultiSwitchControl,
+  ChartDataControl,
+  LocationSearchControl,
+  StepControl,
 };
 
 export type PropertyControlPropsType =
@@ -48,8 +52,8 @@ export type PropertyControlPropsType =
   | SwitchControlProps
   | MultiSelectControlProps
   | DatePickerControlProps
-  | TimeZoneControlProps
-  | MultiSwitchControlProps;
+  | MultiSwitchControlProps
+  | StepControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};
