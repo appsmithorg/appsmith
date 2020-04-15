@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -155,6 +156,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(repository::save);
+    }
+
+    @Override
+    public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
+
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> pluginExecutor.testDatasource(datasource.getDatasourceConfiguration()));
     }
 
     @Override

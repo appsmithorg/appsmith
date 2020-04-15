@@ -1,6 +1,11 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -16,9 +21,18 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
-import java.sql.*;
-import java.util.*;
-import java.util.stream.Stream;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -64,9 +78,11 @@ public class PostgresPlugin extends BasePlugin {
 
             List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
+            Statement statement = null;
+            ResultSet resultSet = null;
             try {
-                Statement statement = conn.createStatement();
-                ResultSet resultSet = statement.executeQuery(query);
+                statement = conn.createStatement();
+                resultSet = statement.executeQuery(query);
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 int colCount = metaData.getColumnCount();
                 while (resultSet.next()) {
@@ -80,12 +96,29 @@ public class PostgresPlugin extends BasePlugin {
             } catch (SQLException e) {
                 return pluginErrorMono(e);
 
+            } finally {
+                if (resultSet != null) {
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Postgres ResultSet", e);
+                    }
+                }
+
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Postgres Statement", e);
+                    }
+                }
+
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
             result.setBody(objectMapper.valueToTree(rowsList));
             result.setShouldCacheResponse(true);
-            System.out.println("In the PostgresPlugin, got action execution result: " + result.toString());
+            log.debug("In the PostgresPlugin, got action execution result: " + result.toString());
             return Mono.just(result);
         }
 
@@ -94,7 +127,7 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -104,12 +137,14 @@ public class PostgresPlugin extends BasePlugin {
             String url;
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
+            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+
             Properties properties = new Properties();
             properties.putAll(Map.of(
                     USER, authentication.getUsername(),
                     PASSWORD, authentication.getPassword(),
                     // TODO: Set SSL connection parameters.
-                    SSL, datasourceConfiguration.getConnection().getSsl() != null
+                    SSL, configurationConnection != null && configurationConnection.getSsl() != null
             ));
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -131,11 +166,12 @@ public class PostgresPlugin extends BasePlugin {
 
             try {
                 Connection connection = DriverManager.getConnection(url, properties);
-                connection.setReadOnly(READ_ONLY.equals(datasourceConfiguration.getConnection().getMode()));
-                return connection;
+                connection.setReadOnly(
+                        configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
+                return Mono.just(connection);
 
             } catch (SQLException e) {
-                return pluginErrorMono("Error connecting to Postgres.");
+                return pluginErrorMono("Error connecting to Postgres.", e);
 
             }
         }
@@ -184,6 +220,23 @@ public class PostgresPlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return datasourceCreate(datasourceConfiguration)
+                    .map(connection -> {
+                        try {
+                            if (connection != null) {
+                                ((Connection) connection).close();
+                            }
+                        } catch (SQLException e) {
+                            log.warn("Error closing Postgres connection that was made for testing.", e);
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
     }

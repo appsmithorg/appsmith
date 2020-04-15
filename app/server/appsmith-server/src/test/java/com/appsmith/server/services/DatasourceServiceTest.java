@@ -51,9 +51,9 @@ public class DatasourceServiceTest {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("In the datasourceCreate");
-            return null;
+            return Mono.empty();
         }
 
         @Override
@@ -66,6 +66,11 @@ public class DatasourceServiceTest {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("In the datasourceValidate");
             return new HashSet<>();
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new DatasourceTestResult());
         }
     }
 

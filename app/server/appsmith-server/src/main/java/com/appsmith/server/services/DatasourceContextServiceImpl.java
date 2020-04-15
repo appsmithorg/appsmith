@@ -55,18 +55,34 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(resource -> pluginService.findById(resource.getPluginId()));
 
-        //Datasource Context has not been created for this resource on this machine. Create one now.
+        // Datasource Context has not been created for this resource on this machine. Create one now.
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
-        return Mono.zip(datasourceMono, pluginExecutorMono, ((datasource1, pluginExecutor) -> {
-            Object connection = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
-            DatasourceContext datasourceContext = new DatasourceContext();
-            datasourceContext.setConnection(connection);
-            if (datasource1.getId() != null) {
-                datasourceContextMap.put(datasourceId, datasourceContext);
-            }
-            return datasourceContext;
-        }));
+        return Mono.zip(datasourceMono, pluginExecutorMono)
+                .flatMap(objects -> {
+                    Datasource datasource1 = objects.getT1();
+                    PluginExecutor pluginExecutor = objects.getT2();
+
+                    DatasourceContext datasourceContext = new DatasourceContext();
+
+                    if (datasource1.getId() != null) {
+                        datasourceContextMap.put(datasourceId, datasourceContext);
+                    }
+
+                    Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource1.getDatasourceConfiguration());
+                    return connectionMono
+                            .map(connection -> {
+                                // When a connection object exists and makes sense for the plugin, we put it in the
+                                // context. Example, DB plugins.
+                                datasourceContext.setConnection(connection);
+                                return datasourceContext;
+                            })
+                            .defaultIfEmpty(
+                                    // When a connection object doesn't make sense for the plugin, we get an empty mono
+                                    // and we just return the context object as is.
+                                    datasourceContext
+                            );
+                });
     }
 
     @Override
