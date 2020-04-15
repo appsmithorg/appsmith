@@ -288,6 +288,10 @@ export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
     return yield false;
   } catch (error) {
     console.log(error);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_ERROR,
+      payload: error,
+    });
   }
 }
 
