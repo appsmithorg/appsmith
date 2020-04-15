@@ -1,9 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.Property;
+import com.appsmith.external.models.*;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -238,8 +235,8 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.empty();
         }
 
         @Override
@@ -252,6 +249,11 @@ public class RapidApiPlugin extends BasePlugin {
             // Since the datasource is created by rapid api & not by the user and it can't be edited.
             // Assume that everything is good. Return as valid.
             return new HashSet<>();
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new DatasourceTestResult());
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {
