@@ -10,7 +10,6 @@ import styled from "styled-components";
 import { useDrop, XYCoord, DropTargetMonitor } from "react-dnd";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import WidgetFactory from "utils/WidgetFactory";
 import {
   widgetOperationParams,
   noCollision,
@@ -20,6 +19,7 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import {
   MAIN_CONTAINER_WIDGET_ID,
   GridDefaults,
+  WidgetTypes,
 } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
@@ -147,7 +147,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const isChildResizing = !!isResizing && isChildFocused;
   // Make this component a drop target
   const [{ isExactlyOver }, drop] = useDrop({
-    accept: Object.values(WidgetFactory.getWidgetTypes()),
+    accept: Object.values(WidgetTypes),
     options: {
       arePropsEqual: () => {
         return true;

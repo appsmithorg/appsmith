@@ -275,6 +275,7 @@ function* updateDynamicTriggers(
   propertyName: string,
   propertyValue: string,
 ) {
+  // TODO WIDGETFACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );

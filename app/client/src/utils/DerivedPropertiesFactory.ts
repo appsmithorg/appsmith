@@ -6,6 +6,7 @@ export class DerivedPropFactory {
     widgetType: WidgetType,
     widgetName: string,
   ): any {
+    // TODO WIDGETFACTORY
     const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
       widgetType,
     );

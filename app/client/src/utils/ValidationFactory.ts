@@ -36,6 +36,7 @@ class ValidationFactory {
     //TODO: Satbir: Figure out a way to declare the right type.
     props?: WidgetProps,
   ): ValidationResponse {
+    // TODO WIDGETFACTORY
     const propertyValidationTypes = WidgetFactory.getWidgetPropertyValidationMap(
       widgetType,
     );
