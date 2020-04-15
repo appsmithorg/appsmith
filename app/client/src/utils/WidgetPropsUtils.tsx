@@ -18,6 +18,7 @@ import { OccupiedSpace } from "constants/editorConstants";
 import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
+import { ChartDataPoint } from "widgets/ChartWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -74,6 +75,30 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
   return dsl;
 };
 
+//transform chart data, from old chart widget to new chart widget
+//updatd chart widget has support for multiple series
+const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (
+      children.type === WidgetTypes.CHART_WIDGET &&
+      children.chartData &&
+      children.chartData.length &&
+      !Array.isArray(children.chartData[0])
+    ) {
+      children.chartData = [{ data: children.chartData as ChartDataPoint[] }];
+    } else if (
+      children.type === WidgetTypes.CONTAINER_WIDGET ||
+      children.type === WidgetTypes.FORM_WIDGET ||
+      children.type === WidgetTypes.CANVAS_WIDGET ||
+      children.type === WidgetTypes.TABS_WIDGET
+    ) {
+      children = chartDataMigration(children);
+    }
+    return children;
+  });
+  return currentDSL;
+};
+
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
@@ -105,7 +130,10 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.children = currentDSL.children.map(updateContainers);
     currentDSL.version = 2;
   }
-
+  if (currentDSL.version === 2) {
+    currentDSL = chartDataMigration(currentDSL);
+    currentDSL.version = 3;
+  }
   return currentDSL;
 };
 
