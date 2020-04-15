@@ -19,7 +19,7 @@ function constructColumns(
   data: object[],
   hiddenColumns?: string[],
 ): ColumnModel[] | ColumnDirTypecast[] {
-  const cols: ColumnModel[] | ColumnDirTypecast[] = [];
+  let cols: ColumnModel[] | ColumnDirTypecast[] = [];
   const listItemWithAllProperties = {};
   data.forEach(dataItem => {
     Object.assign(listItemWithAllProperties, dataItem);
@@ -30,6 +30,9 @@ function constructColumns(
       visible: !hiddenColumns?.includes(key),
     });
   });
+  cols = (cols as any[]).filter(col => col.field !== "_color") as
+    | ColumnModel[]
+    | ColumnDirTypecast[];
   return cols;
 }
 
