@@ -16,7 +16,13 @@ import {
   ColumnMenuItemModel,
   PageSettingsModel,
   PagerComponent,
+  Toolbar,
+  PdfExport,
+  ExcelExport,
+  Search,
+  VirtualScroll,
 } from "@syncfusion/ej2-react-grids";
+import { ClickEventArgs } from "@syncfusion/ej2-navigations";
 import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -47,6 +53,10 @@ export interface TableComponentProps {
   updateHiddenColumns: Function;
   resetSelectedRowIndex: Function;
   selectedRowIndex: number;
+  id: string;
+  exportCsv?: boolean;
+  exportExcel?: boolean;
+  exportPDF?: boolean;
 }
 
 const StyledGridComponent = styled(GridComponent)`
@@ -156,7 +166,6 @@ const TableComponent = memo(
             index =
               index + (pageSettings.currentPage - 1) * pageSettings.pageSize;
           }
-
           props.onRowClick(selectedrecords[0], index);
         }
       }
@@ -206,17 +215,35 @@ const TableComponent = memo(
       );
     }
 
+    const handleToolbarClick = (args: ClickEventArgs) => {
+      if (grid.current && args.item.id === `${props.id}_excelexport`) {
+        grid.current.excelExport({ fileName: `${props.id}.xlsx` });
+      }
+      if (grid.current && args.item.id === `${props.id}_csvexport`) {
+        grid.current.csvExport({ fileName: `${props.id}.csv` });
+      }
+      if (grid.current && args.item.id === `${props.id}_pdfexport`) {
+        grid.current.pdfExport({ fileName: `${props.id}.pdf` });
+      }
+    };
     const handleResizeStart = (args: any) => {
       args.e.stopPropagation();
     };
 
+    const toolbarOptions: string[] = [];
+    if (!!props.exportCsv) toolbarOptions.push("CsvExport");
+    if (!!props.exportExcel) toolbarOptions.push("ExcelExport");
+    if (!!props.exportPDF) toolbarOptions.push("PdfExport");
+
     return (
       <TableContainer className={props.isLoading ? Classes.SKELETON : ""}>
         <StyledGridComponent
+          toolbarClick={handleToolbarClick}
           created={handleCreated}
           destroy={handleDestroy}
           selectionSettings={settings}
           dataSource={props.data}
+          id={props.id}
           columnMenuClick={columnMenuClick}
           dataBound={() => {
             if (pager.current) {
@@ -237,9 +264,24 @@ const TableComponent = memo(
           showColumnMenu={true}
           commandClick={onCommandClick}
           columnMenuOpen={columnMenuOpen}
+          toolbar={!!toolbarOptions.length && toolbarOptions}
+          allowPdfExport
+          allowExcelExport
+          enableVirtualization
         >
           <Inject
-            services={[Resize, Page, Reorder, ColumnMenu, CommandColumn]}
+            services={[
+              Resize,
+              Page,
+              Reorder,
+              ColumnMenu,
+              CommandColumn,
+              Toolbar,
+              ExcelExport,
+              PdfExport,
+              Search,
+              VirtualScroll,
+            ]}
           />
           <ColumnsDirective>
             {props.columns.map(col => {
@@ -302,7 +344,10 @@ const TableComponent = memo(
         JSON.stringify(prevProps.columnActions) ||
       nextProps.serverSidePaginationEnabled !==
         prevProps.serverSidePaginationEnabled ||
-      nextProps.pageNo !== prevProps.pageNo;
+      nextProps.pageNo !== prevProps.pageNo ||
+      nextProps.exportCsv !== prevProps.exportCsv ||
+      nextProps.exportExcel !== prevProps.exportExcel ||
+      nextProps.exportPDF !== prevProps.exportPDF;
 
     return !propsNotEqual;
   },

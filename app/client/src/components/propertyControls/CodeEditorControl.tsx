@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
@@ -25,7 +24,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, value);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "CODE_EDITOR";
   }
 }

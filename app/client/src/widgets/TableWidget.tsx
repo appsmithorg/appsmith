@@ -76,6 +76,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
       <TableComponent
+        id={this.props.widgetName}
         data={this.props.tableData}
         columns={columns}
         isLoading={this.props.isLoading}
@@ -100,6 +101,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         updatePageSize={(pageSize: number) => {
           super.updateWidgetMetaProperty("pageSize", pageSize);
         }}
+        exportCsv={this.props.exportCsv}
+        exportPDF={this.props.exportPDF}
+        exportExcel={this.props.exportExcel}
       />
     );
   }

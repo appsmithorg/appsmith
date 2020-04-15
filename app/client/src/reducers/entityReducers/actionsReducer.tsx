@@ -4,12 +4,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { ActionResponse, RestAction } from "api/ActionAPI";
+import { ActionResponse, RapidApiAction, RestAction } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
 export interface ActionData {
   isLoading: boolean;
-  config: RestAction;
+  config: RestAction | RapidApiAction;
   data?: ActionResponse;
 }
 export type ActionDataState = ActionData[];

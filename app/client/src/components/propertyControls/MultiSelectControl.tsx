@@ -1,6 +1,5 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import { StyledMultiSelectDropDown } from "./StyledControls";
@@ -81,7 +80,7 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
     );
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "MULTI_SELECT";
   }
 }

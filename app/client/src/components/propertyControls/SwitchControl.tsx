@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledSwitch } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {
@@ -18,7 +17,7 @@ class SwitchControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, !this.props.propertyValue);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "SWITCH";
   }
 }

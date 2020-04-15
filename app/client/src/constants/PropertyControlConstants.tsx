@@ -1,22 +1,3 @@
-export type ControlType =
-  | "INPUT_TEXT"
-  | "RICH_TEXT_EDITOR"
-  | "ICON_PICKER"
-  | "SEGMENT_CONTROL"
-  | "SWITCH"
-  | "CHECKBOX"
-  | "DATE_PICKER"
-  | "DROP_DOWN"
-  | "MULTI_SELECT"
-  | "COLOR_PICKER"
-  | "TIMEZONE_PICKER"
-  | "ACTION_SELECTOR"
-  | "RECORD_ACTION_SELECTOR"
-  | "OPTION_INPUT"
-  | "IMAGE_PICKER"
-  | "SHAPE_PICKER"
-  | "VALIDATION_INPUT"
-  | "ZOOM"
-  | "TIME_ZONE"
-  | "CODE_EDITOR"
-  | "COLUMN_ACTION_SELECTOR";
+import { getPropertyControlTypes } from "components/propertyControls";
+const ControlTypes = getPropertyControlTypes();
+export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];

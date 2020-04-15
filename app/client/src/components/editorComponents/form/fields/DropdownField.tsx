@@ -11,6 +11,8 @@ interface DropdownFieldProps {
   }>;
   placeholder: string;
   width?: number;
+  isSearchable?: boolean;
+  isDisabled?: boolean;
 }
 
 const DropdownField = (props: DropdownFieldProps) => {
@@ -23,6 +25,8 @@ const DropdownField = (props: DropdownFieldProps) => {
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       width={props.width}
+      isSearchable={props.isSearchable}
+      isDisabled={props.isDisabled}
     />
   );
 };

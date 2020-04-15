@@ -1,0 +1,78 @@
+import { AxiosPromise } from "axios";
+import Api from "./Api";
+import { ApiResponse } from "./ApiResponses";
+import { Providers, ProviderTemplates } from "constants/providerConstants";
+
+export interface FetchProvidersResponse extends ApiResponse {
+  data: Providers;
+}
+
+export interface FetchProviderCategoriesResponse extends ApiResponse {
+  data: string[];
+}
+
+export interface FetchProviderTemplateResponse extends ApiResponse {
+  data: ProviderTemplates[];
+}
+
+export interface FetchProviderTemplatesRequest {
+  providerId: string;
+}
+
+export interface FetchProviderWithCategoryRequest {
+  category: string;
+  page: number;
+}
+
+export interface AddApiToPageRequest {
+  name: string;
+  pageId: string;
+  marketplaceElement: any;
+}
+
+export class ProvidersApi extends Api {
+  static providersURL = "v1/providers";
+  static providerCategoriesURL = "v1/providers/categories";
+
+  static providerTemplateURL = (providerId: string) => {
+    return `v1/marketplace/templates?providerId=${providerId}`;
+  };
+
+  static providersWithCategoryURL = (category: string, page: number) => {
+    return `v1/marketplace/providers?category=${category}&page=${page}&size=50`;
+  };
+
+  static addApiToPageURL = `v1/items/addToPage`;
+
+  static fetchProviders(): AxiosPromise<FetchProvidersResponse> {
+    return Api.get(ProvidersApi.providersURL);
+  }
+
+  static fetchProviderTemplates(
+    request: FetchProviderTemplatesRequest,
+  ): AxiosPromise<FetchProviderTemplateResponse> {
+    const { providerId } = request;
+    return Api.get(ProvidersApi.providerTemplateURL(providerId));
+  }
+
+  static addApiToPage(request: AddApiToPageRequest): AxiosPromise<ApiResponse> {
+    return Api.post(ProvidersApi.addApiToPageURL, request);
+  }
+
+  static fetchProvidersCategories(): AxiosPromise<
+    FetchProviderCategoriesResponse
+  > {
+    return Api.get(ProvidersApi.providerCategoriesURL);
+  }
+
+  static fetchProvidersWithCategory(
+    request: FetchProviderWithCategoryRequest,
+  ): AxiosPromise<FetchProvidersResponse> {
+    const { page } = request;
+    return Api.get(
+      ProvidersApi.providersWithCategoryURL(request.category, page),
+    );
+  }
+}
+
+export default ProvidersApi;

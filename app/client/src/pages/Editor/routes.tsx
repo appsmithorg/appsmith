@@ -1,6 +1,8 @@
 import React from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
+import CurlImportForm from "./APIEditor/CurlImportForm";
+import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
@@ -8,6 +10,9 @@ import {
   BUILDER_BASE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
+  getCurlImportPageURL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  getProviderTemplatesURL,
 } from "constants/routes";
 import styled from "styled-components";
 import AppRoute from "pages/common/AppRoute";
@@ -30,7 +35,6 @@ const DrawerWrapper = styled.div<{
   background-color: white;
   width: ${props => (props.showOnlySidebar ? "0px" : "75%")};
   height: 100%;
-  box-shadow: -1px 2px 3px 0px ${props => props.theme.colors.paneBG};
 `;
 
 interface RouterState {
@@ -111,6 +115,23 @@ class EditorsRouter extends React.Component<
               exact
               path={API_EDITOR_ID_URL()}
               component={ApiEditor}
+              name={"ApiEditor"}
+            />
+            <AppRoute
+              exact
+              path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
+              component={ApiEditor}
+              name={"ApiEditor"}
+            />
+            <AppRoute
+              exact
+              path={getCurlImportPageURL()}
+              component={CurlImportForm}
+              name={"ApiEditor"}
+            />
+            <AppRoute
+              path={getProviderTemplatesURL()}
+              component={ProviderTemplates}
               name={"ApiEditor"}
             />
           </Switch>

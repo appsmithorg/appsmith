@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDatePicker } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import moment from "moment-timezone";
 
 class DatePickerControl extends BaseControl<DatePickerControlProps> {
@@ -35,7 +34,7 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
     this.updateProperty(this.props.propertyName, date);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "DATE_PICKER";
   }
 }

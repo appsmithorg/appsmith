@@ -1,9 +1,7 @@
 import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 import { getCanvasClassName } from "utils/generators";
-const CloseModalControl = ControlIcons.CLOSE_CONTROL;
 const Container = styled.div<{
   width: number;
   height: number;
@@ -44,13 +42,6 @@ const Content = styled.div<{
   height: ${props => props.height}px;
 `;
 
-const CloseModalTrigger = styled(CloseModalControl)`
-  position: absolute;
-  right: -30px;
-  top: 0px;
-  cursor: pointer;
-`;
-
 export type ModalComponentProps = {
   isOpen: boolean;
   onClose: (e: any) => void;
@@ -84,10 +75,6 @@ export const ModalComponent = (props: ModalComponentProps) => {
         enforceFocus={false}
       >
         <div>
-          <CloseModalTrigger
-            onClick={props.onClose}
-            className="t--modal-close"
-          />
           <Content
             scroll={props.scrollContents}
             className={`${getCanvasClassName()} ${props.className}`}
