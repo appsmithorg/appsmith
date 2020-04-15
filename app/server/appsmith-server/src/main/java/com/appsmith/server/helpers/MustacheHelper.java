@@ -112,7 +112,8 @@ public class MustacheHelper {
      * Tokenize-s the given Mustache template string, extracts the Mustache interpolations out, strips the leading and
      * trailing double braces, trims and then returns a set of these replacement keys.
      * @param template The Mustache input template string.
-     * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped.
+     * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped and then
+     * trimmed.
      */
     public static Set<String> extractMustacheKeys(String template) {
         Set<String> keys = new HashSet<>();
@@ -129,11 +130,36 @@ public class MustacheHelper {
         return keys;
     }
 
+    /**
+     * The JSON template contains some Mustache interpolations inside some values, serialized as JSON. Because of this,
+     * JSON special characters like double-quote and backslash are escaped in the template. We need to unescape them,
+     * making the JSON invalid, but the Javascript inside the Mustache double-braces will be valid. Then, our parser can
+     * do its work.
+     * @param jsonTemplate The template string. Usually the result of calling `objectMapper.writeValueAsString(obj)`.
+     * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped and then
+     * trimmed.
+     */
+    public static Set<String> extractMustacheKeysFromJson(String jsonTemplate) {
+        return extractMustacheKeys(unescape(jsonTemplate));
+    }
+
     private static void clearAndPushToken(StringBuilder tokenBuilder, List<String> tokenList) {
         if (tokenBuilder.length() > 0) {
             tokenList.add(tokenBuilder.toString());
             tokenBuilder.setLength(0);
         }
+    }
+
+    /**
+     * This will replace instances of `\"` (a single backslash followed by a double-quote) with just a double-quote and
+     * instances of `\\` (two backslash characters back-to-back) with a single backslash. This is useful to undo the
+     * escaping done during JSON serialization. Note that the input string is expected to be valid JSON, although this
+     * is not verified. The return value will NOT be valid JSON.
+     * @param jsonString Input string to apply replacements on.
+     * @return String Contents of `jsonString` with the replacements applied.
+     */
+    private static String unescape(String jsonString) {
+        return jsonString.replaceAll("\\\\([\"\\\\])", "$1");
     }
 
 }

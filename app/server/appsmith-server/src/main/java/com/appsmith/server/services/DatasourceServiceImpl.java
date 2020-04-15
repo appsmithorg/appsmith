@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -185,7 +185,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         // Convert the object to String as a preparation to send it to mustache extraction
         try {
             String datasourceConfigStr = objectMapper.writeValueAsString(datasource.getDatasourceConfiguration());
-            return extractMustacheKeys(datasourceConfigStr);
+            return extractMustacheKeysFromJson(datasourceConfigStr);
         } catch (JsonProcessingException e) {
             log.error("Exception caught while extracting mustache keys from action configuration. ", e);
         }

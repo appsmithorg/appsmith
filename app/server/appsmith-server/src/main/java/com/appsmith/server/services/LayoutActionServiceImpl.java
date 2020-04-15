@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -96,7 +96,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Mono<Set<String>> dynamicBindingNamesMono = Mono.just(dslString)
                 // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
-                .map(dslString1 -> extractMustacheKeys(dslString1))
+                .map(dslString1 -> extractMustacheKeysFromJson(dslString1))
                 .map(dynamicBindings -> {
                     Set<String> dynamicBindingNames = new HashSet<>();
                     if (!dynamicBindings.isEmpty()) {

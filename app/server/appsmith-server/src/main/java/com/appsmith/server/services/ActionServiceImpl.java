@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -215,7 +215,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         // Convert the object to String as a preparation to send it to mustache extraction
         try {
             String actionConfigStr = objectMapper.writeValueAsString(action.getActionConfiguration());
-            return extractMustacheKeys(actionConfigStr);
+            return extractMustacheKeysFromJson(actionConfigStr);
         } catch (JsonProcessingException e) {
             log.error("Exception caught while extracting mustache keys from action configuration. ", e);
         }
