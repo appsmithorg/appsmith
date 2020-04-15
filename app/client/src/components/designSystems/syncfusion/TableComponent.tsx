@@ -20,8 +20,9 @@ import {
   PdfExport,
   ExcelExport,
   Search,
-  VirtualScroll,
+  RowDataBoundEventArgs,
 } from "@syncfusion/ej2-react-grids";
+import { getValue } from "@syncfusion/ej2-base";
 import { ClickEventArgs } from "@syncfusion/ej2-navigations";
 import React, { useRef, MutableRefObject, useEffect, memo } from "react";
 import styled from "constants/DefaultTheme";
@@ -194,6 +195,13 @@ const TableComponent = memo(
       }
     }
 
+    function rowDataBound(args: RowDataBoundEventArgs) {
+      const color = getValue("_color", args.data);
+      if (args.row && color) {
+        (args.row as any).style.backgroundColor = color;
+      }
+    }
+
     function columnMenuOpen(args: ColumnMenuOpenEventArgs) {
       for (const item of args.items) {
         if (item.text) {
@@ -264,10 +272,11 @@ const TableComponent = memo(
           showColumnMenu={true}
           commandClick={onCommandClick}
           columnMenuOpen={columnMenuOpen}
+          rowDataBound={rowDataBound}
           toolbar={!!toolbarOptions.length && toolbarOptions}
           allowPdfExport
           allowExcelExport
-          enableVirtualization
+          // enableVirtualization
         >
           <Inject
             services={[
@@ -280,7 +289,7 @@ const TableComponent = memo(
               ExcelExport,
               PdfExport,
               Search,
-              VirtualScroll,
+              // VirtualScroll,
             ]}
           />
           <ColumnsDirective>
