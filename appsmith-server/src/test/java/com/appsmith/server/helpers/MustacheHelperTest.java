@@ -1,12 +1,21 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 import static com.appsmith.server.helpers.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +23,12 @@ import static org.assertj.core.api.Assertions.assertThat;
       // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for tests.
       "ArraysAsListWithZeroOrOneArgument"
 )
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class MustacheHelperTest {
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private void checkTokens(String template, List<String> expected) {
         assertThat(tokenize(template)).isEqualTo(expected);
@@ -30,6 +44,16 @@ public class MustacheHelperTest {
         }
         if (expectedKeys != null) {
             checkKeys(template, expectedKeys);
+        }
+    }
+
+    private void checkKeysJson(String template, Set<String> expected) {
+        assertThat(extractMustacheKeysFromJson(template)).isEqualTo(expected);
+    }
+
+    private void checkJson(String template, Set<String> expectedKeys) {
+        if (expectedKeys != null) {
+            checkKeysJson(template, expectedKeys);
         }
     }
 
@@ -297,6 +321,46 @@ public class MustacheHelperTest {
                 "{{{\"foo\": \"bar\"}}}",
                 Arrays.asList("{{{\"foo\": \"bar\"}}}"),
                 Set.of("{\"foo\": \"bar\"}")
+        );
+    }
+
+    @Test
+    public void objectWithJavascriptString() throws JsonProcessingException {
+        DatasourceConfiguration configuration = new DatasourceConfiguration();
+        Property property = new Property();
+        property.setKey("name");
+        property.setValue("Hello {{ \"there\" }}!");
+        configuration.setProperties(Arrays.asList(property));
+        checkJson(
+                objectMapper.writeValueAsString(configuration),
+                Set.of("\"there\"")
+        );
+    }
+
+    @Test
+    public void objectWithJavascriptStringWithBackslashes() throws JsonProcessingException {
+        DatasourceConfiguration configuration = new DatasourceConfiguration();
+        Property property = new Property();
+        property.setKey("name");
+        property.setValue("Hello {{ \"th\\\\ere\" }}!");
+        configuration.setProperties(Arrays.asList(property));
+        checkJson(
+                objectMapper.writeValueAsString(configuration),
+                Set.of("\"th\\\\ere\"")
+        );
+    }
+
+    @Test
+    public void objectWithJavascriptStringWithNewline() throws JsonProcessingException {
+        DatasourceConfiguration configuration = new DatasourceConfiguration();
+        Property property = new Property();
+        property.setKey("name");
+        // The `\n` should be interpreted by Javascript, not Java. So we put an extra `\` before it.
+        property.setValue("Hello {{ \"line 1\" + \"\\n\" + \"line 2\" }}!");
+        configuration.setProperties(Arrays.asList(property));
+        checkJson(
+                objectMapper.writeValueAsString(configuration),
+                Set.of("\"line 1\" + \"\\n\" + \"line 2\"")
         );
     }
 
