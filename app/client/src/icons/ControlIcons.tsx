@@ -7,7 +7,12 @@ import { ReactComponent as ViewIcon } from "assets/icons/control/view.svg";
 import { ReactComponent as MoreVerticalIcon } from "assets/icons/control/more-vertical.svg";
 import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-menu.svg";
 import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.svg";
+import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.svg";
+import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
+
+import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
+import { ReactComponent as PickMyLocationIcon } from "assets/icons/control/pick-my-location.svg";
 /* eslint-disable react/display-name */
 
 export const ControlIcons: {
@@ -48,9 +53,29 @@ export const ControlIcons: {
       <JsToggleIcon />
     </IconWrapper>
   ),
+  INCREASE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IncreaseIcon />
+    </IconWrapper>
+  ),
+  DECREASE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DecreaseIcon />
+    </IconWrapper>
+  ),
+  DRAGGABLE_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DraggableIcon />
+    </IconWrapper>
+  ),
   CLOSE_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <CloseIcon />
+    </IconWrapper>
+  ),
+  PICK_MY_LOCATION_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <PickMyLocationIcon />
     </IconWrapper>
   ),
 };

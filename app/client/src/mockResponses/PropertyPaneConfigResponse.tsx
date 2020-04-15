@@ -318,6 +318,12 @@ const PropertyPaneConfigResponse = {
             errorMessage: "Must be a valid string",
             controlType: "INPUT_TEXT",
           },
+          {
+            id: "16.1.3",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+          },
         ],
       },
     ],
@@ -400,47 +406,6 @@ const PropertyPaneConfigResponse = {
             label: "Visible",
             controlType: "SWITCH",
             isJSConvertible: true,
-          },
-        ],
-      },
-    ],
-    MODAL_WIDGET: [
-      {
-        sectionName: "General",
-        id: "18.1",
-        children: [
-          {
-            id: "18.1.1",
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
-            validationType: "BOOLEAN",
-            errorMessage: "Must be a valid boolean value",
-            controlType: "SWITCH",
-          },
-          {
-            id: "18.1.2",
-            propertyName: "size",
-            label: "Modal Type",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Form Modal",
-                value: "MODAL_LARGE",
-              },
-              {
-                label: "Alert Modal",
-                value: "MODAL_SMALL",
-              },
-            ],
-          },
-          {
-            id: "18.1.3",
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
-            validationType: "BOOLEAN",
-            errorMessage: "Must be a valid boolean value",
-            controlType: "SWITCH",
           },
         ],
       },
@@ -754,63 +719,6 @@ const PropertyPaneConfigResponse = {
             label: "onClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
-          },
-        ],
-      },
-    ],
-    MAP_WIDGET: [
-      {
-        sectionName: "General",
-        id: "19",
-        children: [
-          {
-            id: "19.1",
-            propertyName: "mapCenter",
-            label: "Initial location",
-            controlType: "LOCATION_SEARCH",
-          },
-          {
-            id: "19.2",
-            propertyName: "enableSearch",
-            label: "Enable search location",
-            controlType: "SWITCH",
-          },
-          {
-            id: "19.3",
-            propertyName: "zoomToLocation",
-            label: "Zoom to location",
-            controlType: "SWITCH",
-          },
-          {
-            id: "19.4",
-            propertyName: "defaultMarkers",
-            label: "Default markers",
-            controlType: "INPUT_TEXT",
-            inputType: "ARRAY",
-          },
-          {
-            id: "19.5",
-            propertyName: "location",
-            label: "Creat new marker",
-            controlType: "SWITCH",
-          },
-        ],
-      },
-      {
-        sectionName: "ZOOM SETTINGS",
-        id: "20",
-        children: [
-          {
-            id: "20.1",
-            propertyName: "zoomLevel",
-            label: "Zoom Level",
-            controlType: "PERCENTAGE_LEVEL",
-          },
-          {
-            id: "20.2",
-            propertyName: "allowZoom",
-            label: "Zoomable",
-            controlType: "SWITCH",
           },
         ],
       },
@@ -1227,6 +1135,113 @@ const PropertyPaneConfigResponse = {
             controlType: "SWITCH",
             validationType: "BOOLEAN",
             errorMessage: "Must be a valid boolean value",
+            isJSConvertible: true,
+          },
+        ],
+      },
+    ],
+    MODAL_WIDGET: [
+      {
+        sectionName: "General",
+        id: "24.1",
+        children: [
+          {
+            id: "24.1.1",
+            propertyName: "canOutsideClickClose",
+            label: "Close on blur",
+            controlType: "SWITCH",
+          },
+          {
+            id: "24.1.3",
+            propertyName: "canEscapeKeyClose",
+            label: "Close on ESC",
+            controlType: "SWITCH",
+          },
+          {
+            id: "24.1.4",
+            propertyName: "size",
+            label: "Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Large",
+                value: "MODAL_LARGE",
+              },
+              {
+                label: "Small",
+                value: "MODAL_SMALL",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    MAP_WIDGET: [
+      {
+        sectionName: "General",
+        id: "25",
+        children: [
+          {
+            id: "25.1",
+            propertyName: "mapCenter",
+            label: "Initial location",
+            controlType: "LOCATION_SEARCH",
+          },
+          {
+            id: "25.2",
+            propertyName: "enableSearch",
+            label: "Enable search location",
+            controlType: "SWITCH",
+          },
+          {
+            id: "25.3",
+            propertyName: "enablePickLocation",
+            label: "Enable pick location",
+            controlType: "SWITCH",
+          },
+          {
+            id: "25.4",
+            propertyName: "defaultMarkers",
+            label: "Default markers",
+            controlType: "INPUT_TEXT",
+            inputType: "ARRAY",
+          },
+          {
+            id: "25.5",
+            propertyName: "enableCreateMarker",
+            label: "Create new marker",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        sectionName: "ZOOM SETTINGS",
+        id: "26",
+        children: [
+          {
+            id: "26.1",
+            propertyName: "zoomLevel",
+            label: "Zoom Level",
+            controlType: "STEP",
+            stepType: "ZOOM_PERCENTAGE",
+          },
+          {
+            id: "26.2",
+            propertyName: "allowZoom",
+            label: "Zoomable",
+            controlType: "SWITCH",
+          },
+        ],
+      },
+      {
+        id: "27",
+        sectionName: "Actions",
+        children: [
+          {
+            id: "27.1",
+            propertyName: "onMarkerClick",
+            label: "onMarkerClick",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
           },
         ],

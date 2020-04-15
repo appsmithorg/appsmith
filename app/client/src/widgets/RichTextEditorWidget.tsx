@@ -29,22 +29,22 @@ class RichTextEditorWidget extends BaseWidget<
 
   componentDidMount() {
     super.componentDidMount();
-    if (this.props.text) {
-      this.updateWidgetMetaProperty("value", this.props.text);
+    if (this.props.defaultText) {
+      this.updateWidgetMetaProperty("text", this.props.defaultText);
     }
   }
 
   componentDidUpdate(prevProps: RichTextEditorWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (this.props.text) {
-      if (this.props.text !== prevProps.text) {
-        this.updateWidgetMetaProperty("value", this.props.text);
+    if (this.props.defaultText) {
+      if (this.props.defaultText !== prevProps.defaultText) {
+        this.updateWidgetMetaProperty("text", this.props.defaultText);
       }
     }
   }
 
-  onValueChange = (value: string) => {
-    this.updateWidgetMetaProperty("value", value);
+  onValueChange = (text: string) => {
+    this.updateWidgetMetaProperty("text", text);
     if (this.props.onTextChange) {
       super.executeAction({
         dynamicString: this.props.onTextChange,
@@ -59,7 +59,7 @@ class RichTextEditorWidget extends BaseWidget<
     return (
       <RichtextEditorComponent
         onValueChange={this.onValueChange}
-        defaultValue={this.props.value}
+        defaultValue={this.props.text}
         widgetId={this.props.widgetId}
         placeholder={this.props.placeholder}
         key={this.props.widgetId}
@@ -80,8 +80,8 @@ export interface InputValidator {
 }
 
 export interface RichTextEditorWidgetProps extends WidgetProps {
+  defaultText?: string;
   text?: string;
-  value?: string;
   placeholder?: string;
   onTextChange?: string;
   isDisabled?: boolean;
