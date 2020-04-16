@@ -1,6 +1,7 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
@@ -20,9 +21,6 @@ import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 
-const FilePickerComponent = lazy(() =>
-  import("components/designSystems/appsmith/FilePickerComponent"),
-);
 class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   uppy: any;
 
@@ -186,16 +184,14 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <Suspense fallback={null}>
-        <FilePickerComponent
-          uppy={this.uppy}
-          widgetId={this.props.widgetId}
-          key={this.props.widgetId}
-          label={this.props.label}
-          files={this.props.files || []}
-          isLoading={this.props.isLoading}
-        />
-      </Suspense>
+      <FilePickerComponent
+        uppy={this.uppy}
+        widgetId={this.props.widgetId}
+        key={this.props.widgetId}
+        label={this.props.label}
+        files={this.props.files || []}
+        isLoading={this.props.isLoading}
+      />
     );
   }
 
