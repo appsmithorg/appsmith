@@ -4,6 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 // import ChartComponent from "components/designSystems/appsmith/ChartComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import Skeleton from "components/utils/Skeleton";
 
 const ChartComponent = lazy(() =>
   import("components/designSystems/appsmith/ChartComponent"),
@@ -21,7 +22,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Skeleton />}>
         <ChartComponent
           key={this.props.widgetId}
           isVisible={this.props.isVisible}
