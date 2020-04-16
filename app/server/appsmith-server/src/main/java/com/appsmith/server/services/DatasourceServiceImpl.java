@@ -6,7 +6,6 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -98,18 +97,25 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
+        Mono<String> currentOrganizationMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getCurrentOrganizationId())
+                .cache();
+
         if (datasource.getPluginId() == null) {
             datasource.setIsValid(false);
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
             datasource.setInvalids(invalids);
-            return Mono.just(datasource);
+            return currentOrganizationMono
+                    .map(currentOrgId -> {
+                        datasource.setOrganizationId(currentOrgId);
+                        return datasource;
+                    });
         }
 
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        Mono<Organization> organizationMono = userMono
-                .flatMap(user -> organizationService.findByIdAndPluginsPluginId(
-                        user.getCurrentOrganizationId(), datasource.getPluginId()))
+        Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = currentOrganizationMono
+                .flatMap(currentOrgId -> organizationService.findByIdAndPluginsPluginId(
+                        currentOrgId, datasource.getPluginId()))
                 .switchIfEmpty(Mono.defer(() -> {
                     datasource.setIsValid(false);
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
@@ -117,7 +123,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 }));
 
         //Add organization id to the datasource.
-        Mono<Datasource> updatedDatasourceMono = organizationMono
+        Mono<Datasource> updatedDatasourceMono = checkPluginInstallationAndThenReturnOrganizationMono
                 .map(organization -> {
                     if (organization.getId() != null) {
                         datasource.setOrganizationId(organization.getId());
