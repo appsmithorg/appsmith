@@ -30,20 +30,30 @@ import {
 const loadingIndicator = <Loader />;
 const App = lazy(() => import("./App"));
 const UserAuth = lazy(() =>
-  import(/* webpackPrefetch: 5 */ "./pages/UserAuth"),
+  import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
 );
-const Editor = lazy(() => import(/* webpackPrefetch: 3 */ "./pages/Editor"));
+const Editor = lazy(() =>
+  import(/* webpackChunkName: "editor",webpackPrefetch: 3 */ "./pages/Editor"),
+);
 const Applications = lazy(() =>
-  import(/* webpackPrefetch: 4 */ "./pages/Applications"),
+  import(
+    /* webpackChunkName: "apps",webpackPrefetch: 4 */ "./pages/Applications"
+  ),
 );
 const PageNotFound = lazy(() =>
-  import(/* webpackPrefetch: true */ "./pages/common/PageNotFound"),
+  import(
+    /* webpackChunkName: "404",webpackPrefetch: true */ "./pages/common/PageNotFound"
+  ),
 );
 const AppViewer = lazy(() =>
-  import(/* webpackPrefetch: 2 */ "./pages/AppViewer"),
+  import(
+    /* webpackChunkName: "viewer",webpackPrefetch: 2 */ "./pages/AppViewer"
+  ),
 );
 const Organization = lazy(() =>
-  import(/* webpackPrefetch: 1 */ "./pages/organization"),
+  import(
+    /* webpackChunkName: "orgs",webpackPrefetch: 1 */ "./pages/organization"
+  ),
 );
 const Users = lazy(() => import(/* webpackPrefetch: true */ "./pages/users"));
 appInitializer();
