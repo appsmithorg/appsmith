@@ -35,7 +35,7 @@ public class RapidApiPlugin extends BasePlugin {
     private static int MAX_REDIRECTS = 5;
     private static ObjectMapper objectMapper;
     private static String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
-    private static String RAPID_API_KEY_VALUE = "f2a61def63msh9d6582090d01286p157197jsnade6f31fcae8";
+    private static String RAPID_API_KEY_VALUE = "6d804a25b8mshc11f75089009c26p12c8d8jsna1a83b13ffd5";
     private static String JSON_TYPE = "apipayload";
 
     public RapidApiPlugin(PluginWrapper wrapper) {
@@ -83,7 +83,7 @@ public class RapidApiPlugin extends BasePlugin {
 
                         Pattern pattern = Pattern.compile("\\{" + property.getKey() + "\\}");
                         Matcher matcher = pattern.matcher(url);
-                        url = matcher.replaceAll(property.getValue());
+                        url = matcher.replaceAll(URLEncoder.encode(property.getValue()));
                     }
                 }
             }
