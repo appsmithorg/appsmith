@@ -107,6 +107,7 @@
     "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
+    "build-staging": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "cypress/test.sh",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",

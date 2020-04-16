@@ -7,7 +7,9 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 
 const ChartComponent = lazy(() =>
-  import("components/designSystems/appsmith/ChartComponent"),
+  import(
+    /* webpackPrefetch: true */ "components/designSystems/appsmith/ChartComponent"
+  ),
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {

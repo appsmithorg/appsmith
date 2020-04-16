@@ -12,6 +12,8 @@ import { UserApplication } from "constants/userConstants";
 import { AppState } from "reducers";
 import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
+import { DndProvider } from "react-dnd";
+import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -35,6 +37,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { fetchPage } from "actions/pageActions";
+import { editorInitializer } from "utils/EditorUtils";
 
 type EditorProps = {
   currentPageName?: string;
@@ -62,9 +65,13 @@ type EditorProps = {
 class Editor extends Component<EditorProps> {
   public state = {
     isDialogOpen: false,
+    registered: false,
   };
 
   componentDidMount() {
+    editorInitializer().then(() => {
+      this.setState({ registered: true });
+    });
     const { applicationId, pageId } = this.props.match.params;
     if (applicationId && pageId) {
       this.props.initEditor(applicationId, pageId);
@@ -116,55 +123,62 @@ class Editor extends Component<EditorProps> {
     if (!this.props.match.params.applicationId) {
       return <Redirect to="/applications" />;
     }
-    if (!this.props.isEditorInitialized) return null;
+    if (!this.props.isEditorInitialized || !this.state.registered) return null;
     return (
-      <div>
-        <Helmet>
-          <meta charSet="utf-8" />
-          <title>Editor | Appsmith</title>
-        </Helmet>
-        <EditorHeader
-          isSaving={this.props.isSaving}
-          pageName={this.props.currentPageName}
-          onPublish={this.handlePublish}
-          onCreatePage={this.handleCreatePage}
-          pages={this.props.pages}
-          currentPageId={this.props.currentPageId}
-          currentApplicationId={this.props.currentApplicationId}
-          isPublishing={this.props.isPublishing}
-          publishedTime={this.props.publishedTime}
-          createModal={this.props.createModal}
-        />
-        <MainContainer />
-        <Dialog
-          isOpen={this.state.isDialogOpen}
-          canOutsideClickClose={true}
-          canEscapeKeyClose={true}
-          title="Application Published"
-          onClose={this.handleDialogClose}
-          icon="tick-circle"
-        >
-          <div className={Classes.DIALOG_BODY}>
-            <p>
-              {
-                "Your awesome application is now published with the current changes!"
-              }
-            </p>
-          </div>
-          <div className={Classes.DIALOG_FOOTER}>
-            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-              <AnchorButton
-                target={this.props.currentApplicationId}
-                href={getApplicationViewerPageURL(
-                  this.props.currentApplicationId,
-                  this.props.currentPageId,
-                )}
-                text="View Application"
-              />
+      <DndProvider
+        backend={TouchBackend}
+        options={{
+          enableMouseEvents: true,
+        }}
+      >
+        <div>
+          <Helmet>
+            <meta charSet="utf-8" />
+            <title>Editor | Appsmith</title>
+          </Helmet>
+          <EditorHeader
+            isSaving={this.props.isSaving}
+            pageName={this.props.currentPageName}
+            onPublish={this.handlePublish}
+            onCreatePage={this.handleCreatePage}
+            pages={this.props.pages}
+            currentPageId={this.props.currentPageId}
+            currentApplicationId={this.props.currentApplicationId}
+            isPublishing={this.props.isPublishing}
+            publishedTime={this.props.publishedTime}
+            createModal={this.props.createModal}
+          />
+          <MainContainer />
+          <Dialog
+            isOpen={this.state.isDialogOpen}
+            canOutsideClickClose={true}
+            canEscapeKeyClose={true}
+            title="Application Published"
+            onClose={this.handleDialogClose}
+            icon="tick-circle"
+          >
+            <div className={Classes.DIALOG_BODY}>
+              <p>
+                {
+                  "Your awesome application is now published with the current changes!"
+                }
+              </p>
             </div>
-          </div>
-        </Dialog>
-      </div>
+            <div className={Classes.DIALOG_FOOTER}>
+              <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+                <AnchorButton
+                  target={this.props.currentApplicationId}
+                  href={getApplicationViewerPageURL(
+                    this.props.currentApplicationId,
+                    this.props.currentPageId,
+                  )}
+                  text="View Application"
+                />
+              </div>
+            </div>
+          </Dialog>
+        </div>
+      </DndProvider>
     );
   }
 }

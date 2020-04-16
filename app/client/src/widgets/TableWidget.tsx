@@ -16,7 +16,9 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 
 const TableComponent = lazy(() =>
-  import("components/designSystems/syncfusion/TableComponent"),
+  import(
+    /* webpackPrefetch: true */ "components/designSystems/syncfusion/TableComponent"
+  ),
 );
 
 function constructColumns(
