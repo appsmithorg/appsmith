@@ -39,7 +39,7 @@ import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 @Slf4j
 public class PostgresPlugin extends BasePlugin {
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
@@ -202,7 +202,7 @@ public class PostgresPlugin extends BasePlugin {
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Authentication details missing.");
+                invalids.add("Missing authentication details.");
 
             } else {
                 if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
