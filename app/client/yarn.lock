@@ -2157,6 +2157,7 @@
 "@tinymce/tinymce-react@^3.5.0":
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-3.5.0.tgz#5017be56aeab1077f09d3f74a386883e5524a33f"
+  integrity sha512-sZPerYmSWQcdk7F9KEvCC3/kPNZ9Bb+dk8rS0RoYyYql/gqgNpLpycC+CC/KhgT0wDaYuRoCcdV1DVZGam+oOg==
   dependencies:
     prop-types "^15.6.2"
 
@@ -13543,10 +13544,6 @@ tiny-warning@^1.0.0, tiny-warning@^1.0.2:
 tinycolor2@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/tinycolor2/-/tinycolor2-1.4.1.tgz#f4fad333447bc0b07d4dc8e9209d8f39a8ac77e8"
-
-tinymce@^5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-5.2.0.tgz#e838640f61c8a936317bc27a5d2e16c297df3418"
 
 tmp@0.1.0:
   version "0.1.0"

@@ -8,7 +8,9 @@ import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 
 const RichtextEditorComponent = lazy(() =>
-  import("components/designSystems/appsmith/RichTextEditorComponent"),
+  import(
+    /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
+  ),
 );
 
 class RichTextEditorWidget extends BaseWidget<

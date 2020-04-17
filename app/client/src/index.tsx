@@ -28,7 +28,9 @@ import {
 } from "constants/routes";
 
 const loadingIndicator = <Loader />;
-const App = lazy(() => import("./App"));
+const App = lazy(() =>
+  import(/* webpackChunkName: "appsmith",webpackPrefetch: 10 */ "./App"),
+);
 const UserAuth = lazy(() =>
   import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
 );
@@ -41,9 +43,7 @@ const Applications = lazy(() =>
   ),
 );
 const PageNotFound = lazy(() =>
-  import(
-    /* webpackChunkName: "404",webpackPrefetch: true */ "./pages/common/PageNotFound"
-  ),
+  import(/* webpackChunkName: "404"*/ "./pages/common/PageNotFound"),
 );
 const AppViewer = lazy(() =>
   import(
@@ -51,9 +51,7 @@ const AppViewer = lazy(() =>
   ),
 );
 const Organization = lazy(() =>
-  import(
-    /* webpackChunkName: "orgs",webpackPrefetch: 1 */ "./pages/organization"
-  ),
+  import(/* webpackChunkName: "orgs" */ "./pages/organization"),
 );
 const Users = lazy(() => import(/* webpackPrefetch: true */ "./pages/users"));
 appInitializer();

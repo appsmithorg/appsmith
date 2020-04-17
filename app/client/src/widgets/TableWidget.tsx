@@ -17,7 +17,7 @@ import Skeleton from "components/utils/Skeleton";
 
 const TableComponent = lazy(() =>
   import(
-    /* webpackPrefetch: true */ "components/designSystems/syncfusion/TableComponent"
+    /* webpackPrefetch: true, webpackChunkName: "table" */ "components/designSystems/syncfusion/TableComponent"
   ),
 );
 

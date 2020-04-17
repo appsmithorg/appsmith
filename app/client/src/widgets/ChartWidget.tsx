@@ -8,7 +8,7 @@ import Skeleton from "components/utils/Skeleton";
 
 const ChartComponent = lazy(() =>
   import(
-    /* webpackPrefetch: true */ "components/designSystems/appsmith/ChartComponent"
+    /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
   ),
 );
 
