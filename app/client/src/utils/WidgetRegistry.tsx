@@ -37,8 +37,7 @@ import FormButtonWidget, {
 import IconWidget, { IconWidgetProps } from "widgets/IconWidget";
 
 import CanvasWidget from "widgets/CanvasWidget";
-
-class WidgetBuilderRegistry {
+export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
       "CONTAINER_WIDGET",
@@ -281,5 +280,3 @@ class WidgetBuilderRegistry {
     );
   }
 }
-
-export default WidgetBuilderRegistry;

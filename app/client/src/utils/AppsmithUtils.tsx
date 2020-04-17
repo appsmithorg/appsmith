@@ -3,12 +3,8 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
-import PropertyControlRegistry from "./PropertyControlRegistry";
-import WidgetBuilderRegistry from "./WidgetRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
-import moment from "moment-timezone";
-import ValidationRegistry from "./ValidationRegistry";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
@@ -27,10 +23,6 @@ export const createReducer = (
 };
 
 export const appInitializer = () => {
-  WidgetBuilderRegistry.registerWidgetBuilders();
-  PropertyControlRegistry.registerPropertyControlBuilders();
-  ValidationRegistry.registerInternalValidators();
-  moment.tz.setDefault(moment.tz.guess());
   const appsmithConfigs = getAppsmithConfigs();
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
     Sentry.init(appsmithConfigs.sentry.config);

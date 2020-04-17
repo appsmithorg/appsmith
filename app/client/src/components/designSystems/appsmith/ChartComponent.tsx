@@ -196,7 +196,6 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       dataFormat: "json",
       dataSource: dataSource,
     };
-    console.log("chartConfig", chartConfig);
     this.chartInstance = new FusionCharts(chartConfig);
   };
 

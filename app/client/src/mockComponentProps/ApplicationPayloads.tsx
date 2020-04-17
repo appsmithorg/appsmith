@@ -1,13 +1,10 @@
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import Chance from "chance";
-
-const chance = new Chance();
-
+import { generateReactKey } from "utils/generators";
 export const getApplicationPayload = (): ApplicationPayload => ({
-  id: chance.guid(),
-  name: chance.word(),
-  organizationId: chance.guid(),
-  pageCount: chance.natural(),
+  id: generateReactKey(),
+  name: generateReactKey(),
+  organizationId: generateReactKey(),
+  pageCount: 4,
 });
 
 export const getApplicationPayloads = (count: number): ApplicationPayload[] => {

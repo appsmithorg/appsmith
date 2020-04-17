@@ -4,12 +4,9 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
 import "./index.css";
-import * as serviceWorker from "./serviceWorker";
 import { Router, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
-import { DndProvider } from "react-dnd";
-import TouchBackend from "react-dnd-touch-backend";
 
 import { appInitializer } from "utils/AppsmithUtils";
 import AppRoute from "./pages/common/AppRoute";
@@ -30,97 +27,103 @@ import {
 } from "constants/routes";
 
 const loadingIndicator = <Loader />;
-const App = lazy(() => import("./App"));
-const UserAuth = lazy(() => import("./pages/UserAuth"));
-const Editor = lazy(() => import("./pages/Editor"));
-const Applications = lazy(() => import("./pages/Applications"));
-const PageNotFound = lazy(() => import("./pages/common/PageNotFound"));
-const AppViewer = lazy(() => import("./pages/AppViewer"));
-const Organization = lazy(() => import("./pages/organization"));
-const Users = lazy(() => import("./pages/users"));
+const App = lazy(() =>
+  import(/* webpackChunkName: "appsmith",webpackPrefetch: 10 */ "./App"),
+);
+const UserAuth = lazy(() =>
+  import(/* webpackChunkName: "auth",webpackPrefetch: 5 */ "./pages/UserAuth"),
+);
+const Editor = lazy(() =>
+  import(/* webpackChunkName: "editor",webpackPrefetch: 3 */ "./pages/Editor"),
+);
+const Applications = lazy(() =>
+  import(
+    /* webpackChunkName: "apps",webpackPrefetch: 4 */ "./pages/Applications"
+  ),
+);
+const PageNotFound = lazy(() =>
+  import(/* webpackChunkName: "404"*/ "./pages/common/PageNotFound"),
+);
+const AppViewer = lazy(() =>
+  import(
+    /* webpackChunkName: "viewer",webpackPrefetch: 2 */ "./pages/AppViewer"
+  ),
+);
+const Organization = lazy(() =>
+  import(/* webpackChunkName: "orgs" */ "./pages/organization"),
+);
+const Users = lazy(() => import(/* webpackPrefetch: true */ "./pages/users"));
 appInitializer();
 
 ReactDOM.render(
-  <DndProvider
-    backend={TouchBackend}
-    options={{
-      enableMouseEvents: true,
-    }}
-  >
-    <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <ToastContainer
-          hideProgressBar
-          draggable={false}
-          transition={Slide}
-          autoClose={5000}
-          closeButton={false}
-        />
-        <Helmet>
-          <meta charSet="utf-8" />
-          <link rel="shortcut icon" href="/favicon-orange.ico" />
-        </Helmet>
-        <Router history={history}>
-          <Suspense fallback={loadingIndicator}>
-            <Switch>
-              <AppRoute
-                exact
-                path={BASE_URL}
-                component={App}
-                name={"App"}
-                routeProtected
-              />
-              <AppRoute
-                path={ORG_URL}
-                component={Organization}
-                name={"Organisation"}
-                routeProtected
-              />
-              <AppRoute
-                exact
-                path={USERS_URL}
-                component={Users}
-                name={"Users"}
-                routeProtected
-              />
-              <AppRoute
-                path={USER_AUTH_URL}
-                component={UserAuth}
-                name={"UserAuth"}
-              />
-              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <AppRoute
-                exact
-                path={APPLICATIONS_URL}
-                component={Applications}
-                name={"Home"}
-                routeProtected
-              />
-              <AppRoute
-                path={BUILDER_URL}
-                component={Editor}
-                name={"Editor"}
-                routeProtected
-              />
-              <AppRoute
-                path={APP_VIEW_URL}
-                component={AppViewer}
-                name={"AppViewer"}
-                routeProtected
-                logDisable
-              />
-              <AppRoute component={PageNotFound} name={"PageNotFound"} />
-            </Switch>
-          </Suspense>
-        </Router>
-      </ThemeProvider>
-    </Provider>
-  </DndProvider>,
+  <Provider store={store}>
+    <ThemeProvider theme={theme}>
+      <ToastContainer
+        hideProgressBar
+        draggable={false}
+        transition={Slide}
+        autoClose={5000}
+        closeButton={false}
+      />
+      <Helmet>
+        <meta charSet="utf-8" />
+        <link rel="shortcut icon" href="/favicon-orange.ico" />
+      </Helmet>
+      <Router history={history}>
+        <Suspense fallback={loadingIndicator}>
+          <Switch>
+            <AppRoute
+              exact
+              path={BASE_URL}
+              component={App}
+              name={"App"}
+              routeProtected
+            />
+            <AppRoute
+              path={ORG_URL}
+              component={Organization}
+              name={"Organisation"}
+              routeProtected
+            />
+            <AppRoute
+              exact
+              path={USERS_URL}
+              component={Users}
+              name={"Users"}
+              routeProtected
+            />
+            <AppRoute
+              path={USER_AUTH_URL}
+              component={UserAuth}
+              name={"UserAuth"}
+            />
+            <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+            <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
+            <AppRoute
+              exact
+              path={APPLICATIONS_URL}
+              component={Applications}
+              name={"Home"}
+              routeProtected
+            />
+            <AppRoute
+              path={BUILDER_URL}
+              component={Editor}
+              name={"Editor"}
+              routeProtected
+            />
+            <AppRoute
+              path={APP_VIEW_URL}
+              component={AppViewer}
+              name={"AppViewer"}
+              routeProtected
+              logDisable
+            />
+            <AppRoute component={PageNotFound} name={"PageNotFound"} />
+          </Switch>
+        </Suspense>
+      </Router>
+    </ThemeProvider>
+  </Provider>,
   document.getElementById("root"),
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();

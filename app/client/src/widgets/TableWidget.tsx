@@ -13,9 +13,12 @@ import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import Skeleton from "components/utils/Skeleton";
 
 const TableComponent = lazy(() =>
-  import("components/designSystems/syncfusion/TableComponent"),
+  import(
+    /* webpackPrefetch: true, webpackChunkName: "table" */ "components/designSystems/syncfusion/TableComponent"
+  ),
 );
 
 function constructColumns(
@@ -81,7 +84,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Skeleton />}>
         <TableComponent
           id={this.props.widgetName}
           data={this.props.tableData}

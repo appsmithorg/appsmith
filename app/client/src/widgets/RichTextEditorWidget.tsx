@@ -5,9 +5,12 @@ import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import Skeleton from "components/utils/Skeleton";
 
 const RichtextEditorComponent = lazy(() =>
-  import("components/designSystems/appsmith/RichTextEditorComponent"),
+  import(
+    /* webpackChunkName: "rte",webpackPrefetch: 2 */ "components/designSystems/appsmith/RichTextEditorComponent"
+  ),
 );
 
 class RichTextEditorWidget extends BaseWidget<
@@ -60,7 +63,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<Skeleton />}>
         <RichtextEditorComponent
           onValueChange={this.onValueChange}
           defaultValue={this.props.text}
