@@ -6,6 +6,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import WidgetFactory from "utils/WidgetFactory";
 
 export type ActionDescription<T> = {
   type: string;
@@ -96,9 +97,27 @@ export class DataTreeFactory {
     Object.keys(widgets).forEach(w => {
       const widget = widgets[w];
       const widgetMetaProps = widgetsMeta[w];
+      const defaultMetaProps = WidgetFactory.getWidgetMetaPropertiesMap(
+        widget.type,
+      );
+      const derivedPropertyMap = WidgetFactory.getWidgetDerivedPropertiesMap(
+        widget.type,
+      );
+      const derivedProps: any = {};
+      const dynamicBindings = widget.dynamicBindings || {};
+      Object.keys(derivedPropertyMap).forEach(propertyName => {
+        derivedProps[propertyName] = derivedPropertyMap[propertyName].replace(
+          /this./g,
+          `${widget.widgetName}.`,
+        );
+        dynamicBindings[propertyName] = true;
+      });
       dataTree[widget.widgetName] = {
         ...widget,
+        ...defaultMetaProps,
         ...widgetMetaProps,
+        ...derivedProps,
+        dynamicBindings,
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });

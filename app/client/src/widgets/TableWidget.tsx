@@ -62,6 +62,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      pageNo: 1,
+      pageSize: undefined,
+      selectedRowIndex: -1,
+    };
+  }
+
   static getTriggerPropertyMap(): TriggerPropertiesMap {
     return {
       onRowSelected: true,

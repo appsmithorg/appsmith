@@ -33,6 +33,18 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      text: undefined,
+    };
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      text: "defaultText",
+    };
+  }
+
   componentDidMount() {
     super.componentDidMount();
     if (this.props.defaultText) {

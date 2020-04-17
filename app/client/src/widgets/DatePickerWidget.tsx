@@ -12,12 +12,13 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
-import moment from "moment-timezone";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
       ...BASE_WIDGET_VALIDATION,
+      defaultDate: VALIDATION_TYPES.DATE,
+      selectedDate: VALIDATION_TYPES.DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
@@ -43,31 +44,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.defaultDate) {
-      this.updateWidgetMetaProperty(
-        "selectedDate",
-        new Date(this.props.defaultDate.dateValue),
-      );
-    }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      selectedDate: "defaultDate",
+    };
   }
 
-  componentDidUpdate(prevProps: DatePickerWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      this.props.defaultDate &&
-      (prevProps.defaultDate === undefined ||
-        !moment(this.props.defaultDate.dateValue).isSame(
-          moment(prevProps.defaultDate.dateValue),
-          "second",
-        ))
-    ) {
-      this.updateWidgetMetaProperty(
-        "selectedDate",
-        new Date(this.props.defaultDate.dateValue),
-      );
-    }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      selectedDate: undefined,
+    };
   }
 
   getPageView() {

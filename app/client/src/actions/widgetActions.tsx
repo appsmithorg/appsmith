@@ -8,15 +8,15 @@ import {
   ExecuteErrorPayload,
   PageAction,
 } from "constants/ActionConstants";
+import { BatchAction, batchAction } from "actions/batchActions";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
-): ReduxAction<ExecuteActionPayload> => {
-  return {
+): BatchAction<ExecuteActionPayload> =>
+  batchAction({
     type: ReduxActionTypes.EXECUTE_ACTION,
     payload,
-  };
-};
+  });
 
 export const executeActionError = (
   executeErrorPayload: ExecuteErrorPayload,
@@ -27,10 +27,11 @@ export const executeActionError = (
 
 export const executePageLoadActions = (
   payload: PageAction[][],
-): ReduxAction<PageAction[][]> => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-  payload,
-});
+): BatchAction<PageAction[][]> =>
+  batchAction({
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+    payload,
+  });
 
 export const disableDragAction = (
   disable: boolean,

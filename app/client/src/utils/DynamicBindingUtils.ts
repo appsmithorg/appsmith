@@ -19,6 +19,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
+import WidgetFactory from "utils/WidgetFactory";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
@@ -215,46 +216,37 @@ export const getValidatedTree = (tree: any) => {
   }, tree);
 };
 
-// let dynamicDependencyMapCache: Array<[string, string]> = [];
-// let oldDataTree: DataTree = {};
-//
-// let dataTreeCache: DataTree = {};
-// let lastCacheTime = 0;
+let dependencyTreeCache: any = {};
+let cachedDataTreeString = "";
 
 export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
-  // count total time taken
   const totalStart = performance.now();
-  // Dont evaluate if called again in 60 ms
-  // if (totalStart - lastCacheTime < 60) {
-  //   return dataTreeCache;
-  // }
-  // lastCacheTime = totalStart;
-
-  // const cleanDataTree = _.omit(dataTree, [
-  //   ...dataTree.actionPaths,
-  //   "__proto__",
-  // ]);
-  // const isCacheHit = equal(oldDataTree, cleanDataTree);
-  // oldDataTree = cleanDataTree;
-  // log.debug("dependencyTree cacheHit " + isCacheHit);
-
   // Create Dependencies DAG
   const createDepsStart = performance.now();
-  const dynamicDependencyMap = createDependencyTree(dataTree);
-  // dynamicDependencyMapCache = dynamicDependencyMap;
+  const dataTreeString = JSON.stringify(dataTree);
+  if (!equal(dataTreeString, cachedDataTreeString)) {
+    cachedDataTreeString = dataTreeString;
+    dependencyTreeCache = createDependencyTree(dataTree);
+  }
   const createDepsEnd = performance.now();
+  const {
+    dependencyMap,
+    sortedDependencies,
+    dependencyTree,
+  } = dependencyTreeCache;
 
   // Evaluate Tree
   const evaluatedTreeStart = performance.now();
   const evaluatedTree = dependencySortedEvaluateDataTree(
     dataTree,
-    dynamicDependencyMap,
+    dependencyMap,
+    sortedDependencies,
   );
   const evaluatedTreeEnd = performance.now();
 
   // Set Loading Widgets
   const loadingTreeStart = performance.now();
-  const treeWithLoading = setTreeLoading(evaluatedTree, dynamicDependencyMap);
+  const treeWithLoading = setTreeLoading(evaluatedTree, dependencyTree);
   const loadingTreeEnd = performance.now();
 
   // Validate Widgets
@@ -279,18 +271,33 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
 type DynamicDependencyMap = Record<string, Array<string>>;
 export const createDependencyTree = (
   dataTree: DataTree,
-): Array<[string, string]> => {
+): {
+  sortedDependencies: Array<string>;
+  dependencyTree: Array<[string, string]>;
+  dependencyMap: DynamicDependencyMap;
+} => {
   const dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach(entityKey => {
     const entity = dataTree[entityKey] as WidgetProps;
-    if (entity && entity.dynamicBindings) {
-      Object.keys(entity.dynamicBindings).forEach(prop => {
-        const { jsSnippets } = getDynamicBindings(entity[prop]);
-        dependencyMap[`${entityKey}.${prop}`] = jsSnippets.filter(
-          jsSnippet => !!jsSnippet,
-        );
+    if (entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+      const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+        entity.type,
+      );
+      Object.keys(defaultProperties).forEach(property => {
+        dependencyMap[`${entityKey}.${property}`] = [
+          `${entityKey}.${defaultProperties[property]}`,
+        ];
       });
+      if (entity.dynamicBindings) {
+        Object.keys(entity.dynamicBindings).forEach(prop => {
+          const { jsSnippets } = getDynamicBindings(entity[prop]);
+          const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
+          dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
+            jsSnippets.filter(jsSnippet => !!jsSnippet),
+          );
+        });
+      }
     }
   });
   Object.keys(dependencyMap).forEach(key => {
@@ -307,7 +314,12 @@ export const createDependencyTree = (
       dependencyTree.push([key, ""]);
     }
   });
-  return dependencyTree;
+  // sort dependencies and remove empty dependencies
+  const sortedDependencies = toposort(dependencyTree)
+    .reverse()
+    .filter(d => !!d);
+
+  return { sortedDependencies, dependencyMap, dependencyTree };
 };
 
 const calculateSubDependencies = (
@@ -331,10 +343,10 @@ const calculateSubDependencies = (
           break;
         }
       }
-      if (current) subDeps.push(current);
+      if (current && current.includes(".")) subDeps.push(current);
     }
   });
-  return subDeps;
+  return _.uniq(subDeps);
 };
 
 export const setTreeLoading = (
@@ -393,33 +405,37 @@ export const getEntityDependencies = (
   return [];
 };
 
-const cache: Map<string, any> = new Map();
+const valueCache: Map<
+  string,
+  {
+    unEvaluated: any;
+    evaluated: any;
+    version: number;
+  }
+> = new Map();
+
+const getValueCache = (propertyPath: string) =>
+  valueCache.get(propertyPath) || {
+    unEvaluated: undefined,
+    evaluated: undefined,
+    version: 0,
+  };
+
 const dependencyCache: Map<string, any[]> = new Map();
+
+export const clearCaches = () => {
+  valueCache.clear();
+  dependencyCache.clear();
+};
 
 export function dependencySortedEvaluateDataTree(
   dataTree: DataTree,
-  dependencyTree: Array<[string, string]>,
+  dependencyMap: DynamicDependencyMap,
+  sortedDependencies: Array<string>,
 ): DataTree {
   const tree = _.cloneDeep(dataTree);
   try {
-    // sort dependencies and remove empty dependencies
-    const sortStart = performance.now();
-    const sortedDependencies = toposort(dependencyTree)
-      .reverse()
-      .filter(d => !!d);
-    const sortEnd = performance.now();
-    // evaluate and replace values
-    const evalStart = performance.now();
-    const dependencyMap: any = {};
-    dependencyTree.forEach(dependencyArr => {
-      const propertyPath = dependencyArr[0];
-      if (dependencyMap[propertyPath]) {
-        dependencyMap[propertyPath].push(dependencyArr[1]);
-      } else {
-        dependencyMap[propertyPath] = [dependencyArr[1]];
-      }
-    });
-    const final = sortedDependencies.reduce(
+    return sortedDependencies.reduce(
       (currentTree: DataTree, propertyPath: string) => {
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
@@ -439,16 +455,16 @@ export function dependencySortedEvaluateDataTree(
                   .filter((data: any) => {
                     return data !== undefined;
                   })
-              : undefined;
+              : [];
             const cachedDependencyValues = dependencyCache.get(propertyPath);
-            const cacheObj = cache.get(propertyPath);
+            const cacheObj = getValueCache(propertyPath);
             const isCacheHit =
-              cacheObj &&
-              equal(cacheObj.unEvalVal, unEvalPropertyValue) &&
+              cacheObj.version !== 0 &&
+              equal(cacheObj.unEvaluated, unEvalPropertyValue) &&
               cachedDependencyValues !== undefined &&
               equal(currentDependencyValues, cachedDependencyValues);
             if (isCacheHit) {
-              evalPropertyValue = cacheObj.evalVal;
+              evalPropertyValue = cacheObj.evaluated;
             } else {
               log.debug("eval " + propertyPath);
               const dynamicResult = getDynamicValue(
@@ -456,9 +472,10 @@ export function dependencySortedEvaluateDataTree(
                 currentTree,
               );
               evalPropertyValue = dynamicResult.result;
-              cache.set(propertyPath, {
-                evalVal: evalPropertyValue,
-                unEvalVal: unEvalPropertyValue,
+              valueCache.set(propertyPath, {
+                evaluated: evalPropertyValue,
+                unEvaluated: unEvalPropertyValue,
+                version: Date.now(),
               });
               dependencyCache.set(propertyPath, currentDependencyValues);
               evalPropertyValue = dynamicResult.result;
@@ -468,12 +485,27 @@ export function dependencySortedEvaluateDataTree(
             evalPropertyValue = undefined;
             unEvalPropertyValue = undefined;
           }
+        } else {
+          const currentCache = getValueCache(propertyPath);
+          if (!equal(currentCache.evaluated, evalPropertyValue)) {
+            valueCache.set(propertyPath, {
+              evaluated: evalPropertyValue,
+              unEvaluated: currentCache.unEvaluated,
+              version: Date.now(),
+            });
+          }
         }
         if (
           "ENTITY_TYPE" in entity &&
           entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
         ) {
           const propertyName = propertyPath.split(".")[1];
+          evalPropertyValue = overwriteDefaultDependentProps(
+            evalPropertyValue,
+            propertyName,
+            propertyPath,
+            entity,
+          );
           const {
             parsed,
             isValid,
@@ -490,21 +522,47 @@ export function dependencySortedEvaluateDataTree(
             _.set(entity, `validationMessages.${propertyName}`, message);
           }
         }
+        const currentCache = getValueCache(propertyPath);
+        if (!equal(currentCache.evaluated, evalPropertyValue)) {
+          valueCache.set(propertyPath, {
+            evaluated: evalPropertyValue,
+            unEvaluated: currentCache.unEvaluated,
+            version: Date.now(),
+          });
+        }
         return _.set(currentTree, propertyPath, evalPropertyValue);
       },
       tree,
     );
-    const evalEnd = performance.now();
-
-    log.debug({
-      depLength: sortedDependencies.length,
-      sort: (sortEnd - sortStart).toFixed(2),
-      eval: (evalEnd - evalStart).toFixed(2),
-    });
-
-    return final;
   } catch (e) {
     console.error(e);
     return tree;
   }
 }
+
+const overwriteDefaultDependentProps = (
+  propertyValue: any,
+  propertyName: string,
+  propertyPath: string,
+  entity: DataTreeWidget,
+) => {
+  const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+    entity.type,
+  );
+  const hasDefaultProperty = propertyName in defaultPropertyMap;
+  if (hasDefaultProperty) {
+    const defaultProperty = defaultPropertyMap[propertyName];
+    const defaultPropertyCache = getValueCache(
+      `${entity.widgetName}.${defaultProperty}`,
+    );
+    const propertyCache = getValueCache(propertyPath);
+    if (
+      propertyValue === undefined ||
+      propertyCache.version < defaultPropertyCache.version
+    ) {
+      return defaultPropertyCache.evaluated;
+    }
+    return propertyValue;
+  }
+  return propertyValue;
+};

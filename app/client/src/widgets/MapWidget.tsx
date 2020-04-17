@@ -30,6 +30,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      markers: "defaultMarkers",
+      center: "mapCenter",
+    };
+  }
+
   updateCenter = (lat: number, lng: number) => {
     this.updateWidgetMetaProperty("center", { lat, lng });
   };
@@ -64,34 +71,24 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   };
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.mapCenter) {
-      this.updateWidgetMetaProperty("center", this.props.mapCenter);
-    }
-    if (this.props.defaultMarkers && !this.props.markers) {
-      this.updateWidgetMetaProperty("markers", [...this.props.defaultMarkers]);
-    }
-  }
-
-  componentDidUpdate(prevProps: MapWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      this.props.mapCenter &&
-      prevProps.mapCenter &&
-      (this.props.mapCenter.lat !== prevProps.mapCenter.lat ||
-        this.props.mapCenter.lng !== prevProps.mapCenter.lng)
-    ) {
-      this.updateWidgetMetaProperty("center", this.props.mapCenter);
-    }
-    if (
-      this.props.defaultMarkers &&
-      !this.props.markers &&
-      this.props.defaultMarkers.length !== prevProps.defaultMarkers?.length
-    ) {
-      this.updateWidgetMetaProperty("markers", [...this.props.defaultMarkers]);
-    }
-  }
+  // componentDidMount() {
+  //   super.componentDidMount();
+  //   if (this.props.mapCenter) {
+  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
+  //   }
+  // }
+  //
+  // componentDidUpdate(prevProps: MapWidgetProps) {
+  //   super.componentDidUpdate(prevProps);
+  //   if (
+  //     this.props.mapCenter &&
+  //     prevProps.mapCenter &&
+  //     (this.props.mapCenter.lat !== prevProps.mapCenter.lat ||
+  //       this.props.mapCenter.lng !== prevProps.mapCenter.lng)
+  //   ) {
+  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
+  //   }
+  // }
 
   getPageView() {
     return (

@@ -47,6 +47,13 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     };
   }
 
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      files: [],
+      uploadedFileData: {},
+    };
+  }
+
   refreshUppy = (props: FilePickerWidgetProps) => {
     this.uppy = Uppy({
       id: this.props.widgetId,

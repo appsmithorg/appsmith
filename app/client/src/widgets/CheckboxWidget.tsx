@@ -26,29 +26,16 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.defaultCheckedState) {
-      this.updateWidgetMetaProperty(
-        "isChecked",
-        this.props.defaultCheckedState,
-      );
-    }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      isChecked: "defaultCheckedState",
+    };
   }
 
-  componentDidUpdate(prevProps: CheckboxWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      (this.props.isChecked !== prevProps.isChecked &&
-        this.props.isChecked === undefined) ||
-      this.props.defaultCheckedState.toString() !==
-        prevProps.defaultCheckedState.toString()
-    ) {
-      this.updateWidgetMetaProperty(
-        "isChecked",
-        this.props.defaultCheckedState,
-      );
-    }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      isChecked: false,
+    };
   }
 
   getPageView() {

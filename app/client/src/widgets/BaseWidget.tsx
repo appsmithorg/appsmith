@@ -67,6 +67,14 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
   /**
    *  Widget abstraction to register the widget type
    *  ```javascript
