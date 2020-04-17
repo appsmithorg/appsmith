@@ -291,7 +291,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       this.props.createAction({
         ...DEFAULT_API_ACTION,
         name: newActionName,
-        pluginId: plugin.id,
+        datasource: {
+          name: "DEFAULT_REST_DATASOURCE",
+          pluginId: plugin.id,
+        },
         pageId,
       });
     }
