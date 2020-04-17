@@ -65,8 +65,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-
-        datasource.setIsValid(true);
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -103,7 +101,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .cache();
 
         if (datasource.getPluginId() == null) {
-            datasource.setIsValid(false);
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
             datasource.setInvalids(invalids);
             return currentOrganizationMono
@@ -117,8 +114,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(currentOrgId -> organizationService.findByIdAndPluginsPluginId(
                         currentOrgId, datasource.getPluginId()))
                 .switchIfEmpty(Mono.defer(() -> {
-                    datasource.setIsValid(false);
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
+                    datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
 
@@ -132,7 +129,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
 
         if (datasource.getDatasourceConfiguration() == null) {
-            datasource.setIsValid(false);
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
@@ -150,10 +146,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     }
 
                     datasource1.setInvalids(invalids);
-                    if (!invalids.isEmpty()) {
-                        datasource1.setIsValid(false);
-                    }
-
                     return Mono.just(datasource1);
                 });
     }
