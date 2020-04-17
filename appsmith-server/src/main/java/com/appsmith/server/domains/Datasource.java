@@ -11,6 +11,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Set;
 
@@ -47,6 +48,6 @@ public class Datasource extends BaseDomain {
      * @return boolean, indicating whether this datasource is valid or not.
      */
     public boolean getIsValid() {
-        return invalids.isEmpty();
+        return CollectionUtils.isEmpty(invalids);
     }
 }
