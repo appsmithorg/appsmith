@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import Loader from "pages/common/Loader";
 import "./index.css";
-// import * as serviceWorker from "./serviceWorker";
 import { Router, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
@@ -128,8 +127,3 @@ ReactDOM.render(
   </Provider>,
   document.getElementById("root"),
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-// serviceWorker.unregister();

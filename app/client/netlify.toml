@@ -1,3 +1,8 @@
+[[headers]]
+  for = "/static/*"
+  [header.values]
+    cache-control = "max-age=604800"
+
 [context.production]
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
