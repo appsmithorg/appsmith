@@ -15,12 +15,17 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import _ from "lodash";
 
 class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
+  debouncedHandleTextChanged = _.debounce(
+    this.handleTextChanged.bind(this),
+    200,
+  );
   constructor(props: InputWidgetProps) {
     super(props);
     this.state = {
-      text: "",
+      text: props.text,
     };
   }
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -53,28 +58,32 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{this.isRequired ? this.text && descriptionInput.text.length > 0 ? this.regex ? new RegExp(this.regex).test(this.text) : true : this.regex ? new RegExp(this.regex).test(this.text) : true}}`,
+      isValid: `{{!!(this.isRequired ? this.text && this.text.length > 0 ? this.regex ? new RegExp(this.regex).test(this.text) : true : false : this.regex ? new RegExp(this.regex).test(this.text) : true)}}`,
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    const text = this.props.defaultText || "";
-    this.setState({ text }, () => {
-      this.updateWidgetMetaProperty("text", text);
-    });
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      text: "defaultText",
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      text: undefined,
+      isFocused: false,
+      isDirty: false,
+    };
   }
 
   componentDidUpdate(prevProps: InputWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
-      (this.props.text !== prevProps.text && this.props.text === undefined) ||
-      this.props.defaultText !== prevProps.defaultText
+      prevProps.text !== this.props.text &&
+      this.props.defaultText === this.props.text
     ) {
-      const text = this.props.defaultText || "";
-      this.setState({ text }, () => {
-        this.updateWidgetMetaProperty("text", text);
-      });
+      const text = this.props.text;
+      this.setState({ text });
     }
   }
 
@@ -85,6 +94,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
     if (!this.props.isDirty) {
       this.updateWidgetMetaProperty("isDirty", true);
     }
+    this.debouncedHandleTextChanged();
+  };
+
+  handleTextChanged() {
     if (this.props.onTextChanged) {
       super.executeAction({
         dynamicString: this.props.onTextChanged,
@@ -93,7 +106,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, InputWidgetState> {
         },
       });
     }
-  };
+  }
 
   handleFocusChange = (focusState: boolean) => {
     this.updateWidgetMetaProperty("isFocused", focusState);
@@ -162,7 +175,7 @@ export interface InputWidgetProps extends WidgetProps {
   inputType: InputType;
   defaultText?: string;
   isDisabled?: boolean;
-  text?: string;
+  text: string;
   regex?: string;
   errorMessage?: string;
   placeholderText?: string;

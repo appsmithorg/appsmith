@@ -10,12 +10,12 @@ import {
 } from "widgets/BaseWidget";
 import {
   GridDefaults,
+  RenderMode,
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
 import { snapToGrid } from "./helpers";
 import { OccupiedSpace } from "constants/editorConstants";
-import { DerivedPropFactory } from "utils/DerivedPropertiesFactory";
 import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
@@ -354,7 +354,9 @@ export const generateWidgetProps = (
   parentRowSpace: number,
   parentColumnSpace: number,
   widgetName: string,
-  widgetConfig: Partial<WidgetProps>,
+  widgetConfig: { widgetId: string; renderMode: RenderMode } & Partial<
+    WidgetProps
+  >,
 ): ContainerWidgetProps<WidgetProps> => {
   if (parent) {
     const sizes = {
@@ -365,15 +367,7 @@ export const generateWidgetProps = (
     };
 
     const others = {};
-    const derivedProperties = DerivedPropFactory.getDerivedPropertiesOfWidgetType(
-      type,
-      widgetName,
-    );
-    const dynamicBindings: Record<string, true> = {};
-    Object.keys(derivedProperties).forEach(prop => {
-      dynamicBindings[prop] = true;
-    });
-    const props = {
+    const props: ContainerWidgetProps<WidgetProps> = {
       isVisible: true,
       ...widgetConfig,
       type,
@@ -381,10 +375,8 @@ export const generateWidgetProps = (
       isLoading: false,
       parentColumnSpace,
       parentRowSpace,
-      dynamicBindings,
       ...sizes,
       ...others,
-      ...derivedProperties,
       parentId: parent.widgetId,
     };
     delete props.rows;
