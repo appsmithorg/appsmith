@@ -11,7 +11,6 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
@@ -32,10 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 public class MongoPlugin extends BasePlugin {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Set<AuthenticationDTO.Type> VALID_AUTH_TYPES = Set.of(
             AuthenticationDTO.Type.SCRAM_SHA_1,
@@ -48,6 +44,8 @@ public class MongoPlugin extends BasePlugin {
             .collect(Collectors.joining(", "));
 
     private static final int DEFAULT_PORT = 27017;
+
+    public static final String N_MODIFIED = "nModified";
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -118,8 +116,8 @@ public class MongoPlugin extends BasePlugin {
 
                     //The json key constains key "nModified" in case of update command. This signifies the no of
                     //documents updated.
-                    if (outputJson.has("nModified")) {
-                        JSONObject body = new JSONObject().put("nModified", outputJson.getBigInteger("nModified"));
+                    if (outputJson.has(N_MODIFIED)) {
+                        JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
                         headerArray.put(body);
                     }
 
