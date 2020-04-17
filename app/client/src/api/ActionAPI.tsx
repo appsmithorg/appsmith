@@ -64,7 +64,10 @@ export interface ActionCreateUpdateResponse extends ApiResponse {
 export interface RestAction {
   id: string;
   name: string;
-  datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
+  datasource:
+    | Pick<Datasource, "id">
+    | Omit<Datasource, "id">
+    | Partial<Datasource>;
   pluginType?: string;
   pageId: string;
   actionConfiguration: Partial<APIConfigRequest>;
