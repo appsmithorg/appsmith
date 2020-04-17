@@ -26,6 +26,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -271,11 +273,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     .flatMap(action -> {
                         // This is separately done instead of fetching from the repository using id and isValid. This is
                         // because we want to error out with two different statuses -> Wrong action id OR Invalid action
-                        if (action.getIsValid() == false) {
+                        if (Boolean.FALSE.equals(action.getIsValid())) {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, action.getName(), action.getId()));
                         }
                         return Mono.just(action);
-                    });
+                    })
+                    .cache();
         } else {
             actionMono = Mono.just(actionFromDto);
         }
@@ -301,8 +304,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {
-                    if (datasource.getIsValid() != null && datasource.getIsValid() == false) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE));
+                    if (datasource.getId() == null) {
+                        return datasourceService.validateDatasource(datasource);
+                    } else {
+                        return Mono.just(datasource);
+                    }
+                })
+                .flatMap(datasource -> {
+                    Set<String> invalids = datasource.getInvalids();
+                    if (!CollectionUtils.isEmpty(invalids)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
@@ -333,12 +344,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
-                        // If the action has a body (for RestAPI), then unescape HTML in the string.
-                        log.debug("For action Id: {}, got the actionConfigurationBody: {}", action.getId(), actionConfigurationTemp.getBody());
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
+
                     }
+
                     DatasourceConfiguration datasourceConfiguration;
                     ActionConfiguration actionConfiguration;
 

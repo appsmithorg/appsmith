@@ -10,7 +10,6 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -36,10 +35,7 @@ import java.util.Set;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
-@Slf4j
 public class PostgresPlugin extends BasePlugin {
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
