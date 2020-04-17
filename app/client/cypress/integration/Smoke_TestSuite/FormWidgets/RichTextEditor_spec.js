@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 
-context("Cypress test", function() {
+describe("RichTextEditor Widget Functionality", function() {
   it("RichTextEditor Widget Functionality", function() {
     cy.NavigateToFormWidgets();
     cy.get(formWidgetsPage.richTextEditorWidget)
