@@ -335,7 +335,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 .collect(Collectors.toMap(
                                         // Trimming here for good measure. If the keys have space on either side,
                                         // Mustache won't be able to find the key.
-                                        p -> p.getKey().trim(),
+                                        // We also add a backslash before every double-quote or backslash character
+                                        // because we apply the template replacing in a JSON-stringified version of
+                                        // these properties, where these two characters are escaped.
+                                        p -> p.getKey().trim().replaceAll("[\"\\\\]", "\\\\$0"),
                                         Param::getValue,
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
