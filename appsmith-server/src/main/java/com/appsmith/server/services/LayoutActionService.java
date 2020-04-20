@@ -14,4 +14,6 @@ public interface LayoutActionService {
     public Mono<Layout> refactorWidgetName(RefactorNameDTO refactorNameDTO);
 
     public Mono<Layout> refactorActionName(RefactorNameDTO refactorNameDTO);
+
+    public Mono<Action> updateAction(String id, Action action);
 }

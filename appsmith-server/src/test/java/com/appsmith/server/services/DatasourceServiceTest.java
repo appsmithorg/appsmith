@@ -3,7 +3,9 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -24,6 +26,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,9 +56,9 @@ public class DatasourceServiceTest {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("In the datasourceCreate");
-            return null;
+            return Mono.empty();
         }
 
         @Override
@@ -63,9 +68,14 @@ public class DatasourceServiceTest {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("In the datasourceValidate");
-            return true;
+            return new HashSet<>();
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new DatasourceTestResult());
         }
     }
 
@@ -86,7 +96,7 @@ public class DatasourceServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getIsValid() == false);
+                    assertThat(createdDatasource.getIsValid()).isFalse();
                     assertThat(createdDatasource.getInvalids().contains("Missing plugin id. Please input correct plugin id"));
                 })
                 .verifyComplete();
@@ -129,7 +139,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getIsValid() == false);
+                    assertThat(createdDatasource.getIsValid()).isFalse();
                     assertThat(createdDatasource.getInvalids().contains("Plugin " + datasource.getPluginId() + " not installed"));
                 })
                 .verifyComplete();
@@ -171,12 +181,12 @@ public class DatasourceServiceTest {
         datasource.setName("test db datasource");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
-        connection.setMode(Connection.Mode.ReadOnly);
-        connection.setType(Connection.Type.ReplicaSet);
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
         SSLDetails sslDetails = new SSLDetails();
-        sslDetails.setAuthType(SSLDetails.AuthType.CACertificate);
-        sslDetails.setKeyFile("ssl_key_file_id");
-        sslDetails.setCertificateFile("ssl_cert_file_id");
+        sslDetails.setAuthType(SSLDetails.AuthType.CA_CERTIFICATE);
+        sslDetails.setKeyFile(new UploadedFile("ssl_key_file_id", ""));
+        sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
         connection.setSsl(sslDetails);
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -195,7 +205,8 @@ public class DatasourceServiceTest {
                     DatasourceConfiguration datasourceConfiguration1 = new DatasourceConfiguration();
                     Connection connection1 = new Connection();
                     SSLDetails ssl = new SSLDetails();
-                    ssl.setKeyFile("ssl_key_file_id");
+                    ssl.setKeyFile(new UploadedFile());
+                    ssl.getKeyFile().setName("ssl_key_file_id");
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
                     return datasourceService.update(datasource1.getId(), updates);
@@ -207,7 +218,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
-                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile()).isEqualTo("ssl_key_file_id");
+                    assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id");
                 })
                 .verifyComplete();
     }

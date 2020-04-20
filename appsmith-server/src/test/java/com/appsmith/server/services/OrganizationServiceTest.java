@@ -19,7 +19,6 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +39,6 @@ public class OrganizationServiceTest {
         organization.setName("Test Name");
         organization.setDomain("example.com");
         organization.setWebsite("https://example.com");
-        organization.setSlug("test-name");
     }
 
     /* Tests for the Create Organization Flow */
@@ -84,6 +82,7 @@ public class OrganizationServiceTest {
                     assertThat(organization1.getName()).isEqualTo("Test Name");
                     assertThat(organization1.getPolicies()).isNotEmpty();
                     assertThat(organization1.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy));
+                    assertThat(organization1.getSlug() != null);
                 })
                 .verifyComplete();
     }

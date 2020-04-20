@@ -15,12 +15,18 @@ public class RollbarConfig {
     @Value("${com.rollbar.access-token}")
     String rollbarAccessToken;
 
+    // Allow being able to disable Rollbar in dev/test environments.
+    // If the `rollbar.enabled` property is not set, it defaults to `true` (by the `:true` part below).
+    @Value("#{new Boolean('${rollbar.enabled:true}'.trim())}")
+    boolean rollbarEnabled;
+
     @Autowired
     Environment env;
 
     @Bean
     Rollbar rollbarConfiguration() {
         return Rollbar.init(withAccessToken(rollbarAccessToken)
+                .enabled(rollbarEnabled)
                 .environment(env.getActiveProfiles()[0])
                 .build());
     }

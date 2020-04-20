@@ -3,13 +3,13 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.json.JSONObject;
@@ -30,22 +30,22 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RapidApiPlugin extends BasePlugin {
-    private static int MAX_REDIRECTS = 5;
-    private static ObjectMapper objectMapper;
-    private static String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
-    private static String RAPID_API_KEY_VALUE = "f2a61def63msh9d6582090d01286p157197jsnade6f31fcae8";
-    private static String JSON_TYPE = "apipayload";
+    private static final int MAX_REDIRECTS = 5;
+    private static final String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
+    private static final String RAPID_API_KEY_VALUE = "6d804a25b8mshc11f75089009c26p12c8d8jsna1a83b13ffd5";
+    private static final String JSON_TYPE = "apipayload";
 
     public RapidApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
-        this.objectMapper = new ObjectMapper();
     }
 
     @Slf4j
@@ -88,7 +88,7 @@ public class RapidApiPlugin extends BasePlugin {
 
                         Pattern pattern = Pattern.compile("\\{" + property.getKey() + "\\}");
                         Matcher matcher = pattern.matcher(url);
-                        url = matcher.replaceAll(property.getValue());
+                        url = matcher.replaceAll(URLEncoder.encode(property.getValue()));
                     }
                 }
             }
@@ -240,8 +240,8 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.empty();
         }
 
         @Override
@@ -250,10 +250,15 @@ public class RapidApiPlugin extends BasePlugin {
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-            // Since the datasource is created by rapid api & not by the user and it can't be edited
-            // Assume that everything is good. Return true.
-            return true;
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            // Since the datasource is created by rapid api & not by the user and it can't be edited.
+            // Assume that everything is good. Return as valid.
+            return Collections.emptySet();
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.just(new DatasourceTestResult());
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {

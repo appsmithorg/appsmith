@@ -30,7 +30,6 @@ public class Organization extends BaseDomain {
 
     private List<OrganizationPlugin> plugins;
 
-    @NotNull
     @Indexed(unique = true)
     private String slug;
 

@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -123,7 +123,7 @@ public class LayoutServiceImpl implements LayoutService {
                 // widget object.
                 String binding = dsl.getAsString(dynamicBindingKey);
 
-                Set<String> extractMustacheKeys = extractMustacheKeys(binding);
+                Set<String> extractMustacheKeys = extractMustacheKeysFromJson(binding);
                 if (!extractMustacheKeys.isEmpty()) {
                     for (String mustacheKey : extractMustacheKeys) {
                         String key = mustacheKey.trim();

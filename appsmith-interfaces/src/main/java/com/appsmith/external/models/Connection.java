@@ -14,11 +14,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Connection {
 
     public enum Mode {
-        ReadOnly, ReadWrite
+        READ_ONLY, READ_WRITE
     }
 
     public enum Type {
-        DirectConnection, ReplicaSet
+        DIRECT, REPLICA_SET
     }
 
     Mode mode;

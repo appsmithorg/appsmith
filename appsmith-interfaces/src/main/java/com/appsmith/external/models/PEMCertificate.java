@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PEMCertificate {
 
-    String file;
+    UploadedFile file;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
