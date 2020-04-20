@@ -309,6 +309,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     /**
      * Assumption here is that the refactoring name provided is indeed unique and is fit to be replaced everywhere.
      *
+     * At this point, the user must have MANAGE_PAGES and MANAGE_ACTIONS permissions for page and action respectively
      * @param pageId
      * @param layoutId
      * @param oldName
@@ -355,7 +356,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
 
         Mono<Set<String>> updateActionsMono = actionService
-                .findByPageId(pageId)
+                .findByPageId(pageId, AclPermission.MANAGE_ACTIONS)
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
                  * to look for replacement pattern.
