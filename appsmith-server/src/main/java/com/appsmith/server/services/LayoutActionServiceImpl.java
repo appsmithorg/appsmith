@@ -19,6 +19,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -432,8 +433,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             for (int i = 0; i < children.size(); i++) {
                 Map data = (Map) children.get(i);
                 JSONObject object = new JSONObject();
-                object.putAll(data);
-                extractAllWidgetNamesFromDSL(object, widgetNames);
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    extractAllWidgetNamesFromDSL(object, widgetNames);
+                }
             }
         }
     }
