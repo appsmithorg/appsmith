@@ -5,11 +5,7 @@ import { reduxForm, InjectedFormProps, getFormValues } from "redux-form";
 import { Icon, Card } from "@blueprintjs/core";
 import styled from "styled-components";
 import InfiniteScroll from "react-infinite-scroller";
-import {
-  DEFAULT_API_ACTION,
-  DEFAULT_PROVIDER_OPTION,
-  REST_PLUGIN_PACKAGE_NAME,
-} from "constants/ApiEditorConstants";
+import { DEFAULT_PROVIDER_OPTION } from "constants/ApiEditorConstants";
 import {
   getCurlImportPageURL,
   getProviderTemplatesURL,
@@ -35,7 +31,6 @@ import {
   fetchProvidersWithCategory,
   clearProviders,
 } from "actions/providerActions";
-import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 // import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
@@ -46,7 +41,7 @@ import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
-import _ from "lodash";
+import { createNewApiAction } from "actions/apiPaneActions";
 
 // const SearchContainer = styled.div`
 //   display: flex;
@@ -241,6 +236,7 @@ type ApiHomeScreenProps = {
   isFetchingProviders: boolean;
   providersTotal: number;
   isSwitchingCategory: boolean;
+  createNewApiAction: (pageId: string) => void;
 };
 
 type ApiHomeScreenState = {
@@ -283,20 +279,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   }
 
   handleCreateNew = (params: string) => {
-    const { actions, plugins } = this.props;
     const pageId = new URLSearchParams(params).get("importTo");
-    const plugin = _.find(plugins, { packageName: REST_PLUGIN_PACKAGE_NAME });
-    if (pageId && plugin) {
-      const newActionName = createNewApiName(actions, pageId);
-      this.props.createAction({
-        ...DEFAULT_API_ACTION,
-        name: newActionName,
-        datasource: {
-          name: "DEFAULT_REST_DATASOURCE",
-          pluginId: plugin.id,
-        },
-        pageId,
-      });
+    if (pageId) {
+      this.props.createNewApiAction(pageId);
     }
   };
 
@@ -560,6 +545,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchProvidersWithCategory(request)),
   createAction: (data: Partial<RestAction>) =>
     dispatch(createActionRequest(data)),
+  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
 });
 
 export default connect(

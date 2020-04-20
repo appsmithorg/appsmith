@@ -24,6 +24,16 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentPageName, getActionById } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { API_PANE_V2, checkForFlag } from "utils/featureFlags";
+import styled from "styled-components";
+
+const EmptyStateContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 20px;
+`;
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -139,6 +149,21 @@ class ApiEditor extends React.Component<Props> {
 
     const { isSaving, isRunning, isDeleting, drafts } = apiPane;
     const paginationType = _.get(data, "actionConfiguration.paginationType");
+    const apiHomeScreen = (
+      <ApiHomeScreen
+        applicationId={this.props.match.params.applicationId}
+        pageId={this.props.match.params.pageId}
+        history={this.props.history}
+        location={this.props.location}
+      />
+    );
+    const defaultHomeScreen = (
+      <EmptyStateContainer>
+        {"Create / Select an API from the list"}
+      </EmptyStateContainer>
+    );
+    const v2Flag = checkForFlag(API_PANE_V2);
+    const homeScreen = v2Flag ? apiHomeScreen : defaultHomeScreen;
     return (
       <React.Fragment>
         {apiId ? (
@@ -183,12 +208,7 @@ class ApiEditor extends React.Component<Props> {
             )}
           </>
         ) : (
-          <ApiHomeScreen
-            applicationId={this.props.match.params.applicationId}
-            pageId={this.props.match.params.pageId}
-            history={this.props.history}
-            location={this.props.location}
-          />
+          homeScreen
         )}
       </React.Fragment>
     );
