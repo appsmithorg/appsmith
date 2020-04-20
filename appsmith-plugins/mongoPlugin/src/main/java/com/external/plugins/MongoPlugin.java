@@ -225,7 +225,7 @@ public class MongoPlugin extends BasePlugin {
             } else {
                 AuthenticationDTO.Type authType = authentication.getAuthType();
 
-                if (VALID_AUTH_TYPES.contains(authType)) {
+                if (authType != null && VALID_AUTH_TYPES.contains(authType)) {
 
                     if (StringUtils.isEmpty(authentication.getUsername())) {
                         invalids.add("Missing username for authentication. Needed because authType is " + authType + ".");
