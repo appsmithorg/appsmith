@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Category extends BaseDomain {
 
-    @Indexed(unique=true)
+    @Indexed(unique = true)
     String name; //Category name here
 
 }

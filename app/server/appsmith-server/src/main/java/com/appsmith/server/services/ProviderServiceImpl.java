@@ -23,13 +23,14 @@ import java.util.List;
 @Slf4j
 public class ProviderServiceImpl extends BaseService<ProviderRepository, Provider, String> implements ProviderService {
 
-    private static final List<String> CATEGORIES = Arrays.asList("Business","Visual Recognition","Location","Science",
-            "Food","Travel, Transportation","Music","Tools","Text Analysis","Weather","Gaming","SMS","Events","Health, Fitness",
-            "Payments","Financial","Translation","Storage","Logistics","Database","Search","Reward","Mapping","Machine Learning",
-            "Email","News, Media","Video, Images","eCommerce","Medical","Devices","Business Software","Advertising","Education",
-            "Media","Social","Commerce","Communication","Other","Monitoring","Energy");
+    private static final List<String> CATEGORIES = Arrays.asList("Business", "Visual Recognition", "Location", "Science",
+            "Food", "Travel, Transportation", "Music", "Tools", "Text Analysis", "Weather", "Gaming", "SMS", "Events", "Health, Fitness",
+            "Payments", "Financial", "Translation", "Storage", "Logistics", "Database", "Search", "Reward", "Mapping", "Machine Learning",
+            "Email", "News, Media", "Video, Images", "eCommerce", "Medical", "Devices", "Business Software", "Advertising", "Education",
+            "Media", "Social", "Commerce", "Communication", "Other", "Monitoring", "Energy");
 
     private static final String DEFAULT_CATEGORY = "Business Software";
+
     public ProviderServiceImpl(Scheduler scheduler,
                                Validator validator,
                                MongoConverter mongoConverter,

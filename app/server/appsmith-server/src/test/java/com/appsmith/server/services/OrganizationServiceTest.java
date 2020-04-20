@@ -165,12 +165,12 @@ public class OrganizationServiceTest {
         organization.setWebsite("https://example.com");
 
         Mono<String> uniqueSlug = organizationService.getNextUniqueSlug("slug-org")
-            .map(slug -> {
-                organization.setSlug(slug);
-                return organization;
-            })
-            .flatMap(organizationService::create)
-            .then(organizationService.getNextUniqueSlug("slug-org"));
+                .map(slug -> {
+                    organization.setSlug(slug);
+                    return organization;
+                })
+                .flatMap(organizationService::create)
+                .then(organizationService.getNextUniqueSlug("slug-org"));
 
         StepVerifier.create(uniqueSlug)
                 .assertNext(slug -> {

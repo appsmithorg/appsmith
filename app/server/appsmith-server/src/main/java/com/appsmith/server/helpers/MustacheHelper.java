@@ -9,6 +9,7 @@ public class MustacheHelper {
 
     /**
      * Tokenize a Mustache template string into a list of plain text and Mustache interpolations.
+     *
      * @param template String Mustache template string from which to extract plain text and interpolation tokens.
      * @return A list of String tokens, which form parts of the given template String. Joining the strings in this list
      * should give the original template back. The tokens are split such that alternative strings in the list are plain
@@ -111,6 +112,7 @@ public class MustacheHelper {
     /**
      * Tokenize-s the given Mustache template string, extracts the Mustache interpolations out, strips the leading and
      * trailing double braces, trims and then returns a set of these replacement keys.
+     *
      * @param template The Mustache input template string.
      * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped and then
      * trimmed.
@@ -135,6 +137,7 @@ public class MustacheHelper {
      * JSON special characters like double-quote and backslash are escaped in the template. We need to unescape them,
      * making the JSON invalid, but the Javascript inside the Mustache double-braces will be valid. Then, our parser can
      * do its work.
+     *
      * @param jsonTemplate The template string. Usually the result of calling `objectMapper.writeValueAsString(obj)`.
      * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped and then
      * trimmed.
@@ -155,6 +158,7 @@ public class MustacheHelper {
      * instances of `\\` (two backslash characters back-to-back) with a single backslash. This is useful to undo the
      * escaping done during JSON serialization. Note that the input string is expected to be valid JSON, although this
      * is not verified. The return value will NOT be valid JSON.
+     *
      * @param jsonString Input string to apply replacements on.
      * @return String Contents of `jsonString` with the replacements applied.
      */

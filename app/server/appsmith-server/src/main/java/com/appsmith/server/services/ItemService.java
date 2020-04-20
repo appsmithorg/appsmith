@@ -9,5 +9,6 @@ import reactor.core.publisher.Mono;
 
 public interface ItemService {
     Flux<ItemDTO> get(MultiValueMap<String, String> params);
+
     Mono<Action> addItemToPage(AddItemToPageDTO addItemToPageDTO);
 }

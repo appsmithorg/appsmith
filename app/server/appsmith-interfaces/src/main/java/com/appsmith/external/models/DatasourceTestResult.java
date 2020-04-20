@@ -17,6 +17,7 @@ public class DatasourceTestResult {
     /**
      * Convenience constructor to create a result object with one or more error messages. This constructor also ensures
      * that the `invalids` field is never null.
+     *
      * @param invalids String messages that explain why the test failed.
      */
     public DatasourceTestResult(String... invalids) {

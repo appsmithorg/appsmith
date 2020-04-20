@@ -37,7 +37,7 @@ public class ItemController {
     }
 
     @PostMapping("/addToPage")
-    public Mono<ResponseDTO<Action>> addItemToPage (@RequestBody AddItemToPageDTO addItemToPageDTO) {
+    public Mono<ResponseDTO<Action>> addItemToPage(@RequestBody AddItemToPageDTO addItemToPageDTO) {
         log.debug("Going to add item {} to page {} with new name {}", addItemToPageDTO.getMarketplaceElement().getItem().getName(),
                 addItemToPageDTO.getPageId(), addItemToPageDTO.getName());
         return service.addItemToPage(addItemToPageDTO)

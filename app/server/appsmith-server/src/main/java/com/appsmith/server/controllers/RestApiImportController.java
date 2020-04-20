@@ -46,7 +46,7 @@ public class RestApiImportController {
                                             @RequestParam String pageId,
                                             @RequestParam String name,
                                             @RequestHeader(name = "Origin", required = false) String originHeader
-                                            ) {
+    ) {
         log.debug("Going to import API");
         ApiImporter service;
 
