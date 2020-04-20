@@ -7,7 +7,7 @@ import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
+import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
 
 export interface ColumnAction {
   label: string;
@@ -53,7 +53,7 @@ class ColumnActionSelectorControl extends BaseControl<
                   />
                 </Wrapper>
                 <Wrapper>
-                  <DynamicActionCreator
+                  <ActionCreator
                     value={columnAction.dynamicTrigger}
                     isValid={(columnAction as any).isValid}
                     validationMessage={(columnAction as any).message}

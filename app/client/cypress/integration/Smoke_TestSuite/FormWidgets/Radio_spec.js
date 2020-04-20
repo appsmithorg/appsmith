@@ -18,12 +18,12 @@ describe("Radio Widget Functionality", function() {
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()
-      .contains("Navigate to URL")
+      .contains("Navigate To")
       .click();
     cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
       .get(commonlocators.dropdownSelectButton)
       .find("> .bp3-button-text")
-      .should("have.text", "Navigate to URL");
+      .should("have.text", "Navigate To");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 });

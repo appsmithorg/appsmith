@@ -84,6 +84,8 @@ export const ERROR_403 =
   "Permission Denied. Please contact your admin to gain access.";
 export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";
 export const URL_HTTP_VALIDATION_ERROR = "Please enter a valid URL";
+export const NAVIGATE_TO_VALIDATION_ERROR =
+  "Please enter a valid URL or page name";
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST =
   "Invalid Email address(es) found:";

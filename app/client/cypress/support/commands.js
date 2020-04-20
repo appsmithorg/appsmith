@@ -19,6 +19,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 
 Cypress.Commands.add("SearchApp", appname => {
   cy.get(homePage.searchInput).type(appname);
+  cy.wait(2000);
   cy.get(homePage.appEditIcon)
     .first()
     .click({ force: true });

@@ -8,6 +8,7 @@ import _ from "lodash";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
 import "url-search-params-polyfill";
+import { getPageList } from "./appViewSelectors";
 
 // TODO Commenting out for now as it is causing performance issues
 // function getQueryParams() {
@@ -42,11 +43,14 @@ export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
   getWidgets,
   getWidgetsMeta,
-  (actions, widgets, widgetsMeta) => {
+  getPageList,
+  (actions, widgets, widgetsMeta, pageListPayload) => {
+    const pageList = pageListPayload || [];
     return DataTreeFactory.create({
       actions,
       widgets,
       widgetsMeta,
+      pageList,
     });
   },
 );

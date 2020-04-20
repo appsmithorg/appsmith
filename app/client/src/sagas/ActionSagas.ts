@@ -264,13 +264,17 @@ export function* executeActionSaga(
 }
 
 function* navigateActionSaga(
-  action: { pageName: string; params: Record<string, string> },
+  action: { pageNameOrUrl: string; params: Record<string, string> },
   event: ExecuteActionPayloadEvent,
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
-  const page = _.find(pageList, { pageName: action.pageName });
+  const page = _.find(pageList, { pageName: action.pageNameOrUrl });
   if (page) {
+    AnalyticsUtil.logEvent("NAVIGATE", {
+      pageName: action.pageNameOrUrl,
+      pageParams: action.params,
+    });
     // TODO need to make this check via RENDER_MODE;
     const path =
       history.location.pathname.indexOf("/edit") !== -1
@@ -283,7 +287,15 @@ function* navigateActionSaga(
     history.push(path);
     if (event.callback) event.callback({ success: true });
   } else {
-    if (event.callback) event.callback({ success: false });
+    AnalyticsUtil.logEvent("NAVIGATE", {
+      navUrl: action.pageNameOrUrl,
+    });
+    // Add a default protocol if it doesn't exist.
+    let url = action.pageNameOrUrl;
+    if (url.indexOf("://") === -1) {
+      url = "https://" + url;
+    }
+    window.location.assign(url);
   }
 }
 
@@ -296,28 +308,7 @@ export function* executeActionTriggers(
       yield call(executeActionSaga, trigger.payload, event);
       break;
     case "NAVIGATE_TO":
-      AnalyticsUtil.logEvent("NAVIGATE", {
-        pageName: trigger.payload.pageName,
-        pageParams: trigger.payload.pageParams,
-      });
       yield call(navigateActionSaga, trigger.payload, event);
-      break;
-    case "NAVIGATE_TO_URL":
-      if (trigger.payload.url) {
-        AnalyticsUtil.logEvent("NAVIGATE", {
-          navUrl: trigger.payload.url,
-        });
-        // Add a default protocol if it doesn't exist.
-        let url = trigger.payload.url;
-        if (url.indexOf("://") === -1) {
-          url = "https://" + url;
-        }
-        window.location.assign(url);
-
-        if (event.callback) event.callback({ success: true });
-      } else {
-        if (event.callback) event.callback({ success: false });
-      }
       break;
     case "SHOW_ALERT":
       AppToaster.show({

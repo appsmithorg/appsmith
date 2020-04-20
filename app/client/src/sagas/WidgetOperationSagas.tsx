@@ -337,6 +337,7 @@ function* setWidgetDynamicPropertySaga(
 ) {
   const { isDynamic, propertyName, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
+  // const tree = yield select(evaluateDataTree);
   const propertyValue = widget[propertyName];
   const dynamicProperties: Record<string, true> = {
     ...widget.dynamicProperties,

@@ -1,6 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
+// import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
+import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   handleValueUpdate = (newValue: string) => {
@@ -11,7 +12,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   render() {
     const { propertyValue } = this.props;
     return (
-      <DynamicActionCreator
+      <ActionCreator
         value={propertyValue}
         isValid={this.props.isValid}
         validationMessage={this.props.validationMessage}
