@@ -49,7 +49,7 @@ public final class BeanCopyUtils {
     }
 
     public static void copyNestedNonNullProperties(Object source, Object target) {
-        if (source == null || target ==  null) {
+        if (source == null || target == null) {
             return;
         }
 

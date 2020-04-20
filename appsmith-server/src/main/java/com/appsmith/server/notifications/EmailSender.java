@@ -44,9 +44,9 @@ public class EmailSender {
     /**
      * This function sends an HTML email to the user from the default email address
      *
-     * @param to Single valid string email address to send to. Multiple addresses doesn't work.
+     * @param to      Single valid string email address to send to. Multiple addresses doesn't work.
      * @param subject Subject string.
-     * @param text HTML Body of the message. This method assumes UTF-8.
+     * @param text    HTML Body of the message. This method assumes UTF-8.
      */
     public void sendMail(String to, String subject, String text) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);

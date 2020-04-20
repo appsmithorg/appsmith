@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Group;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;

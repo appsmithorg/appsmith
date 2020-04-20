@@ -21,7 +21,7 @@ import java.util.Set;
  * TODO :
  * Move BaseDomain back to appsmith-server.domain. This is done temporarily to create templates and providers in the same database as the server
  */
-@Getter 
+@Getter
 @Setter
 @ToString
 public abstract class BaseDomain implements Persistable<String> {

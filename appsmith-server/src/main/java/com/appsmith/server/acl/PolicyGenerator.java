@@ -133,7 +133,7 @@ public class PolicyGenerator {
         // document
         Set<Policy> childPolicySet = new HashSet<>();
         Set<DefaultEdge> edges = hierarchyGraph.outgoingEdgesOf(aclPermission);
-        for (DefaultEdge edge: edges) {
+        for (DefaultEdge edge : edges) {
             AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
             childPolicySet.add(Policy.builder().permission(childPermission.getValue())
                     .users(policy.getUsers()).build());

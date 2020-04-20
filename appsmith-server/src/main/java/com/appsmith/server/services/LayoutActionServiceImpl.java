@@ -511,7 +511,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * path keys.
      * <p>
      * Calling the base function would make redundant DB calls and slow down this API unnecessarily.
-     *
+     * <p>
      * At this point the user must have MANAGE_PAGE permissions because update action also leads to the page's
      * actions on load to change.
      *
