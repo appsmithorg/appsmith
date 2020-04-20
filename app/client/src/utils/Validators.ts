@@ -8,13 +8,20 @@ import {
 import moment from "moment";
 import {
   WIDGET_TYPE_VALIDATION_ERROR,
-  URL_HTTP_VALIDATION_ERROR,
+  NAVIGATE_TO_VALIDATION_ERROR,
 } from "constants/messages";
-import { getTextArgValue } from "components/editorComponents/DynamicActionCreator";
+import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { PageListPayload } from "constants/ReduxActionConstants";
 const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
-  [VALIDATION_TYPES.TEXT]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.TEXT]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     let parsed = value;
     if (_.isUndefined(value) || value === null) {
       return {
@@ -47,9 +54,15 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.REGEX]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.REGEX]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.TEXT](
       value,
+      props,
+      dataTree,
     );
 
     if (isValid) {
@@ -66,7 +79,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
 
     return { isValid, parsed, message };
   },
-  [VALIDATION_TYPES.NUMBER]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.NUMBER]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     let parsed = value;
     if (_.isUndefined(value)) {
       return {
@@ -99,7 +116,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.BOOLEAN]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.BOOLEAN]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     let parsed = value;
     if (_.isUndefined(value)) {
       return {
@@ -121,7 +142,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.OBJECT]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.OBJECT]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     let parsed = value;
     if (_.isUndefined(value)) {
       return {
@@ -147,7 +172,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.ARRAY]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.ARRAY]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     let parsed = value;
     try {
       if (_.isUndefined(value)) {
@@ -177,8 +206,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
   },
-  [VALIDATION_TYPES.TABLE_DATA]: (value: any): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+  [VALIDATION_TYPES.TABLE_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
     if (!isValid) {
       return {
         isValid,
@@ -194,8 +231,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.CHART_DATA]: (value: any): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+  [VALIDATION_TYPES.CHART_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
     if (!isValid) {
       return {
         isValid,
@@ -211,8 +256,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.MARKERS]: (value: any): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+  [VALIDATION_TYPES.MARKERS]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
     if (!isValid) {
       return {
         isValid,
@@ -228,8 +281,16 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.OPTIONS_DATA]: (value: any): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](value);
+  [VALIDATION_TYPES.OPTIONS_DATA]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+      value,
+      props,
+      dataTree,
+    );
     if (!isValid) {
       return {
         isValid,
@@ -253,7 +314,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed };
   },
-  [VALIDATION_TYPES.DATE]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.DATE]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     if (value === undefined) {
       const today = new Date();
       today.setHours(0, 0, 0);
@@ -271,16 +336,25 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       message: isValid ? "" : `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
     };
   },
-  [VALIDATION_TYPES.ACTION_SELECTOR]: (value: any): ValidationResponse => {
+  [VALIDATION_TYPES.ACTION_SELECTOR]: (
+    value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
+  ): ValidationResponse => {
     if (_.isString(value)) {
-      if (value.indexOf("navigateToUrl") !== -1) {
-        const url = getTextArgValue(value);
-        const isValidUrl = URL_REGEX.test(url);
-        if (!isValidUrl) {
+      if (value.indexOf("navigateTo") !== -1) {
+        const pageNameOrUrl = modalGetter(value);
+        const isPage =
+          dataTree &&
+          (dataTree.pageList as PageListPayload).findIndex(
+            page => page.pageName === pageNameOrUrl,
+          ) !== -1;
+        const isValidUrl = URL_REGEX.test(pageNameOrUrl);
+        if (!(isValidUrl || isPage)) {
           return {
             isValid: false,
             parsed: value,
-            message: `${URL_HTTP_VALIDATION_ERROR}`,
+            message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
           };
         }
       }
@@ -292,9 +366,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
   },
   [VALIDATION_TYPES.ARRAY_ACTION_SELECTOR]: (
     value: any,
+    props: WidgetProps,
+    dataTree?: DataTree,
   ): ValidationResponse => {
     const { isValid, parsed, message } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
+      props,
+      dataTree,
     );
     let isValidFinal = isValid;
     let finalParsed = parsed.slice();
@@ -302,7 +380,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       finalParsed = parsed.map((value: any) => {
         const { isValid, message } = VALIDATORS[
           VALIDATION_TYPES.ACTION_SELECTOR
-        ](value.dynamicTrigger);
+        ](value.dynamicTrigger, props, dataTree);
 
         isValidFinal = isValidFinal && isValid;
         return {

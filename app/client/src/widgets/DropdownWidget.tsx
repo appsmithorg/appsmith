@@ -11,6 +11,7 @@ import {
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "utils/Validators";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -23,12 +24,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       isRequired: VALIDATION_TYPES.BOOLEAN,
       onOptionChange: VALIDATION_TYPES.ACTION_SELECTOR,
       selectedOptionValueArr: VALIDATION_TYPES.ARRAY,
-      defaultOptionValue: (value: string | string[], props?: WidgetProps) => {
+      defaultOptionValue: (
+        value: string | string[],
+        props: WidgetProps,
+        dataTree?: DataTree,
+      ) => {
         let values = value;
 
         if (props) {
           if (props.selectionType === "SINGLE_SELECT") {
-            return VALIDATORS[VALIDATION_TYPES.TEXT](value);
+            return VALIDATORS[VALIDATION_TYPES.TEXT](value, props, dataTree);
           } else if (props.selectionType === "MULTI_SELECT") {
             if (typeof value === "string") {
               try {

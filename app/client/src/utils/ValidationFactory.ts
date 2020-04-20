@@ -7,6 +7,7 @@ import {
   Validator,
 } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 export const BASE_WIDGET_VALIDATION = {
   isLoading: VALIDATION_TYPES.BOOLEAN,
@@ -33,8 +34,8 @@ class ValidationFactory {
     widgetType: WidgetType,
     property: string,
     value: any,
-    //TODO: Satbir: Figure out a way to declare the right type.
-    props?: WidgetProps,
+    props: WidgetProps,
+    dataTree?: DataTree,
   ): ValidationResponse {
     // TODO WIDGETFACTORY
     const propertyValidationTypes = WidgetFactory.getWidgetPropertyValidationMap(
@@ -49,7 +50,7 @@ class ValidationFactory {
       validator = this.validationMap.get(validationTypeOrValidator);
     }
     if (validator) {
-      return validator(value, props);
+      return validator(value, props, dataTree);
     } else {
       return { isValid: true, parsed: value };
     }

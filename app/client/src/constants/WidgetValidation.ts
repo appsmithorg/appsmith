@@ -1,4 +1,5 @@
 import { WidgetProps } from "widgets/BaseWidget";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 // Always add a validator function in ./Validators for these types
 export const VALIDATION_TYPES = {
@@ -24,4 +25,8 @@ export type ValidationResponse = {
 };
 
 export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];
-export type Validator = (value: any, props?: WidgetProps) => ValidationResponse;
+export type Validator = (
+  value: any,
+  props: WidgetProps,
+  dataTree?: DataTree,
+) => ValidationResponse;

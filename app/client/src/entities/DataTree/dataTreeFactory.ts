@@ -6,6 +6,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { ActionResponse } from "api/ActionAPI";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MetaState } from "reducers/entityReducers/metaReducer";
+import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 export type ActionDescription<T> = {
@@ -53,6 +54,7 @@ export type DataTreeEntity =
   | DataTreeAction
   | DataTreeWidget
   | DataTreeUrl
+  | PageListPayload
   | ActionDispatcher<any, any>;
 
 export type DataTree = {
@@ -63,15 +65,20 @@ type DataTreeSeed = {
   actions: ActionDataState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
+  pageList: PageListPayload;
   url?: DataTreeUrl;
 };
 
 export class DataTreeFactory {
-  static create({ actions, widgets, widgetsMeta }: DataTreeSeed): DataTree {
+  static create({
+    actions,
+    widgets,
+    widgetsMeta,
+    pageList,
+  }: DataTreeSeed): DataTree {
     const dataTree: DataTree = {};
     dataTree.actionPaths = [
       "navigateTo",
-      "navigateToUrl",
       "showAlert",
       "showModal",
       "closeModal",
@@ -121,17 +128,10 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
-    dataTree.navigateTo = function(pageName: string, params: object) {
+    dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
       return {
         type: "NAVIGATE_TO",
-        payload: { pageName, params },
-      };
-    };
-
-    dataTree.navigateToUrl = function(url: string) {
-      return {
-        type: "NAVIGATE_TO_URL",
-        payload: { url },
+        payload: { pageNameOrUrl, params },
       };
     };
 
@@ -156,6 +156,7 @@ export class DataTreeFactory {
       };
     };
 
+    dataTree.pageList = pageList;
     return dataTree;
   }
 }
