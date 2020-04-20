@@ -13,3 +13,10 @@ export const initApiPane = (urlId?: string): ReduxAction<{ id?: string }> => {
     payload: { id: urlId },
   };
 };
+
+export const createNewApiAction = (
+  pageId: string,
+): ReduxAction<{ pageId: string }> => ({
+  type: ReduxActionTypes.CREATE_NEW_API_ACTION,
+  payload: { pageId },
+});

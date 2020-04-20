@@ -11,7 +11,11 @@ import {
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, API_HOME_SCREEN_FORM } from "constants/forms";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  DEFAULT_API_ACTION,
+  POST_BODY_FORMAT_OPTIONS,
+  REST_PLUGIN_PACKAGE_NAME,
+} from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
 import {
@@ -31,6 +35,11 @@ import {
   VALID_FUNCTION_NAME_ERROR,
 } from "constants/messages";
 import { fetchProvidersWithCategory } from "actions/providerActions";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { getPluginIdOfPackageName } from "sagas/selectors";
+import { getActions } from "selectors/entitiesSelector";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { createActionRequest } from "actions/actionActions";
 
 const getApiDraft = (state: AppState, id: string) => {
   const drafts = state.ui.apiPane.drafts;
@@ -38,7 +47,7 @@ const getApiDraft = (state: AppState, id: string) => {
   return {};
 };
 
-const getActions = (state: AppState) =>
+const getActionConfigs = (state: AppState): ActionData["config"][] =>
   state.entities.actions.map(a => a.config);
 
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
@@ -234,7 +243,7 @@ function* validateInputSaga(
     payload,
     meta: { field },
   } = actionPayload;
-  const actions: RestAction[] = yield select(getActions);
+  const actions: RestAction[] = yield select(getActionConfigs);
   const sameNames = actions.filter(
     (action: RestAction) => action.name === payload && action.id,
   );
@@ -375,6 +384,34 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* handleCreateNewApiActionSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  const pluginId = yield select(
+    getPluginIdOfPackageName,
+    REST_PLUGIN_PACKAGE_NAME,
+  );
+  const { pageId } = action.payload;
+  if (pageId && pluginId) {
+    const actions = yield select(getActions);
+    const pageActions = actions.filter(
+      (a: ActionData) => a.config.pageId === pageId,
+    );
+    const newActionName = createNewApiName(pageActions, pageId);
+    yield put(
+      createActionRequest({
+        ...DEFAULT_API_ACTION,
+        name: newActionName,
+        datasource: {
+          name: "DEFAULT_REST_DATASOURCE",
+          pluginId,
+        },
+        pageId,
+      }),
+    );
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -384,6 +421,10 @@ export default function* root() {
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_NEW_API_ACTION,
+      handleCreateNewApiActionSaga,
+    ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),

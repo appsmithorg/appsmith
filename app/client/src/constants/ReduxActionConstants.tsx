@@ -176,6 +176,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   CLEAR_PROVIDERS: "CLEAR_PROVIDERS",
   BATCHED_UPDATE: "BATCHED_UPDATE",
   EXECUTE_BATCH: "EXECUTE_BATCH",
+  CREATE_NEW_API_ACTION: "CREATE_NEW_API_ACTION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
