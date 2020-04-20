@@ -451,8 +451,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> findByPageId(String pageId) {
-        return repository.findByPageId(pageId);
+    public Flux<Action> findByPageId(String pageId, AclPermission permission) {
+        return repository.findByPageId(pageId, permission);
     }
 
     /**
