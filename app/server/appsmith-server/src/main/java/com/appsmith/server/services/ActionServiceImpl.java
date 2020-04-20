@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
@@ -26,6 +27,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -33,6 +35,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -53,8 +56,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -68,7 +70,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final DatasourceContextService datasourceContextService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
-    private final ProviderService providerService;
+    private final MarketplaceService marketplaceService;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -84,7 +86,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
-                             ProviderService providerService) {
+                             MarketplaceService marketplaceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -94,43 +96,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.datasourceContextService = datasourceContextService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
-        this.providerService = providerService;
-    }
-
-    /**
-     * This function updates an existing action in the DB. We are completely overriding the base update function to
-     * ensure that we can populate the JsonPathKeys field in the ActionConfiguration based on any changes that may
-     * have happened in the action object.
-     * <p>
-     * Calling the base function would make redundant DB calls and slow down this API unnecessarily.
-     *
-     * @param id
-     * @param action
-     * @return
-     */
-    @Override
-    public Mono<Action> update(String id, Action action) {
-        Set<String> invalids = new HashSet<>();
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        Mono<Action> dbActionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
-
-        return dbActionMono
-                .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(action, dbAction);
-                    return dbAction;
-                })
-                .flatMap(this::validateAndSaveActionToRepository)
-                .map(act -> {
-                            analyticsService
-                                    .sendEvent(AnalyticsEvents.UPDATE + "_" + act.getClass().getSimpleName().toUpperCase(),
-                                            act);
-                            return act;
-                        }
-                );
+        this.marketplaceService = marketplaceService;
     }
 
     private Boolean validateActionName(String name) {
@@ -159,7 +125,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(this::validateAndSaveActionToRepository);
     }
 
-    private Mono<Action> validateAndSaveActionToRepository(Action action) {
+    @Override
+    public Mono<Action> validateAndSaveActionToRepository(Action action) {
         //Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
         action.setIsValid(true);
@@ -251,7 +218,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         // Convert the object to String as a preparation to send it to mustache extraction
         try {
             String actionConfigStr = objectMapper.writeValueAsString(action.getActionConfiguration());
-            return extractMustacheKeys(actionConfigStr);
+            return extractMustacheKeysFromJson(actionConfigStr);
         } catch (JsonProcessingException e) {
             log.error("Exception caught while extracting mustache keys from action configuration. ", e);
         }
@@ -307,11 +274,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     .flatMap(action -> {
                         // This is separately done instead of fetching from the repository using id and isValid. This is
                         // because we want to error out with two different statuses -> Wrong action id OR Invalid action
-                        if (action.getIsValid() == false) {
+                        if (Boolean.FALSE.equals(action.getIsValid())) {
                             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, action.getName(), action.getId()));
                         }
                         return Mono.just(action);
-                    });
+                    })
+                    .cache();
         } else {
             actionMono = Mono.just(actionFromDto);
         }
@@ -337,8 +305,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {
-                    if (datasource.getIsValid() != null && datasource.getIsValid() == false) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE));
+                    if (datasource.getId() == null) {
+                        return datasourceService.validateDatasource(datasource);
+                    } else {
+                        return Mono.just(datasource);
+                    }
+                })
+                .flatMap(datasource -> {
+                    Set<String> invalids = datasource.getInvalids();
+                    if (!CollectionUtils.isEmpty(invalids)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
@@ -357,7 +333,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         Map<String, String> replaceParamsMap = executeActionDTO
                                 .getParams()
                                 .stream()
-                                .collect(Collectors.toMap(Param::getKey, Param::getValue,
+                                .collect(Collectors.toMap(
+                                        // Trimming here for good measure. If the keys have space on either side,
+                                        // Mustache won't be able to find the key.
+                                        // We also add a backslash before every double-quote or backslash character
+                                        // because we apply the template replacing in a JSON-stringified version of
+                                        // these properties, where these two characters are escaped.
+                                        p -> p.getKey().trim().replaceAll("[\"\\\\]", "\\\\$0"),
+                                        Param::getValue,
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
                                 );
@@ -365,12 +348,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
 
-                        // If the action has a body (for RestAPI), then unescape HTML in the string.
-                        log.debug("For action Id: {}, got the actionConfigurationBody: {}", action.getId(), actionConfigurationTemp.getBody());
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
+
                     }
+
                     DatasourceConfiguration datasourceConfiguration;
                     ActionConfiguration actionConfiguration;
 
@@ -460,6 +443,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             log.error("Exception caught while substituting values in mustache template.", e);
         }
         return configuration;
+    }
+
+    @Override
+    public Mono<Action> findById(String id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public Flux<Action> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
     }
 
     /**
@@ -580,9 +573,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<Action> providerUpdateMono = null;
         if ((action.getTemplateId() != null) && (action.getProviderId() != null)) {
 
-            providerUpdateMono = providerService
-                    .getById(action.getProviderId())
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Provider")))
+            providerUpdateMono = marketplaceService
+                    .getProviderById(action.getProviderId())
+                    .switchIfEmpty(Mono.just(new Provider()))
                     .map(provider -> {
                         ActionProvider actionProvider = new ActionProvider();
                         actionProvider.setName(provider.getName());

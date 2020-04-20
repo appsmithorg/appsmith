@@ -18,9 +18,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.notDeleted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -51,7 +51,20 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.mongoOperations = mongoOperations;
     }
 
-    protected Criteria getIdCriteria(Object id) {
+    private Criteria notDeleted() {
+        return new Criteria().andOperator(
+                new Criteria().orOperator(
+                        where(FieldName.DELETED).exists(false),
+                        where(FieldName.DELETED).is(false)
+                ),
+                new Criteria().orOperator(
+                        where(FieldName.DELETED_AT).exists(false),
+                        where(FieldName.DELETED_AT).is(null)
+                )
+        );
+    }
+
+    private Criteria getIdCriteria(Object id) {
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
@@ -114,9 +127,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     public Mono<T> archive(T entity) {
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
-        Assert.isTrue(!entity.getDeleted(), "The given entity is already deleted");
+        Assert.isTrue(!entity.isDeleted(), "The given entity is already deleted");
 
         entity.setDeleted(true);
+        entity.setDeletedAt(Instant.now());
         return mongoOperations.save(entity, entityInformation.getCollectionName());
     }
 
@@ -133,6 +147,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
+                    update.set(FieldName.DELETED_AT, Instant.now());
                     return mongoOperations.updateFirst(query, update, entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });
@@ -153,6 +168,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
                     Update update = new Update();
                     update.set(FieldName.DELETED, true);
+                    update.set(FieldName.DELETED_AT, Instant.now());
                     return mongoOperations.updateMulti(query, update, entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
                 });

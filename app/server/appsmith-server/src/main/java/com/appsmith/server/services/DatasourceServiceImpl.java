@@ -1,11 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeys;
+import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -65,8 +65,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
-
-        datasource.setIsValid(true);
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -97,26 +95,32 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
+        Mono<String> currentOrganizationMono = sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getCurrentOrganizationId())
+                .cache();
+
         if (datasource.getPluginId() == null) {
-            datasource.setIsValid(false);
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
             datasource.setInvalids(invalids);
-            return Mono.just(datasource);
+            return currentOrganizationMono
+                    .map(currentOrgId -> {
+                        datasource.setOrganizationId(currentOrgId);
+                        return datasource;
+                    });
         }
 
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-
-        Mono<Organization> organizationMono = userMono
-                .flatMap(user -> organizationService.findByIdAndPluginsPluginId(
-                        user.getCurrentOrganizationId(), datasource.getPluginId()))
+        Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = currentOrganizationMono
+                .flatMap(currentOrgId -> organizationService.findByIdAndPluginsPluginId(
+                        currentOrgId, datasource.getPluginId()))
                 .switchIfEmpty(Mono.defer(() -> {
-                    datasource.setIsValid(false);
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
+                    datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
 
         //Add organization id to the datasource.
-        Mono<Datasource> updatedDatasourceMono = organizationMono
+        Mono<Datasource> updatedDatasourceMono = checkPluginInstallationAndThenReturnOrganizationMono
                 .map(organization -> {
                     if (organization.getId() != null) {
                         datasource.setOrganizationId(organization.getId());
@@ -125,7 +129,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
 
         if (datasource.getDatasourceConfiguration() == null) {
-            datasource.setIsValid(false);
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
@@ -139,8 +142,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
                     DatasourceConfiguration datasourceConfiguration = datasource1.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
-                        datasource1.setIsValid(false);
-                        invalids.add(AppsmithError.INVALID_DATASOURCE_CONFIGURATION.getMessage());
+                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
                     datasource1.setInvalids(invalids);
@@ -152,6 +154,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(repository::save);
+    }
+
+    @Override
+    public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
+
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> pluginExecutor.testDatasource(datasource.getDatasourceConfiguration()));
     }
 
     @Override
@@ -172,7 +183,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         // Convert the object to String as a preparation to send it to mustache extraction
         try {
             String datasourceConfigStr = objectMapper.writeValueAsString(datasource.getDatasourceConfiguration());
-            return extractMustacheKeys(datasourceConfigStr);
+            return extractMustacheKeysFromJson(datasourceConfigStr);
         } catch (JsonProcessingException e) {
             log.error("Exception caught while extracting mustache keys from action configuration. ", e);
         }

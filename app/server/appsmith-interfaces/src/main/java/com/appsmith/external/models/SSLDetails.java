@@ -14,16 +14,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SSLDetails {
 
     public enum AuthType {
-        CACertificate, SelfSignedCertificate
+        // Following for Postgres Connections.
+        ALLOW, PREFER, REQUIRE, DISABLE, VERIFY_CA, VERIFY_FULL,
+
+        // Following for MongoDB Connections.
+        CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE
     }
 
     AuthType authType;
 
-    String keyFile;
+    UploadedFile keyFile;
 
-    String certificateFile;
+    UploadedFile certificateFile;
 
-    String caCertificateFile;
+    UploadedFile caCertificateFile;
 
     Boolean usePemCertificate;
 

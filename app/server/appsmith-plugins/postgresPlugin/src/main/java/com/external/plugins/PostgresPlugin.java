@@ -2,15 +2,21 @@ package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
-import org.pf4j.PluginException;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
@@ -21,18 +27,24 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
-@Slf4j
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
+
 public class PostgresPlugin extends BasePlugin {
 
-    private static ObjectMapper objectMapper;
+    static final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    static String JDBC_DRIVER = "org.postgresql.Driver";
+    private static final String USER = "user";
+    private static final String PASSWORD = "password";
+    private static final String SSL = "ssl";
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
-        this.objectMapper = new ObjectMapper();
     }
 
     /**
@@ -47,58 +59,117 @@ public class PostgresPlugin extends BasePlugin {
     public static class PostgresPluginExecutor implements PluginExecutor {
 
         @Override
-        public Mono<Object> execute(Object connection,
+        public Mono<Object> execute(@NonNull Object connection,
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
             Connection conn = (Connection) connection;
-            Assert.notNull(conn);
 
-            ArrayList list = new ArrayList(50);
+            Map<String, Object> queryJson = actionConfiguration.getQuery();
+            String query = (String) queryJson.get("cmd");
+
+            if (query == null) {
+                return pluginErrorMono("Missing required parameter: Query.");
+            }
+
+            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+            Statement statement = null;
+            ResultSet resultSet = null;
             try {
-                Statement statement = conn.createStatement();
-                Map<String, Object> queryJson = actionConfiguration.getQuery();
-                String query = (String) queryJson.get("cmd");
-                ResultSet resultSet = statement.executeQuery(query);
+                statement = conn.createStatement();
+                resultSet = statement.executeQuery(query);
                 ResultSetMetaData metaData = resultSet.getMetaData();
-                Integer colCount = metaData.getColumnCount();
+                int colCount = metaData.getColumnCount();
                 while (resultSet.next()) {
-                    HashMap row = new HashMap(colCount);
+                    Map<String, Object> row = new HashMap<>(colCount);
                     for (int i = 1; i <= colCount; i++) {
                         row.put(metaData.getColumnName(i), resultSet.getObject(i));
                     }
-                    list.add(row);
+                    rowsList.add(row);
                 }
+
             } catch (SQLException e) {
-                log.error("", e);
+                return pluginErrorMono(e);
+
+            } finally {
+                if (resultSet != null) {
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Postgres ResultSet", e);
+                    }
+                }
+
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Postgres Statement", e);
+                    }
+                }
+
             }
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(list));
+            result.setBody(objectMapper.valueToTree(rowsList));
             result.setShouldCacheResponse(true);
-            System.out.println("In the PostgresPlugin, got action execution result: " + result.toString());
+            log.debug("In the PostgresPlugin, got action execution result: " + result.toString());
             return Mono.just(result);
         }
 
-        @Override
-        public Object datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            Connection conn = null;
-            try {
-                // Load the class into JVM
-                Class.forName(JDBC_DRIVER);
+        private Mono<Object> pluginErrorMono(Object... args) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, args));
+        }
 
-                // Create the connection
-                conn = DriverManager.getConnection(datasourceConfiguration.getUrl(),
-                        datasourceConfiguration.getAuthentication().getUsername(),
-                        datasourceConfiguration.getAuthentication().getPassword());
-                return conn;
+        @Override
+        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            try {
+                Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                log.error("", e);
-            } catch (SQLException e) {
-                log.error("", e);
+                return pluginErrorMono("Error loading Postgres JDBC Driver class.");
             }
-            // Connection wasn't created. Return null
-            return null;
+
+            String url;
+            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+
+            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+
+            Properties properties = new Properties();
+            properties.putAll(Map.of(
+                    USER, authentication.getUsername(),
+                    PASSWORD, authentication.getPassword(),
+                    // TODO: Set SSL connection parameters.
+                    SSL, configurationConnection != null && configurationConnection.getSsl() != null
+            ));
+
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                url = datasourceConfiguration.getUrl();
+
+            } else {
+                StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
+                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    urlBuilder
+                            .append(endpoint.getHost())
+                            .append(':')
+                            .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                            .append('/')
+                            .append(authentication.getDatabaseName());
+                }
+                url = urlBuilder.toString();
+
+            }
+
+            try {
+                Connection connection = DriverManager.getConnection(url, properties);
+                connection.setReadOnly(
+                        configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
+                return Mono.just(connection);
+
+            } catch (SQLException e) {
+                return pluginErrorMono("Error connecting to Postgres.", e);
+
+            }
         }
 
         @Override
@@ -109,18 +180,59 @@ public class PostgresPlugin extends BasePlugin {
                     conn.close();
                 }
             } catch (SQLException e) {
-                log.error("", e);
-                try {
-                    throw new PluginException(e);
-                } catch (PluginException ex) {
-                    ex.printStackTrace();
-                }
+                log.error("Error closing Postgres Connection.", e);
             }
         }
 
         @Override
-        public Boolean isDatasourceValid(DatasourceConfiguration datasourceConfiguration) {
-            return true;
+        public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+            Set<String> invalids = new HashSet<>();
+
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add("Missing endpoint.");
+            }
+
+            if (datasourceConfiguration.getConnection() != null
+                    && datasourceConfiguration.getConnection().getMode() == null) {
+                invalids.add("Missing Connection Mode.");
+            }
+
+            if (datasourceConfiguration.getAuthentication() == null) {
+                invalids.add("Missing authentication details.");
+
+            } else {
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                    invalids.add("Missing username for authentication.");
+                }
+
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                    invalids.add("Missing password for authentication.");
+                }
+
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                    invalids.add("Missing database name.");
+                }
+
+            }
+
+            return invalids;
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return datasourceCreate(datasourceConfiguration)
+                    .map(connection -> {
+                        try {
+                            if (connection != null) {
+                                ((Connection) connection).close();
+                            }
+                        } catch (SQLException e) {
+                            log.warn("Error closing Postgres connection that was made for testing.", e);
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
     }

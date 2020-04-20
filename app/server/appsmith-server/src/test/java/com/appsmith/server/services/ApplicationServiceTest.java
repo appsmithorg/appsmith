@@ -190,4 +190,33 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void reuseDeletedAppName() {
+        Application firstApp = new Application();
+        firstApp.setName("Ghost app");
+
+        Application secondApp = new Application();
+        secondApp.setName("Ghost app");
+
+        Mono<Application> firstAppDeletion = applicationPageService
+                .createApplication(firstApp)
+                .flatMap(app -> applicationService.archive(app))
+                .cache();
+
+        Mono<Application> secondAppCreation = firstAppDeletion.then(
+                applicationPageService.createApplication(secondApp));
+
+        StepVerifier
+                .create(Mono.zip(firstAppDeletion, secondAppCreation))
+                .assertNext(tuple2 -> {
+                    Application first = tuple2.getT1(), second = tuple2.getT2();
+                    assertThat(first.getName()).isEqualTo("Ghost app");
+                    assertThat(second.getName()).isEqualTo("Ghost app");
+                    assertThat(first.isDeleted()).isTrue();
+                    assertThat(second.isDeleted()).isFalse();
+                })
+                .verifyComplete();
+    }
+
 }

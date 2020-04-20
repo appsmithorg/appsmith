@@ -129,11 +129,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
         </dependency>
+
         <!-- Plugin dependencies -->
+        <!-- This has to be declared BEFORE the com.appsmith:interfaces dependency. -->
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.5.0</version>
+            <version>0.6.0</version>
         </dependency>
 
         <!-- Appsmith dependencies -->
@@ -204,7 +206,7 @@
         <dependency>
             <groupId>com.github.cloudyrock.mongock</groupId>
             <artifactId>mongock-spring</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.5</version>
         </dependency>
 
         <dependency>

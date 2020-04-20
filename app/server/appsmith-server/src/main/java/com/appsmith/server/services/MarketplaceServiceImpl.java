@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Provider;
 import com.appsmith.server.configurations.MarketplaceConfig;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,6 +37,8 @@ public class MarketplaceServiceImpl implements MarketplaceService {
 
     private static String CATEGORIES_PATH = PROVIDER_PATH + "/categories";
 
+    private static String USE_PROVIDER_API = PROVIDER_PATH + "/use";
+
     private static String MARKETPLACE_USERNAME = "appsmith-server";
 
     private static String MARKETPLACE_PASSWORD = "g:bj{64<$[k>hHBV";
@@ -57,11 +59,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     }
 
     @Override
-    public Mono<List<Provider>> getProviders(MultiValueMap<String, String> params) {
-        if (params.getFirst(FieldName.PAGE) == null || params.getFirst(FieldName.SIZE) == null) {
-            return Mono.error(new AppsmithException(AppsmithError.PAGINATED_API_PAGE_SIZE_MISSING));
-        }
-
+    public Mono<ProviderPaginatedDTO> getProviders(MultiValueMap<String, String> params) {
         URI uri = buildFullURI(params, PROVIDER_PATH);
 
         return webClient
@@ -70,13 +68,13 @@ public class MarketplaceServiceImpl implements MarketplaceService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(stringBody -> {
-                    List<Provider> providerList = null;
+                    ProviderPaginatedDTO providersPaginated = null;
                     try {
-                        providerList = objectMapper.readValue(stringBody, ArrayList.class);
+                        providersPaginated = objectMapper.readValue(stringBody, ProviderPaginatedDTO.class);
                     } catch (JsonProcessingException e) {
                         return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
                     }
-                    return Mono.just(providerList);
+                    return Mono.just(providersPaginated);
                 })
                 .timeout(Duration.ofMillis(timeoutInMillis))
                 .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
@@ -127,10 +125,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     }
 
     @Override
-    public Mono<Provider> subscribeAndUpdateStatisticsOfProvider(String providerId) {
+    public Mono<Boolean> subscribeAndUpdateStatisticsOfProvider(String providerId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("id", providerId);
-        URI uri = buildFullURI(params, PROVIDER_PATH);
+        URI uri = buildFullURI(params, USE_PROVIDER_API);
 
         if (uri == null) {
             // Throw an internal server error because the URL is hard coded and must be correct
@@ -138,10 +136,32 @@ public class MarketplaceServiceImpl implements MarketplaceService {
         }
 
         return webClient
+                .put()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(Boolean.class);
+    }
+
+    @Override
+    public Mono<Provider> getProviderById(String id) {
+        URI uri = buildFullURI(null, PROVIDER_PATH + "/" + id);
+
+        return webClient
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(Provider.class);
+                .bodyToMono(String.class)
+                .flatMap(stringBody -> {
+                    Provider provider = null;
+                    try {
+                        provider = objectMapper.readValue(stringBody, Provider.class);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
+                    }
+                    return Mono.just(provider);
+                })
+                .timeout(Duration.ofMillis(timeoutInMillis))
+                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
