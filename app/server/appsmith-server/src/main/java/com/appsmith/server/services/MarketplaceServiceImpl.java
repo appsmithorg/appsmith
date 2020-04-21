@@ -164,6 +164,33 @@ public class MarketplaceServiceImpl implements MarketplaceService {
                 .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
     }
 
+    @Override
+    /**
+     * This function searches for providers and returns the providers with exact match in name.
+     * In the future the search should support 'like' for providers and search could expand to include
+     * the actions used in the organization (across all applications) and templates as well.
+     */
+    public Mono<List<Provider>> searchProviderByName(String name) {
+        URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + name);
+
+        return webClient
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(String.class)
+                .flatMap(stringBody -> {
+                    List<Provider> providers = null;
+                    try {
+                        providers = objectMapper.readValue(stringBody, ArrayList.class);
+                    } catch (JsonProcessingException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));
+                    }
+                    return Mono.just(providers);
+                })
+                .timeout(Duration.ofMillis(timeoutInMillis))
+                .doOnError(error -> Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_TIMEOUT)));
+    }
+
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
         try {
