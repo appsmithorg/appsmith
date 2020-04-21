@@ -221,8 +221,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const { drafts } = state.ui.apiPane;
   let data: RestAction | ActionData | RapidApiAction | undefined;
-  if (props.match.params.id in drafts) {
-    data = drafts[props.match.params.id];
+  if (apiAction && apiAction.id in drafts) {
+    data = drafts[apiAction.id];
   } else {
     data = apiAction;
   }
