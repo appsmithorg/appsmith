@@ -28,6 +28,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -155,7 +157,14 @@ public class MongoPlugin extends BasePlugin {
         public static MongoClientURI buildClientURI(DatasourceConfiguration datasourceConfiguration) {
             StringBuilder builder = new StringBuilder();
 
-            boolean isSrv = Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType());
+            final Connection connection = datasourceConfiguration.getConnection();
+            final List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+
+            // Use SRV mode if using REPLICA_SET, AND a port is not specified in the first endpoint. In SRV mode, the
+            // host and port details of individual shards will be obtained from the TXT records of the first endpoint.
+            boolean isSrv = Connection.Type.REPLICA_SET.equals(connection.getType())
+                    && endpoints.get(0).getPort() == null;
+
             if (isSrv) {
                 builder.append("mongodb+srv://");
             } else {
@@ -165,13 +174,13 @@ public class MongoPlugin extends BasePlugin {
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
             if (authentication != null) {
                 builder
-                        .append(authentication.getUsername())
+                        .append(urlEncode(authentication.getUsername()))
                         .append(':')
-                        .append(authentication.getPassword())
+                        .append(urlEncode(authentication.getPassword()))
                         .append('@');
             }
 
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+            for (Endpoint endpoint : endpoints) {
                 builder.append(endpoint.getHost());
                 if (endpoint.getPort() != null) {
                     builder.append(':').append(endpoint.getPort());
@@ -185,11 +194,22 @@ public class MongoPlugin extends BasePlugin {
             // Delete the trailing comma.
             builder.deleteCharAt(builder.length() - 1);
 
+            boolean addedFinalSlash = false;
             if (authentication != null) {
                 builder.append('/').append(authentication.getDatabaseName());
+                addedFinalSlash = true;
             }
 
-            return new MongoClientURI(builder.toString());
+            if (connection.getSsl() != null) {
+                if (!addedFinalSlash) {
+                    builder.append('/');
+                }
+                builder.append("?ssl=true");
+            }
+
+            final String uri = builder.toString();
+            log.info("MongoPlugin URI: `{}`.", uri);
+            return new MongoClientURI(uri);
         }
 
         @Override
@@ -209,13 +229,9 @@ public class MongoPlugin extends BasePlugin {
                 invalids.add("Missing endpoint(s).");
 
             } else if (Connection.Type.REPLICA_SET.equals(datasourceConfiguration.getConnection().getType())) {
-                if (endpoints.size() > 1) {
-                    invalids.add("Direct connections cannot be used with multiple endpoints." +
-                            " Please provide a single endpoint.");
-                }
-
-                if (endpoints.get(0).getPort() != null) {
-                    invalids.add("Port should not be set for REPLICA_SET connections.");
+                if (endpoints.size() == 1 && endpoints.get(0).getPort() != null) {
+                    invalids.add("REPLICA_SET connections should not be given a port." +
+                            " If you are trying to specify all the shards, please add more than one.");
                 }
 
             }
@@ -282,6 +298,10 @@ public class MongoPlugin extends BasePlugin {
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+        }
+
+        private static String urlEncode(String text) {
+            return URLEncoder.encode(text, StandardCharsets.UTF_8);
         }
 
     }
