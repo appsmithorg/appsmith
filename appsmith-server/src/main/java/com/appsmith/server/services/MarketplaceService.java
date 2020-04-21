@@ -9,9 +9,16 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface MarketplaceService {
+
     Mono<ProviderPaginatedDTO> getProviders(MultiValueMap<String, String> params);
+
     Mono<List<ApiTemplate>> getTemplates(MultiValueMap<String, String> params);
+
     Mono<List<String>> getCategories();
+
     Mono<Boolean> subscribeAndUpdateStatisticsOfProvider(String providerId);
+    
     Mono<Provider> getProviderById(String id);
+
+    Mono<List<Provider>> searchProviderByName(String id);
 }
