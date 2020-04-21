@@ -2,7 +2,7 @@
     "editIcon":".t--widget-propertypane-toggle",
     "editPropCrossButton":".t--property-pane-close-btn",
     "deleteWidgetIcon":".t--widget-delete-control",
-    "dropdownSelectButton":".t--open-dropdown-Select-Action"
-   
-
+    "dropdownSelectButton":".t--open-dropdown-Select-Action",
+    "dropTarget": ".t--droppable-target",
+    "widgetDelete": ".t--widget-delete-control"
 }
