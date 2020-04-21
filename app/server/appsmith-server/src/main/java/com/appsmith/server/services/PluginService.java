@@ -7,6 +7,8 @@ import com.appsmith.server.dtos.PluginOrgDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
+
 public interface PluginService extends CrudService<Plugin, String> {
 
     Flux<Plugin> getDefaultPlugins();
@@ -22,4 +24,8 @@ public interface PluginService extends CrudService<Plugin, String> {
     Mono<Plugin> findById(String id);
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
+
+    Mono<Object> getFormConfig(String pluginId);
+
+    Mono<InputStream> getPluginResource(String pluginId, String resourcePath);
 }

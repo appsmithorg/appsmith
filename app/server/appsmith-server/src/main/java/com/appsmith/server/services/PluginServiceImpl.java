@@ -33,10 +33,13 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -277,5 +280,34 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         pluginManager.startPlugins();
 
         return Mono.just(plugin);
+    }
+
+    @Override
+    public Mono<Object> getFormConfig(String pluginId) {
+        return getPluginResource(pluginId, "form.json")
+                .flatMap(jsonStream -> {
+                    try {
+                        return Mono.just(new ObjectMapper().readValue(jsonStream, Map.class));
+                    } catch (IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
+                    }
+                });
+    }
+
+    @Override
+    public Mono<InputStream> getPluginResource(String pluginId, String resourcePath) {
+        return findById(pluginId)
+                .flatMap(plugin -> {
+                    InputStream formResourceStream = pluginManager
+                            .getPlugin(plugin.getPackageName())
+                            .getPluginClassLoader()
+                            .getResourceAsStream(resourcePath);
+
+                    if (formResourceStream == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "Resource not found"));
+                    }
+
+                    return Mono.just(formResourceStream);
+                });
     }
 }
