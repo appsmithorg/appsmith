@@ -249,7 +249,6 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
     >
       <StyledDropTarget
         onClick={handleFocus}
-        className={"t--droppable-target"}
         ref={drop}
         style={{
           height,
