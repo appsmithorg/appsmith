@@ -40,9 +40,8 @@ public enum AppsmithError {
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while downloading it. Check the jar location & try again."),
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}"),
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint"),
-    MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please check the internet connection"),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "Unable to load datasource form configuration. Details: {0}."),
-    ;
+    MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later");
 
 
     private Integer httpErrorCode;
