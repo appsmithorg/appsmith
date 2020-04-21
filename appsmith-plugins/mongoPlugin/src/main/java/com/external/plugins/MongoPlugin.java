@@ -13,6 +13,8 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoTimeoutException;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -253,12 +255,28 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             return datasourceCreate(datasourceConfiguration)
                     .map(mongoClient -> {
+                        ClientSession clientSession = null;
+
                         try {
-                            if (mongoClient != null) {
+                            // Not using try-with-resources here since we want to close the *session* before closing the
+                            // MongoClient instance.
+                            clientSession = ((MongoClient) mongoClient).startSession();
+
+                        } catch (MongoTimeoutException e) {
+                            log.warn("Timeout connecting to MongoDB from MongoPlugin.", e);
+                            return new DatasourceTestResult("Timed out trying to connect to MongoDB host.");
+
+                        } catch (Exception e) {
+                            return new DatasourceTestResult(e.getMessage());
+
+                        } finally {
+                            if (clientSession != null) {
+                                clientSession.close();
+                            }
+                            if (mongoClient instanceof MongoClient) {
                                 ((MongoClient) mongoClient).close();
                             }
-                        } catch (Exception e) {
-                            log.warn("Error closing MongoDB connection that was made for testing.", e);
+
                         }
 
                         return new DatasourceTestResult();
