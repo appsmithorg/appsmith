@@ -27,35 +27,31 @@ Cypress.Commands.add("SearchApp", appname => {
   // Wait added because after opening the application editor, sometimes it takes a little time.
 });
 
-Cypress.Commands.add("NavigateToCommonWidgets", () => {
+Cypress.Commands.add("NavigateToPage", pageSelector => {
   cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(pages.commonWidgets)
+  cy.get(pages.allWidgets)
     .find(">div")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
-  cy.get(pages.widgetsEditor).click();
+  cy.get(pageSelector).click();
   cy.wait("@getPage");
   cy.get("#loading").should("not.exist");
 });
 
+Cypress.Commands.add("NavigateToAllWidgets", () => {
+  cy.NavigateToPage(pages.allWidgets);
+});
+
+Cypress.Commands.add("NavigateToCommonWidgets", () => {
+  cy.NavigateToPage(pages.commonWidgets);
+});
+
 Cypress.Commands.add("NavigateToFormWidgets", () => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(pages.formWidgets)
-    .find(">div")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.get(pages.widgetsEditor).click();
-  cy.get("#loading").should("not.exist");
+  cy.NavigateToPage(pages.formWidgets);
 });
 
 Cypress.Commands.add("NavigateToViewWidgets", () => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(pages.viewWidgets)
-    .find(">div")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.get(pages.widgetsEditor).click();
-  cy.get("#loading").should("not.exist");
+  cy.NavigateToPage(pages.viewWidgets);
 });
 
 // Cypress.Commands.add("CreateModal", () => {

@@ -1,8 +1,8 @@
 {
     "pagesIcon": ".t--nav-link-manage-pages",
     "commonWidgets": ".t--page-sidebar-CommonWidgets",
+    "allWidgets": ".t--page-sidebar-AllWidgets",
     "formWidgets": ".t--page-sidebar-FormWidgets",
     "viewWidgets":".t--page-sidebar-ViewWidgets",
     "widgetsEditor": ".t--nav-link-widgets-editor"
-
 }
