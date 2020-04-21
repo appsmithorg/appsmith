@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ public class Provider extends BaseDomain {
 
     String documentationUrl; //URL which points to the homepage of the documentations here
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String credentialSteps; //How to generate/get the credentials to run the APIs which belong to this provider
 
     List<String> categories; //Category names here
