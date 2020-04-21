@@ -45,22 +45,6 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.defaultText) {
-      this.updateWidgetMetaProperty("text", this.props.defaultText);
-    }
-  }
-
-  componentDidUpdate(prevProps: RichTextEditorWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (this.props.defaultText) {
-      if (this.props.defaultText !== prevProps.defaultText) {
-        this.updateWidgetMetaProperty("text", this.props.defaultText);
-      }
-    }
-  }
-
   onValueChange = (text: string) => {
     this.updateWidgetMetaProperty("text", text);
     if (this.props.onTextChange) {

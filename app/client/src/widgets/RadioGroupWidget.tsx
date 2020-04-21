@@ -43,7 +43,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptionValue: "",
+      selectedOptionValue: undefined,
     };
   }
 

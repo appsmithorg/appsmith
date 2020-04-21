@@ -71,7 +71,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getMetaPropertiesMap(): Record<string, string> {
+  static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
 
