@@ -53,6 +53,7 @@ public class PolicyGenerator {
     @PostConstruct
     public void createPolicyGraph() {
 
+        // Initialization of the hierarchical and lateral graphs by adding all the vertices
         EnumSet.allOf(AclPermission.class)
                 .forEach(permission -> {
                     hierarchyGraph.addVertex(permission);
@@ -68,6 +69,9 @@ public class PolicyGenerator {
         log.debug("Successfully created the createGraph & lateralGraph");
     }
 
+    /**
+     * In this, we add permissions for a user to interact with organizations and other users inside the said organizations
+     */
     private void createUserPolicyGraph() {
         hierarchyGraph.addEdge(USER_MANAGE_ORGANIZATIONS, MANAGE_ORGANIZATIONS);
         hierarchyGraph.addEdge(USER_READ_ORGANIZATIONS, READ_ORGANIZATIONS);
