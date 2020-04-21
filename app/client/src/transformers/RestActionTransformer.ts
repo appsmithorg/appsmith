@@ -21,7 +21,7 @@ export const transformRestAction = (data: any): any => {
     data.displayFormat &&
     data.displayFormat === POST_BODY_FORMAT_OPTIONS[0].value
   ) {
-    if (data.actionConfiguration.body[0]) {
+    if (data.actionConfiguration.body && data.actionConfiguration.body[0]) {
       const body = data.actionConfiguration.body[0];
       action = {
         ...data,
@@ -36,7 +36,7 @@ export const transformRestAction = (data: any): any => {
     data.displayFormat &&
     data.displayFormat === POST_BODY_FORMAT_OPTIONS[1].value
   ) {
-    if (data.actionConfiguration.body[1]) {
+    if (data.actionConfiguration.body && data.actionConfiguration.body[1]) {
       const body = data.actionConfiguration.body[1];
       if (typeof data.actionConfiguration.body === "object") {
         action = {

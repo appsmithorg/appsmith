@@ -37,6 +37,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
+  static getMetaPropertiesMap(): Record<string, undefined> {
+    return {
+      center: undefined,
+      markers: undefined,
+    };
+  }
+
   updateCenter = (lat: number, lng: number) => {
     this.updateWidgetMetaProperty("center", { lat, lng });
   };
