@@ -13,8 +13,7 @@ import { AppState } from "reducers";
 import EditorHeader from "./EditorHeader";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
-import HTMLBackend from "react-dnd-html5-backend";
-
+import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -127,10 +126,10 @@ class Editor extends Component<EditorProps> {
     if (!this.props.isEditorInitialized || !this.state.registered) return null;
     return (
       <DndProvider
-        backend={HTMLBackend}
-        // options={{
-        //   enableMouseEvents: true,
-        // }}
+        backend={TouchBackend}
+        options={{
+          enableMouseEvents: true,
+        }}
       >
         <div>
           <Helmet>
