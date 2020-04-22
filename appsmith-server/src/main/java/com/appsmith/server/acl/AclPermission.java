@@ -27,6 +27,7 @@ public enum AclPermission {
     USER_READ_ORGANIZATIONS("read:userOrganization", User.class),
 
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
+    // The following should be applied to Organization and not User
     READ_USERS("read:users", User.class),
     MANAGE_USERS("manage:users", User.class),
     RESET_PASSWORD_USERS("resetPassword:users", User.class),

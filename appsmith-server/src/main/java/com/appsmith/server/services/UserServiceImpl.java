@@ -511,6 +511,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> create(User user) {
+        // This is the path that is taken when a new user signs up on its own
         return createUser(user, null);
     }
 
