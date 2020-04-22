@@ -11,6 +11,7 @@ import org.jgrapht.graph.DirectedMultigraph;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -151,4 +152,14 @@ public class PolicyGenerator {
         return childPolicySet;
     }
 
+    public Set<Policy> getAllChildPolicies(User user, Set<Policy> policySet, Class entity) {
+        return policySet.stream()
+                .map(policy -> {
+                    AclPermission aclPermission = AclPermission
+                            .getPermissionByValue(policy.getPermission(), entity);
+                    // Get all the child policies for the given policy and aclPermission
+                    return getChildPolicies(policy, aclPermission, user);
+                }).flatMap(Collection::stream)
+                .collect(Collectors.toSet());
+    }
 }
