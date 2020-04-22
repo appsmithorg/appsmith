@@ -71,7 +71,7 @@ public class AclFilter implements WebFilter {
                     return acl;
                 })
                 .flatMap(acl -> {
-                    if (acl != null && acl.getResult()) {
+                    if (acl != null && acl.isSuccessful()) {
                         // Acl returned true. Continue with the filter chain
                         return chain.filter(exchange);
                     }
