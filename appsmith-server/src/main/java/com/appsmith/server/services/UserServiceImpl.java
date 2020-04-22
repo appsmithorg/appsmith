@@ -531,15 +531,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
                 ).collect(Collectors.toSet());
 
-        Set<Policy> documentPolicies = policySet.stream()
-                .map(policy -> {
-                    AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), User.class);
-                    // Get all the child policies for the given policy and aclPermission
-                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
-                }).flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-        return documentPolicies;
+        return policyGenerator.getAllChildPolicies(user, policySet, User.class);
     }
 
     /**

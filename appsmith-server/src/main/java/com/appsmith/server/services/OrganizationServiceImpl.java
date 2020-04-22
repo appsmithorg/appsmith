@@ -27,7 +27,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,15 +99,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                         policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
                 ).collect(Collectors.toSet());
 
-        Set<Policy> documentPolicies = policySet.stream()
-                .map(policy -> {
-                    AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), User.class);
-                    // Get all the child policies for the given policy and aclPermission
-                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
-                }).flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-        return documentPolicies;
+        return policyGenerator.getAllChildPolicies(user, policySet, User.class);
     }
 
     /**
@@ -124,11 +115,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * @return
      */
     public Mono<Organization> create(Organization organization, User user) {
-        log.debug("Going to create org: {}", organization);
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
         }
 
+        // Does the user have permissions to create an organization?
         boolean isManageOrgPolicyPresent = user.getPolicies().stream()
                 .filter(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()))
                 .findFirst()

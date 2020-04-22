@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,13 +83,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
                                     || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                             .collect(Collectors.toSet());
-                    Set<Policy> documentPolicies = policySet.stream()
-                            .map(policy -> {
-                                AclPermission aclPermission = AclPermission
-                                        .getPermissionByValue(policy.getPermission(), Application.class);
-                                return policyGenerator.getChildPolicies(policy, aclPermission, user);
-                            }).flatMap(Collection::stream)
-                            .collect(Collectors.toSet());
+                    Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Application.class);
                     page.setPolicies(documentPolicies);
                     return page;
                 });
@@ -241,16 +234,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                                 policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policySet.stream()
-                                .map(policy -> {
-                                    AclPermission aclPermission = AclPermission
-                                            .getPermissionByValue(policy.getPermission(), Organization.class);
-
-                                    // Derive child permissions that must be given to this document
-                                    return policyGenerator.getChildPolicies(policy, aclPermission, user);
-                                })
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toSet());
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Organization.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });
