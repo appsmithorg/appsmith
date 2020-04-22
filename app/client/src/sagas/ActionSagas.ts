@@ -701,7 +701,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
-    takeLatest(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
+    takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
     takeLatest(

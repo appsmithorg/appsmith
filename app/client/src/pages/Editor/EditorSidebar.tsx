@@ -17,9 +17,10 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { PageListPayload } from "constants/ReduxActionConstants";
-import ContextDropdown from "components/editorComponents/ContextDropdown";
+import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { ControlIcons } from "icons/ControlIcons";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -411,8 +412,13 @@ class EditorSidebar extends React.Component<Props, State> {
                                                 draftIds.indexOf(item.id) === -1
                                               }
                                             />
-                                            <ContextDropdown
-                                              options={[
+                                            <TreeDropdown
+                                              defaultText=""
+                                              onSelect={() => {
+                                                return null;
+                                              }}
+                                              selectedValue=""
+                                              optionTree={[
                                                 {
                                                   value: "copy",
                                                   onSelect: () => null,
@@ -461,12 +467,12 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   intent: "danger",
                                                 },
                                               ]}
-                                              toggle={{
-                                                type: "icon",
-                                                icon: "MORE_HORIZONTAL_CONTROL",
-                                                iconSize: theme.fontSizes[4],
-                                              }}
-                                              className="more"
+                                              toggle={
+                                                <ControlIcons.MORE_HORIZONTAL_CONTROL
+                                                  width={theme.fontSizes[4]}
+                                                  height={theme.fontSizes[4]}
+                                                />
+                                              }
                                             />
                                           </React.Fragment>
                                         )}

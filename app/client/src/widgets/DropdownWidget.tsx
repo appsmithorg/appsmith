@@ -12,6 +12,7 @@ import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { VALIDATORS } from "utils/Validators";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { Intent as BlueprintIntent } from "@blueprintjs/core";
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -181,6 +182,7 @@ export interface DropdownOption {
   id?: string;
   onSelect?: (option: DropdownOption) => void;
   children?: DropdownOption[];
+  intent?: BlueprintIntent;
 }
 
 export interface DropdownWidgetProps extends WidgetProps {
