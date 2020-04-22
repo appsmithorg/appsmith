@@ -35,29 +35,18 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  componentDidMount() {
-    super.componentDidMount();
-    if (this.props.defaultOptionValue) {
-      this.updateWidgetMetaProperty(
-        "selectedOptionValue",
-        this.props.defaultOptionValue,
-      );
-    }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      selectedOptionValue: "defaultOptionValue",
+    };
   }
 
-  componentDidUpdate(prevProps: RadioGroupWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (
-      (this.props.selectedOptionValue !== prevProps.selectedOptionValue &&
-        this.props.selectedOptionValue === undefined) ||
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue
-    ) {
-      this.updateWidgetMetaProperty(
-        "selectedOptionValue",
-        this.props.defaultOptionValue,
-      );
-    }
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      selectedOptionValue: undefined,
+    };
   }
+
   getPageView() {
     return (
       <RadioGroupComponent

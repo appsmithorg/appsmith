@@ -84,6 +84,8 @@ export const ERROR_403 =
   "Permission Denied. Please contact your admin to gain access.";
 export const WIDGET_TYPE_VALIDATION_ERROR = "Value does not match type";
 export const URL_HTTP_VALIDATION_ERROR = "Please enter a valid URL";
+export const NAVIGATE_TO_VALIDATION_ERROR =
+  "Please enter a valid URL or page name";
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST =
   "Invalid Email address(es) found:";
@@ -120,9 +122,15 @@ export const CREATE_PASSWORD_INVALID_TOKEN =
   "The invite link is invalid. Please try request a new invite";
 
 export const DELETING_APPLICATION = "Deleting application...";
+
+export const CURL_IMPORT_SUCCESS = "Curl Import Successfull";
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = "Back to Login";
+export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = "Api added to page.";
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = "Invalid input";
 
 export const AUTOFIT_ALL_COLUMNS = "Autofit all columns";
 export const AUTOFIT_THIS_COLUMN = "Autofit this column";
 export const AUTOFIT_COLUMN = "Autofit column";
+
+export const TIMEZONE = "Timezone";
+export const ENABLE_TIME = "Enable Time";

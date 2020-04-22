@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
 
-context("Cypress test", function() {
+describe("Chart Widget Functionality", function() {
   it("Chart Widget Functionality", function() {
     cy.NavigateToViewWidgets();
     cy.get(viewWidgetsPage.chartWidget)
@@ -12,16 +12,7 @@ context("Cypress test", function() {
       .first()
       .click({ force: true });
     //Checking the edit props for Chart and also the properties of Chart widget
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("{ctrl}{shift}{downarrow}")
-      .clear({ force: true })
-      .should("be.empty")
-      .type("App Sign Up");
-    cy.get(".CodeMirror textarea")
-      .first()
-      .should("have.value", "App Sign Up");
+    cy.testCodeMirror("App Sign Up");
     cy.get(viewWidgetsPage.chartSelectChartType)
       .find(".bp3-button")
       .click({ force: true })

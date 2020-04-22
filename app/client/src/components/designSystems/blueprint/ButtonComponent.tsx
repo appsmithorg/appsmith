@@ -45,7 +45,6 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
           : props.theme.colors.secondary};
     border-radius: 4px;
     font-weight: ${props => props.theme.fontWeights[2]};
-    font-family: "DM Sans";
     outline: none;
     &.bp3-button {
       padding: 0px 10px;

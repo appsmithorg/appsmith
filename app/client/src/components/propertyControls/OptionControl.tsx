@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { ControlType } from "constants/PropertyControlConstants";
 import { KeyValueComponent } from "./KeyValueComponent";
 
 export type DropDownOptionWithKey = DropdownOption & {
@@ -22,7 +21,7 @@ class OptionControl extends BaseControl<ControlProps> {
     this.updateProperty("options", options);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "OPTION_INPUT";
   }
 }

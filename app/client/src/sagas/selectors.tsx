@@ -74,3 +74,13 @@ export const getWidgetByName = (
     widget => widget.widgetName === widgetName,
   );
 };
+
+export const getPluginIdOfPackageName = (
+  state: AppState,
+  name: string,
+): string | undefined => {
+  const plugins = state.entities.plugins.list;
+  const plugin = _.find(plugins, { packageName: name });
+  if (plugin) return plugin.id;
+  return undefined;
+};

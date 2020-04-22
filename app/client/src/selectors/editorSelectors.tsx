@@ -24,6 +24,10 @@ const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
+const getActions = (state: AppState) => state.entities.actions;
+
+export const getProviderCategories = (state: AppState) =>
+  state.ui.providers.providerCategories;
 
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
@@ -191,5 +195,17 @@ export const getOccupiedSpaces = createSelector(
     }
     // Return undefined if there are no occupiedSpaces.
     return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  },
+);
+
+export const getActionById = createSelector(
+  [getActions, (state: any, props: any) => props.match.params.apiId],
+  (actions, id) => {
+    const action = actions.find(action => action.config.id === id);
+    if (action) {
+      return action.config;
+    } else {
+      return undefined;
+    }
   },
 );

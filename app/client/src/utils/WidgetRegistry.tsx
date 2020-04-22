@@ -3,7 +3,6 @@ import { WidgetTypes } from "constants/WidgetConstants";
 import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import TextWidget, { TextWidgetProps } from "widgets/TextWidget";
 import InputWidget, { InputWidgetProps } from "widgets/InputWidget";
-import SpinnerWidget, { SpinnerWidgetProps } from "widgets/SpinnerWidget";
 import CheckboxWidget, { CheckboxWidgetProps } from "widgets/CheckboxWidget";
 import RadioGroupWidget, {
   RadioGroupWidgetProps,
@@ -14,11 +13,16 @@ import ButtonWidget, { ButtonWidgetProps } from "widgets/ButtonWidget";
 import DropdownWidget, { DropdownWidgetProps } from "widgets/DropdownWidget";
 import ImageWidget, { ImageWidgetProps } from "widgets/ImageWidget";
 import TableWidget, { TableWidgetProps } from "widgets/TableWidget";
+import TabsWidget, {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+} from "widgets/TabsWidget";
 import ModalWidget, { ModalWidgetProps } from "widgets/ModalWidget";
 import RichTextEditorWidget, {
   RichTextEditorWidgetProps,
 } from "widgets/RichTextEditorWidget";
 import ChartWidget, { ChartWidgetProps } from "widgets/ChartWidget";
+import MapWidget, { MapWidgetProps } from "widgets/MapWidget";
 
 import FilePickerWidget, {
   FilePickerWidgetProps,
@@ -30,10 +34,10 @@ import FormWidget from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
 } from "widgets/FormButtonWidget";
+import IconWidget, { IconWidgetProps } from "widgets/IconWidget";
 
 import CanvasWidget from "widgets/CanvasWidget";
-
-class WidgetBuilderRegistry {
+export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
       "CONTAINER_WIDGET",
@@ -47,6 +51,8 @@ class WidgetBuilderRegistry {
       ContainerWidget.getPropertyValidationMap(),
       ContainerWidget.getDerivedPropertiesMap(),
       ContainerWidget.getTriggerPropertyMap(),
+      ContainerWidget.getDefaultPropertiesMap(),
+      ContainerWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -59,6 +65,8 @@ class WidgetBuilderRegistry {
       TextWidget.getPropertyValidationMap(),
       TextWidget.getDerivedPropertiesMap(),
       TextWidget.getTriggerPropertyMap(),
+      TextWidget.getDefaultPropertiesMap(),
+      TextWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -71,18 +79,8 @@ class WidgetBuilderRegistry {
       ButtonWidget.getPropertyValidationMap(),
       ButtonWidget.getDerivedPropertiesMap(),
       ButtonWidget.getTriggerPropertyMap(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "SPINNER_WIDGET",
-      {
-        buildWidget(widgetData: SpinnerWidgetProps): JSX.Element {
-          return <SpinnerWidget {...widgetData} />;
-        },
-      },
-      SpinnerWidget.getPropertyValidationMap(),
-      SpinnerWidget.getDerivedPropertiesMap(),
-      SpinnerWidget.getTriggerPropertyMap(),
+      ButtonWidget.getDefaultPropertiesMap(),
+      ButtonWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -95,6 +93,8 @@ class WidgetBuilderRegistry {
       InputWidget.getPropertyValidationMap(),
       InputWidget.getDerivedPropertiesMap(),
       InputWidget.getTriggerPropertyMap(),
+      InputWidget.getDefaultPropertiesMap(),
+      InputWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -107,6 +107,8 @@ class WidgetBuilderRegistry {
       CheckboxWidget.getPropertyValidationMap(),
       CheckboxWidget.getDerivedPropertiesMap(),
       CheckboxWidget.getTriggerPropertyMap(),
+      CheckboxWidget.getDefaultPropertiesMap(),
+      CheckboxWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -119,6 +121,8 @@ class WidgetBuilderRegistry {
       DropdownWidget.getPropertyValidationMap(),
       DropdownWidget.getDerivedPropertiesMap(),
       DropdownWidget.getTriggerPropertyMap(),
+      DropdownWidget.getDefaultPropertiesMap(),
+      DropdownWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -131,6 +135,8 @@ class WidgetBuilderRegistry {
       RadioGroupWidget.getPropertyValidationMap(),
       RadioGroupWidget.getDerivedPropertiesMap(),
       RadioGroupWidget.getTriggerPropertyMap(),
+      RadioGroupWidget.getDefaultPropertiesMap(),
+      RadioGroupWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -143,6 +149,8 @@ class WidgetBuilderRegistry {
       ImageWidget.getPropertyValidationMap(),
       ImageWidget.getDerivedPropertiesMap(),
       ImageWidget.getTriggerPropertyMap(),
+      ImageWidget.getDefaultPropertiesMap(),
+      ImageWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABLE_WIDGET",
@@ -154,6 +162,8 @@ class WidgetBuilderRegistry {
       TableWidget.getPropertyValidationMap(),
       TableWidget.getDerivedPropertiesMap(),
       TableWidget.getTriggerPropertyMap(),
+      TableWidget.getDefaultPropertiesMap(),
+      TableWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "FILE_PICKER_WIDGET",
@@ -165,6 +175,8 @@ class WidgetBuilderRegistry {
       FilePickerWidget.getPropertyValidationMap(),
       FilePickerWidget.getDerivedPropertiesMap(),
       FilePickerWidget.getTriggerPropertyMap(),
+      FilePickerWidget.getDefaultPropertiesMap(),
+      FilePickerWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
@@ -176,6 +188,23 @@ class WidgetBuilderRegistry {
       DatePickerWidget.getPropertyValidationMap(),
       DatePickerWidget.getDerivedPropertiesMap(),
       DatePickerWidget.getTriggerPropertyMap(),
+      DatePickerWidget.getDefaultPropertiesMap(),
+      DatePickerWidget.getMetaPropertiesMap(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "TABS_WIDGET",
+      {
+        buildWidget(
+          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
+        ): JSX.Element {
+          return <TabsWidget {...widgetProps} />;
+        },
+      },
+      TabsWidget.getPropertyValidationMap(),
+      TabsWidget.getDerivedPropertiesMap(),
+      TabsWidget.getTriggerPropertyMap(),
+      TabsWidget.getDefaultPropertiesMap(),
+      TabsWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
@@ -187,6 +216,8 @@ class WidgetBuilderRegistry {
       BaseWidget.getPropertyValidationMap(),
       BaseWidget.getDerivedPropertiesMap(),
       BaseWidget.getTriggerPropertyMap(),
+      BaseWidget.getDefaultPropertiesMap(),
+      BaseWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "RICH_TEXT_EDITOR_WIDGET",
@@ -198,6 +229,8 @@ class WidgetBuilderRegistry {
       RichTextEditorWidget.getPropertyValidationMap(),
       RichTextEditorWidget.getDerivedPropertiesMap(),
       RichTextEditorWidget.getTriggerPropertyMap(),
+      RichTextEditorWidget.getDefaultPropertiesMap(),
+      RichTextEditorWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "CHART_WIDGET",
@@ -209,6 +242,8 @@ class WidgetBuilderRegistry {
       ChartWidget.getPropertyValidationMap(),
       ChartWidget.getDerivedPropertiesMap(),
       ChartWidget.getTriggerPropertyMap(),
+      ChartWidget.getDefaultPropertiesMap(),
+      ChartWidget.getMetaPropertiesMap(),
     );
     WidgetFactory.registerWidgetBuilder(
       "FORM_WIDGET",
@@ -222,6 +257,8 @@ class WidgetBuilderRegistry {
       FormWidget.getPropertyValidationMap(),
       FormWidget.getDerivedPropertiesMap(),
       FormWidget.getTriggerPropertyMap(),
+      FormWidget.getDefaultPropertiesMap(),
+      FormWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -234,6 +271,22 @@ class WidgetBuilderRegistry {
       FormButtonWidget.getPropertyValidationMap(),
       FormButtonWidget.getDerivedPropertiesMap(),
       FormButtonWidget.getTriggerPropertyMap(),
+      FormButtonWidget.getDefaultPropertiesMap(),
+      FormButtonWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      "MAP_WIDGET",
+      {
+        buildWidget(widgetProps: MapWidgetProps): JSX.Element {
+          return <MapWidget {...widgetProps} />;
+        },
+      },
+      MapWidget.getPropertyValidationMap(),
+      MapWidget.getDerivedPropertiesMap(),
+      MapWidget.getTriggerPropertyMap(),
+      MapWidget.getDefaultPropertiesMap(),
+      MapWidget.getMetaPropertiesMap(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -248,8 +301,22 @@ class WidgetBuilderRegistry {
       CanvasWidget.getPropertyValidationMap(),
       CanvasWidget.getDerivedPropertiesMap(),
       CanvasWidget.getTriggerPropertyMap(),
+      CanvasWidget.getDefaultPropertiesMap(),
+      CanvasWidget.getMetaPropertiesMap(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_WIDGET,
+      {
+        buildWidget(widgetProps: IconWidgetProps): JSX.Element {
+          return <IconWidget {...widgetProps} />;
+        },
+      },
+      IconWidget.getPropertyValidationMap(),
+      IconWidget.getDerivedPropertiesMap(),
+      IconWidget.getTriggerPropertyMap(),
+      IconWidget.getDefaultPropertiesMap(),
+      IconWidget.getMetaPropertiesMap(),
     );
   }
 }
-
-export default WidgetBuilderRegistry;

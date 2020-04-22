@@ -4,12 +4,11 @@ import { RouteComponentProps, withRouter } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { APIEditorRouteParams } from "constants/routes";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { FormIcons } from "icons/FormIcons";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner, IIconProps } from "@blueprintjs/core";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Fuse from "fuse.js";
+import Button from "components/editorComponents/Button";
 import {
   DragDropContext,
   Draggable,
@@ -18,8 +17,10 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { PageListPayload } from "constants/ReduxActionConstants";
-import ContextDropdown from "components/editorComponents/ContextDropdown";
+import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
+import { ControlIcons } from "icons/ControlIcons";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -52,7 +53,6 @@ const SearchBar = styled(BaseTextInput)`
 
 const PageContainer = styled.div`
   padding: 5px 0;
-  border-bottom: 1px solid #485158;
 `;
 
 const PageName = styled.h5<{ isMain: boolean }>`
@@ -72,15 +72,69 @@ const PageDropContainer = styled.div`
   min-height: 32px;
   margin: 5px;
   background-color: ${props => props.theme.colors.paneBG};
+
+  .createBtn {
+    border: none;
+    color: ${Colors.WHITE} !important;
+    width: 100%;
+    display: block !important;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+
+    &:hover {
+      color: ${Colors.WHITE} !important;
+      background-color: ${Colors.BLUE_CHARCOAL} !important;
+
+      svg {
+        path {
+          fill: ${Colors.WHITE};
+        }
+      }
+    }
+    &:focus {
+      color: ${Colors.WHITE} !important;
+      background-color: ${Colors.BLUE_CHARCOAL} !important;
+
+      svg {
+        path {
+          fill: ${Colors.WHITE};
+        }
+      }
+    }
+  }
+  .highlightButton {
+    color: ${Colors.WHITE} !important;
+    background-color: ${Colors.BLUE_CHARCOAL} !important;
+    width: 100%;
+    display: block !important;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 20px;
+
+    svg {
+      path {
+        fill: ${Colors.WHITE};
+      }
+    }
+  }
+
+  .linkStyles {
+    text-decoration: none !important;
+  }
 `;
 
 const ItemsWrapper = styled.div`
   flex: 1;
 `;
 
-const NoItemMessage = styled.span`
-  color: #cacaca;
+const NoItemMessage = styled.div`
+  color: #d0d7dd;
   padding-left: 12px;
+  padding-top: 23px;
+  font-size: 14px;
+  line-height: 20px;
+  padding-bottom: 10px;
 `;
 
 const ItemContainer = styled.div<{
@@ -119,26 +173,14 @@ const DraftIconIndicator = styled.span<{ isHidden: boolean }>`
   opacity: ${({ isHidden }) => (isHidden ? 0 : 1)};
 `;
 
-const CreateNewButton = styled(BaseButton)`
-  &&&& {
-    border: none;
-    color: ${props => props.theme.colors.textOnDarkBG};
-    height: 32px;
-    text-align: left;
-    justify-content: flex-start;
-    &:hover {
-      color: ${props => props.theme.colors.paneBG};
-      svg {
-        path {
-          fill: ${props => props.theme.colors.paneBG};
-        }
-      }
-    }
-    svg {
-      margin-top: 4px;
-      height: 14px;
-      width: 14px;
-    }
+const StyledAddButton = styled(Button)<IIconProps>`
+  &&& {
+    outline: none;
+
+    padding: 10px !important;
+  }
+  span {
+    font-weight: normal !important;
   }
 `;
 
@@ -155,11 +197,12 @@ type EditorSidebarComponentProps = {
   selectedItemId?: string;
   draftIds: string[];
   itemRender: (item: any) => JSX.Element;
-  onItemCreateClick: () => void;
-  onItemSelected: (itemId: string) => void;
+  onItemCreateClick: (pageId: string) => void;
+  onItemSelected: (itemId: string, itemPageId: string) => void;
   moveItem: (itemId: string, destinationPageId: string) => void;
   copyItem: (itemId: string, destinationPageId: string) => void;
   deleteItem: (itemId: string, itemName: string, pageName: string) => void;
+  createButtonTitle: string;
 };
 
 type Props = ReduxStateProps &
@@ -190,9 +233,6 @@ class EditorSidebar extends React.Component<Props, State> {
       itemDragging: "",
     };
   }
-  handleCreateNew = () => {
-    this.props.onItemCreateClick();
-  };
 
   handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
     const value = e.target.value;
@@ -201,8 +241,8 @@ class EditorSidebar extends React.Component<Props, State> {
     });
   };
 
-  handleItemSelect = (itemId: string) => {
-    this.props.onItemSelected(itemId);
+  handleItemSelect = (itemId: string, itemPageId: string) => {
+    this.props.onItemSelected(itemId, itemPageId);
   };
 
   onDragEnd = (result: DropResult) => {
@@ -260,11 +300,27 @@ class EditorSidebar extends React.Component<Props, State> {
     });
   };
 
+  handleCreateNew = (pageId: string) => {
+    this.props.onItemCreateClick(pageId);
+  };
+
   render() {
-    const { isLoading, itemRender, selectedItemId, draftIds } = this.props;
+    const {
+      isLoading,
+      itemRender,
+      selectedItemId,
+      draftIds,
+      location,
+      createButtonTitle,
+    } = this.props;
+
     const { search } = this.state;
     const filteredList = this.getSearchFilteredList();
     const pageWiseList = this.getPageWiseList(filteredList);
+    const destinationPageId = new URLSearchParams(location.search).get(
+      "importTo",
+    );
+
     return (
       <React.Fragment>
         {isLoading ? (
@@ -282,11 +338,6 @@ class EditorSidebar extends React.Component<Props, State> {
                     onChange: this.handleSearchChange,
                   }}
                   placeholder="Search"
-                />
-                <CreateNewButton
-                  text="Create new API"
-                  icon={FormIcons.ADD_NEW_ICON()}
-                  onClick={this.handleCreateNew}
                 />
               </Controls>
               <DragDropContext
@@ -312,9 +363,21 @@ class EditorSidebar extends React.Component<Props, State> {
                             >
                               {provided.placeholder}
                               <div>
+                                <StyledAddButton
+                                  text={createButtonTitle}
+                                  icon="plus"
+                                  fluid
+                                  className={
+                                    destinationPageId === page.id
+                                      ? "highlightButton"
+                                      : "createBtn"
+                                  }
+                                  style={{ padding: "10px" }}
+                                  onClick={() => this.handleCreateNew(page.id)}
+                                />
                                 {page.items.length === 0 && (
                                   <NoItemMessage>
-                                    {"No item on this page yet"}
+                                    {"No APIs on this page yet"}
                                   </NoItemMessage>
                                 )}
                                 {page.items.map((item: Item, index) => (
@@ -334,7 +397,10 @@ class EditorSidebar extends React.Component<Props, State> {
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         onClick={() =>
-                                          this.handleItemSelect(item.id)
+                                          this.handleItemSelect(
+                                            item.id,
+                                            item.pageId,
+                                          )
                                         }
                                       >
                                         {itemRender(item)}
@@ -346,8 +412,13 @@ class EditorSidebar extends React.Component<Props, State> {
                                                 draftIds.indexOf(item.id) === -1
                                               }
                                             />
-                                            <ContextDropdown
-                                              options={[
+                                            <TreeDropdown
+                                              defaultText=""
+                                              onSelect={() => {
+                                                return null;
+                                              }}
+                                              selectedValue=""
+                                              optionTree={[
                                                 {
                                                   value: "copy",
                                                   onSelect: () => null,
@@ -396,12 +467,12 @@ class EditorSidebar extends React.Component<Props, State> {
                                                   intent: "danger",
                                                 },
                                               ]}
-                                              toggle={{
-                                                type: "icon",
-                                                icon: "MORE_HORIZONTAL_CONTROL",
-                                                iconSize: theme.fontSizes[4],
-                                              }}
-                                              className="more"
+                                              toggle={
+                                                <ControlIcons.MORE_HORIZONTAL_CONTROL
+                                                  width={theme.fontSizes[4]}
+                                                  height={theme.fontSizes[4]}
+                                                />
+                                              }
                                             />
                                           </React.Fragment>
                                         )}

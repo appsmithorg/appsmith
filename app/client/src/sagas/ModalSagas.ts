@@ -44,6 +44,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       topRow: 0,
       columns: 0,
       rows: 0,
+      tabId: "",
     };
     yield put({
       type: ReduxActionTypes.WIDGET_ADD_CHILD,

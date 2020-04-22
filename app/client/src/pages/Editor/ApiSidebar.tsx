@@ -12,13 +12,19 @@ import {
   copyActionRequest,
   deleteAction,
 } from "actions/actionActions";
-import { changeApi, initApiPane } from "actions/apiPaneActions";
+import {
+  changeApi,
+  createNewApiAction,
+  initApiPane,
+} from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
 import { getPluginIdOfName } from "selectors/entitiesSelector";
-import { DEFAULT_API_ACTION, PLUGIN_NAME } from "constants/ApiEditorConstants";
+import { PLUGIN_NAME } from "constants/ApiEditorConstants";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { API_PANE_V2, checkForFlag } from "utils/featureFlags";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -31,6 +37,8 @@ const HTTPMethod = styled.span<{ method?: string }>`
         return "#F7C75B";
       case "PUT":
         return "#30A5E0";
+      case "PATCH":
+        return "#8E8E8E";
       case "DELETE":
         return "#CE4257";
       default:
@@ -51,6 +59,7 @@ const ActionName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100px;
 `;
 
 interface ReduxStateProps {
@@ -71,6 +80,7 @@ interface ReduxDispatchProps {
   ) => void;
   copyAction: (id: string, pageId: string, name: string) => void;
   deleteAction: (id: string, name: string) => void;
+  createNewApiAction: (pageId: string) => void;
 }
 
 type Props = ReduxStateProps &
@@ -91,19 +101,6 @@ class ApiSidebar extends React.Component<Props> {
     }
     return nextProps.actions !== this.props.actions;
   }
-
-  handleCreateNew = () => {
-    const { actions } = this.props;
-    const { pageId } = this.props.match.params;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newName = getNextEntityName("Api", pageApiNames);
-    this.props.createAction({ ...DEFAULT_API_ACTION, name: newName, pageId });
-    AnalyticsUtil.logEvent("CREATE_API_CLICK", {
-      apiName: newName,
-    });
-  };
 
   handleApiChange = (actionId: string) => {
     this.props.onApiChange(actionId);
@@ -169,6 +166,23 @@ class ApiSidebar extends React.Component<Props> {
     );
   };
 
+  handleCreateNewApiClick = (selectedPageId: string) => {
+    const { history, createNewApiAction } = this.props;
+    const { pageId, applicationId } = this.props.match.params;
+    const v2Flag = checkForFlag(API_PANE_V2);
+    if (v2Flag) {
+      history.push(
+        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+          applicationId,
+          pageId,
+          selectedPageId,
+        ),
+      );
+    } else {
+      createNewApiAction(selectedPageId);
+    }
+  };
+
   render() {
     const {
       apiPane: { isFetching, drafts },
@@ -187,11 +201,12 @@ class ApiSidebar extends React.Component<Props> {
         selectedItemId={apiId}
         draftIds={Object.keys(drafts)}
         itemRender={this.renderItem}
-        onItemCreateClick={this.handleCreateNew}
+        onItemCreateClick={this.handleCreateNewApiClick}
         onItemSelected={this.handleApiChange}
         moveItem={this.handleMove}
         copyItem={this.handleCopy}
         deleteItem={this.handleDelete}
+        createButtonTitle="Create new API"
       />
     );
   }
@@ -221,6 +236,7 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
     dispatch(copyActionRequest({ id, destinationPageId, name })),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
+  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiSidebar);

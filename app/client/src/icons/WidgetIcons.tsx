@@ -14,9 +14,11 @@ import { ReactComponent as SwitchIcon } from "assets/icons/widget/switch.svg";
 import { ReactComponent as TextIcon } from "assets/icons/widget/text.svg";
 import { ReactComponent as ImageIcon } from "assets/icons/widget/image.svg";
 import { ReactComponent as FilePickerIcon } from "assets/icons/widget/filepicker.svg";
+import { ReactComponent as TabsIcon } from "assets/icons/widget/tabs.svg";
 import { ReactComponent as RichTextEditorIcon } from "assets/icons/widget/rich-text.svg";
 import { ReactComponent as ChartIcon } from "assets/icons/widget/chart.svg";
 import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
+import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
 
 /* eslint-disable react/display-name */
 
@@ -98,6 +100,11 @@ export const WidgetIcons: {
       <FilePickerIcon />
     </IconWrapper>
   ),
+  TABS_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <TabsIcon />
+    </IconWrapper>
+  ),
   CHART_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <ChartIcon />
@@ -106,6 +113,11 @@ export const WidgetIcons: {
   FORM_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <FormIcon />
+    </IconWrapper>
+  ),
+  MAP_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MapIcon />
     </IconWrapper>
   ),
 };

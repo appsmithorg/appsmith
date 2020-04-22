@@ -1,8 +1,8 @@
 {
     "editIcon":".t--widget-propertypane-toggle",
-    "editPropCrossButton":"span[icon='cross']",
+    "editPropCrossButton":".t--property-pane-close-btn",
     "deleteWidgetIcon":".t--widget-delete-control",
-    "dropdownSelectButton":".t--open-dropdown-Select"
+    "dropdownSelectButton":".t--open-dropdown-Select-Action"
    
 
 }

@@ -184,8 +184,8 @@ class AnalyticsUtil {
 
   static reset() {
     const windowDoc: any = window;
-    windowDoc.analytics.reset();
-    windowDoc.mixpanel.reset();
+    windowDoc.analytics && windowDoc.analytics.reset();
+    windowDoc.mixpanel && windowDoc.mixpanel.reset();
   }
 }
 

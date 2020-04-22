@@ -8,12 +8,12 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ControlConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { PropertyControlPropsType } from "components/propertyControls";
 import { Tooltip, Position } from "@blueprintjs/core";
 
 type Props = {
   widgetProperties: WidgetProps;
-  propertyConfig: ControlConfig;
+  propertyConfig: PropertyControlPropsType;
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
 };

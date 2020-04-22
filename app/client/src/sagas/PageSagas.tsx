@@ -55,6 +55,7 @@ import {
 } from "selectors/editorSelectors";
 import { fetchActionsForPage } from "actions/actionActions";
 import { getExistingWidgetNames } from "./selectors";
+import { clearCaches } from "utils/DynamicBindingUtils";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -121,6 +122,8 @@ export function* fetchPageSaga(
     });
     const isValidResponse = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
+      // Clear any existing caches
+      clearCaches();
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
       // Update the canvas
@@ -157,6 +160,8 @@ export function* fetchPublishedPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      // Clear any existing caches
+      clearCaches();
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
       yield put(updateCanvas(canvasWidgetsPayload));
       yield put(updateCurrentPage(pageId));

@@ -1,9 +1,8 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import { forIn } from "lodash";
-import TableComponent from "components/designSystems/syncfusion/TableComponent";
 
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -14,12 +13,19 @@ import { ColumnModel } from "@syncfusion/ej2-grids";
 import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import Skeleton from "components/utils/Skeleton";
+
+const TableComponent = lazy(() =>
+  import(
+    /* webpackPrefetch: true, webpackChunkName: "table" */ "components/designSystems/syncfusion/TableComponent"
+  ),
+);
 
 function constructColumns(
   data: object[],
   hiddenColumns?: string[],
 ): ColumnModel[] | ColumnDirTypecast[] {
-  const cols: ColumnModel[] | ColumnDirTypecast[] = [];
+  let cols: ColumnModel[] | ColumnDirTypecast[] = [];
   const listItemWithAllProperties = {};
   data.forEach(dataItem => {
     Object.assign(listItemWithAllProperties, dataItem);
@@ -30,6 +36,9 @@ function constructColumns(
       visible: !hiddenColumns?.includes(key),
     });
   });
+  cols = (cols as any[]).filter(col => col.field !== "_color") as
+    | ColumnModel[]
+    | ColumnDirTypecast[];
   return cols;
 }
 
@@ -50,6 +59,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedRow: "{{this.tableData[this.selectedRowIndex]}}",
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      pageNo: 1,
+      pageSize: undefined,
+      selectedRowIndex: -1,
     };
   }
 
@@ -75,32 +92,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
     return (
-      <TableComponent
-        data={this.props.tableData}
-        columns={columns}
-        isLoading={this.props.isLoading}
-        height={componentHeight}
-        width={componentWidth}
-        disableDrag={(disable: boolean) => {
-          this.disableDrag(disable);
-        }}
-        columnActions={this.props.columnActions}
-        onCommandClick={this.onCommandClick}
-        onRowClick={this.handleRowClick}
-        selectedRowIndex={this.props.selectedRowIndex || -1}
-        serverSidePaginationEnabled={serverSidePaginationEnabled}
-        pageNo={pageNo}
-        nextPageClick={this.handleNextPageClick}
-        prevPageClick={this.handlePrevPageClick}
-        updatePageNo={(pageNo: number) => {
-          super.updateWidgetMetaProperty("pageNo", pageNo);
-        }}
-        updateHiddenColumns={this.updateHiddenColumns}
-        resetSelectedRowIndex={this.resetSelectedRowIndex}
-        updatePageSize={(pageSize: number) => {
-          super.updateWidgetMetaProperty("pageSize", pageSize);
-        }}
-      />
+      <Suspense fallback={<Skeleton />}>
+        <TableComponent
+          id={this.props.widgetName}
+          data={this.props.tableData}
+          columns={columns}
+          isLoading={this.props.isLoading}
+          height={componentHeight}
+          width={componentWidth}
+          disableDrag={(disable: boolean) => {
+            this.disableDrag(disable);
+          }}
+          columnActions={this.props.columnActions}
+          onCommandClick={this.onCommandClick}
+          onRowClick={this.handleRowClick}
+          selectedRowIndex={this.props.selectedRowIndex || -1}
+          serverSidePaginationEnabled={serverSidePaginationEnabled}
+          pageNo={pageNo}
+          nextPageClick={this.handleNextPageClick}
+          prevPageClick={this.handlePrevPageClick}
+          updatePageNo={(pageNo: number) => {
+            super.updateWidgetMetaProperty("pageNo", pageNo);
+          }}
+          updateHiddenColumns={this.updateHiddenColumns}
+          resetSelectedRowIndex={this.resetSelectedRowIndex}
+          updatePageSize={(pageSize: number) => {
+            super.updateWidgetMetaProperty("pageSize", pageSize);
+          }}
+          exportCsv={this.props.exportCsv}
+          exportPDF={this.props.exportPDF}
+          exportExcel={this.props.exportExcel}
+        />
+      </Suspense>
     );
   }
 

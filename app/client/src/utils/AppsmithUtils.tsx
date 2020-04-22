@@ -3,12 +3,9 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
-import PropertyControlRegistry from "./PropertyControlRegistry";
-import WidgetBuilderRegistry from "./WidgetRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
-import moment from "moment-timezone";
-import ValidationRegistry from "./ValidationRegistry";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 
@@ -26,10 +23,6 @@ export const createReducer = (
 };
 
 export const appInitializer = () => {
-  WidgetBuilderRegistry.registerWidgetBuilders();
-  PropertyControlRegistry.registerPropertyControlBuilders();
-  ValidationRegistry.registerInternalValidators();
-  moment.tz.setDefault(moment.tz.guess());
   const appsmithConfigs = getAppsmithConfigs();
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
     Sentry.init(appsmithConfigs.sentry.config);
@@ -75,6 +68,31 @@ export const getNextEntityName = (prefix: string, existingNames: string[]) => {
   const lastIndex = Math.max(...usedIndices, ...[0]);
 
   return prefix + (lastIndex + 1);
+};
+
+export const getDuplicateName = (prefix: string, existingNames: string[]) => {
+  const trimmedPrefix = prefix.replace(/ /g, "");
+  const regex = new RegExp(`^${trimmedPrefix}(\\d+)$`);
+  const usedIndices: number[] = existingNames.map(name => {
+    if (name && regex.test(name)) {
+      const matches = name.match(regex);
+      const ind =
+        matches && Array.isArray(matches) ? parseInt(matches[1], 10) : 0;
+      return Number.isNaN(ind) ? 0 : ind;
+    }
+    return 0;
+  }) as number[];
+
+  const lastIndex = Math.max(...usedIndices, ...[0]);
+
+  return trimmedPrefix + `_${lastIndex + 1}`;
+};
+
+export const createNewApiName = (actions: ActionDataState, pageId: string) => {
+  const pageApiNames = actions
+    .filter(a => a.config.pageId === pageId)
+    .map(a => a.config.name);
+  return getNextEntityName("Api", pageApiNames);
 };
 
 export const noop = () => {

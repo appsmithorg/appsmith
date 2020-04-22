@@ -12,6 +12,9 @@ import apiPaneSagas from "./ApiPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
 import orgSagas from "./OrgSagas";
+import importedCollectionsSagas from "./CollectionSagas";
+import providersSagas from "./ProvidersSaga";
+import curlImportSagas from "./CurlImportSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 
@@ -30,6 +33,9 @@ export function* rootSaga() {
     spawn(userSagas),
     spawn(pluginSagas),
     spawn(orgSagas),
+    spawn(importedCollectionsSagas),
+    spawn(providersSagas),
+    spawn(curlImportSagas),
     spawn(modalSagas),
     spawn(batchSagas),
   ]);

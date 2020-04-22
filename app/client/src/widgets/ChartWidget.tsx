@@ -1,14 +1,20 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ChartComponent from "components/designSystems/appsmith/ChartComponent";
+// import ChartComponent from "components/designSystems/appsmith/ChartComponent";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import Skeleton from "components/utils/Skeleton";
+
+const ChartComponent = lazy(() =>
+  import(
+    /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/ChartComponent"
+  ),
+);
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
-      chartData: VALIDATION_TYPES.CHART_DATA,
       xAxisName: VALIDATION_TYPES.TEXT,
       yAxisName: VALIDATION_TYPES.TEXT,
       chartName: VALIDATION_TYPES.TEXT,
@@ -18,16 +24,19 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <ChartComponent
-        key={this.props.widgetId}
-        isVisible={this.props.isVisible}
-        chartType={this.props.chartType}
-        xAxisName={this.props.xAxisName}
-        yAxisName={this.props.yAxisName}
-        chartName={this.props.chartName}
-        chartData={this.props.chartData}
-        widgetId={this.props.widgetId}
-      />
+      <Suspense fallback={<Skeleton />}>
+        <ChartComponent
+          key={this.props.widgetId}
+          isVisible={this.props.isVisible}
+          chartType={this.props.chartType}
+          xAxisName={this.props.xAxisName}
+          yAxisName={this.props.yAxisName}
+          chartName={this.props.chartName}
+          chartData={this.props.chartData}
+          widgetId={this.props.widgetId}
+          allowHorizontalScroll={this.props.allowHorizontalScroll}
+        />
+      </Suspense>
     );
   }
 
@@ -44,9 +53,14 @@ export type ChartType =
   | "AREA_CHART"
   | "SCATTER_CHART";
 
-export interface ChartData {
+export interface ChartDataPoint {
   x: any;
   y: any;
+}
+
+export interface ChartData {
+  seriesName?: string;
+  data: ChartDataPoint[];
 }
 
 export interface ChartWidgetProps extends WidgetProps {
@@ -56,6 +70,7 @@ export interface ChartWidgetProps extends WidgetProps {
   yAxisName: string;
   chartName: string;
   isVisible?: boolean;
+  allowHorizontalScroll: boolean;
 }
 
 export default ChartWidget;

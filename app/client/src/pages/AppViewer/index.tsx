@@ -33,6 +33,7 @@ import {
   updateWidgetMetaProperty,
 } from "actions/metaActions";
 import AppRoute from "pages/common/AppRoute";
+import { editorInitializer } from "utils/EditorUtils";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};
@@ -69,7 +70,13 @@ export type AppViewerProps = {
 class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
 > {
+  public state = {
+    registered: false,
+  };
   componentDidMount() {
+    editorInitializer().then(() => {
+      this.setState({ registered: true });
+    });
     const { applicationId } = this.props.match.params;
     if (this.props.match.params.applicationId) {
       this.props.initializeAppViewer(applicationId);
@@ -91,7 +98,7 @@ class AppViewer extends Component<
         ),
         loading: false,
       }));
-
+    if (!this.state.registered) return null;
     return (
       <EditorContext.Provider
         value={{

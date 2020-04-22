@@ -333,6 +333,7 @@ export const theme: Theme = {
     paneInputBG: Colors.SHARK,
     paneBG: Colors.OUTER_SPACE,
     paneText: Colors.GRAY_CHATEAU,
+    paneTextBG: Colors.DEEP_SPACE,
     paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
@@ -384,7 +385,7 @@ export const theme: Theme = {
   headerHeight: "50px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {
-    maxWidth: 300,
+    maxWidth: 220,
     minWidth: 50,
     bgColor: Colors.OXFORD_BLUE,
     fontColor: Colors.WHITE,
@@ -414,6 +415,8 @@ export const theme: Theme = {
   shadows: [
     "0px 2px 4px rgba(67, 70, 74, 0.14)",
     `0px 2px 4px ${Colors.MYSTIC}`,
+    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 4px 0px ${Colors.GREEN}`,
+    `inset -1px 0px 0px ${Colors.ATHENS_GRAY}, inset 1px 0px 0px ${Colors.ATHENS_GRAY}, inset 0px 1px 0px ${Colors.ATHENS_GRAY}`,
   ],
   widgets: {
     tableWidget: {

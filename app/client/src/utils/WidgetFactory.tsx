@@ -36,6 +36,11 @@ class WidgetFactory {
     WidgetType,
     TriggerPropertiesMap
   > = new Map();
+  static defaultPropertiesMap: Map<
+    WidgetType,
+    Record<string, string>
+  > = new Map();
+  static metaPropertiesMap: Map<WidgetType, Record<string, any>> = new Map();
 
   static registerWidgetBuilder(
     widgetType: WidgetType,
@@ -43,11 +48,15 @@ class WidgetFactory {
     widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
     triggerPropertiesMap: TriggerPropertiesMap,
+    defaultPropertiesMap: Record<string, string>,
+    metaPropertiesMap: Record<string, any>,
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
     this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
     this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
     this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
+    this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
+    this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
   }
 
   static createWidget(
@@ -107,6 +116,28 @@ class WidgetFactory {
     const map = this.triggerPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget trigger map is not defined");
+      return {};
+    }
+    return map;
+  }
+
+  static getWidgetDefaultPropertiesMap(
+    widgetType: WidgetType,
+  ): Record<string, string> {
+    const map = this.defaultPropertiesMap.get(widgetType);
+    if (!map) {
+      console.error("Widget default properties not defined");
+      return {};
+    }
+    return map;
+  }
+
+  static getWidgetMetaPropertiesMap(
+    widgetType: WidgetType,
+  ): Record<string, any> {
+    const map = this.metaPropertiesMap.get(widgetType);
+    if (!map) {
+      console.error("Widget meta properties not defined");
       return {};
     }
     return map;

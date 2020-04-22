@@ -4,12 +4,12 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { ActionResponse, RestAction } from "api/ActionAPI";
+import { ActionResponse, RapidApiAction, RestAction } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
 export interface ActionData {
   isLoading: boolean;
-  config: RestAction;
+  config: RestAction | RapidApiAction;
   data?: ActionResponse;
 }
 export type ActionDataState = ActionData[];
@@ -49,7 +49,12 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<RestAction>,
   ): ActionDataState =>
-    state.concat([{ config: action.payload, isLoading: false }]),
+    state.concat([
+      {
+        config: { ...action.payload, id: action.payload.name },
+        isLoading: false,
+      },
+    ]),
   [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
@@ -57,7 +62,7 @@ const actionsReducer = createReducer(initialState, {
     state.map(a => {
       if (
         a.config.pageId === action.payload.pageId &&
-        a.config.name === action.payload.name
+        a.config.id === action.payload.name
       ) {
         return { ...a, config: action.payload };
       }
@@ -70,7 +75,7 @@ const actionsReducer = createReducer(initialState, {
     state.filter(
       a =>
         a.config.name !== action.payload.name &&
-        a.config.pageId !== action.payload.pageId,
+        a.config.id !== action.payload.name,
     ),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
     state: ActionDataState,

@@ -2,13 +2,12 @@ import React from "react";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import { generateReactKey } from "utils/generators";
 import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
+import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
 
 export interface ColumnAction {
   label: string;
@@ -54,7 +53,7 @@ class ColumnActionSelectorControl extends BaseControl<
                   />
                 </Wrapper>
                 <Wrapper>
-                  <DynamicActionCreator
+                  <ActionCreator
                     value={columnAction.dynamicTrigger}
                     isValid={(columnAction as any).isValid}
                     validationMessage={(columnAction as any).message}
@@ -128,7 +127,7 @@ class ColumnActionSelectorControl extends BaseControl<
     this.updateProperty(this.props.propertyName, update);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "COLUMN_ACTION_SELECTOR";
   }
 }

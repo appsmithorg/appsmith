@@ -1,12 +1,12 @@
-import * as React from "react";
+import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import FilePickerComponent from "components/designSystems/appsmith/FilePickerComponent";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -44,6 +44,13 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      files: [],
+      uploadedFileData: {},
     };
   }
 

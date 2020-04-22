@@ -27,6 +27,7 @@ const DatasourcesField = (
   const options = props.datasources.list
     .filter(r => r.pluginId === props.pluginId)
     .filter(r => r.datasourceConfiguration !== null)
+    .filter(r => r.datasourceConfiguration.url)
     .map(r => ({
       label: r.datasourceConfiguration.url.endsWith("/")
         ? r.datasourceConfiguration.url.slice(0, -1)

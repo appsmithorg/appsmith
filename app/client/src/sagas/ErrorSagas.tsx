@@ -59,7 +59,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { message?: string };
+type ErrorPayloadType = { code?: number; message?: string };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -92,7 +92,12 @@ export function* errorSaga(
   } = errorAction;
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
-  if (show) AppToaster.show({ message, type: ToastType.ERROR });
+  if (show && error && error.code !== 401) {
+    // error.code !== 401 IS A HACK!
+    // TODO(abhinav): Figure out a generic way
+    AppToaster.show({ message, type: ToastType.ERROR });
+  }
+
   yield put({
     type: ReduxActionTypes.REPORT_ERROR,
     payload: {

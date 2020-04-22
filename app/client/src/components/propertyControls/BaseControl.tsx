@@ -14,8 +14,6 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
     if (!_.isNil(this.props.onPropertyChange))
       this.props.onPropertyChange(propertyName, propertyValue);
   }
-
-  abstract getControlType(): ControlType;
 }
 
 export interface ControlBuilder<T extends ControlProps> {

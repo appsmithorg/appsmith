@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 
-context("Cypress test", function() {
+describe("RichTextEditor Widget Functionality", function() {
   it("RichTextEditor Widget Functionality", function() {
     cy.NavigateToFormWidgets();
     cy.get(formWidgetsPage.richTextEditorWidget)
@@ -17,13 +17,13 @@ context("Cypress test", function() {
       .click({ force: true })
       .get("ul.bp3-menu")
       .children()
-      .contains("Navigate to URL")
+      .contains("Navigate To")
       .click();
     cy.get(formWidgetsPage.richEditorOnTextChange)
       .get(commonlocators.dropdownSelectButton)
       .find("> span")
       .eq(0)
-      .should("have.text", "Navigate to URL");
+      .should("have.text", "Navigate To");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 });

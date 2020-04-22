@@ -34,7 +34,10 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import { buildWidgetBlueprint } from "sagas/WidgetBlueprintSagas";
+import {
+  buildWidgetBlueprint,
+  executeWidgetBlueprintOperations,
+} from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -64,7 +67,6 @@ function* getChildWidgetProps(
   }
 
   const widgetProps = { ...defaultConfig, ...props, columns, rows, minHeight };
-
   const widget = generateWidgetProps(
     parent,
     type,
@@ -89,7 +91,8 @@ function* generateChildWidgets(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): any {
   const widget = yield getChildWidgetProps(parent, params, widgets);
-  if (widget.blueprint) {
+  widgets[widget.widgetId] = widget;
+  if (widget.blueprint && widget.blueprint.view) {
     const childWidgetList: WidgetAddChild[] = yield call(
       buildWidgetBlueprint,
       widget.blueprint,
@@ -106,8 +109,20 @@ function* generateChildWidgets(
       widgets = props.widgets;
     });
   }
-  widgets[widget.widgetId] = widget;
 
+  widgets[widget.widgetId] = widget;
+  if (
+    widget.blueprint &&
+    widget.blueprint.operations &&
+    widget.blueprint.operations.length > 0
+  ) {
+    widgets = yield call(
+      executeWidgetBlueprintOperations,
+      widget.blueprint.operations,
+      widgets,
+      widget.widgetId,
+    );
+  }
   return { widgetId: widget.widgetId, widgets };
 }
 
@@ -135,6 +150,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
 
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
+    console.log(error);
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
@@ -240,7 +256,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
-
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -258,6 +273,7 @@ function* updateDynamicTriggers(
   propertyName: string,
   propertyValue: string,
 ) {
+  // TODO WIDGETFACTORY
   const triggerProperties = WidgetFactory.getWidgetTriggerPropertiesMap(
     widget.type,
   );
@@ -321,6 +337,7 @@ function* setWidgetDynamicPropertySaga(
 ) {
   const { isDynamic, propertyName, widgetId } = action.payload;
   const widget: WidgetProps = yield select(getWidget, widgetId);
+  // const tree = yield select(evaluateDataTree);
   const propertyValue = widget[propertyName];
   const dynamicProperties: Record<string, true> = {
     ...widget.dynamicProperties,

@@ -3,10 +3,28 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-
+import { WidgetType } from "constants/WidgetConstants";
+import { PropertyConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
+import { generateReactKey } from "utils/generators";
 import ConfigsApi, { PropertyPaneConfigsResponse } from "api/ConfigsApi";
 
 import { validateResponse } from "./ErrorSagas";
+
+const generateConfigWithIds = (config: PropertyConfig) => {
+  const addObjectId = (obj: any) => {
+    obj.id = generateReactKey();
+    if (obj.hasOwnProperty("children")) {
+      obj.children = obj.children.map(addObjectId);
+    }
+    return obj;
+  };
+  Object.keys(config).forEach((widgetType: string) => {
+    config[widgetType as WidgetType] = config[widgetType as WidgetType].map(
+      addObjectId,
+    );
+  });
+  return config;
+};
 
 export function* fetchPropertyPaneConfigsSaga() {
   try {
@@ -15,10 +33,11 @@ export function* fetchPropertyPaneConfigsSaga() {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const config = generateConfigWithIds(response.data.config);
       yield put({
         type: ReduxActionTypes.FETCH_PROPERTY_PANE_CONFIGS_SUCCESS,
         payload: {
-          config: response.data.config,
+          config,
         },
       });
     }

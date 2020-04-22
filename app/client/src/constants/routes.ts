@@ -22,6 +22,13 @@ export type APIEditorRouteParams = {
   apiId?: string;
 };
 
+export type ProviderViewerRouteParams = {
+  applicationId: string;
+  pageId: string;
+  providerId: string;
+  destinationPageId: string;
+};
+
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
   `/applications/${applicationId}`;
 
@@ -53,6 +60,17 @@ export const API_EDITOR_ID_URL = (
   apiId = ":apiId",
 ): string => `${API_EDITOR_URL(applicationId, pageId)}/${apiId}`;
 
+export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  selectedPageId = ":importTo",
+): string => {
+  return `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}/api?importTo=${selectedPageId}`;
+};
+
 export const APP_VIEW_URL = `/applications/:applicationId`;
 
 export const getApplicationViewerURL = (
@@ -82,6 +100,22 @@ function convertToQueryParams(params: Record<string, string> = {}): string {
   }
   return queryParams ? "?" + queryParams : "";
 }
+
+export const getCurlImportPageURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${API_EDITOR_URL(applicationId, pageId)}/curl/curl-import`;
+
+export const getProviderTemplatesURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  providerId = ":providerId",
+  destinationPageId = ":destinationPageId",
+): string =>
+  `${API_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/provider/${providerId}/?importTo=${destinationPageId}`;
 
 export const EDITOR_ROUTES = [
   {

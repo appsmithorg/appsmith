@@ -8,6 +8,7 @@ import {
 import { ActionApiResponse } from "./ActionAPI";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { setRouteBeforeLogin } from "utils/storage";
+import history from "utils/history";
 const { apiUrl, baseUrl } = getAppsmithConfigs();
 
 //TODO(abhinav): Refactor this to make more composable.
@@ -58,8 +59,12 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.headers);
       if (error.response.status === 401) {
         setRouteBeforeLogin(window.location.pathname);
-        window.location.href = AUTH_LOGIN_URL;
-        return;
+        history.push(AUTH_LOGIN_URL);
+        return Promise.reject({
+          code: 401,
+          message: "Unauthorized. Redirecting to login page...",
+          show: false,
+        });
       }
       if (error.response.data.responseMeta) {
         return Promise.resolve(error.response.data);

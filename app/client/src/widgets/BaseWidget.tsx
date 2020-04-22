@@ -67,6 +67,14 @@ abstract class BaseWidget<
     return {};
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
   /**
    *  Widget abstraction to register the widget type
    *  ```javascript
@@ -89,6 +97,15 @@ abstract class BaseWidget<
   disableDrag(disable: boolean) {
     const { disableDrag } = this.context;
     disableDrag && disable !== undefined && disableDrag(disable);
+  }
+
+  updateWidget(
+    operationName: string,
+    widgetId: string,
+    widgetProperties: any,
+  ): void {
+    const { updateWidget } = this.context;
+    updateWidget && updateWidget(operationName, widgetId, widgetProperties);
   }
 
   updateWidgetProperty(propertyName: string, propertyValue: any): void {

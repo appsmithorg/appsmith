@@ -1,9 +1,6 @@
 import React from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import styled from "styled-components";
-require("tinymce/tinymce");
-require("tinymce/themes/silver");
-
 const StyledRTEditor = styled.div`
   && {
     width: 100%;
@@ -28,6 +25,7 @@ export const RichtextEditorComponent = (
   return (
     <StyledRTEditor>
       <Editor
+        apiKey="joninoujfadq0q38n0us4tu89d2pawl1jxk4q09vcvxyfqrl"
         value={props.defaultValue}
         disabled={props.isDisabled}
         init={{
@@ -41,7 +39,7 @@ export const RichtextEditorComponent = (
             "insertdatetime media table paste code help",
           ],
           toolbar:
-            "undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+            "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
         }}
         onEditorChange={(content: any) => props.onValueChange(content)}
       />

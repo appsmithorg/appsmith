@@ -18,6 +18,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return {
       ...BASE_WIDGET_VALIDATION,
       defaultDate: VALIDATION_TYPES.DATE,
+      selectedDate: VALIDATION_TYPES.DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
@@ -43,19 +44,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
-  componentDidUpdate(prevProps: DatePickerWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    if (this.props.defaultDate) {
-      if (
-        (this.props.selectedDate !== prevProps.selectedDate &&
-          this.props.selectedDate === undefined) ||
-        prevProps.defaultDate === undefined ||
-        this.props.defaultDate.toDateString() !==
-          prevProps.defaultDate.toDateString()
-      ) {
-        this.updateWidgetMetaProperty("selectedDate", this.props.defaultDate);
-      }
-    }
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      selectedDate: "defaultDate",
+    };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      selectedDate: undefined,
+    };
   }
 
   getPageView() {
@@ -64,8 +62,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
         dateFormat={this.props.dateFormat}
         widgetId={this.props.widgetId}
-        timezone={this.props.timezone}
-        enableTimePicker={this.props.enableTimePicker}
+        timezone={
+          this.props.defaultDate && this.props.defaultDate.timezone
+            ? this.props.defaultDate.timezone
+            : ""
+        }
+        enableTimePicker={
+          this.props.defaultDate && this.props.defaultDate.isTimeEnabled
+            ? this.props.defaultDate.isTimeEnabled
+            : false
+        }
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
@@ -95,10 +101,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
 export interface DatePickerWidgetProps extends WidgetProps {
-  defaultDate: Date;
+  defaultDate: {
+    dateValue: number;
+    isTimeEnabled: boolean;
+    timezone: string;
+  };
   selectedDate: Date;
-  timezone?: string;
-  enableTimePicker: boolean;
   isDisabled: boolean;
   dateFormat: string;
   label: string;
