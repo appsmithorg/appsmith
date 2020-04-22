@@ -154,6 +154,9 @@ export const StyledDropDown = styled(DropDown)`
 `;
 
 export const StyledPopover = styled(Popover)`
+  .${Classes.POPOVER_TARGET} {
+    display: flex;
+  }
   div {
     flex: 1 1 auto;
   }
@@ -188,6 +191,9 @@ export const StyledMenuItem = styled(MenuItem)`
     border-radius: ${props => props.theme.radii[1]}px;
     &:hover {
       background: ${Colors.POLAR};
+      &&&.bp3-menu-item.bp3-intent-danger:hover {
+        background: ${props => props.theme.colors.error};
+      }
     }
     &.${Classes.ACTIVE} {
       background: ${Colors.POLAR};

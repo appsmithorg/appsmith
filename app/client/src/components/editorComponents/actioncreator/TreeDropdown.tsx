@@ -28,6 +28,7 @@ type TreeDropdownProps = {
   defaultText: string;
   onSelect: (value: TreeDropdownOption, defaultVal?: string) => void;
   selectedLabelModifier?: (option: TreeDropdownOption) => string;
+  toggle?: React.ReactNode;
 };
 
 function getSelectedOption(
@@ -64,6 +65,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     onSelect,
     getDefaults,
     selectedLabelModifier,
+    toggle,
   } = props;
   const selectedOption = getSelectedOption(
     selectedValue,
@@ -90,6 +92,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         icon={option.id === "create" ? "plus" : undefined}
         onClick={option.children ? _.noop : () => handleSelect(option)}
         text={option.label}
+        intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
@@ -103,19 +106,27 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   const list = optionTree.map(renderTreeOption);
   const menuItems = <Menu>{list}</Menu>;
-  return (
+  const defaultToggle = (
     <StyledDropDownContainer>
-      <StyledPopover usePortal={true} minimal={true} content={menuItems}>
-        <BlueprintButton
-          rightIcon={IconNames.CHEVRON_DOWN}
-          text={
-            selectedLabelModifier
-              ? selectedLabelModifier(selectedOption)
-              : selectedOption.label
-          }
-          className={`t--open-dropdown-${defaultText.split(" ").join("-")}`}
-        />
-      </StyledPopover>
+      <BlueprintButton
+        rightIcon={IconNames.CHEVRON_DOWN}
+        text={
+          selectedLabelModifier
+            ? selectedLabelModifier(selectedOption)
+            : selectedOption.label
+        }
+        className={`t--open-dropdown-${defaultText.split(" ").join("-")}`}
+      />
     </StyledDropDownContainer>
+  );
+  return (
+    <StyledPopover
+      usePortal={true}
+      minimal={true}
+      content={menuItems}
+      position={PopoverPosition.AUTO_END}
+    >
+      {toggle ? toggle : defaultToggle}
+    </StyledPopover>
   );
 }

@@ -37,6 +37,8 @@ const HTTPMethod = styled.span<{ method?: string }>`
         return "#F7C75B";
       case "PUT":
         return "#30A5E0";
+      case "PATCH":
+        return "#8E8E8E";
       case "DELETE":
         return "#CE4257";
       default:
