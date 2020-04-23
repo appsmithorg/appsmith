@@ -26,4 +26,7 @@ public class Connection {
     Type type;
 
     SSLDetails ssl;
+
+    String defaultDatabaseName;
+
 }
