@@ -63,10 +63,6 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
     const date = now.get("date");
     const minDate = now.clone().set({ month, date: date - 1, year: year - 20 });
     const maxDate = now.clone().set({ month, date: date + 1, year: year + 20 });
-    const selectedDate = new Date(
-      new Date(this.props.selectedDate || "").getTime() +
-        this.getOffset(new Date(this.props.selectedDate || "")),
-    );
     return (
       <StyledControlGroup
         fill
@@ -93,12 +89,10 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
             placeholder={this.props.dateFormat}
             disabled={this.props.isDisabled}
             showActionsBar={true}
-            timePrecision={
-              this.props.enableTimePicker ? TimePrecision.MINUTE : undefined
-            }
+            timePrecision={TimePrecision.MINUTE}
             closeOnSelection
             onChange={this.onDateSelected}
-            value={selectedDate}
+            value={this.props.selectedDate}
             maxDate={maxDate.toDate()}
             minDate={minDate.toDate()}
           />
@@ -118,28 +112,17 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
     );
   }
 
-  getOffset = (date: Date) => {
-    const timezone = this.props.timezone || moment.tz.guess();
-    return moment.tz.zone(timezone)!.utcOffset(date.getTime()) * 60 * 1000;
-  };
-
   formatDate = (date: Date): string => {
-    let dateFormat = "DD/MM/YYYY";
-    if (this.props.enableTimePicker) {
-      dateFormat = "DD/MM/YYYY HH:mm";
-    }
+    const dateFormat = "DD/MM/YYYY HH:mm";
     return moment(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr).toDate();
+    return moment(dateStr, "DD/MM/YYYY HH:mm").toDate();
   };
 
   onDateSelected = (selectedDate: Date) => {
-    const dateValue = new Date(
-      selectedDate.getTime() - this.getOffset(selectedDate),
-    ).getTime();
-    this.props.onDateSelected(new Date(dateValue));
+    this.props.onDateSelected(selectedDate);
   };
 }
 
