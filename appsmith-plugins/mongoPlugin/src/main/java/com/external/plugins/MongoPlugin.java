@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class MongoPlugin extends BasePlugin {
          *                                to the parameters in Datasource Configuration
          * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
          * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
-         * @return
+         * @return Result data from executing the action's query.
          */
         @Override
         public Mono<Object> execute(Object connection,
@@ -81,12 +82,13 @@ public class MongoPlugin extends BasePlugin {
 
             ActionExecutionResult result = new ActionExecutionResult();
 
-            String databaseName = datasourceConfiguration.getAuthentication() == null ?
-                    null : datasourceConfiguration.getAuthentication().getDatabaseName();
+            // Explicitly set default database.
+            String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
 
-            if (databaseName == null) {
-                MongoClientURI mongoClientURI = new MongoClientURI(datasourceConfiguration.getUrl());
-                databaseName = mongoClientURI.getDatabase();
+            // If that's not available, pick the authentication database.
+            final AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            if (StringUtils.isEmpty(databaseName) && authentication != null) {
+                databaseName = authentication.getDatabaseName();
             }
 
             MongoDatabase database = mongoClient.getDatabase(databaseName);
@@ -118,7 +120,7 @@ public class MongoPlugin extends BasePlugin {
                         headerArray.put(body);
                     }
 
-                    //The json key constains key "nModified" in case of update command. This signifies the no of
+                    //The json key contains key "nModified" in case of update command. This signifies the no of
                     //documents updated.
                     if (outputJson.has(N_MODIFIED)) {
                         JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
@@ -194,17 +196,22 @@ public class MongoPlugin extends BasePlugin {
             // Delete the trailing comma.
             builder.deleteCharAt(builder.length() - 1);
 
-            boolean addedFinalSlash = false;
-            if (authentication != null) {
-                builder.append('/').append(authentication.getDatabaseName());
-                addedFinalSlash = true;
-            }
+            final String authenticationDatabaseName = authentication == null ? null : authentication.getDatabaseName();
+            builder.append('/').append(authenticationDatabaseName);
+
+            List<String> queryParams = new ArrayList<>();
 
             if (connection.getSsl() != null) {
-                if (!addedFinalSlash) {
-                    builder.append('/');
+                queryParams.add("ssl=true");
+            }
+
+            if (!queryParams.isEmpty()) {
+                builder.append('?');
+                for (String param : queryParams) {
+                    builder.append(param).append('&');
                 }
-                builder.append("?ssl=true");
+                // Delete the trailing ampersand.
+                builder.deleteCharAt(builder.length() - 1);
             }
 
             final String uri = builder.toString();
