@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.ApiTemplate;
+import com.appsmith.external.models.Provider;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ProviderPaginatedDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +56,13 @@ public class MarketplaceController {
         log.debug("Going to get all providers from Marketplace");
         return marketplaceService.getProviders(params)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @GetMapping("/providers/{id}")
+    public Mono<ResponseDTO<Provider>> getProviderByIdFromMarketplace(@PathVariable String id) {
+        log.debug("Going to get provider from Marketplace with id {}", id);
+        return marketplaceService.getProviderById(id)
+                .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
     @GetMapping("/categories")
