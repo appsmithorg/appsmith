@@ -12,6 +12,7 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
+import moment from "moment-timezone";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -60,29 +61,22 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return (
       <DatePickerComponent
         label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
-        dateFormat={this.props.dateFormat}
+        dateFormat={"DD/MM/YYYY HH:mm"}
         widgetId={this.props.widgetId}
-        timezone={
-          this.props.defaultDate && this.props.defaultDate.timezone
-            ? this.props.defaultDate.timezone
-            : ""
-        }
-        enableTimePicker={
-          this.props.defaultDate && this.props.defaultDate.isTimeEnabled
-            ? this.props.defaultDate.isTimeEnabled
-            : false
-        }
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
-        selectedDate={this.props.selectedDate}
+        selectedDate={moment(this.props.selectedDate).toDate()}
         isLoading={this.props.isLoading}
       />
     );
   }
 
   onDateSelected = (selectedDate: Date) => {
-    this.updateWidgetMetaProperty("selectedDate", selectedDate);
+    this.updateWidgetMetaProperty(
+      "selectedDate",
+      moment(selectedDate).toISOString(true),
+    );
     if (this.props.onDateSelected) {
       super.executeAction({
         dynamicString: this.props.onDateSelected,
@@ -101,12 +95,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
 export type DatePickerType = "DATE_PICKER" | "DATE_RANGE_PICKER";
 
 export interface DatePickerWidgetProps extends WidgetProps {
-  defaultDate: {
-    dateValue: number;
-    isTimeEnabled: boolean;
-    timezone: string;
-  };
-  selectedDate: Date;
+  defaultDate: string;
+  selectedDate: string;
   isDisabled: boolean;
   dateFormat: string;
   label: string;

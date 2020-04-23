@@ -406,28 +406,124 @@ export const getEntityDependencies = (
   return [];
 };
 
-const valueCache: Map<
+const dynamicPropValueCache: Map<
   string,
   {
     unEvaluated: any;
     evaluated: any;
+  }
+> = new Map();
+
+const parsedValueCache: Map<
+  string,
+  {
+    value: any;
     version: number;
   }
 > = new Map();
 
-const getValueCache = (propertyPath: string) =>
-  valueCache.get(propertyPath) || {
-    unEvaluated: undefined,
-    evaluated: undefined,
+const getDynamicPropValueCache = (propertyPath: string) =>
+  dynamicPropValueCache.get(propertyPath);
+
+const getParsedValueCache = (propertyPath: string) =>
+  parsedValueCache.get(propertyPath) || {
+    value: undefined,
     version: 0,
   };
+
+export const clearPropertyCache = (propertyPath: string) =>
+  parsedValueCache.delete(propertyPath);
 
 const dependencyCache: Map<string, any[]> = new Map();
 
 export const clearCaches = () => {
-  valueCache.clear();
+  dynamicPropValueCache.clear();
   dependencyCache.clear();
+  parsedValueCache.clear();
 };
+
+function getCurrentDependencyValues(
+  propertyDependencies: Array<string>,
+  currentTree: DataTree,
+  currentPropertyPath: string,
+): Array<string> {
+  return propertyDependencies
+    ? propertyDependencies
+        .map((path: string) => {
+          //*** Remove current path from data tree because cached value contains evaluated version while this contains unevaluated version */
+          const cleanDataTree = _.omit(currentTree, [currentPropertyPath]);
+          return _.get(cleanDataTree, path);
+        })
+        .filter((data: any) => {
+          return data !== undefined;
+        })
+    : [];
+}
+
+function evaluateDynamicProperty(
+  propertyPath: string,
+  currentTree: DataTree,
+  unEvalPropertyValue: any,
+  currentDependencyValues: Array<string>,
+  cachedDependencyValues?: Array<string>,
+): any {
+  const cacheObj = getDynamicPropValueCache(propertyPath);
+  const isCacheHit =
+    cacheObj &&
+    equal(cacheObj.unEvaluated, unEvalPropertyValue) &&
+    cachedDependencyValues !== undefined &&
+    equal(currentDependencyValues, cachedDependencyValues);
+  if (isCacheHit && cacheObj) {
+    return cacheObj.evaluated;
+  } else {
+    log.debug("eval " + propertyPath);
+    const dynamicResult = getDynamicValue(unEvalPropertyValue, currentTree);
+    dynamicPropValueCache.set(propertyPath, {
+      evaluated: dynamicResult.result,
+      unEvaluated: unEvalPropertyValue,
+    });
+    dependencyCache.set(propertyPath, currentDependencyValues);
+    return dynamicResult.result;
+  }
+}
+
+function validateAndParseWidgetProperty(
+  propertyPath: string,
+  widget: DataTreeWidget,
+  currentTree: DataTree,
+  evalPropertyValue: any,
+  currentDependencyValues: Array<string>,
+  cachedDependencyValues?: Array<string>,
+): any {
+  const propertyName = propertyPath.split(".")[1];
+  const { parsed, isValid, message } = ValidationFactory.validateWidgetProperty(
+    widget.type,
+    propertyName,
+    evalPropertyValue,
+    widget,
+    currentTree,
+  );
+  if (!isValid) {
+    _.set(widget, `invalidProps.${propertyName}`, true);
+    _.set(widget, `validationMessages.${propertyName}`, message);
+  }
+  const parsedCache = getParsedValueCache(propertyPath);
+  if (
+    !equal(parsedCache.value, parsed) ||
+    (cachedDependencyValues !== undefined &&
+      !equal(currentDependencyValues, cachedDependencyValues))
+  ) {
+    parsedValueCache.set(propertyPath, {
+      value: parsed,
+      version: Date.now(),
+    });
+  }
+  return parsed;
+}
+
+function isWidget(entity: DataTreeEntity): boolean {
+  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
+}
 
 export function dependencySortedEvaluateDataTree(
   dataTree: DataTree,
@@ -440,99 +536,68 @@ export function dependencySortedEvaluateDataTree(
       (currentTree: DataTree, propertyPath: string) => {
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
-        let unEvalPropertyValue = _.get(currentTree as any, propertyPath);
-        let evalPropertyValue = unEvalPropertyValue;
+        const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
+        let evalPropertyValue = undefined;
+        const propertyDependencies = dependencyMap[propertyPath];
+        const currentDependencyValues = getCurrentDependencyValues(
+          propertyDependencies,
+          currentTree,
+          propertyPath,
+        );
+        const cachedDependencyValues = dependencyCache.get(propertyPath);
         const requiresEval = isDynamicValue(unEvalPropertyValue);
         if (requiresEval) {
           try {
-            const propertyDependencies = dependencyMap[propertyPath];
-            const currentDependencyValues = propertyDependencies
-              ? propertyDependencies
-                  .map((path: string) => {
-                    //*** Remove current path from data tree because cached value contains evaluated version while this contains unevaluated version */
-                    const cleanDataTree = _.omit(currentTree, [propertyPath]);
-                    return _.get(cleanDataTree, path);
-                  })
-                  .filter((data: any) => {
-                    return data !== undefined;
-                  })
-              : [];
-            const cachedDependencyValues = dependencyCache.get(propertyPath);
-            const cacheObj = getValueCache(propertyPath);
-            const isCacheHit =
-              cacheObj.version !== 0 &&
-              equal(cacheObj.unEvaluated, unEvalPropertyValue) &&
-              cachedDependencyValues !== undefined &&
-              equal(currentDependencyValues, cachedDependencyValues);
-            if (isCacheHit) {
-              evalPropertyValue = cacheObj.evaluated;
-            } else {
-              log.debug("eval " + propertyPath);
-              const dynamicResult = getDynamicValue(
-                unEvalPropertyValue,
-                currentTree,
-              );
-              evalPropertyValue = dynamicResult.result;
-              valueCache.set(propertyPath, {
-                evaluated: evalPropertyValue,
-                unEvaluated: unEvalPropertyValue,
-                version: Date.now(),
-              });
-              dependencyCache.set(propertyPath, currentDependencyValues);
-              evalPropertyValue = dynamicResult.result;
-            }
+            evalPropertyValue = evaluateDynamicProperty(
+              propertyPath,
+              currentTree,
+              unEvalPropertyValue,
+              currentDependencyValues,
+              cachedDependencyValues,
+            );
           } catch (e) {
             console.error(e);
             evalPropertyValue = undefined;
-            unEvalPropertyValue = undefined;
           }
         } else {
-          const currentCache = getValueCache(propertyPath);
-          if (!equal(currentCache.evaluated, evalPropertyValue)) {
-            valueCache.set(propertyPath, {
-              evaluated: evalPropertyValue,
-              unEvaluated: currentCache.unEvaluated,
-              version: Date.now(),
-            });
-          }
+          evalPropertyValue = unEvalPropertyValue;
         }
-        if (
-          "ENTITY_TYPE" in entity &&
-          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
-        ) {
+        if (isWidget(entity)) {
+          const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
           const propertyName = propertyPath.split(".")[1];
-          evalPropertyValue = overwriteDefaultDependentProps(
-            evalPropertyValue,
-            propertyName,
+          let parsedValue = validateAndParseWidgetProperty(
             propertyPath,
-            entity,
-          );
-          const {
-            parsed,
-            isValid,
-            message,
-          } = ValidationFactory.validateWidgetProperty(
-            entity.type,
-            propertyName,
-            evalPropertyValue,
-            entity,
+            widgetEntity,
             currentTree,
+            evalPropertyValue,
+            currentDependencyValues,
+            cachedDependencyValues,
           );
-          evalPropertyValue = parsed;
-          if (!isValid) {
-            _.set(entity, `invalidProps.${propertyName}`, true);
-            _.set(entity, `validationMessages.${propertyName}`, message);
+          const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+            widgetEntity.type,
+          );
+          const hasDefaultProperty = propertyName in defaultPropertyMap;
+          if (hasDefaultProperty) {
+            const defaultProperty = defaultPropertyMap[propertyName];
+            parsedValue = overwriteDefaultDependentProps(
+              defaultProperty,
+              parsedValue,
+              propertyPath,
+              widgetEntity,
+            );
           }
+          return _.set(currentTree, propertyPath, parsedValue);
+        } else {
+          return _.set(currentTree, propertyPath, evalPropertyValue);
+          // const parsedCache = getParsedValueCache(propertyPath)
+          // if (!equal(parsedCache.evaluated, evalPropertyValue)) {
+          //   valueCache.set(propertyPath, {
+          //     evaluated: evalPropertyValue,
+          //     unEvaluated: parsedCache.unEvaluated,
+          //     version: Date.now(),
+          //   });
+          // }
         }
-        const currentCache = getValueCache(propertyPath);
-        if (!equal(currentCache.evaluated, evalPropertyValue)) {
-          valueCache.set(propertyPath, {
-            evaluated: evalPropertyValue,
-            unEvaluated: currentCache.unEvaluated,
-            version: Date.now(),
-          });
-        }
-        return _.set(currentTree, propertyPath, evalPropertyValue);
       },
       tree,
     );
@@ -543,28 +608,28 @@ export function dependencySortedEvaluateDataTree(
 }
 
 const overwriteDefaultDependentProps = (
+  defaultProperty: string,
   propertyValue: any,
-  propertyName: string,
   propertyPath: string,
   entity: DataTreeWidget,
 ) => {
-  const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-    entity.type,
+  const defaultPropertyCache = getParsedValueCache(
+    `${entity.widgetName}.${defaultProperty}`,
   );
-  const hasDefaultProperty = propertyName in defaultPropertyMap;
-  if (hasDefaultProperty) {
-    const defaultProperty = defaultPropertyMap[propertyName];
-    const defaultPropertyCache = getValueCache(
-      `${entity.widgetName}.${defaultProperty}`,
-    );
-    const propertyCache = getValueCache(propertyPath);
-    if (
-      propertyValue === undefined ||
-      propertyCache.version < defaultPropertyCache.version
-    ) {
-      return defaultPropertyCache.evaluated;
-    }
-    return propertyValue;
+  const propertyCache = getParsedValueCache(propertyPath);
+  if (
+    propertyValue === undefined ||
+    propertyCache.version < defaultPropertyCache.version
+  ) {
+    return defaultPropertyCache.value;
   }
   return propertyValue;
 };
+
+/*
+
+  Need to evaluated values
+  Need to validate widget values
+  Need to replace with default values
+
+ */

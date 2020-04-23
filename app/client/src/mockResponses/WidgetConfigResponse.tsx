@@ -1,5 +1,6 @@
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
+import moment from "moment-timezone";
 
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
@@ -87,11 +88,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       label: "Date",
       widgetName: "DatePicker",
-      defaultDate: {
-        dateValue: new Date().getTime(),
-        timezone: "",
-        isTimeEnabled: true,
-      },
+      defaultDate: moment().toISOString(true),
     },
     TABLE_WIDGET: {
       rows: 7,
