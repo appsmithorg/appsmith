@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,5 +51,11 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
     public Mono<ResponseDTO<List<Plugin>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         return service.get(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @GetMapping("/{pluginId}/form")
+    public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
+        return service.getFormConfig(pluginId)
+                .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
     }
 }
