@@ -323,6 +323,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .hour(0)
       .minute(0)
       .second(0)
+      .millisecond(0)
       .toISOString(true);
     if (value === undefined) {
       return {
