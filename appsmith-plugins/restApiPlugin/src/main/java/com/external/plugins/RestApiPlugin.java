@@ -241,8 +241,13 @@ public class RestApiPlugin extends BasePlugin {
                 return Mono.just(new DatasourceTestResult("Invalid URL: '" + e.getMessage() + "'."));
             }
 
+            int port = url.getPort();
+            if (port <= 0) {
+                return Mono.just(new DatasourceTestResult("Invalid Port: '" + port + "'."));
+            }
+
             try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 300);
+                socket.connect(new InetSocketAddress(url.getHost(), port), 300);
 
             } catch (IOException e) {
                 return Mono.just(
@@ -262,7 +267,8 @@ public class RestApiPlugin extends BasePlugin {
                 if (StringUtils.isNotEmpty(key)) {
                     String value = header.getValue();
                     webClientBuilder.defaultHeader(key, value);
-                    if (key.equals("Content-Type") && value.equals(MediaType.APPLICATION_JSON_VALUE)) {
+                    
+                    if (key.toLowerCase().equals(HttpHeaders.CONTENT_TYPE.toLowerCase()) && value.equals(MediaType.APPLICATION_JSON_VALUE)) {
                         isContentTypeJson = true;
                     }
                 }

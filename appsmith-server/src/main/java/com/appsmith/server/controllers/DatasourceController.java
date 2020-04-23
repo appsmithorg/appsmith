@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,10 +42,6 @@ public class DatasourceController extends BaseController<DatasourceService, Data
                         return Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
                     }
                 })
-                .map(testResult -> {
-                    ResponseDTO<DatasourceTestResult> response = new ResponseDTO<>();
-                    response.setData(testResult);
-                    return response;
-                });
+                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 }
