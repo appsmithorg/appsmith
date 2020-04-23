@@ -2,6 +2,8 @@ import { transformRestAction } from "transformers/RestActionTransformer";
 import { RestAction } from "api/ActionAPI";
 
 const input: RestAction = {
+  pageId: "",
+  pluginId: "",
   id: "testId",
   datasource: {
     id: "testDataSource",
@@ -21,6 +23,8 @@ const input: RestAction = {
 };
 
 const output = {
+  pageId: "",
+  pluginId: "",
   id: "testId",
   datasource: {
     id: "testDataSource",

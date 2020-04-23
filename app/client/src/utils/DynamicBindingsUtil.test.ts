@@ -10,6 +10,7 @@ import {
   parseDynamicString,
 } from "./DynamicBindingUtils";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 
 jest.mock("jsExecution/RealmExecutor", () => {
   return jest.fn().mockImplementation(() => {
@@ -28,6 +29,7 @@ it("Gets the value from the data tree", () => {
     GetUsers: {
       data: { text: "correct data" },
       config: {
+        pluginId: "",
         id: "id",
         name: "text",
         actionConfiguration: {},
@@ -77,43 +79,121 @@ describe.each([
   });
 });
 
+const baseWidgetProps = {
+  parentColumnSpace: 0,
+  parentRowSpace: 0,
+  parentId: "0",
+  type: WidgetTypes.BUTTON_WIDGET,
+  renderMode: RenderModes.CANVAS,
+  leftColumn: 0,
+  rightColumn: 0,
+  topRow: 0,
+  bottomRow: 0,
+  isLoading: false,
+};
+
 it("evaluates the data tree", () => {
-  const input = {
+  const input: DataTree = {
     widget1: {
+      ...baseWidgetProps,
+      widgetId: "1",
+      widgetName: "widget1",
       displayValue: "{{widget2.computedProperty}}",
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
     widget2: {
+      ...baseWidgetProps,
+      widgetId: "2",
+      widgetName: "widget2",
       computedProperty: "{{ widget2.data[widget2.index] }}",
-      data: "{{ apiData.node }}",
+      data: "{{ apiData.data }}",
       index: 2,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
     apiData: {
-      node: ["wrong value", "still wrong", "correct"],
+      config: {
+        id: "123",
+        pageId: "1234",
+        datasource: {},
+        name: "api",
+        actionConfiguration: {},
+        jsonPathKeys: [],
+        pluginId: "plugin",
+      },
+      run: (onSuccess, onError) => ({
+        type: "RUN_ACTION",
+        payload: {
+          actionId: "",
+          onSuccess: "",
+          onError: "",
+        },
+      }),
+      isLoading: false,
+      data: ["wrong value", "still wrong", "correct"],
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
     },
   };
 
-  const dynamicBindings = [
-    ["widget1.displayValue", "widget2.computedProperty"],
-    ["widget2.computedProperty", "widget2.data"],
-    ["widget2.computedProperty", "widget2.index"],
-    ["widget2.data", "apiData.node"],
+  const dynamicBindings = {
+    "widget1.displayValue": ["widget2.computedProperty"],
+    "widget2.computedProperty": ["widget2.data", "widget2.index"],
+    "widget2.data": ["apiData.data"],
+  };
+
+  const sortedDeps = [
+    "apiData.data",
+    "widget2.data",
+    "widget2.index",
+    "widget2.computedProperty",
+    "widget1.displayValue",
   ];
 
-  const output = {
+  const output: DataTree = {
     widget1: {
+      ...baseWidgetProps,
+      widgetId: "1",
+      widgetName: "widget1",
       displayValue: "correct",
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
     widget2: {
+      ...baseWidgetProps,
+      widgetId: "2",
+      widgetName: "widget2",
       computedProperty: "correct",
       data: ["wrong value", "still wrong", "correct"],
       index: 2,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
     apiData: {
-      node: ["wrong value", "still wrong", "correct"],
+      config: {
+        id: "123",
+        pageId: "1234",
+        datasource: {},
+        name: "api",
+        actionConfiguration: {},
+        jsonPathKeys: [],
+        pluginId: "plugin",
+      },
+      run: (onSuccess, onError) => ({
+        type: "RUN_ACTION",
+        payload: {
+          actionId: "",
+          onSuccess: "",
+          onError: "",
+        },
+      }),
+      isLoading: false,
+      data: ["wrong value", "still wrong", "correct"],
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
     },
   };
 
-  const result = dependencySortedEvaluateDataTree(input, dynamicBindings, true);
+  const result = dependencySortedEvaluateDataTree(
+    input,
+    dynamicBindings,
+    sortedDeps,
+  );
   expect(result).toEqual(output);
 });
 
