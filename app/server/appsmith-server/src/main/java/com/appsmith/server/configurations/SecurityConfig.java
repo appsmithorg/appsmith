@@ -55,7 +55,7 @@ public class SecurityConfig {
     private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
