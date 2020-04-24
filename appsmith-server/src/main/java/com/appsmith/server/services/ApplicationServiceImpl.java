@@ -8,7 +8,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +31,9 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 @Service
 public class ApplicationServiceImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationService {
 
-    private final SessionUserService sessionUserService;
-
     //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
     //TODO : Solve for this across LayoutService, PageService and ApplicationService.
     private final PageRepository pageRepository;
-    private final ActionRepository actionRepository;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -46,13 +42,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  SessionUserService sessionUserService,
-                                  PageRepository pageRepository,
-                                  ActionRepository actionRepository) {
+                                  PageRepository pageRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.sessionUserService = sessionUserService;
         this.pageRepository = pageRepository;
-        this.actionRepository = actionRepository;
     }
 
     @Override
