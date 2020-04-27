@@ -284,10 +284,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     /**
-     * This function invites a mnew user to the given applicationId. The role for the user is determined
+     * This function invites a new user to the given applicationId. The role for the user is determined
      * by the
      *
-     * @param user
+     * @param inviteUser
      * @param originHeader
      * @param applicationId
      * @return
@@ -304,7 +304,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Get the application details to which the user is being invited to. The current user must have MANAGE_APPLICATION
         // permission on this app
-        Mono<Application> applicationMono = applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationRepository
+                .findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
 
         // Check if the new user is already a part of the appsmith ecosystem. If yes, then simply
@@ -326,11 +327,17 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     // Append the permissions to the application
                     Map<String, Policy> policyMap = invitePermissions.stream()
                             .map(perm -> {
+                                // Create a policy for the invited user using the permission as per the role
+                                Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
+                                        .users(Set.of(inviteUser.getUsername())).build();
+                                // Generate any and all lateral policies that might come with the current permission
                                 Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, inviteUser);
+                                policiesForUser.add(policyWithCurrentPermission);
                                 return policiesForUser;
                             })
                             .flatMap(Collection::stream)
                             .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+
 
                     // Append the user to the existing permission policy if it already exists.
                     for (Policy policy : application.getPolicies()) {
@@ -343,12 +350,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             if (policyMap.get(permission).getGroups() != null) {
                                 policy.getGroups().addAll(policyMap.get(permission).getGroups());
                             }
-                            // Remove this permission from the policyMap
+                            // Remove this permission from the policyMap as this has been accounted for in the above code
                             policyMap.remove(permission);
                         }
                     }
 
-                    // For all the remaining policies, just add them to the set
+                    // For all the remaining policies which exist in the policyMap but didnt exist in the application
+                    // earlier, just add them to the set
                     application.getPolicies().addAll(policyMap.values());
 
                     return application;
