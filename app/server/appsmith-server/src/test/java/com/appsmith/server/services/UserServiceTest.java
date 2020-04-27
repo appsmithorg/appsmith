@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
@@ -22,6 +23,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -124,6 +132,14 @@ public class UserServiceTest {
         newUser.setEmail("new-user-email@email.com");
         newUser.setPassword("new-user-test-password");
 
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .users(Set.of(newUser.getUsername())).build();
+
+        Policy manageUserOrgPolicy = Policy.builder()
+                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of(newUser.getUsername())).build();
+
         Mono<User> userMono = userService.create(newUser);
 
         StepVerifier.create(userMono)
@@ -134,13 +150,15 @@ public class UserServiceTest {
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
+                    assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy));
                 })
                 .verifyComplete();
     }
 
     @Test
+    @DirtiesContext
     @WithUserDetails(value = "api_user")
-    public void inviteUserToApplicationValid() {
+    public void inviteUserToApplicationValidAsAdmin() {
         InviteUser inviteUser = new InviteUser();
         inviteUser.setEmail("inviteUserToApplication@test.com");
         inviteUser.setRole(AppsmithRole.APPLICATION_ADMIN);
@@ -148,27 +166,74 @@ public class UserServiceTest {
         Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications")
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
 
-        Mono<User> userMono = applicationMono.flatMap(application -> {
-            log.debug("In the userMono with application policies: {}", application.getPolicies());
-            return userService.inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId());
-        }).cache();
+        Mono<User> userMono = applicationMono.flatMap(application -> userService
+                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"))
-                .map(application -> {
-                    log.debug("In the updatedAppMono with app policies: {}", application.getPolicies());
-                    return application;
-                });
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"));
 
         StepVerifier.create(Mono.zip(updatedApplication, userMono))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     User user = tuple.getT2();
-                    log.debug("Got the invited user: {}", user);
-                    log.debug("Got the application: {}", application);
-                    log.debug("Got application policies: {}", application.getPolicies());
+
+                    Policy manageAppPolicy = Policy.builder()
+                            .permission(MANAGE_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", user.getUsername()))
+                            .groups(new HashSet<>())
+                            .build();
+
+                    Policy readAppPolicy = Policy.builder()
+                            .permission(READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", user.getUsername()))
+                            .groups(new HashSet<>())
+                            .build();
+
 
                     assertThat(application).isNotNull();
                     assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    assertThat(user).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteUserToApplicationValidAsViewer() {
+        InviteUser inviteUser = new InviteUser();
+        inviteUser.setEmail("inviteUserToApplication@test.com");
+        inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
+
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications")
+                .switchIfEmpty(Mono.error(new Exception("No such app")));
+
+        Mono<User> userMono = applicationMono.flatMap(application -> userService
+                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
+
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"));
+
+
+        StepVerifier.create(Mono.zip(updatedApplication, userMono))
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    User user = tuple.getT2();
+
+                    Policy readAppPolicy = Policy.builder()
+                            .permission(READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", user.getUsername()))
+                            .groups(new HashSet<>())
+                            .build();
+
+                    Policy manageAppPolicy = Policy.builder()
+                            .permission(MANAGE_APPLICATIONS.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+
+                    assertThat(application).isNotNull();
+                    assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
                     assertThat(user).isNotNull();
                 })
                 .verifyComplete();
