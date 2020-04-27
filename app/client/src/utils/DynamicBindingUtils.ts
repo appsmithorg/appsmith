@@ -537,7 +537,7 @@ export function dependencySortedEvaluateDataTree(
         const entityName = propertyPath.split(".")[0];
         const entity: DataTreeEntity = currentTree[entityName];
         const unEvalPropertyValue = _.get(currentTree as any, propertyPath);
-        let evalPropertyValue = undefined;
+        let evalPropertyValue;
         const propertyDependencies = dependencyMap[propertyPath];
         const currentDependencyValues = getCurrentDependencyValues(
           propertyDependencies,
@@ -561,6 +561,11 @@ export function dependencySortedEvaluateDataTree(
           }
         } else {
           evalPropertyValue = unEvalPropertyValue;
+          // If we have stored any previous dependency cache, clear it
+          // since it is no longer a binding
+          if (cachedDependencyValues && cachedDependencyValues.length) {
+            dependencyCache.set(propertyPath, []);
+          }
         }
         if (isWidget(entity)) {
           const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
@@ -589,14 +594,6 @@ export function dependencySortedEvaluateDataTree(
           return _.set(currentTree, propertyPath, parsedValue);
         } else {
           return _.set(currentTree, propertyPath, evalPropertyValue);
-          // const parsedCache = getParsedValueCache(propertyPath)
-          // if (!equal(parsedCache.evaluated, evalPropertyValue)) {
-          //   valueCache.set(propertyPath, {
-          //     evaluated: evalPropertyValue,
-          //     unEvaluated: parsedCache.unEvaluated,
-          //     version: Date.now(),
-          //   });
-          // }
         }
       },
       tree,

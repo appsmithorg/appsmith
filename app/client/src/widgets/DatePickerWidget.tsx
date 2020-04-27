@@ -19,7 +19,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return {
       ...BASE_WIDGET_VALIDATION,
       defaultDate: VALIDATION_TYPES.DATE,
-      selectedDate: VALIDATION_TYPES.DATE,
       timezone: VALIDATION_TYPES.TEXT,
       enableTimePicker: VALIDATION_TYPES.BOOLEAN,
       dateFormat: VALIDATION_TYPES.TEXT,
