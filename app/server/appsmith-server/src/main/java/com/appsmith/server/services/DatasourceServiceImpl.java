@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
@@ -49,7 +50,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  ReactiveMongoTemplate reactiveMongoTemplate,
                                  DatasourceRepository repository,
                                  OrganizationService organizationService,
-                                 AnalyticsService analyticsService,
+                                 AnalyticsService<Datasource> analyticsService,
                                  SessionUserService sessionUserService,
                                  ObjectMapper objectMapper,
                                  PluginService pluginService,
@@ -208,6 +209,20 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .getCurrentUser()
                 .flatMap(user -> repository.findByIdAndOrganizationId(id, user.getCurrentOrganizationId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+    }
+
+    @Override
+    public Mono<Datasource> delete(String id) {
+        Mono<Datasource> datasourceMono = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource", id)));
+        return datasourceMono
+                .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
+                .flatMap(deletedObj ->
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
+                            deletedObj
+                    )
+                );
     }
 
 }
