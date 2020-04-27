@@ -51,7 +51,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * {{JSON.stringify(fetchUsers)}}
      * This pattern should return ["JSON.stringify", "fetchUsers"]
      */
-    private final Pattern pattern = Pattern.compile("[a-zA-Z0-9._]+");
+    private final Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
