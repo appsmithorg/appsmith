@@ -12,7 +12,7 @@ public enum AclPermission {
     /**
      * Notes :
      * 1. Composite permissions are more often than not used in the generation of the hierarchical graphs.
-     *    For example, USER_MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS, etc.
+     * For example, USER_MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS, etc.
      */
 
     // These are generic permissions created to make the transition to the new ACL format easy. They must be removed

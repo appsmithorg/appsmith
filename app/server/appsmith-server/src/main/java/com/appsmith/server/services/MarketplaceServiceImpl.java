@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,7 +172,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
      * the actions used in the organization (across all applications) and templates as well.
      */
     public Mono<List<Provider>> searchProviderByName(String name) {
-        URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + name);
+        URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + URLEncoder.encode(name, StandardCharsets.UTF_8));
 
         return webClient
                 .get()

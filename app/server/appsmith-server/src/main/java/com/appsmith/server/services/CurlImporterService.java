@@ -6,34 +6,36 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-/**
- * -X : Method
- * -H : Headers
- * -d : Body
- */
 
 @Service
 @Slf4j
 public class CurlImporterService extends BaseApiImporter {
 
-    private static final String headerRegex = "\\-H\\s+\\'(.+?)\\'";
-    private static final String methodRegex = "\\-X\\s+(.+?)\\b";
-    private static final String bodyRegex = "\\-d\\s+\\'(.+?)\\'";
-    private static final String pluginName = "restapi-plugin";
+    private static final String RESTAPI_PLUGIN = "restapi-plugin";
+
+    private static final String ARG_DATA = "--data";
+    private static final String ARG_HEADER = "--header";
+    private static final String ARG_REQUEST = "--request";
+    private static final String ARG_COOKIE = "--cookie";
+    private static final String ARG_USER = "--user";
+    private static final String ARG_USER_AGENT = "--user-agent";
+
     private final ActionService actionService;
     private final PluginService pluginService;
 
@@ -44,124 +46,314 @@ public class CurlImporterService extends BaseApiImporter {
 
     @Override
     public Mono<Action> importAction(Object input, String pageId, String name) {
-        String command = (String) input;
-        Action action = new Action();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Datasource datasource = new Datasource();
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-
-        //Set defaults
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-
-
-        // Matches : "-H 'headerKey:headerValue'
-        Pattern headerPattern = Pattern.compile(headerRegex);
-        Matcher headerMatcher = headerPattern.matcher(command);
-
-        //Matches : "-X GET"
-        Pattern methodPattern = Pattern.compile(methodRegex);
-        Matcher methodMatcher = methodPattern.matcher(command);
-
-        //Matches : "-d 'Message body string here'"
-        Pattern bodyPattern = Pattern.compile(bodyRegex);
-        Matcher bodyMatcher = bodyPattern.matcher(command);
-
-        // Find all the headers here
-        List<Property> headers = actionConfiguration.getHeaders();
-        while (headerMatcher.find()) {
-            String headerString = headerMatcher.group();
-            String[] splitHeader = headerString.split("'");
-
-            String header = splitHeader[1];
-            String[] keyValuePairInString = header.split(":");
-
-            Property property = new Property();
-            property.setKey(keyValuePairInString[0]);
-            property.setValue(keyValuePairInString[1]);
-
-            if (headers == null) {
-                headers = new ArrayList<>();
-            }
-
-            headers.add(property);
-        }
-        actionConfiguration.setHeaders(headers);
-
-        // Find the HTTP Method here
-        if (methodMatcher.find()) {
-            String methodString = methodMatcher.group(0);
-            String[] method = methodString.split("\\s+");
-            actionConfiguration.setHttpMethod(HttpMethod.valueOf(method[1]));
-        }
-
-        // If the body exists, find the body here
-        if (bodyMatcher.find()) {
-            String bodyString = bodyMatcher.group();
-            String[] splitBody = bodyString.split("'");
-            actionConfiguration.setBody(splitBody[1]);
-        }
-
-        String[] cmdSplit = command.split("\\s+");
-
-        Boolean urlFound = false;
-        // Find the URL now
-        //Ignoring the first word which is "curl"
-        for (int i = 1; i < cmdSplit.length; i++) {
-            try {
-                // If the string doesn't throw an exception when being converted to a URI, its a valid URL.
-                URI uri = new URL(cmdSplit[i]).toURI();
-                URL url = new URL(cmdSplit[i]);
-                String path = url.getPath();
-                String port = getPort(url);
-                String base = url.getProtocol() + "://" + url.getHost() + port;
-                log.debug("url is: {}, path is: {} & baseUrl is: {}", url, path, base);
-                // If it reaches here, we have successfully found a valid URL.
-                urlFound = true;
-                //Extract query params
-                List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
-                List<Property> queryParameters = actionConfiguration.getQueryParameters();
-                if (queryParameters == null) {
-                    queryParameters = new ArrayList<>();
-                }
-                for (NameValuePair param : params) {
-                    Property queryParam = new Property();
-                    queryParam.setKey(param.getName());
-                    queryParam.setValue(param.getValue());
-                    queryParameters.add(queryParam);
-                }
-                actionConfiguration.setQueryParameters(queryParameters);
-                //Set the URL without the query params & the path
-                datasourceConfiguration.setUrl(base);
-                //Set the path in actionConfiguration
-                actionConfiguration.setPath(path);
-            } catch (Exception e) {
-                //Not a valid URL. Continue to the next word in the CURL command
-            }
-
-            //No need to continue to parse the curl string. We have found the URL. Move on.
-            if (urlFound) {
-                break;
-            }
-        }
-        action.setActionConfiguration(actionConfiguration);
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-        action.setDatasource(datasource);
-        action.setName(name);
-        action.setPageId(pageId);
+        Action action = curlToAction((String) input, pageId, name);
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return pluginService.findByPackageName(pluginName)
+        return pluginService.findByPackageName(RESTAPI_PLUGIN)
                 .map(plugin -> {
+                    final Datasource datasource = action.getDatasource();
+                    final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    return datasource;
-                })
-                .map(datasource1 -> {
-                    action.setDatasource(datasource1);
                     return action;
                 })
                 .flatMap(actionService::create);
+    }
+
+    public Action curlToAction(String command, String pageId, String name) {
+        Action action = curlToAction(command);
+        action.setPageId(pageId);
+        action.setName(name);
+        return action;
+    }
+
+    public Action curlToAction(String command) {
+        // Three stages of parsing the cURL command:
+        // 1. lex: Split the string into tokens, respecting the quoting semantics of a POSIX-compliant shell.
+        // 2. normalize: Normalize all the command line arguments of a curl command, into their long-form versions.
+        //    E.g., `-X` into `--request`.
+        // 3. parse: Parse the arguments in this list of tokens into an `Action` object.
+
+        return parse(normalize(lex(command)));
+    }
+
+    /**
+     * Splits the given string into tokens using quoting semantics close to a typical POSIX shell.
+     *
+     * @param text String Text to tokenize.
+     * @return List of String tokens. The tokens don't include quote characters that were use to delineate the tokens.
+     */
+    public List<String> lex(String text) {
+        final List<String> tokens = new ArrayList<>();
+
+        final String trimmedText = text.trim();
+        final int textLength = trimmedText.length();
+        final StringBuilder currentToken = new StringBuilder();
+        Character quote = null;
+        boolean isEscaped = false;
+
+        for (int i = 0; i < textLength; ++i) {
+            char currentChar = trimmedText.charAt(i);
+
+            if (quote != null) {
+                // We are inside quotes.
+
+                if (isEscaped) {
+                    currentToken.append(currentChar);
+                    isEscaped = false;
+
+                } else if (currentChar == '\\') {
+                    isEscaped = true;
+
+                } else if (currentChar == quote) {
+                    quote = null;
+
+                } else {
+                    currentToken.append(currentChar);
+
+                }
+
+            } else {
+                // We are out in the open. Whitespace here terminates tokens.
+
+                if (isEscaped) {
+                    // We are at a character that's next to an escaping backslash.
+                    if (currentChar != '\n') {
+                        currentToken.append(currentChar);
+                    }
+                    isEscaped = false;
+
+                } else if (currentChar == '\\') {
+                    // This is a backslash that will escape the next character.
+                    isEscaped = true;
+
+                } else if (currentChar == '\n' || currentChar == '#') {
+                    // End of the line or rest is a comment.
+                    break;
+
+                } else if (currentChar == ' ' || currentChar == '\t') {
+                    // White space lying around between arguments. This delineates tokens.
+                    if (currentToken.length() > 0) {
+                        tokens.add(currentToken.toString());
+                        currentToken.setLength(0);
+                    }
+
+                } else if (currentChar == '"' || currentChar == '\'') {
+                    // Start of a quoted token.
+                    quote = currentChar;
+
+                } else {
+                    currentToken.append(currentChar);
+
+                }
+
+            }
+
+        }
+
+        if (currentToken.length() > 0) {
+            tokens.add(currentToken.toString());
+        }
+
+        return tokens;
+    }
+
+    /**
+     * Normalizes curl command arguments. For example, inputs like `-XGET`, `-X GET`, `--request GET` are all converted
+     * to look like `--request GET`.
+     *
+     * @param tokens List of command-line arguments, possibly non-normalized.
+     * @return A new list of strings with normalized arguments.
+     */
+    public List<String> normalize(List<String> tokens) {
+        final List<String> normalizedTokens = new ArrayList<>();
+
+        for (String token : tokens) {
+            if ("-d".equals(token)
+                    || "--data-ascii".equals(token)
+                    || "--data-raw".equals(token)) {
+                normalizedTokens.add(ARG_DATA);
+
+            } else if (token.startsWith("-d")) {
+                // `-dstuff` -> `--data stuff`
+                normalizedTokens.add(ARG_DATA);
+                normalizedTokens.add(token.substring(2));
+
+            } else if ("-H".equals(token)) {
+                normalizedTokens.add(ARG_HEADER);
+
+            } else if (token.startsWith("-H")) {
+                // `-HContent-Type:application/json` -> `--header Content-Type:application/json`
+                normalizedTokens.add(ARG_HEADER);
+                normalizedTokens.add(token.substring(2));
+
+            } else if ("-X".equals(token)) {
+                normalizedTokens.add(ARG_REQUEST);
+
+            } else if (token.startsWith("-X")) {
+                // `-XGET` -> `--request GET`
+                normalizedTokens.add(ARG_REQUEST);
+                normalizedTokens.add(token.substring(2).toUpperCase());
+
+            } else if ("-b".equals(token)) {
+                normalizedTokens.add(ARG_COOKIE);
+
+            } else if ("-u".equals(token)) {
+                normalizedTokens.add(ARG_USER);
+
+            } else if ("-A".equals(token)) {
+                normalizedTokens.add(ARG_USER_AGENT);
+
+            } else {
+                normalizedTokens.add(token);
+
+            }
+
+        }
+
+        return normalizedTokens;
+    }
+
+    public Action parse(List<String> tokens) {
+        // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
+
+        if (!"curl".equals(tokens.get(0))) {
+            // Doesn't look like a curl command.
+            return null;
+        }
+
+        final Action action = new Action();
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        action.setActionConfiguration(actionConfiguration);
+
+        final Datasource datasource = new Datasource();
+        action.setDatasource(datasource);
+        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        final List<Property> headers = new ArrayList<>();
+        boolean isContentTypeSet = false;
+        final List<String> dataParts = new ArrayList<>();
+
+        String state = null;
+
+        for (int i = 1; i < tokens.size(); ++i) {
+            String token = tokens.get(i);
+            boolean isStateProcessed = true;
+
+            if (ARG_REQUEST.equals(state)) {
+                // The `token` is next to `--request`.
+                actionConfiguration.setHttpMethod(HttpMethod.valueOf(token.toUpperCase()));
+
+            } else if (ARG_HEADER.equals(state)) {
+                // The `token` is next to `--header`.
+                final String[] parts = token.split(":\\s+", 2);
+                if ("content-type".equalsIgnoreCase(parts[0])) {
+                    isContentTypeSet = true;
+                }
+                headers.add(new Property(parts[0], parts[1]));
+
+            } else if (ARG_DATA.equals(state)) {
+                // The `token` is next to `--data`.
+                dataParts.add(token);
+
+            } else if ("--data-urlencode".equals(state)) {
+                // The `token` is next to `--data-urlencode`.
+                if (token.startsWith("=")) {
+                    dataParts.add(urlEncode(token.substring(1)));
+                } else if (token.contains("=")) {
+                    final String[] parts = token.split("=", 2);
+                    dataParts.add(parts[0] + "=" + urlEncode(parts[1]));
+                } else {
+                    dataParts.add(urlEncode(token));
+                }
+
+            } else if (ARG_COOKIE.equals(state)) {
+                // The `token` is next to `--data-cookie`.
+                headers.add(new Property("Set-Cookie", token));
+
+            } else if (ARG_USER.equals(state)) {
+                // The `token` is next to `--user`.
+                headers.add(new Property(
+                        "Authorization",
+                        "Basic " + Base64.getEncoder().encodeToString(token.getBytes())
+                ));
+
+            } else if (ARG_USER_AGENT.equals(state)) {
+                // The `token` is next to `--user-agent`.
+                headers.add(new Property("User-Agent", token));
+
+            } else if (token.startsWith("-")) {
+                // This is an option, in cURL's terminology. The next token would be the value of this option.
+                state = token;
+                isStateProcessed = false;
+
+            } else {
+                // Anything that doesn't start with `-` would be treated as a URL by cURL.
+                try {
+                    trySaveURL(action, token);
+                } catch (MalformedURLException | URISyntaxException e) {
+                    // Ignore this argument. May be there's a valid URL later down the arguments list.
+                }
+
+            }
+
+            if (isStateProcessed) {
+                state = null;
+            }
+
+        }
+
+        if (!isContentTypeSet && !dataParts.isEmpty()) {
+            headers.add(new Property("Content-Type", "application/x-www-form-urlencoded"));
+        }
+
+        if (!headers.isEmpty()) {
+            actionConfiguration.setHeaders(headers);
+        }
+
+        if (!dataParts.isEmpty()) {
+            actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
+        }
+
+        if (actionConfiguration.getHttpMethod() == null) {
+            // Default HTTP method is POST if there is body data to send, else GET.
+            actionConfiguration.setHttpMethod(dataParts.isEmpty() ? HttpMethod.GET : HttpMethod.POST);
+        }
+
+        return action;
+    }
+
+    private void trySaveURL(Action action, String token) throws MalformedURLException, URISyntaxException {
+        // If the string doesn't throw an exception when being converted to a URI, its a valid URL.
+        URL url = new URL(token);
+
+        String path = url.getPath();
+        String base = url.getProtocol() + "://" + url.getHost() + getPort(url);
+
+        log.debug("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
+
+        // Extract query params.
+        URI uri = url.toURI();
+        List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
+        final ActionConfiguration actionConfiguration = action.getActionConfiguration();
+        List<Property> queryParameters = actionConfiguration.getQueryParameters();
+
+        if (queryParameters == null) {
+            queryParameters = new ArrayList<>();
+            actionConfiguration.setQueryParameters(queryParameters);
+        }
+
+        for (NameValuePair param : params) {
+            queryParameters.add(new Property(param.getName(), param.getValue()));
+        }
+
+        // Set the URL without the query params & the path.
+        action.getDatasource().getDatasourceConfiguration().setUrl(base);
+
+        // Set the path in actionConfiguration.
+        actionConfiguration.setPath(path);
     }
 
     private String getPort(URL url) {
@@ -169,5 +361,9 @@ public class CurlImporterService extends BaseApiImporter {
             return ":" + url.getPort();
         }
         return "";
+    }
+
+    private static String urlEncode(String text) {
+        return URLEncoder.encode(text, StandardCharsets.UTF_8);
     }
 }

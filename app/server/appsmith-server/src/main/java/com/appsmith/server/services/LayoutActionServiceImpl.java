@@ -52,7 +52,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      * {{JSON.stringify(fetchUsers)}}
      * This pattern should return ["JSON.stringify", "fetchUsers"]
      */
-    private final Pattern pattern = Pattern.compile("[a-zA-Z0-9._]+");
+    private final Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -309,8 +309,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     /**
      * Assumption here is that the refactoring name provided is indeed unique and is fit to be replaced everywhere.
-     *
+     * <p>
      * At this point, the user must have MANAGE_PAGES and MANAGE_ACTIONS permissions for page and action respectively
+     *
      * @param pageId
      * @param layoutId
      * @param oldName

@@ -7,12 +7,8 @@ import lombok.Setter;
 @Setter
 public class AppsmithException extends Exception {
 
-    private AppsmithError error;
-    private Object[] args;
-
-    public AppsmithException(String msg) {
-        super(msg);
-    }
+    private final AppsmithError error;
+    private final transient Object[] args;
 
     public AppsmithException(AppsmithError error, Object... args) {
         super(error.getMessage(args));
@@ -21,15 +17,16 @@ public class AppsmithException extends Exception {
     }
 
     public Integer getHttpStatus() {
-        return this.error.getHttpErrorCode();
+        return this.error == null ? 500 : this.error.getHttpErrorCode();
     }
 
-    public String getMessage(Object... args) {
-        return this.error.getMessage(this.args);
+    @Override
+    public String getMessage() {
+        return this.error == null ? super.getMessage() : this.error.getMessage(this.args);
     }
 
     public Integer getAppErrorCode() {
-        return this.error.getAppErrorCode();
+        return this.error == null ? -1 : this.error.getAppErrorCode();
     }
 
 }
