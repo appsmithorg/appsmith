@@ -385,6 +385,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * 1. User being invited
      * 2. User who invited
      * 3. Application to which the user has been added
+     *
      * @param inviteUser
      * @param application
      * @return

@@ -52,7 +52,7 @@
         {
           "label": "Default Database Name",
           "placeholder": "(Optional)",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
           "controlType": "INPUT_TEXT"
         }
       ]
@@ -110,6 +110,10 @@
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "options": [
+            {
+              "label": "No SSL",
+              "value": "NO_SSL"
+            },
             {
               "label": "CA Certificate",
               "value": "CA_CERTIFICATE"

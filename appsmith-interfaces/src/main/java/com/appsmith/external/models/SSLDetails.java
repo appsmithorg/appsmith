@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SSLDetails {
 
     public enum AuthType {
+        NO_SSL,
+
         // Following for Postgres Connections.
         ALLOW, PREFER, REQUIRE, DISABLE, VERIFY_CA, VERIFY_FULL,
 
