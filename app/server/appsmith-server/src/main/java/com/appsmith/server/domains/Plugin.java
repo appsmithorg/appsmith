@@ -44,4 +44,7 @@ public class Plugin extends BaseDomain {
     // must be able to mark a plugin for defaultInstall on all organization creations
     @JsonIgnore
     Boolean defaultInstall;
+
+    Boolean allowUserDatasources = true;
+
 }
