@@ -11,6 +11,8 @@ import ProvidersApi, {
   FetchProviderTemplatesRequest,
   AddApiToPageRequest,
   FetchProviderCategoriesResponse,
+  FetchProviderDetailsByProviderIdRequest,
+  FetchProviderDetailsResponse,
 } from "api/ProvidersApi";
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
@@ -129,6 +131,35 @@ export function* fetchProvidersCategoriesSaga() {
   }
 }
 
+export function* fetchProviderDetailsByProviderIdSaga(
+  action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
+) {
+  const { providerId } = action.payload;
+  try {
+    const request: FetchProviderDetailsByProviderIdRequest = { providerId };
+
+    const response: FetchProviderDetailsResponse = yield ProvidersApi.fetchProviderDetailsByProviderId(
+      request,
+    );
+
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* providersSagas() {
   yield all([
     takeLatest(
@@ -143,6 +174,10 @@ export default function* providersSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,
       fetchProvidersWithCategorySaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
+      fetchProviderDetailsByProviderIdSaga,
     ),
   ]);
 }

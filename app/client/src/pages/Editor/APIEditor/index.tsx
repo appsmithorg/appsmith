@@ -155,6 +155,7 @@ class ApiEditor extends React.Component<Props> {
         pageId={this.props.match.params.pageId}
         history={this.props.history}
         location={this.props.location}
+        match={this.props.match}
       />
     );
     const defaultHomeScreen = (
@@ -185,6 +186,7 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                location={this.props.location}
               />
             )}
 
@@ -204,6 +206,7 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                location={this.props.location}
               />
             )}
           </>

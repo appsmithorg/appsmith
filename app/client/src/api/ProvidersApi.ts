@@ -1,10 +1,18 @@
 import { AxiosPromise } from "axios";
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
-import { Providers, ProviderTemplates } from "constants/providerConstants";
+import {
+  Providers,
+  ProviderTemplates,
+  ProvidersDataArray,
+} from "constants/providerConstants";
 
 export interface FetchProvidersResponse extends ApiResponse {
   data: Providers;
+}
+
+export interface FetchProviderDetailsResponse extends ApiResponse {
+  data: ProvidersDataArray;
 }
 
 export interface FetchProviderCategoriesResponse extends ApiResponse {
@@ -16,6 +24,10 @@ export interface FetchProviderTemplateResponse extends ApiResponse {
 }
 
 export interface FetchProviderTemplatesRequest {
+  providerId: string;
+}
+
+export interface FetchProviderDetailsByProviderIdRequest {
   providerId: string;
 }
 
@@ -33,6 +45,10 @@ export interface AddApiToPageRequest {
 export class ProvidersApi extends Api {
   static providersURL = "v1/providers";
   static providerCategoriesURL = "v1/providers/categories";
+
+  static providerDetailsByIdURL = (providerId: string) => {
+    return `v1/marketplace/providers/${providerId}`;
+  };
 
   static providerTemplateURL = (providerId: string) => {
     return `v1/marketplace/templates?providerId=${providerId}`;
@@ -72,6 +88,13 @@ export class ProvidersApi extends Api {
     return Api.get(
       ProvidersApi.providersWithCategoryURL(request.category, page),
     );
+  }
+
+  static fetchProviderDetailsByProviderId(
+    request: FetchProviderDetailsByProviderIdRequest,
+  ): AxiosPromise<FetchProviderDetailsResponse> {
+    const { providerId } = request;
+    return Api.get(ProvidersApi.providerDetailsByIdURL(providerId));
   }
 }
 

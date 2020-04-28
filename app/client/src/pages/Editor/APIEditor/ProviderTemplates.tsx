@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { Icon, Collapse } from "@blueprintjs/core";
 import { RouteComponentProps } from "react-router-dom";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import styled from "styled-components";
 import ReactJson from "react-json-view";
 import { AppState } from "reducers";
@@ -20,11 +19,21 @@ import {
 } from "constants/providerConstants";
 import { AddApiToPageRequest } from "api/ProvidersApi";
 import ImageAlt from "assets/images/no_image.png";
-import { addApiToPage } from "actions/providerActions";
+import {
+  setLastUsedEditorPage,
+  setLastSelectedPage,
+} from "actions/apiPaneActions";
+import {
+  getProviderDetailsByProviderId,
+  fetchProviderTemplates,
+  addApiToPage,
+} from "actions/providerActions";
 import { Colors } from "constants/Colors";
 import { getDuplicateName } from "utils/AppsmithUtils";
+import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import Spinner from "components/editorComponents/Spinner";
+import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "125px";
 
@@ -158,7 +167,7 @@ const TemplateCardRightContent = styled.div`
   margin: auto;
   justify-content: center;
   .dropIcon {
-    padding-left: 15%;
+    margin-left: 50px;
     color: #bcccd9;
     cursor: pointer;
   }
@@ -189,9 +198,13 @@ const URLContainer = styled.div`
 
 type ProviderTemplatesProps = {
   providerTemplates: ProviderTemplateArray[];
+  providerDetails: any;
   actions: ActionDataState;
   isFetchingProviderTemplates: boolean;
+  getProviderDetailsByProviderId: (providerId: string) => void;
   getProviderTemplates: (providerId: string) => void;
+  setLastUsedEditorPage: (path: string) => void;
+  setLastSelectedPage: (selectedPageId: string) => void;
   addApiToPage: (templateData: AddApiToPageRequest) => void;
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
@@ -207,12 +220,27 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
   };
 
   componentDidMount() {
-    const { providerId } = this.props.match.params;
+    const { pageId, providerId } = this.props.match.params;
+    let destinationPageId = new URLSearchParams(this.props.location.search).get(
+      "importTo",
+    );
+    if (!destinationPageId) {
+      destinationPageId = pageId;
+    }
+    this.props.getProviderDetailsByProviderId(providerId);
     this.props.getProviderTemplates(providerId);
+    this.props.setLastUsedEditorPage(this.props.match.url);
+    this.props.setLastSelectedPage(destinationPageId);
   }
 
   addApiToPage = (templateData: ProviderTemplateArray) => {
-    const { destinationPageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
+    let destinationPageId = new URLSearchParams(this.props.location.search).get(
+      "importTo",
+    );
+    if (!destinationPageId) {
+      destinationPageId = pageId;
+    }
     const pageApiNames = this.props.actions
       .filter(a => a.config.pageId === destinationPageId)
       .map(a => a.config.name);
@@ -256,18 +284,15 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
       providerTemplates,
       history,
       isFetchingProviderTemplates,
+      providerDetails,
     } = this.props;
-    let providerName;
-    let providerImage;
+    const { applicationId, pageId } = this.props.match.params;
 
-    if (this.props.location.state) {
-      providerName = new URLSearchParams(this.props.location.state).get(
-        "providerName",
-      );
-
-      providerImage = new URLSearchParams(this.props.location.state).get(
-        "providerImage",
-      );
+    let destinationPageId = new URLSearchParams(this.props.location.search).get(
+      "importTo",
+    );
+    if (destinationPageId === null || destinationPageId === undefined) {
+      destinationPageId = pageId;
     }
 
     if (isFetchingProviderTemplates) {
@@ -294,28 +319,67 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             icon="chevron-left"
             iconSize={16}
             className="backBtn"
-            onClick={() => history.goBack()}
+            onClick={() =>
+              history.push(
+                API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                  applicationId,
+                  pageId,
+                  destinationPageId ? destinationPageId : pageId,
+                ),
+              )
+            }
           />
-          <span className="backBtnText" onClick={() => history.goBack()}>
+          <span
+            className="backBtnText"
+            onClick={() =>
+              history.push(
+                API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+                  applicationId,
+                  pageId,
+                  destinationPageId ? destinationPageId : pageId,
+                ),
+              )
+            }
+          >
             {" Back"}
           </span>
           <br />
 
           <ProviderInfo>
-            {providerImage ? (
+            {providerDetails.imageUrl ? (
               <img
-                src={providerImage}
+                src={providerDetails.imageUrl}
                 className="providerImage"
                 alt="provider"
               ></img>
             ) : (
-              <img
-                src={ImageAlt}
-                className="providerImage"
-                alt="provider"
-              ></img>
+              <div>
+                {providerDetails.name && (
+                  <div
+                    className="innerBox"
+                    style={{
+                      backgroundColor: getInitialsAndColorCode(
+                        providerDetails.name,
+                      )[1],
+                      padding: 5,
+                      margin: "auto",
+                      width: 60,
+                      color: "#fff",
+                      borderRadius: 2,
+                      fontSize: 18,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      marginRight: 10,
+                    }}
+                  >
+                    <span>
+                      {getInitialsAndColorCode(providerDetails.name)[0]}
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
-            <p className="providerName">{providerName}</p>
+            <p className="providerName">{providerDetails.name}</p>
           </ProviderInfo>
         </ProviderInfoTopSection>
         <TemplatesCardsContainer>
@@ -446,16 +510,22 @@ const mapStateToProps = (state: AppState) => ({
   providerTemplates: getProviderTemplates(state),
   isFetchingProviderTemplates: getProvidersTemplatesLoadingState(state),
   actions: state.entities.actions,
+  providerDetails: state.ui.providers.providerDetailsByProviderId,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
+  getProviderDetailsByProviderId: (providerId: string) =>
+    dispatch(getProviderDetailsByProviderId(providerId)),
+
   getProviderTemplates: (providerId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
-      payload: {
-        providerId,
-      },
-    }),
+    dispatch(fetchProviderTemplates(providerId)),
+
+  setLastUsedEditorPage: (path: string) =>
+    dispatch(setLastUsedEditorPage(path)),
+
+  setLastSelectedPage: (selectedPageId: string) =>
+    dispatch(setLastSelectedPage(selectedPageId)),
+
   addApiToPage: (templateData: AddApiToPageRequest) =>
     dispatch(addApiToPage(templateData)),
 });

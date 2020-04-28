@@ -14,6 +14,33 @@ export const initApiPane = (urlId?: string): ReduxAction<{ id?: string }> => {
   };
 };
 
+export const setCurrentCategory = (
+  category: string,
+): ReduxAction<{ category: string }> => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_CATEGORY,
+    payload: { category },
+  };
+};
+
+export const setLastUsedEditorPage = (
+  path: string,
+): ReduxAction<{ path: string }> => {
+  return {
+    type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
+    payload: { path },
+  };
+};
+
+export const setLastSelectedPage = (
+  selectedPageId: string,
+): ReduxAction<{ selectedPageId: string }> => {
+  return {
+    type: ReduxActionTypes.SET_LAST_SELECTED_PAGE_PAGE,
+    payload: { selectedPageId },
+  };
+};
+
 export const createNewApiAction = (
   pageId: string,
 ): ReduxAction<{ pageId: string }> => ({

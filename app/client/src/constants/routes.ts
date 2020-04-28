@@ -26,7 +26,6 @@ export type ProviderViewerRouteParams = {
   applicationId: string;
   pageId: string;
   providerId: string;
-  destinationPageId: string;
 };
 
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
@@ -122,12 +121,7 @@ export const getProviderTemplatesURL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   providerId = ":providerId",
-  destinationPageId = ":destinationPageId",
-): string =>
-  `${API_EDITOR_URL(
-    applicationId,
-    pageId,
-  )}/provider/${providerId}/?importTo=${destinationPageId}`;
+): string => `${API_EDITOR_URL(applicationId, pageId)}/provider/${providerId}`;
 
 export const EDITOR_ROUTES = [
   {

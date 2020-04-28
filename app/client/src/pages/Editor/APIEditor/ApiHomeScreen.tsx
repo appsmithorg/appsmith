@@ -41,7 +41,12 @@ import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
-import { createNewApiAction } from "actions/apiPaneActions";
+import {
+  createNewApiAction,
+  setCurrentCategory,
+  setLastUsedEditorPage,
+} from "actions/apiPaneActions";
+import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 
 // const SearchContainer = styled.div`
 //   display: flex;
@@ -110,24 +115,14 @@ const StyledContainer = styled.div`
     color: ${Colors.OXFORD_BLUE};
     text-decoration: none;
   }
-`;
-
-const ApiCard = styled.div`
-  flex: 1;
-  display: inline-flex;
-  flex-wrap: wrap;
-  margin-left: -10px;
-  justify-content: flex-start;
-  text-align: center;
-  min-width: 150px;
-  border-radius: 4px;
-
   .apiImage {
+    object-fit: contain;
     height: 50px;
     width: auto;
     max-width: 100%;
     margin-top: -5px;
     margin-bottom: 10px;
+    min-height: 50px;
   }
   .curlImage {
     width: 60px;
@@ -143,7 +138,29 @@ const ApiCard = styled.div`
     height: 110px;
     padding-bottom: 0px;
     cursor: pointer;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
   }
+  .eachCard:active {
+    border: 1px solid ${Colors.JAFFA_DARK};
+    background: rgba(242, 153, 74, 0.17);
+  }
+  .eachCard:hover {
+    border: 1px solid ${Colors.JAFFA_DARK};
+  }
+`;
+
+const ApiCard = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  column-gap: 10px;
+  flex-wrap: wrap;
+  margin-left: -10px;
+  text-align: center;
+  min-width: 150px;
+  border-radius: 4px;
+  width: 100%;
 `;
 
 const CardList = styled.div`
@@ -153,6 +170,15 @@ const CardList = styled.div`
     height: 110px;
     padding-bottom: 0px;
     cursor: pointer;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
+  }
+  .eachProviderCard:active {
+    border: 1px solid ${Colors.JAFFA_DARK};
+    background: rgba(242, 153, 74, 0.17);
+  }
+  .eachProviderCard:hover {
+    border: 1px solid ${Colors.JAFFA_DARK};
   }
 `;
 
@@ -196,7 +222,7 @@ const DropdownSelect = styled.div`
   font-size: 14px;
   float: right;
   width: 232px;
-  margin-right: 8%;
+  margin-right: 25px;
   margin-bottom: 25px;
 `;
 
@@ -210,6 +236,9 @@ const PageLoadingContainer = styled(CenteredWrapper)`
 `;
 
 type ApiHomeScreenProps = {
+  initialValues: {
+    category: string;
+  };
   currentCategory: string;
   importedCollections: TemplateList[];
   fetchImportedCollections: () => void;
@@ -229,6 +258,9 @@ type ApiHomeScreenProps = {
   location: {
     search: string;
   };
+  match: {
+    url: string;
+  };
   history: {
     replace: (data: string) => void;
     push: (data: string) => void;
@@ -237,13 +269,17 @@ type ApiHomeScreenProps = {
   providersTotal: number;
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string) => void;
+  setCurrentCategory: (category: string) => void;
+  setLastUsedEditorPage: (path: string) => void;
+  previouslySetCategory: string;
 };
 
 type ApiHomeScreenState = {
   page: number;
 };
 
-type Props = ApiHomeScreenProps & InjectedFormProps<null, ApiHomeScreenProps>;
+type Props = ApiHomeScreenProps &
+  InjectedFormProps<{ category: string }, ApiHomeScreenProps>;
 
 class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   constructor(props: Props) {
@@ -255,21 +291,34 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   }
 
   componentDidMount() {
-    const { importedCollections } = this.props;
-    this.props.fetchProviderCategories();
+    const {
+      importedCollections,
+      providersTotal,
+      providerCategories,
+    } = this.props;
+    if (providerCategories.length === 0) {
+      this.props.fetchProviderCategories();
+    }
     if (importedCollections.length === 0) {
       this.props.fetchImportedCollections();
     }
-    this.props.clearProviders();
-    this.props.change("category", DEFAULT_PROVIDER_OPTION);
-    this.props.fetchProvidersWithCategory({
-      category: DEFAULT_PROVIDER_OPTION,
-      page: 1,
-    });
+    if (!providersTotal) {
+      this.props.clearProviders();
+      this.props.change("category", DEFAULT_PROVIDER_OPTION);
+      this.props.fetchProvidersWithCategory({
+        category: DEFAULT_PROVIDER_OPTION,
+        page: 1,
+      });
+    }
+    this.props.setLastUsedEditorPage(this.props.match.url);
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.currentCategory !== this.props.currentCategory) {
+    if (
+      prevProps.currentCategory !== this.props.currentCategory &&
+      this.props.currentCategory !== this.props.previouslySetCategory
+    ) {
+      this.props.setCurrentCategory(this.props.currentCategory);
       this.props.clearProviders();
       this.props.fetchProvidersWithCategory({
         category: this.props.currentCategory,
@@ -427,17 +476,22 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                 {ApiHomepageTopSection}
                 {/* Marketplace APIs section start */}
                 <StyledContainer>
-                  <p className="sectionHeadings">{"Marketplace APIs"}</p>
-                  <DropdownSelect>
-                    <DropdownField
-                      placeholder="All APIs"
-                      width={232}
-                      name="category"
-                      options={PROVIDER_CATEGORIES_OPTIONS}
-                    />
-                  </DropdownSelect>
+                  <div>
+                    <div style={{ float: "left" }}>
+                      <p className="sectionHeadings">{"Marketplace APIs"}</p>
+                    </div>
+                    <div>
+                      <DropdownSelect>
+                        <DropdownField
+                          placeholder="All APIs"
+                          width={232}
+                          name="category"
+                          options={PROVIDER_CATEGORIES_OPTIONS}
+                        />
+                      </DropdownSelect>
+                    </div>
+                  </div>
 
-                  <br />
                   <br />
                   <br />
 
@@ -449,51 +503,61 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                     <>
                       <div>
                         <ApiCard>
-                          {providers.map(provider => (
-                            <CardList key={provider.id}>
-                              <Link
-                                to={{
-                                  pathname: getProviderTemplatesURL(
+                          {providers.map((provider, index) => (
+                            <CardList
+                              key={index}
+                              onClick={() =>
+                                history.push(
+                                  getProviderTemplatesURL(
                                     applicationId,
                                     pageId,
-                                    provider.id,
-                                    destinationPageId
-                                      ? destinationPageId
-                                      : pageId,
+                                    provider.id +
+                                      `/?importTo=${destinationPageId}`,
                                   ),
-                                  state: {
-                                    providerName: provider.name,
-                                    providerImage: provider.imageUrl,
-                                  },
-                                }}
+                                )
+                              }
+                            >
+                              <Card
+                                interactive={false}
+                                className="eachProviderCard"
                               >
-                                <Card
-                                  interactive={false}
-                                  className="eachProviderCard"
-                                >
-                                  {provider.imageUrl ? (
-                                    <img
-                                      src={provider.imageUrl}
-                                      className="apiImage"
-                                      alt="Provider"
-                                    />
-                                  ) : (
-                                    <img
-                                      src={ImageAlt}
-                                      className="apiImage"
-                                      alt="Provider"
-                                    />
-                                  )}
-                                  {provider.name && (
-                                    <p
-                                      className="textBtn"
-                                      title={provider.name}
-                                    >
-                                      {provider.name}
-                                    </p>
-                                  )}
-                                </Card>
-                              </Link>
+                                {provider.imageUrl ? (
+                                  <img
+                                    src={provider.imageUrl}
+                                    className="apiImage"
+                                    alt="Provider"
+                                  />
+                                ) : (
+                                  <div
+                                    className="innerBox"
+                                    style={{
+                                      backgroundColor: getInitialsAndColorCode(
+                                        provider.name,
+                                      )[1],
+                                      padding: 11,
+                                      margin: "auto auto 10px",
+                                      width: 70,
+                                      color: "#fff",
+                                      borderRadius: 2,
+                                      fontSize: 24,
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    <span>
+                                      {
+                                        getInitialsAndColorCode(
+                                          provider.name,
+                                        )[0]
+                                      }
+                                    </span>
+                                  </div>
+                                )}
+                                {provider.name && (
+                                  <p className="textBtn" title={provider.name}>
+                                    {provider.name}
+                                  </p>
+                                )}
+                              </Card>
                             </CardList>
                           ))}
                         </ApiCard>
@@ -523,6 +587,13 @@ const mapStateToProps = (state: AppState) => {
     category = formData.category;
   }
 
+  let initialCategoryValue;
+  if (state.ui.apiPane.currentCategory === "") {
+    initialCategoryValue = DEFAULT_PROVIDER_OPTION;
+  } else {
+    initialCategoryValue = state.ui.apiPane.currentCategory;
+  }
+
   return {
     currentCategory: category,
     importedCollections: getImportedCollections(state),
@@ -533,6 +604,8 @@ const mapStateToProps = (state: AppState) => {
     providerCategories: getProviderCategories(state),
     plugins: state.entities.plugins.list,
     isSwitchingCategory,
+    previouslySetCategory: state.ui.apiPane.currentCategory,
+    initialValues: { category: initialCategoryValue },
   };
 };
 
@@ -546,13 +619,17 @@ const mapDispatchToProps = (dispatch: any) => ({
   createAction: (data: Partial<RestAction>) =>
     dispatch(createActionRequest(data)),
   createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
+  setCurrentCategory: (category: string) =>
+    dispatch(setCurrentCategory(category)),
+  setLastUsedEditorPage: (path: string) =>
+    dispatch(setLastUsedEditorPage(path)),
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(
-  reduxForm<null, ApiHomeScreenProps>({
+  reduxForm<{ category: string }, ApiHomeScreenProps>({
     form: API_HOME_SCREEN_FORM,
   })(ApiHomeScreen),
 );

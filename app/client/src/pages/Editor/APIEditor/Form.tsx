@@ -16,6 +16,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { RestAction, PaginationField } from "api/ActionAPI";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
@@ -118,6 +119,10 @@ interface APIFormProps {
     key: string;
     value: string;
   };
+  location: {
+    pathname: string;
+  };
+  dispatch: any;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
@@ -139,6 +144,8 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     httpMethodFromForm,
     contentType,
     displayFormat,
+    location,
+    dispatch,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
@@ -153,6 +160,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
         }
       }
     }
+    dispatch({
+      type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
+      payload: {
+        path: location.pathname,
+      },
+    });
   });
 
   return (
