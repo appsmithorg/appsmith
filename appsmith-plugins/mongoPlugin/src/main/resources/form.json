@@ -111,6 +111,10 @@
           "controlType": "DROP_DOWN",
           "options": [
             {
+              "label": "No SSL",
+              "value": "NO_SSL"
+            },
+            {
               "label": "CA Certificate",
               "value": "CA_CERTIFICATE"
             },
