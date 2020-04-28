@@ -7,6 +7,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -201,7 +202,8 @@ public class MongoPlugin extends BasePlugin {
 
             List<String> queryParams = new ArrayList<>();
 
-            if (connection.getSsl() != null) {
+            final SSLDetails sslDetails = connection.getSsl();
+            if (sslDetails != null && !SSLDetails.AuthType.NO_SSL.equals(sslDetails.getAuthType())) {
                 queryParams.add("ssl=true");
             }
 
