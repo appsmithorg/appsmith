@@ -54,6 +54,18 @@ export const PAGE_LIST_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
 
+export const DATA_SOURCES_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources`;
+
+export const DATA_SOURCES_EDITOR_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  datasourceId = ":datasourceId",
+): string =>
+  `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
+
 export const API_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -138,6 +150,13 @@ export const EDITOR_ROUTES = [
     className: "t--nav-link-manage-pages",
     title: "Pages",
     exact: true,
+  },
+  {
+    icon: MenuIcons.DATASOURCES_ICON,
+    className: "t--nav-link-datasource-editor",
+    path: DATA_SOURCES_EDITOR_URL,
+    title: "Datasources",
+    exact: false,
   },
 ];
 

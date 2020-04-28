@@ -29,6 +29,8 @@ const getActions = (state: AppState) => state.entities.actions;
 export const getProviderCategories = (state: AppState) =>
   state.ui.providers.providerCategories;
 
+export const getDataSources = (state: AppState) =>
+  state.entities.datasources.list;
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 

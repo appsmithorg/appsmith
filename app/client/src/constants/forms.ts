@@ -14,3 +14,5 @@ export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";
 export const CREATE_ORGANIZATION_FORM_NAME = "CreateOrganizationForm";
 export const CURL_IMPORT_FORM = "CurlImportForm";
 export const API_HOME_SCREEN_FORM = "APIHomeScreenForm";
+
+export const DATASOURCE_DB_FORM = "DatasourceDBForm";

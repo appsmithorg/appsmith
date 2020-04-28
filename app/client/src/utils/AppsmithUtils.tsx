@@ -3,6 +3,8 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
+
+import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -23,6 +25,7 @@ export const createReducer = (
 };
 
 export const appInitializer = () => {
+  FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
     Sentry.init(appsmithConfigs.sentry.config);

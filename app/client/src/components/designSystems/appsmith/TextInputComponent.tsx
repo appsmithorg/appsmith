@@ -78,6 +78,7 @@ export interface TextInputProps extends IInputGroupProps {
   type?: string;
   refHandler?: (ref: HTMLInputElement | null) => void;
   noValidate?: boolean;
+  readonly?: boolean;
 }
 
 interface TextInputState {
@@ -120,6 +121,7 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
       meta.error
     );
     const errorIsOpen = hasError && this.state.inputIsFocused;
+
     return (
       <InputContainer className={className}>
         <ErrorTooltip message={meta ? meta.error : ""} isOpen={errorIsOpen}>
