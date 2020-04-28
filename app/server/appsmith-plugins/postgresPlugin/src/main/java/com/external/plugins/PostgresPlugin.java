@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
@@ -135,12 +136,16 @@ public class PostgresPlugin extends BasePlugin {
 
             com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
 
+            final boolean isSslEnabled = configurationConnection != null
+                    && configurationConnection.getSsl() != null
+                    && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
+
             Properties properties = new Properties();
             properties.putAll(Map.of(
                     USER, authentication.getUsername(),
                     PASSWORD, authentication.getPassword(),
                     // TODO: Set SSL connection parameters.
-                    SSL, configurationConnection != null && configurationConnection.getSsl() != null
+                    SSL, isSslEnabled
             ));
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
