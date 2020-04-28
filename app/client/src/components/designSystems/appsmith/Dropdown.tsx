@@ -4,16 +4,18 @@ import Select from "react-select";
 import { WrappedFieldInputProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
 
-type DropdownProps = {
+export type DropdownProps = {
   options: Array<{
     value: string;
     label: string;
   }>;
   input: WrappedFieldInputProps;
   placeholder: string;
-  width?: number;
+  width?: number | string;
   isSearchable?: boolean;
   isDisabled?: boolean;
+  customSelectStyles?: any;
+  maxMenuHeight: number;
 };
 
 const selectStyles = {
@@ -45,21 +47,22 @@ const selectStyles = {
     ...provided,
     padding: "5px",
   }),
-  indicatorSeparator: (styles: any) => ({}),
+  indicatorSeparator: () => ({}),
 };
 
 export const BaseDropdown = (props: DropdownProps) => {
-  const { input, options } = props;
+  const { input, options, customSelectStyles } = props;
   return (
     <Select
       placeholder={props.placeholder}
       options={options}
-      styles={selectStyles}
+      styles={{ ...selectStyles, ...customSelectStyles }}
       {...input}
       width={props.width}
       onChange={value => input.onChange(value)}
       isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}
+      {...props}
     />
   );
 };

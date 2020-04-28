@@ -7,7 +7,7 @@ import {
 
 import { fetchEditorConfigs } from "actions/configsActions";
 import { fetchPage, fetchPageList } from "actions/pageActions";
-import { fetchDatasources } from "actions/datasourcesActions";
+import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";

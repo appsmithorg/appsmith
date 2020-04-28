@@ -5,7 +5,7 @@ import { Field } from "redux-form";
 import { AppState } from "reducers";
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import _ from "lodash";
-import { createDatasource } from "actions/datasourcesActions";
+import { createDatasource } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
@@ -26,11 +26,11 @@ const DatasourcesField = (
 ) => {
   const options = props.datasources.list
     .filter(r => r.pluginId === props.pluginId)
-    .filter(r => r.datasourceConfiguration !== null)
+    .filter(r => r.datasourceConfiguration)
     .filter(r => r.datasourceConfiguration.url)
     .map(r => ({
-      label: r.datasourceConfiguration.url.endsWith("/")
-        ? r.datasourceConfiguration.url.slice(0, -1)
+      label: r.datasourceConfiguration?.url.endsWith("/")
+        ? r.datasourceConfiguration?.url.slice(0, -1)
         : r.datasourceConfiguration.url,
       value: r.id,
     }));
