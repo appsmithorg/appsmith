@@ -362,8 +362,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     return application;
 
                     // Append the required permissions to all the pages
+                    /**
+                     * Page : Get child policies from application and update the page policies
+                     */
 
                     // Append the required permissions to all the actions
+
+                    /**
+                     * Action : get child policies from page and update the action policies.
+                     */
                 })
                 .flatMap(application -> applicationRepository.save(application));
 
@@ -373,6 +380,15 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return userMono;
     }
 
+    /**
+     * TODO : Wire up new user invite : Invite the user to the appmsith world with the email covering the following info
+     * 1. User being invited
+     * 2. User who invited
+     * 3. Application to which the user has been added
+     * @param inviteUser
+     * @param application
+     * @return
+     */
     private User handleNewUserInvite(InviteUser inviteUser, Application application) {
         return inviteUser;
     }
