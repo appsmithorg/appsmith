@@ -10,6 +10,7 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
+import { providerBackgroundColors } from "constants/providerConstants";
 
 export const createReducer = (
   initialState: any,
@@ -118,4 +119,33 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
   if (localStorageLevel) logLevel = localStorageLevel;
   return logLevel;
+};
+
+export const getInitialsAndColorCode = (fullName: any): string[] => {
+  console.log(fullName, "fullName");
+  let inits = "";
+  // if name contains space. eg: "Full Name"
+  if (fullName.includes(" ")) {
+    const namesArr = fullName.split(" ");
+    let initials = namesArr.map((name: string) => name.charAt(0));
+    initials = initials.join("").toUpperCase();
+    inits = initials.slice(0, 2);
+  } else {
+    // handle for camelCase
+    const str = fullName.replace(/([a-z])([A-Z])/g, "$1 $2");
+    const namesArr = str.split(" ");
+    let initials = namesArr.map((name: string) => name.charAt(0));
+    initials = initials.join("").toUpperCase();
+    inits = initials.slice(0, 2);
+  }
+  const colorCode = getColorCode(inits);
+  return [inits, colorCode];
+};
+
+const getColorCode = (initials: string): string => {
+  let asciiSum = 0;
+  for (let i = 0; i < initials.length; i++) {
+    asciiSum += initials[i].charCodeAt(0);
+  }
+  return providerBackgroundColors[asciiSum % providerBackgroundColors.length];
 };

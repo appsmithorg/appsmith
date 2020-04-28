@@ -11,6 +11,7 @@ import {
   ProviderTemplates,
   ProviderTemplateArray,
   ProvidersCategoriesResponse,
+  FetchProviderDetailsResponse,
 } from "constants/providerConstants";
 
 const initialState: ProvidersReduxState = {
@@ -22,6 +23,9 @@ const initialState: ProvidersReduxState = {
   providerCategories: [],
   providerCategoriesErrorPayload: {},
   isSwitchingCategory: true,
+  lastUsedProviderId: "",
+  providerDetailsByProviderId: {},
+  providerDetailsErrorPayload: {},
 };
 
 const providersReducer = createReducer(initialState, {
@@ -75,10 +79,14 @@ const providersReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT]: (
     state: ProvidersReduxState,
-  ) => ({
-    ...state,
-    isFetchingProviderTemplates: true,
-  }),
+    action: any,
+  ) => {
+    return {
+      ...state,
+      isFetchingProviderTemplates: true,
+      lastUsedProviderId: action.payload.providerId,
+    };
+  },
   [ReduxActionTypes.CLEAR_PROVIDERS]: (state: ProvidersReduxState) => ({
     ...state,
     providers: [],
@@ -146,6 +154,21 @@ const providersReducer = createReducer(initialState, {
   ) => {
     return { ...state, providerCategoriesErrorPayload: action.payload };
   },
+  [ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_SUCCESS]: (
+    state: ProvidersReduxState,
+    action: ReduxAction<FetchProviderDetailsResponse>,
+  ) => {
+    return {
+      ...state,
+      providerDetailsByProviderId: action.payload,
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_ERROR]: (
+    state: ProvidersReduxState,
+    action: ReduxAction<{ providerDetailsErrorPayload: string }>,
+  ) => {
+    return { ...state, providerDetailsErrorPayload: action.payload };
+  },
 });
 
 export interface ProvidersReduxState {
@@ -157,6 +180,9 @@ export interface ProvidersReduxState {
   providerCategories: string[];
   providerCategoriesErrorPayload: {};
   isSwitchingCategory: boolean;
+  lastUsedProviderId: string;
+  providerDetailsByProviderId: {};
+  providerDetailsErrorPayload: {};
 }
 
 export default providersReducer;

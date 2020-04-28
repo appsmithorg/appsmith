@@ -12,6 +12,10 @@ export type ProvidersCategoriesResponse = ApiResponse & {
   data: string[];
 };
 
+export type FetchProviderDetailsResponse = ApiResponse & {
+  data: ProvidersDataArray;
+};
+
 export type Providers = ApiResponse & {
   providers: ProvidersDataArray[];
   total: number;
@@ -56,3 +60,12 @@ export type ProviderTemplateArray = ApiResponse & {
 };
 
 export const DEFAULT_TEMPLATE_TYPE = "TEMPLATE";
+
+export const providerBackgroundColors = [
+  "#5F60B4",
+  "#0BA780",
+  "#929500",
+  "#1F97D3",
+  "#B32FA5",
+  "#1A29B1",
+];

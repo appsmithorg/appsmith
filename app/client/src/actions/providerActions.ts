@@ -17,9 +17,16 @@ export const fetchProviderCategories = () => {
   };
 };
 
-export const fetchProviderTemplates = () => {
+export const getProviderDetailsByProviderId = (providerId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
+    payload: { providerId },
+  };
+};
+export const fetchProviderTemplates = (providerId: string) => {
   return {
     type: ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
+    payload: { providerId },
   };
 };
 

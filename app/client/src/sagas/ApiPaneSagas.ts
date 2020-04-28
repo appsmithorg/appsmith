@@ -10,18 +10,23 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, API_HOME_SCREEN_FORM } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
   DEFAULT_API_ACTION,
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
-import { API_EDITOR_ID_URL, API_EDITOR_URL } from "constants/routes";
+import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  getProviderTemplatesURL,
+} from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
+  getLastSelectedPage,
 } from "selectors/editorSelectors";
 import { initialize, autofill } from "redux-form";
 import { getAction } from "./ActionSagas";
@@ -34,7 +39,6 @@ import {
   UNIQUE_NAME_ERROR,
   VALID_FUNCTION_NAME_ERROR,
 } from "constants/messages";
-import { fetchProvidersWithCategory } from "actions/providerActions";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getActions } from "selectors/entitiesSelector";
@@ -51,6 +55,10 @@ const getActionConfigs = (state: AppState): ActionData["config"][] =>
   state.entities.actions.map(a => a.config);
 
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
+const getLastUsedEditorPage = (state: AppState) =>
+  state.ui.apiPane.lastUsedEditorPage;
+const getLastUsedProvider = (state: AppState) =>
+  state.ui.providers.lastUsedProviderId;
 
 function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   const isInitialized = yield select(getIsEditorInitialized);
@@ -59,13 +67,32 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   }
   const urlId = actionPayload.payload.id;
   const lastUsedId = yield select(getLastUsedAction);
+  const lastUsedProviderId = yield select(getLastUsedProvider);
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+  const lastUsedEditorPage = yield select(getLastUsedEditorPage);
+  let lastSelectedPage = yield select(getLastSelectedPage);
+  if (lastSelectedPage === "") {
+    lastSelectedPage = pageId;
+  }
+
   let id = "";
   if (urlId) {
     id = urlId;
   } else if (lastUsedId) {
     id = lastUsedId;
   }
-  yield put(changeApi(id));
+  if (lastUsedProviderId && lastUsedEditorPage.includes("provider")) {
+    history.push(
+      getProviderTemplatesURL(
+        applicationId,
+        pageId,
+        lastUsedProviderId + `/?importTo=${lastSelectedPage}`,
+      ),
+    );
+  } else {
+    yield put(changeApi(id));
+  }
 }
 
 function* syncApiParamsSaga(
@@ -324,12 +351,6 @@ function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form } = actionPayload.meta;
-  if (form === API_HOME_SCREEN_FORM) {
-    yield put(
-      fetchProvidersWithCategory({ category: actionPayload.payload, page: 1 }),
-    );
-    return;
-  }
   if (form !== API_EDITOR_FORM_NAME) return;
   yield all([
     call(validateInputSaga, actionPayload),

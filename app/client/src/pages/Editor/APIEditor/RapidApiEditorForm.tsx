@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import {
   reduxForm,
@@ -17,12 +17,14 @@ import {
   BodyFormData,
   Property,
 } from "api/ActionAPI";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination, { PaginationType } from "./Pagination";
@@ -52,13 +54,16 @@ const Form = styled.form`
 const MainConfiguration = styled.div`
   padding-top: 10px;
   padding-left: 17px;
+  span.bp3-popover-target {
+    display: inline-block;
+  }
 `;
 
 const SecondaryWrapper = styled.div`
   display: flex;
   height: 100%;
   border-top: 1px solid #d0d7dd;
-  margin-top: 15px;
+  margin-top: 10px;
 `;
 
 const RequestParamsWrapper = styled.div`
@@ -120,6 +125,10 @@ interface APIFormProps {
   providerImage: string;
   providerURL: string;
   providerCredentialSteps: string;
+  location: {
+    pathname: string;
+  };
+  dispatch: any;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
@@ -140,12 +149,35 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfigurationBodyFormData,
     providerImage,
     providerURL,
+    providerCredentialSteps,
+    location,
+    dispatch,
   } = props;
 
   const postbodyResponsePresent =
     templateId &&
     actionConfiguration &&
     actionConfigurationBodyFormData.length > 0;
+
+  // let credentialStepsData;
+  // if (providerCredentialSteps.length !== 0) {
+  //   credentialStepsData = providerCredentialSteps.split("\\n");
+  // }
+  // console.log(credentialStepsData, "credentialStepsData");
+
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
+      payload: {
+        path: location.pathname,
+      },
+    });
+  });
+
+  // const abc = (text: string) => {
+  //   console.log(text, "text");
+
+  // }
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -199,6 +231,12 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             disabled={true}
           />
         </FormRow>
+        {/* Display How to get Credentials info if it is present */}
+        {providerCredentialSteps && providerCredentialSteps !== "" && (
+          <CredentialsTooltip
+            providerCredentialSteps={providerCredentialSteps}
+          />
+        )}
       </MainConfiguration>
       <SecondaryWrapper>
         <TabbedViewContainer>
