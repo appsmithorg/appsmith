@@ -1,7 +1,21 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.domains.*;
-import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PasswordResetToken;
+import com.appsmith.server.domains.Permission;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.Query;
+import com.appsmith.server.domains.Role;
+import com.appsmith.server.domains.Setting;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -13,6 +27,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.concurrent.TimeUnit;
 
@@ -207,6 +222,23 @@ public class DatabaseChangelog {
                 application.setDeletedAt(application.getUpdatedAt());
                 mongoTemplate.save(application);
             }
+        }
+    }
+
+    @ChangeSet(order = "006", id = "hide-rapidapi-plugin", author = "")
+    public void hideRapidApiPluginFromCreateDatasource(MongoTemplate mongoTemplate) {
+        final Plugin rapidApiPlugin = mongoTemplate.findOne(
+                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("packageName").is("rapidapi-plugin")),
+                Plugin.class
+        );
+
+        if (rapidApiPlugin == null) {
+            log.error("Couldn't find rapidapi-plugin, to set it's `allowUserDatasources` to false.");
+
+        } else {
+            rapidApiPlugin.setAllowUserDatasources(false);
+            mongoTemplate.save(rapidApiPlugin);
+
         }
     }
 
