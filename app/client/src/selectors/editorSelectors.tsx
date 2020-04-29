@@ -17,12 +17,13 @@ import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { getActions } from "sagas/selectors";
+
 import * as log from "loglevel";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
-const getActions = (state: AppState) => state.entities.actions;
 export const getLastSelectedPage = (state: AppState) =>
   state.ui.apiPane.lastSelectedPage;
 

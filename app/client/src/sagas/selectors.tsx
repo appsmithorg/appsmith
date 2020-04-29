@@ -4,6 +4,8 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { Page } from "constants/ReduxActionConstants";
 
 export const getWidgets = (
   state: AppState,
@@ -63,6 +65,28 @@ export const getExistingWidgetNames = createSelector(
     return Object.values(widgets).map(widget => widget.widgetName);
   },
 );
+export const getActions = (state: AppState) => {
+  return state.entities.actions;
+};
+
+export const currentPageId = (state: AppState) => {
+  return state.entities.pageList.currentPageId;
+};
+
+export const getExistingActionNames = createSelector(
+  getActions,
+  currentPageId,
+  (actions: ActionData[], pageId?: string) => {
+    return _.compact(
+      actions.map((action: ActionData) => {
+        return action.config.pageId === pageId ? action.config.name : undefined;
+      }),
+    );
+  },
+);
+
+export const getExistingPageNames = (state: AppState) =>
+  state.entities.pageList.pages.map((page: Page) => page.pageName);
 
 export const getWidgetByName = (
   state: AppState,
