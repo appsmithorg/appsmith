@@ -15,7 +15,6 @@ import {
   ColumnMenuOpenEventArgs,
   ColumnMenuItemModel,
   PageSettingsModel,
-  PagerComponent,
   Toolbar,
   PdfExport,
   ExcelExport,
@@ -24,7 +23,7 @@ import {
 } from "@syncfusion/ej2-react-grids";
 import { getValue } from "@syncfusion/ej2-base";
 import { ClickEventArgs } from "@syncfusion/ej2-navigations";
-import React, { useRef, MutableRefObject, useEffect, memo } from "react";
+import React, { useRef, MutableRefObject, memo } from "react";
 import styled from "constants/DefaultTheme";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { Classes } from "@blueprintjs/core";
@@ -51,6 +50,7 @@ export interface TableComponentProps {
   onRowClick: (rowData: object, rowIndex: number) => void;
   isLoading: boolean;
   height: number;
+  contentHeight: number;
   width: number;
   columnActions?: ColumnAction[];
   onCommandClick: (dynamicTrigger: string) => void;
@@ -59,7 +59,6 @@ export interface TableComponentProps {
   prevPageClick: Function;
   pageNo: number;
   serverSidePaginationEnabled: boolean;
-  updatePageSize: Function;
   updatePageNo: Function;
   updateHiddenColumns: Function;
   resetSelectedRowIndex: Function;
@@ -68,11 +67,13 @@ export interface TableComponentProps {
   exportCsv?: boolean;
   exportExcel?: boolean;
   exportPDF?: boolean;
+  pageSize: number;
+  rowHeight: number;
 }
 
 const StyledGridComponent = styled(GridComponent)`
   &&& {
-    height: calc(100% - 49px);
+    height: 100%;
     .e-altrow {
       background-color: #fafafa;
     }
@@ -80,11 +81,12 @@ const StyledGridComponent = styled(GridComponent)`
       background: #cccccc;
     }
     .e-gridcontent {
-      height: calc(100% - 50px);
+      height: calc(100% - 130px);
       overflow: auto;
     }
     .e-gridpager {
-      display: none;
+      position: absolute;
+      bottom: 0;
     }
   }
 `;
@@ -98,13 +100,11 @@ const settings: SelectionSettingsModel = {
 };
 
 type GridRef = MutableRefObject<GridComponent | null>;
-type PagerRef = MutableRefObject<PagerComponent | null>;
 
 /* eslint-disable react/display-name */
 const TableComponent = memo(
   (props: TableComponentProps) => {
     const grid: GridRef = useRef(null);
-    const pager: PagerRef = useRef(null);
     function disableBubbling(e: any) {
       e.preventDefault();
       e.stopPropagation();
@@ -113,6 +113,18 @@ const TableComponent = memo(
       if (grid.current && grid.current.element) {
         const header = grid.current.getHeaderContent();
         header.addEventListener("mousedown", disableBubbling);
+        grid.current
+          .getPager()
+          .getElementsByClassName("e-pagercontainer")[0]
+          .addEventListener("click", (e: any) => {
+            const pageNo = e.srcElement.getAttribute("index");
+            if (pageNo !== null && props.pageNo !== pageNo) {
+              props.resetSelectedRowIndex();
+              if (!props.serverSidePaginationEnabled) {
+                props.updatePageNo(pageNo);
+              }
+            }
+          });
       }
     };
 
@@ -131,34 +143,6 @@ const TableComponent = memo(
         }
       }
     };
-
-    useEffect(() => {
-      if (grid.current && grid.current.getPager()) {
-        grid.current.getPager().classList.add("display-none");
-      }
-      /* eslint-disable react-hooks/exhaustive-deps */
-    }, [grid.current, props.serverSidePaginationEnabled]);
-
-    function reCalculatePageSize(grid: GridRef, height: number) {
-      if (grid.current) {
-        const rowHeight: number = grid.current.getRowHeight();
-        /** Grid height */
-        const gridHeight: number = height - 107;
-        /** initial page size */
-        const pageSize: number = grid.current.pageSettings.pageSize as number;
-        /** new page size is obtained here */
-        const pageResize: any = (gridHeight - pageSize * rowHeight) / rowHeight;
-        const finalPageSize = pageSize + Math.round(pageResize);
-        grid.current.pageSettings.pageSize = finalPageSize;
-
-        if (pager.current) {
-          pager.current.totalRecordsCount = props.data.length;
-          pager.current.pageSize = finalPageSize;
-        }
-
-        props.updatePageSize(grid.current.pageSettings.pageSize);
-      }
-    }
 
     function rowSelected() {
       if (grid.current) {
@@ -264,14 +248,18 @@ const TableComponent = memo(
           id={props.id}
           columnMenuClick={columnMenuClick}
           dataBound={() => {
-            if (pager.current) {
-              pager.current.totalRecordsCount = props.data.length;
-            }
             if (grid.current) {
-              props.height && reCalculatePageSize(grid, props.height);
               grid.current.selectionModule.selectRow(props.selectedRowIndex);
             }
           }}
+          pageSettings={{
+            pageSize: props.pageSize,
+            currentPage: props.pageNo,
+            totalRecordsCount: props.data.length,
+          }}
+          // contentHeight={`calc(100%-${props.height - props.contentHeight}px)`}
+          contentHeight={props.contentHeight}
+          rowHeight={props.rowHeight}
           rowSelected={rowSelected}
           resizeStart={handleResizeStart}
           ref={grid}
@@ -318,20 +306,6 @@ const TableComponent = memo(
             )}
           </ColumnsDirective>
         </StyledGridComponent>
-        {!props.serverSidePaginationEnabled && (
-          <PagerComponent
-            ref={pager}
-            click={event => {
-              if (grid.current && event) {
-                props.resetSelectedRowIndex();
-                grid.current.pageSettings.currentPage = (event as any).currentPage;
-                if (!props.serverSidePaginationEnabled) {
-                  props.updatePageNo((event as any).currentPage);
-                }
-              }
-            }}
-          />
-        )}
         {props.serverSidePaginationEnabled && (
           <TablePagination
             pageNo={props.pageNo}

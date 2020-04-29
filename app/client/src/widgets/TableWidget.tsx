@@ -21,6 +21,11 @@ const TableComponent = lazy(() =>
   ),
 );
 
+const ROW_HEIGHT = 37;
+const TABLE_HEADER_HEIGHT = 39;
+const TABLE_FOOTER_HEIGHT = 48;
+const TABLE_EXPORT_HEIGHT = 43;
+
 function constructColumns(
   data: object[],
   hiddenColumns?: string[],
@@ -91,6 +96,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
+
+    const exportHeight =
+      this.props.exportCsv || this.props.exportPDF || this.props.exportCsv
+        ? TABLE_EXPORT_HEIGHT
+        : 0;
+    const tableHeaderHeight =
+      this.props.tableData.length === 0 ? 2 : TABLE_HEADER_HEIGHT;
+    const tableContentHeight =
+      componentHeight - TABLE_FOOTER_HEIGHT - tableHeaderHeight - exportHeight;
+    const pageSize = Math.floor(tableContentHeight / ROW_HEIGHT);
+
+    if (pageSize !== this.props.pageSize) {
+      super.updateWidgetMetaProperty("pageSize", pageSize);
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <TableComponent
@@ -99,10 +118,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columns={columns}
           isLoading={this.props.isLoading}
           height={componentHeight}
+          contentHeight={tableContentHeight}
           width={componentWidth}
           disableDrag={(disable: boolean) => {
             this.disableDrag(disable);
           }}
+          pageSize={pageSize}
+          rowHeight={ROW_HEIGHT}
           columnActions={this.props.columnActions}
           onCommandClick={this.onCommandClick}
           onRowClick={this.handleRowClick}
@@ -116,9 +138,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }}
           updateHiddenColumns={this.updateHiddenColumns}
           resetSelectedRowIndex={this.resetSelectedRowIndex}
-          updatePageSize={(pageSize: number) => {
-            super.updateWidgetMetaProperty("pageSize", pageSize);
-          }}
           exportCsv={this.props.exportCsv}
           exportPDF={this.props.exportPDF}
           exportExcel={this.props.exportExcel}
@@ -200,6 +219,7 @@ export interface TableWidgetProps extends WidgetProps {
   label: string;
   tableData: object[];
   onPageChange?: string;
+  pageSize: number;
   onRowSelected?: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
