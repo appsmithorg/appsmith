@@ -18,8 +18,6 @@ import {
   initApiPane,
 } from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
-import { getPluginIdOfName } from "selectors/entitiesSelector";
-import { PLUGIN_NAME } from "constants/ApiEditorConstants";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -65,7 +63,6 @@ const ActionName = styled.span`
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
-  pluginId: string | undefined;
 }
 
 interface ReduxDispatchProps {
@@ -190,10 +187,8 @@ class ApiSidebar extends React.Component<Props> {
         params: { apiId },
       },
       actions,
-      pluginId,
     } = this.props;
-    if (!pluginId) return null;
-    const data = actions.map(a => a.config);
+    const data = actions.map(a => a.config).filter(a => a.pluginType === "API");
     return (
       <EditorSidebar
         isLoading={isFetching}
@@ -213,7 +208,6 @@ class ApiSidebar extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  pluginId: getPluginIdOfName(state, PLUGIN_NAME),
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
 });

@@ -7,9 +7,7 @@ export const HTTP_METHOD_OPTIONS = HTTP_METHODS.map(method => ({
   value: method,
 }));
 
-export const PLUGIN_NAME = "RestTemplatePluginExecutor";
 export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
-export const PLUGIN_NAME_RAPIDAPI = "Rapid API Plugin";
 
 export const DEFAULT_API_ACTION: Partial<RestAction> = {
   actionConfiguration: {
