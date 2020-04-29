@@ -1,5 +1,9 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { Plugin } from "api/PluginApi";
 
 export interface PluginFormPayload {
@@ -60,7 +64,7 @@ const pluginsReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.FETCH_PLUGIN_FORM_ERROR]: (state: PluginDataState) => {
+  [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (state: PluginDataState) => {
     return {
       ...state,
       loadingFormConfigs: false,

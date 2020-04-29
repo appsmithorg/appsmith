@@ -1,5 +1,9 @@
 import { all, takeEvery, call, put } from "redux-saga/effects";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 
@@ -39,7 +43,7 @@ function* fetchPluginFormSaga(actionPayload: ReduxAction<{ id: string }>) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PLUGIN_FORM_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
       payload: { error },
     });
   }
