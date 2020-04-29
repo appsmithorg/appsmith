@@ -18,7 +18,6 @@ import {
   DEFAULT_TEMPLATE_TYPE,
 } from "constants/providerConstants";
 import { AddApiToPageRequest } from "api/ProvidersApi";
-import ImageAlt from "assets/images/no_image.png";
 import {
   setLastUsedEditorPage,
   setLastSelectedPage,
@@ -356,7 +355,6 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
               <div>
                 {providerDetails.name && (
                   <div
-                    className="innerBox"
                     style={{
                       backgroundColor: getInitialsAndColorCode(
                         providerDetails.name,

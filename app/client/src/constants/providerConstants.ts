@@ -27,6 +27,33 @@ export type ProviderTemplates = ApiResponse & {
   templateId: string;
 };
 
+export type ApiTemplates = {
+  id: string;
+  deleted: boolean;
+  name: string;
+  providerId: string;
+  publisher: string;
+  packageName: string;
+  versionId: string;
+  apiTemplateConfiguration: {
+    documentation: string;
+    sampleResponse: {
+      body: string;
+    };
+  };
+  actionConfiguration: {
+    timeoutInMillisecond: number;
+    paginationType: string;
+    path: string;
+    httpMethod: string;
+    headers: [];
+    routeParameters: [];
+  };
+  datasourceConfiguration: {
+    url: string;
+  };
+};
+
 export type ProviderTemplateArray = ApiResponse & {
   templateData: {
     id: string;
@@ -57,6 +84,15 @@ export type ProviderTemplateArray = ApiResponse & {
   isOpen: boolean;
   addToPageStatus: boolean;
   addToPageLoading: boolean;
+};
+
+export type SearchResultsProviders = {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  url: string;
+  documentationUrl: string;
 };
 
 export const DEFAULT_TEMPLATE_TYPE = "TEMPLATE";

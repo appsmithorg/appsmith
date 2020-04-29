@@ -24,6 +24,7 @@ export const Colors: Record<string, string> = {
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
   MAKO: "#464D53",
+  ALTO: "#DFDFDF",
 
   GREEN: "#29CCA3",
   JUNGLE_GREEN: "#24BA91",
