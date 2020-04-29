@@ -79,6 +79,10 @@ export const getPluginPackageFromDatasourceId = (
   return plugin.packageName;
 };
 
+export const getPluginForm = (state: AppState, pluginId: string): [] => {
+  return state.entities.plugins.formConfigs[pluginId];
+};
+
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
 

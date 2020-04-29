@@ -7,6 +7,7 @@ import {
   PLUGIN_PACKAGE_MONGO,
   PLUGIN_PACKAGE_POSTGRES,
 } from "constants/QueryEditorConstants";
+import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Collapsible from "./Collapsible";
 import history from "utils/history";
@@ -21,6 +22,7 @@ import MongoConfigResponse from "mockResponses/MongoConfigResponse";
 import PostgresConfigResponse from "mockResponses/PostgresConfigResponse";
 import RestTemplateConfigResponse from "mockResponses/RestTemplateConfigResponse";
 import { ControlProps } from "components/formControls/BaseControl";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 import FormControlFactory from "utils/FormControlFactory";
 import Button from "components/editorComponents/Button";
@@ -38,6 +40,8 @@ interface DatasourceDBEditorProps {
   pageId: string;
   formData: Datasource;
   isTesting: boolean;
+  loadingFormConfigs: boolean;
+  formConfig: [];
 }
 
 interface DatasourceDBEditorState {
@@ -96,6 +100,10 @@ const StyledButton = styled(Button)`
     width: 87px;
     height: 32px;
   }
+`;
+
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
 `;
 
 class DatasourceDBEditor extends React.Component<
@@ -200,9 +208,15 @@ class DatasourceDBEditor extends React.Component<
   };
 
   render() {
-    const { selectedPluginPackage } = this.props;
-    const mockResponse = this.getMockResponse(selectedPluginPackage);
-    const content = this.renderDataSourceConfigForm(mockResponse);
+    const { loadingFormConfigs, formConfig } = this.props;
+    const content = this.renderDataSourceConfigForm(formConfig);
+    if (loadingFormConfigs) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
+      );
+    }
 
     return <DBForm>{content}</DBForm>;
   }

@@ -19,6 +19,7 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import { theme } from "constants/DefaultTheme";
 import { selectPlugin } from "actions/datasourceActions";
+import { fetchPluginForm } from "actions/pluginActions";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import Postgres from "assets/images/Postgress.png";
 import MongoDB from "assets/images/MongoDB.png";
@@ -40,12 +41,14 @@ interface ReduxDispatchProps {
   selectPlugin: (pluginType: string) => void;
   initializeForm: (data: Record<string, any>) => void;
   storeDatastoreRefs: (refsList: []) => void;
+  fetchFormConfig: (id: string) => void;
 }
 
 interface ReduxStateProps {
   dataSources: Datasource[];
   plugins: Plugin[];
   datastoreRefs: Record<string, any>;
+  formConfigs: Record<string, []>;
 }
 
 type DataSourceSidebarProps = {};
@@ -207,11 +210,14 @@ class DataSourceSidebar extends React.Component<Props, State> {
   };
 
   handleItemSelected = (datasource: Datasource) => {
-    const { history } = this.props;
+    const { history, formConfigs } = this.props;
     const { pageId, applicationId } = this.props.match.params;
 
     this.props.initializeForm(datasource);
     this.props.selectPlugin(datasource.pluginId);
+    if (!formConfigs[datasource.pluginId]) {
+      this.props.fetchFormConfig(datasource.pluginId);
+    }
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
     );
@@ -328,6 +334,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
+    formConfigs: state.entities.plugins.formConfigs,
     dataSources: getDataSources(state),
     plugins: getPlugins(state),
     datastoreRefs: state.ui.datasourcePane.datasourceRefs,
@@ -337,6 +344,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   initDatasourcePane: (pluginType: string, urlId?: string) =>
     dispatch(initDatasourcePane(pluginType, urlId)),
+  fetchFormConfig: (id: string) => dispatch(fetchPluginForm({ id })),
   selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
   initializeForm: (data: Record<string, any>) =>
     dispatch(initialize(DATASOURCE_DB_FORM, data)),

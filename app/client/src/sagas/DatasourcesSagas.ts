@@ -1,14 +1,6 @@
 import { all, put, takeEvery, select } from "redux-saga/effects";
 import { change, initialize } from "redux-form";
 import _ from "lodash";
-import MongoConfigResponse from "mockResponses/MongoConfigResponse";
-import PostgresConfigResponse from "mockResponses/PostgresConfigResponse";
-import RestTemplateConfigResponse from "mockResponses/RestTemplateConfigResponse";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_MONGO,
-  PLUGIN_PACKAGE_POSTGRES,
-} from "constants/QueryEditorConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -18,15 +10,13 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import {
-  getDatasourceRefs,
-  getPluginPackageFromId,
-} from "selectors/entitiesSelector";
+import { getDatasourceRefs, getPluginForm } from "selectors/entitiesSelector";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, {
   CreateDatasourceConfig,
   Datasource,
 } from "api/DatasourcesApi";
+import PluginApi, { DatasourceForm } from "api/PluginApi";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
@@ -35,19 +25,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
-
-function getFormConfig(packageName: string): any {
-  switch (packageName) {
-    case PLUGIN_PACKAGE_POSTGRES:
-      return PostgresConfigResponse;
-    case PLUGIN_PACKAGE_MONGO:
-      return MongoConfigResponse;
-    case REST_PLUGIN_PACKAGE_NAME:
-      return RestTemplateConfigResponse;
-    default:
-      return [];
-  }
-}
 
 function* fetchDatasourcesSaga() {
   try {
@@ -71,6 +48,7 @@ function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
+    let formConfig;
     const initialValues = {};
     const parseConfig = (section: any): any => {
       return _.map(section.children, (subSection: any) => {
@@ -87,11 +65,23 @@ function* createDatasourceSaga(
         }
       });
     };
-    const pluginPackage = yield select(
-      getPluginPackageFromId,
-      actionPayload.payload.pluginId,
-    );
-    const formConfig = getFormConfig(pluginPackage);
+    formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
+
+    if (!formConfig) {
+      const formConfigResponse: GenericApiResponse<DatasourceForm> = yield PluginApi.fetchFormConfig(
+        actionPayload.payload.pluginId,
+      );
+      yield validateResponse(formConfigResponse);
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        payload: {
+          id: actionPayload.payload.pluginId,
+          form: formConfigResponse.data.form,
+        },
+      });
+
+      formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
+    }
 
     formConfig.map((section: any) => {
       parseConfig(section);
