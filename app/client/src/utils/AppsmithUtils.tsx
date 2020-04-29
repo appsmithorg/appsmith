@@ -122,7 +122,6 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
 };
 
 export const getInitialsAndColorCode = (fullName: any): string[] => {
-  console.log(fullName, "fullName");
   let inits = "";
   // if name contains space. eg: "Full Name"
   if (fullName.includes(" ")) {

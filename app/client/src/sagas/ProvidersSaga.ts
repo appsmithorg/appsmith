@@ -1,4 +1,11 @@
-import { call, takeLatest, put, all, select } from "redux-saga/effects";
+import {
+  call,
+  takeLatest,
+  put,
+  all,
+  select,
+  debounce,
+} from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -11,6 +18,8 @@ import ProvidersApi, {
   FetchProviderTemplatesRequest,
   AddApiToPageRequest,
   FetchProviderCategoriesResponse,
+  SearchApiOrProviderResponse,
+  SearchApiOrProviderRequest,
   FetchProviderDetailsByProviderIdRequest,
   FetchProviderDetailsResponse,
 } from "api/ProvidersApi";
@@ -160,6 +169,33 @@ export function* fetchProviderDetailsByProviderIdSaga(
   }
 }
 
+export function* searchApiOrProviderSaga(
+  action: ReduxAction<SearchApiOrProviderRequest>,
+) {
+  try {
+    const response: SearchApiOrProviderResponse = yield call(
+      ProvidersApi.seachApiOrProvider,
+      action.payload,
+    );
+
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SEARCH_APIORPROVIDERS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SEARCH_APIORPROVIDERS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* providersSagas() {
   yield all([
     takeLatest(
@@ -170,6 +206,11 @@ export default function* providersSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_PROVIDERS_CATEGORIES_INIT,
       fetchProvidersCategoriesSaga,
+    ),
+    debounce(
+      300,
+      ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
+      searchApiOrProviderSaga,
     ),
     takeLatest(
       ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT,

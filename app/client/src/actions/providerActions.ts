@@ -3,11 +3,19 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   AddApiToPageRequest,
   FetchProviderWithCategoryRequest,
+  SearchApiOrProviderRequest,
 } from "api/ProvidersApi";
 
 export const fetchProviders = () => {
   return {
     type: ReduxActionTypes.FETCH_PROVIDERS_INIT,
+  };
+};
+
+export const searchApiOrProvider = (payload: SearchApiOrProviderRequest) => {
+  return {
+    type: ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
+    payload,
   };
 };
 

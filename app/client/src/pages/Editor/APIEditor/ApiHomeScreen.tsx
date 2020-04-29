@@ -11,12 +11,14 @@ import {
   getProviderTemplatesURL,
 } from "constants/routes";
 import { RestAction } from "api/ActionAPI";
-import ImageAlt from "assets/images/no_image.png";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";
 import { TemplateList } from "constants/collectionsConstants";
-import { ProvidersDataArray } from "constants/providerConstants";
+import {
+  ProvidersDataArray,
+  SearchResultsProviders,
+} from "constants/providerConstants";
 import {
   getProviders,
   getProvidersLoadingState,
@@ -30,10 +32,11 @@ import {
   fetchProviderCategories,
   fetchProvidersWithCategory,
   clearProviders,
+  searchApiOrProvider,
 } from "actions/providerActions";
 import { Colors } from "constants/Colors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-// import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import Spinner from "components/editorComponents/Spinner";
@@ -48,22 +51,22 @@ import {
 } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 
-// const SearchContainer = styled.div`
-//   display: flex;
-//   width: 40%;
-//   .closeBtn {
-//     position: absolute;
-//     left: 70%;
-//   }
-// `;
-//
-// const SearchBar = styled(BaseTextInput)`
-//   margin-bottom: 10px;
-//   input {
-//     background-color: ${Colors.WHITE};
-//     1px solid ${Colors.GEYSER};
-//   }
-// `;
+const SearchContainer = styled.div`
+  display: flex;
+  width: 40%;
+  .closeBtn {
+    position: absolute;
+    left: 70%;
+  }
+`;
+
+const SearchBar = styled(BaseTextInput)`
+  margin-bottom: 10px;
+  input {
+    background-color: ${Colors.WHITE};
+    1px solid ${Colors.GEYSER};
+  }
+`;
 
 const ApiHomePage = styled.div`
   font-size: 20px;
@@ -76,6 +79,35 @@ const ApiHomePage = styled.div`
   .closeBtn {
     position: absolute;
     left: 70%;
+  }
+  .searchResultsContainer {
+    background-color: ${Colors.WHITE};
+    z-index: 9999;
+    width: 70%;
+    padding: 20px;
+    border: 1px solid ${Colors.ALTO};
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    border-radius: 4px;
+    max-height: 80vh;
+    overflow: auto;
+  }
+  .searchCloseBtn {
+    float: right;
+    cursor: pointer;
+  }
+  .bp3-collapse-body {
+    position: absolute;
+    z-index: 99999;
+    background-color: ${Colors.WHITE};
+    border: 1px solid ${Colors.ALTO};
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+  }
+  .fontSize16 {
+    font-size: 16px;
   }
 `;
 
@@ -114,6 +146,25 @@ const StyledContainer = styled.div`
   a:hover {
     color: ${Colors.OXFORD_BLUE};
     text-decoration: none;
+  }
+  .providerSearchCard {
+    display: flex;
+    color: ${Colors.BLACK};
+    padding: 5px;
+    cursor: pointer;
+  }
+  .providerSearchCard:hover {
+    background-color: ${Colors.CONCRETE};
+  }
+  .providerSearchResultImage {
+    height: 50px;
+    width: 60px;
+  }
+  .providerSearchResultName {
+    display: flex;
+    align-self: center;
+    padding-left: 15px;
+    font-size: 16px;
   }
   .apiImage {
     object-fit: contain;
@@ -246,7 +297,11 @@ type ApiHomeScreenProps = {
   fetchProviders: () => void;
   clearProviders: () => void;
   fetchProviderCategories: () => void;
+  searchApiOrProvider: (searchKey: string) => void;
   providerCategories: string[];
+  apiOrProviderSearchResults: {
+    providers: SearchResultsProviders[];
+  };
   pageId: string;
   plugins: Plugin[];
   applicationId: string;
@@ -272,10 +327,12 @@ type ApiHomeScreenProps = {
   setCurrentCategory: (category: string) => void;
   setLastUsedEditorPage: (path: string) => void;
   previouslySetCategory: string;
+  fetchProvidersError: boolean;
 };
 
 type ApiHomeScreenState = {
   page: number;
+  showSearchResults: boolean;
 };
 
 type Props = ApiHomeScreenProps &
@@ -287,6 +344,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     this.state = {
       page: 1,
+      showSearchResults: false,
     };
   }
 
@@ -334,9 +392,16 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     }
   };
 
-  // handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-  //   const value = e.target.value;
-  // };
+  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
+    const { searchApiOrProvider } = this.props;
+    const value = e.target.value;
+    if (value) {
+      searchApiOrProvider(value);
+      this.setState({ showSearchResults: true });
+    } else {
+      this.setState({ showSearchResults: false });
+    }
+  };
 
   handleFetchMoreProviders = (page: number) => {
     const { currentCategory } = this.props;
@@ -358,7 +423,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       providerCategories,
       providersTotal,
       isSwitchingCategory,
+      apiOrProviderSearchResults,
+      fetchProvidersError,
     } = this.props;
+    const { showSearchResults } = this.state;
+
     const queryParams: string = location.search;
     let destinationPageId = new URLSearchParams(location.search).get(
       "importTo",
@@ -380,15 +449,95 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     const ApiHomepageTopSection = (
       <React.Fragment>
-        {/* <SearchContainer>
+        <SearchContainer>
           <SearchBar
             icon="search"
             input={{
               onChange: this.handleSearchChange,
+              onFocus: e => {
+                if (e.target.value) {
+                  this.setState({ showSearchResults: true });
+                } else {
+                  this.setState({ showSearchResults: false });
+                }
+              },
             }}
             placeholder="Search"
           />
-        </SearchContainer> */}
+        </SearchContainer>
+        <div>
+          {showSearchResults && (
+            <div className="searchResultsContainer">
+              <Icon
+                icon="cross"
+                iconSize={20}
+                className="searchCloseBtn"
+                onClick={() => {
+                  this.setState({ showSearchResults: false });
+                }}
+              />
+              <StyledContainer>
+                <div>
+                  <p className="sectionHeadings">{"Providers"}</p>
+                  {apiOrProviderSearchResults.providers.map(
+                    providerSearchResult => (
+                      <React.Fragment key={providerSearchResult.id}>
+                        <p
+                          className="providerSearchCard"
+                          onClick={() =>
+                            history.push(
+                              getProviderTemplatesURL(
+                                applicationId,
+                                pageId,
+                                providerSearchResult.id +
+                                  `/?importTo=${destinationPageId}`,
+                              ),
+                            )
+                          }
+                        >
+                          {providerSearchResult.imageUrl ? (
+                            <img
+                              src={providerSearchResult.imageUrl}
+                              className="providerSearchResultImage"
+                              alt="img"
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                backgroundColor: getInitialsAndColorCode(
+                                  providerSearchResult.name,
+                                )[1],
+                                padding: 11,
+                                width: 60,
+                                color: "#fff",
+                                borderRadius: 2,
+                                fontSize: 16,
+                                fontWeight: "bold",
+                                textAlign: "center",
+                              }}
+                            >
+                              <span>
+                                {
+                                  getInitialsAndColorCode(
+                                    providerSearchResult.name,
+                                  )[0]
+                                }
+                              </span>
+                            </div>
+                          )}
+                          <span className="providerSearchResultName">
+                            {providerSearchResult.name}
+                            {/* |{" "} {providerSearchResult.noOfApis} APIs */}
+                          </span>
+                        </p>
+                      </React.Fragment>
+                    ),
+                  )}
+                </div>
+              </StyledContainer>
+            </div>
+          )}
+        </div>
 
         <StyledContainer>
           <p className="sectionHeadings">{"Import API"}</p>
@@ -451,7 +600,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     return (
       <React.Fragment>
-        <ApiHomePage>
+        <ApiHomePage
+          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+        >
           {isSwitchingCategory ? (
             <>
               {ApiHomepageTopSection}
@@ -501,67 +652,75 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                     </LoadingContainer>
                   ) : (
                     <>
-                      <div>
-                        <ApiCard>
-                          {providers.map((provider, index) => (
-                            <CardList
-                              key={index}
-                              onClick={() =>
-                                history.push(
-                                  getProviderTemplatesURL(
-                                    applicationId,
-                                    pageId,
-                                    provider.id +
-                                      `/?importTo=${destinationPageId}`,
-                                  ),
-                                )
-                              }
-                            >
-                              <Card
-                                interactive={false}
-                                className="eachProviderCard"
+                      {fetchProvidersError ? (
+                        <div>
+                          <p className="fontSize16">No providers found.</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <ApiCard>
+                            {providers.map((provider, index) => (
+                              <CardList
+                                key={index}
+                                onClick={() =>
+                                  history.push(
+                                    getProviderTemplatesURL(
+                                      applicationId,
+                                      pageId,
+                                      provider.id +
+                                        `/?importTo=${destinationPageId}`,
+                                    ),
+                                  )
+                                }
                               >
-                                {provider.imageUrl ? (
-                                  <img
-                                    src={provider.imageUrl}
-                                    className="apiImage"
-                                    alt="Provider"
-                                  />
-                                ) : (
-                                  <div
-                                    className="innerBox"
-                                    style={{
-                                      backgroundColor: getInitialsAndColorCode(
-                                        provider.name,
-                                      )[1],
-                                      padding: 11,
-                                      margin: "auto auto 10px",
-                                      width: 70,
-                                      color: "#fff",
-                                      borderRadius: 2,
-                                      fontSize: 24,
-                                      fontWeight: "bold",
-                                    }}
-                                  >
-                                    <span>
-                                      {
-                                        getInitialsAndColorCode(
+                                <Card
+                                  interactive={false}
+                                  className="eachProviderCard"
+                                >
+                                  {provider.imageUrl ? (
+                                    <img
+                                      src={provider.imageUrl}
+                                      className="apiImage"
+                                      alt="Provider"
+                                    />
+                                  ) : (
+                                    <div
+                                      style={{
+                                        backgroundColor: getInitialsAndColorCode(
                                           provider.name,
-                                        )[0]
-                                      }
-                                    </span>
-                                  </div>
-                                )}
-                                {provider.name && (
-                                  <p className="textBtn" title={provider.name}>
-                                    {provider.name}
-                                  </p>
-                                )}
-                              </Card>
-                            </CardList>
-                          ))}
-                        </ApiCard>
-                      </div>
+                                        )[1],
+                                        padding: 11,
+                                        margin: "auto auto 10px",
+                                        width: 70,
+                                        color: "#fff",
+                                        borderRadius: 2,
+                                        fontSize: 24,
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      <span>
+                                        {
+                                          getInitialsAndColorCode(
+                                            provider.name,
+                                          )[0]
+                                        }
+                                      </span>
+                                    </div>
+                                  )}
+                                  {provider.name && (
+                                    <p
+                                      className="textBtn"
+                                      title={provider.name}
+                                    >
+                                      {provider.name}
+                                    </p>
+                                  )}
+                                </Card>
+                              </CardList>
+                            ))}
+                          </ApiCard>
+                        </div>
+                      )}
                     </>
                   )}
                 </StyledContainer>
@@ -577,7 +736,12 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
 const mapStateToProps = (state: AppState) => {
   const { providers } = state.ui;
-  const { providersTotal, isSwitchingCategory } = providers;
+  const {
+    providersTotal,
+    isSwitchingCategory,
+    fetchProvidersError,
+    apiOrProviderSearchResults,
+  } = providers;
   const formData = getFormValues(API_HOME_SCREEN_FORM)(
     state,
   ) as FetchProviderWithCategoryRequest;
@@ -604,8 +768,10 @@ const mapStateToProps = (state: AppState) => {
     providerCategories: getProviderCategories(state),
     plugins: state.entities.plugins.list,
     isSwitchingCategory,
+    apiOrProviderSearchResults,
     previouslySetCategory: state.ui.apiPane.currentCategory,
     initialValues: { category: initialCategoryValue },
+    fetchProvidersError,
   };
 };
 
@@ -618,6 +784,8 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchProvidersWithCategory(request)),
   createAction: (data: Partial<RestAction>) =>
     dispatch(createActionRequest(data)),
+  searchApiOrProvider: (searchKey: string) =>
+    dispatch(searchApiOrProvider({ searchKey })),
   createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
   setCurrentCategory: (category: string) =>
     dispatch(setCurrentCategory(category)),

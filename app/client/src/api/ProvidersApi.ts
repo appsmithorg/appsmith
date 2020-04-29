@@ -4,6 +4,7 @@ import { ApiResponse } from "./ApiResponses";
 import {
   Providers,
   ProviderTemplates,
+  SearchResultsProviders,
   ProvidersDataArray,
 } from "constants/providerConstants";
 
@@ -23,6 +24,12 @@ export interface FetchProviderTemplateResponse extends ApiResponse {
   data: ProviderTemplates[];
 }
 
+export interface SearchApiOrProviderResponse extends ApiResponse {
+  data: {
+    providers: SearchResultsProviders[];
+  };
+}
+
 export interface FetchProviderTemplatesRequest {
   providerId: string;
 }
@@ -34,6 +41,10 @@ export interface FetchProviderDetailsByProviderIdRequest {
 export interface FetchProviderWithCategoryRequest {
   category: string;
   page: number;
+}
+
+export interface SearchApiOrProviderRequest {
+  searchKey: string;
 }
 
 export interface AddApiToPageRequest {
@@ -54,6 +65,10 @@ export class ProvidersApi extends Api {
     return `v1/marketplace/templates?providerId=${providerId}`;
   };
 
+  static searchApiOrProviderUrl = (searchKey: string) => {
+    return `v1/marketplace/search?searchKey=${searchKey}`;
+  };
+
   static providersWithCategoryURL = (category: string, page: number) => {
     return `v1/marketplace/providers?category=${category}&page=${page}&size=50`;
   };
@@ -69,6 +84,13 @@ export class ProvidersApi extends Api {
   ): AxiosPromise<FetchProviderTemplateResponse> {
     const { providerId } = request;
     return Api.get(ProvidersApi.providerTemplateURL(providerId));
+  }
+
+  static seachApiOrProvider(
+    request: SearchApiOrProviderRequest,
+  ): AxiosPromise<SearchApiOrProviderResponse> {
+    const { searchKey } = request;
+    return Api.get(ProvidersApi.searchApiOrProviderUrl(searchKey));
   }
 
   static addApiToPage(request: AddApiToPageRequest): AxiosPromise<ApiResponse> {
