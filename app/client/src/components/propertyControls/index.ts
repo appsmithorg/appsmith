@@ -23,6 +23,7 @@ import LocationSearchControl from "components/propertyControls/LocationSearchCon
 import StepControl, {
   StepControlProps,
 } from "components/propertyControls/StepControl";
+import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import MultiSwitchControl, {
@@ -43,6 +44,7 @@ export const PropertyControls = {
   ChartDataControl,
   LocationSearchControl,
   StepControl,
+  TabControl,
 };
 
 export type PropertyControlPropsType =

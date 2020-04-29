@@ -55,14 +55,33 @@ const StyledControlGroup = styled(ControlGroup)`
   }
 `;
 
-class DatePickerComponent extends React.Component<DatePickerComponentProps> {
+class DatePickerComponent extends React.Component<
+  DatePickerComponentProps,
+  DatePickerComponentState
+> {
+  constructor(props: DatePickerComponentProps) {
+    super(props);
+    this.state = {
+      selectedDate: props.selectedDate,
+    };
+  }
+
+  componentDidUpdate(prevProps: DatePickerComponentProps) {
+    if (
+      !moment(this.props.selectedDate).isSame(
+        moment(prevProps.selectedDate),
+        "seconds",
+      )
+    ) {
+      this.setState({ selectedDate: this.props.selectedDate });
+    }
+  }
+
   render() {
     const now = moment();
     const year = now.get("year");
-    const month = now.get("month");
-    const date = now.get("date");
-    const minDate = now.clone().set({ month, date: date - 1, year: year - 20 });
-    const maxDate = now.clone().set({ month, date: date + 1, year: year + 20 });
+    const minDate = now.clone().set({ month: 0, date: 1, year: year - 20 });
+    const maxDate = now.clone().set({ month: 11, date: 31, year: year + 20 });
     return (
       <StyledControlGroup
         fill
@@ -92,7 +111,11 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
             timePrecision={TimePrecision.MINUTE}
             closeOnSelection
             onChange={this.onDateSelected}
-            value={this.props.selectedDate}
+            value={
+              this.state.selectedDate
+                ? moment(this.state.selectedDate).toDate()
+                : null
+            }
             maxDate={maxDate.toDate()}
             minDate={minDate.toDate()}
           />
@@ -122,22 +145,28 @@ class DatePickerComponent extends React.Component<DatePickerComponentProps> {
   };
 
   onDateSelected = (selectedDate: Date) => {
-    this.props.onDateSelected(selectedDate);
+    const date = moment(selectedDate).toISOString(true);
+    this.setState({ selectedDate: date });
+    this.props.onDateSelected(date);
   };
 }
 
-export interface DatePickerComponentProps extends ComponentProps {
+interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   enableTimePicker?: boolean;
-  selectedDate?: Date;
+  selectedDate: string;
   minDate?: Date;
   maxDate?: Date;
   timezone?: string;
   datePickerType: DatePickerType;
   isDisabled: boolean;
-  onDateSelected: (date: Date) => void;
+  onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
+}
+
+interface DatePickerComponentState {
+  selectedDate: string;
 }
 
 export default DatePickerComponent;

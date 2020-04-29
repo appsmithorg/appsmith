@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
@@ -21,11 +21,9 @@ const StyledInput = styled.input`
 `;
 
 interface StandaloneSearchBoxProps {
-  onSearchBoxMounted: (ref: SearchBoxRef) => void;
+  onSearchBoxMounted: (ref: any) => void;
   onPlacesChanged: () => void;
 }
-
-type SearchBoxRef = MutableRefObject<StandaloneSearchBox | null>;
 
 const PlacesWithStandaloneSearchBox = compose(
   withProps({
@@ -36,17 +34,16 @@ const PlacesWithStandaloneSearchBox = compose(
   }),
   lifecycle({
     componentWillMount() {
-      let searchBox: SearchBoxRef = React.createRef<SearchBox>();
+      let searchBox: any = React.createRef<SearchBox>();
       this.setState({
         places: [],
-        onSearchBoxMounted: (ref: SearchBoxRef) => {
+        onSearchBoxMounted: (ref: any) => {
           searchBox = ref;
         },
         onPlacesChanged: () => {
           if (searchBox === null) return;
-          if (searchBox.current === null) return;
-          if (searchBox.current.getPlaces === null) return;
-          const places = searchBox.current.getPlaces();
+          if (searchBox.getPlaces === null) return;
+          const places = searchBox.getPlaces();
           this.setState({
             places,
           });

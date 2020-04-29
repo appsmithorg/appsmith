@@ -76,16 +76,16 @@ function DataControlComponent(props: RenderComponentProps) {
   const { deleteOption, updateOption, item, index, length } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
-      {length > 1 && (
-        <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-          <StyledOptionControlInputGroup
-            type="text"
-            placeholder="Series Name"
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              updateOption(index, "seriesName", event.target.value);
-            }}
-            defaultValue={item.seriesName}
-          />
+      <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
+        <StyledOptionControlInputGroup
+          type="text"
+          placeholder="Series Name"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            updateOption(index, "seriesName", event.target.value);
+          }}
+          defaultValue={item.seriesName}
+        />
+        {length > 1 && (
           <StyledDeleteIcon
             height={20}
             width={20}
@@ -93,8 +93,8 @@ function DataControlComponent(props: RenderComponentProps) {
               deleteOption(index);
             }}
           />
-        </StyledOptionControlWrapper>
-      )}
+        )}
+      </StyledOptionControlWrapper>
       <StyledDynamicInput>
         <DynamicAutocompleteInput
           input={{
@@ -147,7 +147,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           );
         })}
         <StyledPropertyPaneButton
-          text="Add Data"
+          text="Add Series"
           icon="plus"
           color="#FFFFFF"
           minimal
