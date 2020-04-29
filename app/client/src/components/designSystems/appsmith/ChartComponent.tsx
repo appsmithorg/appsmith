@@ -72,6 +72,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartData = (chartData: ChartData[]) => {
     const data: ChartDataPoint[] = chartData[0].data;
+    if (data.length === 0) {
+      return {
+        label: "",
+        value: "",
+      };
+    }
     return data.map(item => {
       return {
         label: item.x,
@@ -96,6 +102,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartCategories = (chartData: ChartData[]) => {
     const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+    if (categories.length === 0) {
+      return {
+        label: "",
+      };
+    }
     return categories.map(item => {
       return {
         label: item,
@@ -105,6 +116,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
     const dataMap: { [key: string]: string } = {};
+    if (data.length === 0) {
+      return [
+        {
+          value: "",
+        },
+      ];
+    }
     for (let index = 0; index < data.length; index++) {
       const item: ChartDataPoint = data[index];
       dataMap[item.x] = item.y;

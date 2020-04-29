@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
-import { EditorReduxState } from "reducers/uiReducers/editorReducer";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
@@ -18,13 +17,13 @@ import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { getActions } from "sagas/selectors";
+
 import * as log from "loglevel";
 
-const getEditorState = (state: AppState) => state.ui.editor;
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
-const getActions = (state: AppState) => state.entities.actions;
 export const getLastSelectedPage = (state: AppState) =>
   state.ui.apiPane.lastSelectedPage;
 
@@ -36,74 +35,43 @@ export const getDataSources = (state: AppState) =>
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
-export const getIsEditorInitialized = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.initialized,
-);
+export const getIsEditorInitialized = (state: AppState) =>
+  state.ui.editor.initialized;
 
-export const getIsEditorLoading = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.loading,
-);
-export const getIsFetchingPage = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.isPageSwitching,
-);
+export const getIsEditorLoading = (state: AppState) =>
+  state.ui.editor.loadingStates.loading;
 
-export const getPublishedTime = createSelector(
-  getEditorState,
-  (editor: EditorReduxState): string | undefined =>
-    editor.loadingStates.published,
-);
+export const getIsFetchingPage = (state: AppState) =>
+  state.ui.editor.loadingStates.isPageSwitching;
 
-export const getLoadingError = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.loadingError,
-);
+export const getLoadingError = (state: AppState) =>
+  state.ui.editor.loadingStates.loadingError;
 
-export const getPageList = createSelector(
-  getPageListState,
-  (pageList: PageListReduxState) => pageList.pages,
-);
+export const getIsPageSaving = (state: AppState) =>
+  state.ui.editor.loadingStates.saving;
 
-export const getCurrentPageId = createSelector(
-  getPageListState,
-  (pageList: PageListReduxState) => pageList.currentPageId,
-);
+export const getIsPublishingApplication = (state: AppState) =>
+  state.ui.editor.loadingStates.publishing;
 
-export const getCurrentLayoutId = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.currentLayoutId,
-);
+export const getPublishingError = (state: AppState) =>
+  state.ui.editor.loadingStates.publishingError;
 
-export const getPageWidgetId = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.pageWidgetId || "0",
-);
+export const getCurrentLayoutId = (state: AppState) =>
+  state.ui.editor.currentLayoutId;
+
+export const getPageList = (state: AppState) => state.entities.pageList.pages;
+
+export const getCurrentPageId = (state: AppState) =>
+  state.entities.pageList.currentPageId;
+
+export const getCurrentApplicationId = (state: AppState) =>
+  state.entities.pageList.applicationId;
 
 export const getCurrentPageName = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.currentPageName,
-);
-
-export const getCurrentApplicationId = createSelector(
   getPageListState,
-  (pageList: PageListReduxState) => pageList.applicationId,
-);
-
-export const getIsPageSaving = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.saving,
-);
-
-export const getIsPublishingApplication = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.publishing,
-);
-
-export const getPublishingError = createSelector(
-  getEditorState,
-  (editor: EditorReduxState) => editor.loadingStates.publishingError,
+  (pageList: PageListReduxState) =>
+    pageList.pages.find(page => page.pageName === pageList.currentPageId)
+      ?.pageName,
 );
 
 export const getWidgetCards = createSelector(

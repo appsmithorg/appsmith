@@ -54,7 +54,11 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import { fetchActionsForPage } from "actions/actionActions";
-import { getExistingWidgetNames } from "./selectors";
+import {
+  getExistingWidgetNames,
+  getExistingPageNames,
+  getExistingActionNames,
+} from "./selectors";
 import { clearCaches } from "utils/DynamicBindingUtils";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
@@ -274,6 +278,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+        payload: action.payload,
       });
     }
   } catch (error) {
@@ -323,8 +328,12 @@ export function* updateWidgetNameSaga(
     const layoutId = yield select(getCurrentLayoutId);
     const pageId = yield select(getCurrentPageId);
     const existingWidgetNames = yield select(getExistingWidgetNames);
+    const existingActionNames = yield select(getExistingActionNames);
+    const existingPageNames = yield select(getExistingPageNames);
     const hasWidgetNameConflict =
-      existingWidgetNames.indexOf(action.payload.newName) > -1;
+      existingWidgetNames.indexOf(action.payload.newName) > -1 ||
+      existingActionNames.indexOf(action.payload.newName) > -1 ||
+      existingPageNames.indexOf(action.payload.newName) > -1;
     if (!hasWidgetNameConflict) {
       const request: UpdateWidgetNameRequest = {
         newName: action.payload.newName,
@@ -363,7 +372,7 @@ export function* updateWidgetNameSaga(
         type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
         payload: {
           error: {
-            message: `Widget name: ${action.payload.newName} is already being used.`,
+            message: `Entity name: ${action.payload.newName} is already being used.`,
           },
         },
       });

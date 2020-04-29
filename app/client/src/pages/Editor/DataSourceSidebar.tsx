@@ -15,6 +15,7 @@ import { Plugin } from "api/PluginApi";
 import {
   initDatasourcePane,
   storeDatastoreRefs,
+  deleteDatasource,
 } from "actions/datasourceActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { theme } from "constants/DefaultTheme";
@@ -42,6 +43,7 @@ interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   storeDatastoreRefs: (refsList: []) => void;
   fetchFormConfig: (id: string) => void;
+  deleteDatasource: (id: string) => void;
 }
 
 interface ReduxStateProps {
@@ -252,6 +254,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
         params: { datasourceId },
       },
       datastoreRefs,
+      deleteDatasource,
     } = this.props;
 
     return datasources.map(datasource => {
@@ -279,7 +282,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
             optionTree={[
               {
                 value: "delete",
-                onSelect: () => null,
+                onSelect: () => deleteDatasource(datasource.id),
                 label: "Delete",
                 intent: "danger",
               },
@@ -351,6 +354,7 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   storeDatastoreRefs: (refsList: {}) => {
     dispatch(storeDatastoreRefs(refsList));
   },
+  deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataSourceSidebar);

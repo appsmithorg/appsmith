@@ -57,6 +57,10 @@ class DatasourcesApi extends API {
   ): Promise<{}> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
+
+  static deleteDatasource(id: string): Promise<{}> {
+    return API.delete(DatasourcesApi.url + `/${id}`);
+  }
 }
 
 export default DatasourcesApi;

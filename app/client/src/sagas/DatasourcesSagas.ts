@@ -17,7 +17,10 @@ import DatasourcesApi, {
   Datasource,
 } from "api/DatasourcesApi";
 import PluginApi, { DatasourceForm } from "api/PluginApi";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_ID_URL,
+  DATA_SOURCES_EDITOR_URL,
+} from "constants/routes";
 import history from "utils/history";
 import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
@@ -139,6 +142,39 @@ function* createDatasourceSaga(
   }
 }
 
+export function* deleteDatasourceSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  try {
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    const id = actionPayload.payload.id;
+    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
+      id,
+    );
+
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      AppToaster.show({
+        message: `${response.data.name} datasource deleted`,
+        type: ToastType.SUCCESS,
+      });
+
+      yield put({
+        type: ReduxActionTypes.DELETE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
+      payload: { error, id: actionPayload.payload.id },
+    });
+  }
+}
+
 function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   try {
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.updateDatasource(
@@ -213,5 +249,6 @@ export function* watchDatasourcesSagas() {
     takeEvery(ReduxActionTypes.CREATE_DATASOURCE_INIT, createDatasourceSaga),
     takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
+    takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
   ]);
 }

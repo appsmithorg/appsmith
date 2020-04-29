@@ -1,36 +1,9 @@
 import React from "react";
-import styled from "styled-components";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
-
-const TabsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ChildrenWrapper = styled.div`
-  height: 100%;
-  width: 100%;
-  position: relative;
-  border: 1px solid;
-  border-top: none;
-  border-color: ${props => props.theme.colors.bodyBG};
-  background: ${props => props.theme.colors.builderBodyBG};
-`;
-
-const ScrollableCanvasWrapper = styled.div`
-  overflow-y: auto;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-`;
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -42,14 +15,9 @@ class TabsWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <TabsContainer>
-        <TabsComponent {...this.props} onTabChange={this.onTabChange} />
-        <ChildrenWrapper>
-          <ScrollableCanvasWrapper>
-            {this.renderComponent()}
-          </ScrollableCanvasWrapper>
-        </ChildrenWrapper>
-      </TabsContainer>
+      <TabsComponent {...this.props} onTabChange={this.onTabChange}>
+        {this.renderComponent()}
+      </TabsComponent>
     );
   }
 

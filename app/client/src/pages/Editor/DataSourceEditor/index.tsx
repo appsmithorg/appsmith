@@ -3,7 +3,11 @@ import { connect } from "react-redux";
 import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
 import { getPluginPackageFromId } from "selectors/entitiesSelector";
-import { updateDatasource, testDatasource } from "actions/datasourceActions";
+import {
+  updateDatasource,
+  testDatasource,
+  deleteDatasource,
+} from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -21,6 +25,7 @@ interface ReduxStateProps {
   isTesting: boolean;
   formConfig: [];
   loadingFormConfigs: boolean;
+  isDeleting: boolean;
 }
 
 type Props = ReduxStateProps &
@@ -51,6 +56,8 @@ class DataSourceEditor extends React.Component<Props> {
       isTesting,
       loadingFormConfigs,
       formConfig,
+      isDeleting,
+      deleteDatasource,
     } = this.props;
 
     return (
@@ -61,6 +68,7 @@ class DataSourceEditor extends React.Component<Props> {
             pageId={this.props.match.params.pageId}
             isSaving={isSaving}
             isTesting={isTesting}
+            isDeleting={isDeleting}
             onSubmit={this.handleSubmit}
             onSave={this.handleSave}
             onTest={this.props.testDatasource}
@@ -69,6 +77,7 @@ class DataSourceEditor extends React.Component<Props> {
             formData={formData}
             loadingFormConfigs={loadingFormConfigs}
             formConfig={formConfig}
+            handleDelete={deleteDatasource}
           />
         ) : (
           <DatasourceHome
@@ -97,6 +106,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
       datasourcePane.selectedPlugin,
     ),
     isSaving: datasources.loading,
+    isDeleting: datasources.isDeleting,
     currentPluginId: datasourcePane.selectedPlugin,
     currentApplication: getCurrentApplication(state),
     isTesting: datasources.isTesting,
@@ -111,12 +121,14 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
     dispatch(updateDatasource(formData));
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
+  deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
 });
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
   updateDatasource: (data: Datasource) => void;
   testDatasource: (data: Datasource) => void;
+  deleteDatasource: (id: string) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataSourceEditor);

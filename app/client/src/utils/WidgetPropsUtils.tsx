@@ -51,6 +51,7 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
     ) {
       const canvas = {
         ...dsl,
+        backgroundColor: "transparent",
         type: WidgetTypes.CANVAS_WIDGET,
         detachFromLayout: true,
         topRow: 0,

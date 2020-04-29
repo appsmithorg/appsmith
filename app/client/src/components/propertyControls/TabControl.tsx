@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
@@ -172,7 +171,7 @@ class TabControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, tabs);
   };
 
-  getControlType(): ControlType {
+  static getControlType() {
     return "TABS_INPUT";
   }
 }
