@@ -100,6 +100,30 @@ public class DatabaseChangelog {
         } catch (DuplicateKeyException e) {
             log.warn("restapi-plugin already present in database.");
         }
+
+        Plugin plugin3 = new Plugin();
+        plugin3.setName("MongoDBPlugin");
+        plugin3.setType(PluginType.DB);
+        plugin3.setPackageName("mongo-plugin");
+        plugin3.setUiComponent("DbEditorForm");
+        plugin3.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin3);
+        } catch (DuplicateKeyException e) {
+            log.warn("mongo-plugin already present in database.");
+        }
+
+        Plugin plugin4 = new Plugin();
+        plugin4.setName("Rapid API Plugin");
+        plugin4.setType(PluginType.API);
+        plugin4.setPackageName("rapidapi-plugin");
+        plugin4.setUiComponent("RapidApiEditorForm");
+        plugin4.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin4);
+        } catch (DuplicateKeyException e) {
+            log.warn("rapidapi-plugin already present in database.");
+        }
     }
 
     @ChangeSet(order = "002", id = "remove-org-name-index", author = "")
@@ -274,6 +298,22 @@ public class DatabaseChangelog {
                 page.setDeletedAt(page.getUpdatedAt());
                 mongoTemplate.save(page);
             }
+        }
+    }
+
+    @ChangeSet(order = "009", id = "friendly-plugin-names", author = "")
+    public void setFriendlyPluginNames(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setName("PostgreSQL");
+            } else if ("restapi-plugin".equals(plugin.getPackageName())) {
+                plugin.setName("REST API");
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setName("MongoDB");
+            } else {
+                continue;
+            }
+            mongoTemplate.save(plugin);
         }
     }
 
