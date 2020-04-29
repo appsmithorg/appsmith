@@ -1,22 +1,14 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Collection;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -83,10 +75,6 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
      */
     @Override
     public Mono<Action> createAction(Action action) {
-        if (action.getTemplateId() != null) {
-            return createMockDataAction(action);
-        }
-
         if (action.getCollectionId() == null) {
             return actionService.create(action);
         }
@@ -95,28 +83,6 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
         return Mono.just(action)
                 .flatMap(actionService::create)
                 .flatMap(savedAction -> collectionService.addSingleActionToCollection(finalAction.getCollectionId(), savedAction));
-    }
-
-    private Mono<Action> createMockDataAction(Action action) {
-        action.setName("ResultActionAPI");
-        Datasource datasource = new Datasource();
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://google.com");
-        datasource.setDatasourceConfiguration(datasourceConfiguration);
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPath("/viewSomething");
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        List<Property> headers = new ArrayList<>();
-        Property header = new Property();
-        header.setKey("key");
-        header.setValue("value");
-        headers.add(header);
-        actionConfiguration.setHeaders(headers);
-
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-        return Mono.just(action);
     }
 
     @Override
