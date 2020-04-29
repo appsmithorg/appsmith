@@ -27,6 +27,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.concurrent.TimeUnit;
 
@@ -221,6 +222,23 @@ public class DatabaseChangelog {
                 application.setDeletedAt(application.getUpdatedAt());
                 mongoTemplate.save(application);
             }
+        }
+    }
+
+    @ChangeSet(order = "006", id = "hide-rapidapi-plugin", author = "")
+    public void hideRapidApiPluginFromCreateDatasource(MongoTemplate mongoTemplate) {
+        final Plugin rapidApiPlugin = mongoTemplate.findOne(
+                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("packageName").is("rapidapi-plugin")),
+                Plugin.class
+        );
+
+        if (rapidApiPlugin == null) {
+            log.error("Couldn't find rapidapi-plugin, to set it's `allowUserDatasources` to false.");
+
+        } else {
+            rapidApiPlugin.setAllowUserDatasources(false);
+            mongoTemplate.save(rapidApiPlugin);
+
         }
     }
 
