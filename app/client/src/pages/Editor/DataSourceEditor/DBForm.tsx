@@ -31,8 +31,10 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
   onTest: (formValus: Datasource) => void;
+  handleDelete: (id: string) => void;
   selectedPluginPackage: string;
   isSaving: boolean;
+  isDeleting: boolean;
   datasourceId: string;
   applicationId: string;
   pageId: string;
@@ -86,7 +88,7 @@ const SaveButtonContainer = styled.div`
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 72px;
-    margin: 0 9px;
+    margin-right: 9px;
     min-height: 32px;
   }
 `;
@@ -287,6 +289,9 @@ class DatasourceDBEditor extends React.Component<
       applicationId,
       pageId,
       isTesting,
+      isDeleting,
+      datasourceId,
+      handleDelete,
     } = this.props;
 
     return (
@@ -329,6 +334,13 @@ class DatasourceDBEditor extends React.Component<
             })
           : undefined}
         <SaveButtonContainer>
+          <ActionButton
+            text="Delete"
+            accent="error"
+            loading={isDeleting}
+            onClick={() => handleDelete(datasourceId)}
+          />
+
           <ActionButton
             text="Test"
             loading={isTesting}

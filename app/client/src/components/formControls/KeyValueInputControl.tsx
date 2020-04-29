@@ -6,7 +6,6 @@ import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 
 const FormRowWithLabel = styled.div`
   display: flex;
