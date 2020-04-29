@@ -51,7 +51,7 @@ export const fetchPublishedPageSuccess = (
 });
 
 export const updateCurrentPage = (id: string) => ({
-  type: ReduxActionTypes.UPDATE_CURRENT_PAGE,
+  type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
   payload: { id },
 });
 

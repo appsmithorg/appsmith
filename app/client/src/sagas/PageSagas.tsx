@@ -274,6 +274,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
+        payload: action.payload,
       });
     }
   } catch (error) {

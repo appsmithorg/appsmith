@@ -16,7 +16,6 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
-  getCurrentLayoutId,
   getCurrentPageId,
   getPageList,
   getIsPublishingApplication,
@@ -24,7 +23,6 @@ import {
   getIsPageSaving,
   getIsEditorLoading,
   getLoadingError,
-  getPublishedTime,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import {
@@ -43,7 +41,6 @@ type EditorProps = {
   currentPageName?: string;
   isSaving: boolean;
   currentApplicationId?: string;
-  currentLayoutId?: string;
   currentPageId?: string;
   publishApplication: Function;
   previewPage: Function;
@@ -56,7 +53,6 @@ type EditorProps = {
   isEditorInitialized: boolean;
   editorLoadingError: boolean;
   errorPublishing: boolean;
-  publishedTime?: string;
   isPageSwitching: boolean;
   createModal: () => void;
   currentApplication: UserApplication;
@@ -145,7 +141,6 @@ class Editor extends Component<EditorProps> {
             currentPageId={this.props.currentPageId}
             currentApplicationId={this.props.currentApplicationId}
             isPublishing={this.props.isPublishing}
-            publishedTime={this.props.publishedTime}
             createModal={this.props.createModal}
           />
           <MainContainer />
@@ -189,14 +184,12 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
   currentApplication: getCurrentApplication(state),
   currentPageId: getCurrentPageId(state),
-  currentLayoutId: getCurrentLayoutId(state),
   pages: getPageList(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   editorLoadingError: getLoadingError(state),
-  publishedTime: getPublishedTime(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
