@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
@@ -23,9 +24,15 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 public abstract class BaseService<R extends BaseRepository & AppsmithRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
@@ -142,5 +149,52 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
                     }
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
                 });
+    }
+
+    public Mono<T> addPolicies(ID id, Set<Policy> policies) {
+        Map<String, Set<Policy>> policyMap = getAllPoliciesAsMap(policies);
+
+        return getById(id)
+                .flatMap(obj -> {
+                    // Append the user to the existing permission policy if it already exists.
+                    for (Policy policy : obj.getPolicies()) {
+                        String permission = policy.getPermission();
+                        if (policyMap.containsKey(permission)) {
+                            for (Policy newPolicy : policyMap.get(permission)) {
+                                policy.getUsers().addAll(newPolicy.getUsers());
+                                if (policy.getGroups() == null) {
+                                    policy.setGroups(new HashSet<>());
+                                }
+                                if (newPolicy.getGroups() != null) {
+                                    policy.getGroups().addAll(newPolicy.getGroups());
+                                }
+                            }
+                            // Remove this permission from the policyMap as this has been accounted for in the above code
+                            policyMap.remove(permission);
+                        }
+                    }
+
+                    // For all the remaining policies which exist in the policyMap but didnt exist in the application
+                    // earlier, just add them to the set
+                    Iterator<String> iterator = policyMap.keySet().iterator();
+                    while(iterator.hasNext()) {
+                        String permission = iterator.next();
+                        Set<Policy> policySet = policyMap.get(permission);
+                        obj.getPolicies().addAll(policySet);
+                    }
+
+                    return repository.save(obj);
+                });
+    }
+
+    public Mono<T> removePolicies(ID id, Set<Policy> policies) {
+        return null;
+    }
+
+    private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
+        return policies
+                .stream()
+                .collect(Collectors.groupingBy(Policy::getPermission,
+                        Collectors.mapping(Function.identity(), toSet())));
     }
 }
