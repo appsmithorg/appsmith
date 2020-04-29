@@ -22,6 +22,13 @@ export const testDatasource = (payload: Partial<Datasource>) => {
   };
 };
 
+export const deleteDatasource = (payload: Partial<Datasource>) => {
+  return {
+    type: ReduxActionTypes.DELETE_DATASOURCE_INIT,
+    payload,
+  };
+};
+
 export const fetchDatasources = () => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
