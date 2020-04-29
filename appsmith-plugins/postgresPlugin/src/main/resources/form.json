@@ -9,6 +9,7 @@
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "DROP_DOWN",
           "isRequired": true,
+          "initialValue": "READ_WRITE",
           "options": [
             {
               "label": "Read Only",
@@ -45,7 +46,9 @@
         {
           "label": "Database Name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT"
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "admin"
         },
         {
           "sectionName": null,
@@ -53,13 +56,15 @@
             {
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT"
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
             },
             {
               "label": "Password",
               "configProperty": "datasourceConfiguration.authentication.password",
               "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT"
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password"
             }
           ]
         }
@@ -114,7 +119,8 @@
             },
             {
               "label": "Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.certificateFile",
+              "configProperty":
+              "datasourceConfiguration.connection.ssl.certificateFile",
               "controlType": "FILE_PICKER"
             }
           ]
@@ -124,19 +130,23 @@
           "children": [
             {
               "label": "CA Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
+              "configProperty":
+              "datasourceConfiguration.connection.ssl.caCertificateFile",
               "controlType": "FILE_PICKER"
             },
             {
               "label": "PEM Certificate",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.file",
+              "configProperty":
+              "datasourceConfiguration.connection.ssl.pemCertificate.file",
               "controlType": "FILE_PICKER"
             },
             {
               "label": "PEM Passphrase",
-              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.password",
+              "configProperty":
+              "datasourceConfiguration.connection.ssl.pemCertificate.password",
               "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT"
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "PEM Passphrase"
             }
           ]
         }
@@ -157,25 +167,29 @@
             {
               "label": "Tunnel Host",
               "configProperty": "datasourceConfiguration.sshProxy.host",
-              "controlType": "INPUT_TEXT"
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "0.0.0.0"
             },
             {
               "label": "Tunnel Port",
               "configProperty": "datasourceConfiguration.sshProxy.port",
-              "controlType": "INPUT_TEXT"
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "8080"
             }
           ]
         },
         {
           "label": "Username",
           "configProperty": "datasourceConfiguration.sshProxy.username",
-          "controlType": "INPUT_TEXT"
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "SSH Proxy username"
         },
         {
           "label": "Password",
           "configProperty": "datasourceConfiguration.sshProxy.password",
           "dataType": "PASSWORD",
-          "controlType": "INPUT_TEXT"
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "SSH Proxy password"
         },
         {
           "label": "Authentication Type",
