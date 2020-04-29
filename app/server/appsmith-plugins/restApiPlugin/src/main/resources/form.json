@@ -2,12 +2,18 @@
   "form": [
     {
       "sectionName": "General",
-      "id": 1,
       "children": [
         {
-          "label": "Rapid Api Connection Name",
-          "configProperty": "connectionName",
-          "controlType": "INPUT_TEXT"
+          "label": "URL",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "https://example.com"
+        },
+        {
+          "label": "Headers",
+          "configProperty": "datasourceConfiguration.headers",
+          "controlType": "KEY_VAL_INPUT"
         }
       ]
     }
