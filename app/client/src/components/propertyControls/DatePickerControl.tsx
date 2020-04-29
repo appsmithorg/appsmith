@@ -8,6 +8,7 @@ import { TimePrecision } from "@blueprintjs/datetime";
 const DatePickerControlWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  margin: 8px 0 0 0;
   &&& {
     input {
       background: ${props => props.theme.colors.paneTextBG};
@@ -16,16 +17,27 @@ const DatePickerControlWrapper = styled.div`
       box-shadow: none;
     }
   }
+  .vertical-center {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0 4px 0;
+    .label {
+      color: ${props => props.theme.colors.paneText};
+      font-size: ${props => props.theme.fontSizes[3]}px;
+    }
+    .bp3-control {
+      margin-bottom: 0px;
+    }
+  }
 `;
 
 class DatePickerControl extends BaseControl<DatePickerControlProps> {
   render() {
     const now = moment();
     const year = now.get("year");
-    const date = now.get("date");
-    const month = now.get("month");
-    const minDate = now.clone().set({ month, date: date - 1, year: year - 20 });
-    const maxDate = now.clone().set({ month, date: date + 1, year: year + 20 });
+    const minDate = now.clone().set({ month: 0, date: 1, year: year - 20 });
+    const maxDate = now.clone().set({ month: 11, date: 31, year: year + 20 });
     return (
       <DatePickerControlWrapper>
         <StyledDatePicker
@@ -38,7 +50,11 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
           onChange={this.onDateSelected}
           maxDate={maxDate.toDate()}
           minDate={minDate.toDate()}
-          value={moment(this.props.propertyValue).toDate()}
+          value={
+            this.props.propertyValue
+              ? moment(this.props.propertyValue).toDate()
+              : null
+          }
         />
       </DatePickerControlWrapper>
     );
@@ -56,7 +72,7 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr).toDate();
+    return moment(dateStr, "DD/MM/YYYY HH:mm").toDate();
   };
 
   static getControlType() {

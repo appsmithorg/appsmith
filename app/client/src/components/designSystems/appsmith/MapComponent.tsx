@@ -23,8 +23,14 @@ interface MapComponentProps {
     lng: number;
   };
   markers?: Array<MarkerProps>;
+  selectedMarker?: {
+    lat: number;
+    long: number;
+    title?: string;
+  };
   enableCreateMarker: boolean;
   updateCenter: (lat: number, lng: number) => void;
+  updateMarker: (lat: number, lng: number, index: number) => void;
   saveMarker: (lat: number, lng: number) => void;
   selectMarker: (lat: number, lng: number, title: string) => void;
 }
@@ -68,6 +74,8 @@ const MyMapComponent = withScriptjs(
         fullscreenControl: false,
         mapTypeControl: false,
         scrollwheel: false,
+        rotateControl: false,
+        streetViewControl: false,
       }}
       zoom={props.zoom}
       center={props.center}
@@ -92,14 +100,25 @@ const MyMapComponent = withScriptjs(
           title={marker.title}
           position={{ lat: marker.lat, lng: marker.lng }}
           clickable
+          draggable={
+            props.selectedMarker &&
+            props.selectedMarker.lat === marker.lat &&
+            props.selectedMarker.long === marker.lng
+          }
           onClick={e => {
             props.selectMarker(marker.lat, marker.lng, marker.title);
+          }}
+          onDragEnd={de => {
+            props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
           }}
         />
       ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
-          onClick={props.getUserLocation}
+          onClick={e => {
+            props.getUserLocation();
+            e.stopPropagation();
+          }}
           title="Pick My Location"
           allowZoom={props.allowZoom}
         >
@@ -120,10 +139,17 @@ class MapComponent extends React.Component<MapComponentProps> {
     const node: any = this.searchBox;
     if (node) {
       const places: any = node.getPlaces();
-      const location = places[0].geometry.location;
-      const lat = location.lat();
-      const lng = location.lng();
-      this.props.updateCenter(lat, lng);
+      if (
+        places &&
+        places.length &&
+        places[0].geometry &&
+        places[0].geometry.location
+      ) {
+        const location = places[0].geometry.location;
+        const lat = location.lat();
+        const lng = location.lng();
+        this.props.updateCenter(lat, lng);
+      }
     }
   };
 

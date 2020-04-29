@@ -48,6 +48,20 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.updateWidgetMetaProperty("center", { lat, lng });
   };
 
+  updateMarker = (lat: number, lng: number, index: number) => {
+    const markers: Array<MarkerProps> = [...this.props.markers];
+    this.updateWidgetMetaProperty(
+      "markers",
+      markers.map((marker, i) => {
+        if (index === i) {
+          marker.lat = lat;
+          marker.lng = lng;
+        }
+        return marker;
+      }),
+    );
+  };
+
   onCreateMarker = (lat: number, lng: number) => {
     const markers: Array<MarkerProps> = [...this.props.markers];
     markers.push({ lat: lat, lng: lng });
@@ -65,7 +79,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   onMarkerClick = (lat: number, lng: number, title: string) => {
     this.updateWidgetMetaProperty("selectedMarker", {
       lat: lat,
-      lng: lng,
+      long: lng,
       title: title,
     });
     if (this.props.onMarkerClick) {
@@ -106,11 +120,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         allowZoom={this.props.allowZoom}
         center={this.props.center || this.props.mapCenter}
         enableCreateMarker={this.props.enableCreateMarker}
+        selectedMarker={this.props.selectedMarker}
         updateCenter={this.updateCenter}
         isDisabled={this.props.isDisabled}
         enableSearch={this.props.enableSearch}
         enablePickLocation={this.props.enablePickLocation}
         saveMarker={this.onCreateMarker}
+        updateMarker={this.updateMarker}
         selectMarker={this.onMarkerClick}
         markers={this.props.markers || []}
       />
@@ -147,7 +163,11 @@ export interface MapWidgetProps extends WidgetProps {
   };
   defaultMarkers?: Array<MarkerProps>;
   markers?: Array<MarkerProps>;
-  selectedMarker?: MarkerProps;
+  selectedMarker?: {
+    lat: number;
+    long: number;
+    title?: string;
+  };
   onMarkerClick?: string;
   onCreateMarker?: string;
 }
