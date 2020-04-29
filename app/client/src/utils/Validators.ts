@@ -14,6 +14,7 @@ import { modalGetter } from "components/editorComponents/actioncreator/ActionCre
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { PageListPayload } from "constants/ReduxActionConstants";
+import { isDynamicValue } from "./DynamicBindingUtils";
 const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
@@ -348,18 +349,25 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (_.isString(value)) {
       if (value.indexOf("navigateTo") !== -1) {
         const pageNameOrUrl = modalGetter(value);
-        const isPage =
-          dataTree &&
-          (dataTree.pageList as PageListPayload).findIndex(
-            page => page.pageName === pageNameOrUrl,
-          ) !== -1;
-        const isValidUrl = URL_REGEX.test(pageNameOrUrl);
-        if (!(isValidUrl || isPage)) {
-          return {
-            isValid: false,
-            parsed: value,
-            message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
-          };
+        if (dataTree) {
+          if (isDynamicValue(pageNameOrUrl)) {
+            return {
+              isValid: true,
+              parsed: value,
+            };
+          }
+          const isPage =
+            (dataTree.pageList as PageListPayload).findIndex(
+              page => page.pageName === pageNameOrUrl,
+            ) !== -1;
+          const isValidUrl = URL_REGEX.test(pageNameOrUrl);
+          if (!(isValidUrl || isPage)) {
+            return {
+              isValid: false,
+              parsed: value,
+              message: `${NAVIGATE_TO_VALIDATION_ERROR}`,
+            };
+          }
         }
       }
     }

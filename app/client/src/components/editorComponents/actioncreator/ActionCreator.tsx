@@ -17,6 +17,7 @@ import { createModalAction } from "actions/widgetActions";
 import { createActionRequest } from "actions/actionActions";
 import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
 import { createNewApiName } from "utils/AppsmithUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
@@ -26,12 +27,15 @@ const ALERT_STYLE_OPTIONS = [
 ];
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
 const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
-
+const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  args[0] = `'${changeValue}'`;
-
+  if (isDynamicValue(changeValue)) {
+    args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
+  } else {
+    args[0] = `'${changeValue}'`;
+  }
   return currentValue.replace(
     ACTION_TRIGGER_REGEX,
     `{{$1(${args.join(",")})}}`,
@@ -43,7 +47,11 @@ export const modalGetter = (value: string) => {
   let name = "none";
   if (matches.length) {
     const modalName = matches[0][2].split(",")[0];
-    name = modalName.substring(1, modalName.length - 1);
+    if (IS_URL_OR_MODAL.test(modalName) || modalName === "") {
+      name = modalName.substring(1, modalName.length - 1);
+    } else {
+      name = `{{${modalName}}}`;
+    }
   }
   return name;
 };
