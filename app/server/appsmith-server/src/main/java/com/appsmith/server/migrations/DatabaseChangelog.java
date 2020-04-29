@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
@@ -239,6 +240,40 @@ public class DatabaseChangelog {
             rapidApiPlugin.setAllowUserDatasources(false);
             mongoTemplate.save(rapidApiPlugin);
 
+        }
+    }
+
+    @ChangeSet(order = "007", id = "datasource-deleted-at", author = "")
+    public void addDatasourceDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, Datasource.class, "organization_datasource_compound_index");
+
+        ensureIndexes(mongoTemplate, Datasource.class,
+                makeIndex(FieldName.ORGANIZATION_ID, FieldName.NAME, FieldName.DELETED_AT)
+                        .unique().named("organization_datasource_deleted_compound_index")
+        );
+
+        for (Datasource datasource : mongoTemplate.findAll(Datasource.class)) {
+            if (datasource.isDeleted()) {
+                datasource.setDeletedAt(datasource.getUpdatedAt());
+                mongoTemplate.save(datasource);
+            }
+        }
+    }
+
+    @ChangeSet(order = "008", id = "page-deleted-at", author = "")
+    public void addPageDeletedAtFieldAndIndex(MongoTemplate mongoTemplate) {
+        dropIndexIfExists(mongoTemplate, Page.class, "application_page_compound_index");
+
+        ensureIndexes(mongoTemplate, Page.class,
+                makeIndex(FieldName.APPLICATION_ID, FieldName.NAME, FieldName.DELETED_AT)
+                        .unique().named("application_page_deleted_compound_index")
+        );
+
+        for (Page page : mongoTemplate.findAll(Page.class)) {
+            if (page.isDeleted()) {
+                page.setDeletedAt(page.getUpdatedAt());
+                mongoTemplate.save(page);
+            }
         }
     }
 
