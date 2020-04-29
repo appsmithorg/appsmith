@@ -31,7 +31,7 @@ function* initializeEditorSaga(
     take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_SUCCESS),
-    take(ReduxActionTypes.UPDATE_CURRENT_PAGE),
+    take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID),
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
