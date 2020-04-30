@@ -28,12 +28,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -211,22 +207,19 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Object connection) {
-
+            // REST API plugin doesn't have a datasource.
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            // We don't verify whether the URL is in valid format because it can contain mustache template keys, and so
+            // look invalid at this point, but become valid after mustache rendering. So we just check if URL field has
+            // a non-empty value.
+
             Set<String> invalids = new HashSet<>();
 
-            if (datasourceConfiguration.getUrl() == null) {
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
                 invalids.add("Missing URL.");
-            }
-
-            try {
-                // Check for URL validity
-                new URL(datasourceConfiguration.getUrl()).toURI();
-            } catch (Exception e) {
-                invalids.add("Invalid URL: '" + e.getMessage() + "'");
             }
 
             return invalids;
@@ -234,28 +227,9 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            URL url;
-            try {
-                url = new URL(datasourceConfiguration.getUrl());
-            } catch (MalformedURLException e) {
-                return Mono.just(new DatasourceTestResult("Invalid URL: '" + e.getMessage() + "'."));
-            }
-
-            int port = url.getPort();
-            if (port <= 0) {
-                return Mono.just(new DatasourceTestResult("Invalid Port: '" + port + "'."));
-            }
-
-            try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(url.getHost(), port), 300);
-
-            } catch (IOException e) {
-                return Mono.just(
-                        new DatasourceTestResult("Failed to reach API endpoint: '" + e.getMessage() + "'.")
-                );
-
-            }
-
+            // At this point, the URL can be invalid because of mustache template keys inside it. Hence, connecting to
+            // and verifying the URL isn't feasible. Since validation happens just before testing, and since validation
+            // checks if a URL is present, there's nothing left to do here, but return a successful response.
             return Mono.just(new DatasourceTestResult());
         }
 
