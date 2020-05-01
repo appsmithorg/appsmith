@@ -1,9 +1,13 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const dsl = require("../../../fixtures/commondsl.json");
 
 describe("Table Widget Functionality", function() {
+  beforeEach(() => {
+    cy.addDsl(dsl);
+  });
+
   it("Table Widget Functionality", function() {
-    cy.NavigateToCommonWidgets();
     cy.get(widgetsPage.tableWidget)
       .first()
       .trigger("mouseover", { force: true });
@@ -28,5 +32,9 @@ describe("Table Widget Functionality", function() {
       .find("> .bp3-button-text")
       .should("have.text", "Navigate To");
     cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });
