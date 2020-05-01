@@ -1,9 +1,13 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
+const dsl = require("../../../fixtures/viewdsl.json");
 
 describe("Chart Widget Functionality", function() {
+  beforeEach(() => {
+    cy.addDsl(dsl);
+  });
+
   it("Chart Widget Functionality", function() {
-    cy.NavigateToViewWidgets();
     cy.get(viewWidgetsPage.chartWidget)
       .first()
       .trigger("mouseover");
@@ -24,5 +28,9 @@ describe("Chart Widget Functionality", function() {
       .find(".bp3-button > .bp3-button-text")
       .should("have.text", "Bar Chart");
     cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });

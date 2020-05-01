@@ -3,6 +3,9 @@
     "commonWidgets": ".t--page-sidebar-CommonWidgets",
     "formWidgets": ".t--page-sidebar-FormWidgets",
     "viewWidgets":".t--page-sidebar-ViewWidgets",
-    "widgetsEditor": ".t--nav-link-widgets-editor"
-
+    "widgetsEditor": ".t--nav-link-widgets-editor",
+    "AddPage": " .t--add-page-btn",
+    "editInput":"input.bp3-editable-text-input",
+    "Menuaction":".bp3-overlay-open>.bp3-transition-container",
+     "Delete":":nth-child(2) > .bp3-menu-item"    
 }

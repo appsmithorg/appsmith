@@ -1,9 +1,12 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const dsl = require("../../../fixtures/commondsl.json");
 
 describe("Input Widget Functionality", function() {
+  beforeEach(() => {
+    cy.addDsl(dsl);
+  });
   it("Input Widget Functionality", function() {
-    cy.NavigateToCommonWidgets();
     cy.get(widgetsPage.inputWidget)
       .first()
       .trigger("mouseover");
@@ -15,5 +18,9 @@ describe("Input Widget Functionality", function() {
     cy.testCodeMirror("Test Input Label");
 
     cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });

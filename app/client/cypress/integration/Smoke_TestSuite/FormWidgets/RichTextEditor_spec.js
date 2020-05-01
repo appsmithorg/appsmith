@@ -1,9 +1,12 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
+const dsl = require("../../../fixtures/formdsl.json");
 
 describe("RichTextEditor Widget Functionality", function() {
+  beforeEach(() => {
+    cy.addDsl(dsl);
+  });
   it("RichTextEditor Widget Functionality", function() {
-    cy.NavigateToFormWidgets();
     cy.get(formWidgetsPage.richTextEditorWidget)
       .first()
       .trigger("mouseover");
@@ -25,5 +28,9 @@ describe("RichTextEditor Widget Functionality", function() {
       .eq(0)
       .should("have.text", "Navigate To");
     cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });

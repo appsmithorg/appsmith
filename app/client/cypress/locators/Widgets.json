@@ -9,6 +9,8 @@
     "tableWidget":".t--draggable-tablewidget",
     "tableOnRowSelected":".t--property-control-onrowselected",
     "dropdownSelectButton":".t--open-dropdown-Select",
-    "buttonOnClick": ".t--property-control-onclick"
+    "buttonOnClick": ".t--property-control-onclick",
+    "deleteWidget":".t--modal-widget>div .t--widget-delete-control",
+    "textbuttonWidget":"button.bp3-button[type='button']"
 
 }

@@ -1,9 +1,12 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
+const dsl = require("../../../fixtures/formdsl.json");
 
 describe("Radio Widget Functionality", function() {
+  beforeEach(() => {
+    cy.addDsl(dsl);
+  });
   it("Radio Widget Functionality", function() {
-    cy.NavigateToFormWidgets();
     cy.get(formWidgetsPage.radioWidget)
       .first()
       .trigger("mouseover");
@@ -25,5 +28,9 @@ describe("Radio Widget Functionality", function() {
       .find("> .bp3-button-text")
       .should("have.text", "Navigate To");
     cy.get(commonlocators.editPropCrossButton).click();
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
   });
 });
