@@ -7,7 +7,6 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { APIEditorRouteParams } from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import {
-  createActionRequest,
   moveActionRequest,
   copyActionRequest,
   deleteAction,
@@ -66,7 +65,6 @@ interface ReduxStateProps {
 }
 
 interface ReduxDispatchProps {
-  createAction: (data: Partial<RestAction>) => void;
   onApiChange: (id: string) => void;
   initApiPane: (urlId?: string) => void;
   moveAction: (
@@ -213,8 +211,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
-  createAction: (data: Partial<RestAction>) =>
-    dispatch(createActionRequest(data)),
   onApiChange: (actionId: string) => dispatch(changeApi(actionId)),
   initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
   moveAction: (

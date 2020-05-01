@@ -5,7 +5,6 @@ import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import ApiHomeScreen from "./ApiHomeScreen";
 import {
-  createActionRequest,
   runApiAction,
   deleteAction,
   updateAction,
@@ -49,7 +48,6 @@ interface ReduxStateProps {
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
-  createAction: (values: RestAction) => void;
   runAction: (id: string, paginationField?: PaginationField) => void;
   deleteAction: (id: string, name: string) => void;
   updateAction: (data: RestAction) => void;
@@ -246,7 +244,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
-  createAction: (action: RestAction) => dispatch(createActionRequest(action)),
   runAction: (id: string, paginationField?: PaginationField) =>
     dispatch(runApiAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>

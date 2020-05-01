@@ -14,10 +14,9 @@ import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
-import { createActionRequest } from "actions/actionActions";
-import { DEFAULT_API_ACTION } from "constants/ApiEditorConstants";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { createNewApiAction } from "actions/apiPaneActions";
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
@@ -667,13 +666,7 @@ function useApiOptionTree() {
           value: `${apiName}.run`,
           type: ActionType.api,
         });
-        dispatch(
-          createActionRequest({
-            ...DEFAULT_API_ACTION,
-            name: apiName,
-            pageId: pageId,
-          }),
-        );
+        dispatch(createNewApiAction(pageId));
       }
     },
   });
