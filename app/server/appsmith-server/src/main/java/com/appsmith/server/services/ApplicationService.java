@@ -2,7 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 public interface ApplicationService extends CrudService<Application, String> {
 
@@ -19,4 +22,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> save(Application application);
 
     Mono<Application> archive(Application application);
+
+    Mono<List<OrganizationApplicationsDTO>> getAllApplications();
 }

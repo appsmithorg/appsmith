@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(Url.APPLICATION_URL)
@@ -59,6 +62,13 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
         log.debug("Going to delete application with id: {}", id);
         return applicationPageService.deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @GetMapping("/mock")
+    public Mono<ResponseDTO<List<OrganizationApplicationsDTO>>> getAllApplicationsMock() {
+        log.debug("Hitting mock read applications");
+        return service.getAllApplications()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
 }
