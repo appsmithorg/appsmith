@@ -11,6 +11,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bson.internal.Base64;
@@ -19,6 +20,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -80,6 +82,12 @@ public class RestApiPlugin extends BasePlugin {
             if (actionConfiguration.getHeaders() != null) {
                 isContentTypeJsonInRequest = addHeadersToRequestAndAscertainContentType(
                         webClientBuilder, actionConfiguration.getHeaders(), isContentTypeJsonInRequest);
+            }
+
+            final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
+            if (contentTypeError != null) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR, "Invalid value for Content-Type."));
             }
 
             URI uri;
@@ -154,20 +162,53 @@ public class RestApiPlugin extends BasePlugin {
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
         }
 
+        /**
+         * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
+         * valid media type.
+         * @param headers List of header Property objects to look for Content-Type headers in.
+         * @return An error message string if the Content-Type value is invalid, otherwise `null`.
+         */
+        private static String verifyContentType(List<Property> headers) {
+            if (headers == null) {
+                return null;
+            }
+
+            for (Property header : headers) {
+                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                    try {
+                        MediaType.valueOf(header.getValue());
+                    } catch (InvalidMediaTypeException e) {
+                        return e.getMessage();
+                    }
+                    // Don't break here since there can be multiple `Content-Type` headers.
+                }
+            }
+
+            return null;
+        }
+
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
                                               int iteration, boolean isJsonContentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
-                        "Exceeded the HTTO redirect limits of " + MAX_REDIRECTS
+                        "Exceeded the HTTP redirect limits of " + MAX_REDIRECTS
                 ));
             }
 
-            Object requestBodyAsObject;
+            Object requestBodyAsObject = null;
             if (isJsonContentType) {
-                GsonBuilder gson = new GsonBuilder();
-                requestBodyAsObject = gson.create().fromJson(requestBodyAsString, Map.class);
-            } else {
+                try {
+                    requestBodyAsObject = objectFromJson(requestBodyAsString);
+                } catch (JsonSyntaxException e) {
+                    return Mono.error(new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_ERROR,
+                            "Malformed JSON: " + e.getMessage()
+                    ));
+                }
+            }
+
+            if (requestBodyAsObject == null) {
                 requestBodyAsObject = requestBodyAsString;
             }
 
@@ -200,6 +241,31 @@ public class RestApiPlugin extends BasePlugin {
                     });
         }
 
+        /**
+         * Given a JSON string, we infer the top-level type of the object it represents and then parse it into that
+         * type. However, only `Map` and `List` top-levels are supported. Note that the map or list may contain
+         * anything, like booleans or number or even more maps or lists. It's only that the top-level type should be a
+         * map / list.
+         * @param jsonString A string that confirms to JSON syntax. Shouldn't be null.
+         * @return An object of type `Map`, `List`, if applicable, or `null`.
+         */
+        private static Object objectFromJson(String jsonString) {
+            Class<?> type;
+            String trimmed = jsonString.trim();
+
+            if (trimmed.startsWith("{")) {
+                type = Map.class;
+            } else if (trimmed.startsWith("[")) {
+                type = List.class;
+            } else {
+                // The JSON body is likely a literal boolean or number or string. For our purposes here, we don't have
+                // to parse this JSON.
+                return null;
+            }
+
+            return new GsonBuilder().create().fromJson(jsonString, type);
+        }
+
         @Override
         public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
@@ -220,6 +286,11 @@ public class RestApiPlugin extends BasePlugin {
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
                 invalids.add("Missing URL.");
+            }
+
+            final String contentTypeError = verifyContentType(datasourceConfiguration.getHeaders());
+            if (contentTypeError != null) {
+                invalids.add("Invalid Content-Type: " + contentTypeError);
             }
 
             return invalids;
