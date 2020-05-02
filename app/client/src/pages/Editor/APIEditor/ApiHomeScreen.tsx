@@ -24,7 +24,6 @@ import {
   getProvidersLoadingState,
 } from "selectors/applicationSelectors";
 import { getProviderCategories } from "selectors/editorSelectors";
-import { createActionRequest } from "actions/actionActions";
 import { fetchImportedCollections } from "actions/collectionAction";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
 import {
@@ -306,7 +305,6 @@ type ApiHomeScreenProps = {
   plugins: Plugin[];
   applicationId: string;
   actions: ActionDataState;
-  createAction: (data: Partial<RestAction>) => void;
   fetchProvidersWithCategory: (
     request: FetchProviderWithCategoryRequest,
   ) => void;
@@ -782,8 +780,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   fetchProviderCategories: () => dispatch(fetchProviderCategories()),
   fetchProvidersWithCategory: (request: FetchProviderWithCategoryRequest) =>
     dispatch(fetchProvidersWithCategory(request)),
-  createAction: (data: Partial<RestAction>) =>
-    dispatch(createActionRequest(data)),
   searchApiOrProvider: (searchKey: string) =>
     dispatch(searchApiOrProvider({ searchKey })),
   createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
