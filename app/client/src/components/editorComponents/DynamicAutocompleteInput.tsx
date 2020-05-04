@@ -191,6 +191,8 @@ const THEMES = {
 
 type THEME = "LIGHT" | "DARK";
 
+const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
+
 interface ReduxStateProps {
   dynamicData: DataTree;
 }
@@ -258,7 +260,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         ...options,
       });
       this.editor.on("change", _.debounce(this.handleChange, 300));
-      this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
+      this.editor.on("keyup", this.handleAutocompleteVisibility);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
       this.editor.setOption("hintOptions", {
@@ -335,7 +337,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     this.editor.eachLine(this.highlightBindings);
   };
 
-  handleAutocompleteVisibility = (cm: any) => {
+  handleAutocompleteVisibility = (cm: any, event: KeyboardEvent) => {
     if (this.state.isFocused) {
       let cursorBetweenBinding = false;
       const cursor = this.editor.getCursor();
@@ -359,7 +361,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         }
         cumulativeCharCount = start + segment.length;
       });
-      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
+
+      const shouldShow =
+        cursorBetweenBinding &&
+        !cm.state.completionActive &&
+        AUTOCOMPLETE_CLOSE_KEY_CODES.indexOf(event.code) === -1;
+
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         this.setState({
