@@ -158,6 +158,7 @@ const StyledContainer = styled.div`
   .providerSearchResultImage {
     height: 50px;
     width: 60px;
+    object-fit: contain;
   }
   .providerSearchResultName {
     display: flex;
