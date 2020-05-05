@@ -303,35 +303,45 @@ export function* executeActionTriggers(
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {
-  switch (trigger.type) {
-    case "RUN_ACTION":
-      yield call(executeActionSaga, trigger.payload, event);
-      break;
-    case "NAVIGATE_TO":
-      yield call(navigateActionSaga, trigger.payload, event);
-      break;
-    case "SHOW_ALERT":
-      AppToaster.show({
-        message: trigger.payload.message,
-        type: trigger.payload.style,
-      });
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "SHOW_MODAL_BY_NAME":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "CLOSE_MODAL":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    default:
-      yield put(
-        executeActionError({
-          error: "Trigger type unknown",
-          actionId: "",
-        }),
-      );
+  try {
+    switch (trigger.type) {
+      case "RUN_ACTION":
+        yield call(executeActionSaga, trigger.payload, event);
+        break;
+      case "NAVIGATE_TO":
+        yield call(navigateActionSaga, trigger.payload, event);
+        break;
+      case "SHOW_ALERT":
+        AppToaster.show({
+          message: trigger.payload.message,
+          type: trigger.payload.style,
+        });
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "SHOW_MODAL_BY_NAME":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "CLOSE_MODAL":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      default:
+        yield put(
+          executeActionError({
+            error: "Trigger type unknown",
+            actionId: "",
+          }),
+        );
+    }
+  } catch (e) {
+    yield put(
+      executeActionError({
+        error: "Failed to execute action",
+        actionId: "",
+      }),
+    );
+    if (event.callback) event.callback({ success: false });
   }
 }
 
