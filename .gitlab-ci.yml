@@ -57,8 +57,10 @@ docker-package-master:
   stage: package
   script:
     - docker build -t appsmith/appsmith-server:latest .
+    - docker build -t appsmith/appsmith-server:$CI_COMMIT_SHORT_SHA .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-    - docker push appsmith/appsmith-server:latest
+    # If we don't add the tag to the `docker push` command, all the tags for this image will be pushed
+    - docker push appsmith/appsmith-server
   only:
     - master
 
