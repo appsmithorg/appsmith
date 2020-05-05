@@ -67,6 +67,10 @@ export function* initializeAppViewerSaga(
   ]);
 
   yield put({
+    type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+  });
+
+  yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
   });
 }
