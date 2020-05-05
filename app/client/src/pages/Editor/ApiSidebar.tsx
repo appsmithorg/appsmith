@@ -23,6 +23,7 @@ import { RestAction } from "api/ActionAPI";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Page } from "constants/ReduxActionConstants";
 import { checkForFlag, FeatureFlagEnum } from "utils/featureFlags";
 
 const HTTPMethod = styled.span<{ method?: string }>`
@@ -64,6 +65,7 @@ const ActionName = styled.span`
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
+  pages: Page[];
 }
 
 interface ReduxDispatchProps {
@@ -104,11 +106,19 @@ class ApiSidebar extends React.Component<Props> {
   };
 
   handleMove = (itemId: string, destinationPageId: string) => {
+    const { pages } = this.props;
     const action = this.props.actions.filter(a => a.config.id === itemId)[0];
     const pageApiNames = this.props.actions
       .filter(a => a.config.pageId === destinationPageId)
       .map(a => a.config.name);
     let name = action.config.name;
+    const page = pages.find(page => page.pageId === destinationPageId);
+
+    AnalyticsUtil.logEvent("MOVE_API_CLICK", {
+      apiId: itemId,
+      apiName: name,
+      pageName: page?.pageName,
+    });
     if (pageApiNames.indexOf(action.config.name) > -1) {
       name = getNextEntityName(name, pageApiNames);
     }
@@ -121,11 +131,20 @@ class ApiSidebar extends React.Component<Props> {
   };
 
   handleCopy = (itemId: string, destinationPageId: string) => {
+    const { pages } = this.props;
     const action = this.props.actions.filter(a => a.config.id === itemId)[0];
     const pageApiNames = this.props.actions
       .filter(a => a.config.pageId === destinationPageId)
       .map(a => a.config.name);
     let name = `${action.config.name}Copy`;
+    const page = pages.find(page => page.pageId === destinationPageId);
+
+    AnalyticsUtil.logEvent("DUPLICATE_API_CLICK", {
+      apiId: itemId,
+      apiName: name,
+      pageName: page?.pageName,
+    });
+
     if (pageApiNames.indexOf(name) > -1) {
       name = getNextEntityName(name, pageApiNames);
     }
@@ -210,6 +229,7 @@ class ApiSidebar extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
+  pages: state.entities.pageList.pages,
 });
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
