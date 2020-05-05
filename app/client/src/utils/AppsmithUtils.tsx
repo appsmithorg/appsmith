@@ -11,6 +11,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import { providerBackgroundColors } from "constants/providerConstants";
+import { FeatureFlagEnum } from "utils/featureFlags";
 
 export const createReducer = (
   initialState: any,
@@ -39,6 +40,7 @@ export const appInitializer = () => {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+  setConfigFeatureFlags(appsmithConfigs.featureFlags);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont
@@ -119,6 +121,12 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
   if (localStorageLevel) logLevel = localStorageLevel;
   return logLevel;
+};
+
+const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
+  flags.forEach(flag => {
+    localStorage.setItem(flag, "true");
+  });
 };
 
 export const getInitialsAndColorCode = (fullName: any): string[] => {

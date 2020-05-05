@@ -4,7 +4,10 @@ import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { APIEditorRouteParams } from "constants/routes";
+import {
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  APIEditorRouteParams,
+} from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import {
   moveActionRequest,
@@ -20,8 +23,7 @@ import { RestAction } from "api/ActionAPI";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import { API_PANE_V2, checkForFlag } from "utils/featureFlags";
+import { checkForFlag, FeatureFlagEnum } from "utils/featureFlags";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -164,7 +166,7 @@ class ApiSidebar extends React.Component<Props> {
   handleCreateNewApiClick = (selectedPageId: string) => {
     const { history, createNewApiAction } = this.props;
     const { pageId, applicationId } = this.props.match.params;
-    const v2Flag = checkForFlag(API_PANE_V2);
+    const v2Flag = checkForFlag(FeatureFlagEnum.ApiPaneV2);
     if (v2Flag) {
       history.push(
         API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
