@@ -16,6 +16,7 @@ require("cypress-xpath");
 const loginData = require("../fixtures/user.json");
 const inputData = require("../fixtures/inputdata.json");
 let pageid;
+let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
@@ -37,8 +38,10 @@ before(function() {
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
   cy.LogintoApp(loginData.username, loginData.password);
-  cy.SearchApp(inputData.appname);
-
+  cy.generateUUID().then(id => {
+    appId = id;
+    cy.CreateApp(id);
+  });
   cy.generateUUID().then(uid => {
     pageid = uid;
     cy.Createpage(pageid);
@@ -50,7 +53,9 @@ before(function() {
   });
 
   after(function() {
-    cy.Deletepage(pageid);
-    cy.PublishtheApp();
+    // ---commenting Publish app and Delete page as of now--- //
+    //cy.Deletepage(pageid);
+    //cy.PublishtheApp();
+    cy.DeleteApp(appId);
   });
 });
