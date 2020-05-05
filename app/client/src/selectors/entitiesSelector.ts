@@ -142,6 +142,12 @@ export const getQueryActions = (state: AppState): ActionDataState => {
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getDatasourcePlugins = (state: AppState) => {
+  return state.entities.plugins.list.filter(
+    plugin => plugin?.allowUserDatasources ?? true,
+  );
+};
+
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
   getActions,
