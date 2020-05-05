@@ -13,7 +13,7 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.CreateApp)
     .contains("Submit")
     .click({ force: true });
-  cy.wait(2000);
+ // cy.wait(2000);
   cy.get("#loading").should("not.exist");
 });
 
