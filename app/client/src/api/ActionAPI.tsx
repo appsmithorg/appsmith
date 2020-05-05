@@ -108,6 +108,10 @@ export interface ExecuteActionRequest extends APIRequest {
   paginationField?: PaginationField;
 }
 
+export interface ExecuteQueryRequest extends APIRequest {
+  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+}
+
 export interface ExecuteActionResponse extends ApiResponse {
   actionId: string;
   data: any;
@@ -199,6 +203,10 @@ class ActionAPI extends API {
 
   static moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest);
+  }
+
+  static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
+    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 }
 

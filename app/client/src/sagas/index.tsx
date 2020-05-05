@@ -15,6 +15,7 @@ import orgSagas from "./OrgSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
+import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
 
@@ -36,6 +37,7 @@ export function* rootSaga() {
     spawn(importedCollectionsSagas),
     spawn(providersSagas),
     spawn(curlImportSagas),
+    spawn(queryPaneSagas),
     spawn(modalSagas),
     spawn(batchSagas),
   ]);

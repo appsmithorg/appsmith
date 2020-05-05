@@ -1,6 +1,7 @@
 import React from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
+import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
 
 import CurlImportForm from "./APIEditor/CurlImportForm";
@@ -8,6 +9,8 @@ import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
+  QUERIES_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
@@ -66,6 +69,9 @@ class EditorsRouter extends React.Component<
           ) !== -1 ||
           this.props.location.pathname.indexOf(
             API_EDITOR_URL(applicationId, pageId),
+          ) !== -1 ||
+          this.props.location.pathname.indexOf(
+            QUERIES_EDITOR_URL(applicationId, pageId),
           ) !== -1
         ),
     };
@@ -87,6 +93,9 @@ class EditorsRouter extends React.Component<
             ) !== -1 ||
             this.props.location.pathname.indexOf(
               API_EDITOR_URL(applicationId, pageId),
+            ) !== -1 ||
+            this.props.location.pathname.indexOf(
+              QUERIES_EDITOR_URL(applicationId, pageId),
             ) !== -1
           ),
       });
@@ -139,6 +148,19 @@ class EditorsRouter extends React.Component<
               component={ApiEditor}
               name={"ApiEditor"}
             />
+            <AppRoute
+              exact
+              path={QUERIES_EDITOR_URL()}
+              component={QueryEditor}
+              name={"QueryEditor"}
+            />
+            <AppRoute
+              exact
+              path={QUERIES_EDITOR_ID_URL()}
+              component={QueryEditor}
+              name={"QueryEditor"}
+            />
+
             <AppRoute
               exact
               path={getCurlImportPageURL()}

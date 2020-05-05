@@ -8,12 +8,15 @@ import {
   PAGE_LIST_EDITOR_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
+  QUERIES_EDITOR_ID_URL,
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   getProviderTemplatesURL,
 } from "constants/routes";
 
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
+import QuerySidebar from "pages/Editor/QuerySidebar";
 import DataSourceSidebar from "pages/Editor/DataSourceSidebar";
 import ApiSidebar from "pages/Editor/ApiSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
@@ -75,9 +78,21 @@ export const Sidebar = () => {
         />
         <AppRoute
           exact
+          path={QUERIES_EDITOR_URL()}
+          component={QuerySidebar}
+          name={"QuerySidebar"}
+        />
+        <AppRoute
+          exact
+          path={QUERIES_EDITOR_ID_URL()}
+          component={QuerySidebar}
+          name={"QuerySidebar"}
+        />
+        <AppRoute
+          exact
           path={DATA_SOURCES_EDITOR_URL()}
-          name="DataSourceSidebar"
           component={DataSourceSidebar}
+          name="DataSourceSidebar"
         />
         <AppRoute
           exact
