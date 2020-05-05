@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
@@ -29,7 +30,9 @@ import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -314,6 +317,17 @@ public class DatabaseChangelog {
                 continue;
             }
             mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "010", id = "add-delete-datasource-perm-existing-groups", author = "")
+    public void addDeleteDatasourcePermToExistingGroups(MongoTemplate mongoTemplate) {
+        for (Group group : mongoTemplate.findAll(Group.class)) {
+            if (CollectionUtils.isEmpty(group.getPermissions())) {
+                group.setPermissions(new HashSet<>());
+            }
+            group.getPermissions().add("delete:datasources");
+            mongoTemplate.save(group);
         }
     }
 
