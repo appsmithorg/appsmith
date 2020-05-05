@@ -19,7 +19,9 @@ Cypress.Commands.add("CreateApp", appname => {
 
 Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.SearchApp(appName);
+  cy.get(homePage.searchInput).type(appName);
+  cy.wait(2000);
+  cy.get("#loading").should("not.exist");
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
@@ -105,7 +107,7 @@ Cypress.Commands.add("CreateModal", () => {
     .find(".bp3-button > .bp3-button-text")
     .should("have.text", "Alert Modal");
   cy.get(commonlocators.editPropCrossButton).click();
-  cy.PublishtheApp();
+  cy.reload();
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
