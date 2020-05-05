@@ -49,6 +49,8 @@ import {
   setLastUsedEditorPage,
 } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { CURL } from "constants/ApiConstants";
 
 const SearchContainer = styled.div`
   display: flex;
@@ -555,7 +557,14 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               <p className="textBtn">Postman</p>
             </Card> */}
 
-            <Link to={curlImportURL}>
+            <Link
+              onClick={() => {
+                AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+                  importSource: CURL,
+                });
+              }}
+              to={curlImportURL}
+            >
               <Card interactive={false} className="eachCard">
                 <img src={CurlLogo} className="curlImage" alt="CURL" />
                 <p className="textBtn">CURL</p>
@@ -661,7 +670,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                             {providers.map((provider, index) => (
                               <CardList
                                 key={index}
-                                onClick={() =>
+                                onClick={() => {
+                                  AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
+                                    providerName: provider.name,
+                                  });
                                   history.push(
                                     getProviderTemplatesURL(
                                       applicationId,
@@ -669,8 +681,8 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                       provider.id +
                                         `/?importTo=${destinationPageId}`,
                                     ),
-                                  )
-                                }
+                                  );
+                                }}
                               >
                                 <Card
                                   interactive={false}

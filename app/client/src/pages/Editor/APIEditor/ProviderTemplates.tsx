@@ -33,6 +33,7 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "125px";
 
@@ -255,6 +256,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
         type: DEFAULT_TEMPLATE_TYPE,
         item: templateData.templateData,
       },
+      source: "BROWSE",
     };
     const { addedTemplates } = this.state;
     this.props.addApiToPage(addApiRequestObject);
@@ -439,9 +441,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                         icon="chevron-down"
                         iconSize={20}
                         className="dropIcon"
-                        onClick={() =>
-                          this.handleIsOpen(template.templateData.id)
-                        }
+                        onClick={() => {
+                          AnalyticsUtil.logEvent("EXPAND_API", {
+                            apiName: template.templateData.name,
+                          });
+                          this.handleIsOpen(template.templateData.id);
+                        }}
                       />
                     </TemplateCardRightContent>
                   </CardTopContent>
