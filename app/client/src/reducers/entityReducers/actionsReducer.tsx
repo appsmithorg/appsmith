@@ -90,6 +90,10 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
+  [ReduxActionTypes.DELETE_QUERY_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ id: string }>,
+  ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
   [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
@@ -111,6 +115,7 @@ const actionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.id) {
         return { ...a, isLoading: false, data: action.payload.response };
       }
+
       return a;
     });
   },
@@ -122,6 +127,7 @@ const actionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.actionId) {
         return { ...a, isLoading: false };
       }
+
       return a;
     }),
   [ReduxActionTypes.RUN_API_REQUEST]: (
@@ -135,6 +141,7 @@ const actionsReducer = createReducer(initialState, {
           isLoading: true,
         };
       }
+
       return a;
     }),
   [ReduxActionTypes.RUN_API_SUCCESS]: (
@@ -149,6 +156,19 @@ const actionsReducer = createReducer(initialState, {
       return a;
     });
   },
+  [ReduxActionTypes.RUN_QUERY_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<{ actionId: string; data: ActionResponse }>,
+  ): ActionDataState => {
+    const actionId: string = action.payload.actionId;
+
+    return state.map(a => {
+      if (a.config.id === actionId) {
+        return { ...a, isLoading: false, data: action.payload.data };
+      }
+      return a;
+    });
+  },
   [ReduxActionErrorTypes.RUN_API_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
@@ -157,6 +177,7 @@ const actionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.id) {
         return { ...a, isLoading: false };
       }
+
       return a;
     }),
   [ReduxActionTypes.MOVE_ACTION_INIT]: (
@@ -178,6 +199,7 @@ const actionsReducer = createReducer(initialState, {
           },
         };
       }
+
       return a;
     }),
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
@@ -188,6 +210,7 @@ const actionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.id) {
         return { ...a, config: action.payload };
       }
+
       return a;
     }),
   [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (
@@ -204,6 +227,7 @@ const actionsReducer = createReducer(initialState, {
           },
         };
       }
+
       return a;
     }),
   [ReduxActionTypes.COPY_ACTION_INIT]: (
@@ -240,6 +264,7 @@ const actionsReducer = createReducer(initialState, {
           config: action.payload,
         };
       }
+
       return a;
     }),
   [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (
@@ -257,6 +282,7 @@ const actionsReducer = createReducer(initialState, {
         }
         return true;
       }
+
       return true;
     }),
 });

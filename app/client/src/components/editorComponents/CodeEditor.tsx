@@ -3,6 +3,7 @@ import cm from "codemirror";
 import styled from "styled-components";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/monokai.css";
+
 require("codemirror/mode/javascript/javascript");
 
 const Wrapper = styled.div<{ height: number }>`
@@ -24,13 +25,14 @@ class CodeEditor extends React.Component<Props> {
   componentDidMount(): void {
     if (this.textArea.current) {
       const readOnly = !this.props.input.onChange;
+
       this.editor = cm.fromTextArea(this.textArea.current, {
         mode: { name: "javascript", json: true },
         value: this.props.input.value,
         readOnly,
-        lineNumbers: true,
         tabSize: 2,
         indentWithTabs: true,
+        lineNumbers: true,
         lineWrapping: true,
       });
       this.editor.setSize(null, this.props.height);

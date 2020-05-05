@@ -9,6 +9,7 @@ import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { CURL_IMPORT_SUCCESS } from "constants/messages";
@@ -19,6 +20,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { fetchActions } from "actions/actionActions";
+import { CURL } from "constants/ApiConstants";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
@@ -36,6 +38,9 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
     const currentPageId = yield select(getCurrentPageId);
 
     if (isValidResponse) {
+      AnalyticsUtil.logEvent("IMPORT_API", {
+        importSource: CURL,
+      });
       AppToaster.show({
         message: CURL_IMPORT_SUCCESS,
         type: ToastType.SUCCESS,

@@ -1,5 +1,6 @@
 import { MenuIcons } from "icons/MenuIcons";
 import { FeatureFlagEnum } from "utils/featureFlags";
+
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const APPLICATIONS_URL = `/applications`;
@@ -27,6 +28,12 @@ export type ProviderViewerRouteParams = {
   applicationId: string;
   pageId: string;
   providerId: string;
+};
+
+export type QueryEditorRouteParams = {
+  applicationId: string;
+  pageId: string;
+  queryId: string;
 };
 
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
@@ -65,6 +72,17 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
   datasourceId = ":datasourceId",
 ): string =>
   `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
+
+export const QUERIES_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
+
+export const QUERIES_EDITOR_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  queryId = ":queryId",
+): string => `${QUERIES_EDITOR_URL(applicationId, pageId)}/${queryId}`;
 
 export const API_EDITOR_ID_URL = (
   applicationId = ":applicationId",
@@ -124,6 +142,17 @@ export const getProviderTemplatesURL = (
   providerId = ":providerId",
 ): string => `${API_EDITOR_URL(applicationId, pageId)}/provider/${providerId}`;
 
+export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  selectedPageId = ":importTo",
+): string => {
+  return `${BUILDER_PAGE_URL(
+    applicationId,
+    pageId,
+  )}/queries?importTo=${selectedPageId}`;
+};
+
 export const EDITOR_ROUTES = [
   {
     icon: MenuIcons.WIDGETS_ICON,
@@ -138,6 +167,14 @@ export const EDITOR_ROUTES = [
     className: "t--nav-link-api-editor",
     title: "APIs",
     exact: false,
+  },
+  {
+    icon: MenuIcons.QUERIES_ICON,
+    className: "t--nav-link-query-editor",
+    path: QUERIES_EDITOR_URL,
+    title: "Queries",
+    exact: false,
+    flag: FeatureFlagEnum.QueryPane,
   },
   {
     icon: MenuIcons.DATASOURCES_ICON,

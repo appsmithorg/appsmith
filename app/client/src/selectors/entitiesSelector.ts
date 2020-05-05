@@ -1,6 +1,11 @@
 import { AppState } from "reducers";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionDataState,
+  ActionData,
+} from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
+import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
+import { API_CONSTANT } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
 import { Page } from "constants/ReduxActionConstants";
 
@@ -31,6 +36,19 @@ export const getPluginIdsOfNames = (
   return pluginIds;
 };
 
+export const getPluginIdsOfPackageNames = (
+  state: AppState,
+  names: Array<string>,
+): Array<string> | undefined => {
+  const plugins = state.entities.plugins.list.filter(plugin =>
+    names.includes(plugin.packageName),
+  );
+  const pluginIds = plugins.map(plugin => plugin.id);
+
+  if (!pluginIds.length) return undefined;
+  return pluginIds;
+};
+
 export const getPluginNameFromDatasourceId = (
   state: AppState,
   datasourceId: string,
@@ -43,15 +61,6 @@ export const getPluginNameFromDatasourceId = (
   );
 
   if (!plugin) return undefined;
-  return plugin.name;
-};
-
-export const getPluginNameFromId = (state: AppState, pluginId: string) => {
-  const plugin = state.entities.plugins.list.find(
-    plugin => plugin.id === pluginId,
-  );
-
-  if (!plugin) return "";
   return plugin.name;
 };
 
@@ -79,6 +88,15 @@ export const getPluginPackageFromDatasourceId = (
   return plugin.packageName;
 };
 
+export const getPluginNameFromId = (state: AppState, pluginId: string) => {
+  const plugin = state.entities.plugins.list.find(
+    plugin => plugin.id === pluginId,
+  );
+
+  if (!plugin) return "";
+  return plugin.name;
+};
+
 export const getPluginForm = (state: AppState, pluginId: string): [] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
@@ -93,6 +111,34 @@ export const getDatasourceNames = (state: AppState): any =>
   state.entities.datasources.list.map(datasource => datasource.name);
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
+
+export const getApiActions = (state: AppState): ActionDataState => {
+  return state.entities.actions.filter((action: ActionData) => {
+    return action.config.pluginType === API_CONSTANT;
+  });
+};
+
+export const getQueryName = (state: AppState, actionId: string): string => {
+  const action = state.entities.actions.find((action: ActionData) => {
+    return action.config.id === actionId;
+  });
+
+  return action?.config.name ?? "";
+};
+
+export const getPageName = (state: AppState, pageId: string): string => {
+  const page = state.entities.pageList.pages.find((page: Page) => {
+    return page.pageId === pageId;
+  });
+
+  return page?.pageName ?? "";
+};
+
+export const getQueryActions = (state: AppState): ActionDataState => {
+  return state.entities.actions.filter((action: ActionData) => {
+    return action.config.pluginType === QUERY_CONSTANT;
+  });
+};
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
@@ -112,5 +158,6 @@ export const getActionResponses = (
   state.entities.actions.forEach(a => {
     responses[a.config.id] = a.data;
   });
+
   return responses;
 };
