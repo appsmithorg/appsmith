@@ -15,6 +15,7 @@ export const DEFAULT_API_ACTION: Partial<RestAction> = {
   },
 };
 
+export const API_CONSTANT = "API";
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const POST_BODY_FORMATS = ["application/json", "x-www-form-urlencoded"];
 

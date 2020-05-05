@@ -29,7 +29,7 @@ Cypress.Commands.add("DeleteApp", appName => {
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
-  cy.visit("/");
+  cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);

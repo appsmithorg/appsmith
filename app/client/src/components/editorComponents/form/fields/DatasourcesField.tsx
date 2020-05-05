@@ -4,12 +4,15 @@ import { connect } from "react-redux";
 import { Field } from "redux-form";
 import { AppState } from "reducers";
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
+import { Plugin } from "api/PluginApi";
+import { getDatasourcePlugins } from "selectors/entitiesSelector";
 import _ from "lodash";
 import { createDatasource } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
+  validDatasourcePlugins: Plugin[];
 }
 interface ReduxActionProps {
   createDatasource: (value: string) => void;
@@ -26,6 +29,9 @@ const DatasourcesField = (
 ) => {
   const options = props.datasources.list
     .filter(r => r.pluginId === props.pluginId)
+    .filter(r =>
+      props.validDatasourcePlugins.some(plugin => plugin.id === r.pluginId),
+    )
     .filter(r => r.datasourceConfiguration)
     .filter(r => r.datasourceConfiguration.url)
     .map(r => ({
@@ -52,6 +58,7 @@ const DatasourcesField = (
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   datasources: state.entities.datasources,
+  validDatasourcePlugins: getDatasourcePlugins(state),
 });
 
 const mapDispatchToProps = (

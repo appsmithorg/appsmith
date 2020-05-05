@@ -11,6 +11,7 @@ export interface FetchPageRequest {
 
 export interface FetchPublishedPageRequest {
   pageId: string;
+  bustCache?: boolean;
 }
 
 export interface SavePageRequest {
@@ -92,8 +93,9 @@ class PageApi extends Api {
     return `v1/layouts/${layoutId}/pages/${pageId}`;
   };
 
-  static getPublishedPageURL = (pageId: string) => {
-    return `v1/pages/${pageId}/view`;
+  static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
+    const url = `v1/pages/${pageId}/view`;
+    return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
@@ -120,7 +122,9 @@ class PageApi extends Api {
   static fetchPublishedPage(
     pageRequest: FetchPublishedPageRequest,
   ): AxiosPromise<FetchPublishedPageResponse> {
-    return Api.get(PageApi.getPublishedPageURL(pageRequest.pageId));
+    return Api.get(
+      PageApi.getPublishedPageURL(pageRequest.pageId, pageRequest.bustCache),
+    );
   }
 
   static createPage(

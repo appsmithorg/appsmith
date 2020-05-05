@@ -361,13 +361,16 @@ function* formValueChangeSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
-  const { id } = actionPayload.payload;
+  const { id, pluginType } = actionPayload.payload;
   const action = yield select(getAction, id);
   const data = { ...action };
-  yield put(initialize(API_EDITOR_FORM_NAME, data));
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+
+  if (pluginType === "API") {
+    yield put(initialize(API_EDITOR_FORM_NAME, data));
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+  }
 }
 
 function* handleActionUpdatedSaga(
@@ -394,14 +397,18 @@ function* handleActionDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
-  const { values }: { values: RestAction } = yield select(
-    getFormData,
-    API_EDITOR_FORM_NAME,
-  );
-  if (values.id === id) {
-    yield put(initialize(API_EDITOR_FORM_NAME, action));
-  } else {
-    yield put(changeApi(id));
+  const pluginType = action?.pluginType ?? "";
+
+  if (pluginType === "API") {
+    const { values }: { values: RestAction } = yield select(
+      getFormData,
+      API_EDITOR_FORM_NAME,
+    );
+    if (values.id === id) {
+      yield put(initialize(API_EDITOR_FORM_NAME, action));
+    } else {
+      yield put(changeApi(id));
+    }
   }
 }
 

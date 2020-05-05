@@ -29,14 +29,14 @@ type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
   widgets?: ContainerWidgetProps<WidgetProps>;
   currentPageName?: string;
-  fetchPage: (pageId: string) => void;
+  fetchPage: (pageId: string, bustCache?: boolean) => void;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
   componentDidMount() {
     const { pageId } = this.props.match.params;
     if (pageId) {
-      this.props.fetchPage(pageId);
+      this.props.fetchPage(pageId, true);
     }
   }
   componentDidUpdate(previously: AppViewerPageContainerProps) {
@@ -99,11 +99,12 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchPage: (pageId: string) =>
+  fetchPage: (pageId: string, bustCache = false) =>
     dispatch({
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       payload: {
         pageId,
+        bustCache,
       },
     }),
 });

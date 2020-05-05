@@ -1,4 +1,5 @@
 import { LogLevelDesc } from "loglevel";
+import { FeatureFlagEnum } from "utils/featureFlags";
 
 export type SentryConfig = {
   dsn: string;
@@ -26,4 +27,5 @@ export type AppsmithUIConfigs = {
   apiUrl: string;
   baseUrl: string;
   logLevel: LogLevelDesc;
+  featureFlags: Array<FeatureFlagEnum>;
 };

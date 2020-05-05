@@ -1,5 +1,9 @@
-export const API_PANE_V2 = "ApiPaneV2";
+export enum FeatureFlagEnum {
+  ApiPaneV2 = "ApiPaneV2",
+  DatasourcePane = "DatasourcePane",
+  QueryPane = "QueryPane",
+}
 
-export const checkForFlag = (flagName: string) => {
+export const checkForFlag = (flagName: FeatureFlagEnum) => {
   return localStorage.getItem(flagName);
 };

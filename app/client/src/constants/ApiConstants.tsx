@@ -3,10 +3,15 @@ export type ContentType =
   | "application/x-www-form-urlencoded";
 
 export const REQUEST_TIMEOUT_MS = 10000;
+export const EXECUTE_ACTION_TIMEOUT_MS = 15000;
 
 export const API_REQUEST_HEADERS: APIHeaders = {
   "Content-Type": "application/json",
 };
+
+export const POSTMAN = "POSTMAN";
+export const CURL = "CURL";
+export const Swagger = "Swagger";
 
 export const OAuthURL = "/oauth2/authorization";
 export const GoogleOAuthURL = `${OAuthURL}/google`;

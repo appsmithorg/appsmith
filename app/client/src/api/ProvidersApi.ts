@@ -51,6 +51,8 @@ export interface AddApiToPageRequest {
   name: string;
   pageId: string;
   marketplaceElement: any;
+  // Added for analytics
+  source?: string;
 }
 
 export class ProvidersApi extends Api {

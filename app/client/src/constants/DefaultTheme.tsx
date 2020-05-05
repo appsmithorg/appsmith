@@ -381,7 +381,7 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "300px",
+  sidebarWidth: "320px",
   headerHeight: "50px",
   canvasPadding: "20px 0 200px 0",
   sideNav: {

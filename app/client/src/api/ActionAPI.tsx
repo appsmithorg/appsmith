@@ -1,6 +1,6 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { APIRequest } from "constants/ApiConstants";
+import { APIRequest, EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
 import { Datasource } from "./DatasourcesApi";
 import { PaginationType } from "pages/Editor/APIEditor/Pagination";
@@ -108,6 +108,10 @@ export interface ExecuteActionRequest extends APIRequest {
   paginationField?: PaginationField;
 }
 
+export interface ExecuteQueryRequest extends APIRequest {
+  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+}
+
 export interface ExecuteActionResponse extends ApiResponse {
   actionId: string;
   data: any;
@@ -194,11 +198,17 @@ class ActionAPI extends API {
   static executeAction(
     executeAction: ExecuteActionRequest,
   ): AxiosPromise<ActionApiResponse> {
-    return API.post(ActionAPI.url + "/execute", executeAction);
+    return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
+      timeout: EXECUTE_ACTION_TIMEOUT_MS,
+    });
   }
 
   static moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest);
+  }
+
+  static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
+    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 }
 

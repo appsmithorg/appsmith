@@ -114,7 +114,7 @@ const ApplicationImage = styled.div`
   }
 `;
 
-const Control = styled.button<{ fixed?: boolean }>`
+const Control = styled.div<{ fixed?: boolean }>`
   outline: none;
   background: none;
   border: none;
