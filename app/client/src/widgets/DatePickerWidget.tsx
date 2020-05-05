@@ -12,7 +12,6 @@ import {
   DerivedPropertiesMap,
   TriggerPropertiesMap,
 } from "utils/WidgetFactory";
-import moment from "moment-timezone";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -65,17 +64,14 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
         onDateSelected={this.onDateSelected}
-        selectedDate={moment(this.props.selectedDate).toDate()}
+        selectedDate={this.props.selectedDate}
         isLoading={this.props.isLoading}
       />
     );
   }
 
-  onDateSelected = (selectedDate: Date) => {
-    this.updateWidgetMetaProperty(
-      "selectedDate",
-      moment(selectedDate).toISOString(true),
-    );
+  onDateSelected = (selectedDate: string) => {
+    this.updateWidgetMetaProperty("selectedDate", selectedDate);
     if (this.props.onDateSelected) {
       super.executeAction({
         dynamicString: this.props.onDateSelected,

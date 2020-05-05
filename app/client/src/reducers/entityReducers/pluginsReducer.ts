@@ -1,15 +1,28 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import { Plugin } from "api/PluginApi";
+
+export interface PluginFormPayload {
+  id: string;
+  form: [];
+}
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
+  formConfigs: Record<string, []>;
+  loadingFormConfigs: boolean;
 }
 
 const initialState: PluginDataState = {
   list: [],
   loading: false,
+  formConfigs: {},
+  loadingFormConfigs: false,
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -30,6 +43,31 @@ const pluginsReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
+    };
+  },
+  [ReduxActionTypes.FETCH_PLUGIN_FORM_INIT]: (state: PluginDataState) => {
+    return {
+      ...state,
+      loadingFormConfigs: true,
+    };
+  },
+  [ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS]: (
+    state: PluginDataState,
+    action: ReduxAction<PluginFormPayload>,
+  ) => {
+    return {
+      ...state,
+      loadingFormConfigs: false,
+      formConfigs: {
+        ...state.formConfigs,
+        [action.payload.id]: action.payload.form,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (state: PluginDataState) => {
+    return {
+      ...state,
+      loadingFormConfigs: false,
     };
   },
 });

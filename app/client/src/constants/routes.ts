@@ -1,4 +1,5 @@
 import { MenuIcons } from "icons/MenuIcons";
+import { FeatureFlagEnum } from "utils/featureFlags";
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const APPLICATIONS_URL = `/applications`;
@@ -26,7 +27,6 @@ export type ProviderViewerRouteParams = {
   applicationId: string;
   pageId: string;
   providerId: string;
-  destinationPageId: string;
 };
 
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
@@ -53,6 +53,18 @@ export const PAGE_LIST_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
+
+export const DATA_SOURCES_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources`;
+
+export const DATA_SOURCES_EDITOR_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  datasourceId = ":datasourceId",
+): string =>
+  `${DATA_SOURCES_EDITOR_URL(applicationId, pageId)}/${datasourceId}`;
 
 export const API_EDITOR_ID_URL = (
   applicationId = ":applicationId",
@@ -110,12 +122,7 @@ export const getProviderTemplatesURL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   providerId = ":providerId",
-  destinationPageId = ":destinationPageId",
-): string =>
-  `${API_EDITOR_URL(
-    applicationId,
-    pageId,
-  )}/provider/${providerId}/?importTo=${destinationPageId}`;
+): string => `${API_EDITOR_URL(applicationId, pageId)}/provider/${providerId}`;
 
 export const EDITOR_ROUTES = [
   {
@@ -131,6 +138,14 @@ export const EDITOR_ROUTES = [
     className: "t--nav-link-api-editor",
     title: "APIs",
     exact: false,
+  },
+  {
+    icon: MenuIcons.DATASOURCES_ICON,
+    className: "t--nav-link-datasource-editor",
+    path: DATA_SOURCES_EDITOR_URL,
+    title: "Datasources",
+    exact: false,
+    flag: FeatureFlagEnum.DatasourcePane,
   },
   {
     icon: MenuIcons.PAGES_ICON,

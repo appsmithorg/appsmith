@@ -15,6 +15,7 @@
 require("cypress-xpath");
 const loginData = require("../fixtures/user.json");
 const inputData = require("../fixtures/inputdata.json");
+let pageid;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
@@ -37,12 +38,19 @@ before(function() {
 
   cy.LogintoApp(loginData.username, loginData.password);
   cy.SearchApp(inputData.appname);
-});
 
-beforeEach(function() {
-  Cypress.Cookies.preserveOnce("session_id", "remember_token");
-});
+  cy.generateUUID().then(uid => {
+    pageid = uid;
+    cy.Createpage(pageid);
+    cy.NavigateToWidgets(pageid);
+  });
 
-after(function() {
-  cy.PublishtheApp();
+  beforeEach(function() {
+    Cypress.Cookies.preserveOnce("session_id", "remember_token");
+  });
+
+  after(function() {
+    cy.Deletepage(pageid);
+    // cy.PublishtheApp();
+  });
 });

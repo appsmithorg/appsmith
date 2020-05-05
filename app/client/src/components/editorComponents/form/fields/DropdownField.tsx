@@ -1,6 +1,9 @@
 import React from "react";
 import _ from "lodash";
-import { BaseDropdown } from "components/designSystems/appsmith/Dropdown";
+import {
+  BaseDropdown,
+  DropdownProps,
+} from "components/designSystems/appsmith/Dropdown";
 import { Field } from "redux-form";
 
 interface DropdownFieldProps {
@@ -10,12 +13,12 @@ interface DropdownFieldProps {
     value: string;
   }>;
   placeholder: string;
-  width?: number;
+  width?: number | string;
   isSearchable?: boolean;
   isDisabled?: boolean;
 }
 
-const DropdownField = (props: DropdownFieldProps) => {
+const DropdownField = (props: DropdownFieldProps & Partial<DropdownProps>) => {
   return (
     <Field
       name={props.name}
@@ -24,6 +27,7 @@ const DropdownField = (props: DropdownFieldProps) => {
       placeholder={props.placeholder}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
+      {...props}
       width={props.width}
       isSearchable={props.isSearchable}
       isDisabled={props.isDisabled}

@@ -1,11 +1,15 @@
 import React from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import ApiEditor from "./APIEditor";
+import DataSourceEditor from "./DataSourceEditor";
+
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
+  DATA_SOURCES_EDITOR_URL,
+  DATA_SOURCES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BUILDER_BASE_URL,
   BuilderRouteParams,
@@ -55,9 +59,15 @@ class EditorsRouter extends React.Component<
         this.props.location.pathname !==
           BUILDER_PAGE_URL(applicationId, pageId),
       showOnlySidebar:
-        this.props.location.pathname.indexOf(
-          API_EDITOR_URL(applicationId, pageId),
-        ) === -1,
+        // TODO: Please optimise this
+        !(
+          this.props.location.pathname.indexOf(
+            DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+          ) !== -1 ||
+          this.props.location.pathname.indexOf(
+            API_EDITOR_URL(applicationId, pageId),
+          ) !== -1
+        ),
     };
   }
 
@@ -70,9 +80,15 @@ class EditorsRouter extends React.Component<
           this.props.location.pathname !==
             BUILDER_PAGE_URL(applicationId, pageId),
         showOnlySidebar:
-          this.props.location.pathname.indexOf(
-            API_EDITOR_URL(applicationId, pageId),
-          ) === -1,
+          // TODO: Please optimise this
+          !(
+            this.props.location.pathname.indexOf(
+              DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+            ) !== -1 ||
+            this.props.location.pathname.indexOf(
+              API_EDITOR_URL(applicationId, pageId),
+            ) !== -1
+          ),
       });
     }
   }
@@ -128,6 +144,18 @@ class EditorsRouter extends React.Component<
               path={getCurlImportPageURL()}
               component={CurlImportForm}
               name={"ApiEditor"}
+            />
+            <AppRoute
+              exact
+              path={DATA_SOURCES_EDITOR_URL()}
+              component={DataSourceEditor}
+              name={"DataSourceEditor"}
+            />
+            <AppRoute
+              exact
+              path={DATA_SOURCES_EDITOR_ID_URL()}
+              component={DataSourceEditor}
+              name={"DataSourceEditor"}
             />
             <AppRoute
               path={getProviderTemplatesURL()}

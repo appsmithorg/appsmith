@@ -6,6 +6,7 @@ import appViewReducer from "./appViewReducer";
 import applicationsReducer from "./applicationsReducer";
 import { widgetSidebarReducer } from "./widgetSidebarReducer";
 import apiPaneReducer from "./apiPaneReducer";
+import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
 import usersReducer from "./usersReducer";
@@ -29,5 +30,6 @@ const uiReducer = combineReducers({
   importedCollections: importedCollectionsReducer,
   providers: providersReducer,
   imports: importReducer,
+  datasourcePane: datasourcePaneReducer,
 });
 export default uiReducer;

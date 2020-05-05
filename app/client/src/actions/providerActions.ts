@@ -3,11 +3,19 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   AddApiToPageRequest,
   FetchProviderWithCategoryRequest,
+  SearchApiOrProviderRequest,
 } from "api/ProvidersApi";
 
 export const fetchProviders = () => {
   return {
     type: ReduxActionTypes.FETCH_PROVIDERS_INIT,
+  };
+};
+
+export const searchApiOrProvider = (payload: SearchApiOrProviderRequest) => {
+  return {
+    type: ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT,
+    payload,
   };
 };
 
@@ -17,9 +25,16 @@ export const fetchProviderCategories = () => {
   };
 };
 
-export const fetchProviderTemplates = () => {
+export const getProviderDetailsByProviderId = (providerId: string) => {
+  return {
+    type: ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_INIT,
+    payload: { providerId },
+  };
+};
+export const fetchProviderTemplates = (providerId: string) => {
   return {
     type: ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT,
+    payload: { providerId },
   };
 };
 

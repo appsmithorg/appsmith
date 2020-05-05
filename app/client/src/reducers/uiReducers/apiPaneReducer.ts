@@ -14,6 +14,9 @@ const initialState: ApiPaneReduxState = {
   isRunning: {},
   isSaving: {},
   isDeleting: {},
+  currentCategory: "",
+  lastUsedEditorPage: "",
+  lastSelectedPage: "",
 };
 
 export interface ApiPaneReduxState {
@@ -23,6 +26,9 @@ export interface ApiPaneReduxState {
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
+  currentCategory: string;
+  lastUsedEditorPage: string;
+  lastSelectedPage: string;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -158,6 +164,27 @@ const apiPaneReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: (state: ApiPaneReduxState) => ({
     ...state,
     lastUsed: "",
+  }),
+  [ReduxActionTypes.SET_CURRENT_CATEGORY]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ category: string }>,
+  ) => ({
+    ...state,
+    currentCategory: action.payload.category,
+  }),
+  [ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ path: string }>,
+  ) => ({
+    ...state,
+    lastUsedEditorPage: action.payload.path,
+  }),
+  [ReduxActionTypes.SET_LAST_SELECTED_PAGE_PAGE]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedPageId: string }>,
+  ) => ({
+    ...state,
+    lastSelectedPage: action.payload.selectedPageId,
   }),
 });
 

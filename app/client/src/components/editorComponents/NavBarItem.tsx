@@ -61,6 +61,7 @@ const ItemContainer = styled.div`
 class NavBarItem extends React.Component<Props> {
   render(): React.ReactNode {
     const { title, icon, path, exact } = this.props;
+
     return (
       <ItemContainer>
         <NavLink

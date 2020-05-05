@@ -13,6 +13,7 @@ import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { WidgetSidebarReduxState } from "./uiReducers/widgetSidebarReducer";
 import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
+import { DatasourcePaneReduxState } from "./uiReducers/datasourcePaneReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
@@ -50,6 +51,7 @@ export interface AppState {
     importedCollections: ImportedCollectionsReduxState;
     providers: ProvidersReduxState;
     imports: ImportReduxState;
+    datasourcePane: DatasourcePaneReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

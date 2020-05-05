@@ -3,7 +3,9 @@ import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 
 interface DatasourceAuthentication {
-  authType: string;
+  authType?: string;
+  username?: string;
+  password?: string;
 }
 
 export interface Datasource {
@@ -18,6 +20,8 @@ export interface Datasource {
     headers?: Record<string, string>;
     databaseName?: string;
   };
+  invalids: string[];
+  isValid: boolean;
 }
 
 export interface CreateDatasourceConfig {
@@ -25,9 +29,11 @@ export interface CreateDatasourceConfig {
   pluginId: string;
   datasourceConfiguration: {
     url: string;
+    databaseName?: string;
+    authentication?: DatasourceAuthentication;
   };
   //Passed for logging purposes.
-  appName: string;
+  appName?: string;
 }
 
 class DatasourcesApi extends API {
@@ -39,6 +45,21 @@ class DatasourcesApi extends API {
 
   static createDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
     return API.post(DatasourcesApi.url, datasourceConfig);
+  }
+
+  static testDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
+    return API.post(`${DatasourcesApi.url}/test`, datasourceConfig);
+  }
+
+  static updateDatasource(
+    datasourceConfig: Partial<Datasource>,
+    id: string,
+  ): Promise<{}> {
+    return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
+  }
+
+  static deleteDatasource(id: string): Promise<{}> {
+    return API.delete(DatasourcesApi.url + `/${id}`);
   }
 }
 

@@ -11,7 +11,10 @@ import {
   ProviderTemplates,
   ProviderTemplateArray,
   ProvidersCategoriesResponse,
+  SearchResultsProviders,
+  FetchProviderDetailsResponse,
 } from "constants/providerConstants";
+import { SearchApiOrProviderResponse } from "api/ProvidersApi";
 
 const initialState: ProvidersReduxState = {
   isFetchingProviders: false,
@@ -21,13 +24,27 @@ const initialState: ProvidersReduxState = {
   isFetchingProviderTemplates: false,
   providerCategories: [],
   providerCategoriesErrorPayload: {},
+  apiOrProviderSearchResults: {
+    providers: [],
+  },
   isSwitchingCategory: true,
+  isSearching: false,
+  lastUsedProviderId: "",
+  providerDetailsByProviderId: {},
+  providerDetailsErrorPayload: {},
+  fetchProvidersError: false,
 };
 
 const providersReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PROVIDERS_INIT]: (state: ProvidersReduxState) => ({
     ...state,
     isFetchingProviders: true,
+  }),
+  [ReduxActionTypes.SEARCH_APIORPROVIDERS_INIT]: (
+    state: ProvidersReduxState,
+  ) => ({
+    ...state,
+    isSearching: true,
   }),
   [ReduxActionTypes.FETCH_PROVIDERS_WITH_CATEGORY_INIT]: (
     state: ProvidersReduxState,
@@ -59,6 +76,7 @@ const providersReducer = createReducer(initialState, {
         providersTotal: action.payload.total,
         isFetchingProviders: false,
         isSwitchingCategory: false,
+        fetchProvidersError: false,
       };
     } else {
       return {
@@ -68,17 +86,39 @@ const providersReducer = createReducer(initialState, {
       };
     }
   },
+  [ReduxActionTypes.SEARCH_APIORPROVIDERS_SUCCESS]: (
+    state: ProvidersReduxState,
+    action: ReduxAction<SearchApiOrProviderResponse>,
+  ) => ({
+    ...state,
+    isSearching: false,
+    apiOrProviderSearchResults: action.payload,
+  }),
   [ReduxActionErrorTypes.FETCH_PROVIDERS_ERROR]: (
     state: ProvidersReduxState,
   ) => {
-    return { ...state, isFetchingProviders: false };
+    return {
+      ...state,
+      isFetchingProviders: false,
+      isSwitchingCategory: false,
+      fetchProvidersError: true,
+    };
+  },
+  [ReduxActionErrorTypes.SEARCH_APIORPROVIDERS_ERROR]: (
+    state: ProvidersReduxState,
+  ) => {
+    return { ...state, isSearching: false };
   },
   [ReduxActionTypes.FETCH_PROVIDER_TEMPLATES_INIT]: (
     state: ProvidersReduxState,
-  ) => ({
-    ...state,
-    isFetchingProviderTemplates: true,
-  }),
+    action: any,
+  ) => {
+    return {
+      ...state,
+      isFetchingProviderTemplates: true,
+      lastUsedProviderId: action.payload.providerId,
+    };
+  },
   [ReduxActionTypes.CLEAR_PROVIDERS]: (state: ProvidersReduxState) => ({
     ...state,
     providers: [],
@@ -146,6 +186,21 @@ const providersReducer = createReducer(initialState, {
   ) => {
     return { ...state, providerCategoriesErrorPayload: action.payload };
   },
+  [ReduxActionTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_SUCCESS]: (
+    state: ProvidersReduxState,
+    action: ReduxAction<FetchProviderDetailsResponse>,
+  ) => {
+    return {
+      ...state,
+      providerDetailsByProviderId: action.payload,
+    };
+  },
+  [ReduxActionErrorTypes.FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_ERROR]: (
+    state: ProvidersReduxState,
+    action: ReduxAction<{ providerDetailsErrorPayload: string }>,
+  ) => {
+    return { ...state, providerDetailsErrorPayload: action.payload };
+  },
 });
 
 export interface ProvidersReduxState {
@@ -157,6 +212,14 @@ export interface ProvidersReduxState {
   providerCategories: string[];
   providerCategoriesErrorPayload: {};
   isSwitchingCategory: boolean;
+  isSearching: boolean;
+  apiOrProviderSearchResults: {
+    providers: SearchResultsProviders[];
+  };
+  lastUsedProviderId: string;
+  providerDetailsByProviderId: {};
+  providerDetailsErrorPayload: {};
+  fetchProvidersError: boolean;
 }
 
 export default providersReducer;

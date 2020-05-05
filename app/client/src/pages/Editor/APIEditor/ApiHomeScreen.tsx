@@ -11,18 +11,19 @@ import {
   getProviderTemplatesURL,
 } from "constants/routes";
 import { RestAction } from "api/ActionAPI";
-import ImageAlt from "assets/images/no_image.png";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";
 import { TemplateList } from "constants/collectionsConstants";
-import { ProvidersDataArray } from "constants/providerConstants";
+import {
+  ProvidersDataArray,
+  SearchResultsProviders,
+} from "constants/providerConstants";
 import {
   getProviders,
   getProvidersLoadingState,
 } from "selectors/applicationSelectors";
 import { getProviderCategories } from "selectors/editorSelectors";
-import { createActionRequest } from "actions/actionActions";
 import { fetchImportedCollections } from "actions/collectionAction";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
 import {
@@ -30,10 +31,11 @@ import {
   fetchProviderCategories,
   fetchProvidersWithCategory,
   clearProviders,
+  searchApiOrProvider,
 } from "actions/providerActions";
 import { Colors } from "constants/Colors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-// import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import Spinner from "components/editorComponents/Spinner";
@@ -41,24 +43,29 @@ import Spinner from "components/editorComponents/Spinner";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
-import { createNewApiAction } from "actions/apiPaneActions";
+import {
+  createNewApiAction,
+  setCurrentCategory,
+  setLastUsedEditorPage,
+} from "actions/apiPaneActions";
+import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 
-// const SearchContainer = styled.div`
-//   display: flex;
-//   width: 40%;
-//   .closeBtn {
-//     position: absolute;
-//     left: 70%;
-//   }
-// `;
-//
-// const SearchBar = styled(BaseTextInput)`
-//   margin-bottom: 10px;
-//   input {
-//     background-color: ${Colors.WHITE};
-//     1px solid ${Colors.GEYSER};
-//   }
-// `;
+const SearchContainer = styled.div`
+  display: flex;
+  width: 40%;
+  .closeBtn {
+    position: absolute;
+    left: 70%;
+  }
+`;
+
+const SearchBar = styled(BaseTextInput)`
+  margin-bottom: 10px;
+  input {
+    background-color: ${Colors.WHITE};
+    1px solid ${Colors.GEYSER};
+  }
+`;
 
 const ApiHomePage = styled.div`
   font-size: 20px;
@@ -71,6 +78,35 @@ const ApiHomePage = styled.div`
   .closeBtn {
     position: absolute;
     left: 70%;
+  }
+  .searchResultsContainer {
+    background-color: ${Colors.WHITE};
+    z-index: 9999;
+    width: 70%;
+    padding: 20px;
+    border: 1px solid ${Colors.ALTO};
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    border-radius: 4px;
+    max-height: 80vh;
+    overflow: auto;
+  }
+  .searchCloseBtn {
+    float: right;
+    cursor: pointer;
+  }
+  .bp3-collapse-body {
+    position: absolute;
+    z-index: 99999;
+    background-color: ${Colors.WHITE};
+    border: 1px solid ${Colors.ALTO};
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    width: 100%;
+    padding: 20px;
+  }
+  .fontSize16 {
+    font-size: 16px;
   }
 `;
 
@@ -110,24 +146,33 @@ const StyledContainer = styled.div`
     color: ${Colors.OXFORD_BLUE};
     text-decoration: none;
   }
-`;
-
-const ApiCard = styled.div`
-  flex: 1;
-  display: inline-flex;
-  flex-wrap: wrap;
-  margin-left: -10px;
-  justify-content: flex-start;
-  text-align: center;
-  min-width: 150px;
-  border-radius: 4px;
-
+  .providerSearchCard {
+    display: flex;
+    color: ${Colors.BLACK};
+    padding: 5px;
+    cursor: pointer;
+  }
+  .providerSearchCard:hover {
+    background-color: ${Colors.CONCRETE};
+  }
+  .providerSearchResultImage {
+    height: 50px;
+    width: 60px;
+  }
+  .providerSearchResultName {
+    display: flex;
+    align-self: center;
+    padding-left: 15px;
+    font-size: 16px;
+  }
   .apiImage {
+    object-fit: contain;
     height: 50px;
     width: auto;
     max-width: 100%;
     margin-top: -5px;
     margin-bottom: 10px;
+    min-height: 50px;
   }
   .curlImage {
     width: 60px;
@@ -143,7 +188,29 @@ const ApiCard = styled.div`
     height: 110px;
     padding-bottom: 0px;
     cursor: pointer;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
   }
+  .eachCard:active {
+    border: 1px solid ${Colors.JAFFA_DARK};
+    background: rgba(242, 153, 74, 0.17);
+  }
+  .eachCard:hover {
+    border: 1px solid ${Colors.JAFFA_DARK};
+  }
+`;
+
+const ApiCard = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  column-gap: 10px;
+  flex-wrap: wrap;
+  margin-left: -10px;
+  text-align: center;
+  min-width: 150px;
+  border-radius: 4px;
+  width: 100%;
 `;
 
 const CardList = styled.div`
@@ -153,6 +220,15 @@ const CardList = styled.div`
     height: 110px;
     padding-bottom: 0px;
     cursor: pointer;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
+  }
+  .eachProviderCard:active {
+    border: 1px solid ${Colors.JAFFA_DARK};
+    background: rgba(242, 153, 74, 0.17);
+  }
+  .eachProviderCard:hover {
+    border: 1px solid ${Colors.JAFFA_DARK};
   }
 `;
 
@@ -196,7 +272,7 @@ const DropdownSelect = styled.div`
   font-size: 14px;
   float: right;
   width: 232px;
-  margin-right: 8%;
+  margin-right: 25px;
   margin-bottom: 25px;
 `;
 
@@ -210,6 +286,9 @@ const PageLoadingContainer = styled(CenteredWrapper)`
 `;
 
 type ApiHomeScreenProps = {
+  initialValues: {
+    category: string;
+  };
   currentCategory: string;
   importedCollections: TemplateList[];
   fetchImportedCollections: () => void;
@@ -217,17 +296,23 @@ type ApiHomeScreenProps = {
   fetchProviders: () => void;
   clearProviders: () => void;
   fetchProviderCategories: () => void;
+  searchApiOrProvider: (searchKey: string) => void;
   providerCategories: string[];
+  apiOrProviderSearchResults: {
+    providers: SearchResultsProviders[];
+  };
   pageId: string;
   plugins: Plugin[];
   applicationId: string;
   actions: ActionDataState;
-  createAction: (data: Partial<RestAction>) => void;
   fetchProvidersWithCategory: (
     request: FetchProviderWithCategoryRequest,
   ) => void;
   location: {
     search: string;
+  };
+  match: {
+    url: string;
   };
   history: {
     replace: (data: string) => void;
@@ -237,13 +322,19 @@ type ApiHomeScreenProps = {
   providersTotal: number;
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string) => void;
+  setCurrentCategory: (category: string) => void;
+  setLastUsedEditorPage: (path: string) => void;
+  previouslySetCategory: string;
+  fetchProvidersError: boolean;
 };
 
 type ApiHomeScreenState = {
   page: number;
+  showSearchResults: boolean;
 };
 
-type Props = ApiHomeScreenProps & InjectedFormProps<null, ApiHomeScreenProps>;
+type Props = ApiHomeScreenProps &
+  InjectedFormProps<{ category: string }, ApiHomeScreenProps>;
 
 class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
   constructor(props: Props) {
@@ -251,25 +342,39 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     this.state = {
       page: 1,
+      showSearchResults: false,
     };
   }
 
   componentDidMount() {
-    const { importedCollections } = this.props;
-    this.props.fetchProviderCategories();
+    const {
+      importedCollections,
+      providersTotal,
+      providerCategories,
+    } = this.props;
+    if (providerCategories.length === 0) {
+      this.props.fetchProviderCategories();
+    }
     if (importedCollections.length === 0) {
       this.props.fetchImportedCollections();
     }
-    this.props.clearProviders();
-    this.props.change("category", DEFAULT_PROVIDER_OPTION);
-    this.props.fetchProvidersWithCategory({
-      category: DEFAULT_PROVIDER_OPTION,
-      page: 1,
-    });
+    if (!providersTotal) {
+      this.props.clearProviders();
+      this.props.change("category", DEFAULT_PROVIDER_OPTION);
+      this.props.fetchProvidersWithCategory({
+        category: DEFAULT_PROVIDER_OPTION,
+        page: 1,
+      });
+    }
+    this.props.setLastUsedEditorPage(this.props.match.url);
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.currentCategory !== this.props.currentCategory) {
+    if (
+      prevProps.currentCategory !== this.props.currentCategory &&
+      this.props.currentCategory !== this.props.previouslySetCategory
+    ) {
+      this.props.setCurrentCategory(this.props.currentCategory);
       this.props.clearProviders();
       this.props.fetchProvidersWithCategory({
         category: this.props.currentCategory,
@@ -285,9 +390,16 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
     }
   };
 
-  // handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
-  //   const value = e.target.value;
-  // };
+  handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
+    const { searchApiOrProvider } = this.props;
+    const value = e.target.value;
+    if (value) {
+      searchApiOrProvider(value);
+      this.setState({ showSearchResults: true });
+    } else {
+      this.setState({ showSearchResults: false });
+    }
+  };
 
   handleFetchMoreProviders = (page: number) => {
     const { currentCategory } = this.props;
@@ -309,7 +421,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       providerCategories,
       providersTotal,
       isSwitchingCategory,
+      apiOrProviderSearchResults,
+      fetchProvidersError,
     } = this.props;
+    const { showSearchResults } = this.state;
+
     const queryParams: string = location.search;
     let destinationPageId = new URLSearchParams(location.search).get(
       "importTo",
@@ -331,15 +447,95 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     const ApiHomepageTopSection = (
       <React.Fragment>
-        {/* <SearchContainer>
+        <SearchContainer>
           <SearchBar
             icon="search"
             input={{
               onChange: this.handleSearchChange,
+              onFocus: e => {
+                if (e.target.value) {
+                  this.setState({ showSearchResults: true });
+                } else {
+                  this.setState({ showSearchResults: false });
+                }
+              },
             }}
             placeholder="Search"
           />
-        </SearchContainer> */}
+        </SearchContainer>
+        <div>
+          {showSearchResults && (
+            <div className="searchResultsContainer">
+              <Icon
+                icon="cross"
+                iconSize={20}
+                className="searchCloseBtn"
+                onClick={() => {
+                  this.setState({ showSearchResults: false });
+                }}
+              />
+              <StyledContainer>
+                <div>
+                  <p className="sectionHeadings">{"Providers"}</p>
+                  {apiOrProviderSearchResults.providers.map(
+                    providerSearchResult => (
+                      <React.Fragment key={providerSearchResult.id}>
+                        <p
+                          className="providerSearchCard"
+                          onClick={() =>
+                            history.push(
+                              getProviderTemplatesURL(
+                                applicationId,
+                                pageId,
+                                providerSearchResult.id +
+                                  `/?importTo=${destinationPageId}`,
+                              ),
+                            )
+                          }
+                        >
+                          {providerSearchResult.imageUrl ? (
+                            <img
+                              src={providerSearchResult.imageUrl}
+                              className="providerSearchResultImage"
+                              alt="img"
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                backgroundColor: getInitialsAndColorCode(
+                                  providerSearchResult.name,
+                                )[1],
+                                padding: 11,
+                                width: 60,
+                                color: "#fff",
+                                borderRadius: 2,
+                                fontSize: 16,
+                                fontWeight: "bold",
+                                textAlign: "center",
+                              }}
+                            >
+                              <span>
+                                {
+                                  getInitialsAndColorCode(
+                                    providerSearchResult.name,
+                                  )[0]
+                                }
+                              </span>
+                            </div>
+                          )}
+                          <span className="providerSearchResultName">
+                            {providerSearchResult.name}
+                            {/* |{" "} {providerSearchResult.noOfApis} APIs */}
+                          </span>
+                        </p>
+                      </React.Fragment>
+                    ),
+                  )}
+                </div>
+              </StyledContainer>
+            </div>
+          )}
+        </div>
 
         <StyledContainer>
           <p className="sectionHeadings">{"Import API"}</p>
@@ -402,7 +598,9 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     return (
       <React.Fragment>
-        <ApiHomePage>
+        <ApiHomePage
+          style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+        >
           {isSwitchingCategory ? (
             <>
               {ApiHomepageTopSection}
@@ -427,17 +625,22 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                 {ApiHomepageTopSection}
                 {/* Marketplace APIs section start */}
                 <StyledContainer>
-                  <p className="sectionHeadings">{"Marketplace APIs"}</p>
-                  <DropdownSelect>
-                    <DropdownField
-                      placeholder="All APIs"
-                      width={232}
-                      name="category"
-                      options={PROVIDER_CATEGORIES_OPTIONS}
-                    />
-                  </DropdownSelect>
+                  <div>
+                    <div style={{ float: "left" }}>
+                      <p className="sectionHeadings">{"Marketplace APIs"}</p>
+                    </div>
+                    <div>
+                      <DropdownSelect>
+                        <DropdownField
+                          placeholder="All APIs"
+                          width={232}
+                          name="category"
+                          options={PROVIDER_CATEGORIES_OPTIONS}
+                        />
+                      </DropdownSelect>
+                    </div>
+                  </div>
 
-                  <br />
                   <br />
                   <br />
 
@@ -447,25 +650,26 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                     </LoadingContainer>
                   ) : (
                     <>
-                      <div>
-                        <ApiCard>
-                          {providers.map(provider => (
-                            <CardList key={provider.id}>
-                              <Link
-                                to={{
-                                  pathname: getProviderTemplatesURL(
-                                    applicationId,
-                                    pageId,
-                                    provider.id,
-                                    destinationPageId
-                                      ? destinationPageId
-                                      : pageId,
-                                  ),
-                                  state: {
-                                    providerName: provider.name,
-                                    providerImage: provider.imageUrl,
-                                  },
-                                }}
+                      {fetchProvidersError ? (
+                        <div>
+                          <p className="fontSize16">No providers found.</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <ApiCard>
+                            {providers.map((provider, index) => (
+                              <CardList
+                                key={index}
+                                onClick={() =>
+                                  history.push(
+                                    getProviderTemplatesURL(
+                                      applicationId,
+                                      pageId,
+                                      provider.id +
+                                        `/?importTo=${destinationPageId}`,
+                                    ),
+                                  )
+                                }
                               >
                                 <Card
                                   interactive={false}
@@ -478,11 +682,28 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                       alt="Provider"
                                     />
                                   ) : (
-                                    <img
-                                      src={ImageAlt}
-                                      className="apiImage"
-                                      alt="Provider"
-                                    />
+                                    <div
+                                      style={{
+                                        backgroundColor: getInitialsAndColorCode(
+                                          provider.name,
+                                        )[1],
+                                        padding: 11,
+                                        margin: "auto auto 10px",
+                                        width: 70,
+                                        color: "#fff",
+                                        borderRadius: 2,
+                                        fontSize: 24,
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      <span>
+                                        {
+                                          getInitialsAndColorCode(
+                                            provider.name,
+                                          )[0]
+                                        }
+                                      </span>
+                                    </div>
                                   )}
                                   {provider.name && (
                                     <p
@@ -493,11 +714,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                     </p>
                                   )}
                                 </Card>
-                              </Link>
-                            </CardList>
-                          ))}
-                        </ApiCard>
-                      </div>
+                              </CardList>
+                            ))}
+                          </ApiCard>
+                        </div>
+                      )}
                     </>
                   )}
                 </StyledContainer>
@@ -513,7 +734,12 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
 const mapStateToProps = (state: AppState) => {
   const { providers } = state.ui;
-  const { providersTotal, isSwitchingCategory } = providers;
+  const {
+    providersTotal,
+    isSwitchingCategory,
+    fetchProvidersError,
+    apiOrProviderSearchResults,
+  } = providers;
   const formData = getFormValues(API_HOME_SCREEN_FORM)(
     state,
   ) as FetchProviderWithCategoryRequest;
@@ -521,6 +747,13 @@ const mapStateToProps = (state: AppState) => {
 
   if (formData) {
     category = formData.category;
+  }
+
+  let initialCategoryValue;
+  if (state.ui.apiPane.currentCategory === "") {
+    initialCategoryValue = DEFAULT_PROVIDER_OPTION;
+  } else {
+    initialCategoryValue = state.ui.apiPane.currentCategory;
   }
 
   return {
@@ -533,6 +766,10 @@ const mapStateToProps = (state: AppState) => {
     providerCategories: getProviderCategories(state),
     plugins: state.entities.plugins.list,
     isSwitchingCategory,
+    apiOrProviderSearchResults,
+    previouslySetCategory: state.ui.apiPane.currentCategory,
+    initialValues: { category: initialCategoryValue },
+    fetchProvidersError,
   };
 };
 
@@ -543,16 +780,20 @@ const mapDispatchToProps = (dispatch: any) => ({
   fetchProviderCategories: () => dispatch(fetchProviderCategories()),
   fetchProvidersWithCategory: (request: FetchProviderWithCategoryRequest) =>
     dispatch(fetchProvidersWithCategory(request)),
-  createAction: (data: Partial<RestAction>) =>
-    dispatch(createActionRequest(data)),
+  searchApiOrProvider: (searchKey: string) =>
+    dispatch(searchApiOrProvider({ searchKey })),
   createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
+  setCurrentCategory: (category: string) =>
+    dispatch(setCurrentCategory(category)),
+  setLastUsedEditorPage: (path: string) =>
+    dispatch(setLastUsedEditorPage(path)),
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(
-  reduxForm<null, ApiHomeScreenProps>({
+  reduxForm<{ category: string }, ApiHomeScreenProps>({
     form: API_HOME_SCREEN_FORM,
   })(ApiHomeScreen),
 );

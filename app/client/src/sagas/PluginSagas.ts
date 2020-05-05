@@ -1,5 +1,9 @@
 import { all, takeEvery, call, put } from "redux-saga/effects";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 
@@ -21,9 +25,34 @@ function* fetchPluginsSaga() {
   }
 }
 
+function* fetchPluginFormSaga(actionPayload: ReduxAction<{ id: string }>) {
+  try {
+    const response = yield call(
+      PluginsApi.fetchFormConfig,
+      actionPayload.payload.id,
+    );
+    const isValid = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        payload: {
+          id: actionPayload.payload.id,
+          form: response.data.form,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
+    takeEvery(ReduxActionTypes.FETCH_PLUGIN_FORM_INIT, fetchPluginFormSaga),
   ]);
 }
 

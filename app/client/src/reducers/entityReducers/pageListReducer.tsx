@@ -64,13 +64,24 @@ const pageListReducer = createReducer(initialState, {
     }
     return state;
   },
-  [ReduxActionTypes.UPDATE_CURRENT_PAGE]: (
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: (
     state: PageListReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     currentPageId: action.payload.id,
   }),
+  [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const pages = [...state.pages];
+    const updatedPage = pages.find(page => page.pageId === action.payload.id);
+    if (updatedPage) {
+      updatedPage.pageName = action.payload.name;
+    }
+    return { ...state, pages };
+  },
 });
 
 export interface PageListReduxState {

@@ -4,10 +4,12 @@ import { RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { APIEditorRouteParams } from "constants/routes";
+import {
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  APIEditorRouteParams,
+} from "constants/routes";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import {
-  createActionRequest,
   moveActionRequest,
   copyActionRequest,
   deleteAction,
@@ -18,13 +20,10 @@ import {
   initApiPane,
 } from "actions/apiPaneActions";
 import { RestAction } from "api/ActionAPI";
-import { getPluginIdOfName } from "selectors/entitiesSelector";
-import { PLUGIN_NAME } from "constants/ApiEditorConstants";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import { API_PANE_V2, checkForFlag } from "utils/featureFlags";
+import { checkForFlag, FeatureFlagEnum } from "utils/featureFlags";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -65,11 +64,9 @@ const ActionName = styled.span`
 interface ReduxStateProps {
   actions: ActionDataState;
   apiPane: ApiPaneReduxState;
-  pluginId: string | undefined;
 }
 
 interface ReduxDispatchProps {
-  createAction: (data: Partial<RestAction>) => void;
   onApiChange: (id: string) => void;
   initApiPane: (urlId?: string) => void;
   moveAction: (
@@ -169,7 +166,7 @@ class ApiSidebar extends React.Component<Props> {
   handleCreateNewApiClick = (selectedPageId: string) => {
     const { history, createNewApiAction } = this.props;
     const { pageId, applicationId } = this.props.match.params;
-    const v2Flag = checkForFlag(API_PANE_V2);
+    const v2Flag = checkForFlag(FeatureFlagEnum.ApiPaneV2);
     if (v2Flag) {
       history.push(
         API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
@@ -190,10 +187,8 @@ class ApiSidebar extends React.Component<Props> {
         params: { apiId },
       },
       actions,
-      pluginId,
     } = this.props;
-    if (!pluginId) return null;
-    const data = actions.map(a => a.config);
+    const data = actions.map(a => a.config).filter(a => a.pluginType === "API");
     return (
       <EditorSidebar
         isLoading={isFetching}
@@ -213,14 +208,11 @@ class ApiSidebar extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  pluginId: getPluginIdOfName(state, PLUGIN_NAME),
   actions: state.entities.actions,
   apiPane: state.ui.apiPane,
 });
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
-  createAction: (data: Partial<RestAction>) =>
-    dispatch(createActionRequest(data)),
   onApiChange: (actionId: string) => dispatch(changeApi(actionId)),
   initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
   moveAction: (

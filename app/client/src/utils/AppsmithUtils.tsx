@@ -3,11 +3,15 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
+
+import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
+import { providerBackgroundColors } from "constants/providerConstants";
+import { FeatureFlagEnum } from "utils/featureFlags";
 
 export const createReducer = (
   initialState: any,
@@ -23,6 +27,7 @@ export const createReducer = (
 };
 
 export const appInitializer = () => {
+  FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
     Sentry.init(appsmithConfigs.sentry.config);
@@ -35,6 +40,7 @@ export const appInitializer = () => {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+  setConfigFeatureFlags(appsmithConfigs.featureFlags);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont
@@ -115,4 +121,38 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
   if (localStorageLevel) logLevel = localStorageLevel;
   return logLevel;
+};
+
+const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
+  flags.forEach(flag => {
+    localStorage.setItem(flag, "true");
+  });
+};
+
+export const getInitialsAndColorCode = (fullName: any): string[] => {
+  let inits = "";
+  // if name contains space. eg: "Full Name"
+  if (fullName.includes(" ")) {
+    const namesArr = fullName.split(" ");
+    let initials = namesArr.map((name: string) => name.charAt(0));
+    initials = initials.join("").toUpperCase();
+    inits = initials.slice(0, 2);
+  } else {
+    // handle for camelCase
+    const str = fullName.replace(/([a-z])([A-Z])/g, "$1 $2");
+    const namesArr = str.split(" ");
+    let initials = namesArr.map((name: string) => name.charAt(0));
+    initials = initials.join("").toUpperCase();
+    inits = initials.slice(0, 2);
+  }
+  const colorCode = getColorCode(inits);
+  return [inits, colorCode];
+};
+
+const getColorCode = (initials: string): string => {
+  let asciiSum = 0;
+  for (let i = 0; i < initials.length; i++) {
+    asciiSum += initials[i].charCodeAt(0);
+  }
+  return providerBackgroundColors[asciiSum % providerBackgroundColors.length];
 };
