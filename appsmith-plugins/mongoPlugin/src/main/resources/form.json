@@ -57,11 +57,10 @@
           ]
         },
         {
-          "label": "Database Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "Database name",
-          "initialValue": "admin"
+          "label": "Default Database Name",
+          "placeholder": "(Optional)",
+          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
+          "controlType": "INPUT_TEXT"
         },
         {
           "label": "Authentication Type",
@@ -100,6 +99,13 @@
               "placeholderText": "Password"
             }
           ]
+        },
+        {
+          "label": "Auth Database Name",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "admin"
         }
       ]
     },
