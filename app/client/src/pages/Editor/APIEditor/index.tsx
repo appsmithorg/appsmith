@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { submit, getFormValues } from "redux-form";
+import { getFormValues, submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import ApiHomeScreen from "./ApiHomeScreen";
@@ -9,21 +9,23 @@ import {
   deleteAction,
   updateAction,
 } from "actions/actionActions";
-import { RestAction, PaginationField, RapidApiAction } from "api/ActionAPI";
+import { PaginationField, RapidApiAction, RestAction } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentPageName, getActionById } from "selectors/editorSelectors";
+import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { API_PANE_V2, checkForFlag } from "utils/featureFlags";
+import { checkForFlag, FeatureFlagEnum } from "utils/featureFlags";
 import styled from "styled-components";
 
 const EmptyStateContainer = styled.div`
@@ -161,7 +163,7 @@ class ApiEditor extends React.Component<Props> {
         {"Create / Select an API from the list"}
       </EmptyStateContainer>
     );
-    const v2Flag = checkForFlag(API_PANE_V2);
+    const v2Flag = checkForFlag(FeatureFlagEnum.ApiPaneV2);
     const homeScreen = v2Flag ? apiHomeScreen : defaultHomeScreen;
     return (
       <React.Fragment>

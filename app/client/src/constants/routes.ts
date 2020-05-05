@@ -1,4 +1,5 @@
 import { MenuIcons } from "icons/MenuIcons";
+import { FeatureFlagEnum } from "utils/featureFlags";
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const APPLICATIONS_URL = `/applications`;
@@ -139,18 +140,19 @@ export const EDITOR_ROUTES = [
     exact: false,
   },
   {
-    icon: MenuIcons.PAGES_ICON,
-    path: PAGE_LIST_EDITOR_URL,
-    className: "t--nav-link-manage-pages",
-    title: "Pages",
-    exact: true,
-  },
-  {
     icon: MenuIcons.DATASOURCES_ICON,
     className: "t--nav-link-datasource-editor",
     path: DATA_SOURCES_EDITOR_URL,
     title: "Datasources",
     exact: false,
+    flag: FeatureFlagEnum.DatasourcePane,
+  },
+  {
+    icon: MenuIcons.PAGES_ICON,
+    path: PAGE_LIST_EDITOR_URL,
+    className: "t--nav-link-manage-pages",
+    title: "Pages",
+    exact: true,
   },
 ];
 

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import SidebarComponent from "components/editorComponents/Sidebar";
 import NavBarItem from "components/editorComponents/NavBarItem";
 import { EDITOR_ROUTES, BuilderRouteParams } from "constants/routes";
+import { checkForFlag } from "utils/featureFlags";
 
 const Wrapper = styled.div`
   display: grid;
@@ -22,12 +23,17 @@ const EditorSidebar = styled(SidebarComponent)`
   background-color: ${props => props.theme.colors.paneBG};
 `;
 
+const allowedRoutes = EDITOR_ROUTES.filter(route => {
+  if (route.flag) return checkForFlag(route.flag);
+  return true;
+});
+
 const Sidebar = () => {
   const params = useParams<BuilderRouteParams>();
   return (
     <Wrapper>
       <NavBar>
-        {EDITOR_ROUTES.map(config => (
+        {allowedRoutes.map(config => (
           <NavBarItem
             key={config.title}
             {...config}

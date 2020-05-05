@@ -51,6 +51,6 @@ before(function() {
 
   after(function() {
     cy.Deletepage(pageid);
-    cy.PublishtheApp();
+    // cy.PublishtheApp();
   });
 });
