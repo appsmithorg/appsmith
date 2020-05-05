@@ -1,22 +1,12 @@
 import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useSelector } from "store";
-import { hasAuthExpired } from "utils/storage";
-import { User } from "constants/userConstants";
-import { setCurrentUserDetails } from "actions/userActions";
 import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-export const checkAuth = (dispatch: any, currentUser?: User) => {
-  return hasAuthExpired().then(hasExpired => {
-    if (!currentUser || hasExpired) {
-      dispatch(setCurrentUserDetails());
-    }
-  });
-};
+import { setCurrentUserDetails } from "actions/userActions";
 
 export const WrappedComponent = (props: any) => {
   const showPropertyPane = useShowPropertyPane();
@@ -26,10 +16,7 @@ export const WrappedComponent = (props: any) => {
   selectWidget(undefined);
   focusWidget(undefined);
 
-  const dispatch = useDispatch();
-  const currentUser = useSelector(state => state.ui.users.current);
-  checkAuth(dispatch, currentUser);
-  return currentUser || !props.protected ? props.children : null;
+  return props.children;
 };
 
 const AppRoute = ({
@@ -44,6 +31,13 @@ const AppRoute = ({
   name: string;
   location?: any;
 }) => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!/^\/user\/\w+/.test(rest.location.pathname)) {
+      dispatch(setCurrentUserDetails());
+    }
+  }, [rest.name, rest.location.pathname, dispatch]);
+
   useEffect(() => {
     if (!rest.logDisable) {
       AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {

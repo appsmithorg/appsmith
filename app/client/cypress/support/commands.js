@@ -6,7 +6,7 @@ const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
-  cy.visit("/");
+  cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
