@@ -73,6 +73,7 @@ import {
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 
 export const getAction = (
   state: AppState,
@@ -303,35 +304,45 @@ export function* executeActionTriggers(
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {
-  switch (trigger.type) {
-    case "RUN_ACTION":
-      yield call(executeActionSaga, trigger.payload, event);
-      break;
-    case "NAVIGATE_TO":
-      yield call(navigateActionSaga, trigger.payload, event);
-      break;
-    case "SHOW_ALERT":
-      AppToaster.show({
-        message: trigger.payload.message,
-        type: trigger.payload.style,
-      });
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "SHOW_MODAL_BY_NAME":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "CLOSE_MODAL":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    default:
-      yield put(
-        executeActionError({
-          error: "Trigger type unknown",
-          actionId: "",
-        }),
-      );
+  try {
+    switch (trigger.type) {
+      case "RUN_ACTION":
+        yield call(executeActionSaga, trigger.payload, event);
+        break;
+      case "NAVIGATE_TO":
+        yield call(navigateActionSaga, trigger.payload, event);
+        break;
+      case "SHOW_ALERT":
+        AppToaster.show({
+          message: trigger.payload.message,
+          type: trigger.payload.style,
+        });
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "SHOW_MODAL_BY_NAME":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "CLOSE_MODAL":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      default:
+        yield put(
+          executeActionError({
+            error: "Trigger type unknown",
+            actionId: "",
+          }),
+        );
+    }
+  } catch (e) {
+    yield put(
+      executeActionError({
+        error: "Failed to execute action",
+        actionId: "",
+      }),
+    );
+    if (event.callback) event.callback({ success: false });
   }
 }
 
@@ -427,22 +438,32 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
+    const isApi = actionPayload.payload.data.pluginType !== "DB";
     const { data } = actionPayload.payload;
-    const action = transformRestAction(data);
+    let action = data;
+    if (isApi) {
+      action = transformRestAction(data);
+    }
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionPayload.payload.data.name} Action updated`,
-        type: ToastType.SUCCESS,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
+
+      if (action.pluginType === QUERY_CONSTANT) {
+        AnalyticsUtil.logEvent("SAVE_QUERY", {
+          queryName: action.name,
+          pageName,
+        });
+      }
+      AppToaster.show({
+        message: `${actionPayload.payload.data.name} Action updated`,
+        type: ToastType.SUCCESS,
+      });
 
       AnalyticsUtil.logEvent("SAVE_API", {
         apiId: response.data.id,
@@ -450,7 +471,9 @@ export function* updateActionSaga(
         pageName: pageName,
       });
       yield put(updateActionSuccess({ data: response.data }));
-      yield put(runApiAction(data.id));
+      if (actionPayload.payload.data.pluginType !== "DB") {
+        yield put(runApiAction(data.id));
+      }
     }
   } catch (error) {
     yield put({

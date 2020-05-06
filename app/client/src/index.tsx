@@ -7,7 +7,6 @@ import "./index.css";
 import { Router, Switch, Redirect } from "react-router-dom";
 import history from "./utils/history";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
-
 import { appInitializer } from "utils/AppsmithUtils";
 import AppRoute from "./pages/common/AppRoute";
 import { Slide, ToastContainer } from "react-toastify";

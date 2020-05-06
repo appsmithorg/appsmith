@@ -99,6 +99,10 @@ export const getWidgetByName = (
   );
 };
 
+export const getAllPageIds = (state: AppState) => {
+  return state.entities.pageList.pages.map(page => page.pageId);
+};
+
 export const getPluginIdOfPackageName = (
   state: AppState,
   name: string,

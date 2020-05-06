@@ -3,7 +3,6 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
-
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -11,6 +10,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import { providerBackgroundColors } from "constants/providerConstants";
+import { FeatureFlagEnum } from "utils/featureFlags";
 
 export const createReducer = (
   initialState: any,
@@ -39,6 +39,7 @@ export const appInitializer = () => {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+  setConfigFeatureFlags(appsmithConfigs.featureFlags);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont
@@ -103,6 +104,17 @@ export const noop = () => {
   console.log("noop");
 };
 
+export const createNewQueryName = (
+  queries: ActionDataState,
+  pageId: string,
+) => {
+  const pageApiNames = queries
+    .filter(a => a.config.pageId === pageId)
+    .map(a => a.config.name);
+  const newName = getNextEntityName("Query", pageApiNames);
+  return newName;
+};
+
 export const convertToString = (value: any): string => {
   if (_.isUndefined(value)) {
     return "";
@@ -119,6 +131,12 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
   if (localStorageLevel) logLevel = localStorageLevel;
   return logLevel;
+};
+
+const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
+  flags.forEach(flag => {
+    localStorage.setItem(flag, "true");
+  });
 };
 
 export const getInitialsAndColorCode = (fullName: any): string[] => {

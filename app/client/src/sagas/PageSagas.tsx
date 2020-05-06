@@ -43,7 +43,7 @@ import history from "utils/history";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { getEditorConfigs, getWidgets } from "./selectors";
+import { getEditorConfigs, getWidgets, getAllPageIds } from "./selectors";
 import { validateResponse } from "./ErrorSagas";
 import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse } from "api/ApiResponses";
@@ -151,12 +151,13 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<{ pageId: string }>,
+  pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
 ) {
   try {
-    const { pageId } = pageRequestAction.payload;
+    const { pageId, bustCache } = pageRequestAction.payload;
     const request: FetchPublishedPageRequest = {
       pageId,
+      bustCache,
     };
     const response: FetchPublishedPageResponse = yield call(
       PageApi.fetchPublishedPage,
@@ -186,6 +187,19 @@ export function* fetchPublishedPageSaga(
         error,
       },
     });
+  }
+}
+
+export function* fetchAllPublishedPagesSaga() {
+  try {
+    const pageIds = yield select(getAllPageIds);
+    yield all(
+      pageIds.map((pageId: string) => {
+        return call(PageApi.fetchPublishedPage, { pageId });
+      }),
+    );
+  } catch (error) {
+    console.log({ error });
   }
 }
 
@@ -401,5 +415,9 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
     debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeLatest(ReduxActionTypes.UPDATE_WIDGET_NAME_INIT, updateWidgetNameSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
+      fetchAllPublishedPagesSaga,
+    ),
   ]);
 }

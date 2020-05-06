@@ -14,6 +14,7 @@ import { widgetDraggingReducer } from "./dragResizeReducer";
 import importedCollectionsReducer from "./importedCollectionsReducer";
 import providersReducer from "./providerReducer";
 import importReducer from "./importReducer";
+import queryPaneReducer from "./queryPaneReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -30,6 +31,7 @@ const uiReducer = combineReducers({
   importedCollections: importedCollectionsReducer,
   providers: providersReducer,
   imports: importReducer,
+  queryPane: queryPaneReducer,
   datasourcePane: datasourcePaneReducer,
 });
 export default uiReducer;

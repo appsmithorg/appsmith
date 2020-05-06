@@ -10,6 +10,7 @@ import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
+import "codemirror/addon/mode/multiplex";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -21,6 +22,42 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 require("codemirror/mode/javascript/javascript");
+require("codemirror/mode/sql/sql");
+require("codemirror/addon/hint/sql-hint");
+
+CodeMirror.defineMode("sql-js", function(config) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  return CodeMirror.multiplexingMode(
+    CodeMirror.getMode(config, "text/x-sql"),
+    {
+      open: "{{",
+      close: "}}",
+      mode: CodeMirror.getMode(config, {
+        name: "javascript",
+        globalVars: true,
+      }),
+    },
+    // .. more multiplexed styles can follow here
+  );
+});
+
+CodeMirror.defineMode("js-js", function(config) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  return CodeMirror.multiplexingMode(
+    CodeMirror.getMode(config, { name: "javascript", json: true }),
+    {
+      open: "{{",
+      close: "}}",
+      mode: CodeMirror.getMode(config, {
+        name: "javascript",
+        globalVars: true,
+      }),
+    },
+    // .. more multiplexed styles can follow here
+  );
+});
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -208,9 +245,12 @@ export type DynamicAutocompleteInputProps = {
   showLineNumbers?: boolean;
   allowTabIndent?: boolean;
   singleLine: boolean;
-  disabled?: boolean;
+  mode?: string | object;
+  className?: string;
   leftImage?: string;
+  disabled?: boolean;
   link?: string;
+  baseMode?: string | object;
 };
 
 type Props = ReduxStateProps &
@@ -249,7 +289,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       };
       if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
       this.editor = CodeMirror.fromTextArea(this.textArea.current, {
-        mode: { name: "javascript", globalVars: true },
+        mode: this.props.mode || { name: "javascript", globalVars: true },
         viewportMargin: 10,
         tabSize: 2,
         indentWithTabs: true,
@@ -259,6 +299,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         autoCloseBrackets: true,
         ...options,
       });
+
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("keyup", this.handleAutocompleteVisibility);
       this.editor.on("focus", this.handleEditorFocus);
@@ -286,6 +327,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     if (this.editor) {
       this.editor.refresh();
       if (!this.state.isFocused) {
+        const currentMode = this.editor.getOption("mode");
         const editorValue = this.editor.getValue();
         let inputValue = this.props.input.value;
         // Safe update of value of the editor when value updated outside the editor
@@ -294,6 +336,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         }
         if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
           this.editor.setValue(inputValue);
+        }
+
+        if (currentMode !== this.props.mode) {
+          this.editor.setOption("mode", this.props?.mode);
         }
       } else {
         // Update the dynamic bindings for autocomplete
@@ -367,6 +413,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         !cm.state.completionActive &&
         AUTOCOMPLETE_CLOSE_KEY_CODES.indexOf(event.code) === -1;
 
+      if (this.props.baseMode) {
+        // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
+        cm.doc.modeOption = this.props.baseMode;
+      }
+
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         this.setState({
@@ -398,7 +449,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   render() {
-    const { input, meta, theme, singleLine, disabled } = this.props;
+    const { input, meta, theme, singleLine, disabled, className } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
@@ -413,6 +464,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           singleLine={singleLine}
           isFocused={this.state.isFocused}
           disabled={disabled}
+          className={className}
         >
           <HintStyles />
           <IconContainer>

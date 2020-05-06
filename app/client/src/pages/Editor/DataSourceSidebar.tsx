@@ -91,7 +91,6 @@ const SearchBar = styled(BaseTextInput)`
 const ItemContainer = styled.div<{
   isSelected: boolean;
 }>`
-width: 210px;
 padding: 8px 12px;
 border-radius: 4px;
 align-items: center;
@@ -118,9 +117,9 @@ const StyledImage = styled.img`
 `;
 
 const StyledAddButton = styled(Button)<IIconProps>`
+  padding: "9px";
   &&& {
     outline: none;
-
     padding: 10px !important;
   }
   span {
@@ -140,7 +139,7 @@ const Container = styled.div`
   .createBtn {
     border: none;
     color: ${Colors.WHITE} !important;
-    width: 210px;
+    width: 100%;
     display: block !important;
     font-weight: normal;
     font-size: 14px;
@@ -160,7 +159,6 @@ const Container = styled.div`
   .highlightButton {
     color: ${Colors.WHITE} !important;
     background-color: ${Colors.BLUE_CHARCOAL} !important;
-    width: 210px;
     display: block !important;
     font-weight: normal;
     font-size: 14px;
@@ -325,7 +323,6 @@ class DataSourceSidebar extends React.Component<Props, State> {
             text={"Create a new Datasource"}
             icon="plus"
             className={datasourceId ? "createBtn" : "highlightButton"}
-            style={{ padding: "9px" }}
             onClick={this.handleCreateNewDatasource}
           />
         </Container>
