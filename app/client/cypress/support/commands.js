@@ -5,6 +5,29 @@ const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 
+Cypress.Commands.add("CreateApp", appname => {
+  cy.get(homePage.CreateApp)
+    .contains("Create Application")
+    .click({ force: true });
+  cy.get("form input").type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+ // cy.wait(2000);
+  cy.get("#loading").should("not.exist");
+});
+
+Cypress.Commands.add("DeleteApp", appName => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.get(homePage.searchInput).type(appName);
+  //cy.wait(2000);
+  cy.get("#loading").should("not.exist");
+  cy.get(homePage.appMoreIcon)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.deleteButton).click({ force: true });
+});
+
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
@@ -84,7 +107,7 @@ Cypress.Commands.add("CreateModal", () => {
     .find(".bp3-button > .bp3-button-text")
     .should("have.text", "Alert Modal");
   cy.get(commonlocators.editPropCrossButton).click();
-  cy.PublishtheApp();
+  cy.reload();
 });
 
 Cypress.Commands.add("PublishtheApp", () => {

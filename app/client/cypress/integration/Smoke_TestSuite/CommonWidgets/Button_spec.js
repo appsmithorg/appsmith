@@ -33,6 +33,6 @@ describe("Button Widget Functionality", function() {
 
   afterEach(() => {
     //clean up
-    cy.DeleteModal();
+    //  cy.DeleteModal();
   });
 });
