@@ -13,15 +13,13 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.CreateApp)
     .contains("Submit")
     .click({ force: true });
- // cy.wait(2000);
   cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   cy.get(homePage.searchInput).type(appName);
-  //cy.wait(2000);
-  cy.get("#loading").should("not.exist");
+  cy.wait(2000);
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
