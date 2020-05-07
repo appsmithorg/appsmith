@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.QGroup;
+import com.appsmith.server.helpers.PolicyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -18,8 +19,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Group>
         implements CustomGroupRepository {
 
-    public CustomGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    private final PolicyUtils policyUtils;
+
+    public CustomGroupRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, PolicyUtils policyUtils) {
+        super(mongoOperations, mongoConverter, policyUtils);
+        this.policyUtils = policyUtils;
     }
 
     @Override

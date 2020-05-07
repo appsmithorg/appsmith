@@ -7,10 +7,12 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -36,9 +38,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final MongoConverter mongoConverter;
 
-    public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
+    protected final PolicyUtils policyUtils;
+
+    @Autowired
+    public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
+                                      MongoConverter mongoConverter,
+                                      PolicyUtils policyUtils) {
         this.mongoOperations = mongoOperations;
         this.mongoConverter = mongoConverter;
+        this.policyUtils = policyUtils;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
     }
 
@@ -84,12 +92,14 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
+                    User user = (User) principal;
                     Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, permission)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
-                            .one();
+                            .one()
+                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -101,8 +111,9 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> {
+                    User user = (User) principal;
                     Query query = new Query(Criteria.where("id").is(id));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl((User) principal, permission)));
+                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
 
                     DBObject update = getDbObject(resource);
                     Update updateObj = new Update();
@@ -115,7 +126,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, resource.getClass().getSimpleName().toLowerCase(), id));
                                 }
                                 return findById(id, permission);
-                            });
+                            })
+                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -135,7 +147,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
-                            .one();
+                            .one()
+                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -155,7 +168,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
-                            .all();
+                            .all()
+                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
                 });
     }
 

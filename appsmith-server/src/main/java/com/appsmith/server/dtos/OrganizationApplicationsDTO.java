@@ -1,17 +1,19 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class OrganizationApplicationsDTO {
-    String organizationId;
-    String organizationName;
-    List<String> userPermissions;
-    List<ApplicationPermissionsDTO> applications;
+    Organization organization;
+    List<Application> applications;
 }

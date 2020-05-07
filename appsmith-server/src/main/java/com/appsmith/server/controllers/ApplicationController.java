@@ -64,9 +64,9 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
-    @GetMapping("/mock")
+    @GetMapping("/new")
     public Mono<ResponseDTO<List<OrganizationApplicationsDTO>>> getAllApplicationsMock() {
-        log.debug("Hitting mock read applications");
+        log.debug("Going to get all applications grouped by organization");
         return service.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }

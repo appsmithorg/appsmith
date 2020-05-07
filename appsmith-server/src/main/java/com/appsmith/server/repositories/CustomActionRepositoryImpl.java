@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.PolicyUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,8 +21,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Action> implements CustomActionRepository {
 
-    public CustomActionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    private final PolicyUtils policyUtils;
+
+    public CustomActionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, PolicyUtils policyUtils) {
+        super(mongoOperations, mongoConverter, policyUtils);
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -60,7 +64,8 @@ public class CustomActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Actio
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
 
                     return mongoOperations.findDistinct(query, fieldName(QAction.action.name),
-                            Action.class, Action.class);
+                            Action.class, Action.class)
+                            .map(action -> (Action) policyUtils.setUserPermissionsInObject(action, user));
                 });
     }
 }

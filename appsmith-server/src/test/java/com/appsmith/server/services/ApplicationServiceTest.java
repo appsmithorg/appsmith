@@ -3,8 +3,10 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,8 @@ public class ApplicationServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -213,6 +217,26 @@ public class ApplicationServiceTest {
                     assertThat(second.isDeleted()).isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllApplicationsForHome() {
+        Mono<List<OrganizationApplicationsDTO>> allApplications = applicationService.getAllApplications();
+
+        StepVerifier
+                .create(allApplications)
+                .assertNext(organizationApplicationsDTOS -> {
+                    assertThat(organizationApplicationsDTOS).isNotEmpty();
+
+                    OrganizationApplicationsDTO orgAppDto = organizationApplicationsDTOS.get(0);
+                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
+
+                    Application application = orgAppDto.getApplications().get(0);
+                    assertThat(application.getUserPermissions()).contains("read:applications");
+                })
+                .verifyComplete();
+
     }
 
 }
