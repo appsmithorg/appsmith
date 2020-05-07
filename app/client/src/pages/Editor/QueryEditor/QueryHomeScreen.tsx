@@ -150,6 +150,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         datasource: {
           id: dataSourceId,
         },
+        actionConfiguration: {},
       });
     }
   };
