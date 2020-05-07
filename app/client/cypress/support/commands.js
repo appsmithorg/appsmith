@@ -4,6 +4,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
+const ApiEditor = require("../locators/ApiEditor.json");
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.CreateApp)
@@ -226,4 +227,34 @@ Cypress.Commands.add("addDsl", dsl => {
       });
     });
   });
+});
+Cypress.Commands.add("NavigateToApiEditor", () => {
+  cy.get(pages.apiEditorIcon).click({ force: true });
+});
+
+Cypress.Commands.add("testCreateApiButton", () => {
+  cy.get(ApiEditor.createBlankApiCard).click({ force: true });
+  cy.wait("@createNewApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
+Cypress.Commands.add("testDeleteApi", () => {
+  cy.get(ApiEditor.createBlankApiCard).click({ force: true });
+  cy.wait("@deleteApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("importCurl", () => {
+  cy.get(ApiEditor.curlImportBtn).click({ force: true });
+  cy.wait("@curlImport").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
 });

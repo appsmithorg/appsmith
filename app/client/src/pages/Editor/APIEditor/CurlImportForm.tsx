@@ -154,7 +154,7 @@ class CurlImportForm extends React.Component<Props> {
               intent="primary"
               filled
               size="small"
-              className="t--application-publish-btn importBtn"
+              className="importBtn t--importBtn"
             />
           </CurlImportFormContainer>
         </Form>

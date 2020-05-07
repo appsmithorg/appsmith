@@ -1,0 +1,15 @@
+{
+    "curlImage": ".t--curlImage",
+    "curlImportBtn": ".t--importBtn",
+    "createBlankApiCard": ".t--createBlankApiCard",
+    "eachProviderCard": ".t--eachProviderCard",
+    "nameOfApi": ".t--nameOfApi",
+    "ApiNameField":"input[name='name']",
+    "addToPageBtn": ".t--addToPageBtn",
+    "ApiDeleteBtn": ".t--apiFormDeleteBtn",
+    "ApiRunBtn": ".t--apiFormRunBtn",
+    "addToPageBtnsId": ".t--addToPageButtons",
+    "ApiHomePage": ".t--apiHomePage",
+    "formActionButtons": ".t--formActionButtons",
+    "dataSourceField": ".t--dataSourceField"
+}

@@ -37,6 +37,17 @@ before(function() {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
+  cy.route("POST", "/api/v1/actions").as("createNewApi");
+  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteApi");
+  cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
+    "get3PProviders",
+  );
+  cy.route("GET", "/api/v1/marketplace/templates?providerId=*").as(
+    "get3PProviderTemplates",
+  );
+  cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
+
   cy.LogintoApp(loginData.username, loginData.password);
   cy.generateUUID().then(id => {
     appId = id;
