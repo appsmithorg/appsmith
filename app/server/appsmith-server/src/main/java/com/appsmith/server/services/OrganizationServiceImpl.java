@@ -246,5 +246,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByIdAndPluginsPluginId(organizationId, pluginId, AclPermission.READ_ORGANIZATIONS);
     }
 
+    @Override
+    public Flux<Organization> findByIdsIn(Set<String> ids, AclPermission permission) {
+        return repository.findByIdsIn(ids, permission);
+    }
+
 }
 

@@ -90,11 +90,16 @@ public class SeedMongoData {
                 {"api_user", API_USER_EMAIL, UserState.ACTIVATED, Set.of(userManageOrgPolicy, readApiUserPolicy)},
         };
         Object[][] orgData = {
-                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization", Set.of(manageOrgAppPolicy)}
+                {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization",
+                        Set.of(manageOrgAppPolicy, readOrgPolicy)},
+                {"Another Test Organization", "appsmith-another-test.com", "appsmith.com", "another-test-organization",
+                        Set.of(manageOrgAppPolicy, readOrgPolicy)}
         };
 
         Object[][] appData = {
-                {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
+                {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+                {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+                {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
         Object[][] pageData = {
                 {"validPageName", Set.of(managePagePolicy)}
