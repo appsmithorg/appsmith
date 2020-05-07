@@ -545,7 +545,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           <ApiCard>
             <Card
               interactive={false}
-              className="eachCard"
+              className="eachCard t--createBlankApiCard"
               onClick={() => this.handleCreateNew(queryParams)}
             >
               <Icon icon="plus" iconSize={20} className="createIcon" />
@@ -566,7 +566,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               to={curlImportURL}
             >
               <Card interactive={false} className="eachCard">
-                <img src={CurlLogo} className="curlImage" alt="CURL" />
+                <img
+                  src={CurlLogo}
+                  className="curlImage t--curlImage"
+                  alt="CURL"
+                />
                 <p className="textBtn">CURL</p>
               </Card>
             </Link>
@@ -610,6 +614,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       <React.Fragment>
         <ApiHomePage
           style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+          className="t--apiHomePage"
         >
           {isSwitchingCategory ? (
             <>
@@ -686,7 +691,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                               >
                                 <Card
                                   interactive={false}
-                                  className="eachProviderCard"
+                                  className="eachProviderCard t--eachProviderCard"
                                 >
                                   {provider.imageUrl ? (
                                     <img

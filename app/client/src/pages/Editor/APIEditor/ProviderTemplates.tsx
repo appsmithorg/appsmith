@@ -415,7 +415,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                       </URLContainer>
                     </TemplateCardLeftContent>
 
-                    <TemplateCardRightContent>
+                    <TemplateCardRightContent className="t--addToPageButtons">
                       {template.addToPageStatus ? (
                         <Button
                           text="Added"
@@ -423,7 +423,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                           filled
                           size="small"
                           disabled={true}
-                          className="addToPageBtn"
+                          className="addToPageBtn t--addToPageBtn"
                         />
                       ) : (
                         <Button
@@ -434,7 +434,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                           onClick={() => this.addApiToPage(template)}
                           disabled={false}
                           loading={template.addToPageLoading}
-                          className="addToPageBtn"
+                          className="addToPageBtn t--addToPageBtn"
                         />
                       )}
                       <Icon

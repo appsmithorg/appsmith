@@ -177,13 +177,15 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="name"
             placeholder="nameOfApi (camel case)"
             showError
+            className="t--nameOfApi"
           />
-          <ActionButtons>
+          <ActionButtons className="t--formActionButtons">
             <ActionButton
               text="Delete"
               accent="error"
               onClick={onDeleteClick}
               loading={isDeleting}
+              className="t--apiFormDeleteBtn"
             />
             <ActionButton
               text="Run"
@@ -192,6 +194,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 onRunClick();
               }}
               loading={isRunning}
+              className="t--apiFormRunBtn"
             />
             <ActionButton
               text="Save"
@@ -209,7 +212,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <DatasourceWrapper>
+          <DatasourceWrapper className="t--dataSourceField">
             <DatasourcesField
               name="datasource.id"
               pluginId={pluginId}
