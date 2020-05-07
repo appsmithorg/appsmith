@@ -6,7 +6,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +38,6 @@ public class ApplicationServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     @WithUserDetails(value = "api_user")
