@@ -17,6 +17,7 @@ const initialState: ApiPaneReduxState = {
   currentCategory: "",
   lastUsedEditorPage: "",
   lastSelectedPage: "",
+  extraformData: {},
 };
 
 export interface ApiPaneReduxState {
@@ -29,6 +30,7 @@ export interface ApiPaneReduxState {
   currentCategory: string;
   lastUsedEditorPage: string;
   lastSelectedPage: string;
+  extraformData: Record<string, any>;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -186,6 +188,19 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     lastSelectedPage: action.payload.selectedPageId,
   }),
+  [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ id: string; values: {} }>,
+  ) => {
+    const { id, values } = action.payload;
+    return {
+      ...state,
+      extraformData: {
+        ...state.extraformData,
+        [id]: values,
+      },
+    };
+  },
 });
 
 export default apiPaneReducer;

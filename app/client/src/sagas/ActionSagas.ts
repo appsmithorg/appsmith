@@ -438,7 +438,7 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
-    const isApi = actionPayload.payload.data.pluginType !== "DB";
+    const isApi = actionPayload.payload.data.pluginType === "API";
     const { data } = actionPayload.payload;
     let action = data;
     if (isApi) {
