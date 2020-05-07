@@ -246,8 +246,9 @@ export function* executeQuerySaga(
         show: false,
       },
     });
+
     AppToaster.show({
-      message: "Query is invalid. Please edit to make it valid",
+      message: error.message,
       type: ToastType.ERROR,
     });
   }
