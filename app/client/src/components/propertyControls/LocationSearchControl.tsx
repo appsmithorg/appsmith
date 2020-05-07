@@ -72,8 +72,8 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   ) => {
     const location = places[0].geometry.location;
     const lat = location.lat();
-    const lng = location.lng();
-    const value = { lat, lng };
+    const long = location.lng();
+    const value = { lat, long };
     this.updateProperty(this.props.propertyName, value);
   };
   render() {

@@ -34,12 +34,12 @@ export const executePageLoadActions = (
   });
 
 export const disableDragAction = (
-  disable: boolean,
-): ReduxAction<{ disable: boolean }> => {
+  isDraggingDisabled: boolean,
+): ReduxAction<{ isDraggingDisabled: boolean }> => {
   return {
     type: ReduxActionTypes.DISABLE_WIDGET_DRAG,
     payload: {
-      disable,
+      isDraggingDisabled,
     },
   };
 };

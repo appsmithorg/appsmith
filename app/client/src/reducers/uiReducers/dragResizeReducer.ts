@@ -10,7 +10,7 @@ const initialState: WidgetDragResizeState = {
 export const widgetDraggingReducer = createReducer(initialState, {
   [ReduxActionTypes.DISABLE_WIDGET_DRAG]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ disable: boolean }>,
+    action: ReduxAction<{ isDraggingDisabled: boolean }>,
   ) => {
     return { ...state, ...action.payload };
   },
