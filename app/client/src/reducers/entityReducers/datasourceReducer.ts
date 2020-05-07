@@ -27,6 +27,11 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.CREATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
+  [ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT]: (
+    state: DatasourceDataState,
+  ) => {
+    return { ...state, loading: true };
+  },
   [ReduxActionTypes.UPDATE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, loading: true };
   },
