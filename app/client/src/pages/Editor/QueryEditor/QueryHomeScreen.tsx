@@ -17,8 +17,6 @@ import { Datasource } from "api/DatasourcesApi";
 import { RestAction } from "api/ActionAPI";
 import history from "utils/history";
 import { createActionRequest } from "actions/actionActions";
-import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
-import { Colors } from "constants/Colors";
 import {
   PLUGIN_PACKAGE_MONGO,
   PLUGIN_PACKAGE_POSTGRES,
@@ -64,19 +62,6 @@ const QueryHomePage = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-`;
-
-const SearchContainer = styled.div`
-  display: flex;
-  width: 40%;
-`;
-
-const SearchBar = styled(BaseTextInput)`
-  margin-bottom: 10px;
-  input {
-    background-color: ${Colors.WHITE};
-    1px solid ${Colors.GEYSER};
   }
 `;
 
@@ -215,16 +200,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <SearchContainer>
-          <SearchBar
-            icon="search"
-            input={{
-              onChange: () => null,
-            }}
-            placeholder="Search"
-          />
-        </SearchContainer>
-
         <p style={{ fontSize: "14px" }}>Create Query</p>
         <CardsWrapper>
           {dataSources.length > 0 && (
