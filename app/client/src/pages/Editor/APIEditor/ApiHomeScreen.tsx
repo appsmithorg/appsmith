@@ -141,6 +141,11 @@ const StyledContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  @media (min-width: 2500px) {
+    .textBtn {
+      font-size: 18px;
+    }
+  }
   .link {
     color: ${Colors.OXFORD_BLUE};
   }
@@ -178,7 +183,7 @@ const StyledContainer = styled.div`
     min-height: 50px;
   }
   .curlImage {
-    width: 60px;
+    width: 55px;
   }
   .createIcon {
     align-items: center;
@@ -201,6 +206,23 @@ const StyledContainer = styled.div`
   .eachCard:hover {
     border: 1px solid ${Colors.JAFFA_DARK};
   }
+  @media (min-width: 2500px) {
+    .eachCard {
+      width: 240px;
+      height: 200px;
+    }
+    .apiImage {
+      margin-top: 25px;
+      margin-bottom: 20px;
+      height: 80px;
+    }
+    .curlImage {
+      width: 100px;
+    }
+    .createIcon {
+      height: 70px;
+    }
+  }
 `;
 
 const ApiCard = styled.div`
@@ -214,8 +236,10 @@ const ApiCard = styled.div`
   min-width: 150px;
   border-radius: 4px;
   width: 100%;
+  @media (min-width: 2500px) {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
 `;
-
 const CardList = styled.div`
   margin: 15px;
   .eachProviderCard {
@@ -232,6 +256,32 @@ const CardList = styled.div`
   }
   .eachProviderCard:hover {
     border: 1px solid ${Colors.JAFFA_DARK};
+  }
+  .providerInitials {
+    padding: 11px;
+    width: 70px;
+    margin: auto auto 14px;
+    color: ${Colors.WHITE};
+    border-radius: 2px;
+    fontsize: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+  @media (min-width: 2500px) {
+    .eachProviderCard {
+      width: 240px;
+      height: 200px;
+      padding-bottom: 0px;
+      cursor: pointer;
+      border: 1px solid #e6e6e6;
+      box-shadow: none;
+    }
+    .providerInitials {
+      padding: 25px;
+      width: 100px;
+      margin-top: 20px;
+      margin-bottom: 38px;
+    }
   }
 `;
 
@@ -701,17 +751,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                     />
                                   ) : (
                                     <div
+                                      className="providerInitials"
                                       style={{
                                         backgroundColor: getInitialsAndColorCode(
                                           provider.name,
                                         )[1],
-                                        padding: 11,
-                                        margin: "auto auto 10px",
-                                        width: 70,
-                                        color: "#fff",
-                                        borderRadius: 2,
-                                        fontSize: 24,
-                                        fontWeight: "bold",
                                       }}
                                     >
                                       <span>

@@ -121,6 +121,12 @@ export function* fetchProvidersWithCategorySaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
+      if (response.data.providers.length === 0) {
+        yield put({
+          type: ReduxActionTypes.SET_PROVIDERS_LENGTH,
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.FETCH_PROVIDERS_SUCCESS,
         payload: response.data,

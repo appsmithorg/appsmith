@@ -188,6 +188,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             placeholder="Api name"
             name="name"
             singleLine
+            setMaxHeight
             link={providerURL && `http://${providerURL}`}
           />
           <ActionButtons>
@@ -267,16 +268,6 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                     {postbodyResponsePresent && (
                       <PostbodyContainer>
                         <FormLabel>{"Post Body"}</FormLabel>
-                        <DropDownContainer>
-                          <DropdownField
-                            placeholder={POST_BODY_FORMAT_OPTIONS[1].value}
-                            name="displayFormat"
-                            isSearchable={false}
-                            width={232}
-                            options={POST_BODY_FORMAT_OPTIONS}
-                            isDisabled={true}
-                          />
-                        </DropDownContainer>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
                           <React.Fragment>
