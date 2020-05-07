@@ -19,7 +19,10 @@ import {
   PLUGIN_PACKAGE_POSTGRES,
   PLUGIN_PACKAGE_MONGO,
 } from "constants/QueryEditorConstants";
-import { selectPlugin, createDatasource } from "actions/datasourceActions";
+import {
+  selectPlugin,
+  createDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -229,7 +232,7 @@ const mapDispatchToProps = (dispatch: any) => {
     selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
-    createDatasource: (data: any) => dispatch(createDatasource(data)),
+    createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
   };
 };
 
