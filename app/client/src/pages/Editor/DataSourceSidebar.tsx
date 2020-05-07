@@ -322,6 +322,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
           <StyledAddButton
             text={"Create a new Datasource"}
             icon="plus"
+            fluid
             className={datasourceId ? "createBtn" : "highlightButton"}
             onClick={this.handleCreateNewDatasource}
           />
