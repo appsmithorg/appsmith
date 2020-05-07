@@ -460,7 +460,9 @@ export function* updateActionSaga(
     const { data } = actionPayload.payload;
     let action = data;
     if (isApi) {
-      action = transformRestAction(data);
+      const state = yield select();
+      const extraFormData = state.ui.apiPane.extraformData[action.id];
+      action = transformRestAction(data, extraFormData);
     }
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,

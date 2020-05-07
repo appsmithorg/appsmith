@@ -28,6 +28,7 @@ export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const POST_BODY_FORMATS = [
   "application/json",
   "application/x-www-form-urlencoded",
+  "raw",
 ];
 
 export const POST_BODY_FORMAT_OPTIONS = POST_BODY_FORMATS.map(method => ({

@@ -3,7 +3,7 @@ import {
   POST_BODY_FORMAT_OPTIONS,
 } from "constants/ApiEditorConstants";
 
-export const transformRestAction = (data: any): any => {
+export const transformRestAction = (data: any, extraFormData?: any): any => {
   let action = { ...data };
   if (data.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
     delete action.actionConfiguration.body;
@@ -24,18 +24,10 @@ export const transformRestAction = (data: any): any => {
     }
   }
 
-  if (
-    data.actionConfiguration.headers &&
-    data.actionConfiguration.headers.length
-  ) {
-    const contentType = data.actionConfiguration.headers.find(
-      (header: any) => header.key === "content-type",
-    );
+  if (extraFormData && extraFormData?.displayFormat) {
+    const { displayFormat } = extraFormData;
 
-    if (
-      contentType &&
-      contentType.value === POST_BODY_FORMAT_OPTIONS[0].value
-    ) {
+    if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[0].value) {
       if (data.actionConfiguration.body && data.actionConfiguration.body[0]) {
         const body = data.actionConfiguration.body[0];
         action = {
@@ -46,12 +38,7 @@ export const transformRestAction = (data: any): any => {
           },
         };
       }
-    }
-
-    if (
-      contentType &&
-      contentType.value === POST_BODY_FORMAT_OPTIONS[1].value
-    ) {
+    } else if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[1].value) {
       if (data.actionConfiguration.body && data.actionConfiguration.body[1]) {
         const body = data.actionConfiguration.body[1];
         if (typeof data.actionConfiguration.body === "object") {
@@ -63,6 +50,17 @@ export const transformRestAction = (data: any): any => {
             },
           };
         }
+      }
+    } else if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[2].value) {
+      if (data.actionConfiguration.body && data.actionConfiguration.body[2]) {
+        const body = data.actionConfiguration.body[2];
+        action = {
+          ...data,
+          actionConfiguration: {
+            ...data.actionConfiguration,
+            body,
+          },
+        };
       }
     }
   }
