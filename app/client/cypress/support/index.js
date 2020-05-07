@@ -64,11 +64,9 @@ before(function() {
   });
 
   after(function() {
-
     // ---commenting Publish app and Delete page as of now--- //
     //cy.Deletepage(pageid);
     //cy.PublishtheApp();
     cy.DeleteApp(appId);
-
   });
 });

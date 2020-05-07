@@ -1,14 +1,18 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector, change } from "redux-form";
+import { formValueSelector, change, Field } from "redux-form";
 import Select from "react-select";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMATS,
+} from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const DropDownContainer = styled.div`
   width: 232px;
@@ -38,7 +42,10 @@ interface PostDataProps {
   actionConfigurationHeaders?: any;
   change: Function;
   onDisplayFormatChange: Function;
+  apiId: string;
+  setDisplayFormat: Function;
 }
+
 type Props = PostDataProps;
 
 const PostBodyData = (props: Props) => {
@@ -46,6 +53,8 @@ const PostBodyData = (props: Props) => {
     onDisplayFormatChange,
     actionConfigurationHeaders,
     displayFormat,
+    setDisplayFormat,
+    apiId,
   } = props;
   return (
     <PostbodyContainer>
@@ -56,6 +65,18 @@ const PostBodyData = (props: Props) => {
           placeholder="Format"
           isSearchable={false}
           onChange={(displayFormatObject: any) => {
+            if (
+              displayFormatObject &&
+              displayFormatObject.value === POST_BODY_FORMATS[2]
+            ) {
+              setDisplayFormat(apiId, {
+                label: POST_BODY_FORMATS[2],
+                value: POST_BODY_FORMATS[2],
+              });
+
+              return;
+            }
+
             const elementsIndex = actionConfigurationHeaders.findIndex(
               (element: { key: string; value: string }) =>
                 element.key === "content-type",
@@ -70,6 +91,11 @@ const PostBodyData = (props: Props) => {
               };
 
               onDisplayFormatChange(updatedHeaders);
+            } else {
+              setDisplayFormat(apiId, {
+                label: POST_BODY_FORMATS[2],
+                value: POST_BODY_FORMATS[2],
+              });
             }
           }}
           value={displayFormat}
@@ -97,6 +123,20 @@ const PostBodyData = (props: Props) => {
           <KeyValueFieldArray name="actionConfiguration.body[1]" label="" />
         </React.Fragment>
       )}
+
+      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[2].value && (
+        <Field
+          name="actionConfiguration.body[2]"
+          component="textarea"
+          rows={10}
+          style={{
+            resize: "none",
+            overflow: "auto",
+            width: "95%",
+            marginLeft: 5,
+          }}
+        />
+      )}
     </PostbodyContainer>
   );
 };
@@ -108,6 +148,17 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(
       change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
     ),
+  setDisplayFormat: (id: string, displayFormat: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+      payload: {
+        id,
+        values: {
+          displayFormat,
+        },
+      },
+    });
+  },
 });
 
 export default connect((state: AppState) => {
@@ -123,5 +174,6 @@ export default connect((state: AppState) => {
     displayFormat:
       extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[0],
     contentType,
+    apiId,
   };
 }, mapDispatchToProps)(PostBodyData);

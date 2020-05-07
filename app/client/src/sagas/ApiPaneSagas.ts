@@ -219,15 +219,26 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
         data.actionConfiguration.body
       ) {
         data.actionConfiguration.body[0] = actionConfigurationBody;
-      } else {
+      } else if (
+        contentType.value === POST_BODY_FORMAT_OPTIONS[1].value &&
+        data.actionConfiguration.body
+      ) {
         if (typeof actionConfigurationBody !== "object") {
-          data.actionConfiguration.body[1] = JSON.parse(
-            actionConfigurationBody,
-          );
+          try {
+            data.actionConfiguration.body[1] = JSON.parse(
+              actionConfigurationBody,
+            );
+          } catch (e) {
+            data.actionConfiguration.body[2] = actionConfigurationBody;
+          }
         } else {
           data.actionConfiguration.body[1] = actionConfigurationBody;
         }
+      } else {
+        data.actionConfiguration.body[2] = actionConfigurationBody;
       }
+    } else if (!contentType && data.actionConfiguration.body) {
+      data.actionConfiguration.body[2] = actionConfigurationBody;
     }
   }
 
@@ -330,7 +341,7 @@ function* updateFormFields(
 
       if (!contentType) {
         yield put(
-          autofill(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
+          change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
             ...actionConfigurationHeaders,
             {
               key: "content-type",
@@ -358,6 +369,11 @@ function* updateFormFields(
         displayFormat = {
           label: contentType.value,
           value: contentType.value,
+        };
+      } else {
+        displayFormat = {
+          label: POST_BODY_FORMATS[2],
+          value: POST_BODY_FORMATS[2],
         };
       }
     }
