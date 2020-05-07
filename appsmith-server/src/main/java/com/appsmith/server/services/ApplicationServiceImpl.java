@@ -6,9 +6,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +25,15 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
 
 @Slf4j
@@ -35,6 +43,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     //Using PageRepository instead of PageService is because a cyclic dependency is introduced if PageService is used here.
     //TODO : Solve for this across LayoutService, PageService and ApplicationService.
     private final PageRepository pageRepository;
+    private final SessionUserService sessionUserService;
+    private final OrganizationService organizationService;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -43,9 +54,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
-                                  PageRepository pageRepository) {
+                                  PageRepository pageRepository,
+                                  SessionUserService sessionUserService,
+                                  OrganizationService organizationService,
+                                  PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
+        this.sessionUserService = sessionUserService;
+        this.organizationService = organizationService;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -99,11 +116,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-    @Override
-    public Mono<List<OrganizationApplicationsDTO>> getAllApplications() {
-        return null;
-    }
-
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
@@ -144,5 +156,60 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         .flatMap(pageRepository::save))
                 .collectList()
                 .map(pages -> true);
+    }
+
+    /**
+     * For the current user, it first fetches all the organizations that its part of. For each organization, in turn all
+     * the applications are fetched. These applications are then returned grouped by Organizations in a special DTO and returned
+     *
+     * TODO : We should also return applications shared with the user as part of this.
+     *
+     * @return List of OrganizationApplicationsDTO
+     */
+    @Override
+    public Mono<List<OrganizationApplicationsDTO>> getAllApplications() {
+
+        return sessionUserService
+                .getCurrentUser()
+                .map(user -> user.getOrganizationIds())
+                .flatMap(orgIds -> {
+
+                    /*
+                     * For all the organization ids present in the user object, fetch all the organization objects
+                     * and store in a map for fast access;
+                     */
+                    Mono<Map<String, Organization>> organizationsMapMono = organizationService.findByIdsIn(orgIds, READ_ORGANIZATIONS)
+                            .collectMap(Organization::getId, Function.identity());
+
+                    return repository
+                            // Fetch all the applications which belong the organization ids present in the user
+                            .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
+                            // Collect all the applications as a map with organization id as a key
+                            .collectMultimap(Application::getOrganizationId)
+                            .zipWith(organizationsMapMono)
+                            .map(tuple -> {
+                                Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT1();
+                                Map<String, Organization> organizationsMap = tuple.getT2();
+
+                                Iterator<Map.Entry<String, Collection<Application>>> itr =
+                                        applicationsCollectionByOrgId.entrySet().iterator();
+
+                                List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
+                                while (itr.hasNext()) {
+                                    Map.Entry<String, Collection<Application>> next = itr.next();
+                                    String orgId = next.getKey();
+                                    Collection<Application> applicationCollection = next.getValue();
+                                    List<Application> applicationList = applicationCollection.stream().collect(Collectors.toList());
+                                    Organization organization = organizationsMap.get(orgId);
+
+                                    OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
+                                    organizationApplicationsDTO.setOrganization(organization);
+                                    organizationApplicationsDTO.setApplications(applicationList);
+
+                                    organizationApplicationsDTOS.add(organizationApplicationsDTO);
+                                }
+                                return organizationApplicationsDTOS;
+                            });
+                });
     }
 }

@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QPage;
+import com.appsmith.server.helpers.PolicyUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,8 +18,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomPageRepositoryImpl extends BaseAppsmithRepositoryImpl<Page>
         implements CustomPageRepository {
 
-    public CustomPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    private final PolicyUtils policyUtils;
+
+    public CustomPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, PolicyUtils policyUtils) {
+        super(mongoOperations, mongoConverter, policyUtils);
+        this.policyUtils = policyUtils;
     }
 
 
