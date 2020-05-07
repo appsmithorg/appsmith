@@ -53,6 +53,7 @@ export interface PageAction {
   pluginType: ActionType;
   name: string;
   jsonPathKeys: string[];
+  timeoutInMillisecond: number;
 }
 
 export interface ExecuteErrorPayload {
