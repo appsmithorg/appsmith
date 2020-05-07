@@ -163,6 +163,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
   const action = yield select(getAction, id);
+  if (!action) return;
   const draft = yield select(getApiDraft, id);
   let fromDraft = false;
   let data = {} as any;
