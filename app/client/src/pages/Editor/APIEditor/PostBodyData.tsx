@@ -1,13 +1,14 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector } from "redux-form";
+import { formValueSelector, change } from "redux-form";
+import Select from "react-select";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { AppState } from "reducers";
 
 const DropDownContainer = styled.div`
   width: 232px;
@@ -33,28 +34,51 @@ export interface RapidApiAction {
 
 interface PostDataProps {
   actionConfiguration: any;
-  displayFormat: string;
+  displayFormat: any;
+  actionConfigurationHeaders?: any;
   change: Function;
+  onDisplayFormatChange: Function;
 }
 type Props = PostDataProps;
 
 const PostBodyData = (props: Props) => {
-  const { displayFormat } = props;
-
+  const {
+    onDisplayFormatChange,
+    actionConfigurationHeaders,
+    displayFormat,
+  } = props;
   return (
     <PostbodyContainer>
       <FormLabel>{"Post Body"}</FormLabel>
       <DropDownContainer>
-        <DropdownField
+        <Select
+          defaultValue={POST_BODY_FORMAT_OPTIONS[0]}
           placeholder="Format"
-          name="displayFormat"
           isSearchable={false}
+          onChange={(displayFormatObject: any) => {
+            const elementsIndex = actionConfigurationHeaders.findIndex(
+              (element: { key: string; value: string }) =>
+                element.key === "content-type",
+            );
+
+            if (elementsIndex >= 0 && displayFormatObject) {
+              const updatedHeaders = [...actionConfigurationHeaders];
+
+              updatedHeaders[elementsIndex] = {
+                ...updatedHeaders[elementsIndex],
+                value: displayFormatObject.value,
+              };
+
+              onDisplayFormatChange(updatedHeaders);
+            }
+          }}
+          value={displayFormat}
           width={232}
           options={POST_BODY_FORMAT_OPTIONS}
         />
       </DropDownContainer>
 
-      {displayFormat === POST_BODY_FORMAT_OPTIONS[0].value && (
+      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[0].value && (
         <React.Fragment>
           <JSONEditorFieldWrapper>
             <DynamicTextField
@@ -68,7 +92,7 @@ const PostBodyData = (props: Props) => {
         </React.Fragment>
       )}
 
-      {displayFormat === POST_BODY_FORMAT_OPTIONS[1].value && (
+      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[1].value && (
         <React.Fragment>
           <KeyValueFieldArray name="actionConfiguration.body[1]" label="" />
         </React.Fragment>
@@ -78,8 +102,17 @@ const PostBodyData = (props: Props) => {
 };
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
-export default connect(state => {
-  const displayFormat = selector(state, "displayFormat");
+
+const mapDispatchToProps = (dispatch: any) => ({
+  onDisplayFormatChange: (value: []) =>
+    dispatch(
+      change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", value),
+    ),
+});
+
+export default connect((state: AppState) => {
+  const apiId = selector(state, "id");
+  const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const headers = selector(state, "actionConfiguration.headers");
   let contentType;
   if (headers) {
@@ -87,7 +120,8 @@ export default connect(state => {
   }
 
   return {
-    displayFormat,
+    displayFormat:
+      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[0],
     contentType,
   };
-})(PostBodyData);
+}, mapDispatchToProps)(PostBodyData);

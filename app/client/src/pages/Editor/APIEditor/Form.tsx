@@ -111,7 +111,6 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   actionConfiguration?: any;
-  displayFormat: string;
   httpMethodFromForm: string;
   actionConfigurationBody: object | string;
   actionConfigurationHeaders?: any;
@@ -142,24 +141,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfigurationHeaders,
     actionConfigurationBody,
     httpMethodFromForm,
-    contentType,
-    displayFormat,
     location,
     dispatch,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
   useEffect(() => {
-    if (allowPostBody) {
-      if (contentType) {
-        if (!displayFormat) {
-          props.change("displayFormat", contentType.value);
-        } else {
-          contentType.value = displayFormat;
-          props.change("contentType.value", displayFormat);
-        }
-      }
-    }
     dispatch({
       type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
       payload: {
@@ -242,14 +229,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           actionConfiguration && actionConfigurationHeaders
                         }
                         placeholder="Value"
+                        pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
+                      pushFields
                     />
                     {allowPostBody && (
                       <PostBodyData
+                        actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
                       />
@@ -280,7 +270,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect(state => {
-  const displayFormat = selector(state, "displayFormat");
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfiguration = selector(state, "actionConfiguration");
   const actionConfigurationBody = selector(state, "actionConfiguration.body");
@@ -296,7 +285,6 @@ export default connect(state => {
   }
 
   return {
-    displayFormat,
     httpMethodFromForm,
     actionConfiguration,
     actionConfigurationBody,
