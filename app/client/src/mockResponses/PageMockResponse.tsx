@@ -46,6 +46,7 @@ const PageMockResponse: FetchPageResponse = {
             name: "someActions",
             jsonPathKeys: [],
             pluginType: "API" as ActionType,
+            timeoutInMillisecond: 10000,
           },
         ],
         layoutOnLoadActions: [],

@@ -212,6 +212,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             leftIcon={FormIcons.SLASH_ICON}
             normalize={value => value.trim()}
             singleLine
+            setMaxHeight
           />
         </FormRow>
       </MainConfiguration>

@@ -119,6 +119,7 @@ const Wrapper = styled.div<{
   singleLine: boolean;
   isFocused: boolean;
   disabled?: boolean;
+  setMaxHeight?: boolean;
 }>`
   ${props =>
     props.singleLine && props.isFocused
@@ -143,6 +144,17 @@ const Wrapper = styled.div<{
   min-height: 32px;
   overflow: hidden;
   height: auto;
+  ${props =>
+    props.setMaxHeight &&
+    props.isFocused &&
+    `
+  z-index: 5;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  `}
+  ${props => props.setMaxHeight && !props.isFocused && `max-height: 30px;`}
   && {
     .binding-highlight {
       color: ${props =>
@@ -251,6 +263,7 @@ export type DynamicAutocompleteInputProps = {
   disabled?: boolean;
   link?: string;
   baseMode?: string | object;
+  setMaxHeight?: boolean;
 };
 
 type Props = ReduxStateProps &
@@ -452,7 +465,15 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   render() {
-    const { input, meta, theme, singleLine, disabled, className } = this.props;
+    const {
+      input,
+      meta,
+      theme,
+      singleLine,
+      disabled,
+      className,
+      setMaxHeight,
+    } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
@@ -468,6 +489,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           isFocused={this.state.isFocused}
           disabled={disabled}
           className={className}
+          setMaxHeight={setMaxHeight}
         >
           <HintStyles />
           <IconContainer>

@@ -40,12 +40,14 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 name={`${field}.key`}
                 placeholder="Key"
                 singleLine
+                setMaxHeight
               />
               {!props.actionConfig && (
                 <DynamicTextField
                   name={`${field}.value`}
                   placeholder="Value"
                   singleLine
+                  setMaxHeight
                 />
               )}
 
@@ -53,7 +55,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 <React.Fragment>
                   <DynamicTextField
                     name={`${field}.value`}
-                    height={30}
+                    setMaxHeight
                     placeholder={
                       props.placeholder
                         ? props.placeholder

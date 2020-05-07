@@ -15,7 +15,7 @@ import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const DropDownContainer = styled.div`
-  width: 232px;
+  width: 300px;
   margin: 5px;
   margin-bottom: 21px;
 `;
@@ -99,7 +99,7 @@ const PostBodyData = (props: Props) => {
             }
           }}
           value={displayFormat}
-          width={232}
+          width={300}
           options={POST_BODY_FORMAT_OPTIONS}
         />
       </DropDownContainer>
