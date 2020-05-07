@@ -1,6 +1,9 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { APIRequest, EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import {
+  APIRequest,
+  DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+} from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
 import { Datasource } from "./DatasourcesApi";
 import { PaginationType } from "pages/Editor/APIEditor/Pagination";
@@ -50,6 +53,7 @@ export interface APIConfigRequest {
   queryParameters: Property[];
   paginationType: PaginationType;
   bodyFormData: BodyFormData[];
+  timeoutInMillisecond: number;
 }
 
 export interface QueryConfig {
@@ -197,9 +201,10 @@ class ActionAPI extends API {
 
   static executeAction(
     executeAction: ExecuteActionRequest,
+    timeout?: number,
   ): AxiosPromise<ActionApiResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
-      timeout: EXECUTE_ACTION_TIMEOUT_MS,
+      timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
   }
 

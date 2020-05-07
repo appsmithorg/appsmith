@@ -1,7 +1,7 @@
 import API from "./Api";
 import { GenericApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
-import { EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "constants/ApiConstants";
 
 interface DatasourceAuthentication {
   authType?: string;
@@ -50,7 +50,7 @@ class DatasourcesApi extends API {
 
   static testDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
     return API.post(`${DatasourcesApi.url}/test`, datasourceConfig, undefined, {
-      timeout: EXECUTE_ACTION_TIMEOUT_MS,
+      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
     });
   }
 
