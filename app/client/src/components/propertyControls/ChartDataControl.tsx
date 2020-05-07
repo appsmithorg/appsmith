@@ -62,10 +62,7 @@ type RenderComponentProps = {
   index: number;
   item: {
     seriesName: string;
-    data: Array<{
-      x: string;
-      y: string;
-    }>;
+    data: Array<{ x: string; y: string }> | any;
   };
   length: number;
   deleteOption: Function;
@@ -126,10 +123,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   render() {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{
-        x: string;
-        y: string;
-      }>;
+      data: Array<{ x: string; y: string }> | any;
     }> = this.props.propertyValue || [];
     const dataLength = chartData.length;
     return (
@@ -170,10 +164,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   ) => {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{
-        x: string;
-        y: string;
-      }>;
+      data: Array<{ x: string; y: string }> | any;
     }> = this.props.propertyValue;
     this.updateProperty(
       this.props.propertyName,
@@ -182,7 +173,11 @@ class ChartDataControl extends BaseControl<ControlProps> {
           if (propertyName === "seriesName") {
             item.seriesName = updatedValue;
           } else {
-            item.data = JSON.parse(updatedValue);
+            try {
+              item.data = JSON.parse(updatedValue);
+            } catch (err) {
+              item.data = updatedValue;
+            }
           }
         }
         return item;
@@ -193,10 +188,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
   addOption = () => {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{
-        x: string;
-        y: string;
-      }>;
+      data: Array<{ x: string; y: string }> | any;
     }> = this.props.propertyValue ? this.props.propertyValue.slice() : [];
     chartData.push({ seriesName: "", data: [{ x: "", y: "" }] });
     this.updateProperty(this.props.propertyName, chartData);

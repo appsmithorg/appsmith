@@ -19,6 +19,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       yAxisName: VALIDATION_TYPES.TEXT,
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
+      chartData: VALIDATION_TYPES.CHART_DATA,
     };
   }
 

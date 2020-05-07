@@ -248,7 +248,24 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
       };
-    } else if (!_.every(parsed, datum => _.isObject(datum))) {
+    }
+    const hasChartData = _.every(
+      parsed,
+      (datum: { seriesName: any; data: any }) => {
+        if (_.isObject(datum)) {
+          return (
+            _.isString(datum.seriesName) &&
+            _.isArray(datum.data) &&
+            _.every(datum.data, (item: { x: any; y: any }) => {
+              return _.isString(item.x) && !_.isUndefined(item.y);
+            })
+          );
+        } else {
+          return false;
+        }
+      },
+    );
+    if (!hasChartData) {
       return {
         isValid: false,
         parsed: [],

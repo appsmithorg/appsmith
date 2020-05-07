@@ -20,7 +20,7 @@ interface MapComponentProps {
   allowZoom: boolean;
   center: {
     lat: number;
-    lng: number;
+    long: number;
   };
   markers?: Array<MarkerProps>;
   selectedMarker?: {
@@ -29,11 +29,22 @@ interface MapComponentProps {
     title?: string;
   };
   enableCreateMarker: boolean;
-  updateCenter: (lat: number, lng: number) => void;
-  updateMarker: (lat: number, lng: number, index: number) => void;
-  saveMarker: (lat: number, lng: number) => void;
-  selectMarker: (lat: number, lng: number, title: string) => void;
+  updateCenter: (lat: number, long: number) => void;
+  updateMarker: (lat: number, long: number, index: number) => void;
+  saveMarker: (lat: number, long: number) => void;
+  selectMarker: (lat: number, long: number, title: string) => void;
+  disableDrag: (e: any) => void;
 }
+
+const MapWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
+const MapContainerWrapper = styled.div`
+  width: 100%;
+`;
 
 const StyledInput = styled.input`
   box-sizing: border-box;
@@ -78,7 +89,7 @@ const MyMapComponent = withScriptjs(
         streetViewControl: false,
       }}
       zoom={props.zoom}
-      center={props.center}
+      center={{ ...props.center, lng: props.center.long }}
       onClick={e => {
         if (props.enableCreateMarker) {
           props.saveMarker(e.latLng.lat(), e.latLng.lng());
@@ -98,15 +109,15 @@ const MyMapComponent = withScriptjs(
         <Marker
           key={index}
           title={marker.title}
-          position={{ lat: marker.lat, lng: marker.lng }}
+          position={{ lat: marker.lat, lng: marker.long }}
           clickable
           draggable={
             props.selectedMarker &&
             props.selectedMarker.lat === marker.lat &&
-            props.selectedMarker.long === marker.lng
+            props.selectedMarker.long === marker.long
           }
           onClick={e => {
-            props.selectMarker(marker.lat, marker.lng, marker.title);
+            props.selectMarker(marker.lat, marker.long, marker.title);
           }}
           onDragEnd={de => {
             props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
@@ -147,8 +158,8 @@ class MapComponent extends React.Component<MapComponentProps> {
       ) {
         const location = places[0].geometry.location;
         const lat = location.lat();
-        const lng = location.lng();
-        this.props.updateCenter(lat, lng);
+        const long = location.lng();
+        this.props.updateCenter(lat, long);
       }
     }
   };
@@ -157,9 +168,9 @@ class MapComponent extends React.Component<MapComponentProps> {
     if ("geolocation" in navigator) {
       return navigator.geolocation.getCurrentPosition(data => {
         const {
-          coords: { latitude: lat, longitude: lng },
+          coords: { latitude: lat, longitude: long },
         } = data;
-        this.props.saveMarker(lat, lng);
+        this.props.updateCenter(lat, long);
       });
     }
   };
@@ -167,17 +178,19 @@ class MapComponent extends React.Component<MapComponentProps> {
   render() {
     const zoom = Math.floor(this.props.zoomLevel / 5);
     return (
-      <MyMapComponent
-        googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2H_twoNbEKMm9Q0nYAh7715Dplg2asCI&v=3.exp&libraries=geometry,drawing,places"
-        loadingElement={<div style={{ height: `100%` }} />}
-        containerElement={<div style={{ height: `100%` }} />}
-        mapElement={<div style={{ height: `100%` }} />}
-        {...this.props}
-        zoom={zoom}
-        onPlacesChanged={this.onPlacesChanged}
-        onSearchBoxMounted={this.onSearchBoxMounted}
-        getUserLocation={this.getUserLocation}
-      />
+      <MapWrapper onMouseLeave={this.props.disableDrag}>
+        <MyMapComponent
+          googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2H_twoNbEKMm9Q0nYAh7715Dplg2asCI&v=3.exp&libraries=geometry,drawing,places"
+          loadingElement={<MapContainerWrapper />}
+          containerElement={<MapContainerWrapper />}
+          mapElement={<MapContainerWrapper />}
+          {...this.props}
+          zoom={zoom}
+          onPlacesChanged={this.onPlacesChanged}
+          onSearchBoxMounted={this.onSearchBoxMounted}
+          getUserLocation={this.getUserLocation}
+        />
+      </MapWrapper>
     );
   }
 }
