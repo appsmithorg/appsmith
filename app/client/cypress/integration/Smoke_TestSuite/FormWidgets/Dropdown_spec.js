@@ -7,13 +7,8 @@ describe("Dropdown Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Dropdown Widget Functionality", function() {
-    cy.get(formWidgetsPage.dropdownWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.dropdownWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("dropdownwidget");
+
     //Checking the edit props for Dropdown and also the properties of Dropdown widget
     cy.testCodeMirror("Test Dropdown");
 

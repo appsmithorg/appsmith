@@ -7,13 +7,8 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("RichTextEditor Widget Functionality", function() {
-    cy.get(formWidgetsPage.richTextEditorWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.richTextEditorWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("richtexteditorwidget");
+
     //Checking the edit props for RichTextEditor and also the properties of RichTextEditor widget
     cy.get(formWidgetsPage.richEditorOnTextChange)
       .get(commonlocators.dropdownSelectButton)

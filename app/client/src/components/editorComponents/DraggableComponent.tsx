@@ -35,15 +35,6 @@ const WidgetBoundaries = styled.div`
   pointer-events: none;
 `;
 
-const ClickCaptureMask = styled.div`
-  position: absolute;
-  left: 0;
-  top: 5%;
-  width: 100%;
-  height: 95%;
-  z-index: 2;
-`;
-
 type DraggableComponentProps = ContainerWidgetProps<WidgetProps>;
 
 /* eslint-disable react/display-name */
@@ -87,30 +78,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
-  // If this widget has not been selected, and the props tell us to
-  // disable the default click on the wiget;
-  // We add a mask on the widget and stop "first" click event from propagating to the
-  // underlying component
-  const clickCaptureMask = selectedWidget !== props.widgetId &&
-    props.isDefaultClickDisabled && (
-      <ClickCaptureMask
-        onClick={(e: any) => {
-          // The first click on any widget opens the property pane
-          // When the user closes the property pane manually,
-          // the property pane does not show up in subsequent clicks
-          // However, when this widgets is not selected, a click
-          // is considered as the first click, we need to force the
-          // property pane to open.
-          // Adding a third parameter to force open the property pane
-          showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-          // Select this widget to make this mask disappear
-          selectWidget && selectWidget(props.widgetId);
-          // Prevent click event from propagating
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      />
-    );
 
   const [{ isCurrentWidgetDragging }, drag] = useDrag({
     item: props as WidgetProps,
@@ -169,9 +136,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   // When the draggable is clicked
   const handleClick = (e: any) => {
     if (!isResizingOrDragging) {
-      const shouldForceOpen = selectedWidget !== props.widgetId;
-      showPropertyPane &&
-        showPropertyPane(props.widgetId, undefined, shouldForceOpen);
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
@@ -218,7 +182,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       onClick={handleClick}
       style={style}
     >
-      {clickCaptureMask}
       {props.children}
       {widgetBoundaries}
     </DraggableWrapper>

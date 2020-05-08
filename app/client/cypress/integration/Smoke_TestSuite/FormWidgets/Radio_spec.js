@@ -7,13 +7,8 @@ describe("Radio Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Radio Widget Functionality", function() {
-    cy.get(formWidgetsPage.radioWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.radioWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("radiogroupwidget");
+
     //Checking the edit props for Radio Widget and also the properties of Radio widget
     cy.testCodeMirror("Test Radio");
     cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
