@@ -33,6 +33,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -73,6 +74,10 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
         Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
@@ -102,7 +107,7 @@ public class SeedMongoData {
                 {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
         Object[][] pageData = {
-                {"validPageName", Set.of(managePagePolicy)}
+                {"validPageName", Set.of(managePagePolicy, readPagePolicy)}
         };
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
