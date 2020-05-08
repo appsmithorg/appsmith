@@ -18,13 +18,11 @@ Cypress.Commands.add("CreateApp", appname => {
 
 Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.get(homePage.searchInput).type(appName);
-  cy.wait(2000)
+  cy.wait("@applications");
+  cy.get(homePage.searchInput)
+    .focus()
+    .type(appName);
+  cy.wait(2000);
   cy.get(homePage.appMoreIcon)
     .first()
     .click({ force: true });
