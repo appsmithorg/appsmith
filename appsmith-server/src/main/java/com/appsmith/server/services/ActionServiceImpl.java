@@ -6,16 +6,20 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -56,6 +60,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
@@ -71,6 +77,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
     private final MarketplaceService marketplaceService;
+    private final PolicyGenerator policyGenerator;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -86,7 +93,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
-                             MarketplaceService marketplaceService) {
+                             MarketplaceService marketplaceService,
+                             PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -97,6 +105,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
         this.marketplaceService = marketplaceService;
+        this.policyGenerator = policyGenerator;
     }
 
     private Boolean validateActionName(String name) {
@@ -111,15 +120,31 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
-        return sessionUserService.getCurrentUser()
-                .map(user -> user.getCurrentOrganizationId())
-                .map(orgId -> {
+
+        if (action.getPageId() == null || action.getPageId().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        Mono<User> userMono = sessionUserService
+                .getCurrentUser()
+                .cache();
+
+        return pageService
+                .findById(action.getPageId(), READ_PAGES)
+                .zipWith(userMono)
+                .map(tuple -> {
+                    Page page = tuple.getT1();
+                    User user = tuple.getT2();
+
+                    // Inherit the action policies from the page.
+                    generateAndSetActionPolicies(page, user, action);
+
                     Datasource datasource = action.getDatasource();
                     if (datasource != null) {
-                        datasource.setOrganizationId(orgId);
+                        datasource.setOrganizationId(user.getCurrentOrganizationId());
                         action.setDatasource(datasource);
                     }
-                    action.setOrganizationId(orgId);
+                    action.setOrganizationId(user.getCurrentOrganizationId());
                     return action;
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
@@ -599,5 +624,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     providerUpdatedAction.setPluginId(pluginIdUpdatedAction.getPluginId());
                     return providerUpdatedAction;
                 });
+    }
+
+    private void generateAndSetActionPolicies(Page page, User user, Action action) {
+        Set<Policy> policySet = page.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
+                        || policy.getPermission().equals(READ_PAGES.getValue()))
+                .collect(Collectors.toSet());
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Page.class);
+        action.setPolicies(documentPolicies);
     }
 }
