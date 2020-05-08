@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
@@ -20,7 +19,6 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-@CompoundIndex(def = "{'organizationId':1, 'name':1}", name = "organization_datasource_compound_index", unique = true)
 public class Datasource extends BaseDomain {
     String name;
 
