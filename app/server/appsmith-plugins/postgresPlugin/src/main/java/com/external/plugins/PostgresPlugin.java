@@ -91,7 +91,7 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
             } catch (SQLException e) {
-                return pluginErrorMono(e);
+                return pluginErrorMono(e.getMessage());
 
             } finally {
                 if (resultSet != null) {

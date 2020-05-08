@@ -1,7 +1,7 @@
 {
   "form": [
     {
-      "sectionName": "General",
+      "sectionName": "Connection",
       "id": 1,
       "children": [
         {
@@ -20,13 +20,7 @@
               "value": "READ_WRITE"
             }
           ]
-        }
-      ]
-    },
-    {
-      "sectionName": "Connection",
-      "id": 2,
-      "children": [
+        },
         {
           "sectionName": null,
           "children": [
@@ -42,7 +36,13 @@
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
         {
           "label": "Database Name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",

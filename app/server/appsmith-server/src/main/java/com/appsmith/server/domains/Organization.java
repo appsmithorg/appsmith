@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -30,7 +29,6 @@ public class Organization extends BaseDomain {
 
     private List<OrganizationPlugin> plugins;
 
-    @Indexed(unique = true)
     private String slug;
 
     public String makeSlug() {

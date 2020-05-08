@@ -1,7 +1,7 @@
 {
   "form": [
     {
-      "sectionName": "General",
+      "sectionName": "Connection",
       "children": [
         {
           "label": "Connection Mode",
@@ -18,12 +18,7 @@
               "value": "READ_WRITE"
             }
           ]
-        }
-      ]
-    },
-    {
-      "sectionName": "Connection",
-      "children": [
+        },
         {
           "label": "Connection Type",
           "configProperty": "datasourceConfiguration.connection.type",
@@ -56,6 +51,17 @@
             }
           ]
         },
+        {
+          "label": "Default Database Name",
+          "placeholder": "(Optional)",
+          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
+          "controlType": "INPUT_TEXT"
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "children": [
         {
           "label": "Database Name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",

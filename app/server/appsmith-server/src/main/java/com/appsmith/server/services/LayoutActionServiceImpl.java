@@ -176,6 +176,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     newAction.setPluginType(action.getPluginType());
                     newAction.setJsonPathKeys(action.getJsonPathKeys());
                     newAction.setName(action.getName());
+                    if (action.getActionConfiguration() != null) {
+                        newAction.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                    }
                     return newAction;
                 })
                 .collect(toSet())
