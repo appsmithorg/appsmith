@@ -51,20 +51,25 @@ public class CurlImporterService extends BaseApiImporter {
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
         return pluginService.findByPackageName(RESTAPI_PLUGIN)
-                .map(plugin -> {
+                .flatMap(plugin -> {
+                    if (action == null) {
+                        return Mono.empty();
+                    }
                     final Datasource datasource = action.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
-                    return action;
+                    return Mono.just(action);
                 })
                 .flatMap(actionService::create);
     }
 
     public Action curlToAction(String command, String pageId, String name) {
         Action action = curlToAction(command);
-        action.setPageId(pageId);
-        action.setName(name);
+        if (action != null) {
+            action.setPageId(pageId);
+            action.setName(name);
+        }
         return action;
     }
 
