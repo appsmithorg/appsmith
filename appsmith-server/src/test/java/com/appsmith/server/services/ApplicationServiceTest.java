@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -24,7 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -38,6 +41,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
+
+    @Autowired
+    PageService pageService;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -66,6 +72,13 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
@@ -74,6 +87,34 @@ public class ApplicationServiceTest {
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void defaultPageCreateOnCreateApplicationTest() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
+        Flux<Page> pagesFlux = applicationPageService
+                .createApplication(testApplication)
+                .flatMapMany(application -> pageService.findByApplicationId(application.getId()));
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        StepVerifier
+                .create(pagesFlux)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies().containsAll(Set.of(managePagePolicy, readPagePolicy)));
                 })
                 .verifyComplete();
     }
