@@ -72,13 +72,6 @@ public class ApplicationServiceTest {
                 .users(Set.of("api_user"))
                 .build();
 
-        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
