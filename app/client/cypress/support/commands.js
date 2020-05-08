@@ -303,3 +303,14 @@ Cypress.Commands.add("importCurl", () => {
     201,
   );
 });
+
+Cypress.Commands.add("openPropertyPane", widgetType => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.get(selector)
+    .first()
+    .trigger("mouseover")
+    .wait(500);
+  cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
+    .first()
+    .click();
+});

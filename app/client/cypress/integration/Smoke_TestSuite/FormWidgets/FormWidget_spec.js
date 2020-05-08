@@ -1,5 +1,4 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formdsl.json");
 
 describe("Form Widget Functionality", function() {
@@ -7,13 +6,8 @@ describe("Form Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("Form Widget Functionality", function() {
-    cy.get(formWidgetsPage.formWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.formWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("formwidget");
+
     //Checking the edit props for Form and also the properties of Form widget
     cy.testCodeMirror("Gray");
 

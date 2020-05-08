@@ -8,13 +8,7 @@ describe("Chart Widget Functionality", function() {
   });
 
   it("Chart Widget Functionality", function() {
-    cy.get(viewWidgetsPage.chartWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(viewWidgetsPage.chartWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("chartwidget");
     //Checking the edit props for Chart and also the properties of Chart widget
     cy.testCodeMirror("App Sign Up");
     cy.get(viewWidgetsPage.chartSelectChartType)
