@@ -20,7 +20,10 @@ Cypress.Commands.add("CreateApp", appname => {
 
 Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.get(homePage.searchInput).type(appName);
+  cy.wait("@applications");
+  cy.get(homePage.searchInput)
+    .focus()
+    .type(appName);
   cy.wait(2000);
   cy.get(homePage.appMoreIcon)
     .first()
