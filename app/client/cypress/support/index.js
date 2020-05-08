@@ -38,6 +38,7 @@ before(function() {
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
   cy.LogintoApp(loginData.username, loginData.password);
+  // cy.SearchApp(inputData.appname)
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
@@ -48,16 +49,18 @@ before(function() {
     cy.NavigateToWidgets(pageid);
   });
 
+  cy.fixture("example").then(function(data) {
+    this.data = data;
+  });
+
   beforeEach(function() {
     Cypress.Cookies.preserveOnce("session_id", "remember_token");
   });
 
   after(function() {
-
     // ---commenting Publish app and Delete page as of now--- //
-    //cy.Deletepage(pageid);
+    // cy.Deletepage(pageid);
     //cy.PublishtheApp();
     cy.DeleteApp(appId);
-
   });
 });

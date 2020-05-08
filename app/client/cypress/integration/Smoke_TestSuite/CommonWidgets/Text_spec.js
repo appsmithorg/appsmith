@@ -15,9 +15,35 @@ describe("Text Widget Functionality", function() {
       .get(commonlocators.editIcon)
       .first()
       .click();
-    //Changing the text on the text widget
-    cy.testCodeMirror("Test text");
-    cy.get(commonlocators.editPropCrossButton).click();
+
+    //Changing the text label
+    cy.testCodeMirror(this.data.TextLabelValue);
+
+    //changing the Text Name and verifying
+    cy.widgetText(
+      this.data.TextName,
+      widgetsPage.textWidget,
+      widgetsPage.textWidget + " pre",
+    );
+
+    //Changing the Text Style's and validating
+    cy.ChangeTextStyle(
+      this.data.TextLabel,
+      commonlocators.labelTextStyle,
+      this.data.TextLabelValue,
+    );
+
+    cy.ChangeTextStyle(
+      this.data.TextBody,
+      commonlocators.bodyTextStyle,
+      this.data.TextLabelValue,
+    );
+
+    cy.ChangeTextStyle(
+      this.data.TextHeading,
+      commonlocators.headingTextStyle,
+      this.data.TextLabelValue,
+    );
   });
 
   afterEach(() => {
