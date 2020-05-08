@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
@@ -18,6 +19,7 @@ import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -32,8 +34,12 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ChangeLog(order = "001")
@@ -328,6 +334,34 @@ public class DatabaseChangelog {
             }
             group.getPermissions().add("delete:datasources");
             mongoTemplate.save(group);
+        }
+    }
+
+    @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
+    public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {
+        final List<Plugin> defaultPlugins = mongoTemplate.find(
+                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("defaultInstall").is(true)),
+                Plugin.class
+        );
+
+        mongoTemplate.findAll(Plugin.class);
+
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            for (Plugin defaultPlugin : defaultPlugins) {
+                if (!installedPlugins.contains(defaultPlugin.getId())) {
+                    organization.getPlugins()
+                            .add(new OrganizationPlugin(defaultPlugin.getId(), OrganizationPluginStatus.FREE));
+                }
+            }
+
+            mongoTemplate.save(organization);
         }
     }
 
