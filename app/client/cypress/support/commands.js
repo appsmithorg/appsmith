@@ -1,6 +1,7 @@
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
+const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
@@ -228,6 +229,24 @@ Cypress.Commands.add("addDsl", dsl => {
     });
   });
 });
+
+Cypress.Commands.add("NavigateToDatasourceEditor", () => {
+  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
+});
+
+Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
+  cy.wait("@getPluginForm").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait("@createDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
 Cypress.Commands.add("NavigateToApiEditor", () => {
   cy.get(pages.apiEditorIcon).click({ force: true });
 });
@@ -238,6 +257,29 @@ Cypress.Commands.add("testCreateApiButton", () => {
     "have.nested.property",
     "response.body.responseMeta.status",
     201,
+  );
+});
+
+Cypress.Commands.add("testSaveDeleteDatasource", () => {
+  cy.get(".t--test-datasource").click();
+  cy.wait("@testDatasource").should(
+    "have.nested.property",
+    "response.body.data.success",
+    true,
+  );
+
+  cy.get(".t--save-datasource").click();
+  cy.wait("@saveDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+
+  cy.get(".t--delete-datasource").click();
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
   );
 });
 

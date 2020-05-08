@@ -32,6 +32,12 @@ before(function() {
   cy.route("GET", "/api/v1/pages/*").as("getPage");
   cy.route("GET", "/api/v1/actions*").as("getActions");
 
+  cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
+  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
