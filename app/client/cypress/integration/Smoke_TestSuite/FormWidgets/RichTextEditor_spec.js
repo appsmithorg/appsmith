@@ -49,7 +49,7 @@ describe("RichTextEditor Widget Functionality", function() {
       const $body = $iframe.contents().find("body");
       cy.wrap($body)
         .find("p")
-        .should("have.text", this.data.RichTexteditorBody);
+        .should("contain.text", this.data.RichTexteditorBody);
     });
 
     //Check the Disabled checkbox
