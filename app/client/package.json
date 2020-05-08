@@ -107,13 +107,13 @@
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
-    "test": "cypress/test.sh",
+    "test": "npm run test-jest && cypress/test.sh",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "storybook": "start-storybook",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "build-storybook": "build-storybook -c .storybook -o .storybook-out",
-    "test-jest": "./node_modules/jest/bin/jest.js -b"
+    "test-jest": "./node_modules/jest/bin/jest.js -b --colors"
   },
   "resolution": {
     "jest": "24.8.0"
