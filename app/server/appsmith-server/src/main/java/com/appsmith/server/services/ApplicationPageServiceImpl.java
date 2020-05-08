@@ -78,13 +78,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .map(tuple -> {
                     Application application = tuple.getT1();
                     User user = tuple.getT2();
-
-                    Set<Policy> policySet = application.getPolicies().stream()
-                            .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
-                                    || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
-                            .collect(Collectors.toSet());
-                    Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Application.class);
-                    page.setPolicies(documentPolicies);
+                    generateAndSetPagePolicies(application, user, page);
                     return page;
                 });
 
@@ -216,8 +210,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        Mono<Application> applicationMono = userMono
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Mono<Application> applicationWithPoliciesMono = userMono
                 .flatMap(user -> {
                     String orgId = user.getCurrentOrganizationId();
 
@@ -240,19 +234,36 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     });
                 });
 
-        return applicationMono
+        return applicationWithPoliciesMono
                 .flatMap(applicationService::create)
-                .flatMap(savedApplication -> {
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application savedApplication = tuple.getT1();
+                    User user = tuple.getT2();
+
                     Page page = new Page();
                     page.setName(FieldName.DEFAULT_PAGE_NAME);
                     page.setApplicationId(savedApplication.getId());
                     List<Layout> layoutList = new ArrayList<>();
                     layoutList.add(pageService.createDefaultLayout());
                     page.setLayouts(layoutList);
+
+                    //Set the page policies
+                    generateAndSetPagePolicies(savedApplication, user, page);
+
                     return pageService
                             .create(page)
                             .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
+    }
+
+    private void generateAndSetPagePolicies(Application application, User user, Page page) {
+        Set<Policy> policySet = application.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
+                        || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
+                .collect(Collectors.toSet());
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Application.class);
+        page.setPolicies(documentPolicies);
     }
 
     /**
