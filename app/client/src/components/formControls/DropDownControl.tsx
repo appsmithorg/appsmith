@@ -42,7 +42,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const { configProperty, options } = this.props;
 
     return (
-      <DropdownSelect>
+      <DropdownSelect data-cy={configProperty}>
         <DropdownField
           placeholder=""
           name={configProperty}

@@ -87,7 +87,6 @@ const DraggableComponent = (props: DraggableComponentProps) => {
   const isDraggingDisabled: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
   );
-
   // If this widget has not been selected, and the props tell us to
   // disable the default click on the wiget;
   // We add a mask on the widget and stop "first" click event from propagating to the

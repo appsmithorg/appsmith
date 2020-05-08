@@ -1206,12 +1206,6 @@ const PropertyPaneConfigResponse = {
             controlType: "INPUT_TEXT",
             inputType: "ARRAY",
           },
-          {
-            id: "25.5",
-            propertyName: "enableCreateMarker",
-            label: "Create new marker",
-            controlType: "SWITCH",
-          },
         ],
       },
       {

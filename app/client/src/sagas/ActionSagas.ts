@@ -83,6 +83,22 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getActionTimeout = (
+  state: AppState,
+  actionId: string,
+): number | undefined => {
+  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  if (action) {
+    const timeout = action.config.actionConfiguration.timeoutInMillisecond;
+    if (timeout) {
+      // Extra timeout padding to account for network calls
+      return timeout + 5000;
+    }
+    return undefined;
+  }
+  return undefined;
+};
+
 const createActionSuccessResponse = (
   response: ActionApiResponse,
 ): ActionResponse => ({
@@ -185,8 +201,10 @@ export function* executeActionSaga(
       params,
       paginationField: pagination,
     };
+    const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
+      timeout,
     );
     if (isErrorResponse(response)) {
       const payload = createActionErrorResponse(response);
@@ -438,11 +456,13 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
-    const isApi = actionPayload.payload.data.pluginType !== "DB";
+    const isApi = actionPayload.payload.data.pluginType === "API";
     const { data } = actionPayload.payload;
     let action = data;
     if (isApi) {
-      action = transformRestAction(data);
+      const state = yield select();
+      const extraFormData = state.ui.apiPane.extraformData[action.id];
+      action = transformRestAction(data, extraFormData);
     }
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
@@ -552,11 +572,15 @@ export function* runApiActionSaga(
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
-    const response: ActionApiResponse = yield ActionAPI.executeAction({
-      action,
-      params,
-      paginationField,
-    });
+    const timeout = yield select(getActionTimeout, values.id);
+    const response: ActionApiResponse = yield ActionAPI.executeAction(
+      {
+        action,
+        params,
+        paginationField,
+      },
+      timeout,
+    );
     let payload = createActionSuccessResponse(response);
     if (response.responseMeta && response.responseMeta.error) {
       payload = createActionErrorResponse(response);
@@ -597,6 +621,7 @@ function* executePageLoadAction(pageAction: PageAction) {
   };
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
+    pageAction.timeoutInMillisecond,
   );
 
   if (isErrorResponse(response)) {

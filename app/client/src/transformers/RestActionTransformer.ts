@@ -1,7 +1,13 @@
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  HTTP_METHODS,
+  POST_BODY_FORMAT_OPTIONS,
+} from "constants/ApiEditorConstants";
 
-export const transformRestAction = (data: any): any => {
+export const transformRestAction = (data: any, extraFormData?: any): any => {
   let action = { ...data };
+  if (data.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
+    delete action.actionConfiguration.body;
+  }
   if (
     data.actionConfiguration.queryParameters &&
     data.actionConfiguration.queryParameters.length
@@ -17,33 +23,42 @@ export const transformRestAction = (data: any): any => {
       };
     }
   }
-  if (
-    data.displayFormat &&
-    data.displayFormat === POST_BODY_FORMAT_OPTIONS[0].value
-  ) {
-    if (data.actionConfiguration.body && data.actionConfiguration.body[0]) {
-      const body = data.actionConfiguration.body[0];
-      action = {
-        ...data,
-        actionConfiguration: {
-          ...data.actionConfiguration,
-          body,
-        },
-      };
-    }
-  }
-  if (
-    data.displayFormat &&
-    data.displayFormat === POST_BODY_FORMAT_OPTIONS[1].value
-  ) {
-    if (data.actionConfiguration.body && data.actionConfiguration.body[1]) {
-      const body = data.actionConfiguration.body[1];
-      if (typeof data.actionConfiguration.body === "object") {
+
+  if (extraFormData && extraFormData?.displayFormat) {
+    const { displayFormat } = extraFormData;
+
+    if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[0].value) {
+      if (data.actionConfiguration.body && data.actionConfiguration.body[0]) {
+        const body = data.actionConfiguration.body[0];
         action = {
           ...data,
           actionConfiguration: {
             ...data.actionConfiguration,
-            body: JSON.stringify(body),
+            body,
+          },
+        };
+      }
+    } else if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[1].value) {
+      if (data.actionConfiguration.body && data.actionConfiguration.body[1]) {
+        const body = data.actionConfiguration.body[1];
+        if (typeof data.actionConfiguration.body === "object") {
+          action = {
+            ...data,
+            actionConfiguration: {
+              ...data.actionConfiguration,
+              body: JSON.stringify(body),
+            },
+          };
+        }
+      }
+    } else if (displayFormat.value === POST_BODY_FORMAT_OPTIONS[2].value) {
+      if (data.actionConfiguration.body && data.actionConfiguration.body[2]) {
+        const body = data.actionConfiguration.body[2];
+        action = {
+          ...data,
+          actionConfiguration: {
+            ...data.actionConfiguration,
+            body,
           },
         };
       }

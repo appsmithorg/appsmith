@@ -86,6 +86,10 @@ const providersReducer = createReducer(initialState, {
       };
     }
   },
+  [ReduxActionTypes.SET_PROVIDERS_LENGTH]: (state: ProvidersReduxState) => ({
+    ...state,
+    providersTotal: state.providers.length,
+  }),
   [ReduxActionTypes.SEARCH_APIORPROVIDERS_SUCCESS]: (
     state: ProvidersReduxState,
     action: ReduxAction<SearchApiOrProviderResponse>,

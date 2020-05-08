@@ -17,8 +17,6 @@ import { Datasource } from "api/DatasourcesApi";
 import { RestAction } from "api/ActionAPI";
 import history from "utils/history";
 import { createActionRequest } from "actions/actionActions";
-import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
-import { Colors } from "constants/Colors";
 import {
   PLUGIN_PACKAGE_MONGO,
   PLUGIN_PACKAGE_POSTGRES,
@@ -28,6 +26,7 @@ import { Page } from "constants/ReduxActionConstants";
 import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERIES_EDITOR_ID_URL,
+  DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -64,19 +63,6 @@ const QueryHomePage = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-`;
-
-const SearchContainer = styled.div`
-  display: flex;
-  width: 40%;
-`;
-
-const SearchBar = styled(BaseTextInput)`
-  margin-bottom: 10px;
-  input {
-    background-color: ${Colors.WHITE};
-    1px solid ${Colors.GEYSER};
   }
 `;
 
@@ -164,6 +150,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         datasource: {
           id: dataSourceId,
         },
+        actionConfiguration: {},
       });
     }
   };
@@ -215,16 +202,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
     return (
       <QueryHomePage>
-        <SearchContainer>
-          <SearchBar
-            icon="search"
-            input={{
-              onChange: () => null,
-            }}
-            placeholder="Search"
-          />
-        </SearchContainer>
-
         <p style={{ fontSize: "14px" }}>Create Query</p>
         <CardsWrapper>
           {dataSources.length > 0 && (
@@ -233,12 +210,18 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                 <Card
                   interactive={false}
                   className="eachDatasourceCard"
-                  onClick={() =>
-                    this.handleCreateNewQuery(
-                      validDataSources[0].id,
-                      queryParams,
-                    )
-                  }
+                  onClick={() => {
+                    if (validDataSources.length) {
+                      this.handleCreateNewQuery(
+                        validDataSources[0].id,
+                        queryParams,
+                      );
+                    } else {
+                      history.push(
+                        DATA_SOURCES_EDITOR_URL(applicationId, pageId),
+                      );
+                    }
+                  }}
                 >
                   <Icon icon="plus" iconSize={25} className="addIcon" />
                   <p className="createText">Blank Query</p>

@@ -27,7 +27,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { initialize } from "redux-form";
-import { getAction, getActionParams } from "./ActionSagas";
+import { getAction, getActionParams, getActionTimeout } from "./ActionSagas";
 import { AppState } from "reducers";
 import ActionAPI, {
   RestAction,
@@ -214,11 +214,15 @@ export function* executeQuerySaga(
     const { paginationField } = actionPayload.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
-    const response: ActionApiResponse = yield ActionAPI.executeAction({
-      action,
-      params,
-      paginationField,
-    });
+    const timeout = yield select(getActionTimeout, values.id);
+    const response: ActionApiResponse = yield ActionAPI.executeAction(
+      {
+        action,
+        params,
+        paginationField,
+      },
+      timeout,
+    );
 
     if (response.responseMeta && response.responseMeta.error) {
       throw response.responseMeta.error;
@@ -246,8 +250,9 @@ export function* executeQuerySaga(
         show: false,
       },
     });
+
     AppToaster.show({
-      message: "Query is invalid. Please edit to make it valid",
+      message: error.message,
       type: ToastType.ERROR,
     });
   }

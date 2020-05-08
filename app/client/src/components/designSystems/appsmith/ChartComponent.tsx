@@ -70,13 +70,24 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     }
   };
 
-  getChartData = (chartData: ChartData[]) => {
+  getChartData = () => {
+    const chartData: ChartData[] = this.props.chartData;
+    if (chartData.length === 0) {
+      return [
+        {
+          label: "",
+          value: "",
+        },
+      ];
+    }
     const data: ChartDataPoint[] = chartData[0].data;
     if (data.length === 0) {
-      return {
-        label: "",
-        value: "",
-      };
+      return [
+        {
+          label: "",
+          value: "",
+        },
+      ];
     }
     return data.map(item => {
       return {
@@ -162,12 +173,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getChartDataSource = () => {
     if (
-      this.props.chartData.length === 1 ||
+      this.props.chartData.length <= 1 ||
       this.props.chartType === "PIE_CHART"
     ) {
       return {
         chart: this.getChartConfig(),
-        data: this.getChartData(this.props.chartData),
+        data: this.getChartData(),
       };
     } else {
       return {

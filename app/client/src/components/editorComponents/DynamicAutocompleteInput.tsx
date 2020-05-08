@@ -119,6 +119,7 @@ const Wrapper = styled.div<{
   singleLine: boolean;
   isFocused: boolean;
   disabled?: boolean;
+  setMaxHeight?: boolean;
 }>`
   ${props =>
     props.singleLine && props.isFocused
@@ -143,6 +144,17 @@ const Wrapper = styled.div<{
   min-height: 32px;
   overflow: hidden;
   height: auto;
+  ${props =>
+    props.setMaxHeight &&
+    props.isFocused &&
+    `
+  z-index: 5;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  `}
+  ${props => props.setMaxHeight && !props.isFocused && `max-height: 30px;`}
   && {
     .binding-highlight {
       color: ${props =>
@@ -251,6 +263,7 @@ export type DynamicAutocompleteInputProps = {
   disabled?: boolean;
   link?: string;
   baseMode?: string | object;
+  setMaxHeight?: boolean;
 };
 
 type Props = ReduxStateProps &
@@ -301,7 +314,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
-      this.editor.on("keyup", this.handleAutocompleteVisibility);
+      this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
+      this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
       this.editor.setOption("hintOptions", {
@@ -383,7 +397,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     this.editor.eachLine(this.highlightBindings);
   };
 
-  handleAutocompleteVisibility = (cm: any, event: KeyboardEvent) => {
+  handleAutocompleteVisibility = (cm: any) => {
     if (this.state.isFocused) {
       let cursorBetweenBinding = false;
       const cursor = this.editor.getCursor();
@@ -408,10 +422,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         cumulativeCharCount = start + segment.length;
       });
 
-      const shouldShow =
-        cursorBetweenBinding &&
-        !cm.state.completionActive &&
-        AUTOCOMPLETE_CLOSE_KEY_CODES.indexOf(event.code) === -1;
+      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
 
       if (this.props.baseMode) {
         // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
@@ -432,6 +443,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
+  handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
+    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+      cm.closeHint();
+    }
+  };
+
   highlightBindings = (line: LineHandle) => {
     const lineNo = this.editor.getLineNumber(line);
     let match;
@@ -449,7 +466,15 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   render() {
-    const { input, meta, theme, singleLine, disabled, className } = this.props;
+    const {
+      input,
+      meta,
+      theme,
+      singleLine,
+      disabled,
+      className,
+      setMaxHeight,
+    } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
     if (this.editor) {
@@ -465,6 +490,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           isFocused={this.state.isFocused}
           disabled={disabled}
           className={className}
+          setMaxHeight={setMaxHeight}
         >
           <HintStyles />
           <IconContainer>

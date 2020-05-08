@@ -111,7 +111,6 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   actionConfiguration?: any;
-  displayFormat: string;
   httpMethodFromForm: string;
   actionConfigurationBody: object | string;
   actionConfigurationHeaders?: any;
@@ -142,24 +141,12 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionConfigurationHeaders,
     actionConfigurationBody,
     httpMethodFromForm,
-    contentType,
-    displayFormat,
     location,
     dispatch,
   } = props;
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
   useEffect(() => {
-    if (allowPostBody) {
-      if (contentType) {
-        if (!displayFormat) {
-          props.change("displayFormat", contentType.value);
-        } else {
-          contentType.value = displayFormat;
-          props.change("contentType.value", displayFormat);
-        }
-      }
-    }
     dispatch({
       type: ReduxActionTypes.SET_LAST_USED_EDITOR_PAGE,
       payload: {
@@ -177,13 +164,15 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="name"
             placeholder="nameOfApi (camel case)"
             showError
+            className="t--nameOfApi"
           />
-          <ActionButtons>
+          <ActionButtons className="t--formActionButtons">
             <ActionButton
               text="Delete"
               accent="error"
               onClick={onDeleteClick}
               loading={isDeleting}
+              className="t--apiFormDeleteBtn"
             />
             <ActionButton
               text="Run"
@@ -192,6 +181,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 onRunClick();
               }}
               loading={isRunning}
+              className="t--apiFormRunBtn"
             />
             <ActionButton
               text="Save"
@@ -209,7 +199,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             name="actionConfiguration.httpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
-          <DatasourceWrapper>
+          <DatasourceWrapper className="t--dataSourceField">
             <DatasourcesField
               name="datasource.id"
               pluginId={pluginId}
@@ -222,6 +212,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             leftIcon={FormIcons.SLASH_ICON}
             normalize={value => value.trim()}
             singleLine
+            setMaxHeight
           />
         </FormRow>
       </MainConfiguration>
@@ -242,14 +233,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           actionConfiguration && actionConfigurationHeaders
                         }
                         placeholder="Value"
+                        pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
+                      pushFields
                     />
                     {allowPostBody && (
                       <PostBodyData
+                        actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
                       />
@@ -280,7 +274,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect(state => {
-  const displayFormat = selector(state, "displayFormat");
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfiguration = selector(state, "actionConfiguration");
   const actionConfigurationBody = selector(state, "actionConfiguration.body");
@@ -296,7 +289,6 @@ export default connect(state => {
   }
 
   return {
-    displayFormat,
     httpMethodFromForm,
     actionConfiguration,
     actionConfigurationBody,

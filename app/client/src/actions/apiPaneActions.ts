@@ -47,3 +47,13 @@ export const createNewApiAction = (
   type: ReduxActionTypes.CREATE_NEW_API_ACTION,
   payload: { pageId },
 });
+
+export const setExtraFormData = (
+  apiId: string,
+  extraformData: {},
+): ReduxAction<{ apiId: string; extraformData: {} }> => {
+  return {
+    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+    payload: { apiId, extraformData },
+  };
+};
