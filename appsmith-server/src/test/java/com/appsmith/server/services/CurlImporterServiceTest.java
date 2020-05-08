@@ -508,6 +508,18 @@ public class CurlImporterServiceTest {
         assertEmptyBody(action);
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importInvalidCurlCommand() {
+        String command = "invalid curl command here";
+
+        Mono<Action> actionMono = curlImporterService.importAction(command, "pageId", "actionName");
+
+        StepVerifier
+                .create(actionMono)
+                .verifyComplete();
+    }
+
     // Assertion utilities for working with Action assertions.
     private static void assertMethod(Action action, HttpMethod method) {
         assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
