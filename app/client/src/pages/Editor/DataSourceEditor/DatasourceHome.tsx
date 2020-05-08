@@ -207,7 +207,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                       className="dataSourceImage"
                       alt="Datasource"
                     ></img>
-                    <p className="textBtn">{plugin.name}</p>
+                    <p className="t--plugin-name textBtn">{plugin.name}</p>
                   </Card>
                 );
               })}
