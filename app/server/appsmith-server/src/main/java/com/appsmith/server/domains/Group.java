@@ -4,7 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -14,7 +14,6 @@ import java.util.Set;
 @Setter
 @ToString
 @Document
-@CompoundIndex(def = "{'organizationId':1, 'name':1}", name = "organization_group_compound_index", unique = true)
 public class Group extends BaseDomain {
 
     @NotNull
@@ -38,6 +37,6 @@ public class Group extends BaseDomain {
      * the client is never sent an empty group name for displaying on the UI.
      */
     public String displayName() {
-        return (displayName != null || !displayName.isEmpty()) ? displayName : name;
+        return StringUtils.defaultIfEmpty(displayName, name);
     }
 }

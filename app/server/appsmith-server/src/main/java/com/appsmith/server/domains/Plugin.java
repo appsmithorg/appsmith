@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.annotate.JsonIgnore;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -20,10 +19,8 @@ public class Plugin extends BaseDomain {
 
     String name;
 
-    @Indexed
     PluginType type;
 
-    @Indexed(unique = true)
     String packageName;
 
     String jarLocation;
