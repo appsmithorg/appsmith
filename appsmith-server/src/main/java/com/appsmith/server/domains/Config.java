@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -17,6 +16,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Config extends BaseDomain {
     JSONObject config;
 
-    @Indexed(unique = true)
     String name;
 }
