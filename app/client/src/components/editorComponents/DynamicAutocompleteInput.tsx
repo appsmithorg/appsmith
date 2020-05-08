@@ -314,7 +314,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
-      this.editor.on("keyup", this.handleAutocompleteVisibility);
+      this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
+      this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
       this.editor.setOption("hintOptions", {
@@ -396,7 +397,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     this.editor.eachLine(this.highlightBindings);
   };
 
-  handleAutocompleteVisibility = (cm: any, event: KeyboardEvent) => {
+  handleAutocompleteVisibility = (cm: any) => {
     if (this.state.isFocused) {
       let cursorBetweenBinding = false;
       const cursor = this.editor.getCursor();
@@ -421,10 +422,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         cumulativeCharCount = start + segment.length;
       });
 
-      const shouldShow =
-        cursorBetweenBinding &&
-        !cm.state.completionActive &&
-        AUTOCOMPLETE_CLOSE_KEY_CODES.indexOf(event.code) === -1;
+      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
 
       if (this.props.baseMode) {
         // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
@@ -442,6 +440,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           autoCompleteVisible: false,
         });
       }
+    }
+  };
+
+  handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
+    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+      cm.closeHint();
     }
   };
 
