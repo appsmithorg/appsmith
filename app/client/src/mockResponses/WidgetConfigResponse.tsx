@@ -15,7 +15,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDefaultClickDisabled: true,
     },
     TEXT_WIDGET: {
-      text: "Label me",
+      text: "Label",
       textStyle: "LABEL",
       rows: 1,
       columns: 4,
@@ -36,14 +36,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
-      columns: 2,
+      columns: 6,
       widgetName: "Image",
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
-      label: "Label me",
+      label: "Label",
       rows: 1,
-      columns: 5,
+      columns: 10,
       widgetName: "Input",
     },
     // SWITCH_WIDGET: {
@@ -60,7 +60,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
-      rows: 8,
+      rows: 10,
       columns: 8,
       widgetName: "Container",
       containerStyle: "card",
@@ -85,14 +85,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       dateFormat: "DD/MM/YYYY",
-      columns: 8,
+      columns: 10,
       label: "Date",
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(true),
     },
     TABLE_WIDGET: {
       rows: 7,
-      columns: 10,
+      columns: 8,
       label: "Data",
       widgetName: "Table",
       tableData: [
@@ -135,7 +135,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1,
-      columns: 8,
+      columns: 10,
       selectionType: "SINGLE_SELECT",
       label: "Select",
       options: [
@@ -150,7 +150,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     CHECKBOX_WIDGET: {
       rows: 1,
       columns: 3,
-      label: "Label me",
+      label: "Label",
       defaultCheckedState: true,
       widgetName: "Checkbox",
     },
