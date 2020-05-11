@@ -77,15 +77,15 @@ before(function() {
   cy.fixture("example").then(function(data) {
     this.data = data;
   });
+});
 
-  beforeEach(function() {
-    Cypress.Cookies.preserveOnce("session_id", "remember_token");
-  });
+beforeEach(function() {
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+});
 
-  after(function() {
-    // ---commenting Publish app and Delete page as of now--- //
-    // cy.Deletepage(pageid);
-    //cy.PublishtheApp();
-    cy.DeleteApp(appId);
-  });
+after(function() {
+  // ---commenting Publish app and Delete page as of now--- //
+  // cy.Deletepage(pageid);
+  //cy.PublishtheApp();
+  cy.DeleteApp(appId);
 });
