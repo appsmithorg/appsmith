@@ -41,9 +41,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     INPUT_WIDGET: {
       inputType: "TEXT",
-      label: "Label",
       rows: 1,
-      columns: 10,
+      columns: 5,
       widgetName: "Input",
     },
     // SWITCH_WIDGET: {
@@ -85,8 +84,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       dateFormat: "DD/MM/YYYY",
-      columns: 10,
-      label: "Date",
+      columns: 5,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(true),
     },
@@ -135,9 +133,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     DROP_DOWN_WIDGET: {
       rows: 1,
-      columns: 10,
+      columns: 5,
       selectionType: "SINGLE_SELECT",
-      label: "Select",
       options: [
         { label: "Option 1", value: "1" },
         { label: "Option 2", value: "2" },
@@ -157,7 +154,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     RADIO_GROUP_WIDGET: {
       rows: 2,
       columns: 3,
-      label: "Label",
       options: [
         { id: "1", label: "Alpha", value: "1" },
         { id: "2", label: "Bravo", value: "2" },
@@ -375,7 +371,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     FORM_WIDGET: {
       rows: 13,
-      columns: 6,
+      columns: 7,
       widgetName: "Form",
       backgroundColor: "white",
       children: [],
