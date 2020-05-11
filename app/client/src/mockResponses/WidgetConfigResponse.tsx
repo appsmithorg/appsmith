@@ -399,7 +399,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     props: {
                       text: "Title",
                       textStyle: "HEADING",
-                      textAlign: "LEFT",
                     },
                   },
                   {
