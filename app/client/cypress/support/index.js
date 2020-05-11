@@ -45,7 +45,7 @@ before(function() {
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
   cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
-  cy.route("DELETE", "/api/v1/actions/*").as("deleteApi");
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
   cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
     "get3PProviders",
   );
@@ -53,6 +53,14 @@ before(function() {
     "get3PProviderTemplates",
   );
   cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
+
+  cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
+  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+
+  cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
 
   cy.LogintoApp(loginData.username, loginData.password);
   cy.generateUUID().then(id => {

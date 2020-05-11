@@ -1,3 +1,11 @@
 {
-    "datasourceEditorIcon": ".t--nav-link-datasource-editor"
+  "datasourceEditorIcon": ".t--nav-link-datasource-editor",
+  "host": "input[name='datasourceConfiguration.endpoints[0].host']",
+  "port": "input[name='datasourceConfiguration.endpoints[0].port']",
+  "databaseName": "input[name='datasourceConfiguration.authentication.databaseName']",
+  "username": "input[name='datasourceConfiguration.authentication.username']",
+  "password": "input[name='datasourceConfiguration.authentication.password']",
+  "authenticationAuthtype": "[data-cy=datasourceConfiguration\\.authentication\\.authType]",
+  "sslAuthtype": "[data-cy=datasourceConfiguration\\.connection\\.ssl\\.authType]",
+  "url": "input[name='datasourceConfiguration.url']"
 }

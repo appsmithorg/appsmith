@@ -68,6 +68,7 @@ class TemplateMenu extends React.Component<Props> {
 
     return (
       <Container
+        className="t--template-menu"
         ref={input => {
           this.nameInput = input;
         }}

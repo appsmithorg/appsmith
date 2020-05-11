@@ -18,7 +18,7 @@ describe("Test Add blank API and delete flow", function() {
     cy.testDeleteApi();
     cy.get(ApiEditor.ApiHomePage).should("be.visible");
     cy.get(ApiEditor.formActionButtons).should("not.be.visible");
-    cy.get("@deleteApi").then(httpResponse => {
+    cy.get("@deleteAction").then(httpResponse => {
       cy.expect(httpResponse.response.body.responseMeta.success).to.eq(true);
     });
   });
