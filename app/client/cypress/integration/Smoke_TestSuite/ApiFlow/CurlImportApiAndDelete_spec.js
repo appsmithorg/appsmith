@@ -20,7 +20,7 @@ describe("Test curl import api and delete flow", function() {
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.get(ApiEditor.ApiDeleteBtn).should("be.disabled");
     cy.testDeleteApi();
-    cy.get("@deleteApi").then(response => {
+    cy.get("@deleteAction").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
     });
     cy.get(ApiEditor.ApiHomePage).should("be.visible");

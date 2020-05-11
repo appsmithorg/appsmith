@@ -242,7 +242,10 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                         alt="Datasource"
                       ></img>
 
-                      <p className="textBtn" title={dataSource.name}>
+                      <p
+                        className="textBtn t--datasource-name"
+                        title={dataSource.name}
+                      >
                         {dataSource.name}
                       </p>
                     </Card>

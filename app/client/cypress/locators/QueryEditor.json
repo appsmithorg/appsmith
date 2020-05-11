@@ -1,0 +1,7 @@
+{
+    "queryEditorIcon": ".t--nav-link-query-editor",
+    "templateMenu": ".t--template-menu",
+    "runQuery": ".t--run-query",
+    "saveQuery": ".t--save-query",
+    "deleteQuery": ".t--delete-query"
+}

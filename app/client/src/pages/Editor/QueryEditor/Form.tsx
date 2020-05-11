@@ -272,6 +272,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           </DropdownSelect>
           <ActionButtons>
             <ActionButton
+              className="t--delete-query"
               text="Delete"
               accent="error"
               loading={isDeleting}
@@ -291,6 +292,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                   portalClassName="helper-tooltip"
                 >
                   <ActionButton
+                    className="t--run-query"
                     text="Run"
                     accent="primary"
                     loading={isRunning}
@@ -316,6 +318,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               </>
             ) : (
               <ActionButton
+                className="t--run-query"
                 text="Run"
                 loading={isRunning}
                 accent="secondary"
@@ -323,6 +326,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               />
             )}
             <ActionButton
+              className="t--save-query"
               text="Save"
               accent="primary"
               filled

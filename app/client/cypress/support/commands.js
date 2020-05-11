@@ -2,7 +2,9 @@ const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
+const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
+const queryEditor = require("../locators/QueryEditor.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
@@ -288,7 +290,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 
 Cypress.Commands.add("testDeleteApi", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
-  cy.wait("@deleteApi").should(
+  cy.wait("@deleteAction").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -304,6 +306,103 @@ Cypress.Commands.add("importCurl", () => {
   );
 });
 
+Cypress.Commands.add("NavigateToDatasourceEditor", () => {
+  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
+});
+
+Cypress.Commands.add("NavigateToQueryEditor", () => {
+  cy.get(queryEditor.queryEditorIcon).click({ force: true });
+});
+
+Cypress.Commands.add("testSaveDatasource", () => {
+  cy.get(".t--test-datasource").click();
+  cy.wait("@testDatasource").should(
+    "have.nested.property",
+    "response.body.data.success",
+    true,
+  );
+
+  cy.get(".t--save-datasource").click();
+  cy.wait("@saveDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("fillMongoDatasourceForm", () => {
+  cy.get(datasourceEditor["host"]).type(datasourceFormData["mongo-host"]);
+  cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+  cy.get(datasourceEditor["databaseName"])
+    .clear()
+    .type(datasourceFormData["mongo-databaseName"]);
+  cy.get(datasourceEditor["username"]).type(
+    datasourceFormData["mongo-username"],
+  );
+  cy.get(datasourceEditor["password"]).type(
+    datasourceFormData["mongo-password"],
+  );
+
+  cy.get(datasourceEditor["authenticationAuthtype"]).click();
+  cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
+    force: true,
+  });
+
+  cy.get(datasourceEditor["sslAuthtype"]).click();
+  cy.contains(datasourceFormData["mongo-sslAuthtype"]).click({
+    force: true,
+  });
+});
+
+Cypress.Commands.add("fillPostgresDatasourceForm", () => {
+  cy.get(datasourceEditor.host).type(datasourceFormData["postgres-host"]);
+  cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
+  cy.get(datasourceEditor.databaseName)
+    .clear()
+    .type(datasourceFormData["postgres-databaseName"]);
+  cy.get(datasourceEditor.username).type(
+    datasourceFormData["postgres-username"],
+  );
+  cy.get(datasourceEditor.password).type(
+    datasourceFormData["postgres-password"],
+  );
+});
+
+Cypress.Commands.add("runSaveDeleteQuery", () => {
+  cy.get(queryEditor.runQuery).click();
+  cy.wait("@executeAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+
+  cy.get(queryEditor.saveQuery).click();
+  cy.wait("@saveQuery").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+
+  cy.get(queryEditor.deleteQuery).click();
+  cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
+  cy.wait("@getPluginForm").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait("@createDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)
