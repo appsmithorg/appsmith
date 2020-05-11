@@ -17,6 +17,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     TEXT_WIDGET: {
       text: "Label",
       textStyle: "LABEL",
+      textAlign: "LEFT",
       rows: 1,
       columns: 4,
       widgetName: "Text",
