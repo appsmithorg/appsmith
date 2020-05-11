@@ -207,6 +207,10 @@ public class MongoPlugin extends BasePlugin {
                 queryParams.add("ssl=true");
             }
 
+            if (authentication != null && authentication.getAuthType() != null) {
+                queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
+            }
+
             if (!queryParams.isEmpty()) {
                 builder.append('?');
                 for (String param : queryParams) {
