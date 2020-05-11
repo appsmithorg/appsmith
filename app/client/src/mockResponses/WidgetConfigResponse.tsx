@@ -36,7 +36,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
-      columns: 6,
+      columns: 4,
       widgetName: "Image",
     },
     INPUT_WIDGET: {
