@@ -32,7 +32,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     IMAGE_WIDGET: {
       defaultImage:
-        "https://www.cowgirlcontractcleaning.com/wp-content/uploads/sites/360/2018/05/placeholder-img-5.jpg",
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       image: "",
       rows: 3,
