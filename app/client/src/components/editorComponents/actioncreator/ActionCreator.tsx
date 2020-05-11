@@ -337,20 +337,20 @@ const baseOptions: any = [
     value: ActionType.api,
   },
   {
-    label: "Show Modal",
-    value: ActionType.showModal,
-  },
-  {
-    label: "Close Modal",
-    value: ActionType.closeModal,
-  },
-  {
     label: "Navigate To",
     value: ActionType.navigateTo,
   },
   {
-    label: "Show Alert",
+    label: "Show Message",
     value: ActionType.showAlert,
+  },
+  {
+    label: "Open Popup",
+    value: ActionType.showModal,
+  },
+  {
+    label: "Close Popup",
+    value: ActionType.closeModal,
   },
 ];
 function getOptionsWithChildren(
@@ -655,7 +655,7 @@ function useApiOptionTree() {
 
   const actions = useSelector(getActionsForCurrentPage);
   const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
-    label: "Create Api",
+    label: "Create API",
     value: "api",
     id: "create",
     className: "t--create-api-btn",
