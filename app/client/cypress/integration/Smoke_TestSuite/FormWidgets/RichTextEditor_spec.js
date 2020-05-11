@@ -8,13 +8,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("RichTextEditor Widget Functionality", function() {
-    cy.get(formWidgetsPage.richTextEditorWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.richTextEditorWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("richtexteditorwidget");
 
     //changing the Text Name
     cy.widgetText(

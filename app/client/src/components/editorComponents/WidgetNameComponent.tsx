@@ -154,7 +154,7 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
         className="control t--widget-propertypane-toggle"
         onClick={togglePropertyEditor}
       >
-        <Tooltip content="Show props" hoverOpenDelay={500}>
+        <Tooltip content="Edit widget properties" hoverOpenDelay={500}>
           {editControlIcon}
         </Tooltip>
       </EditControl>

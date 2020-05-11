@@ -199,7 +199,7 @@ export function* executeQuerySaga(
     let jsonPathKeys = actionObject.jsonPathKeys;
 
     if (dirty) {
-      action = _.omit(transformRestAction(values), "id") as RestAction;
+      action = _.omit(values, "id") as RestAction;
 
       const actionString = JSON.stringify(action);
       if (isDynamicValue(actionString)) {

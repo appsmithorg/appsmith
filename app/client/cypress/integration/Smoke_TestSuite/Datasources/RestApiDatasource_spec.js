@@ -1,8 +1,10 @@
+const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
+const datasourceFormData = require("../../../fixtures/datasources.json");
+
 describe("Create, test, save then delete a restapi datasource", function() {
   it("Create, test, save then delete a restapi datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get("@getPlugins").then(httpResponse => {
-      // console.log(response, "response");
       const pluginName = httpResponse.response.body.data.find(
         plugin => plugin.packageName === "restapi-plugin",
       ).name;
@@ -14,9 +16,7 @@ describe("Create, test, save then delete a restapi datasource", function() {
 
     cy.getPluginFormsAndCreateDatasource();
 
-    cy.get(`input[name="datasourceConfiguration.url"]`).type(
-      "https://my-json-server.typicode.com/typicode/demo/posts",
-    );
+    cy.get(datasourceEditor.url).type(datasourceFormData["restapi-url"]);
 
     cy.testSaveDeleteDatasource();
   });

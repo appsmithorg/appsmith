@@ -125,17 +125,16 @@ const PostBodyData = (props: Props) => {
       )}
 
       {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[2].value && (
-        <Field
-          name="actionConfiguration.body[2]"
-          component="textarea"
-          rows={10}
-          style={{
-            resize: "none",
-            overflow: "auto",
-            width: "95%",
-            marginLeft: 5,
-          }}
-        />
+        <React.Fragment>
+          <JSONEditorFieldWrapper>
+            <DynamicTextField
+              name="actionConfiguration.body[2]"
+              height={300}
+              allowTabIndent
+              singleLine={false}
+            />
+          </JSONEditorFieldWrapper>
+        </React.Fragment>
       )}
     </PostbodyContainer>
   );
@@ -172,7 +171,7 @@ export default connect((state: AppState) => {
 
   return {
     displayFormat:
-      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[0],
+      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[2],
     contentType,
     apiId,
   };

@@ -8,19 +8,7 @@ describe("DatePicker Widget Functionality", function() {
   });
 
   it("DatePicker Widget Functionality", function() {
-    cy.get(formWidgetsPage.datepickerWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.datepickerWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
-    //Changing the name of the date picker
-    cy.widgetText(
-      this.data.Datepickername,
-      formWidgetsPage.datepickerWidget,
-      formWidgetsPage.datepickerWidget + " pre",
-    );
+    cy.openPropertyPane("datepickerwidget");
 
     //Checking the edit props for DatePicker and also the properties of DatePicker widget
     cy.testCodeMirror(this.data.DatepickerLable);

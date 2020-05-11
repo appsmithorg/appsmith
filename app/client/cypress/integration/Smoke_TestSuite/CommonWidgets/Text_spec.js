@@ -1,4 +1,3 @@
-const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/commondsl.json");
 
@@ -8,13 +7,7 @@ describe("Text Widget Functionality", function() {
   });
 
   it("Text Widget Functionality", function() {
-    cy.get(widgetsPage.textWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(widgetsPage.textWidget)
-      .get(commonlocators.editIcon)
-      .first()
-      .click();
+    cy.openPropertyPane("textwidget");
 
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValue);

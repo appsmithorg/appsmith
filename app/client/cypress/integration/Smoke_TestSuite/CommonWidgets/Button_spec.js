@@ -9,10 +9,8 @@ describe("Button Widget Functionality", function() {
   });
 
   it("Button Widget Functionality", function() {
-    cy.get(widgetsPage.buttonWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(widgetsPage.buttonWidget).click({ force: true });
+    cy.get(".t--nav-link-widgets-editor").click();
+    cy.openPropertyPane("buttonwidget");
 
     //changing the Button Name
     cy.widgetText(
