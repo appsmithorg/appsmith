@@ -21,7 +21,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.get(".DayPicker-Day[aria-selected='true'] + div").click();
     const nd = Cypress.moment()
       .add(1, "days")
-      .format("DD/MM/YYYY HH:mm");
+      .format("DD/MM/YYYY");
     cy.log(nd);
 
     //Validating the Date
