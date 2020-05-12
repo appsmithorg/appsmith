@@ -26,6 +26,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -219,6 +220,45 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createNamelessDatasource() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+
+        Datasource datasource1 = new Datasource();
+        datasource1.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource1.getDatasourceConfiguration().setUrl("http://test.com");
+
+        Datasource datasource2 = new Datasource();
+        datasource2.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource2.getDatasourceConfiguration().setUrl("http://test.com");
+
+        final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
+                .flatMap(plugin -> {
+                        datasource1.setPluginId(plugin.getId());
+                        datasource2.setPluginId(plugin.getId());
+                        return datasourceService.create(datasource1);
+                    })
+                .zipWhen(datasource -> datasourceService.create(datasource2));
+
+        StepVerifier
+                .create(datasourcesMono)
+                .assertNext(tuple2 -> {
+                    final Datasource ds1 = tuple2.getT1();
+                    assertThat(ds1.getId()).isNotEmpty();
+                    assertThat(ds1.getPluginId()).isEqualTo(datasource1.getPluginId());
+                    assertThat(ds1.getName()).isEqualTo("Untitled datasource");
+
+                    final Datasource ds2 = tuple2.getT2();
+                    assertThat(ds2.getId()).isNotEmpty();
+                    assertThat(ds2.getPluginId()).isEqualTo(datasource1.getPluginId());
+                    assertThat(ds2.getName()).isEqualTo("Untitled datasource 2");
                 })
                 .verifyComplete();
     }
