@@ -28,13 +28,6 @@ describe("RichTextEditor Widget Functionality", function() {
         .should("have.text", "This is a Heading");
     });
 
-    cy.get(commonlocators.editPropCrossButton).click();
-
-    cy.get(formWidgetsPage.richTextEditorWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
-
     //Edit the text area with Plain text
     cy.testCodeMirror(this.data.RichTexteditorBody);
 

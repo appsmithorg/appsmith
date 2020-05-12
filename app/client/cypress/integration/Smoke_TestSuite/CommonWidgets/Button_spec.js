@@ -46,9 +46,7 @@ describe("Button Widget Functionality", function() {
     cy.createModal("Alert Modal", this.data.AlertModalName);
 
     //creating the Form Modal and verify Modal name
-    cy.get(widgetsPage.buttonWidget)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("buttonwidget");
     cy.createModal("Form Modal", this.data.FormModalName);
   });
 

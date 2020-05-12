@@ -85,7 +85,10 @@ beforeEach(function() {
 
 after(function() {
   // ---commenting Publish app and Delete page as of now--- //
-  // cy.Deletepage(pageid);
+
+  //cy.Deletepage(pageid);
   //cy.PublishtheApp();
-  cy.DeleteApp(appId);
+  //cy.DeleteApp(appId);
+  //-- Deleting the application by Api---//
+  cy.DeleteAppByApi();
 });

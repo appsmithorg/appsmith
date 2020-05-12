@@ -287,6 +287,24 @@ Cypress.Commands.add("addDsl", dsl => {
   });
 });
 
+Cypress.Commands.add("DeleteAppByApi", () => {
+  let currentURL;
+  let appId;
+  cy.url().then(url => {
+    currentURL = url;
+    const myRegexp = /applications(.*)/;
+    const match = myRegexp.exec(currentURL);
+    appId = match[1].split("/")[1];
+    cy.log(appId + "appId");
+    cy.request(
+      "DELETE",
+      "https://release-api.appsmith.com/api/v1/applications/" + appId,
+    ).then(response => {
+      expect(response.status).equal(200);
+    });
+  });
+});
+
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
 });

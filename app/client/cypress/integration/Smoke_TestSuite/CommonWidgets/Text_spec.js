@@ -1,5 +1,6 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/commondsl.json");
+const widgetsPage = require("../../../locators/Widgets.json");
 
 describe("Text Widget Functionality", function() {
   beforeEach(() => {
