@@ -54,6 +54,7 @@ react-build-release:
   only:
     - release
     - merge_requests
+    - feature/acl
 
 cypress-test-release:
   stage: test
@@ -74,6 +75,7 @@ cypress-test-release:
     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
     - release
     - merge_requests
+    - feature/acl
 
 # cypress-test-fix:
 #   stage: build
@@ -139,5 +141,18 @@ docker-package-prod:
     - docker build -t appsmith/appsmith-editor:latest .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
     - docker push appsmith/appsmith-editor:latest
+  only:
+    - master
+
+docker-package-acl:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - *set_env_variables
+    - docker build -t appsmith/appsmith-editor:acl .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:acl
   only:
     - master
