@@ -39,4 +39,9 @@
   to = "API_PLACEHOLDER/oauth2/:splat"
   status = 200
   force = true
-    
+
+# This must be the last redirect in the chain because it's a catch-all
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
