@@ -155,4 +155,4 @@ docker-package-acl:
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
     - docker push appsmith/appsmith-editor:acl
   only:
-    - master
+    - feature/acl
