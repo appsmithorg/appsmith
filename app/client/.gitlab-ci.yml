@@ -75,7 +75,6 @@ cypress-test-release:
     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
     - release
     - merge_requests
-    - feature/acl
 
 # cypress-test-fix:
 #   stage: build
