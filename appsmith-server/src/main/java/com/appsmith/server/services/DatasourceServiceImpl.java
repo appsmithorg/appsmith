@@ -69,7 +69,25 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return validateAndSaveDatasourceToRepository(datasource);
+
+        Mono<Datasource> datasourceMono = Mono.just(datasource);
+
+        if (StringUtils.isEmpty(datasource.getName())) {
+            datasourceMono = datasourceMono.zipWith(
+                    getNextUniqueName("Untitled datasource"),
+                    (datasource1, name) -> {
+                        datasource1.setName(name);
+                        return datasource1;
+                    });
+        }
+
+        return datasourceMono.flatMap(this::validateAndSaveDatasourceToRepository);
+    }
+
+    @Override
+    public Mono<String> getNextUniqueName(String namePrefix) {
+        return repository.countNamesByPrefix(namePrefix)
+                .map(max -> namePrefix + (max == 0 ? "" : " " + (max + 1)));
     }
 
     @Override
