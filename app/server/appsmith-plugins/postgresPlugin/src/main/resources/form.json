@@ -36,6 +36,13 @@
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
+        },
+        {
+          "label": "Database Name",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "admin"
         }
       ]
     },
@@ -43,13 +50,6 @@
       "sectionName": "Authentication",
       "id": 2,
       "children": [
-        {
-          "label": "Database Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "Database name",
-          "initialValue": "admin"
-        },
         {
           "sectionName": null,
           "children": [
