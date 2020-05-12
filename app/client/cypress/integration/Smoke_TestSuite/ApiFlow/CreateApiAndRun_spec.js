@@ -17,13 +17,16 @@ describe("Test Add api blank and execute api flow", function() {
     cy.contains("https://jsonplaceholder.typicode.com/posts/1/comments").click({
       force: true,
     });
+    /*
     cy.get(ApiEditor.ApiRunBtn).click();
-    cy.get(ApiEditor.ApiRunBtn).should("be.disabled");
-    cy.wait("@executeAction").should(
+    //cy.get(ApiEditor.ApiRunBtn).should("be.disabled");
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    */
+    cy.SaveAPI();
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
   });

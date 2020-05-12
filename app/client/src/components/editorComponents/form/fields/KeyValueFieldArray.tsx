@@ -37,6 +37,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 <FormLabel>{props.label}</FormLabel>
               )}
               <DynamicTextField
+                className={`t--${field}.key.${index}`}
                 name={`${field}.key`}
                 placeholder="Key"
                 singleLine
@@ -44,6 +45,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               />
               {!props.actionConfig && (
                 <DynamicTextField
+                  className={`t--${field}.value.${index}`}
                   name={`${field}.value`}
                   placeholder="Value"
                   singleLine
@@ -54,6 +56,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
               {props.actionConfig && props.actionConfig[index] && (
                 <React.Fragment>
                   <DynamicTextField
+                    className={`t--${field}.value.${index}`}
                     name={`${field}.value`}
                     setMaxHeight
                     placeholder={

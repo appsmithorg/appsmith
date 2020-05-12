@@ -1,0 +1,11 @@
+{
+  "resourceUrl":".t--dataSourceField",
+  "searchApi":".t--sidebar input[type=text]",
+  "createapi":".t--createBlankApiCard",
+  "apiTxt":"input[name=name]",
+  "popover":".bp3-popover-target >div>svg",
+  "moveTo":".single-select >div:contains('Move to')",
+  "copyTo":".single-select >div:contains('Copy to')",
+  "home":".single-select >div:contains('Home')",
+  "delete":".single-select >div:contains('Delete')"
+}
