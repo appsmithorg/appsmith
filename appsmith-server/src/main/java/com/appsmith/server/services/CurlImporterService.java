@@ -5,6 +5,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
@@ -48,13 +50,14 @@ public class CurlImporterService extends BaseApiImporter {
     public Mono<Action> importAction(Object input, String pageId, String name) {
         Action action = curlToAction((String) input, pageId, name);
 
+        if (action == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
+        }
+
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
         return pluginService.findByPackageName(RESTAPI_PLUGIN)
                 .flatMap(plugin -> {
-                    if (action == null) {
-                        return Mono.empty();
-                    }
                     final Datasource datasource = action.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
