@@ -397,33 +397,28 @@ Cypress.Commands.add("addDsl", dsl => {
 
     //Fetch the layout id
     cy.server();
-    cy.request(
-      "GET",
-      "https://release-api.appsmith.com/api/v1/pages/" + pageid,
-    ).then(response => {
-      const len = JSON.stringify(response.body);
-      cy.log(len);
-      layoutId = JSON.parse(len).data.layouts[0].id;
+    cy.request("GET", "https://dev.appsmith.com/api/v1/pages/" + pageid).then(
+      response => {
+        const len = JSON.stringify(response.body);
+        cy.log(len);
+        layoutId = JSON.parse(len).data.layouts[0].id;
 
-      // Dumpimg the DSL to the created page
+        // Dumpimg the DSL to the created page
 
-      cy.request(
-        "PUT",
-        "https://release-api.appsmith.com/api/v1/layouts/" +
-          layoutId +
-          "/pages/" +
-          pageid,
-        dsl,
-      ).then(response => {
-        expect(response.status).equal(200);
-        cy.reload();
-      });
-    });
+        cy.request(
+          "PUT",
+          "https://dev.appsmith.com/api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid,
+          dsl,
+        ).then(response => {
+          expect(response.status).equal(200);
+          cy.reload();
+        });
+      },
+    );
   });
-});
-
-Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
 });
 
 Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
@@ -578,18 +573,6 @@ Cypress.Commands.add("runSaveDeleteQuery", () => {
   );
 });
 
-Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
-  cy.wait("@getPluginForm").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.wait("@createDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-});
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)

@@ -21,6 +21,8 @@ let appId;
 // Import commands.js using ES2015 syntax:
 import "./commands";
 before(function() {
+  console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
+
   cy.server();
   cy.route("GET", "/api/v1/applications").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
@@ -90,7 +92,7 @@ before(function() {
   });
 
   beforeEach(function() {
-    Cypress.Cookies.preserveOnce("session_id", "remember_token");
+    Cypress.Cookies.preserveOnce("SESSION");
   });
 
   after(function() {
