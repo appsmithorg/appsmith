@@ -207,6 +207,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
           </DatasourceWrapper>
           <DynamicTextField
+            className="t--path"
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}

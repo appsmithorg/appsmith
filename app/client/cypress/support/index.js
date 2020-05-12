@@ -25,12 +25,20 @@ before(function() {
   cy.route("GET", "/api/v1/applications").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
+  cy.route("POST", "/api/v1/logout").as("postLogout");
 
   cy.route("GET", "/api/v1/configs/name/propertyPane").as("getPropertyPane");
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
   cy.route("GET", "/api/v1/actions*").as("getActions");
+  cy.route("GET", "api/v1/providers/categories").as("getCategories");
+  cy.route("GET", "api/v1/import/templateCollections").as(
+    "getTemplateCollections",
+  );
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
+  cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
+  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
@@ -42,6 +50,13 @@ before(function() {
   cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
+
+  cy.route("POST", "/v1/t").as("postSave");
+  cy.route("PUT", "/api/v1/actions/*").as("putActions");
+  cy.route("POST", "/track/*").as("postTrack");
+  cy.route("POST", "/v1/m").as("postexe");
+  cy.route("POST", "/api/v1/actions/execute").as("postExecute");
+  cy.route("POST", "/api/v1/actions").as("postaction");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
   cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
@@ -67,6 +82,7 @@ before(function() {
     appId = id;
     cy.CreateApp(id);
   });
+
   cy.generateUUID().then(uid => {
     pageid = uid;
     cy.Createpage(pageid);
