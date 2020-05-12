@@ -517,7 +517,7 @@ public class CurlImporterServiceTest {
 
         StepVerifier
                 .create(actionMono)
-                .verifyComplete();
+                .verifyError();
     }
 
     // Assertion utilities for working with Action assertions.
