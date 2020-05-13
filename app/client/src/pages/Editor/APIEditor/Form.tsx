@@ -9,6 +9,7 @@ import {
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import PostBodyData from "./PostBodyData";
@@ -285,7 +286,7 @@ export default connect(state => {
   let contentType;
   if (actionConfigurationHeaders) {
     contentType = actionConfigurationHeaders.find(
-      (header: any) => header.key === "content-type",
+      (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
     );
   }
 
