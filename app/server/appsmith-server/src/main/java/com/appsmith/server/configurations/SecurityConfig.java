@@ -143,6 +143,7 @@ public class SecurityConfig {
         user.setEmail("anonymousUser");
         user.setCurrentOrganizationId("");
         user.setOrganizationIds(new HashSet<>());
+        user.setIsAnonymous(true);
         return user;
     }
 }

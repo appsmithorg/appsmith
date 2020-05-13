@@ -26,6 +26,7 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Page {0} does not belong to the application {1}"),
     NO_DSL_FOUND_IN_PAGE(400, 4020, "The page {0} doesn't have a DSL. This is an unexpected state"),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain provided. Please sign in with a valid work email ID"),
+    USER_NOT_SIGNED_IN(401, 4020, "User is not logged in. Please sign in with the registered email ID or sign up" ),
     INVALID_PASSWORD_RESET(400, 4020, "Unable to reset the password. Please initiate a request via 'forgot password' link to reset your password"),
     LOGIN_INTERNAL_ERROR(401, 4021, "Internal error while trying to login"),
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}"),

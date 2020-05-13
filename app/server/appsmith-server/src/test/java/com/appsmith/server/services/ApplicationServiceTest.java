@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -253,14 +254,18 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllApplicationsForHome() {
-        Mono<List<OrganizationApplicationsDTO>> allApplications = applicationService.getAllApplications();
+        Mono<UserHomepageDTO> allApplications = applicationService.getAllApplications();
 
         StepVerifier
                 .create(allApplications)
-                .assertNext(organizationApplicationsDTOS -> {
-                    assertThat(organizationApplicationsDTOS).isNotEmpty();
+                .assertNext(userHomepageDTO -> {
+                    assertThat(userHomepageDTO).isNotNull();
+                    //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
 
-                    OrganizationApplicationsDTO orgAppDto = organizationApplicationsDTOS.get(0);
+                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+
+                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
                     assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
 
                     Application application = orgAppDto.getApplications().get(0);
