@@ -41,8 +41,11 @@ export const transformRestAction = (data: any): any => {
     if (POST_BODY_FORMATS.includes(contentType)) {
       formatIndex = POST_BODY_FORMATS.indexOf(contentType);
     }
+    let body = "";
 
-    let body = action.actionConfiguration.body[formatIndex] || undefined;
+    if (action.actionConfiguration.body) {
+      body = action.actionConfiguration.body[formatIndex] || undefined;
+    }
     if (!_.isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
