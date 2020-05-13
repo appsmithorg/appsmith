@@ -36,13 +36,15 @@ public enum AppsmithError {
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
+    INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again."),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while downloading it. Check the jar location & try again."),
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}"),
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint"),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "Unable to load datasource form configuration. Details: {0}."),
-    MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later");
+    MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later"),
+    ;
 
 
     private Integer httpErrorCode;

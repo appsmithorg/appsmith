@@ -112,6 +112,7 @@ public class MongoPlugin extends BasePlugin {
                     if (outputJson.has("cursor")) {
                         JSONArray outputResult = outputJson.getJSONObject("cursor").getJSONArray("firstBatch");
                         result.setBody(objectMapper.readTree(outputResult.toString()));
+                        result.setIsExecutionSuccess(true);
                     }
 
                     //The json contains key "n" when insert/update command is issued. "n" for update signifies the no of
@@ -205,6 +206,10 @@ public class MongoPlugin extends BasePlugin {
             final SSLDetails sslDetails = connection.getSsl();
             if (sslDetails != null && !SSLDetails.AuthType.NO_SSL.equals(sslDetails.getAuthType())) {
                 queryParams.add("ssl=true");
+            }
+
+            if (authentication != null && authentication.getAuthType() != null) {
+                queryParams.add("authMechanism=" + authentication.getAuthType().name().replace('_', '-'));
             }
 
             if (!queryParams.isEmpty()) {

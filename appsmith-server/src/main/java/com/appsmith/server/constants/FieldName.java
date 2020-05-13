@@ -7,7 +7,7 @@ public class FieldName {
     public static final String DELETED_AT = "deletedAt";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
-    public static String NAME = "name";
+    public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
