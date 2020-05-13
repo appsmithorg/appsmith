@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(Url.APPLICATION_URL)
@@ -65,7 +64,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @GetMapping("/new")
-    public Mono<ResponseDTO<List<OrganizationApplicationsDTO>>> getAllApplicationsMock() {
+    public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by organization");
         return service.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
