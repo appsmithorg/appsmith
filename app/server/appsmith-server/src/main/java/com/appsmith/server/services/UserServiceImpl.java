@@ -685,6 +685,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<UserProfileDTO> getUserProfile() {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
+                    if (user.getIsAnonymous()) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+                    }
                     String currentOrganizationId = user.getCurrentOrganizationId();
                     UserProfileDTO userProfile = new UserProfileDTO();
                     userProfile.setUser(user);

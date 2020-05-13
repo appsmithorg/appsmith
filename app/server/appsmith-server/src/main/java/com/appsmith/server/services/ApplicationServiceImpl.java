@@ -7,6 +7,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -29,6 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -167,19 +170,30 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * @return List of OrganizationApplicationsDTO
      */
     @Override
-    public Mono<List<OrganizationApplicationsDTO>> getAllApplications() {
+    public Mono<UserHomepageDTO> getAllApplications() {
 
-        return sessionUserService
+        Mono<User> userMono = sessionUserService
                 .getCurrentUser()
-                .map(user -> user.getOrganizationIds())
-                .flatMap(orgIds -> {
+                .flatMap(user -> {
+                    if (user.getIsAnonymous()) {
+                        return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+                    }
+                    return Mono.just(user);
+                })
+                .cache();
 
+        return userMono
+                .flatMap(user -> {
+                    Set<String> orgIds = user.getOrganizationIds();
                     /*
                      * For all the organization ids present in the user object, fetch all the organization objects
                      * and store in a map for fast access;
                      */
                     Mono<Map<String, Organization>> organizationsMapMono = organizationService.findByIdsIn(orgIds, READ_ORGANIZATIONS)
                             .collectMap(Organization::getId, Function.identity());
+
+                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
+                    userHomepageDTO.setUser(user);
 
                     return repository
                             // Fetch all the applications which belong the organization ids present in the user
@@ -208,7 +222,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
                                     organizationApplicationsDTOS.add(organizationApplicationsDTO);
                                 }
-                                return organizationApplicationsDTOS;
+                                userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
+                                return userHomepageDTO;
                             });
                 });
     }

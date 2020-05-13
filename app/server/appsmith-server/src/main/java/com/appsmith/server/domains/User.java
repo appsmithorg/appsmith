@@ -4,8 +4,10 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,6 +54,9 @@ public class User extends BaseDomain implements UserDetails {
     // to users instead of creating a group for them. To be used only for one-off permissions.
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     private Set<String> permissions = new HashSet<>();
+
+    @Transient
+    Boolean isAnonymous = false;
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
