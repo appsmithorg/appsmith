@@ -9,6 +9,10 @@ const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
+const apiwidget = require("../locators/apiWidgetslocator.json");
+const method = "(//pre//span)[2]";
+const headerkey = "(//pre//span)[3]";
+const headervalue = "(//pre//span)[4]";
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.CreateApp)
@@ -19,6 +23,12 @@ Cypress.Commands.add("CreateApp", appname => {
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
+  cy.wait("@getPropertyPane");
+  cy.get("@getPropertyPane").should("have.property", "status", 200);
+  cy.wait("@getDataSources");
+  cy.get("@getDataSources").should("have.property", "status", 200);
+  cy.wait("@getUser");
+  cy.get("@getUser").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
@@ -32,6 +42,25 @@ Cypress.Commands.add("DeleteApp", appName => {
     .first()
     .click({ force: true });
   cy.get(homePage.deleteButton).click({ force: true });
+  //following code was added as it was failing intermitently
+  /*
+  cy.get(homePage.selectAction).should("be.visible");
+  cy.get(homePage.selectAction).click({ force: true });
+  cy.get(homePage.deleteApp).should("be.visible");
+  cy.get(homePage.deleteApp).click({ force: true });
+  cy.wait("@deleteApp");
+  cy.wait("@deleteApp").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait("@getPagesForApp");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  */
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
@@ -66,6 +95,164 @@ Cypress.Commands.add("SearchApp", appname => {
     .click({ force: true });
   cy.get("#loading").should("not.exist");
   // Wait added because after opening the application editor, sometimes it takes a little time.
+});
+
+Cypress.Commands.add("SearchAPI", (apiname1, apiname2) => {
+  cy.get("span:contains(".concat(apiname2).concat(")")).should("be.visible");
+  cy.get(apiwidget.searchApi)
+    .click({ force: true })
+    .type(apiname1, { force: true });
+  cy.get("span:contains(".concat(apiname1).concat(")")).should("be.visible");
+  cy.get("span:contains(".concat(apiname2).concat(")")).should(
+    "not.be.visible",
+  );
+});
+
+Cypress.Commands.add("ResponseStatusCheck", statusCode => {
+  cy.xpath('//div[@id="root"]').should("be.visible");
+  cy.xpath('//div[@id="root"]').contains(statusCode);
+});
+
+Cypress.Commands.add("ResponseCheck", textTocheck => {
+  //Explicit assert
+  cy.get('.CodeMirror-line > [role="presentation"]').should($x => {
+    console.log($x);
+    expect($x).contain(textTocheck);
+  });
+
+  //implicit assert
+  cy.get('.CodeMirror-line > [role="presentation"]').contains(textTocheck);
+});
+
+Cypress.Commands.add("NavigateToAPI_Panel", () => {
+  cy.get(pages.apiEditorIcon)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+});
+
+Cypress.Commands.add("CreateAPI", apiname => {
+  cy.get('button:contains("Create new API")')
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.createapi).click({ force: true });
+  cy.wait("@getUser");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname)
+    .should("have.value", apiname);
+  cy.SaveAPI();
+});
+Cypress.Commands.add("EditApiName", apiname => {
+  cy.wait("@getUser");
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname)
+    .should("have.value", apiname);
+  cy.SaveAPI();
+});
+
+Cypress.Commands.add("SaveAPI", () => {
+  cy.get('button:contains("Save")').click({ force: true });
+  cy.wait("@saveQuery");
+  cy.wait("@postExecute");
+});
+
+Cypress.Commands.add("RunAPI", () => {
+  cy.get(ApiEditor.ApiRunBtn).click({ force: true });
+  // cy.wait('@postTrack');
+  cy.wait("@postExecute");
+});
+
+Cypress.Commands.add("SaveAndRunAPI", () => {
+  cy.SaveAPI();
+  cy.RunAPI();
+});
+
+Cypress.Commands.add(
+  "EnterSourceDetailsWithHeader",
+  (baseUrl, v1method, hKey, hValue) => {
+    cy.get(apiwidget.resourceUrl)
+      .first()
+      .click({ force: true })
+      .type(baseUrl);
+    cy.xpath('//div[contains(@id,"react-select")]')
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(".t--path >div textarea")
+      .click({ force: true })
+      .type(v1method, { force: true })
+      .should("have.value", v1method);
+    //cy.get(method).click({force: true});
+    //cy.get(method).focused().type(v1method,{force: true}).should("have.value",v1method);
+    cy.xpath(headerkey)
+      .click({ force: true })
+      .focused()
+      .type(hKey, { force: true })
+      .should("have.value", hKey);
+    cy.xpath(headervalue)
+      .click({ force: true })
+      .focused()
+      .type(hValue)
+      .should("have.value", hValue);
+    cy.SaveAPI();
+  },
+);
+
+Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
+  cy.get('button:contains("Create new API")')
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.createapi).click({ force: true });
+  cy.wait("@getUser");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname)
+    .should("have.value", apiname);
+  cy.get(".bp3-popover-content").should($x => {
+    console.log($x);
+    expect($x).contain("Action name must be unique");
+  });
+});
+
+Cypress.Commands.add("MoveAPIToHome", apiname => {
+  cy.get(apiwidget.popover)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.moveTo).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
+  cy.wait("@createNewApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
+Cypress.Commands.add("CopyAPIToHome", apiname => {
+  cy.get(apiwidget.popover)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.copyTo).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
+  cy.wait("@createNewApi").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
+Cypress.Commands.add("DeleteAPI", apiname => {
+  cy.get(apiwidget.popover)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.delete).click({ force: true });
+  cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("CreateModal", () => {
@@ -262,10 +449,7 @@ Cypress.Commands.add("addDsl", dsl => {
 
     //Fetch the layout id
     cy.server();
-    cy.request(
-      "GET",
-      "https://release-api.appsmith.com/api/v1/pages/" + pageid,
-    ).then(response => {
+    cy.request("GET", "api/v1/pages/" + pageid).then(response => {
       const len = JSON.stringify(response.body);
       cy.log(len);
       layoutId = JSON.parse(len).data.layouts[0].id;
@@ -274,10 +458,7 @@ Cypress.Commands.add("addDsl", dsl => {
 
       cy.request(
         "PUT",
-        "https://release-api.appsmith.com/api/v1/layouts/" +
-          layoutId +
-          "/pages/" +
-          pageid,
+        "api/v1/layouts/" + layoutId + "/pages/" + pageid,
         dsl,
       ).then(response => {
         expect(response.status).equal(200);
@@ -296,10 +477,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const match = myRegexp.exec(currentURL);
     appId = match[1].split("/")[1];
     cy.log(appId + "appId");
-    cy.request(
-      "DELETE",
-      "https://release-api.appsmith.com/api/v1/applications/" + appId,
-    ).then(response => {
+    cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
       expect(response.status).equal(200);
     });
   });
@@ -440,7 +618,7 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
 
 Cypress.Commands.add("runSaveDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
-  cy.wait("@executeAction").should(
+  cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -461,18 +639,6 @@ Cypress.Commands.add("runSaveDeleteQuery", () => {
   );
 });
 
-Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
-  cy.wait("@getPluginForm").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.wait("@createDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-});
 Cypress.Commands.add("openPropertyPane", widgetType => {
   const selector = `.t--draggable-${widgetType}`;
   cy.get(selector)

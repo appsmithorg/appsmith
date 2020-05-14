@@ -481,6 +481,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       showError =
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
+    console.log(className);
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
         <Wrapper

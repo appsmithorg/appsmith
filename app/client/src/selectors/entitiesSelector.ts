@@ -107,9 +107,6 @@ export const getActions = (state: AppState): ActionDataState =>
 export const getDatasourceRefs = (state: AppState): any =>
   state.ui.datasourcePane.datasourceRefs;
 
-export const getDatasourceNames = (state: AppState): any =>
-  state.entities.datasources.list.map(datasource => datasource.name);
-
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export const getApiActions = (state: AppState): ActionDataState => {

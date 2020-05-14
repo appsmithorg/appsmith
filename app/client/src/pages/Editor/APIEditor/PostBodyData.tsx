@@ -6,6 +6,7 @@ import Select from "react-select";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMATS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -79,7 +80,7 @@ const PostBodyData = (props: Props) => {
 
             const elementsIndex = actionConfigurationHeaders.findIndex(
               (element: { key: string; value: string }) =>
-                element.key === "content-type",
+                element.key.toLowerCase() === CONTENT_TYPE,
             );
 
             if (elementsIndex >= 0 && displayFormatObject) {
@@ -166,7 +167,9 @@ export default connect((state: AppState) => {
   const headers = selector(state, "actionConfiguration.headers");
   let contentType;
   if (headers) {
-    contentType = headers.find((header: any) => header.key === "content-type");
+    contentType = headers.find(
+      (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+    );
   }
 
   return {

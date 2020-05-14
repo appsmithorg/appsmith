@@ -38,6 +38,8 @@ describe("Text Widget Functionality", function() {
       commonlocators.headingTextStyle,
       this.data.TextLabelValue,
     );
+
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 
   afterEach(() => {

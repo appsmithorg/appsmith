@@ -2,7 +2,7 @@ import * as React from "react";
 import { Text, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { TextStyle } from "widgets/TextWidget";
+import { TextStyle, TextAlign } from "widgets/TextWidget";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import { labelStyle } from "constants/DefaultTheme";
@@ -26,10 +26,14 @@ export const TextContainer = styled.div`
     width: 100%;
   }
 `;
-export const StyledText = styled(Text)<{ scroll: boolean }>`
+export const StyledText = styled(Text)<{
+  scroll: boolean;
+  textAlign: string;
+}>`
   height: 100%;
   overflow-y: ${props => (props.scroll ? "auto" : "hidden")};
   text-overflow: ellipsis;
+  text-align: ${props => props.textAlign.toLowerCase()}
   display: flex;
   width: 100%;
   justify-content: flex-start;
@@ -41,10 +45,14 @@ export const StyledText = styled(Text)<{ scroll: boolean }>`
   &.bp3-ui-text {
     ${labelStyle}
   }
+  span {
+    width: 100%;
+  }
 `;
 
 export interface TextComponentProps extends ComponentProps {
   text?: string;
+  textAlign: TextAlign;
   ellipsize?: boolean;
   textStyle?: TextStyle;
   isLoading: boolean;
@@ -76,11 +84,12 @@ class TextComponent extends React.Component<TextComponentProps> {
   }
 
   render() {
-    const { textStyle, text, ellipsize } = this.props;
+    const { textStyle, text, ellipsize, textAlign } = this.props;
     return (
       <TextContainer>
         <StyledText
           scroll={!!this.props.shouldScroll}
+          textAlign={textAlign}
           className={this.getTextClass(textStyle)}
           ellipsize={ellipsize}
         >

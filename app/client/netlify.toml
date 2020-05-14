@@ -27,3 +27,21 @@
   [context.b.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+
+[[redirects]]
+  from = "/api/*"
+  to = "API_PLACEHOLDER/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/oauth2/*"
+  to = "API_PLACEHOLDER/oauth2/:splat"
+  status = 200
+  force = true
+
+# This must be the last redirect in the chain because it's a catch-all
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

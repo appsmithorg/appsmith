@@ -36,5 +36,18 @@ describe("Create a query with a postgres datasource, run, save and then delete t
       .type("select * from users");
 
     cy.runSaveDeleteQuery();
+
+    cy.NavigateToDatasourceEditor();
+    cy.get("@createDatasource").then(httpResponse => {
+      const datasourceId = httpResponse.response.body.data.id;
+
+      cy.get(`[data-cy=${datasourceId}]`).click();
+    });
+    cy.get(".t--delete-datasource").click();
+    cy.wait("@deleteDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 });
