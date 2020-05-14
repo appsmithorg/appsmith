@@ -7,6 +7,7 @@ const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
+const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const method = "(//pre//span)[2]";
@@ -254,37 +255,6 @@ Cypress.Commands.add("DeleteAPI", apiname => {
   );
 });
 
-// Cypress.Commands.add("NavigateToCommonWidgets", () => {
-//   cy.get(pages.pagesIcon).click({ force: true });
-//   cy.get(pages.commonWidgets)
-//     .find(">div")
-//     .click({ force: true });
-//   cy.get("#loading").should("not.exist");
-//   cy.get(pages.widgetsEditor).click();
-//   cy.wait("@getPage");
-//   cy.get("#loading").should("not.exist");
-// });
-
-// Cypress.Commands.add("NavigateToFormWidgets", () => {
-//   cy.get(pages.pagesIcon).click({ force: true });
-//   cy.get(pages.formWidgets)
-//     .find(">div")
-//     .click({ force: true });
-//   cy.get("#loading").should("not.exist");
-//   cy.get(pages.widgetsEditor).click();
-//   cy.get("#loading").should("not.exist");
-// });
-
-// Cypress.Commands.add("NavigateToViewWidgets", () => {
-//   cy.get(pages.pagesIcon).click({ force: true });
-//   cy.get(pages.viewWidgets)
-//     .find(">div")
-//     .click({ force: true });
-//   cy.get("#loading").should("not.exist");
-//   cy.get(pages.widgetsEditor).click();
-//   cy.get("#loading").should("not.exist");
-// });
-
 Cypress.Commands.add("CreateModal", () => {
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -300,6 +270,73 @@ Cypress.Commands.add("CreateModal", () => {
     .should("have.text", "Alert Modal");
   cy.get(commonlocators.editPropCrossButton).click();
   cy.reload();
+});
+
+Cypress.Commands.add("createModal", (modalType, ModalName) => {
+  cy.get(widgetsPage.buttonOnClick)
+    .get(commonlocators.dropdownSelectButton)
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains("Show Modal")
+    .click();
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+
+  cy.get(modalWidgetPage.controlModalType)
+    .find(".bp3-button")
+    .click({ force: true })
+    .get("ul.bp3-menu")
+    .children()
+    .contains(modalType)
+    .click();
+  cy.xpath(homePage.homePageID).contains("All changes saved");
+
+  // changing the model name verify
+  cy.widgetText(
+    ModalName,
+    modalWidgetPage.modalName,
+    modalWidgetPage.modalName,
+  );
+  cy.get(commonlocators.editPropCrossButton).click();
+  cy.reload();
+});
+
+Cypress.Commands.add("CheckWidgetProperties", checkBoxTypeCss => {
+  cy.get(checkBoxTypeCss).check({
+    force: true,
+  });
+  cy.xpath(homePage.homePageID).contains("All changes saved");
+});
+
+Cypress.Commands.add("UnCheckWidgetProperties", checkBoxTypeCss => {
+  cy.get(checkBoxTypeCss).uncheck({
+    force: true,
+  });
+  cy.xpath(homePage.homePageID).contains("All changes saved");
+});
+
+Cypress.Commands.add(
+  "ChangeTextStyle",
+  (dropDownValue, textStylecss, labelName) => {
+    cy.get(commonlocators.dropDownIcon).click();
+    cy.get("ul.bp3-menu")
+      .children()
+      .contains(dropDownValue)
+      .click();
+    cy.get(textStylecss).should("have.text", labelName);
+  },
+);
+
+Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
+  cy.get(commonlocators.editWidgetName)
+    .dblclick({ force: true })
+    .type(text)
+    .type("{enter}");
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.get(innercss).should("have.text", text);
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
@@ -343,6 +380,21 @@ Cypress.Commands.add("testCodeMirror", value => {
         .first()
         .should("have.value", value);
     });
+});
+
+Cypress.Commands.add("SetDateToToday", () => {
+  cy.get(formWidgetsPage.datepickerWidget)
+    .first()
+    .trigger("mouseover");
+  cy.get(formWidgetsPage.datepickerWidget)
+    .children(commonlocators.editicon)
+    .first()
+    .click({ force: true });
+  cy.get(".t--property-control-defaultdate input").click();
+  cy.get(".bp3-datepicker-footer span")
+    .contains("Today")
+    .click();
+  cy.xpath(homePage.homePageID).contains("All changes saved");
 });
 
 Cypress.Commands.add("DeleteModal", () => {
@@ -397,28 +449,42 @@ Cypress.Commands.add("addDsl", dsl => {
 
     //Fetch the layout id
     cy.server();
-    cy.request("GET", "https://dev.appsmith.com/api/v1/pages/" + pageid).then(
-      response => {
-        const len = JSON.stringify(response.body);
-        cy.log(len);
-        layoutId = JSON.parse(len).data.layouts[0].id;
+    cy.request("GET", "api/v1/pages/" + pageid).then(response => {
+      const len = JSON.stringify(response.body);
+      cy.log(len);
+      layoutId = JSON.parse(len).data.layouts[0].id;
 
-        // Dumpimg the DSL to the created page
+      // Dumpimg the DSL to the created page
 
-        cy.request(
-          "PUT",
-          "https://dev.appsmith.com/api/v1/layouts/" +
-            layoutId +
-            "/pages/" +
-            pageid,
-          dsl,
-        ).then(response => {
-          expect(response.status).equal(200);
-          cy.reload();
-        });
-      },
-    );
+      cy.request(
+        "PUT",
+        "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+        dsl,
+      ).then(response => {
+        expect(response.status).equal(200);
+        cy.reload();
+      });
+    });
   });
+});
+
+Cypress.Commands.add("DeleteAppByApi", () => {
+  let currentURL;
+  let appId;
+  cy.url().then(url => {
+    currentURL = url;
+    const myRegexp = /applications(.*)/;
+    const match = myRegexp.exec(currentURL);
+    appId = match[1].split("/")[1];
+    cy.log(appId + "appId");
+    cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
+      expect(response.status).equal(200);
+    });
+  });
+});
+
+Cypress.Commands.add("NavigateToDatasourceEditor", () => {
+  cy.get(datasourceEditor.datasourceEditorIcon).click({ force: true });
 });
 
 Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
