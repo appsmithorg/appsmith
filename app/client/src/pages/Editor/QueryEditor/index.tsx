@@ -115,10 +115,6 @@ class QueryEditor extends React.Component<Props> {
       label: dataSource.name,
       value: dataSource.id,
     }));
-    DATASOURCES_OPTIONS.push({
-      label: "Create new Datasource",
-      value: "createNew",
-    });
 
     return (
       <React.Fragment>

@@ -28,6 +28,11 @@
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
 
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+
 [[redirects]]
   from = "/api/*"
   to = "API_PLACEHOLDER/api/:splat"
