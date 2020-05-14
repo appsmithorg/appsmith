@@ -36,6 +36,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -51,8 +52,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -252,12 +255,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         }
 
         if (actionConfiguration.getHeaders() != null) {
-            Map<String, String> reqHeaderMap = actionConfiguration.getHeaders().stream()
-                    .collect(Collectors.toMap(Property::getKey,
-                            Property::getValue,
-                            // If there are duplicate values, ignore the second one
-                            (header1, header2) -> header1));
-            actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqHeaderMap));
+            MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+
+            actionConfiguration.getHeaders().stream()
+                    .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+            actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqMultiMap));
             log.debug("Got request headers in actionExecutionResult as: {}", actionExecutionResult.getRequestHeaders());
         }
 
