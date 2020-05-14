@@ -646,15 +646,22 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
 });
 
 Cypress.Commands.add("createApi", (url, parameters) => {
+  cy.get("@createNewApi").then(response => {
+    cy.get(ApiEditor.ApiNameField).should("be.visible");
+    cy.expect(response.response.body.responseMeta.success).to.eq(true);
+    cy.get(ApiEditor.ApiNameField).should(
+      "have.value",
+      response.response.body.data.name,
+    );
+  });
   cy.get(ApiEditor.dataSourceField).click();
   cy.contains(url).click({
     force: true,
   });
   cy.get(".CodeMirror.CodeMirror-empty textarea")
-    .first()
-    .click({ force: true })
-    .type(parameters, { force: true });
-  cy.get(ApiEditor.ApiRunBtn).click();
+  .first()
+  .click({ force: true })
+  .type(parameters, { force: true });
   cy.SaveAPI();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
