@@ -13,7 +13,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
   });
 
-  it("Test Add users api api and execute api", function() {
+  it("Test_Add users api and execute api", function() {
    // localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     cy.testCreateApiButton();
@@ -27,12 +27,14 @@ describe("Test Create Api and Bind to Table widget", function() {
         apiData = text;
         cy.log("val1:" + apiData);
       });
-  
+   });
+   
+   it("Test_Validate the Api data is updated on Table widget", function() {
     cy.get(pages.pagesIcon).click({ force: true });
     cy.openPropertyPane("tablewidget");
     cy.testCodeMirror("{{Api1.data}}");
     cy.wait("@updateLayout");
-    //cy.get(commonlocators.editPropCrossButton).click();
+    cy.get(commonlocators.editPropCrossButton).click();
     cy.readTabledata("0", "1").then(tabData => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
