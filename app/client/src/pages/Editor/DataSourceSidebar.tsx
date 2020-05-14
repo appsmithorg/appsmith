@@ -258,6 +258,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
     return datasources.map(datasource => {
       return (
         <ItemContainer
+          data-cy={datasource.id}
           ref={datastoreRefs[datasource.id]}
           key={datasource.id}
           isSelected={datasourceId === datasource.id}

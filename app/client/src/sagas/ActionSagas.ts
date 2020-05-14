@@ -109,7 +109,7 @@ const createActionSuccessResponse = (
 const isErrorResponse = (response: ActionApiResponse) => {
   return (
     (response.responseMeta && response.responseMeta.error) ||
-    !/2\d\d/.test(response.data.statusCode)
+    !response.data.isExecutionSuccess
   );
 };
 

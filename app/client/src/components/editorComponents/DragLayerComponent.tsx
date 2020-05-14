@@ -51,6 +51,7 @@ type DragLayerProps = {
   parentCols?: number;
   isResizing?: boolean;
   parentWidgetId: string;
+  force: boolean;
 };
 
 const DragLayerComponent = (props: DragLayerProps) => {
@@ -129,7 +130,11 @@ const DragLayerComponent = (props: DragLayerProps) => {
     }
   });
 
-  if ((!isDragging || !props.visible || !props.isOver) && !props.isResizing) {
+  if (
+    (!isDragging || !props.visible || !props.isOver) &&
+    !props.force &&
+    !props.isResizing
+  ) {
     return null;
   }
 

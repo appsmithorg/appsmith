@@ -3,5 +3,15 @@
     "editPropCrossButton":".t--property-pane-close-btn",
     "deleteWidgetIcon":".t--widget-delete-control",
     "dropdownSelectButton":".t--open-dropdown-Select-Action",
-    "homeIcon":".bp3-icon.bp3-icon-home"
+    "homeIcon":".bp3-icon.bp3-icon-home",
+    "typeWidgetName":".bp3-editable-text-editing>input",
+    "requiredCheckbox":".t--property-control-required input[type='checkbox']",
+    "visibleCheckbox":".t--property-control-visible input[type='checkbox']",
+    "disableCheckbox":".t--property-control-disabled input[type='checkbox']",
+    "labelTextStyle":".bp3-ui-text span",
+    "bodyTextStyle":".bp3-running-text span",
+    "headingTextStyle":".bp3-heading span",
+    "editWidgetName":".bp3-editable-text",
+    "dropDownIcon":".t--property-control-textstyle span.bp3-icon-chevron-down"
+
 }

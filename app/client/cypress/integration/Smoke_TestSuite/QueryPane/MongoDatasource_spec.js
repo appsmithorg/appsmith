@@ -37,5 +37,18 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .type(`{"find": "planets"}`, { parseSpecialCharSequences: false });
 
     cy.runSaveDeleteQuery();
+
+    cy.NavigateToDatasourceEditor();
+    cy.get("@createDatasource").then(httpResponse => {
+      const datasourceId = httpResponse.response.body.data.id;
+
+      cy.get(`[data-cy=${datasourceId}]`).click();
+    });
+    cy.get(".t--delete-datasource").click();
+    cy.wait("@deleteDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 });

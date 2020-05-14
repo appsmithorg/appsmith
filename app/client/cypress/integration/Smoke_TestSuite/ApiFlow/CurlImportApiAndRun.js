@@ -19,13 +19,13 @@ describe("Test curl import api and run flow", function() {
     });
     cy.get(ApiEditor.ApiRunBtn).click();
     cy.get(ApiEditor.ApiRunBtn).should("be.disabled");
-    cy.wait("@executeAction").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
     cy.get(ApiEditor.formActionButtons).should("be.visible");
-    cy.get("@executeAction").then(httpResponse => {
+    cy.get("@postExecute").then(httpResponse => {
       cy.expect(httpResponse.response.body.responseMeta.success).to.eq(true);
     });
   });

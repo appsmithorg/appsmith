@@ -6,6 +6,7 @@
     "publishCrossButton":"span[icon='small-cross']",
     "homePageID":"//div[@id='root']",
     "appMoreIcon":".bp3-popover-wrapper.more .bp3-popover-target",
-    "deleteButton":".bp3-menu-item.bp3-popover-dismiss"
-    
+    "deleteButton":".bp3-menu-item.bp3-popover-dismiss",
+    "selectAction":"#Base",
+    "deleteApp":".bp3-menu-item"
 }
