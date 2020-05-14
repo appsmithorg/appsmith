@@ -70,11 +70,9 @@ class DatePickerControl extends BaseControl<
   }
 
   onDateSelected = (date: Date): void => {
-    this.setState({ selectedDate: moment(date).toISOString(true) });
-    this.updateProperty(
-      this.props.propertyName,
-      moment(date).toISOString(true),
-    );
+    const selectedDate = date ? moment(date).toISOString(true) : "";
+    this.setState({ selectedDate: selectedDate });
+    this.updateProperty(this.props.propertyName, selectedDate);
   };
 
   formatDate = (date: Date): string => {
