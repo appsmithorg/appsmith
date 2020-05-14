@@ -1,15 +1,23 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -17,6 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +37,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActionServiceTest {
     @Autowired
     ActionService actionService;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    PluginExecutor pluginExecutor;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -153,5 +171,92 @@ public class ActionServiceTest {
         assertThat(obj).isNotNull();
         assertThat(obj).isInstanceOf(String.class);
         assertThat(obj).isEqualTo(expectedOutput);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecute() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        executeAction(executeActionDTO, actionConfiguration, mockResult);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteNullRequestBody() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        executeAction(executeActionDTO, actionConfiguration, mockResult);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteDbQuery() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setQuery(Map.of("cmd", "select * from users"));
+        action.setActionConfiguration(actionConfiguration);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        executeAction(executeActionDTO, actionConfiguration, mockResult);
+    }
+
+    private void executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(result -> {
+                    assertThat(result).isNotNull();
+                    assertThat(result.getBody()).isEqualTo(mockResult.getBody());
+
+                    if (actionConfiguration.getHeaders() != null) {
+                        assertThat(result.getRequestHeaders().size()).isEqualTo(actionConfiguration.getHeaders().size());
+                    }
+
+                    assertThat(result.getRequestBody() == actionConfiguration.getQuery() ||
+                            result.getRequestBody() == actionConfiguration.getBody())
+                            .isTrue();
+
+                    assertThat(result.getHeaders()).isEqualTo(mockResult.getHeaders());
+                })
+                .verifyComplete();
     }
 }

@@ -16,4 +16,9 @@ public class ActionExecutionResult {
     JsonNode headers;
     Object body;
     Boolean isExecutionSuccess = false;
+
+    // We also return the specific body and headers for the request
+    // Makes it easier for the user to debug and fix their issues on the client
+    Object requestBody;
+    JsonNode requestHeaders;
 }

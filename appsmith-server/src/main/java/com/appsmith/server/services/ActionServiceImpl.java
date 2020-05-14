@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
@@ -242,6 +243,30 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
 
+    private ActionExecutionResult populateRequestFields(ActionConfiguration actionConfiguration,
+                                                        ActionExecutionResult actionExecutionResult) {
+
+        if (actionExecutionResult == null) {
+            return null;
+        }
+
+        if (actionConfiguration.getHeaders() != null) {
+            Map<String, String> reqHeaderMap = actionConfiguration.getHeaders().stream()
+                    .collect(Collectors.toMap(Property::getKey, Property::getValue));
+            actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqHeaderMap));
+            log.debug("Got request headers in actionExecutionResult as: {}", actionExecutionResult.getRequestHeaders());
+        }
+
+        // If the body is set, then use that field as the request body by default
+        if (actionConfiguration.getBody() != null) {
+            actionExecutionResult.setRequestBody(actionConfiguration.getBody());
+        } else if (actionConfiguration.getQuery() != null) {
+            actionExecutionResult.setRequestBody(actionConfiguration.getQuery());
+        }
+        log.debug("Got requestBody in actionExecutionResult as: {}", actionExecutionResult.getRequestBody());
+        return actionExecutionResult;
+    }
+
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         Action actionFromDto = executeActionDTO.getAction();
@@ -280,7 +305,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     })
                     .cache();
         } else {
-            actionMono = Mono.just(actionFromDto);
+            actionMono = Mono.just(actionFromDto).cache();
         }
 
         // 3. Instantiate the implementation class based on the query type
@@ -304,11 +329,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {
+                    // For embedded datasources/dry runs, validate the datasource for each execution
                     if (datasource.getId() == null) {
                         return datasourceService.validateDatasource(datasource);
-                    } else {
-                        return Mono.just(datasource);
                     }
+
+                    return Mono.just(datasource);
                 })
                 .flatMap(datasource -> {
                     Set<String> invalids = datasource.getInvalids();
@@ -322,7 +348,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
-        return actionMono
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionMono
                 .flatMap(action -> datasourceMono.zipWith(pluginExecutorMono, (datasource, pluginExecutor) -> {
                     DatasourceConfiguration datasourceConfigurationTemp;
                     ActionConfiguration actionConfigurationTemp;
@@ -381,11 +407,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     resourceContext.getConnection(),
                                     datasourceConfiguration,
                                     actionConfiguration))
-                            .timeout(Duration.ofMillis(timeoutDuration));
+                            .timeout(Duration.ofMillis(timeoutDuration))
+                            .map(obj -> populateRequestFields(actionConfiguration, (ActionExecutionResult) obj));
                 }))
-                .flatMap(obj -> obj)
-                .flatMap(res -> {
-                            ActionExecutionResult result = (ActionExecutionResult) res;
+                .flatMap(obj -> obj);
+
+                // Populate the actionExecution result further by setting the cached response and saving it to the DB
+                return actionExecutionResultMono.flatMap(result -> {
                             Mono<ActionExecutionResult> resultMono = Mono.just(result);
                             if (actionFromDto.getId() == null) {
                                 // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
