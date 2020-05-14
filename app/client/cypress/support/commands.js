@@ -376,20 +376,15 @@ Cypress.Commands.add("testCodeMirror", value => {
           parseSpecialCharSequences: false,
         });
       // cy.wait("@updateLayout");
-      cy.get(".CodeMirror textarea")
+      // commenting below line's, hence which effets the text area which is having js fun
+      /*cy.get(".CodeMirror textarea")
         .first()
-        .should("have.value", value);
+        .should("have.value", value); */
     });
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerWidget)
-    .first()
-    .trigger("mouseover");
-  cy.get(formWidgetsPage.datepickerWidget)
-    .children(commonlocators.editicon)
-    .first()
-    .click({ force: true });
+  cy.openPropertyPane("datepickerwidget");
   cy.get(".t--property-control-defaultdate input").click();
   cy.get(".bp3-datepicker-footer span")
     .contains("Today")
@@ -648,4 +643,25 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
   cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
     .first()
     .click();
+});
+
+Cypress.Commands.add("createApi", (url, parameters) => {
+  cy.get(ApiEditor.dataSourceField).click();
+  cy.contains(url).click({
+    force: true,
+  });
+  cy.get(".CodeMirror.CodeMirror-empty textarea")
+    .first()
+    .click({ force: true })
+    .type(parameters, { force: true });
+  cy.get(ApiEditor.ApiRunBtn).click();
+  cy.SaveAPI();
+  cy.get(ApiEditor.formActionButtons).should("be.visible");
+  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+});
+
+Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
+  const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
 });
