@@ -3,6 +3,7 @@ import Select from "react-select";
 
 import { WrappedFieldInputProps } from "redux-form";
 import { theme } from "constants/DefaultTheme";
+import { SelectComponentsConfig } from "react-select/src/components";
 
 export type DropdownProps = {
   options: Array<{
@@ -16,6 +17,7 @@ export type DropdownProps = {
   isDisabled?: boolean;
   customSelectStyles?: any;
   maxMenuHeight: number;
+  components?: SelectComponentsConfig<any>;
 };
 
 const selectStyles = {
