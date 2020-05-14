@@ -355,6 +355,7 @@ export type ApplicationPayload = {
   organizationId: string;
   pageCount: number;
   defaultPageId?: string;
+  userPermissions?: string[];
 };
 
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}

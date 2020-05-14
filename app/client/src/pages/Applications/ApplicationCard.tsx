@@ -12,13 +12,14 @@ import {
   theme,
   getBorderCSSShorthand,
   getColorWithOpacity,
+  Theme,
 } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
 import { Colors } from "constants/Colors";
 
-const Wrapper = styled(Card)`
+const Wrapper = styled(Card)<{ hasReadPermission?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,9 +36,12 @@ const Wrapper = styled(Card)`
     top: 0;
     height: calc(100% - ${props => props.theme.card.titleHeight}px);
     width: 100%;
+    ${props => !props.hasReadPermission && `pointer-events: none;`}
   }
   a:hover {
-    text-decoration: none;
+    ${props =>
+      props.hasReadPermission &&
+      `text-decoration: none;
     &:after {
       left: 0;
       top: 0;
@@ -49,13 +53,15 @@ const Wrapper = styled(Card)`
     & .control {
       display: block;
       z-index: 1;
-    }
+    }`}
     & div.image-container {
       background: ${props =>
-        getColorWithOpacity(
-          props.theme.card.hoverBG,
-          props.theme.card.hoverBGOpacity,
-        )};
+        props.hasReadPermission
+          ? getColorWithOpacity(
+              props.theme.card.hoverBG,
+              props.theme.card.hoverBGOpacity,
+            )
+          : null};
     }
   }
 `;
@@ -132,6 +138,12 @@ type ApplicationCardProps = {
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
+  const hasEditPermission = props.application.userPermissions?.includes(
+    "manage:applications",
+  );
+  const hasReadPermission = props.application.userPermissions?.includes(
+    "read:applications",
+  );
   const duplicateApp = () => {
     props.duplicate && props.duplicate(props.application.id);
   };
@@ -173,19 +185,22 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.id,
     props.application.defaultPageId,
   );
+
   return (
-    <Wrapper key={props.application.id}>
+    <Wrapper key={props.application.id} hasReadPermission={hasReadPermission}>
       <ApplicationTitle
         className={props.loading ? Classes.SKELETON : undefined}
       >
         <span>{props.application.name}</span>
-        <Link to={editApplicationURL} className="t--application-edit-link">
-          <Control className="control">
-            <Tooltip content="Edit" hoverOpenDelay={500}>
-              {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
-            </Tooltip>
-          </Control>
-        </Link>
+        {hasEditPermission && (
+          <Link to={editApplicationURL} className="t--application-edit-link">
+            <Control className="control">
+              <Tooltip content="Edit" hoverOpenDelay={500}>
+                {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
+              </Tooltip>
+            </Control>
+          </Link>
+        )}
         <ContextDropdown
           options={moreActionItems}
           toggle={{
