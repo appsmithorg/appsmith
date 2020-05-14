@@ -8,13 +8,12 @@ describe("DatePicker Widget Functionality", function() {
   });
 
   it("DatePicker Widget Functionality", function() {
-    cy.openPropertyPane("datepickerwidget");
+      
+     // changing the date to today
+    cy.SetDateToToday();
 
     //Checking the edit props for DatePicker and also the properties of DatePicker widget
     cy.testCodeMirror(this.data.DatepickerLable);
-
-    // changing the date to today
-    cy.SetDateToToday();
 
     // change the date to next day
     cy.get(".t--property-control-defaultdate input").click();
