@@ -313,7 +313,7 @@ public class RestApiPlugin extends BasePlugin {
                     String value = header.getValue();
                     webClientBuilder.defaultHeader(key, value);
                     
-                    if (key.toLowerCase().equals(HttpHeaders.CONTENT_TYPE.toLowerCase()) && value.equals(MediaType.APPLICATION_JSON_VALUE)) {
+                    if (key.equalsIgnoreCase(HttpHeaders.CONTENT_TYPE) && value.equals(MediaType.APPLICATION_JSON_VALUE)) {
                         isContentTypeJson = true;
                     }
                 }
