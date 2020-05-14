@@ -192,7 +192,7 @@ public class ActionServiceTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setAction(action);
 
-        executeAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
 
     @Test
@@ -213,7 +213,7 @@ public class ActionServiceTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setAction(action);
 
-        executeAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
 
     @Test
@@ -231,16 +231,72 @@ public class ActionServiceTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setAction(action);
 
-        executeAction(executeActionDTO, actionConfiguration, mockResult);
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
 
-    private void executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteDuplicateRequestHeader() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
-        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("dup-key", "dup-value1"),
+                new Property("dup-key", "dup-value2")
+        ));
+        action.setActionConfiguration(actionConfiguration);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        Mono<ActionExecutionResult> executionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    // The fxn should have ignored all duplicate headers
+                    assertThat(result.getRequestHeaders().size()).isEqualTo(2);
+                    Map<String, String> resultHeader = Map.of("random-header-key", "random-header-value", "dup-key", "dup-value1");
+                    assertThat(result.getRequestHeaders()).isEqualTo(objectMapper.valueToTree(resultHeader));
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionExecuteEmptyRequestHeader() {
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody("response-body");
+
+        Action action = new Action();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(List.of(
+                new Property("random-header-key", "random-header-value"),
+                new Property("", "")
+        ));
+        action.setActionConfiguration(actionConfiguration);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setAction(action);
+
+        Mono<ActionExecutionResult> executionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
+        StepVerifier.create(executionResultMono)
+                .assertNext(result -> {
+                    // The fxn should have ignored all duplicate headers
+                    assertThat(result.getRequestHeaders().size()).isEqualTo(1);
+                    Map<String, String> resultHeader = Map.of("random-header-key", "random-header-value");
+                    assertThat(result.getRequestHeaders()).isEqualTo(objectMapper.valueToTree(resultHeader));
+                })
+                .verifyComplete();
+    }
+
+    private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -258,5 +314,14 @@ public class ActionServiceTest {
                     assertThat(result.getHeaders()).isEqualTo(mockResult.getHeaders());
                 })
                 .verifyComplete();
+    }
+
+    private Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.execute(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionService.executeAction(executeActionDTO);
+        return actionExecutionResultMono;
     }
 }
