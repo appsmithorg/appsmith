@@ -113,9 +113,6 @@ cypress-test-release-6:
   
 docker-package-release:
   image: docker:dind
-  # This ensures that it runs on the dedicated runner
-  tags:
-    - appsmith
   services:
     - docker:dind
   stage: package
