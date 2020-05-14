@@ -345,6 +345,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .flatMap(datasource -> {
                     Set<String> invalids = datasource.getInvalids();
                     if (!CollectionUtils.isEmpty(invalids)) {
+                        log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
+                                actionFromDto.getId(), ArrayUtils.toString(invalids));
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
