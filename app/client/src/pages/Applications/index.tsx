@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import { Card, Icon } from "@blueprintjs/core";
 import {
   getApplicationList,
   getIsFetchingApplications,
@@ -23,12 +24,38 @@ import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
   align-items: space-evenly;
+`;
+
+const Wrapper = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: ${props => props.theme.card.minWidth}px;
+  height: ${props => props.theme.card.minHeight}px;
+  position: relative;
+  border-radius: ${props => props.theme.radii[1]}px;
+  margin: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
+  a {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    width: 100%;
+  }
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 type ApplicationProps = {
@@ -75,7 +102,53 @@ class Applications extends Component<ApplicationProps> {
           }}
         />
         <PageSectionDivider />
-        <ApplicationCardsWrapper>
+        {OrganizationListMockResponse.map((organizationObject: any) => {
+          const { organization, applications } = organizationObject;
+          const hasCreateApplicationPemission = organization.userPermissions.includes(
+            "manage:orgApplications",
+          );
+
+          return (
+            <>
+              <p>{organization.name}</p>
+              <ApplicationCardsWrapper key={organization.id}>
+                {hasCreateApplicationPemission && (
+                  <FormDialogComponent
+                    trigger={
+                      <Wrapper>
+                        <Icon
+                          icon="plus"
+                          iconSize={20}
+                          className="createIcon"
+                        />
+                      </Wrapper>
+                    }
+                    Form={CreateApplicationForm}
+                    title={"Create Application"}
+                  />
+                )}
+                {applications.map((application: any) => {
+                  return (
+                    application.pages?.length > 0 && (
+                      <ApplicationCard
+                        key={application.id}
+                        loading={this.props.isFetchingApplications}
+                        application={application}
+                        delete={this.props.deleteApplication}
+                      />
+                    )
+                  );
+                })}
+              </ApplicationCardsWrapper>
+            </>
+          );
+        })}
+        {/* <ApplicationCardsWrapper>
+          <FormDialogComponent
+            trigger={<Wrapper>Hello</Wrapper>}
+            Form={CreateApplicationForm}
+            title={"Create Application"}
+          />
           {applicationList.map((application: ApplicationPayload) => {
             return (
               application.pageCount > 0 && (
@@ -88,7 +161,7 @@ class Applications extends Component<ApplicationProps> {
               )
             );
           })}
-        </ApplicationCardsWrapper>
+        </ApplicationCardsWrapper> */}
       </PageWrapper>
     );
   }
