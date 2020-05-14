@@ -10,7 +10,6 @@ import {
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
-import ReactJson from "react-json-view";
 import styled, { createGlobalStyle } from "styled-components";
 import { Popover } from "@blueprintjs/core";
 import history from "utils/history";
@@ -29,6 +28,8 @@ import { RestAction } from "api/ActionAPI";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
+import { Colors } from "constants/Colors";
+import JSONViewer from "./JSONViewer";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -178,6 +179,11 @@ const StyledGridComponent = styled(GridComponent)`
   }
 `;
 
+const ErrorMessage = styled.p`
+  font-size: 14px;
+  color: ${Colors.RED};
+`;
+
 type QueryFormProps = {
   isCreating: boolean;
   onDeleteClick: () => void;
@@ -194,6 +200,7 @@ type QueryFormProps = {
   executedQueryData: any;
   applicationId: string;
   selectedPluginPackage: string;
+  runErrorMessage: string | undefined;
   pageId: string;
   location: {
     state: any;
@@ -223,6 +230,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     selectedPluginPackage,
     createTemplate,
     isCreating,
+    runErrorMessage,
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
@@ -251,6 +259,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       </LoadingContainer>
     );
   }
+
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
@@ -411,6 +420,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </NoDataSourceContainer>
       )}
 
+      {runErrorMessage && (
+        <>
+          <p className="statementTextArea">Query error</p>
+          <ErrorMessage>{runErrorMessage}</ErrorMessage>
+        </>
+      )}
+
       {executedQueryData && dataSources.length && (
         <ResponseContainer>
           <p className="statementTextArea">Query response</p>
@@ -435,16 +451,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 </ColumnsDirective>
               </StyledGridComponent>
             ) : (
-              <ReactJson
-                src={executedQueryData.body}
-                name={null}
-                enableClipboard={false}
-                displayObjectSize={false}
-                displayDataTypes={false}
-                style={{
-                  fontSize: "14px",
-                }}
-              />
+              <JSONViewer src={executedQueryData.body} />
             )}
           </ResponseContent>
         </ResponseContainer>
