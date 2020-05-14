@@ -17,6 +17,7 @@ import {
   getPageList,
   getCurrentDSLPageId,
   getIsInitialized,
+  getEditorURL,
 } from "selectors/appViewSelectors";
 import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/ActionConstants";
@@ -53,6 +54,7 @@ export type AppViewerProps = {
   pages?: PageListPayload;
   initializeAppViewer: Function;
   isInitialized: boolean;
+  editorURL: string;
   executeAction: (actionPayload: ExecuteActionPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
@@ -108,7 +110,7 @@ class AppViewer extends Component<
         }}
       >
         <AppViewWrapper>
-          <AppViewerHeader />
+          <AppViewerHeader url={this.props.editorURL} />
           <AppViewerBody>
             <AppViewerSideNavWrapper>
               <SideNav items={items} active={this.props.currentDSLPageId} />
@@ -133,6 +135,7 @@ const mapStateToProps = (state: AppState) => ({
   currentDSLPageId: getCurrentDSLPageId(state),
   pages: getPageList(state),
   isInitialized: getIsInitialized(state),
+  editorURL: getEditorURL(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

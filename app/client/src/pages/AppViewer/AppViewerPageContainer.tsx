@@ -6,7 +6,7 @@ import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { AppViewerRouteParams } from "constants/routes";
+import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
 import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
@@ -62,8 +62,15 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
           title="This page seems to be blank"
           description={
             <p>
-              Please add widgets to this page in the
-              <Link to="/builder"> Appsmith Editor</Link>
+              Please add widgets to this page in the&nbsp;
+              <Link
+                to={BUILDER_PAGE_URL(
+                  this.props.match.params.applicationId,
+                  this.props.match.params.pageId,
+                )}
+              >
+                Appsmith Editor
+              </Link>
             </p>
           }
         />
@@ -76,7 +83,14 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     );
     if (this.props.isFetchingPage) {
       return pageLoading;
-    } else if (!this.props.isFetchingPage && !this.props.widgets) {
+    } else if (
+      !this.props.isFetchingPage &&
+      !(
+        this.props.widgets &&
+        this.props.widgets.children &&
+        this.props.widgets.children.length > 0
+      )
+    ) {
       return pageNotFound;
     } else if (!this.props.isFetchingPage && this.props.widgets) {
       return (
