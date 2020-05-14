@@ -139,6 +139,9 @@ const DraggableComponent = (props: DraggableComponentProps) => {
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
+      selectedWidget !== props.widgetId &&
+        showPropertyPane &&
+        showPropertyPane();
     }
     e.stopPropagation();
   };

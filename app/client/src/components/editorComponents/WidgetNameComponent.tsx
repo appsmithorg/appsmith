@@ -8,7 +8,10 @@ import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { Tooltip } from "@blueprintjs/core";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+import {
+  useShowPropertyPane,
+  useWidgetSelection,
+} from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -66,6 +69,8 @@ type WidgetNameComponentProps = {
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   const { updateWidget } = useContext(EditorContext);
   const showPropertyPane = useShowPropertyPane();
+  // Dispatch hook handy to set a widget as focused/selected
+  const { selectWidget } = useWidgetSelection();
   const propertyPaneState: PropertyPaneReduxState = useSelector(
     (state: AppState) => state.ui.propertyPane,
   );
@@ -122,6 +127,7 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
         widgetId: props.widgetId,
       });
       showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
+      selectWidget && selectWidget(props.widgetId);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
