@@ -37,6 +37,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -252,7 +253,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         if (actionConfiguration.getHeaders() != null) {
             Map<String, String> reqHeaderMap = actionConfiguration.getHeaders().stream()
-                    .collect(Collectors.toMap(Property::getKey, Property::getValue));
+                    .collect(Collectors.toMap(Property::getKey,
+                            Property::getValue,
+                            // If there are duplicate values, ignore the second one
+                            (header1, header2) -> header1));
             actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqHeaderMap));
             log.debug("Got request headers in actionExecutionResult as: {}", actionExecutionResult.getRequestHeaders());
         }
@@ -372,11 +376,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
-
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
-
                     }
 
                     DatasourceConfiguration datasourceConfiguration;
@@ -392,6 +394,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     } else {
                         datasourceConfiguration = datasourceConfigurationTemp;
                         actionConfiguration = actionConfigurationTemp;
+                    }
+
+                    // Filter out any empty headers
+                    if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
+                        List<Property> headerList = actionConfiguration.getHeaders().stream()
+                                .filter(header -> !StringUtils.isEmpty(header.getKey()))
+                                .collect(Collectors.toList());
+                        actionConfiguration.setHeaders(headerList);
                     }
 
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
