@@ -9,11 +9,6 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.addDsl(dsl);
   });
 
-  beforeEach(() => {
-    cy.server();
-    cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
-  });
-
   it("Test_Add users api and execute api", function() {
     cy.NavigateToApiEditor();
     cy.testCreateApiButton();
@@ -33,7 +28,6 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(pages.pagesIcon).click({ force: true });
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "{{Api1.data}}");
-    cy.wait("@updateLayout");
     cy.get(commonlocators.editPropCrossButton).click();
 
     /**

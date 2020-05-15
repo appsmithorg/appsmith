@@ -395,7 +395,6 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         .clear({
           force: true,
         });
-      cy.wait("@updateLayout");
     }
     cy.get(".CodeMirror textarea")
       .first()
