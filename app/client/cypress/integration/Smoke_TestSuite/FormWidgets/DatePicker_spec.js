@@ -8,16 +8,24 @@ describe("DatePicker Widget Functionality", function() {
   });
 
   it("DatePicker Widget Functionality", function() {
-      
-     // changing the date to today
+    cy.openPropertyPane("datepickerwidget");
+    // changing the date to today
     cy.SetDateToToday();
+
+    //changing the Button Name
+    cy.widgetText(
+      this.data.Datepickername,
+      formWidgetsPage.datepickerWidget,
+      formWidgetsPage.datepickerWidget + " pre",
+    );
 
     //Checking the edit props for DatePicker and also the properties of DatePicker widget
     cy.testCodeMirror(this.data.DatepickerLable);
+    cy.wait("@updateLayout");
 
     // change the date to next day
     cy.get(".t--property-control-defaultdate input").click();
-    cy.get(".DayPicker-Day[aria-selected='true'] + div").click();
+    cy.get(formWidgetsPage.nextDayBtn).click();
     const nd = Cypress.moment()
       .add(1, "days")
       .format("DD/MM/YYYY");

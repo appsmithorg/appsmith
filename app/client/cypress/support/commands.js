@@ -376,15 +376,37 @@ Cypress.Commands.add("testCodeMirror", value => {
           parseSpecialCharSequences: false,
         });
       // cy.wait("@updateLayout");
-      // commenting below line's, hence which effets the text area which is having js fun
-      /*cy.get(".CodeMirror textarea")
+      cy.get(".CodeMirror textarea")
         .first()
-        .should("have.value", value); */
+        .should("have.value", value);
     });
 });
 
+Cypress.Commands.add("testJsontext", (endp, value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then($cm => {
+    if ($cm.val() !== "") {
+      cy.get(".CodeMirror textarea")
+        .first()
+        .clear({
+          force: true,
+        });
+      cy.wait("@updateLayout");
+    }
+    cy.get(".CodeMirror textarea")
+      .first()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+});
+
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.openPropertyPane("datepickerwidget");
   cy.get(".t--property-control-defaultdate input").click();
   cy.get(".bp3-datepicker-footer span")
     .contains("Today")
@@ -659,9 +681,9 @@ Cypress.Commands.add("createApi", (url, parameters) => {
     force: true,
   });
   cy.get(".CodeMirror.CodeMirror-empty textarea")
-  .first()
-  .click({ force: true })
-  .type(parameters, { force: true });
+    .first()
+    .click({ force: true })
+    .type(parameters, { force: true });
   cy.SaveAPI();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");

@@ -98,6 +98,8 @@ before(function() {
 });
 
 beforeEach(function() {
+  cy.server();
+  cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
 });
 

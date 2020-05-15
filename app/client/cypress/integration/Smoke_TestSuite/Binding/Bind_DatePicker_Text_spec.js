@@ -4,31 +4,55 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/uibindingdsl.json");
 
 describe("Binding the Datepicker and Text Widget", function() {
+  let nextDay;
+  let dateDp2;
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Bind the date picker in text widget", function() {
+  it("DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function() {
     cy.openPropertyPane("textwidget");
 
-    //Changing the text on the text widget
-    cy.testCodeMirror("{{DatePicker1.defaultDate}}");
+    /**
+     * Bind the datepicker1 to text widget
+     */
+    cy.testJsontext("text", "{{DatePicker1.defaultDate}}");
     cy.get(commonlocators.editPropCrossButton).click();
-  });
 
-  it("Change the date in datePicker1 and validate the same in text widget", function() {
-    // changing the date to today
+    /**
+     * Fetching the date on DatePicker2
+     */
+
+    cy.get(formWidgetsPage.datepickerWidget + " .bp3-input")
+      .eq(1)
+      .invoke("val")
+      .then(val => {
+        dateDp2 = val;
+        cy.log(dateDp2);
+      });
+
+    /**
+     * Changing date on datepicker1 to current date +1
+     */
+    cy.openPropertyPane("datepickerwidget");
     cy.SetDateToToday();
-
-    //Changing date on date picker1 to current date +1
-    cy.get(".DayPicker-Day[aria-selected='true'] + div").click();
-    cy.get(".t--property-control-ondateselected").click();
+    cy.get(formWidgetsPage.nextDayBtn).click();
+    cy.get(commonlocators.onDateSelectedField).click();
     cy.get(commonlocators.editPropCrossButton).click();
 
-    //Validate the changes in text widget
-    const nd = Cypress.moment()
+    /**
+     *Validate the date in text widget
+     */
+
+    nextDay = Cypress.moment()
       .add(1, "days")
       .format("YYYY-MM-DD");
-    cy.get(commonlocators.labelTextStyle).should("contain", nd);
+    cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
+  });
+
+  it("Validate the Date is not changed in DatePicker2", function() {
+    cy.get(formWidgetsPage.datepickerWidget + " .bp3-input")
+      .eq(1)
+      .should("have.value", dateDp2);
   });
 });

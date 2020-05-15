@@ -15,5 +15,6 @@
   "DatepickerLable": "date",
   "RichTextEditorName": "RichtextEditor",
   "HtmlText": "This is the initial<b>content </b> <h1> This is a Heading</h1> <p> This is a paragraph.</p>",
-  "RichTexteditorBody": "Here is the text area to edit html"
+  "RichTexteditorBody": "Here is the text area to edit html",
+  "userApi": "http://postgrest.appsmith.com:3000"
 }

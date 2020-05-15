@@ -8,5 +8,6 @@
     "filepickerWidget":".t--draggable-filepickerwidget",
     "formWidget":".t--draggable-formwidget",
     "richTextEditorWidget":".t--draggable-richtexteditorwidget",
-    "richEditorOnTextChange":".t--property-control-ontextchange"
+    "richEditorOnTextChange":".t--property-control-ontextchange",
+    "nextDayBtn": ".DayPicker-Day[aria-selected='true'] + div.DayPicker-Day"
 }

@@ -1,6 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/tableWidgetDsl.json");
 const pages = require("../../../locators/Pages.json");
+const apiPage = require("../../../locators/ApiEditor.json");
 let apiData;
 
 describe("Test Create Api and Bind to Table widget", function() {
@@ -14,11 +15,10 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add users api and execute api", function() {
-   // localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     cy.NavigateToApiEditor();
     cy.testCreateApiButton();
-    cy.createApi("http://postgrest.appsmith.com:3000", "users");
-    cy.get(".CodeMirror-code  span.cm-string.cm-property")
+    cy.createApi(this.data.userApi, "users");
+    cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
       .invoke("text")
@@ -27,14 +27,19 @@ describe("Test Create Api and Bind to Table widget", function() {
         apiData = text;
         cy.log("val1:" + apiData);
       });
-   });
-   
-   it("Test_Validate the Api data is updated on Table widget", function() {
+  });
+
+  it("Test_Validate the Api data is updated on Table widget", function() {
     cy.get(pages.pagesIcon).click({ force: true });
     cy.openPropertyPane("tablewidget");
-    cy.testCodeMirror("{{Api1.data}}");
+    cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.wait("@updateLayout");
     cy.get(commonlocators.editPropCrossButton).click();
+
+    /**
+     * readTabledata--> is to read the table contents
+     * @param --> "row num" and "col num"
+     */
     cy.readTabledata("0", "1").then(tabData => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
