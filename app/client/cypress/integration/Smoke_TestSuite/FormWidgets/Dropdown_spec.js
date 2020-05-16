@@ -8,21 +8,38 @@ describe("Dropdown Widget Functionality", function() {
   });
   it("Dropdown Widget Functionality", function() {
     cy.openPropertyPane("dropdownwidget");
-
-    //Checking the edit props for Dropdown and also the properties of Dropdown widget
-    cy.testCodeMirror("Test Dropdown");
-
+    /**
+     * @param{Text} Random Text
+     * @param{DropdownWidget}Mouseover
+     * @param{DropdownPre Css} Assertion
+     */
+    cy.widgetText(
+      "lock",
+      formWidgetsPage.dropdownWidget,
+      commonlocators.containerInnerText,
+    );
+    /**
+     * @param{Text} Random Value
+     */
+    cy.testCodeMirror(this.data.dropdownInput);
+    cy.get(formWidgetsPage.labelvalue).should("have.text", "TestD");
     cy.get(formWidgetsPage.dropdownSelectionType)
-      .find(".bp3-button")
+      .find(commonlocators.dropdownbuttonclick)
       .click({ force: true })
-      .get("ul.bp3-menu")
+      .get(commonlocators.dropdownmenu)
       .children()
       .contains("Multi Select")
       .click();
     cy.get(formWidgetsPage.dropdownSelectionType)
-      .find(".bp3-button > .bp3-button-text")
+      .find(commonlocators.menuSelection)
       .should("have.text", "Multi Select");
-    cy.get(commonlocators.editPropCrossButton).click();
+    /**
+     * @param{Show Alert} Css for InputChange
+     */
+    cy.getAlert(commonlocators.optionchangetextDropdown);
+    cy.get(formWidgetsPage.dropdownInput).click({ force: true });
+    cy.get(formWidgetsPage.dropdownInput).type("Option");
+    cy.dropdownDynamic("Option 1");
   });
 
   afterEach(() => {
