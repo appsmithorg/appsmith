@@ -246,6 +246,7 @@ export function* executeQuerySaga(
       type: ReduxActionErrorTypes.RUN_QUERY_ERROR,
       payload: {
         actionId: actionPayload.payload.actionId,
+        message: error.message,
         show: false,
       },
     });
