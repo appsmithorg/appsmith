@@ -1,9 +1,23 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
+import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
-
+const LightningMenu = lazy(() =>
+  import("components/editorComponents/LightningMenu"),
+);
+const InputControlWrapper = styled.div`
+  width: 100%;
+  position: relative;
+  & > span:first-of-type {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    width: 14px;
+    z-index: 10;
+  }
+`;
 export function InputText(props: {
   label: string;
   value: string;
@@ -42,14 +56,19 @@ class InputTextControl extends BaseControl<InputControlProps> {
       placeholderText,
     } = this.props;
     return (
-      <InputText
-        label={label}
-        value={propertyValue}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        validationMessage={validationMessage}
-        placeholder={placeholderText}
-      />
+      <InputControlWrapper>
+        <Suspense fallback={<div />}>
+          <LightningMenu />
+        </Suspense>
+        <InputText
+          label={label}
+          value={propertyValue}
+          onChange={this.onTextChange}
+          isValid={isValid}
+          validationMessage={validationMessage}
+          placeholder={placeholderText}
+        />
+      </InputControlWrapper>
     );
   }
 
