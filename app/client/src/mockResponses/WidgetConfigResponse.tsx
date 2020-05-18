@@ -115,20 +115,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           productName: "Beef steak",
           orderAmount: 19.99,
         },
-        {
-          id: 7434532,
-          email: "byron.fields@reqres.in",
-          userName: "Byron Fields",
-          productName: "Chicken Sandwich",
-          orderAmount: 4.99,
-        },
-        {
-          id: 7434532,
-          email: "ryan.holmes@reqres.in",
-          userName: "Ryan Holmes",
-          productName: "Avocado Panini",
-          orderAmount: 7.99,
-        },
       ],
     },
     DROP_DOWN_WIDGET: {
@@ -139,8 +125,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Option 1", value: "1" },
         { label: "Option 2", value: "2" },
         { label: "Option 3", value: "3" },
-        { label: "Option 4", value: "4" },
-        { label: "Option 5", value: "5" },
       ],
       widgetName: "Dropdown",
     },
@@ -392,7 +376,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     size: { rows: 1, cols: 12 },
                     position: { top: 0, left: 0 },
                     props: {
-                      text: "Title",
+                      text: "Form",
                       textStyle: "HEADING",
                     },
                   },
