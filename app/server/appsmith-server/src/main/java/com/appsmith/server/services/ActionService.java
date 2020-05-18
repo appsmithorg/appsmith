@@ -17,7 +17,7 @@ public interface ActionService extends CrudService<Action, String> {
 
     Mono<Action> findByNameAndPageId(String name, String pageId);
 
-    Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod);
+    Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId);
 
     Mono<Action> validateAndSaveActionToRepository(Action action);
 

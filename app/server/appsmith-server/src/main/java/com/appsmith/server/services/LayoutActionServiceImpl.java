@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -75,8 +74,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<Layout> updateLayout(String pageId, String layoutId, Layout layout) {
-        String dslString = "";
-
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -84,11 +81,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         // Convert the DSL into a String
+        String dslString;
         try {
             dslString = objectMapper.writeValueAsString(dsl);
         } catch (JsonProcessingException e) {
             log.debug("Exception caught during conversion of DSL Json object to String. ", e);
-            Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
+            return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
         }
 
         Set<String> widgetNames = new HashSet<>();
@@ -109,9 +107,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return dynamicBindingNames;
                 });
 
-        List<HashSet<DslActionDTO>> onLoadActionsList = new ArrayList<>();
         Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
-                .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(onLoadActionsList, dynamicBindingNames, pageId));
+                .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(dynamicBindingNames, pageId));
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
@@ -155,20 +152,22 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
+    public Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(Set<String> dynamicBindingNames, String pageId) {
+        return findOnLoadActionsInPage(new ArrayList<>(), dynamicBindingNames, pageId);
+    }
+
     private Mono<List<HashSet<DslActionDTO>>> findOnLoadActionsInPage(List<HashSet<DslActionDTO>> onLoadActions, Set<String> dynamicBindingNames, String pageId) {
         if (dynamicBindingNames == null || dynamicBindingNames.isEmpty()) {
             return Mono.just(onLoadActions);
         }
         Set<String> bindingNames = new HashSet<>();
-        return findRestApiActionsByPageIdAndHTTPMethodGET(dynamicBindingNames, pageId)
+        return actionService.findOnLoadActionsInPage(dynamicBindingNames, pageId)
                 .map(action -> {
-                    if (action.getJsonPathKeys() != null) {
+                    if (!CollectionUtils.isEmpty(action.getJsonPathKeys())) {
                         for (String mustacheKey : action.getJsonPathKeys()) {
                             extractWordsAndAddToSet(bindingNames, mustacheKey);
                         }
-                        if (bindingNames.contains(action.getName())) {
-                            bindingNames.remove(action.getName());
-                        }
+                        bindingNames.remove(action.getName());
                     }
                     DslActionDTO newAction = new DslActionDTO();
                     newAction.setId(action.getId());
@@ -182,8 +181,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .collect(toSet())
                 .flatMap(actions -> {
-                    HashSet<DslActionDTO> onLoadSet = new HashSet<>();
-                    onLoadSet.addAll(actions);
+                    HashSet<DslActionDTO> onLoadSet = new HashSet<>(actions);
 
                     // If the resultant set of actions is empty, don't add it to the array list.
                     if (!onLoadSet.isEmpty()) {
@@ -208,20 +206,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 bindingNames.add(subStrings[0]);
             }
         }
-    }
-
-    /**
-     * Given a list of names of actions (nodes) and pageId, it hits the database and returns all the actions matching
-     * this criteria of name and pageId with http method 'GET'
-     *
-     * @param nodes
-     * @param pageId
-     * @return
-     */
-    Flux<Action> findRestApiActionsByPageIdAndHTTPMethodGET(Set<String> nodes, String pageId) {
-
-        return actionService
-                .findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(nodes, pageId, "GET");
     }
 
     @Override

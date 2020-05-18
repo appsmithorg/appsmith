@@ -464,9 +464,23 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return repository.findByNameAndPageId(name, pageId);
     }
 
+    /**
+     * Given a list of names of actions and pageId, find all the actions matching this criteria of name, pageId, http
+     * method 'GET' (for API actions only) or have isExecuteOnLoad be true.
+     *
+     * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
+     * @param pageId Id of the Page within which to look for Actions.
+     * @return A Flux of Actions that are identified to be executed on page-load.
+     */
     @Override
-    public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
-        return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, httpMethod);
+    public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
+        final Flux<Action> getApiActions = repository
+                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
+
+        final Flux<Action> explicitOnLoadActions = repository
+                .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
+
+        return getApiActions.concatWith(explicitOnLoadActions);
     }
 
     /**
