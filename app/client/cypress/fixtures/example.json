@@ -94,9 +94,6 @@
   "RichTextEditorName": "RichtextEditor",
   "HtmlText": "This is the initial<b>content </b> <h1> This is a Heading</h1> <p> This is a paragraph.</p>",
   "RichTexteditorBody": "Here is the text area to edit html",
-<<<<<<< HEAD
-  "userApi": "http://postgrest.appsmith.com:3000"
-=======
-  "validateImage":"https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png"
->>>>>>> a14f68630cd57e304e3519b75eff9dc36dfc0bec
+  "userApi": "http://postgrest.appsmith.com:3000",
+  "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png"
 }
