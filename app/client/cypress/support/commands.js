@@ -693,3 +693,19 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
+
+Cypress.Commands.add("getDate", (date, dateFormate) => {
+  const expDate = Cypress.moment()
+    .add(date, "days")
+    .format(dateFormate);
+  cy.log(date);
+  return expDate;
+});
+
+Cypress.Commands.add("setDate", (date, dateFormate) => {
+  const expDate = Cypress.moment()
+    .add(date, "days")
+    .format(dateFormate);
+  const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
+  cy.get(sel).click();
+});
