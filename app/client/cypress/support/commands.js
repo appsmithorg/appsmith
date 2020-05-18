@@ -349,14 +349,30 @@ Cypress.Commands.add("testCodeMirror", value => {
     });
 });
 
+Cypress.Commands.add("testJsontext", (endp, value) => {
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then($cm => {
+    if ($cm.val() !== "") {
+      cy.get(".CodeMirror textarea")
+        .first()
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".CodeMirror textarea")
+      .first()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+});
+
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerWidget)
-    .first()
-    .trigger("mouseover");
-  cy.get(formWidgetsPage.datepickerWidget)
-    .children(commonlocators.editicon)
-    .first()
-    .click({ force: true });
   cy.get(".t--property-control-defaultdate input").click();
   cy.get(".bp3-datepicker-footer span")
     .contains("Today")
@@ -681,6 +697,30 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .first()
     .click();
 });
+
+Cypress.Commands.add("createApi", (url, parameters) => {
+  cy.get("@createNewApi").then(response => {
+    cy.get(ApiEditor.ApiNameField).should("be.visible");
+    cy.expect(response.response.body.responseMeta.success).to.eq(true);
+    cy.get(ApiEditor.ApiNameField).should(
+      "have.value",
+      response.response.body.data.name,
+    );
+  });
+
+  cy.get(ApiEditor.dataSourceField).click();
+  cy.contains(url).click({
+    force: true,
+  });
+  cy.get(".CodeMirror.CodeMirror-empty textarea")
+    .first()
+    .click({ force: true })
+    .type(parameters, { force: true });
+  cy.SaveAPI();
+  cy.get(ApiEditor.formActionButtons).should("be.visible");
+  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+});
+
 Cypress.Commands.add("isSelectRow", index => {
   cy.get(
     '.e-gridcontent.e-lib.e-droppable td[index="' +
@@ -696,36 +736,32 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
+
+Cypress.Commands.add("getDate", (date, dateFormate) => {
+  const expDate = Cypress.moment()
+    .add(date, "days")
+    .format(dateFormate);
+  cy.log(date);
+  return expDate;
+});
+
+Cypress.Commands.add("setDate", (date, dateFormate) => {
+  const expDate = Cypress.moment()
+    .add(date, "days")
+    .format(dateFormate);
+  const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
+  cy.get(sel).click();
+});
+
 Cypress.Commands.add("pageNo", index => {
   cy.get(".e-pagercontainer a")
     .eq(index)
     .click({ force: true })
     .should("be.visible");
 });
+
 Cypress.Commands.add("pageNoValidate", index => {
   const data = '.e-numericcontainer a[index="' + index + '"]';
   const pageVal = cy.get(data);
   return pageVal;
-});
-Cypress.Commands.add("testJsontext", (endp, value) => {
-  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
-    .first()
-    .focus({ force: true })
-    .type("{uparrow}", { force: true })
-    .type("{ctrl}{shift}{downarrow}", { force: true });
-  cy.focused().then($cm => {
-    if ($cm.val() !== "") {
-      cy.get(".CodeMirror textarea")
-        .first()
-        .clear({
-          force: true,
-        });
-    }
-    cy.get(".CodeMirror textarea")
-      .first()
-      .type(value, {
-        force: true,
-        parseSpecialCharSequences: false,
-      });
-  });
 });

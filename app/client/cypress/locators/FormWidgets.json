@@ -4,6 +4,7 @@
     "dropdownSelectionType": ".t--property-control-selectiontype",
     "radioWidget": ".t--draggable-radiogroupwidget",
     "radioOnSelectionChangeDropdown": ".t--property-control-onselectionchange",
+    "nextDayBtn": ".DayPicker-Day[aria-selected='true'] + div.DayPicker-Day",
     "datepickerWidget": ".t--draggable-datepickerwidget",
     "filepickerWidget": ".t--draggable-filepickerwidget",
     "formWidget": ".t--draggable-formwidget",
