@@ -7,6 +7,7 @@ const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
+const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
@@ -29,38 +30,6 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get("@getDataSources").should("have.property", "status", 200);
   cy.wait("@getUser");
   cy.get("@getUser").should("have.property", "status", 200);
-});
-
-Cypress.Commands.add("DeleteApp", appName => {
-  cy.get(commonlocators.homeIcon).click({ force: true });
-  cy.wait("@applications");
-  cy.get(homePage.searchInput)
-    .focus()
-    .type(appName);
-  cy.wait(2000);
-  cy.get(homePage.appMoreIcon)
-    .first()
-    .click({ force: true });
-  cy.get(homePage.deleteButton).click({ force: true });
-  //following code was added as it was failing intermitently
-  /*
-  cy.get(homePage.selectAction).should("be.visible");
-  cy.get(homePage.selectAction).click({ force: true });
-  cy.get(homePage.deleteApp).should("be.visible");
-  cy.get(homePage.deleteApp).click({ force: true });
-  cy.wait("@deleteApp");
-  cy.wait("@deleteApp").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.wait("@getPagesForApp");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  */
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
@@ -366,7 +335,6 @@ Cypress.Commands.add("testCodeMirror", value => {
           .clear({
             force: true,
           });
-        // cy.wait("@updateLayout");
       }
 
       cy.get(".CodeMirror textarea")
@@ -375,7 +343,6 @@ Cypress.Commands.add("testCodeMirror", value => {
           force: true,
           parseSpecialCharSequences: false,
         });
-      // cy.wait("@updateLayout");
       cy.get(".CodeMirror textarea")
         .first()
         .should("have.value", value);
@@ -453,25 +420,19 @@ Cypress.Commands.add("addDsl", dsl => {
   let currentURL;
   let pageid;
   let layoutId;
-  // cy.Createpage("TestDsl")
-
-  // Extracting the Page id from the Url
   cy.url().then(url => {
     currentURL = url;
     const myRegexp = /pages(.*)/;
     const match = myRegexp.exec(currentURL);
     pageid = match[1].split("/")[1];
     cy.log(pageid + "page id");
-
     //Fetch the layout id
     cy.server();
     cy.request("GET", "api/v1/pages/" + pageid).then(response => {
       const len = JSON.stringify(response.body);
       cy.log(len);
       layoutId = JSON.parse(len).data.layouts[0].id;
-
       // Dumpimg the DSL to the created page
-
       cy.request(
         "PUT",
         "api/v1/layouts/" + layoutId + "/pages/" + pageid,
@@ -497,6 +458,77 @@ Cypress.Commands.add("DeleteAppByApi", () => {
       expect(response.status).equal(200);
     });
   });
+});
+Cypress.Commands.add("togglebar", value => {
+  cy.get(value)
+    .check({ force: true })
+    .should("be.checked");
+});
+Cypress.Commands.add("radiovalue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("optionValue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("dropdownDynamic", text => {
+  cy.wait(2000);
+  cy.get("ul[class='bp3-menu']")
+    .first()
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
+Cypress.Commands.add("getAlert", alertcss => {
+  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
+  cy.get(widgetsPage.menubar)
+    .contains("Show Alert")
+    .click({ force: true })
+    .should("have.text", "Show Alert");
+
+  cy.get(alertcss)
+    .click({ force: true })
+    .type("{command}{A}{del}")
+    .type("hello")
+    .should("not.to.be.empty");
+  cy.get(".t--open-dropdown-Select-type").click({ force: true });
+  cy.get(".bp3-popover-content .bp3-menu li")
+    .contains("Success")
+    .click({ force: true });
+});
+Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
+  cy.get(commonlocators.editWidgetName)
+    .dblclick({ force: true })
+    .type(text)
+    .type("{enter}");
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.get(innercss).should("have.text", text);
+});
+Cypress.Commands.add("radioInput", (index, text) => {
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .click()
+    .clear()
+    .type(text);
+});
+Cypress.Commands.add("tabVerify", (index, text) => {
+  cy.get(".t--property-control-tabs input")
+    .eq(index)
+    .click({ force: true })
+    .clear()
+    .type(text);
+  cy.get(LayoutPage.tabWidget)
+    .contains(text)
+    .click({ force: true })
+    .should("be.visible");
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
@@ -675,6 +707,7 @@ Cypress.Commands.add("createApi", (url, parameters) => {
       response.response.body.data.name,
     );
   });
+
   cy.get(ApiEditor.dataSourceField).click();
   cy.contains(url).click({
     force: true,
@@ -686,6 +719,16 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.SaveAPI();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+});
+
+Cypress.Commands.add("isSelectRow", index => {
+  cy.get(
+    '.e-gridcontent.e-lib.e-droppable td[index="' +
+      index +
+      '"][aria-colindex="' +
+      index +
+      '"]',
+  ).click({ force: true });
 });
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
@@ -708,4 +751,17 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
   cy.get(sel).click();
+});
+
+Cypress.Commands.add("pageNo", index => {
+  cy.get(".e-pagercontainer a")
+    .eq(index)
+    .click({ force: true })
+    .should("be.visible");
+});
+
+Cypress.Commands.add("pageNoValidate", index => {
+  const data = '.e-numericcontainer a[index="' + index + '"]';
+  const pageVal = cy.get(data);
+  return pageVal;
 });

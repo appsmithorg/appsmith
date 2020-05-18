@@ -1,4 +1,6 @@
 const commonlocators = require("../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../locators/FormWidgets.json");
+const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/formdsl.json");
 
 describe("Checkbox Widget Functionality", function() {
@@ -8,10 +10,32 @@ describe("Checkbox Widget Functionality", function() {
 
   it("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
-
-    //Checking the edit props for Checkbox and also the properties of Checkbox widget
-    cy.testCodeMirror("Test Checkbox");
-    cy.get(commonlocators.editPropCrossButton).click();
+    /**
+     * @param{Text} Random Text
+     * @param{CheckboxWidget}Mouseover
+     * @param{CheckboxPre Css} Assertion
+     */
+    cy.widgetText(
+      "checker",
+      formWidgetsPage.checkboxWidget,
+      widgetsPage.checkboxInput,
+    );
+    /**
+     * @param{Text} Random Value
+     */
+    cy.testCodeMirror(this.data.checkbocInputName);
+    cy.get(widgetsPage.checkboxLabel).should("have.text", "value");
+    /**
+     * @param{toggleButton Css} Assert to be checked
+     */
+    cy.togglebar(widgetsPage.defaultcheck);
+    /**
+     * @param{Show Alert} Css for InputChange
+     */
+    cy.getAlert(commonlocators.optionchangetextCheckbox);
+    cy.get(widgetsPage.checkboxLabel)
+      .contains("value")
+      .click({ force: true });
   });
 
   afterEach(() => {

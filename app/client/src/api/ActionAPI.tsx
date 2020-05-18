@@ -127,6 +127,7 @@ export interface ActionApiResponse {
     body: object;
     headers: Record<string, string[]>;
     statusCode: string;
+    isExecutionSuccess: boolean;
   };
   clientMeta: {
     duration: string;
