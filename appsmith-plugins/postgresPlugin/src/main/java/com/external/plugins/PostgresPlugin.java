@@ -79,15 +79,23 @@ public class PostgresPlugin extends BasePlugin {
             ResultSet resultSet = null;
             try {
                 statement = conn.createStatement();
-                resultSet = statement.executeQuery(query);
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int colCount = metaData.getColumnCount();
-                while (resultSet.next()) {
-                    Map<String, Object> row = new HashMap<>(colCount);
-                    for (int i = 1; i <= colCount; i++) {
-                        row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                boolean isResultSet = statement.execute(query);
+
+                if (isResultSet) {
+                    resultSet = statement.getResultSet();
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int colCount = metaData.getColumnCount();
+                    while (resultSet.next()) {
+                        Map<String, Object> row = new HashMap<>(colCount);
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                        }
+                        rowsList.add(row);
                     }
-                    rowsList.add(row);
+
+                } else {
+                    rowsList.add(Map.of("affectedRows", statement.getUpdateCount()));
+
                 }
 
             } catch (SQLException e) {
