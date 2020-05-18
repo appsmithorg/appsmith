@@ -92,7 +92,9 @@ const lightningMenuOptions = (
   },
 });
 
-type LightningMenuProps = {};
+type LightningMenuProps = {
+  onSelect?: (value: string) => void;
+};
 
 export const LightningMenu = (props: LightningMenuProps) => {
   const actions = useSelector((state: AppState) => {
