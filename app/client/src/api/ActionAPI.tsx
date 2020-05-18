@@ -1,6 +1,9 @@
 import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { APIRequest } from "constants/ApiConstants";
+import {
+  APIRequest,
+  DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+} from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
 import { Datasource } from "./DatasourcesApi";
 import { PaginationType } from "pages/Editor/APIEditor/Pagination";
@@ -50,6 +53,7 @@ export interface APIConfigRequest {
   queryParameters: Property[];
   paginationType: PaginationType;
   bodyFormData: BodyFormData[];
+  timeoutInMillisecond: number;
 }
 
 export interface QueryConfig {
@@ -108,6 +112,10 @@ export interface ExecuteActionRequest extends APIRequest {
   paginationField?: PaginationField;
 }
 
+export interface ExecuteQueryRequest extends APIRequest {
+  action: Pick<RestAction, "id"> | Omit<RestAction, "id">;
+}
+
 export interface ExecuteActionResponse extends ApiResponse {
   actionId: string;
   data: any;
@@ -119,6 +127,7 @@ export interface ActionApiResponse {
     body: object;
     headers: Record<string, string[]>;
     statusCode: string;
+    isExecutionSuccess: boolean;
   };
   clientMeta: {
     duration: string;
@@ -193,12 +202,19 @@ class ActionAPI extends API {
 
   static executeAction(
     executeAction: ExecuteActionRequest,
+    timeout?: number,
   ): AxiosPromise<ActionApiResponse> {
-    return API.post(ActionAPI.url + "/execute", executeAction);
+    return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
+      timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+    });
   }
 
   static moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest);
+  }
+
+  static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
+    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 }
 

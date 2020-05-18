@@ -1,0 +1,14 @@
+{
+  "baseUrl":"https://mock-api.appsmith.com",
+  "methods":"users",
+  "headerKey":"Content-Type",
+  "headerValue":"application/xml",
+  "queryKey":"page",
+  "queryValue":"2",
+  "queryAndValue":"users?page=2",
+  "successStatusCode":"200 OK",
+  "failureStatusCode":"5000",
+  "responsetext":"Roger Brickelberry",
+  "pageResponsetext":"Josh M Krantz",
+  "apiname":"SecondAPI"
+}

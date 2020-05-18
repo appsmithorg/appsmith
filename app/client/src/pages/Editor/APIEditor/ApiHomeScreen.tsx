@@ -49,6 +49,8 @@ import {
   setLastUsedEditorPage,
 } from "actions/apiPaneActions";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { CURL } from "constants/ApiConstants";
 
 const SearchContainer = styled.div`
   display: flex;
@@ -139,6 +141,11 @@ const StyledContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  @media (min-width: 2500px) {
+    .textBtn {
+      font-size: 18px;
+    }
+  }
   .link {
     color: ${Colors.OXFORD_BLUE};
   }
@@ -158,6 +165,7 @@ const StyledContainer = styled.div`
   .providerSearchResultImage {
     height: 50px;
     width: 60px;
+    object-fit: contain;
   }
   .providerSearchResultName {
     display: flex;
@@ -175,7 +183,7 @@ const StyledContainer = styled.div`
     min-height: 50px;
   }
   .curlImage {
-    width: 60px;
+    width: 55px;
   }
   .createIcon {
     align-items: center;
@@ -198,6 +206,23 @@ const StyledContainer = styled.div`
   .eachCard:hover {
     border: 1px solid ${Colors.JAFFA_DARK};
   }
+  @media (min-width: 2500px) {
+    .eachCard {
+      width: 240px;
+      height: 200px;
+    }
+    .apiImage {
+      margin-top: 25px;
+      margin-bottom: 20px;
+      height: 80px;
+    }
+    .curlImage {
+      width: 100px;
+    }
+    .createIcon {
+      height: 70px;
+    }
+  }
 `;
 
 const ApiCard = styled.div`
@@ -211,8 +236,10 @@ const ApiCard = styled.div`
   min-width: 150px;
   border-radius: 4px;
   width: 100%;
+  @media (min-width: 2500px) {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
 `;
-
 const CardList = styled.div`
   margin: 15px;
   .eachProviderCard {
@@ -229,6 +256,32 @@ const CardList = styled.div`
   }
   .eachProviderCard:hover {
     border: 1px solid ${Colors.JAFFA_DARK};
+  }
+  .providerInitials {
+    padding: 11px;
+    width: 70px;
+    margin: auto auto 14px;
+    color: ${Colors.WHITE};
+    border-radius: 2px;
+    fontsize: 16px;
+    font-weight: bold;
+    text-align: center;
+  }
+  @media (min-width: 2500px) {
+    .eachProviderCard {
+      width: 240px;
+      height: 200px;
+      padding-bottom: 0px;
+      cursor: pointer;
+      border: 1px solid #e6e6e6;
+      box-shadow: none;
+    }
+    .providerInitials {
+      padding: 25px;
+      width: 100px;
+      margin-top: 20px;
+      margin-bottom: 38px;
+    }
   }
 `;
 
@@ -542,7 +595,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
           <ApiCard>
             <Card
               interactive={false}
-              className="eachCard"
+              className="eachCard t--createBlankApiCard"
               onClick={() => this.handleCreateNew(queryParams)}
             >
               <Icon icon="plus" iconSize={20} className="createIcon" />
@@ -554,9 +607,20 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
               <p className="textBtn">Postman</p>
             </Card> */}
 
-            <Link to={curlImportURL}>
+            <Link
+              onClick={() => {
+                AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
+                  importSource: CURL,
+                });
+              }}
+              to={curlImportURL}
+            >
               <Card interactive={false} className="eachCard">
-                <img src={CurlLogo} className="curlImage" alt="CURL" />
+                <img
+                  src={CurlLogo}
+                  className="curlImage t--curlImage"
+                  alt="CURL"
+                />
                 <p className="textBtn">CURL</p>
               </Card>
             </Link>
@@ -600,6 +664,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
       <React.Fragment>
         <ApiHomePage
           style={{ overflow: showSearchResults ? "hidden" : "auto" }}
+          className="t--apiHomePage"
         >
           {isSwitchingCategory ? (
             <>
@@ -660,7 +725,10 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                             {providers.map((provider, index) => (
                               <CardList
                                 key={index}
-                                onClick={() =>
+                                onClick={() => {
+                                  AnalyticsUtil.logEvent("3P_PROVIDER_CLICK", {
+                                    providerName: provider.name,
+                                  });
                                   history.push(
                                     getProviderTemplatesURL(
                                       applicationId,
@@ -668,12 +736,12 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                       provider.id +
                                         `/?importTo=${destinationPageId}`,
                                     ),
-                                  )
-                                }
+                                  );
+                                }}
                               >
                                 <Card
                                   interactive={false}
-                                  className="eachProviderCard"
+                                  className="eachProviderCard t--eachProviderCard"
                                 >
                                   {provider.imageUrl ? (
                                     <img
@@ -683,17 +751,11 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
                                     />
                                   ) : (
                                     <div
+                                      className="providerInitials"
                                       style={{
                                         backgroundColor: getInitialsAndColorCode(
                                           provider.name,
                                         )[1],
-                                        padding: 11,
-                                        margin: "auto auto 10px",
-                                        width: 70,
-                                        color: "#fff",
-                                        borderRadius: 2,
-                                        fontSize: 24,
-                                        fontWeight: "bold",
                                       }}
                                     >
                                       <span>

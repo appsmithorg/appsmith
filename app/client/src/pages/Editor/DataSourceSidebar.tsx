@@ -258,6 +258,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
     return datasources.map(datasource => {
       return (
         <ItemContainer
+          data-cy={datasource.id}
           ref={datastoreRefs[datasource.id]}
           key={datasource.id}
           isSelected={datasourceId === datasource.id}
@@ -322,6 +323,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
           <StyledAddButton
             text={"Create a new Datasource"}
             icon="plus"
+            fluid
             className={datasourceId ? "createBtn" : "highlightButton"}
             onClick={this.handleCreateNewDatasource}
           />

@@ -58,13 +58,15 @@ axiosInstance.interceptors.response.use(
       // console.log(error.response.status);
       // console.log(error.response.headers);
       if (error.response.status === 401) {
-        setRouteBeforeLogin(window.location.pathname);
-        history.push(AUTH_LOGIN_URL);
-        return Promise.reject({
-          code: 401,
-          message: "Unauthorized. Redirecting to login page...",
-          show: false,
-        });
+        if (!/^\/user\/\w+/.test(window.location.pathname)) {
+          setRouteBeforeLogin(window.location.pathname);
+          history.push(AUTH_LOGIN_URL);
+          return Promise.reject({
+            code: 401,
+            message: "Unauthorized. Redirecting to login page...",
+            show: false,
+          });
+        }
       }
       if (error.response.data.responseMeta) {
         return Promise.resolve(error.response.data);

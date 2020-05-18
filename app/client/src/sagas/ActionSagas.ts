@@ -73,6 +73,7 @@ import {
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 
 export const getAction = (
   state: AppState,
@@ -80,6 +81,22 @@ export const getAction = (
 ): RestAction | undefined => {
   const action = _.find(state.entities.actions, a => a.config.id === actionId);
   return action ? action.config : undefined;
+};
+
+export const getActionTimeout = (
+  state: AppState,
+  actionId: string,
+): number | undefined => {
+  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  if (action) {
+    const timeout = action.config.actionConfiguration.timeoutInMillisecond;
+    if (timeout) {
+      // Extra timeout padding to account for network calls
+      return timeout + 5000;
+    }
+    return undefined;
+  }
+  return undefined;
 };
 
 const createActionSuccessResponse = (
@@ -92,7 +109,7 @@ const createActionSuccessResponse = (
 const isErrorResponse = (response: ActionApiResponse) => {
   return (
     (response.responseMeta && response.responseMeta.error) ||
-    !/2\d\d/.test(response.data.statusCode)
+    !response.data.isExecutionSuccess
   );
 };
 
@@ -184,8 +201,10 @@ export function* executeActionSaga(
       params,
       paginationField: pagination,
     };
+    const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       executeActionRequest,
+      timeout,
     );
     if (isErrorResponse(response)) {
       const payload = createActionErrorResponse(response);
@@ -303,35 +322,45 @@ export function* executeActionTriggers(
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {
-  switch (trigger.type) {
-    case "RUN_ACTION":
-      yield call(executeActionSaga, trigger.payload, event);
-      break;
-    case "NAVIGATE_TO":
-      yield call(navigateActionSaga, trigger.payload, event);
-      break;
-    case "SHOW_ALERT":
-      AppToaster.show({
-        message: trigger.payload.message,
-        type: trigger.payload.style,
-      });
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "SHOW_MODAL_BY_NAME":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    case "CLOSE_MODAL":
-      yield put(trigger);
-      if (event.callback) event.callback({ success: true });
-      break;
-    default:
-      yield put(
-        executeActionError({
-          error: "Trigger type unknown",
-          actionId: "",
-        }),
-      );
+  try {
+    switch (trigger.type) {
+      case "RUN_ACTION":
+        yield call(executeActionSaga, trigger.payload, event);
+        break;
+      case "NAVIGATE_TO":
+        yield call(navigateActionSaga, trigger.payload, event);
+        break;
+      case "SHOW_ALERT":
+        AppToaster.show({
+          message: trigger.payload.message,
+          type: trigger.payload.style,
+        });
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "SHOW_MODAL_BY_NAME":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      case "CLOSE_MODAL":
+        yield put(trigger);
+        if (event.callback) event.callback({ success: true });
+        break;
+      default:
+        yield put(
+          executeActionError({
+            error: "Trigger type unknown",
+            actionId: "",
+          }),
+        );
+    }
+  } catch (e) {
+    yield put(
+      executeActionError({
+        error: "Failed to execute action",
+        actionId: "",
+      }),
+    );
+    if (event.callback) event.callback({ success: false });
   }
 }
 
@@ -427,22 +456,32 @@ export function* updateActionSaga(
   actionPayload: ReduxAction<{ data: RestAction }>,
 ) {
   try {
+    const isApi = actionPayload.payload.data.pluginType === "API";
     const { data } = actionPayload.payload;
-    const action = transformRestAction(data);
+    let action = data;
+    if (isApi) {
+      action = transformRestAction(data);
+    }
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      AppToaster.show({
-        message: `${actionPayload.payload.data.name} Action updated`,
-        type: ToastType.SUCCESS,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
+
+      if (action.pluginType === QUERY_CONSTANT) {
+        AnalyticsUtil.logEvent("SAVE_QUERY", {
+          queryName: action.name,
+          pageName,
+        });
+      }
+      AppToaster.show({
+        message: `${actionPayload.payload.data.name} Action updated`,
+        type: ToastType.SUCCESS,
+      });
 
       AnalyticsUtil.logEvent("SAVE_API", {
         apiId: response.data.id,
@@ -450,7 +489,9 @@ export function* updateActionSaga(
         pageName: pageName,
       });
       yield put(updateActionSuccess({ data: response.data }));
-      yield put(runApiAction(data.id));
+      if (actionPayload.payload.data.pluginType !== "DB") {
+        yield put(runApiAction(data.id));
+      }
     }
   } catch (error) {
     yield put({
@@ -529,11 +570,15 @@ export function* runApiActionSaga(
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
-    const response: ActionApiResponse = yield ActionAPI.executeAction({
-      action,
-      params,
-      paginationField,
-    });
+    const timeout = yield select(getActionTimeout, values.id);
+    const response: ActionApiResponse = yield ActionAPI.executeAction(
+      {
+        action,
+        params,
+        paginationField,
+      },
+      timeout,
+    );
     let payload = createActionSuccessResponse(response);
     if (response.responseMeta && response.responseMeta.error) {
       payload = createActionErrorResponse(response);
@@ -574,6 +619,7 @@ function* executePageLoadAction(pageAction: PageAction) {
   };
   const response: ActionApiResponse = yield ActionAPI.executeAction(
     executeActionRequest,
+    pageAction.timeoutInMillisecond,
   );
 
   if (isErrorResponse(response)) {

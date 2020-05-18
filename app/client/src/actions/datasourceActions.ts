@@ -8,6 +8,13 @@ export const createDatasource = (payload: CreateDatasourceConfig) => {
   };
 };
 
+export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
+  return {
+    type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+    payload,
+  };
+};
+
 export const updateDatasource = (payload: Datasource) => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,

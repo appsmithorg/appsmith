@@ -16,7 +16,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enableSearch: VALIDATION_TYPES.BOOLEAN,
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
-      enableCreateMarker: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
       onMarkerClick: VALIDATION_TYPES.ACTION_SELECTOR,
       onCreateMarker: VALIDATION_TYPES.ACTION_SELECTOR,
@@ -44,28 +43,31 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
-  updateCenter = (lat: number, lng: number) => {
-    this.updateWidgetMetaProperty("center", { lat, lng });
+  updateCenter = (lat: number, long: number) => {
+    this.updateWidgetMetaProperty("center", { lat, long });
   };
 
-  updateMarker = (lat: number, lng: number, index: number) => {
+  updateMarker = (lat: number, long: number, index: number) => {
     const markers: Array<MarkerProps> = [...this.props.markers];
+    this.disableDrag(false);
     this.updateWidgetMetaProperty(
       "markers",
       markers.map((marker, i) => {
         if (index === i) {
           marker.lat = lat;
-          marker.lng = lng;
+          marker.long = long;
         }
         return marker;
       }),
     );
   };
 
-  onCreateMarker = (lat: number, lng: number) => {
-    const markers: Array<MarkerProps> = [...this.props.markers];
-    markers.push({ lat: lat, lng: lng });
-    this.updateWidgetMetaProperty("markers", markers);
+  onCreateMarker = (lat: number, long: number) => {
+    this.disableDrag(true);
+    this.updateWidgetMetaProperty("selectedMarker", {
+      lat: lat,
+      long: long,
+    });
     if (this.props.onCreateMarker) {
       super.executeAction({
         dynamicString: this.props.onCreateMarker,
@@ -76,12 +78,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   };
 
-  onMarkerClick = (lat: number, lng: number, title: string) => {
+  onMarkerClick = (lat: number, long: number, title: string) => {
     this.updateWidgetMetaProperty("selectedMarker", {
       lat: lat,
-      long: lng,
+      long: long,
       title: title,
     });
+    this.disableDrag(true);
     if (this.props.onMarkerClick) {
       super.executeAction({
         dynamicString: this.props.onMarkerClick,
@@ -119,7 +122,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         zoomLevel={this.props.zoomLevel}
         allowZoom={this.props.allowZoom}
         center={this.props.center || this.props.mapCenter}
-        enableCreateMarker={this.props.enableCreateMarker}
+        enableCreateMarker
         selectedMarker={this.props.selectedMarker}
         updateCenter={this.updateCenter}
         isDisabled={this.props.isDisabled}
@@ -129,6 +132,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         updateMarker={this.updateMarker}
         selectMarker={this.onMarkerClick}
         markers={this.props.markers || []}
+        disableDrag={() => {
+          this.disableDrag(false);
+        }}
       />
     );
   }
@@ -140,7 +146,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
 export interface MarkerProps {
   lat: number;
-  lng: number;
+  long: number;
   title?: string;
   description?: string;
 }
@@ -152,14 +158,13 @@ export interface MapWidgetProps extends WidgetProps {
   zoomLevel: number;
   allowZoom: boolean;
   enablePickLocation: boolean;
-  enableCreateMarker: boolean;
   mapCenter: {
     lat: number;
-    lng: number;
+    long: number;
   };
   center?: {
     lat: number;
-    lng: number;
+    long: number;
   };
   defaultMarkers?: Array<MarkerProps>;
   markers?: Array<MarkerProps>;

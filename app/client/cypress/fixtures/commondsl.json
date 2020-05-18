@@ -58,7 +58,7 @@
                        "leftColumn": 0,
                        "children": [
                            {
-                               "onTextChanged": "{{showAlert('Ahello')}}",
+                               "onTextChanged": "",
                                "widgetName": "input",
                                "rightColumn": 11,
                                "widgetId": "oudih5fvwa",
@@ -79,8 +79,8 @@
                                "dynamicTriggers": {
                                    "onTextChanged": true
                                },
-                               "inputType": "NUMBER",
-                               "placeholderText": "aditya",
+                               "inputType": "",
+                               "placeholderText": "",
                                "defaultText": ""
                            },
                            {

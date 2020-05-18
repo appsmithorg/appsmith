@@ -8,17 +8,28 @@ describe("Image Widget Functionality", function() {
   });
 
   it("Image Widget Functionality", function() {
-    cy.get(viewWidgetsPage.imageWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(viewWidgetsPage.imageWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
-    //Checking the edit props for Image and also the properties of Image widget
-    cy.testCodeMirror(
-      "https://images.pexels.com/photos/60597/dahlia-red-blossom-bloom-60597.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    cy.openPropertyPane("imagewidget");
+    /**
+     * @param{Text} Random Text
+     * @param{ImageWidget}Mouseover
+     * @param{ImagePre Css} Assertion
+     */
+    cy.widgetText(
+      "img",
+      viewWidgetsPage.imageWidget,
+      viewWidgetsPage.imagecontainer,
     );
+    cy.get(viewWidgetsPage.defaultImage)
+      .click({ force: true })
+      .type(this.data.command)
+      .type(this.data.defaultimage);
+    /**
+     * @param{URL} ImageUrl
+     */
+    cy.testCodeMirror(this.data.NewImage);
+    cy.get(viewWidgetsPage.imageinner)
+      .invoke("attr", "src")
+      .should("contain", this.data.validateImage);
     cy.get(commonlocators.editPropCrossButton).click();
   });
 

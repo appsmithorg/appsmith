@@ -33,8 +33,9 @@ import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const TEMPLATES_TOP_SECTION_HEIGHT = "125px";
+const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
 const SearchContainer = styled.div`
   display: flex;
@@ -189,6 +190,11 @@ const URLContainer = styled.div`
     line-height: 24px;
     padding-top: 10px !important;
     padding-left: 11px;
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 98%;
   }
   .endpoint {
     padding-left: 11px;
@@ -255,6 +261,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
         type: DEFAULT_TEMPLATE_TYPE,
         item: templateData.templateData,
       },
+      source: "BROWSE",
     };
     const { addedTemplates } = this.state;
     this.props.addApiToPage(addApiRequestObject);
@@ -304,7 +311,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     return (
       <TemplateDetailPage>
         <ProviderInfoTopSection>
-          <SearchContainer>
+          {/* <SearchContainer>
             <SearchBar
               icon="search"
               input={{
@@ -312,7 +319,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
               }}
               placeholder="Search"
             />
-          </SearchContainer>
+          </SearchContainer> */}
 
           <Icon
             icon="chevron-left"
@@ -406,14 +413,19 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                                 .httpMethod
                             }
                           </strong>{" "}
-                          <span className="endpoint">
+                          <span
+                            className="endpoint"
+                            title={
+                              template.templateData.actionConfiguration.path
+                            }
+                          >
                             {template.templateData.actionConfiguration.path}
                           </span>
                         </p>
                       </URLContainer>
                     </TemplateCardLeftContent>
 
-                    <TemplateCardRightContent>
+                    <TemplateCardRightContent className="t--addToPageButtons">
                       {template.addToPageStatus ? (
                         <Button
                           text="Added"
@@ -421,7 +433,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                           filled
                           size="small"
                           disabled={true}
-                          className="addToPageBtn"
+                          className="addToPageBtn t--addToPageBtn"
                         />
                       ) : (
                         <Button
@@ -432,16 +444,19 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                           onClick={() => this.addApiToPage(template)}
                           disabled={false}
                           loading={template.addToPageLoading}
-                          className="addToPageBtn"
+                          className="addToPageBtn t--addToPageBtn"
                         />
                       )}
                       <Icon
                         icon="chevron-down"
                         iconSize={20}
                         className="dropIcon"
-                        onClick={() =>
-                          this.handleIsOpen(template.templateData.id)
-                        }
+                        onClick={() => {
+                          AnalyticsUtil.logEvent("EXPAND_API", {
+                            apiName: template.templateData.name,
+                          });
+                          this.handleIsOpen(template.templateData.id);
+                        }}
                       />
                     </TemplateCardRightContent>
                   </CardTopContent>

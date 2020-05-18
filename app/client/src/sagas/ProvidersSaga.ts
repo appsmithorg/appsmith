@@ -11,6 +11,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionWithPromise,
   ReduxAction,
+  Page,
 } from "constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ProvidersApi, {
@@ -26,10 +27,14 @@ import ProvidersApi, {
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { fetchActions } from "actions/actionActions";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { ADD_API_TO_PAGE_SUCCESS_MESSAGE } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -72,6 +77,15 @@ export function* addApiToPageSaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
+      const { payload } = action;
+      const pageList: Page[] = yield select(getPageList);
+      const page = pageList.find(page => page.pageId === payload.pageId);
+      AnalyticsUtil.logEvent("ADD_API_PAGE", {
+        apiName: payload.name,
+        providerName: payload.marketplaceElement.item.name,
+        pageName: page?.pageName,
+        source: payload.source,
+      });
       AppToaster.show({
         message: ADD_API_TO_PAGE_SUCCESS_MESSAGE,
         type: ToastType.SUCCESS,
@@ -80,6 +94,7 @@ export function* addApiToPageSaga(
         type: ReduxActionTypes.ADD_API_TO_PAGE_SUCCESS,
         data: response.data,
       });
+
       const applicationId = yield select(getCurrentApplicationId);
       yield put(fetchActions(applicationId));
     }
@@ -106,6 +121,12 @@ export function* fetchProvidersWithCategorySaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
+      if (response.data.providers.length === 0) {
+        yield put({
+          type: ReduxActionTypes.SET_PROVIDERS_LENGTH,
+        });
+      }
+
       yield put({
         type: ReduxActionTypes.FETCH_PROVIDERS_SUCCESS,
         payload: response.data,

@@ -8,6 +8,7 @@ export interface Plugin {
   type: "API" | "DB";
   packageName: string;
   uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
+  allowUserDatasources?: boolean;
 }
 
 export interface DatasourceForm {

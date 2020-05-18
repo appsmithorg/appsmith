@@ -107,13 +107,14 @@
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
-    "test": "cypress/test.sh",
+    "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
+    "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",
     "storybook": "start-storybook",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "build-storybook": "build-storybook -c .storybook -o .storybook-out",
-    "test-jest": "./node_modules/jest/bin/jest.js -b"
+    "test:unit": "$(npm bin)/jest -b --colors"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -167,8 +168,9 @@
     "redux-devtools-extension": "^2.13.8",
     "source-map-explorer": "^2.4.2",
     "storybook-addon-designs": "^5.1.1",
-    "ts-jest": "^24.3.0",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^4.2.2",
+    "workbox-webpack-plugin": "^5.1.2",
+    "ts-jest": "^24.3.0"
   },
   "husky": {
     "hooks": {

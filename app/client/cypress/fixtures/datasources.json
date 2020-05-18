@@ -1,0 +1,15 @@
+{
+    "mongo-host": "ds119422.mlab.com",
+    "mongo-port": 19422,
+    "mongo-databaseName": "heroku_bcmprc4k",
+    "mongo-username": "akash",
+    "mongo-password": "123wheel",
+    "mongo-authenticationAuthtype": "SCRAM-SHA-1",
+    "mongo-sslAuthtype": "No SSL",
+    "postgres-host": "appsmith-test-db.cgg2px8dsrli.ap-south-1.rds.amazonaws.com",
+    "postgres-port": 5432,
+    "postgres-databaseName": "postgres",
+    "postgres-username": "postgres",
+    "postgres-password": "qwerty1234",
+    "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts"
+}

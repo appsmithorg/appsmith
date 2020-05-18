@@ -8,13 +8,7 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality", function() {
-    cy.get(widgetsPage.tableWidget)
-      .first()
-      .trigger("mouseover", { force: true });
-    cy.get(widgetsPage.tableWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click();
+    cy.openPropertyPane("tablewidget");
     //Checking the edit props for Table Widget and also the properties of Table widget
 
     cy.get(widgetsPage.tableOnRowSelected)

@@ -3,7 +3,6 @@ import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/browser";
 import AnalyticsUtil from "./AnalyticsUtil";
 import FontFaceObserver from "fontfaceobserver";
-
 import FormControlRegistry from "./FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -103,6 +102,17 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 
 export const noop = () => {
   console.log("noop");
+};
+
+export const createNewQueryName = (
+  queries: ActionDataState,
+  pageId: string,
+) => {
+  const pageApiNames = queries
+    .filter(a => a.config.pageId === pageId)
+    .map(a => a.config.name);
+  const newName = getNextEntityName("Query", pageApiNames);
+  return newName;
 };
 
 export const convertToString = (value: any): string => {

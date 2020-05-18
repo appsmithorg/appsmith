@@ -1,5 +1,5 @@
-const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
+const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/commondsl.json");
 
 describe("Container Widget Functionality", function() {
@@ -8,15 +8,32 @@ describe("Container Widget Functionality", function() {
   });
 
   it("Container Widget Functionality", function() {
-    cy.get(widgetsPage.containerWidget)
-      .first()
-      .trigger("mouseover", { force: true });
-    cy.get(widgetsPage.containerWidget)
-      .get(commonlocators.editIcon)
-      .first()
-      .click();
-    //Checking the edit props for container changing the background color of container
-    cy.testCodeMirror("#C0C0C0");
+    cy.openPropertyPane("containerwidget");
+    /**
+     * @param{Text} Random Text
+     * @param{ContainerWidget}Mouseover
+     * @param{ContainerPre Css} Assertion
+     */
+    cy.widgetText(
+      "job",
+      widgetsPage.containerWidget,
+      commonlocators.containerInnerText,
+    );
+    /**
+     * @param{Text} Random Colour
+     */
+    cy.testCodeMirror(this.data.colour);
+    cy.get(widgetsPage.containerD)
+      .should("have.css", "background-color")
+      .and("eq", "rgb(255, 0, 0)");
+    /**
+     * @param{toggleButton Css} Assert to be checked
+     */
+    cy.togglebar(widgetsPage.Scrollbutton);
+    cy.get(widgetsPage.containerD)
+      .eq(0)
+      .scrollIntoView({ easing: "linear" })
+      .should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 

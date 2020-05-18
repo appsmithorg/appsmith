@@ -51,52 +51,8 @@ function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
-    let formConfig;
-    const initialValues = {};
-    const parseConfig = (section: any): any => {
-      return _.map(section.children, (subSection: any) => {
-        if ("children" in subSection) {
-          return parseConfig(subSection);
-        } else {
-          if (subSection.initialValue) {
-            _.set(
-              initialValues,
-              subSection.configProperty,
-              subSection.initialValue,
-            );
-          }
-        }
-      });
-    };
-    formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-
-    if (!formConfig) {
-      const formConfigResponse: GenericApiResponse<DatasourceForm> = yield PluginApi.fetchFormConfig(
-        actionPayload.payload.pluginId,
-      );
-      yield validateResponse(formConfigResponse);
-      yield put({
-        type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-        payload: {
-          id: actionPayload.payload.pluginId,
-          form: formConfigResponse.data.form,
-        },
-      });
-
-      formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
-    }
-
-    formConfig.map((section: any) => {
-      parseConfig(section);
-    });
-
-    const payload = {
-      ...initialValues,
-      ...actionPayload.payload,
-    };
-
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      payload,
+      actionPayload.payload,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -105,34 +61,12 @@ function* createDatasourceSaga(
         appName: actionPayload.payload.appName,
       });
       yield put({
-        type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
-        payload: response.data,
-      });
-      yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
-      });
-
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
-
-      yield put(initialize(DATASOURCE_DB_FORM, response.data));
-      history.push(
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
-      );
-      AppToaster.show({
-        message: `${actionPayload.payload.name} Datasource created`,
-        type: ToastType.SUCCESS,
       });
       yield put(
         change(API_EDITOR_FORM_NAME, "datasource.id", response.data.id),
       );
-
-      const datasourceRefs = yield select(getDatasourceRefs);
-
-      datasourceRefs[response.data.id].current.scrollIntoView({
-        behavior: "smooth",
-      });
     }
   } catch (error) {
     yield put({
@@ -243,10 +177,106 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   }
 }
 
+function* createDatasourceFromFormSaga(
+  actionPayload: ReduxAction<CreateDatasourceConfig>,
+) {
+  try {
+    let formConfig;
+    const initialValues = {};
+    const parseConfig = (section: any): any => {
+      return _.map(section.children, (subSection: any) => {
+        if ("children" in subSection) {
+          return parseConfig(subSection);
+        } else {
+          if (subSection.initialValue) {
+            _.set(
+              initialValues,
+              subSection.configProperty,
+              subSection.initialValue,
+            );
+          }
+        }
+      });
+    };
+    formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
+
+    if (!formConfig) {
+      const formConfigResponse: GenericApiResponse<DatasourceForm> = yield PluginApi.fetchFormConfig(
+        actionPayload.payload.pluginId,
+      );
+      yield validateResponse(formConfigResponse);
+      yield put({
+        type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        payload: {
+          id: actionPayload.payload.pluginId,
+          form: formConfigResponse.data.form,
+        },
+      });
+
+      formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
+    }
+
+    formConfig.map((section: any) => {
+      parseConfig(section);
+    });
+
+    const payload = {
+      ...initialValues,
+      ...actionPayload.payload,
+    };
+
+    const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
+      payload,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
+        dataSourceName: actionPayload.payload.name,
+        appName: actionPayload.payload.appName,
+      });
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
+        payload: response.data,
+      });
+      yield put({
+        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      history.push(
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, response.data.id),
+      );
+      AppToaster.show({
+        message: `${actionPayload.payload.name} Datasource created`,
+        type: ToastType.SUCCESS,
+      });
+
+      const datasourceRefs = yield select(getDatasourceRefs);
+
+      datasourceRefs[response.data.id].current.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
     takeEvery(ReduxActionTypes.CREATE_DATASOURCE_INIT, createDatasourceSaga),
+    takeEvery(
+      ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+      createDatasourceFromFormSaga,
+    ),
     takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
     takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),

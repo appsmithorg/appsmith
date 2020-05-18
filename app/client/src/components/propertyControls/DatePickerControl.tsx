@@ -32,7 +32,16 @@ const DatePickerControlWrapper = styled.div`
   }
 `;
 
-class DatePickerControl extends BaseControl<DatePickerControlProps> {
+class DatePickerControl extends BaseControl<
+  DatePickerControlProps,
+  DatePickerControlState
+> {
+  constructor(props: DatePickerControlProps) {
+    super(props);
+    this.state = {
+      selectedDate: props.propertyValue,
+    };
+  }
   render() {
     const now = moment();
     const year = now.get("year");
@@ -61,10 +70,9 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
   }
 
   onDateSelected = (date: Date): void => {
-    this.updateProperty(
-      this.props.propertyName,
-      moment(date).toISOString(true),
-    );
+    const selectedDate = date ? moment(date).toISOString(true) : "";
+    this.setState({ selectedDate: selectedDate });
+    this.updateProperty(this.props.propertyName, selectedDate);
   };
 
   formatDate = (date: Date): string => {
@@ -83,6 +91,10 @@ class DatePickerControl extends BaseControl<DatePickerControlProps> {
 export interface DatePickerControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
+}
+
+interface DatePickerControlState {
+  selectedDate: string;
 }
 
 export default DatePickerControl;

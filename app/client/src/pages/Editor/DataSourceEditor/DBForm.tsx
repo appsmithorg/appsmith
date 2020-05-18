@@ -349,6 +349,7 @@ class DatasourceDBEditor extends React.Component<
           : undefined}
         <SaveButtonContainer>
           <ActionButton
+            className="t--delete-datasource"
             text="Delete"
             accent="error"
             loading={isDeleting}
@@ -356,12 +357,14 @@ class DatasourceDBEditor extends React.Component<
           />
 
           <ActionButton
+            className="t--test-datasource"
             text="Test"
             loading={isTesting}
             accent="secondary"
             onClick={this.test}
           />
           <StyledButton
+            className="t--save-datasource"
             onClick={this.save}
             text="Save"
             disabled={this.validate()}

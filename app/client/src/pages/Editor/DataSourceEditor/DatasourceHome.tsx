@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { Card, Spinner } from "@blueprintjs/core";
-import { getPlugins, getDatasourceNames } from "selectors/entitiesSelector";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { getDatasourcePlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -16,7 +15,10 @@ import {
   PLUGIN_PACKAGE_POSTGRES,
   PLUGIN_PACKAGE_MONGO,
 } from "constants/QueryEditorConstants";
-import { selectPlugin, createDatasource } from "actions/datasourceActions";
+import {
+  selectPlugin,
+  createDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -117,43 +119,21 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  datasourceNames: string[];
   currentApplication: UserApplication;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
 
 class DatasourceHomeScreen extends React.Component<Props> {
-  goToCreateDatasource = (pluginId: string, packageName: string) => {
-    const { datasourceNames, currentApplication } = this.props;
-    let type = "";
+  goToCreateDatasource = (pluginId: string) => {
+    const { currentApplication } = this.props;
 
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       appName: currentApplication.name,
     });
 
-    switch (packageName) {
-      case PLUGIN_PACKAGE_POSTGRES:
-        type = "POSTGRES";
-        break;
-      case PLUGIN_PACKAGE_MONGO:
-        type = "MONGODB";
-        break;
-      case REST_PLUGIN_PACKAGE_NAME:
-        type = "REST API";
-        break;
-      default:
-        break;
-    }
-
-    const name = getNextEntityName(
-      `Untitled Datasource ${type}`,
-      datasourceNames,
-    );
-
     this.props.selectPlugin(pluginId);
     this.props.createDatasource({
-      name,
       pluginId,
     });
   };
@@ -192,16 +172,14 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     interactive={false}
                     className="eachDatasourceCard"
                     key={plugin.id}
-                    onClick={() =>
-                      this.goToCreateDatasource(plugin.id, plugin.packageName)
-                    }
+                    onClick={() => this.goToCreateDatasource(plugin.id)}
                   >
                     <img
                       src={this.getImageSrc(plugin.packageName)}
                       className="dataSourceImage"
                       alt="Datasource"
-                    ></img>
-                    <p className="textBtn">{plugin.name}</p>
+                    />
+                    <p className="t--plugin-name textBtn">{plugin.name}</p>
                   </Card>
                 );
               })}
@@ -215,8 +193,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
-    plugins: getPlugins(state),
-    datasourceNames: getDatasourceNames(state),
+    plugins: getDatasourcePlugins(state),
     currentApplication: getCurrentApplication(state),
   };
 };
@@ -226,7 +203,7 @@ const mapDispatchToProps = (dispatch: any) => {
     selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
-    createDatasource: (data: any) => dispatch(createDatasource(data)),
+    createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
   };
 };
 

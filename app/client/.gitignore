@@ -31,3 +31,5 @@ yarn-error.log*
 cypress/videos
 cypress/screenshots
 results/
+
+/docker/*.pem

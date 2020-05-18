@@ -1,5 +1,4 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formdsl.json");
 
 describe("FilePicker Widget Functionality", function() {
@@ -7,13 +6,8 @@ describe("FilePicker Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   it("FilePicker Widget Functionality", function() {
-    cy.get(formWidgetsPage.filepickerWidget)
-      .first()
-      .trigger("mouseover");
-    cy.get(formWidgetsPage.filepickerWidget)
-      .children(commonlocators.editicon)
-      .first()
-      .click({ force: true });
+    cy.openPropertyPane("filepickerwidget");
+
     //Checking the edit props for FilePicker and also the properties of FilePicker widget
 
     cy.testCodeMirror("Upload Files");

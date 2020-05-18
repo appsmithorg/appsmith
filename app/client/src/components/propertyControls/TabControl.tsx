@@ -5,7 +5,6 @@ import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
-import { DragDropContext } from "react-beautiful-dnd";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
 
@@ -37,6 +36,17 @@ const StyledPropertyPaneButtonWrapper = styled.div`
   margin-top: 10px;
 `;
 
+const ItemWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+`;
+
+const TabsWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   &&& {
@@ -65,7 +75,7 @@ type RenderComponentProps = {
 function TabControlComponent(props: RenderComponentProps) {
   const { deleteOption, updateOption, item, index } = props;
   return (
-    <React.Fragment>
+    <ItemWrapper>
       <StyledOptionControlInputGroup
         type="text"
         placeholder="Tab Title"
@@ -82,36 +92,13 @@ function TabControlComponent(props: RenderComponentProps) {
         }}
       />
       <StyledDragIcon height={20} width={20} />
-    </React.Fragment>
+    </ItemWrapper>
   );
 }
 
 class TabControl extends BaseControl<ControlProps> {
-  onDragEnd = (result: any) => {
-    const { destination, source } = result;
-    if (!destination) {
-      return;
-    }
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    const tabs: string[] = this.props.propertyValue || [""];
-    const sourceTab = tabs[source.index];
-    const destinationTab = tabs[destination.index];
-    this.updateProperty(
-      this.props.propertyName,
-      tabs.map((tab, index) => {
-        if (index === source.index) {
-          return destinationTab;
-        } else if (index === destination.index) {
-          return sourceTab;
-        }
-        return tab;
-      }),
-    );
+  updateItems = (items: object[]) => {
+    this.updateProperty(this.props.propertyName, items);
   };
 
   render() {
@@ -120,12 +107,13 @@ class TabControl extends BaseControl<ControlProps> {
       label: string;
     }> = this.props.propertyValue || [{ id: "" }];
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
+      <TabsWrapper>
         <DroppableComponent
           items={tabs}
           renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
           updateOption={this.updateOption}
+          updateItems={this.updateItems}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
@@ -135,7 +123,7 @@ class TabControl extends BaseControl<ControlProps> {
             onClick={this.addOption}
           />
         </StyledPropertyPaneButtonWrapper>
-      </DragDropContext>
+      </TabsWrapper>
     );
   }
 

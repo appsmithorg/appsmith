@@ -17,6 +17,7 @@ import { DatasourcePaneReduxState } from "./uiReducers/datasourcePaneReducer";
 import { ApplicationsReduxState } from "./uiReducers/applicationsReducer";
 import { PageListReduxState } from "./entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
+import { QueryPaneReduxState } from "./uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
 import { OrgReduxState } from "reducers/uiReducers/orgReducer";
@@ -51,6 +52,7 @@ export interface AppState {
     importedCollections: ImportedCollectionsReduxState;
     providers: ProvidersReduxState;
     imports: ImportReduxState;
+    queryPane: QueryPaneReduxState;
     datasourcePane: DatasourcePaneReduxState;
   };
   entities: {
