@@ -44,14 +44,14 @@
   to = "API_PLACEHOLDER/api/:splat"
   status = 200
   force = true
-  headers = { Host = "APP_HOST_PLACEHOLDER" }
+  # headers = { Host = "APP_HOST_PLACEHOLDER" }
 
 [[redirects]]
   from = "/oauth2/*"
   to = "API_PLACEHOLDER/oauth2/:splat"
   status = 200
   force = true
-  headers = { Host = "APP_HOST_PLACEHOLDER" }
+  # headers = { Host = "APP_HOST_PLACEHOLDER" }
 
 # This must be the last redirect in the chain because it's a catch-all
 [[redirects]]
