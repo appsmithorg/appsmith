@@ -4,6 +4,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import CodeMirror from "codemirror";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -18,6 +19,7 @@ const InputControlWrapper = styled.div`
     z-index: 10;
   }
 `;
+
 export function InputText(props: {
   label: string;
   value: string;
@@ -58,6 +60,9 @@ class InputTextControl extends BaseControl<InputControlProps> {
     console.log(this.inputElement);
     if (this.inputElement.current) {
       console.log(this.inputElement.current);
+      const editor = CodeMirror.fromTextArea(this.inputElement.current);
+      console.log("editor", editor);
+      editor.setValue("value");
     }
   };
 
