@@ -99,8 +99,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> findByName(String name) {
-        return repository.findByName(name, READ_APPLICATIONS);
+    public Mono<Application> findByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
     }
 
     @Override

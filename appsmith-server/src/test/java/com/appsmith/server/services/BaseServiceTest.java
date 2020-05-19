@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,14 +38,19 @@ public class BaseServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    UserService userService;
+
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         Application testApplication = new Application();
         testApplication.setName("BaseServiceTest TestApp");
-        applicationPageService.createApplication(testApplication).subscribe();
 
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
 
+        applicationPageService.createApplication(testApplication, orgId).subscribe();
     }
 
     @Test
@@ -58,7 +64,7 @@ public class BaseServiceTest {
                 .build();
 
         Mono<Application> addPolicyMono = applicationService
-                .findByName("TestApplications")
+                .findByName("TestApplications", MANAGE_APPLICATIONS)
                 .flatMap(application -> applicationService
                         .addPolicies(application.getId(), Set.of(manageAppPolicy, readAppPolicy))
                 )

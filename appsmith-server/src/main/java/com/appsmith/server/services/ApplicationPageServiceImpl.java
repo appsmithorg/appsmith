@@ -23,9 +23,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Slf4j
 @Service
@@ -131,10 +133,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
-        return pageService.findById(pageId, AclPermission.READ_PAGES)
+        return pageService.findById(pageId, READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
-                .flatMap(this::doesPageBelongToCurrentUserOrganization)
-                //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
@@ -148,13 +148,22 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<Page> getPageByName(String applicationName, String pageName, Boolean viewMode) {
+        AclPermission appPermission;
+        AclPermission pagePermission;
+        if (viewMode) {
+            //If view is set, then this user is trying to view the application
+            appPermission = READ_APPLICATIONS;
+            pagePermission = READ_PAGES;
+        } else {
+            appPermission = MANAGE_APPLICATIONS;
+            pagePermission = MANAGE_PAGES;
+        }
+
         return applicationService
-                .findByName(applicationName)
+                .findByName(applicationName, appPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .flatMap(application -> pageService.findByNameAndApplicationId(pageName, application.getId()))
+                .flatMap(application -> pageService.findByNameAndApplicationId(pageName, application.getId(), pagePermission))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, pageName)))
-                .flatMap(this::doesPageBelongToCurrentUserOrganization)
-                //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
@@ -205,7 +214,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return null;
     }
 
-    public Mono<Application> createApplication(Application application) {
+    public Mono<Application> createApplication(Application application, String orgId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -213,8 +222,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = userMono
                 .flatMap(user -> {
-                    String orgId = user.getCurrentOrganizationId();
-
                     Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
 
