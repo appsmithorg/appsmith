@@ -16,6 +16,7 @@ import {
   initDatasourcePane,
   storeDatastoreRefs,
   deleteDatasource,
+  changeDatasource,
 } from "actions/datasourceActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { theme } from "constants/DefaultTheme";
@@ -25,10 +26,7 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import Postgres from "assets/images/Postgress.png";
 import MongoDB from "assets/images/MongoDB.png";
 import RestTemplateImage from "assets/images/RestAPI.png";
-import {
-  DATA_SOURCES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_URL,
-} from "constants/routes";
+import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import {
   PLUGIN_PACKAGE_POSTGRES,
@@ -44,6 +42,7 @@ interface ReduxDispatchProps {
   storeDatastoreRefs: (refsList: []) => void;
   fetchFormConfig: (id: string) => void;
   deleteDatasource: (id: string) => void;
+  onDatasourceChange: (datasource: Datasource) => void;
 }
 
 interface ReduxStateProps {
@@ -51,6 +50,7 @@ interface ReduxStateProps {
   plugins: Plugin[];
   datastoreRefs: Record<string, any>;
   formConfigs: Record<string, []>;
+  drafts: Record<string, Datasource>;
 }
 
 type DataSourceSidebarProps = {};
@@ -172,6 +172,15 @@ const Container = styled.div`
   }
 `;
 
+const DraftIconIndicator = styled.span<{ isHidden: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background-color: #f2994a;
+  margin: 0 5px;
+  opacity: ${({ isHidden }) => (isHidden ? 0 : 1)};
+`;
+
 type Props = DataSourceSidebarProps &
   RouteComponentProps<{
     pageId: string;
@@ -202,6 +211,13 @@ class DataSourceSidebar extends React.Component<Props, State> {
     storeDatastoreRefs(this.refsCollection);
   }
 
+  shouldComponentUpdate(nextProps: Readonly<Props>): boolean {
+    if (Object.keys(nextProps.drafts) !== Object.keys(this.props.drafts)) {
+      return true;
+    }
+    return nextProps.dataSources !== this.props.dataSources;
+  }
+
   handleCreateNewDatasource = () => {
     const { history } = this.props;
     const { pageId, applicationId } = this.props.match.params;
@@ -210,17 +226,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
   };
 
   handleItemSelected = (datasource: Datasource) => {
-    const { history, formConfigs } = this.props;
-    const { pageId, applicationId } = this.props.match.params;
-
-    this.props.initializeForm(datasource);
-    this.props.selectPlugin(datasource.pluginId);
-    if (!formConfigs[datasource.pluginId]) {
-      this.props.fetchFormConfig(datasource.pluginId);
-    }
-    history.push(
-      DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
-    );
+    this.props.onDatasourceChange(datasource);
   };
 
   handleSearchChange = (e: React.ChangeEvent<{ value: string }>) => {
@@ -253,6 +259,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
       },
       datastoreRefs,
       deleteDatasource,
+      drafts,
     } = this.props;
 
     return datasources.map(datasource => {
@@ -272,6 +279,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
             />
             <ActionName>{datasource.name}</ActionName>
           </ActionItem>
+          <DraftIconIndicator isHidden={!(datasource.id in drafts)} />
           <TreeDropdown
             defaultText=""
             onSelect={() => {
@@ -335,17 +343,21 @@ class DataSourceSidebar extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
+  const { drafts } = state.ui.datasourcePane;
   return {
     formConfigs: state.entities.plugins.formConfigs,
     dataSources: getDataSources(state),
     plugins: getPlugins(state),
     datastoreRefs: state.ui.datasourcePane.datasourceRefs,
+    drafts,
   };
 };
 
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   initDatasourcePane: (pluginType: string, urlId?: string) =>
     dispatch(initDatasourcePane(pluginType, urlId)),
+  onDatasourceChange: (datasource: Datasource) =>
+    dispatch(changeDatasource(datasource)),
   fetchFormConfig: (id: string) => dispatch(fetchPluginForm({ id })),
   selectPlugin: (pluginId: string) => dispatch(selectPlugin(pluginId)),
   initializeForm: (data: Record<string, any>) =>

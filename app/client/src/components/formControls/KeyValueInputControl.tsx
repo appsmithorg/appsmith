@@ -26,16 +26,6 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
     }
   }, [props.fields]);
 
-  useEffect(() => {
-    if (typeof props.fields.getAll() === "string") {
-      const fieldsValue: [] = JSON.parse(`${props.fields.getAll()}`);
-      props.fields.removeAll();
-      fieldsValue.forEach((value, index) => {
-        props.fields.insert(index, value);
-      });
-    }
-  }, [props.fields]);
-
   return (
     <div>
       {typeof props.fields.getAll() === "object" && (
