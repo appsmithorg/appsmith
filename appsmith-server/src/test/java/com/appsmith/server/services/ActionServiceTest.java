@@ -5,7 +5,9 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,12 @@ public class ActionServiceTest {
     @Autowired
     PageService pageService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
     Application testApp = null;
 
     Page testPage = null;
@@ -52,12 +60,17 @@ public class ActionServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
+
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
+        Organization organization = organizationService.findById(orgId).block();
+
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName("ActionServiceTest-App-" + String.valueOf(i));
             i++;
-            testApp = applicationPageService.createApplication(application).block();
+            testApp = applicationPageService.createApplication(application, organization.getId()).block();
             testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
         }
     }
