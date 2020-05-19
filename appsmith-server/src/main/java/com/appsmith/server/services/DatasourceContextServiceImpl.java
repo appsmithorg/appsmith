@@ -40,6 +40,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         // Lengthy redundant expression because we need this variable to be final, so it can be used in a reactive callback.
         final boolean isStale = datasourceId != null
                 && datasourceContextMap.get(datasourceId) != null
+                && datasource.getUpdatedAt() != null
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceId).getCreationTime());
 
         if (datasourceId == null) {
