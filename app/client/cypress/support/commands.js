@@ -44,6 +44,11 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     200,
   );
 });
+Cypress.Commands.add("LogOut", () => {
+  cy.request("POST", "/api/v1/logout").then(response => {
+    expect(response.status).equal(200);
+  });
+});
 
 Cypress.Commands.add("NavigateToWidgets", pageName => {
   cy.get(pages.pagesIcon).click({ force: true });

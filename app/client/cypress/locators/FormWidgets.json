@@ -24,4 +24,4 @@
     "radioInput": ".t--draggable-radiogroupwidget pre",
     "radioAddButton": ".t--property-control-options button",
     "formD": "div[type='FORM_WIDGET']"
-}
+  }

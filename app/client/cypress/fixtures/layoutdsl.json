@@ -1,5 +1,5 @@
 {
-"dsl": {
+  "dsl": {
     "widgetName": "MainContainer",
     "backgroundColor": "none",
     "rightColumn": 1224,
@@ -19,529 +19,529 @@
     "parentColumnSpace": 1,
     "leftColumn": 0,
     "children": [
-        {
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container1",
+        "rightColumn": 8,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "8elnkhrzdb",
+        "containerStyle": "card",
+        "topRow": 0,
+        "bottomRow": 9,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 0,
+        "children": [
+          {
             "backgroundColor": "#FFFFFF",
-            "widgetName": "Container1",
-            "rightColumn": 8,
+            "widgetName": "s3m9o0kzef",
+            "rightColumn": 602,
             "orientation": "VERTICAL",
             "snapColumns": 16,
-            "widgetId": "8elnkhrzdb",
-            "containerStyle": "card",
+            "detachFromLayout": true,
+            "widgetId": "4utikp3lta",
+            "containerStyle": "none",
             "topRow": 0,
-            "bottomRow": 9,
-            "parentRowSpace": 38,
+            "bottomRow": 342,
+            "parentRowSpace": 1,
             "isVisible": true,
-            "type": "CONTAINER_WIDGET",
-            "dynamicBindings": {},
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
             "isLoading": false,
-            "parentColumnSpace": 75.25,
+            "parentColumnSpace": 1,
             "leftColumn": 0,
             "children": [
-                {
-                    "backgroundColor": "#FFFFFF",
-                    "widgetName": "s3m9o0kzef",
-                    "rightColumn": 602,
-                    "orientation": "VERTICAL",
-                    "snapColumns": 16,
-                    "detachFromLayout": true,
-                    "widgetId": "4utikp3lta",
-                    "containerStyle": "none",
-                    "topRow": 0,
-                    "bottomRow": 342,
-                    "parentRowSpace": 1,
-                    "isVisible": true,
-                    "type": "CANVAS_WIDGET",
-                    "canExtend": false,
-                    "isLoading": false,
-                    "parentColumnSpace": 1,
-                    "leftColumn": 0,
-                    "children": [
-                        {
-                            "widgetName": "Text1",
-                            "rightColumn": 3,
-                            "widgetId": "6350kah7vo",
-                            "topRow": 0,
-                            "bottomRow": 1,
-                            "parentRowSpace": 38,
-                            "isVisible": true,
-                            "type": "TEXT_WIDGET",
-                            "dynamicBindings": {},
-                            "isLoading": false,
-                            "parentColumnSpace": 35.25,
-                            "leftColumn": 0,
-                            "text": "Title",
-                            "textStyle": "HEADING"
-                        }
-                    ]
-                }
+              {
+                "widgetName": "Text1",
+                "rightColumn": 3,
+                "widgetId": "6350kah7vo",
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindings": {},
+                "isLoading": false,
+                "parentColumnSpace": 35.25,
+                "leftColumn": 0,
+                "text": "Title",
+                "textStyle": "HEADING"
+              }
             ]
-        },
-        {
+          }
+        ]
+      },
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container3",
+        "rightColumn": 16,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "eavpzddsyy",
+        "containerStyle": "card",
+        "topRow": 9,
+        "bottomRow": 20,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 0,
+        "children": [
+          {
             "backgroundColor": "#FFFFFF",
-            "widgetName": "Container3",
-            "rightColumn": 16,
+            "widgetName": "7023pcljqc",
+            "rightColumn": 1204,
             "orientation": "VERTICAL",
             "snapColumns": 16,
-            "widgetId": "eavpzddsyy",
-            "containerStyle": "card",
-            "topRow": 9,
-            "bottomRow": 20,
-            "parentRowSpace": 38,
+            "detachFromLayout": true,
+            "widgetId": "fwrt1tntll",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 532,
+            "parentRowSpace": 1,
             "isVisible": true,
-            "type": "CONTAINER_WIDGET",
-            "dynamicBindings": {},
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
             "isLoading": false,
-            "parentColumnSpace": 75.25,
+            "parentColumnSpace": 1,
             "leftColumn": 0,
             "children": [
-                {
-                    "backgroundColor": "#FFFFFF",
-                    "widgetName": "7023pcljqc",
-                    "rightColumn": 1204,
-                    "orientation": "VERTICAL",
-                    "snapColumns": 16,
+              {
+                "widgetName": "Text3",
+                "rightColumn": 3,
+                "widgetId": "lzz2qxcwi5",
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindings": {},
+                "isLoading": false,
+                "parentColumnSpace": 72.875,
+                "leftColumn": 0,
+                "text": "Title",
+                "textStyle": "HEADING"
+              },
+              {
+                "widgetName": "Tab",
+                "rightColumn": 7,
+                "widgetId": "p4ph0yxggg",
+                "topRow": 2,
+                "bottomRow": 8,
+                "tabs": [
+                  {
+                    "label": "Tab 1",
+                    "id": "tab1"
+                  },
+                  {
+                    "label": "Tab 2",
+                    "id": "tab2"
+                  },
+                  {
+                    "id": "tab6zuucm7r5j",
+                    "label": "Tab 3"
+                  },
+                  {
+                    "id": "tab5fcogap5gv",
+                    "label": "Tab 4"
+                  }
+                ],
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TABS_WIDGET",
+                "dynamicBindings": {},
+                "parentId": "fwrt1tntll",
+                "shouldScrollContents": true,
+                "blueprint": {
+                  "view": [
+                    {
+                      "size": {
+                        "rows": 6,
+                        "cols": 16
+                      },
+                      "position": {
+                        "top": 0,
+                        "left": 0
+                      },
+                      "type": "CANVAS_WIDGET",
+                      "props": {
+                        "tabId": "tab1",
+                        "detachFromLayout": true,
+                        "children": [],
+                        "containerStyle": "none",
+                        "canExtend": false
+                      }
+                    },
+                    {
+                      "size": {
+                        "rows": 6,
+                        "cols": 16
+                      },
+                      "position": {
+                        "top": 0,
+                        "left": 0
+                      },
+                      "type": "CANVAS_WIDGET",
+                      "props": {
+                        "tabId": "tab2",
+                        "detachFromLayout": true,
+                        "children": [],
+                        "containerStyle": "none",
+                        "canExtend": false
+                      }
+                    }
+                  ]
+                },
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "leftColumn": 1,
+                "children": [
+                  {
+                    "tabId": "tab1",
+                    "widgetName": "Canvas1",
+                    "rightColumn": 574,
                     "detachFromLayout": true,
-                    "widgetId": "fwrt1tntll",
+                    "widgetId": "s3lmx5acn6",
                     "containerStyle": "none",
                     "topRow": 0,
-                    "bottomRow": 532,
+                    "bottomRow": 266,
                     "parentRowSpace": 1,
                     "isVisible": true,
-                    "type": "CANVAS_WIDGET",
                     "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 266,
                     "isLoading": false,
                     "parentColumnSpace": 1,
                     "leftColumn": 0,
                     "children": [
-                        {
-                            "widgetName": "Text3",
-                            "rightColumn": 3,
-                            "widgetId": "lzz2qxcwi5",
-                            "topRow": 0,
-                            "bottomRow": 1,
-                            "parentRowSpace": 38,
-                            "isVisible": true,
-                            "type": "TEXT_WIDGET",
-                            "dynamicBindings": {},
-                            "isLoading": false,
-                            "parentColumnSpace": 72.875,
-                            "leftColumn": 0,
-                            "text": "Title",
-                            "textStyle": "HEADING"
+                      {
+                        "widgetName": "Input1",
+                        "rightColumn": 6,
+                        "widgetId": "tl5p847ta8",
+                        "topRow": 0,
+                        "bottomRow": 1,
+                        "isValid": "{{Input1.isRequired ? Input1.text && descriptionInput.text.length > 0 ? Input1.regex ? new RegExp(Input1.regex).test(Input1.text) : true : Input1.regex ? new RegExp(Input1.regex).test(Input1.text) : true}}",
+                        "parentRowSpace": 38,
+                        "isVisible": true,
+                        "label": "Label me",
+                        "type": "INPUT_WIDGET",
+                        "dynamicBindings": {
+                          "isValid": true
                         },
-                        {
-                            "widgetName": "Tab",
-                            "rightColumn": 7,
-                            "widgetId": "p4ph0yxggg",
-                            "topRow": 2,
-                            "bottomRow": 8,
-                            "tabs": [
-                                {
-                                    "label": "Tab 1",
-                                    "id": "tab1"
-                                },
-                                {
-                                    "label": "Tab 2",
-                                    "id": "tab2"
-                                },
-                                {
-                                    "id": "tab6zuucm7r5j",
-                                    "label": "Tab 3"
-                                },
-                                {
-                                    "id": "tab5fcogap5gv",
-                                    "label": "Tab 4"
-                                }
-                            ],
-                            "parentRowSpace": 38,
-                            "isVisible": true,
-                            "type": "TABS_WIDGET",
-                            "dynamicBindings": {},
-                            "parentId": "fwrt1tntll",
-                            "shouldScrollContents": true,
-                            "blueprint": {
-                                "view": [
-                                    {
-                                        "size": {
-                                            "rows": 6,
-                                            "cols": 16
-                                        },
-                                        "position": {
-                                            "top": 0,
-                                            "left": 0
-                                        },
-                                        "type": "CANVAS_WIDGET",
-                                        "props": {
-                                            "tabId": "tab1",
-                                            "detachFromLayout": true,
-                                            "children": [],
-                                            "containerStyle": "none",
-                                            "canExtend": false
-                                        }
-                                    },
-                                    {
-                                        "size": {
-                                            "rows": 6,
-                                            "cols": 16
-                                        },
-                                        "position": {
-                                            "top": 0,
-                                            "left": 0
-                                        },
-                                        "type": "CANVAS_WIDGET",
-                                        "props": {
-                                            "tabId": "tab2",
-                                            "detachFromLayout": true,
-                                            "children": [],
-                                            "containerStyle": "none",
-                                            "canExtend": false
-                                        }
-                                    }
-                                ]
-                            },
-                            "isLoading": false,
-                            "parentColumnSpace": 71.75,
-                            "leftColumn": 1,
-                            "children": [
-                                {
-                                    "tabId": "tab1",
-                                    "widgetName": "Canvas1",
-                                    "rightColumn": 574,
-                                    "detachFromLayout": true,
-                                    "widgetId": "s3lmx5acn6",
-                                    "containerStyle": "none",
-                                    "topRow": 0,
-                                    "bottomRow": 266,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 266,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": [
-                                        {
-                                            "widgetName": "Input1",
-                                            "rightColumn": 6,
-                                            "widgetId": "tl5p847ta8",
-                                            "topRow": 0,
-                                            "bottomRow": 1,
-                                            "isValid": "{{Input1.isRequired ? Input1.text && descriptionInput.text.length > 0 ? Input1.regex ? new RegExp(Input1.regex).test(Input1.text) : true : Input1.regex ? new RegExp(Input1.regex).test(Input1.text) : true}}",
-                                            "parentRowSpace": 38,
-                                            "isVisible": true,
-                                            "label": "Label me",
-                                            "type": "INPUT_WIDGET",
-                                            "dynamicBindings": {
-                                                "isValid": true
-                                            },
-                                            "parentId": "s3lmx5acn6",
-                                            "isLoading": false,
-                                            "parentColumnSpace": 51.4375,
-                                            "leftColumn": 1,
-                                            "inputType": "TEXT"
-                                        },
-                                        {
-                                            "widgetName": "Checkbox1",
-                                            "rightColumn": 6,
-                                            "widgetId": "e0da18s6li",
-                                            "topRow": 2,
-                                            "bottomRow": 3,
-                                            "parentRowSpace": 38,
-                                            "isVisible": true,
-                                            "label": "Label me",
-                                            "type": "CHECKBOX_WIDGET",
-                                            "dynamicBindings": {},
-                                            "parentId": "s3lmx5acn6",
-                                            "isLoading": false,
-                                            "parentColumnSpace": 51.4375,
-                                            "leftColumn": 3,
-                                            "defaultCheckedState": true
-                                        },
-                                        {
-                                            "widgetName": "RadioGroup1",
-                                            "rightColumn": 12,
-                                            "widgetId": "xop37d5kql",
-                                            "topRow": 1,
-                                            "bottomRow": 3,
-                                            "isValid": "{{ RadioGroup1.isRequired ? !!RadioGroup1.selectedOptionValue : true }}",
-                                            "parentRowSpace": 38,
-                                            "isVisible": true,
-                                            "label": "Label",
-                                            "type": "RADIO_GROUP_WIDGET",
-                                            "dynamicBindings": {
-                                                "isValid": true,
-                                                "selectedOption": true
-                                            },
-                                            "selectedOption": "{{_.find(RadioGroup1.options, { value: RadioGroup1.selectedOptionValue })}}",
-                                            "parentId": "s3lmx5acn6",
-                                            "isLoading": false,
-                                            "defaultOptionValue": "1",
-                                            "parentColumnSpace": 51.4375,
-                                            "leftColumn": 9,
-                                            "options": [
-                                                {
-                                                    "id": "1",
-                                                    "label": "Alpha",
-                                                    "value": "1"
-                                                },
-                                                {
-                                                    "id": "2",
-                                                    "label": "Bravo",
-                                                    "value": "2"
-                                                },
-                                                {
-                                                    "id": "3",
-                                                    "label": "Charlie",
-                                                    "value": "3"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "widgetName": "Button1",
-                                            "rightColumn": 9,
-                                            "isDefaultClickDisabled": true,
-                                            "widgetId": "ih7kwqfhsb",
-                                            "buttonStyle": "PRIMARY_BUTTON",
-                                            "topRow": 3,
-                                            "bottomRow": 4,
-                                            "parentRowSpace": 38,
-                                            "isVisible": true,
-                                            "type": "BUTTON_WIDGET",
-                                            "dynamicBindings": {},
-                                            "parentId": "s3lmx5acn6",
-                                            "isLoading": false,
-                                            "parentColumnSpace": 51.4375,
-                                            "leftColumn": 7,
-                                            "text": "Submit",
-                                            "isDisabled": false
-                                        }
-                                    ]
-                                },
-                                {
-                                    "tabId": "tab2",
-                                    "widgetName": "Canvas2",
-                                    "rightColumn": 574,
-                                    "detachFromLayout": true,
-                                    "widgetId": "4gm6hualwh",
-                                    "containerStyle": "none",
-                                    "topRow": 0,
-                                    "bottomRow": 228,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 266,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": [
-                                        {
-                                            "widgetName": "Checkbox2",
-                                            "rightColumn": 4,
-                                            "widgetId": "68e5f5kehb",
-                                            "topRow": 1,
-                                            "bottomRow": 2,
-                                            "parentRowSpace": 38,
-                                            "isVisible": true,
-                                            "label": "Label me",
-                                            "type": "CHECKBOX_WIDGET",
-                                            "dynamicBindings": {},
-                                            "parentId": "4gm6hualwh",
-                                            "isLoading": false,
-                                            "parentColumnSpace": 51.4375,
-                                            "leftColumn": 1,
-                                            "defaultCheckedState": true
-                                        }
-                                    ]
-                                },
-                                {
-                                    "tabId": "tabp0uz4ucxjy",
-                                    "widgetName": "Canvas3",
-                                    "rightColumn": 430.5,
-                                    "detachFromLayout": true,
-                                    "widgetId": "d3vnpcqfux",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 229,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 228,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                },
-                                {
-                                    "tabId": "tab9deewfrkvy",
-                                    "widgetName": "Canvas4",
-                                    "rightColumn": 1076.25,
-                                    "detachFromLayout": true,
-                                    "widgetId": "f12x4oh4im",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 305,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 304,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                },
-                                {
-                                    "tabId": "tab5mky7wi8s7",
-                                    "widgetName": "Canvas5",
-                                    "rightColumn": 1076.25,
-                                    "detachFromLayout": true,
-                                    "widgetId": "7mvuw32897",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 305,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 304,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                },
-                                {
-                                    "tabId": "tabf93xg6z8ic",
-                                    "widgetName": "Canvas6",
-                                    "rightColumn": 1076.25,
-                                    "detachFromLayout": true,
-                                    "widgetId": "z7br5p9n30",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 305,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 304,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                },
-                                {
-                                    "tabId": "tabvpmnf6jds8",
-                                    "widgetName": "Canvas7",
-                                    "rightColumn": 1076.25,
-                                    "detachFromLayout": true,
-                                    "widgetId": "msmbeq6d5x",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 305,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 304,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                },
-                                {
-                                    "tabId": "tabq1fozv19qz",
-                                    "widgetName": "Canvas8",
-                                    "rightColumn": 1076.25,
-                                    "detachFromLayout": true,
-                                    "widgetId": "mkl9qtbdxw",
-                                    "containerStyle": "none",
-                                    "topRow": 1,
-                                    "bottomRow": 305,
-                                    "parentRowSpace": 1,
-                                    "isVisible": true,
-                                    "canExtend": false,
-                                    "type": "CANVAS_WIDGET",
-                                    "parentId": "p4ph0yxggg",
-                                    "minHeight": 304,
-                                    "isLoading": false,
-                                    "parentColumnSpace": 1,
-                                    "leftColumn": 0,
-                                    "children": []
-                                }
-                            ],
-                            "selectedTab": "Tab 2"
-                        }
+                        "parentId": "s3lmx5acn6",
+                        "isLoading": false,
+                        "parentColumnSpace": 51.4375,
+                        "leftColumn": 1,
+                        "inputType": "TEXT"
+                      },
+                      {
+                        "widgetName": "Checkbox1",
+                        "rightColumn": 6,
+                        "widgetId": "e0da18s6li",
+                        "topRow": 2,
+                        "bottomRow": 3,
+                        "parentRowSpace": 38,
+                        "isVisible": true,
+                        "label": "Label me",
+                        "type": "CHECKBOX_WIDGET",
+                        "dynamicBindings": {},
+                        "parentId": "s3lmx5acn6",
+                        "isLoading": false,
+                        "parentColumnSpace": 51.4375,
+                        "leftColumn": 3,
+                        "defaultCheckedState": true
+                      },
+                      {
+                        "widgetName": "RadioGroup1",
+                        "rightColumn": 12,
+                        "widgetId": "xop37d5kql",
+                        "topRow": 1,
+                        "bottomRow": 3,
+                        "isValid": "{{ RadioGroup1.isRequired ? !!RadioGroup1.selectedOptionValue : true }}",
+                        "parentRowSpace": 38,
+                        "isVisible": true,
+                        "label": "Label",
+                        "type": "RADIO_GROUP_WIDGET",
+                        "dynamicBindings": {
+                          "isValid": true,
+                          "selectedOption": true
+                        },
+                        "selectedOption": "{{_.find(RadioGroup1.options, { value: RadioGroup1.selectedOptionValue })}}",
+                        "parentId": "s3lmx5acn6",
+                        "isLoading": false,
+                        "defaultOptionValue": "1",
+                        "parentColumnSpace": 51.4375,
+                        "leftColumn": 9,
+                        "options": [
+                          {
+                            "id": "1",
+                            "label": "Alpha",
+                            "value": "1"
+                          },
+                          {
+                            "id": "2",
+                            "label": "Bravo",
+                            "value": "2"
+                          },
+                          {
+                            "id": "3",
+                            "label": "Charlie",
+                            "value": "3"
+                          }
+                        ]
+                      },
+                      {
+                        "widgetName": "Button1",
+                        "rightColumn": 9,
+                        "isDefaultClickDisabled": true,
+                        "widgetId": "ih7kwqfhsb",
+                        "buttonStyle": "PRIMARY_BUTTON",
+                        "topRow": 3,
+                        "bottomRow": 4,
+                        "parentRowSpace": 38,
+                        "isVisible": true,
+                        "type": "BUTTON_WIDGET",
+                        "dynamicBindings": {},
+                        "parentId": "s3lmx5acn6",
+                        "isLoading": false,
+                        "parentColumnSpace": 51.4375,
+                        "leftColumn": 7,
+                        "text": "Submit",
+                        "isDisabled": false
+                      }
                     ]
-                }
-            ]
-        },
-        {
-            "backgroundColor": "#FFFFFF",
-            "widgetName": "Container4",
-            "rightColumn": 16,
-            "orientation": "VERTICAL",
-            "snapColumns": 16,
-            "widgetId": "m2nzemp45g",
-            "containerStyle": "card",
-            "topRow": 0,
-            "bottomRow": 9,
-            "parentRowSpace": 38,
-            "isVisible": true,
-            "type": "CONTAINER_WIDGET",
-            "dynamicBindings": {},
-            "isLoading": false,
-            "parentColumnSpace": 75.25,
-            "leftColumn": 8,
-            "children": [
-                {
-                    "backgroundColor": "#FFFFFF",
-                    "widgetName": "hr7raim6z1",
-                    "rightColumn": 602,
-                    "orientation": "VERTICAL",
-                    "snapColumns": 16,
+                  },
+                  {
+                    "tabId": "tab2",
+                    "widgetName": "Canvas2",
+                    "rightColumn": 574,
                     "detachFromLayout": true,
-                    "widgetId": "nlnjrkg0uh",
+                    "widgetId": "4gm6hualwh",
                     "containerStyle": "none",
                     "topRow": 0,
-                    "bottomRow": 342,
+                    "bottomRow": 228,
                     "parentRowSpace": 1,
                     "isVisible": true,
-                    "type": "CANVAS_WIDGET",
                     "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 266,
                     "isLoading": false,
                     "parentColumnSpace": 1,
                     "leftColumn": 0,
                     "children": [
-                        {
-                            "widgetName": "Text2",
-                            "rightColumn": 3,
-                            "widgetId": "k7lop1jds0",
-                            "topRow": 0,
-                            "bottomRow": 1,
-                            "parentRowSpace": 38,
-                            "isVisible": true,
-                            "type": "TEXT_WIDGET",
-                            "dynamicBindings": {},
-                            "isLoading": false,
-                            "parentColumnSpace": 35.25,
-                            "leftColumn": 0,
-                            "text": "Title",
-                            "textStyle": "HEADING"
-                        }
+                      {
+                        "widgetName": "Checkbox2",
+                        "rightColumn": 4,
+                        "widgetId": "68e5f5kehb",
+                        "topRow": 1,
+                        "bottomRow": 2,
+                        "parentRowSpace": 38,
+                        "isVisible": true,
+                        "label": "Label me",
+                        "type": "CHECKBOX_WIDGET",
+                        "dynamicBindings": {},
+                        "parentId": "4gm6hualwh",
+                        "isLoading": false,
+                        "parentColumnSpace": 51.4375,
+                        "leftColumn": 1,
+                        "defaultCheckedState": true
+                      }
                     ]
-                }
+                  },
+                  {
+                    "tabId": "tabp0uz4ucxjy",
+                    "widgetName": "Canvas3",
+                    "rightColumn": 430.5,
+                    "detachFromLayout": true,
+                    "widgetId": "d3vnpcqfux",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 229,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 228,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  },
+                  {
+                    "tabId": "tab9deewfrkvy",
+                    "widgetName": "Canvas4",
+                    "rightColumn": 1076.25,
+                    "detachFromLayout": true,
+                    "widgetId": "f12x4oh4im",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 305,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 304,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  },
+                  {
+                    "tabId": "tab5mky7wi8s7",
+                    "widgetName": "Canvas5",
+                    "rightColumn": 1076.25,
+                    "detachFromLayout": true,
+                    "widgetId": "7mvuw32897",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 305,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 304,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  },
+                  {
+                    "tabId": "tabf93xg6z8ic",
+                    "widgetName": "Canvas6",
+                    "rightColumn": 1076.25,
+                    "detachFromLayout": true,
+                    "widgetId": "z7br5p9n30",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 305,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 304,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  },
+                  {
+                    "tabId": "tabvpmnf6jds8",
+                    "widgetName": "Canvas7",
+                    "rightColumn": 1076.25,
+                    "detachFromLayout": true,
+                    "widgetId": "msmbeq6d5x",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 305,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 304,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  },
+                  {
+                    "tabId": "tabq1fozv19qz",
+                    "widgetName": "Canvas8",
+                    "rightColumn": 1076.25,
+                    "detachFromLayout": true,
+                    "widgetId": "mkl9qtbdxw",
+                    "containerStyle": "none",
+                    "topRow": 1,
+                    "bottomRow": 305,
+                    "parentRowSpace": 1,
+                    "isVisible": true,
+                    "canExtend": false,
+                    "type": "CANVAS_WIDGET",
+                    "parentId": "p4ph0yxggg",
+                    "minHeight": 304,
+                    "isLoading": false,
+                    "parentColumnSpace": 1,
+                    "leftColumn": 0,
+                    "children": []
+                  }
+                ],
+                "selectedTab": "Tab 2"
+              }
             ]
-        }
+          }
+        ]
+      },
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container4",
+        "rightColumn": 16,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "m2nzemp45g",
+        "containerStyle": "card",
+        "topRow": 0,
+        "bottomRow": 9,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 8,
+        "children": [
+          {
+            "backgroundColor": "#FFFFFF",
+            "widgetName": "hr7raim6z1",
+            "rightColumn": 602,
+            "orientation": "VERTICAL",
+            "snapColumns": 16,
+            "detachFromLayout": true,
+            "widgetId": "nlnjrkg0uh",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 342,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": [
+              {
+                "widgetName": "Text2",
+                "rightColumn": 3,
+                "widgetId": "k7lop1jds0",
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindings": {},
+                "isLoading": false,
+                "parentColumnSpace": 35.25,
+                "leftColumn": 0,
+                "text": "Title",
+                "textStyle": "HEADING"
+              }
+            ]
+          }
+        ]
+      }
     ]
-},
-"layoutOnLoadActions": []
+  },
+  "layoutOnLoadActions": []
 }

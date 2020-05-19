@@ -1,514 +1,514 @@
 {
-    "dsl": {
-       "widgetName": "MainContainer",
-       "backgroundColor": "none",
-       "rightColumn": 1224,
-       "snapColumns": 16,
-       "detachFromLayout": true,
-       "widgetId": "0",
-       "topRow": 0,
-       "bottomRow": 1292,
-       "containerStyle": "none",
-       "snapRows": 33,
-       "parentRowSpace": 1,
-       "type": "CANVAS_WIDGET",
-       "canExtend": true,
-       "dynamicBindings": {},
-       "version": 3,
-       "minHeight": 1292,
-       "parentColumnSpace": 1,
-       "leftColumn": 0,
-       "children": [
-           {
-               "backgroundColor": "#C0C0C0",
-               "widgetName": "Aditya",
-               "rightColumn": 8,
-               "orientation": "VERTICAL",
-               "snapColumns": 16,
-               "widgetId": "gmm48aishv",
-               "containerStyle": "card",
-               "topRow": 0,
-               "bottomRow": 9,
-               "parentRowSpace": 38,
-               "isVisible": true,
-               "type": "CONTAINER_WIDGET",
-               "dynamicBindings": {},
-               "isLoading": false,
-               "shouldScrollContents": true,
-               "parentColumnSpace": 75.25,
-               "leftColumn": 0,
-               "children": [
-                   {
-                       "backgroundColor": "#FFFFFF",
-                       "widgetName": "jmwwbtgjry",
-                       "rightColumn": 602,
-                       "orientation": "VERTICAL",
-                       "snapColumns": 16,
-                       "detachFromLayout": true,
-                       "widgetId": "hjiybwqair",
-                       "containerStyle": "none",
-                       "topRow": 0,
-                       "bottomRow": 342,
-                       "parentRowSpace": 1,
-                       "isVisible": true,
-                       "type": "CANVAS_WIDGET",
-                       "canExtend": false,
-                       "isLoading": false,
-                       "parentColumnSpace": 1,
-                       "leftColumn": 0,
-                       "children": [
-                           {
-                               "onTextChanged": "",
-                               "widgetName": "input",
-                               "rightColumn": 11,
-                               "widgetId": "oudih5fvwa",
-                               "topRow": 6,
-                               "bottomRow": 7,
-                               "isValid": "{{input.isRequired ? input.text && descriptionInput.text.length > 0 ? input.regex ? new RegExp(input.regex).test(input.text) : true : input.regex ? new RegExp(input.regex).test(input.text) : true}}",
-                               "parentRowSpace": 38,
-                               "isVisible": true,
-                               "label": "Test Input Label",
-                               "type": "INPUT_WIDGET",
-                               "dynamicBindings": {
-                                   "isValid": true
-                               },
-                               "parentId": "iw4o07jvik",
-                               "isLoading": false,
-                               "parentColumnSpace": 34.6875,
-                               "leftColumn": 6,
-                               "dynamicTriggers": {
-                                   "onTextChanged": true
-                               },
-                               "inputType": "",
-                               "placeholderText": "",
-                               "defaultText": ""
-                           },
-                           {
-                               "widgetName": "TestTextBox",
-                               "rightColumn": 5,
-                               "widgetId": "4d8d2eh4xg",
-                               "dynamicProperties": {},
-                               "topRow": 2,
-                               "bottomRow": 3,
-                               "parentRowSpace": 38,
-                               "isVisible": true,
-                               "type": "TEXT_WIDGET",
-                               "dynamicBindings": {},
-                               "shouldScroll": true,
-                               "parentId": "hjiybwqair",
-                               "isLoading": false,
-                               "parentColumnSpace": 34.6875,
-                               "leftColumn": 1,
-                               "text": "Test text",
-                               "textStyle": "HEADING"
-                           },
-                           {
-                               "widgetName": "Submitbutton",
-                               "rightColumn": 12,
-                               "onClick": "{{showModal()}}",
-                               "isDefaultClickDisabled": true,
-                               "widgetId": "3p92qmlzfl",
-                               "buttonStyle": "PRIMARY_BUTTON",
-                               "topRow": 1,
-                               "bottomRow": 2,
-                               "parentRowSpace": 38,
-                               "isVisible": true,
-                               "type": "BUTTON_WIDGET",
-                               "dynamicBindings": {},
-                               "parentId": "hjiybwqair",
-                               "isLoading": false,
-                               "parentColumnSpace": 34.6875,
-                               "leftColumn": 10,
-                               "dynamicTriggers": {
-                                   "onClick": true
-                               },
-                               "text": "Test Button Text",
-                               "isDisabled": false
-                           }
-                       ]
-                   }
-               ],
-               "text": "n TexttuTest Button Text"
-           },
-           {
-               "backgroundColor": "#FFFFFF",
-               "widgetName": "Container3",
-               "rightColumn": 16,
-               "orientation": "VERTICAL",
-               "snapColumns": 16,
-               "widgetId": "28hfrtdb1a",
-               "containerStyle": "card",
-               "topRow": 9,
-               "bottomRow": 23,
-               "parentRowSpace": 38,
-               "isVisible": true,
-               "type": "CONTAINER_WIDGET",
-               "dynamicBindings": {},
-               "isLoading": false,
-               "parentColumnSpace": 75.25,
-               "leftColumn": 0,
-               "children": [
-                   {
-                       "backgroundColor": "#FFFFFF",
-                       "widgetName": "lvl7ajf1rn",
-                       "rightColumn": 1204,
-                       "orientation": "VERTICAL",
-                       "snapColumns": 16,
-                       "detachFromLayout": true,
-                       "widgetId": "ac4kpozgg3",
-                       "containerStyle": "none",
-                       "topRow": 0,
-                       "bottomRow": 532,
-                       "parentRowSpace": 1,
-                       "isVisible": true,
-                       "type": "CANVAS_WIDGET",
-                       "canExtend": false,
-                       "isLoading": false,
-                       "parentColumnSpace": 1,
-                       "leftColumn": 0,
-                       "children": [
-                           {
-                               "widgetName": "Table1",
-                               "rightColumn": 11,
-                               "widgetId": "yum9t90tb2",
-                               "topRow": 1,
-                               "bottomRow": 8,
-                               "parentRowSpace": 38,
-                               "tableData": "{{UsersApi.data}}",
-                               "isVisible": true,
-                               "label": "Data",
-                               "type": "TABLE_WIDGET",
-                               "dynamicBindings": {
-                                   "tableData": true,
-                                   "selectedRow": true
-                               },
-                               "isLoading": false,
-                               "parentColumnSpace": 71.75,
-                               "leftColumn": 1,
-                               "dynamicTriggers": {
-                                   "onRowSelected": true
-                               },
-                               "onRowSelected": "{{navigateTo()}}",
-                               "selectedRow": "{{Table1.tableData[Table1.selectedRowIndex]}}"
-                           }
-                       ]
-                   }
-               ]
-           },
-           {
-               "backgroundColor": "#FFFFFF",
-               "widgetName": "Container4",
-               "rightColumn": 16,
-               "orientation": "VERTICAL",
-               "snapColumns": 16,
-               "widgetId": "ii6dnhfrba",
-               "containerStyle": "card",
-               "topRow": 0,
-               "bottomRow": 9,
-               "parentRowSpace": 38,
-               "isVisible": true,
-               "type": "CONTAINER_WIDGET",
-               "dynamicBindings": {},
-               "isLoading": false,
-               "parentColumnSpace": 75.25,
-               "leftColumn": 8,
-               "children": [
-                   {
-                       "backgroundColor": "#FFFFFF",
-                       "widgetName": "rnz3m8xrzc",
-                       "rightColumn": 602,
-                       "orientation": "VERTICAL",
-                       "snapColumns": 16,
-                       "detachFromLayout": true,
-                       "widgetId": "iw4o07jvik",
-                       "containerStyle": "none",
-                       "topRow": 0,
-                       "bottomRow": 342,
-                       "parentRowSpace": 1,
-                       "isVisible": true,
-                       "type": "CANVAS_WIDGET",
-                       "canExtend": false,
-                       "isLoading": false,
-                       "parentColumnSpace": 1,
-                       "leftColumn": 0,
-                       "children": []
-                   }
-               ]
-           },
-           {
-               "widgetName": "TestModal",
-               "rightColumn": 0,
-               "detachFromLayout": true,
-               "widgetId": "s8mtp5krfz",
-               "topRow": 0,
-               "bottomRow": 0,
-               "parentRowSpace": 1,
-               "isVisible": false,
-               "canOutsideClickClose": true,
-               "type": "MODAL_WIDGET",
-               "canEscapeKeyClose": true,
-               "dynamicBindings": {},
-               "parentId": "0",
-               "shouldScrollContents": true,
-               "blueprint": {
-                   "view": [
-                       {
-                           "position": {
-                               "top": 0,
-                               "left": 0
-                           },
-                           "type": "CANVAS_WIDGET",
-                           "props": {
-                               "shouldScrollContents": false,
-                               "blueprint": {
-                                   "view": [
-                                       {
-                                           "size": {
-                                               "rows": 1,
-                                               "cols": 1
-                                           },
-                                           "position": {
-                                               "top": 0,
-                                               "left": 15
-                                           },
-                                           "type": "ICON_WIDGET",
-                                           "props": {
-                                               "color": "#040627",
-                                               "iconName": "cross",
-                                               "iconSize": 24
-                                           }
-                                       },
-                                       {
-                                           "size": {
-                                               "rows": 1,
-                                               "cols": 15
-                                           },
-                                           "position": {
-                                               "top": 0,
-                                               "left": 0
-                                           },
-                                           "type": "TEXT_WIDGET",
-                                           "props": {
-                                               "text": "Modal Title",
-                                               "textStyle": "HEADING"
-                                           }
-                                       },
-                                       {
-                                           "size": {
-                                               "rows": 1,
-                                               "cols": 3
-                                           },
-                                           "position": {
-                                               "top": 4,
-                                               "left": 10
-                                           },
-                                           "type": "BUTTON_WIDGET",
-                                           "props": {
-                                               "buttonStyle": "SECONDARY_BUTTON",
-                                               "text": "Cancel"
-                                           }
-                                       },
-                                       {
-                                           "size": {
-                                               "rows": 1,
-                                               "cols": 3
-                                           },
-                                           "position": {
-                                               "top": 4,
-                                               "left": 13
-                                           },
-                                           "type": "BUTTON_WIDGET",
-                                           "props": {
-                                               "buttonStyle": "PRIMARY_BUTTON",
-                                               "text": "Confirm"
-                                           }
-                                       }
-                                   ],
-                                   "operations": [
-                                       {
-                                           "type": "MODIFY_PROPS"
-                                       }
-                                   ]
-                               },
-                               "detachFromLayout": true,
-                               "children": [],
-                               "isVisible": true,
-                               "isDisabled": false,
-                               "canExtend": true
-                           }
-                       }
-                   ]
-               },
-               "isLoading": false,
-               "parentColumnSpace": 1,
-               "size": "MODAL_SMALL",
-               "leftColumn": 0,
-               "children": [
-                   {
-                       "widgetName": "Canvas1",
-                       "rightColumn": 0,
-                       "detachFromLayout": true,
-                       "widgetId": "dma7flgdrm",
-                       "topRow": 0,
-                       "bottomRow": 0,
-                       "parentRowSpace": 1,
-                       "isVisible": true,
-                       "canExtend": true,
-                       "type": "CANVAS_WIDGET",
-                       "parentId": "s8mtp5krfz",
-                       "shouldScrollContents": false,
-                       "blueprint": {
-                           "view": [
-                               {
-                                   "size": {
-                                       "rows": 1,
-                                       "cols": 1
-                                   },
-                                   "position": {
-                                       "top": 0,
-                                       "left": 15
-                                   },
-                                   "type": "ICON_WIDGET",
-                                   "props": {
-                                       "color": "#040627",
-                                       "iconName": "cross",
-                                       "iconSize": 24
-                                   }
-                               },
-                               {
-                                   "size": {
-                                       "rows": 1,
-                                       "cols": 15
-                                   },
-                                   "position": {
-                                       "top": 0,
-                                       "left": 0
-                                   },
-                                   "type": "TEXT_WIDGET",
-                                   "props": {
-                                       "text": "Modal Title",
-                                       "textStyle": "HEADING"
-                                   }
-                               },
-                               {
-                                   "size": {
-                                       "rows": 1,
-                                       "cols": 3
-                                   },
-                                   "position": {
-                                       "top": 4,
-                                       "left": 10
-                                   },
-                                   "type": "BUTTON_WIDGET",
-                                   "props": {
-                                       "buttonStyle": "SECONDARY_BUTTON",
-                                       "text": "Cancel"
-                                   }
-                               },
-                               {
-                                   "size": {
-                                       "rows": 1,
-                                       "cols": 3
-                                   },
-                                   "position": {
-                                       "top": 4,
-                                       "left": 13
-                                   },
-                                   "type": "BUTTON_WIDGET",
-                                   "props": {
-                                       "buttonStyle": "PRIMARY_BUTTON",
-                                       "text": "Confirm"
-                                   }
-                               }
-                           ],
-                           "operations": [
-                               {
-                                   "type": "MODIFY_PROPS"
-                               }
-                           ]
-                       },
-                       "minHeight": 0,
-                       "isLoading": false,
-                       "parentColumnSpace": 1,
-                       "leftColumn": 0,
-                       "children": [
-                           {
-                               "widgetName": "Icon1",
-                               "rightColumn": 16,
-                               "onClick": "{{closeModal('TestModal')}}",
-                               "color": "#040627",
-                               "iconName": "cross",
-                               "widgetId": "n5fc0ven2a",
-                               "topRow": 0,
-                               "bottomRow": 1,
-                               "isVisible": true,
-                               "type": "ICON_WIDGET",
-                               "parentId": "dma7flgdrm",
-                               "isLoading": false,
-                               "leftColumn": 15,
-                               "iconSize": 24
-                           },
-                           {
-                               "isLoading": false,
-                               "widgetName": "Text1",
-                               "rightColumn": 15,
-                               "leftColumn": 0,
-                               "widgetId": "s818l5hhvq",
-                               "topRow": 0,
-                               "bottomRow": 1,
-                               "isVisible": true,
-                               "text": "Modal Title",
-                               "textStyle": "HEADING",
-                               "type": "TEXT_WIDGET",
-                               "parentId": "dma7flgdrm"
-                           },
-                           {
-                               "widgetName": "Button1",
-                               "rightColumn": 13,
-                               "isDefaultClickDisabled": true,
-                               "widgetId": "io777lh7bc",
-                               "buttonStyle": "SECONDARY_BUTTON",
-                               "topRow": 4,
-                               "bottomRow": 5,
-                               "isVisible": true,
-                               "type": "BUTTON_WIDGET",
-                               "parentId": "dma7flgdrm",
-                               "isLoading": false,
-                               "leftColumn": 10,
-                               "text": "Cancel",
-                               "isDisabled": false
-                           },
-                           {
-                               "widgetName": "Button2",
-                               "rightColumn": 16,
-                               "isDefaultClickDisabled": true,
-                               "widgetId": "gexp49bfyb",
-                               "buttonStyle": "PRIMARY_BUTTON",
-                               "topRow": 4,
-                               "bottomRow": 5,
-                               "isVisible": true,
-                               "type": "BUTTON_WIDGET",
-                               "parentId": "dma7flgdrm",
-                               "isLoading": false,
-                               "leftColumn": 13,
-                               "text": "Confirm",
-                               "isDisabled": false
-                           }
-                       ],
-                       "isDisabled": false
-                   }
-               ]
-           }
-       ]
-    },
-    "layoutOnLoadActions": [
-       [
-           {
-               "id": "5e906ba76e910873a331b648",
-               "name": "UsersApi",
-               "pluginType": "API",
-               "jsonPathKeys": []
-           }
-       ]
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1292,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "dynamicBindings": {},
+    "version": 3,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "leftColumn": 0,
+    "children": [
+      {
+        "backgroundColor": "#C0C0C0",
+        "widgetName": "Aditya",
+        "rightColumn": 8,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "gmm48aishv",
+        "containerStyle": "card",
+        "topRow": 0,
+        "bottomRow": 9,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "shouldScrollContents": true,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 0,
+        "children": [
+          {
+            "backgroundColor": "#FFFFFF",
+            "widgetName": "jmwwbtgjry",
+            "rightColumn": 602,
+            "orientation": "VERTICAL",
+            "snapColumns": 16,
+            "detachFromLayout": true,
+            "widgetId": "hjiybwqair",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 342,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": [
+              {
+                "onTextChanged": "",
+                "widgetName": "input",
+                "rightColumn": 11,
+                "widgetId": "oudih5fvwa",
+                "topRow": 6,
+                "bottomRow": 7,
+                "isValid": "{{input.isRequired ? input.text && descriptionInput.text.length > 0 ? input.regex ? new RegExp(input.regex).test(input.text) : true : input.regex ? new RegExp(input.regex).test(input.text) : true}}",
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "label": "Test Input Label",
+                "type": "INPUT_WIDGET",
+                "dynamicBindings": {
+                  "isValid": true
+                },
+                "parentId": "iw4o07jvik",
+                "isLoading": false,
+                "parentColumnSpace": 34.6875,
+                "leftColumn": 6,
+                "dynamicTriggers": {
+                  "onTextChanged": true
+                },
+                "inputType": "",
+                "placeholderText": "",
+                "defaultText": ""
+              },
+              {
+                "widgetName": "TestTextBox",
+                "rightColumn": 5,
+                "widgetId": "4d8d2eh4xg",
+                "dynamicProperties": {},
+                "topRow": 2,
+                "bottomRow": 3,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindings": {},
+                "shouldScroll": true,
+                "parentId": "hjiybwqair",
+                "isLoading": false,
+                "parentColumnSpace": 34.6875,
+                "leftColumn": 1,
+                "text": "Test text",
+                "textStyle": "HEADING"
+              },
+              {
+                "widgetName": "Submitbutton",
+                "rightColumn": 12,
+                "onClick": "{{showModal()}}",
+                "isDefaultClickDisabled": true,
+                "widgetId": "3p92qmlzfl",
+                "buttonStyle": "PRIMARY_BUTTON",
+                "topRow": 1,
+                "bottomRow": 2,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "BUTTON_WIDGET",
+                "dynamicBindings": {},
+                "parentId": "hjiybwqair",
+                "isLoading": false,
+                "parentColumnSpace": 34.6875,
+                "leftColumn": 10,
+                "dynamicTriggers": {
+                  "onClick": true
+                },
+                "text": "Test Button Text",
+                "isDisabled": false
+              }
+            ]
+          }
+        ],
+        "text": "n TexttuTest Button Text"
+      },
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container3",
+        "rightColumn": 16,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "28hfrtdb1a",
+        "containerStyle": "card",
+        "topRow": 9,
+        "bottomRow": 23,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 0,
+        "children": [
+          {
+            "backgroundColor": "#FFFFFF",
+            "widgetName": "lvl7ajf1rn",
+            "rightColumn": 1204,
+            "orientation": "VERTICAL",
+            "snapColumns": 16,
+            "detachFromLayout": true,
+            "widgetId": "ac4kpozgg3",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 532,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": [
+              {
+                "widgetName": "Table1",
+                "rightColumn": 11,
+                "widgetId": "yum9t90tb2",
+                "topRow": 1,
+                "bottomRow": 8,
+                "parentRowSpace": 38,
+                "tableData": "{{UsersApi.data}}",
+                "isVisible": true,
+                "label": "Data",
+                "type": "TABLE_WIDGET",
+                "dynamicBindings": {
+                  "tableData": true,
+                  "selectedRow": true
+                },
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "leftColumn": 1,
+                "dynamicTriggers": {
+                  "onRowSelected": true
+                },
+                "onRowSelected": "{{navigateTo()}}",
+                "selectedRow": "{{Table1.tableData[Table1.selectedRowIndex]}}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "backgroundColor": "#FFFFFF",
+        "widgetName": "Container4",
+        "rightColumn": 16,
+        "orientation": "VERTICAL",
+        "snapColumns": 16,
+        "widgetId": "ii6dnhfrba",
+        "containerStyle": "card",
+        "topRow": 0,
+        "bottomRow": 9,
+        "parentRowSpace": 38,
+        "isVisible": true,
+        "type": "CONTAINER_WIDGET",
+        "dynamicBindings": {},
+        "isLoading": false,
+        "parentColumnSpace": 75.25,
+        "leftColumn": 8,
+        "children": [
+          {
+            "backgroundColor": "#FFFFFF",
+            "widgetName": "rnz3m8xrzc",
+            "rightColumn": 602,
+            "orientation": "VERTICAL",
+            "snapColumns": 16,
+            "detachFromLayout": true,
+            "widgetId": "iw4o07jvik",
+            "containerStyle": "none",
+            "topRow": 0,
+            "bottomRow": 342,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "type": "CANVAS_WIDGET",
+            "canExtend": false,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": []
+          }
+        ]
+      },
+      {
+        "widgetName": "TestModal",
+        "rightColumn": 0,
+        "detachFromLayout": true,
+        "widgetId": "s8mtp5krfz",
+        "topRow": 0,
+        "bottomRow": 0,
+        "parentRowSpace": 1,
+        "isVisible": false,
+        "canOutsideClickClose": true,
+        "type": "MODAL_WIDGET",
+        "canEscapeKeyClose": true,
+        "dynamicBindings": {},
+        "parentId": "0",
+        "shouldScrollContents": true,
+        "blueprint": {
+          "view": [
+            {
+              "position": {
+                "top": 0,
+                "left": 0
+              },
+              "type": "CANVAS_WIDGET",
+              "props": {
+                "shouldScrollContents": false,
+                "blueprint": {
+                  "view": [
+                    {
+                      "size": {
+                        "rows": 1,
+                        "cols": 1
+                      },
+                      "position": {
+                        "top": 0,
+                        "left": 15
+                      },
+                      "type": "ICON_WIDGET",
+                      "props": {
+                        "color": "#040627",
+                        "iconName": "cross",
+                        "iconSize": 24
+                      }
+                    },
+                    {
+                      "size": {
+                        "rows": 1,
+                        "cols": 15
+                      },
+                      "position": {
+                        "top": 0,
+                        "left": 0
+                      },
+                      "type": "TEXT_WIDGET",
+                      "props": {
+                        "text": "Modal Title",
+                        "textStyle": "HEADING"
+                      }
+                    },
+                    {
+                      "size": {
+                        "rows": 1,
+                        "cols": 3
+                      },
+                      "position": {
+                        "top": 4,
+                        "left": 10
+                      },
+                      "type": "BUTTON_WIDGET",
+                      "props": {
+                        "buttonStyle": "SECONDARY_BUTTON",
+                        "text": "Cancel"
+                      }
+                    },
+                    {
+                      "size": {
+                        "rows": 1,
+                        "cols": 3
+                      },
+                      "position": {
+                        "top": 4,
+                        "left": 13
+                      },
+                      "type": "BUTTON_WIDGET",
+                      "props": {
+                        "buttonStyle": "PRIMARY_BUTTON",
+                        "text": "Confirm"
+                      }
+                    }
+                  ],
+                  "operations": [
+                    {
+                      "type": "MODIFY_PROPS"
+                    }
+                  ]
+                },
+                "detachFromLayout": true,
+                "children": [],
+                "isVisible": true,
+                "isDisabled": false,
+                "canExtend": true
+              }
+            }
+          ]
+        },
+        "isLoading": false,
+        "parentColumnSpace": 1,
+        "size": "MODAL_SMALL",
+        "leftColumn": 0,
+        "children": [
+          {
+            "widgetName": "Canvas1",
+            "rightColumn": 0,
+            "detachFromLayout": true,
+            "widgetId": "dma7flgdrm",
+            "topRow": 0,
+            "bottomRow": 0,
+            "parentRowSpace": 1,
+            "isVisible": true,
+            "canExtend": true,
+            "type": "CANVAS_WIDGET",
+            "parentId": "s8mtp5krfz",
+            "shouldScrollContents": false,
+            "blueprint": {
+              "view": [
+                {
+                  "size": {
+                    "rows": 1,
+                    "cols": 1
+                  },
+                  "position": {
+                    "top": 0,
+                    "left": 15
+                  },
+                  "type": "ICON_WIDGET",
+                  "props": {
+                    "color": "#040627",
+                    "iconName": "cross",
+                    "iconSize": 24
+                  }
+                },
+                {
+                  "size": {
+                    "rows": 1,
+                    "cols": 15
+                  },
+                  "position": {
+                    "top": 0,
+                    "left": 0
+                  },
+                  "type": "TEXT_WIDGET",
+                  "props": {
+                    "text": "Modal Title",
+                    "textStyle": "HEADING"
+                  }
+                },
+                {
+                  "size": {
+                    "rows": 1,
+                    "cols": 3
+                  },
+                  "position": {
+                    "top": 4,
+                    "left": 10
+                  },
+                  "type": "BUTTON_WIDGET",
+                  "props": {
+                    "buttonStyle": "SECONDARY_BUTTON",
+                    "text": "Cancel"
+                  }
+                },
+                {
+                  "size": {
+                    "rows": 1,
+                    "cols": 3
+                  },
+                  "position": {
+                    "top": 4,
+                    "left": 13
+                  },
+                  "type": "BUTTON_WIDGET",
+                  "props": {
+                    "buttonStyle": "PRIMARY_BUTTON",
+                    "text": "Confirm"
+                  }
+                }
+              ],
+              "operations": [
+                {
+                  "type": "MODIFY_PROPS"
+                }
+              ]
+            },
+            "minHeight": 0,
+            "isLoading": false,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "children": [
+              {
+                "widgetName": "Icon1",
+                "rightColumn": 16,
+                "onClick": "{{closeModal('TestModal')}}",
+                "color": "#040627",
+                "iconName": "cross",
+                "widgetId": "n5fc0ven2a",
+                "topRow": 0,
+                "bottomRow": 1,
+                "isVisible": true,
+                "type": "ICON_WIDGET",
+                "parentId": "dma7flgdrm",
+                "isLoading": false,
+                "leftColumn": 15,
+                "iconSize": 24
+              },
+              {
+                "isLoading": false,
+                "widgetName": "Text1",
+                "rightColumn": 15,
+                "leftColumn": 0,
+                "widgetId": "s818l5hhvq",
+                "topRow": 0,
+                "bottomRow": 1,
+                "isVisible": true,
+                "text": "Modal Title",
+                "textStyle": "HEADING",
+                "type": "TEXT_WIDGET",
+                "parentId": "dma7flgdrm"
+              },
+              {
+                "widgetName": "Button1",
+                "rightColumn": 13,
+                "isDefaultClickDisabled": true,
+                "widgetId": "io777lh7bc",
+                "buttonStyle": "SECONDARY_BUTTON",
+                "topRow": 4,
+                "bottomRow": 5,
+                "isVisible": true,
+                "type": "BUTTON_WIDGET",
+                "parentId": "dma7flgdrm",
+                "isLoading": false,
+                "leftColumn": 10,
+                "text": "Cancel",
+                "isDisabled": false
+              },
+              {
+                "widgetName": "Button2",
+                "rightColumn": 16,
+                "isDefaultClickDisabled": true,
+                "widgetId": "gexp49bfyb",
+                "buttonStyle": "PRIMARY_BUTTON",
+                "topRow": 4,
+                "bottomRow": 5,
+                "isVisible": true,
+                "type": "BUTTON_WIDGET",
+                "parentId": "dma7flgdrm",
+                "isLoading": false,
+                "leftColumn": 13,
+                "text": "Confirm",
+                "isDisabled": false
+              }
+            ],
+            "isDisabled": false
+          }
+        ]
+      }
     ]
-    }
+  },
+  "layoutOnLoadActions": [
+    [
+      {
+        "id": "5e906ba76e910873a331b648",
+        "name": "UsersApi",
+        "pluginType": "API",
+        "jsonPathKeys": []
+      }
+    ]
+  ]
+}
