@@ -18,9 +18,9 @@ const FormRowWithLabel = styled.div`
 
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   useEffect(() => {
-    // Always maintain 2 rows
-    if (props.fields.length < 2) {
-      for (let i = props.fields.length; i < 2; i += 1) {
+    // Always maintain 1 row
+    if (props.fields.length < 1) {
+      for (let i = props.fields.length; i < 1; i += 1) {
         props.fields.push({ key: "", value: "" });
       }
     }

@@ -34,6 +34,7 @@ import {
 } from "constants/QueryEditorConstants";
 import { AppState } from "reducers";
 import { Datasource } from "api/DatasourcesApi";
+import Fuse from "fuse.js";
 
 interface ReduxDispatchProps {
   initDatasourcePane: (pluginType: string, urlId?: string) => void;
@@ -190,6 +191,15 @@ type Props = DataSourceSidebarProps &
   ReduxStateProps &
   ReduxDispatchProps;
 
+const FUSE_OPTIONS = {
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  minMatchCharLength: 3,
+  findAllMatches: true,
+  keys: ["name"],
+};
+
 class DataSourceSidebar extends React.Component<Props, State> {
   refsCollection: any;
 
@@ -236,6 +246,13 @@ class DataSourceSidebar extends React.Component<Props, State> {
     });
   };
 
+  getSearchFilteredList = () => {
+    const { search } = this.state;
+    const { dataSources } = this.props;
+    const fuse = new Fuse(dataSources, FUSE_OPTIONS);
+    return search ? fuse.search(search) : dataSources;
+  };
+
   getImageSource = (pluginId: string) => {
     const { plugins } = this.props;
     const plugin = plugins.find(plugin => plugin.id === pluginId);
@@ -252,7 +269,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
     }
   };
 
-  renderItem = (datasources: Datasource[]) => {
+  renderItem = () => {
     const {
       match: {
         params: { datasourceId },
@@ -262,7 +279,9 @@ class DataSourceSidebar extends React.Component<Props, State> {
       drafts,
     } = this.props;
 
-    return datasources.map(datasource => {
+    const filteredList = this.getSearchFilteredList();
+
+    return filteredList.map(datasource => {
       return (
         <ItemContainer
           data-cy={datasource.id}
@@ -308,7 +327,6 @@ class DataSourceSidebar extends React.Component<Props, State> {
 
   render() {
     const { search } = this.state;
-    const { dataSources } = this.props;
     const {
       match: {
         params: { datasourceId },
@@ -336,7 +354,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
             onClick={this.handleCreateNewDatasource}
           />
         </Container>
-        {this.renderItem(dataSources)}
+        {this.renderItem()}
       </Wrapper>
     );
   }

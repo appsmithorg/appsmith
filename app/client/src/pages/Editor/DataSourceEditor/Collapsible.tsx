@@ -42,6 +42,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
 
   render() {
     const { children, title } = this.props;
+    const { isOpen } = this.state;
 
     return (
       <>
@@ -57,7 +58,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
         >
           <SectionLabel>{title}</SectionLabel>
           <Icon
-            icon={"chevron-down"}
+            icon={isOpen ? "chevron-up" : "chevron-down"}
             iconSize={16}
             style={{ color: "#2E3D49" }}
           />
