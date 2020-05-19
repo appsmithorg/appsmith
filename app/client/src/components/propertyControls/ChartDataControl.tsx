@@ -113,6 +113,7 @@ function DataControlComponent(props: RenderComponentProps) {
           theme={"DARK"}
           singleLine={false}
           placeholder=""
+          forwardRef={React.createRef<HTMLTextAreaElement>()}
         />
       </StyledDynamicInput>
     </StyledOptionControlWrapper>

@@ -32,7 +32,7 @@ const getApiOptions = (apis: RestAction[]) => ({
     text: "Use data from API",
   },
   openDirection: Directions.RIGHT,
-  openOnHover: true,
+  openOnHover: false,
 });
 
 const getQueryOptions = (queries: RestAction[]) => ({
@@ -58,12 +58,13 @@ const getQueryOptions = (queries: RestAction[]) => ({
     text: "Use data from Query",
   },
   openDirection: Directions.RIGHT,
-  openOnHover: true,
+  openOnHover: false,
 });
 
 const lightningMenuOptions = (
   apis: RestAction[],
   queries: RestAction[],
+  updatePropertyValue: (value: string) => void,
 ): CustomizedDropdownProps => ({
   sections: [
     {
@@ -71,7 +72,10 @@ const lightningMenuOptions = (
         {
           content: "PlainText/HTML/JS",
           disabled: false,
-          shouldCloseDropdown: false,
+          shouldCloseDropdown: true,
+          onSelect: () => {
+            updatePropertyValue("test");
+          },
         },
         {
           content: <CustomizedDropdown {...getApiOptions(apis)} />,
@@ -87,6 +91,7 @@ const lightningMenuOptions = (
     },
   ],
   openDirection: Directions.DOWN,
+  usePortal: true,
   trigger: {
     text: "",
   },
@@ -94,6 +99,7 @@ const lightningMenuOptions = (
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
+  updatePropertyValue: (value: string) => void;
 };
 
 export const LightningMenu = (props: LightningMenuProps) => {
@@ -110,7 +116,11 @@ export const LightningMenu = (props: LightningMenuProps) => {
     .filter(action => action.config.pluginType === "DB")
     .map(action => action.config);
 
-  return <CustomizedDropdown {...lightningMenuOptions(apis, queries)} />;
+  return (
+    <CustomizedDropdown
+      {...lightningMenuOptions(apis, queries, props.updatePropertyValue)}
+    />
+  );
 };
 
 export default LightningMenu;

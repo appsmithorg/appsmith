@@ -44,6 +44,7 @@ export type CustomizedDropdownProps = {
   };
   openDirection: Direction;
   openOnHover?: boolean;
+  usePortal?: boolean;
 };
 
 const getIcon = (icon?: string, intent?: Intent) => {
@@ -68,7 +69,10 @@ const getIcon = (icon?: string, intent?: Intent) => {
   }
 };
 
-const getContentSection = (section: CustomizedDropdownOptionSection) => {
+const getContentSection = (
+  section: CustomizedDropdownOptionSection,
+  theme: Theme,
+) => {
   return (
     <React.Fragment>
       {section.options &&
@@ -114,7 +118,7 @@ export const CustomizedDropdown = (
   );
   const content = props.sections.map((section, index) => (
     <DropdownContentSection key={index} stick={!!section.isSticky}>
-      {getContentSection(section)}
+      {getContentSection(section, props.theme)}
     </DropdownContentSection>
   ));
   return (

@@ -263,6 +263,20 @@ export type Theme = {
     hoverBG: Color;
     hoverBGOpacity: number;
   };
+  dropdown: {
+    light: {
+      hoverBG: Color;
+      hoverText: Color;
+      inActiveBG: Color;
+      inActiveText: Color;
+    };
+    dark: {
+      hoverBG: Color;
+      hoverText: Color;
+      inActiveBG: Color;
+      inActiveText: Color;
+    };
+  };
   authCard: {
     width: number;
     borderRadius: number;
@@ -403,6 +417,20 @@ export const theme: Theme = {
     },
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
+  },
+  dropdown: {
+    light: {
+      hoverBG: Colors.GREEN,
+      hoverText: Colors.textOnDarkBG,
+      inActiveBG: Colors.GEYSER_LIGHT,
+      inActiveText: Colors.GEYSER_LIGHT,
+    },
+    dark: {
+      hoverBG: Colors.GEYSER_LIGHT,
+      hoverText: Colors.GEYSER_LIGHT,
+      inActiveBG: Colors.GEYSER_LIGHT,
+      inActiveText: Colors.GEYSER_LIGHT,
+    },
   },
   authCard: {
     width: 612,

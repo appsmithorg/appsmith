@@ -269,6 +269,8 @@ export type DynamicAutocompleteInputProps = {
 type Props = ReduxStateProps &
   DynamicAutocompleteInputProps & {
     input: Partial<WrappedFieldInputProps>;
+  } & {
+    forwardRef: React.RefObject<HTMLTextAreaElement>;
   };
 
 type State = {
@@ -286,10 +288,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       isFocused: false,
       autoCompleteVisible: false,
     };
+    console.log("ref inside DynamicAutoComplete", props.forwardRef);
   }
 
   componentDidMount(): void {
-    if (this.textArea.current) {
+    if (this.props.forwardRef.current) {
       const options: EditorConfiguration = {};
       if (this.props.theme === "DARK") options.theme = "monokai";
       if (!this.props.input.onChange || this.props.disabled) {
@@ -301,7 +304,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         "Ctrl-Space": "autocomplete",
       };
       if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
-      this.editor = CodeMirror.fromTextArea(this.textArea.current, {
+      this.editor = CodeMirror.fromTextArea(this.props.forwardRef.current, {
         mode: this.props.mode || { name: "javascript", globalVars: true },
         viewportMargin: 10,
         tabSize: 2,
@@ -482,6 +485,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     console.log(className);
+    console.log("textarea ref", this.props.forwardRef);
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
         <Wrapper
@@ -507,7 +511,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           )}
 
           <textarea
-            ref={this.textArea}
+            ref={this.props.forwardRef}
             {..._.omit(this.props.input, ["onChange", "value"])}
             defaultValue={input.value}
             placeholder={this.props.placeholder}
@@ -540,4 +544,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps)(DynamicAutocompleteInput);
+export default connect(mapStateToProps, null, null, {
+  forwardRef: true,
+})(DynamicAutocompleteInput);
