@@ -1,508 +1,508 @@
 {
     "dsl": {
-        "widgetName": "MainContainer",
-        "backgroundColor": "none",
-        "rightColumn": 1224,
-        "snapColumns": 16,
-        "detachFromLayout": true,
-        "widgetId": "0",
-        "topRow": 0,
-        "bottomRow": 1292,
-        "containerStyle": "none",
-        "snapRows": 33,
-        "parentRowSpace": 1,
-        "type": "CANVAS_WIDGET",
-        "canExtend": true,
-        "dynamicBindings": {},
-        "version": 3,
-        "minHeight": 1292,
-        "parentColumnSpace": 1,
-        "leftColumn": 0,
-        "children": [
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 1224,
+      "snapColumns": 16,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 1292,
+      "containerStyle": "none",
+      "snapRows": 33,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "dynamicBindings": {},
+      "version": 3,
+      "minHeight": 1292,
+      "parentColumnSpace": 1,
+      "leftColumn": 0,
+      "children": [
+        {
+          "backgroundColor": "#FFFFFF",
+          "widgetName": "Container1",
+          "rightColumn": 8,
+          "orientation": "VERTICAL",
+          "snapColumns": 16,
+          "widgetId": "gmm48aishv",
+          "containerStyle": "card",
+          "topRow": 0,
+          "bottomRow": 9,
+          "parentRowSpace": 38,
+          "isVisible": true,
+          "type": "CONTAINER_WIDGET",
+          "dynamicBindings": {},
+          "isLoading": false,
+          "parentColumnSpace": 75.25,
+          "leftColumn": 0,
+          "children": [
             {
-                "backgroundColor": "#FFFFFF",
-                "widgetName": "Container1",
-                "rightColumn": 8,
-                "orientation": "VERTICAL",
-                "snapColumns": 16,
-                "widgetId": "gmm48aishv",
-                "containerStyle": "card",
-                "topRow": 0,
-                "bottomRow": 9,
-                "parentRowSpace": 38,
-                "isVisible": true,
-                "type": "CONTAINER_WIDGET",
-                "dynamicBindings": {},
-                "isLoading": false,
-                "parentColumnSpace": 75.25,
-                "leftColumn": 0,
-                "children": [
+              "backgroundColor": "#FFFFFF",
+              "widgetName": "jmwwbtgjry",
+              "rightColumn": 602,
+              "orientation": "VERTICAL",
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "hjiybwqair",
+              "containerStyle": "none",
+              "topRow": 0,
+              "bottomRow": 342,
+              "parentRowSpace": 1,
+              "isVisible": true,
+              "type": "CANVAS_WIDGET",
+              "canExtend": false,
+              "isLoading": false,
+              "parentColumnSpace": 1,
+              "leftColumn": 0,
+              "children": [
+                {
+                  "widgetName": "Dropdown1",
+                  "rightColumn": 8,
+                  "selectedOptionArr": "{{\n Dropdown1.selectionType === \"MULTI_SELECT\"\n  ? Dropdown1.options.filter((opt, index) =>\n _.includes(Dropdown1.selectedIndexArr, index),\n)\n : undefined\n}}",
+                  "widgetId": "n9hyiainl8",
+                  "topRow": 0,
+                  "bottomRow": 1,
+                  "isValid": "{{Dropdown1.isRequired ? Dropdown1.selectionType === 'SINGLE_SELECT' ? !!Dropdown1.selectedOption : !!Dropdown1.selectedIndexArr && Dropdown1.selectedIndexArr.length > 0 : true}}",
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "label": "Test Dropdown",
+                  "type": "DROP_DOWN_WIDGET",
+                  "dynamicBindings": {
+                    "selectedOptionArr": true,
+                    "isValid": true,
+                    "selectedIndexArr": true,
+                    "selectedOption": true,
+                    "selectedIndex": true
+                  },
+                  "selectedOption": "{{\nDropdown1.selectionType === 'SINGLE_SELECT'\n ? Dropdown1.options[Dropdown1.selectedIndex]\n: undefined\n}}",
+                  "isLoading": false,
+                  "selectionType": "",
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 0,
+                  "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]"
+                },
+                {
+                  "isRequired": true,
+                  "widgetName": "checker",
+                  "rightColumn": 14,
+                  "widgetId": "b9wzxcluhi",
+                  "topRow": 1,
+                  "bottomRow": 2,
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "label": "Test Checkbox",
+                  "type": "CHECKBOX_WIDGET",
+                  "dynamicBindings": {},
+                  "isLoading": false,
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 11,
+                  "dynamicTriggers": {
+                    "onCheckChange": true
+                  },
+                  "defaultCheckedState": true,
+                  "onCheckChange": "{{navigateToUrl('Awww.google.com')}}"
+                },
+                {
+                  "widgetName": "RichTextEditor1",
+                  "rightColumn": 11,
+                  "widgetId": "x0v0ywkeod",
+                  "topRow": 3,
+                  "bottomRow": 8,
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "type": "RICH_TEXT_EDITOR_WIDGET",
+                  "dynamicBindings": {},
+                  "isLoading": false,
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 3,
+                  "dynamicTriggers": {
+                    "onTextChange": true
+                  },
+                  "defaultText": "",
+                  "text": "This is the initial <b>content</b> of the editor",
+                  "isDisabled": false,
+                  "onTextChange": "{{navigateTo()}}"
+                },
+                {
+                  "widgetName": "Adi12",
+                  "rightColumn": 16,
+                  "widgetId": "76qupajn9l",
+                  "topRow": 3,
+                  "bottomRow": 5,
+                  "isValid": "{{ Adi12.isRequired ? !!Adi12.selectedOptionValue : true }}",
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "label": "Test Radio",
+                  "type": "RADIO_GROUP_WIDGET",
+                  "dynamicBindings": {
+                    "isValid": true,
+                    "selectedOption": true
+                  },
+                  "selectedOption": "{{_.find(Adi12.options, { value: Adi12.selectedOptionValue })}}",
+                  "isLoading": false,
+                  "defaultOptionValue": "1",
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 12,
+                  "dynamicTriggers": {
+                    "onSelectionChange": true
+                  },
+                  "onSelectionChange": "{{navigateTo()}}",
+                  "options": [
                     {
-                        "backgroundColor": "#FFFFFF",
-                        "widgetName": "jmwwbtgjry",
-                        "rightColumn": 602,
-                        "orientation": "VERTICAL",
-                        "snapColumns": 16,
-                        "detachFromLayout": true,
-                        "widgetId": "hjiybwqair",
-                        "containerStyle": "none",
-                        "topRow": 0,
-                        "bottomRow": 342,
-                        "parentRowSpace": 1,
-                        "isVisible": true,
-                        "type": "CANVAS_WIDGET",
-                        "canExtend": false,
-                        "isLoading": false,
-                        "parentColumnSpace": 1,
-                        "leftColumn": 0,
-                        "children": [
-                            {
-                                "widgetName": "Dropdown1",
-                                "rightColumn": 8,
-                                "selectedOptionArr": "{{\n        Dropdown1.selectionType === \"MULTI_SELECT\"\n          ? Dropdown1.options.filter((opt, index) =>\n              _.includes(Dropdown1.selectedIndexArr, index),\n            )\n          : undefined\n      }}",
-                                "widgetId": "n9hyiainl8",
-                                "topRow": 0,
-                                "bottomRow": 1,
-                                "isValid": "{{Dropdown1.isRequired ? Dropdown1.selectionType === 'SINGLE_SELECT' ? !!Dropdown1.selectedOption : !!Dropdown1.selectedIndexArr && Dropdown1.selectedIndexArr.length > 0 : true}}",
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "label": "Test Dropdown",
-                                "type": "DROP_DOWN_WIDGET",
-                                "dynamicBindings": {
-                                    "selectedOptionArr": true,
-                                    "isValid": true,
-                                    "selectedIndexArr": true,
-                                    "selectedOption": true,
-                                    "selectedIndex": true
-                                },
-                                "selectedOption": "{{\n        Dropdown1.selectionType === 'SINGLE_SELECT'\n          ? Dropdown1.options[Dropdown1.selectedIndex]\n          : undefined\n      }}",
-                                "isLoading": false,
-                                "selectionType": "",
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 0,
-                                "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]"
-                            },
-                            {
-                                "isRequired": true,
-                                "widgetName": "checker",
-                                "rightColumn": 14,
-                                "widgetId": "b9wzxcluhi",
-                                "topRow": 1,
-                                "bottomRow": 2,
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "label": "Test Checkbox",
-                                "type": "CHECKBOX_WIDGET",
-                                "dynamicBindings": {},
-                                "isLoading": false,
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 11,
-                                "dynamicTriggers": {
-                                    "onCheckChange": true
-                                },
-                                "defaultCheckedState": true,
-                                "onCheckChange": "{{navigateToUrl('Awww.google.com')}}"
-                            },
-                            {
-                                "widgetName": "RichTextEditor1",
-                                "rightColumn": 11,
-                                "widgetId": "x0v0ywkeod",
-                                "topRow": 3,
-                                "bottomRow": 8,
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "type": "RICH_TEXT_EDITOR_WIDGET",
-                                "dynamicBindings": {},
-                                "isLoading": false,
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 3,
-                                "dynamicTriggers": {
-                                    "onTextChange": true
-                                },
-                                "defaultText": "",
-                                "text": "This is the initial <b>content</b> of the editor",
-                                "isDisabled": false,
-                                "onTextChange": "{{navigateTo()}}"
-                            },
-                            {
-                                "widgetName": "Adi12",
-                                "rightColumn": 16,
-                                "widgetId": "76qupajn9l",
-                                "topRow": 3,
-                                "bottomRow": 5,
-                                "isValid": "{{ Adi12.isRequired ? !!Adi12.selectedOptionValue : true }}",
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "label": "Test Radio",
-                                "type": "RADIO_GROUP_WIDGET",
-                                "dynamicBindings": {
-                                    "isValid": true,
-                                    "selectedOption": true
-                                },
-                                "selectedOption": "{{_.find(Adi12.options, { value: Adi12.selectedOptionValue })}}",
-                                "isLoading": false,
-                                "defaultOptionValue": "1",
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 12,
-                                "dynamicTriggers": {
-                                    "onSelectionChange": true
-                                },
-                                "onSelectionChange": "{{navigateTo()}}",
-                                "options": [
-                                    {
-                                        "id": "1",
-                                        "label": "jarvis",
-                                        "value": "1"
-                                    },
-                                    {
-                                        "id": "2",
-                                        "label": "marvel",
-                                        "value": "2"
-                                    },
-                                    {
-                                        "label": "iron",
-                                        "value": "4"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "backgroundColor": "#FFFFFF",
-                "widgetName": "Container3",
-                "rightColumn": 16,
-                "orientation": "VERTICAL",
-                "snapColumns": 16,
-                "widgetId": "28hfrtdb1a",
-                "containerStyle": "card",
-                "topRow": 9,
-                "bottomRow": 23,
-                "parentRowSpace": 38,
-                "isVisible": true,
-                "type": "CONTAINER_WIDGET",
-                "dynamicBindings": {},
-                "isLoading": false,
-                "parentColumnSpace": 75.25,
-                "leftColumn": 0,
-                "children": [
+                      "id": "1",
+                      "label": "jarvis",
+                      "value": "1"
+                    },
                     {
-                        "backgroundColor": "#FFFFFF",
-                        "widgetName": "lvl7ajf1rn",
-                        "rightColumn": 1204,
-                        "orientation": "VERTICAL",
-                        "snapColumns": 16,
-                        "detachFromLayout": true,
-                        "widgetId": "ac4kpozgg3",
-                        "containerStyle": "none",
-                        "topRow": 0,
-                        "bottomRow": 532,
-                        "parentRowSpace": 1,
-                        "isVisible": true,
-                        "type": "CANVAS_WIDGET",
-                        "canExtend": false,
-                        "isLoading": false,
-                        "parentColumnSpace": 1,
-                        "leftColumn": 0,
-                        "children": [
-                            {
-                                "widgetName": "Form1",
-                                "backgroundColor": "Gray",
-                                "rightColumn": 11,
-                                "widgetId": "z62mnh15y5",
-                                "topRow": 0,
-                                "bottomRow": 13,
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "type": "FORM_WIDGET",
-                                "dynamicBindings": {},
-                                "blueprint": {
-                                    "view": [
-                                        {
-                                            "position": {
-                                                "top": 0,
-                                                "left": 0
-                                            },
-                                            "type": "CANVAS_WIDGET",
-                                            "props": {
-                                                "blueprint": {
-                                                    "view": [
-                                                        {
-                                                            "size": {
-                                                                "rows": 1,
-                                                                "cols": 12
-                                                            },
-                                                            "position": {
-                                                                "top": 0,
-                                                                "left": 0
-                                                            },
-                                                            "type": "TEXT_WIDGET",
-                                                            "props": {
-                                                                "text": "Title",
-                                                                "textStyle": "HEADING"
-                                                            }
-                                                        },
-                                                        {
-                                                            "size": {
-                                                                "rows": 1,
-                                                                "cols": 4
-                                                            },
-                                                            "position": {
-                                                                "top": 11,
-                                                                "left": 12
-                                                            },
-                                                            "type": "FORM_BUTTON_WIDGET",
-                                                            "props": {
-                                                                "resetFormOnClick": false,
-                                                                "disabledWhenInvalid": true,
-                                                                "buttonStyle": "PRIMARY_BUTTON",
-                                                                "text": "Submit"
-                                                            }
-                                                        },
-                                                        {
-                                                            "size": {
-                                                                "rows": 1,
-                                                                "cols": 4
-                                                            },
-                                                            "position": {
-                                                                "top": 11,
-                                                                "left": 8
-                                                            },
-                                                            "type": "FORM_BUTTON_WIDGET",
-                                                            "props": {
-                                                                "resetFormOnClick": true,
-                                                                "disabledWhenInvalid": false,
-                                                                "buttonStyle": "SECONDARY_BUTTON",
-                                                                "text": "Reset"
-                                                            }
-                                                        }
-                                                    ]
-                                                },
-                                                "detachFromLayout": true,
-                                                "children": [],
-                                                "containerStyle": "none",
-                                                "canExtend": false
-                                            }
-                                        }
-                                    ]
-                                },
-                                "isLoading": false,
-                                "parentColumnSpace": 71.75,
-                                "leftColumn": 5,
-                                "children": [
-                                    {
-                                        "widgetName": "Canvas1",
-                                        "rightColumn": 430.5,
-                                        "detachFromLayout": true,
-                                        "widgetId": "nxlutw2g3v",
-                                        "containerStyle": "none",
-                                        "topRow": 0,
-                                        "bottomRow": 494,
-                                        "parentRowSpace": 1,
-                                        "isVisible": true,
-                                        "canExtend": false,
-                                        "type": "CANVAS_WIDGET",
-                                        "dynamicBindings": {},
-                                        "blueprint": {
-                                            "view": [
-                                                {
-                                                    "size": {
-                                                        "rows": 1,
-                                                        "cols": 12
-                                                    },
-                                                    "position": {
-                                                        "top": 0,
-                                                        "left": 0
-                                                    },
-                                                    "type": "TEXT_WIDGET",
-                                                    "props": {
-                                                        "text": "Title",
-                                                        "textStyle": "HEADING"
-                                                    }
-                                                },
-                                                {
-                                                    "size": {
-                                                        "rows": 1,
-                                                        "cols": 4
-                                                    },
-                                                    "position": {
-                                                        "top": 11,
-                                                        "left": 12
-                                                    },
-                                                    "type": "FORM_BUTTON_WIDGET",
-                                                    "props": {
-                                                        "resetFormOnClick": false,
-                                                        "disabledWhenInvalid": true,
-                                                        "buttonStyle": "PRIMARY_BUTTON",
-                                                        "text": "Submit"
-                                                    }
-                                                },
-                                                {
-                                                    "size": {
-                                                        "rows": 1,
-                                                        "cols": 4
-                                                    },
-                                                    "position": {
-                                                        "top": 11,
-                                                        "left": 8
-                                                    },
-                                                    "type": "FORM_BUTTON_WIDGET",
-                                                    "props": {
-                                                        "resetFormOnClick": true,
-                                                        "disabledWhenInvalid": false,
-                                                        "buttonStyle": "SECONDARY_BUTTON",
-                                                        "text": "Reset"
-                                                    }
-                                                }
-                                            ]
-                                        },
-                                        "minHeight": 494,
-                                        "isLoading": false,
-                                        "parentColumnSpace": 1,
-                                        "leftColumn": 0,
-                                        "children": [
-                                            {
-                                                "isLoading": false,
-                                                "widgetName": "Text1",
-                                                "rightColumn": 12,
-                                                "leftColumn": 0,
-                                                "widgetId": "uvz6hzdz7c",
-                                                "topRow": 0,
-                                                "bottomRow": 1,
-                                                "isVisible": true,
-                                                "text": "Title",
-                                                "textStyle": "HEADING",
-                                                "type": "TEXT_WIDGET",
-                                                "dynamicBindings": {}
-                                            },
-                                            {
-                                                "resetFormOnClick": false,
-                                                "widgetName": "FormButton1",
-                                                "rightColumn": 16,
-                                                "isDefaultClickDisabled": true,
-                                                "widgetId": "tf20n9k4z2",
-                                                "buttonStyle": "PRIMARY_BUTTON",
-                                                "topRow": 11,
-                                                "bottomRow": 12,
-                                                "isVisible": true,
-                                                "type": "FORM_BUTTON_WIDGET",
-                                                "dynamicBindings": {},
-                                                "isLoading": false,
-                                                "disabledWhenInvalid": true,
-                                                "leftColumn": 12,
-                                                "text": "Submit"
-                                            },
-                                            {
-                                                "resetFormOnClick": true,
-                                                "widgetName": "FormButton2",
-                                                "rightColumn": 12,
-                                                "isDefaultClickDisabled": true,
-                                                "widgetId": "6xnpe13jie",
-                                                "buttonStyle": "SECONDARY_BUTTON",
-                                                "topRow": 11,
-                                                "bottomRow": 12,
-                                                "isVisible": true,
-                                                "type": "FORM_BUTTON_WIDGET",
-                                                "dynamicBindings": {},
-                                                "isLoading": false,
-                                                "disabledWhenInvalid": false,
-                                                "leftColumn": 8,
-                                                "text": "Reset"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "backgroundColor": "#FFFFFF",
-                "widgetName": "Container4",
-                "rightColumn": 16,
-                "orientation": "VERTICAL",
-                "snapColumns": 16,
-                "widgetId": "ii6dnhfrba",
-                "containerStyle": "card",
-                "topRow": 0,
-                "bottomRow": 9,
-                "parentRowSpace": 38,
-                "isVisible": true,
-                "type": "CONTAINER_WIDGET",
-                "dynamicBindings": {},
-                "isLoading": false,
-                "parentColumnSpace": 75.25,
-                "leftColumn": 8,
-                "children": [
+                      "id": "2",
+                      "label": "marvel",
+                      "value": "2"
+                    },
                     {
-                        "backgroundColor": "#FFFFFF",
-                        "widgetName": "rnz3m8xrzc",
-                        "rightColumn": 602,
-                        "orientation": "VERTICAL",
-                        "snapColumns": 16,
-                        "detachFromLayout": true,
-                        "widgetId": "iw4o07jvik",
-                        "containerStyle": "none",
-                        "topRow": 0,
-                        "bottomRow": 342,
-                        "parentRowSpace": 1,
-                        "isVisible": true,
-                        "type": "CANVAS_WIDGET",
-                        "canExtend": false,
-                        "isLoading": false,
-                        "parentColumnSpace": 1,
-                        "leftColumn": 0,
-                        "children": [
-                            {
-                                "widgetName": "FilePicker1",
-                                "rightColumn": 8,
-                                "isDefaultClickDisabled": true,
-                                "widgetId": "q5skceaq3h",
-                                "topRow": 1,
-                                "bottomRow": 2,
-                                "isValid": "{{ FilePicker1.isRequired ? FilePicker1.files.length > 0 : true }}",
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "label": "Upload Files",
-                                "maxFileSize": "",
-                                "type": "FILE_PICKER_WIDGET",
-                                "dynamicBindings": {
-                                    "isValid": true
-                                },
-                                "isLoading": false,
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 4,
-                                "files": []
-                            },
-                            {
-                                "widgetName": "DatePicker1",
-                                "rightColumn": 11,
-                                "dateFormat": "DD/MM/YYYY",
-                                "widgetId": "qx038sqrin",
-                                "topRow": 7,
-                                "bottomRow": 8,
-                                "isValid": "{{ DatePicker1.isRequired ? !!DatePicker1.selectedDate : true }}",
-                                "parentRowSpace": 38,
-                                "isVisible": true,
-                                "datePickerType": "DATE_PICKER",
-                                "label": "From Date",
-                                "type": "DATE_PICKER_WIDGET",
-                                "dynamicBindings": {
-                                    "isValid": true
-                                },
-                                "isLoading": false,
-                                "enableTimePicker": true,
-                                "parentColumnSpace": 34.6875,
-                                "leftColumn": 3,
-                                "isDisabled": false
-                            }
-                        ]
+                      "label": "iron",
+                      "value": "4"
                     }
-                ]
+                  ]
+                }
+              ]
             }
-        ]
+          ]
+        },
+        {
+          "backgroundColor": "#FFFFFF",
+          "widgetName": "Container3",
+          "rightColumn": 16,
+          "orientation": "VERTICAL",
+          "snapColumns": 16,
+          "widgetId": "28hfrtdb1a",
+          "containerStyle": "card",
+          "topRow": 9,
+          "bottomRow": 23,
+          "parentRowSpace": 38,
+          "isVisible": true,
+          "type": "CONTAINER_WIDGET",
+          "dynamicBindings": {},
+          "isLoading": false,
+          "parentColumnSpace": 75.25,
+          "leftColumn": 0,
+          "children": [
+            {
+              "backgroundColor": "#FFFFFF",
+              "widgetName": "lvl7ajf1rn",
+              "rightColumn": 1204,
+              "orientation": "VERTICAL",
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "ac4kpozgg3",
+              "containerStyle": "none",
+              "topRow": 0,
+              "bottomRow": 532,
+              "parentRowSpace": 1,
+              "isVisible": true,
+              "type": "CANVAS_WIDGET",
+              "canExtend": false,
+              "isLoading": false,
+              "parentColumnSpace": 1,
+              "leftColumn": 0,
+              "children": [
+                {
+                  "widgetName": "Form1",
+                  "backgroundColor": "Gray",
+                  "rightColumn": 11,
+                  "widgetId": "z62mnh15y5",
+                  "topRow": 0,
+                  "bottomRow": 13,
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "type": "FORM_WIDGET",
+                  "dynamicBindings": {},
+                  "blueprint": {
+                    "view": [
+                      {
+                        "position": {
+                          "top": 0,
+                          "left": 0
+                        },
+                        "type": "CANVAS_WIDGET",
+                        "props": {
+                          "blueprint": {
+                            "view": [
+                              {
+                                "size": {
+                                  "rows": 1,
+                                  "cols": 12
+                                },
+                                "position": {
+                                  "top": 0,
+                                  "left": 0
+                                },
+                                "type": "TEXT_WIDGET",
+                                "props": {
+                                  "text": "Title",
+                                  "textStyle": "HEADING"
+                                }
+                              },
+                              {
+                                "size": {
+                                  "rows": 1,
+                                  "cols": 4
+                                },
+                                "position": {
+                                  "top": 11,
+                                  "left": 12
+                                },
+                                "type": "FORM_BUTTON_WIDGET",
+                                "props": {
+                                  "resetFormOnClick": false,
+                                  "disabledWhenInvalid": true,
+                                  "buttonStyle": "PRIMARY_BUTTON",
+                                  "text": "Submit"
+                                }
+                              },
+                              {
+                                "size": {
+                                  "rows": 1,
+                                  "cols": 4
+                                },
+                                "position": {
+                                  "top": 11,
+                                  "left": 8
+                                },
+                                "type": "FORM_BUTTON_WIDGET",
+                                "props": {
+                                  "resetFormOnClick": true,
+                                  "disabledWhenInvalid": false,
+                                  "buttonStyle": "SECONDARY_BUTTON",
+                                  "text": "Reset"
+                                }
+                              }
+                            ]
+                          },
+                          "detachFromLayout": true,
+                          "children": [],
+                          "containerStyle": "none",
+                          "canExtend": false
+                        }
+                      }
+                    ]
+                  },
+                  "isLoading": false,
+                  "parentColumnSpace": 71.75,
+                  "leftColumn": 5,
+                  "children": [
+                    {
+                      "widgetName": "Canvas1",
+                      "rightColumn": 430.5,
+                      "detachFromLayout": true,
+                      "widgetId": "nxlutw2g3v",
+                      "containerStyle": "none",
+                      "topRow": 0,
+                      "bottomRow": 494,
+                      "parentRowSpace": 1,
+                      "isVisible": true,
+                      "canExtend": false,
+                      "type": "CANVAS_WIDGET",
+                      "dynamicBindings": {},
+                      "blueprint": {
+                        "view": [
+                          {
+                            "size": {
+                              "rows": 1,
+                              "cols": 12
+                            },
+                            "position": {
+                              "top": 0,
+                              "left": 0
+                            },
+                            "type": "TEXT_WIDGET",
+                            "props": {
+                              "text": "Title",
+                              "textStyle": "HEADING"
+                            }
+                          },
+                          {
+                            "size": {
+                              "rows": 1,
+                              "cols": 4
+                            },
+                            "position": {
+                              "top": 11,
+                              "left": 12
+                            },
+                            "type": "FORM_BUTTON_WIDGET",
+                            "props": {
+                              "resetFormOnClick": false,
+                              "disabledWhenInvalid": true,
+                              "buttonStyle": "PRIMARY_BUTTON",
+                              "text": "Submit"
+                            }
+                          },
+                          {
+                            "size": {
+                              "rows": 1,
+                              "cols": 4
+                            },
+                            "position": {
+                              "top": 11,
+                              "left": 8
+                            },
+                            "type": "FORM_BUTTON_WIDGET",
+                            "props": {
+                              "resetFormOnClick": true,
+                              "disabledWhenInvalid": false,
+                              "buttonStyle": "SECONDARY_BUTTON",
+                              "text": "Reset"
+                            }
+                          }
+                        ]
+                      },
+                      "minHeight": 494,
+                      "isLoading": false,
+                      "parentColumnSpace": 1,
+                      "leftColumn": 0,
+                      "children": [
+                        {
+                          "isLoading": false,
+                          "widgetName": "Text1",
+                          "rightColumn": 12,
+                          "leftColumn": 0,
+                          "widgetId": "uvz6hzdz7c",
+                          "topRow": 0,
+                          "bottomRow": 1,
+                          "isVisible": true,
+                          "text": "Title",
+                          "textStyle": "HEADING",
+                          "type": "TEXT_WIDGET",
+                          "dynamicBindings": {}
+                        },
+                        {
+                          "resetFormOnClick": false,
+                          "widgetName": "FormButton1",
+                          "rightColumn": 16,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "tf20n9k4z2",
+                          "buttonStyle": "PRIMARY_BUTTON",
+                          "topRow": 11,
+                          "bottomRow": 12,
+                          "isVisible": true,
+                          "type": "FORM_BUTTON_WIDGET",
+                          "dynamicBindings": {},
+                          "isLoading": false,
+                          "disabledWhenInvalid": true,
+                          "leftColumn": 12,
+                          "text": "Submit"
+                        },
+                        {
+                          "resetFormOnClick": true,
+                          "widgetName": "FormButton2",
+                          "rightColumn": 12,
+                          "isDefaultClickDisabled": true,
+                          "widgetId": "6xnpe13jie",
+                          "buttonStyle": "SECONDARY_BUTTON",
+                          "topRow": 11,
+                          "bottomRow": 12,
+                          "isVisible": true,
+                          "type": "FORM_BUTTON_WIDGET",
+                          "dynamicBindings": {},
+                          "isLoading": false,
+                          "disabledWhenInvalid": false,
+                          "leftColumn": 8,
+                          "text": "Reset"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "backgroundColor": "#FFFFFF",
+          "widgetName": "Container4",
+          "rightColumn": 16,
+          "orientation": "VERTICAL",
+          "snapColumns": 16,
+          "widgetId": "ii6dnhfrba",
+          "containerStyle": "card",
+          "topRow": 0,
+          "bottomRow": 9,
+          "parentRowSpace": 38,
+          "isVisible": true,
+          "type": "CONTAINER_WIDGET",
+          "dynamicBindings": {},
+          "isLoading": false,
+          "parentColumnSpace": 75.25,
+          "leftColumn": 8,
+          "children": [
+            {
+              "backgroundColor": "#FFFFFF",
+              "widgetName": "rnz3m8xrzc",
+              "rightColumn": 602,
+              "orientation": "VERTICAL",
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "iw4o07jvik",
+              "containerStyle": "none",
+              "topRow": 0,
+              "bottomRow": 342,
+              "parentRowSpace": 1,
+              "isVisible": true,
+              "type": "CANVAS_WIDGET",
+              "canExtend": false,
+              "isLoading": false,
+              "parentColumnSpace": 1,
+              "leftColumn": 0,
+              "children": [
+                {
+                  "widgetName": "FilePicker1",
+                  "rightColumn": 8,
+                  "isDefaultClickDisabled": true,
+                  "widgetId": "q5skceaq3h",
+                  "topRow": 1,
+                  "bottomRow": 2,
+                  "isValid": "{{ FilePicker1.isRequired ? FilePicker1.files.length > 0 : true }}",
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "label": "Upload Files",
+                  "maxFileSize": "",
+                  "type": "FILE_PICKER_WIDGET",
+                  "dynamicBindings": {
+                    "isValid": true
+                  },
+                  "isLoading": false,
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 4,
+                  "files": []
+                },
+                {
+                  "widgetName": "DatePicker1",
+                  "rightColumn": 11,
+                  "dateFormat": "DD/MM/YYYY",
+                  "widgetId": "qx038sqrin",
+                  "topRow": 7,
+                  "bottomRow": 8,
+                  "isValid": "{{ DatePicker1.isRequired ? !!DatePicker1.selectedDate : true }}",
+                  "parentRowSpace": 38,
+                  "isVisible": true,
+                  "datePickerType": "DATE_PICKER",
+                  "label": "From Date",
+                  "type": "DATE_PICKER_WIDGET",
+                  "dynamicBindings": {
+                    "isValid": true
+                  },
+                  "isLoading": false,
+                  "enableTimePicker": true,
+                  "parentColumnSpace": 34.6875,
+                  "leftColumn": 3,
+                  "isDisabled": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     "layoutOnLoadActions": []
-}
+  }
