@@ -132,7 +132,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Flux<PageNameIdDTO> findNamesByApplicationName(String applicationName) {
         return applicationService
-                .findByName(applicationName)
+                .findByName(applicationName, AclPermission.READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
                 .flatMapMany(this::findNamesByApplication);
     }
@@ -154,7 +154,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findByNameAndApplicationId(String name, String applicationId) {
-        return repository.findByNameAndApplicationId(name, applicationId, AclPermission.READ_PAGES);
+    public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission permission) {
+        return repository.findByNameAndApplicationId(name, applicationId, permission);
     }
 }

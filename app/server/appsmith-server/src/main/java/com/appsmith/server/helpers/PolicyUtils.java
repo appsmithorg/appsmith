@@ -20,14 +20,16 @@ public class PolicyUtils<T extends BaseDomain> {
             Set<String> policyGroups = policy.getGroups();
 
 
-            if (policyUsers.contains(user.getUsername())) {
+            if (policyUsers != null && policyUsers.contains(user.getUsername())) {
                 permissions.add(policy.getPermission());
             }
 
-            for (String groupId : user.getGroupIds()) {
-                if (policyGroups.contains(groupId)) {
-                    permissions.add(policy.getPermission());
-                    break;
+            if (user.getGroupIds() != null) {
+                for (String groupId : user.getGroupIds()) {
+                    if (policyGroups != null && policyGroups.contains(groupId)) {
+                        permissions.add(policy.getPermission());
+                        break;
+                    }
                 }
             }
         }

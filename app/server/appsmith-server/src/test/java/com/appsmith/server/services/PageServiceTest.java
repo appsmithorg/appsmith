@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -36,15 +37,25 @@ public class PageServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
     Mono<Application> applicationMono;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
+
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
+
         Application application = new Application();
         application.setName("PageAPI-Test-Application");
-        applicationMono = applicationPageService.createApplication(application);
+        applicationMono = applicationPageService.createApplication(application, orgId);
     }
 
     @Test

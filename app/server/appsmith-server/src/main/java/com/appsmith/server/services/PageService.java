@@ -27,5 +27,5 @@ public interface PageService extends CrudService<Page, String> {
 
     Flux<PageNameIdDTO> findNamesByApplicationName(String applicationName);
 
-    Mono<Page> findByNameAndApplicationId(String name, String applicationId);
+    Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission permission);
 }

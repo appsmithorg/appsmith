@@ -4,11 +4,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +48,24 @@ public class ApplicationServiceTest {
     @Autowired
     PageService pageService;
 
+    @Autowired
+    UserService userService;
+
+    String orgId;
+
+    @Before
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(applicationPageService::createApplication);
+                .flatMap(app -> applicationPageService.createApplication(app, orgId));
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -64,7 +78,7 @@ public class ApplicationServiceTest {
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId);
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
@@ -81,6 +95,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getOrganizationId().equals(orgId));
                 })
                 .verifyComplete();
     }
@@ -91,7 +106,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<Page> pagesFlux = applicationPageService
-                .createApplication(testApplication)
+                .createApplication(testApplication, orgId)
                 .flatMapMany(application -> pageService.findByApplicationId(application.getId()));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
@@ -140,7 +155,7 @@ public class ApplicationServiceTest {
     public void validGetApplicationById() {
         Application application = new Application();
         application.setName("validGetApplicationById-Test");
-        Mono<Application> createApplication = applicationPageService.createApplication(application);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
         Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
@@ -159,7 +174,7 @@ public class ApplicationServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.set(FieldName.NAME, application.getName());
 
-        Mono<Application> createApplication = applicationPageService.createApplication(application);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
 
         Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
         StepVerifier.create(getApplication)
@@ -180,7 +195,7 @@ public class ApplicationServiceTest {
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
-        Mono<Application> createApplication = applicationPageService.createApplication(application);
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
         List<Application> applicationList = createApplication
                 .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
                 .collectList()
@@ -203,7 +218,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> createApplication =
                 applicationPageService
-                        .createApplication(application);
+                        .createApplication(application, orgId);
         Mono<Application> updateApplication = createApplication
                 .map(t -> {
                     t.setName("NewValidUpdateApplication-Test");
@@ -232,12 +247,12 @@ public class ApplicationServiceTest {
         secondApp.setName("Ghost app");
 
         Mono<Application> firstAppDeletion = applicationPageService
-                .createApplication(firstApp)
+                .createApplication(firstApp, orgId)
                 .flatMap(app -> applicationService.archive(app))
                 .cache();
 
         Mono<Application> secondAppCreation = firstAppDeletion.then(
-                applicationPageService.createApplication(secondApp));
+                applicationPageService.createApplication(secondApp, orgId));
 
         StepVerifier
                 .create(Mono.zip(firstAppDeletion, secondAppCreation))

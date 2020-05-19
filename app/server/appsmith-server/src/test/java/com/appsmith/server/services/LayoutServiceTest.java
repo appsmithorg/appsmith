@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -42,9 +43,20 @@ public class LayoutServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
+    String orgId;
+
     @Before
+    @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
     }
 
     private void purgeAllPages() {
@@ -84,7 +96,7 @@ public class LayoutServiceTest {
 
         Application application = new Application();
         application.setName("createValidLayout-Test-Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application);
+        Mono<Application> applicationMono = applicationPageService.createApplication(application, orgId);
 
         Mono<Page> pageMono = applicationMono
                 .switchIfEmpty(Mono.error(new Exception("No application found")))
@@ -115,7 +127,7 @@ public class LayoutServiceTest {
     private Mono<Page> createPage(Application app, Page page) {
         Mono<Page> pageMono = pageService
                 .findByName(page.getName())
-                .switchIfEmpty(applicationPageService.createApplication(app)
+                .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
                             log.debug("*** Created a new app: {} for page: {}", application, page);
                             log.debug("** Got applicationId: {}", application.getId());
