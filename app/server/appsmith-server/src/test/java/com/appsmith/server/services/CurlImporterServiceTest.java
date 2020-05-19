@@ -509,6 +509,16 @@ public class CurlImporterServiceTest {
     }
 
     @Test
+    public void parseWithoutProtocol() {
+        Action action = curlImporterService.curlToAction("curl api.sloths.com");
+        assertMethod(action, HttpMethod.GET);
+        assertUrl(action, "http://api.sloths.com");
+        assertEmptyPath(action);
+        assertEmptyHeaders(action);
+        assertEmptyBody(action);
+    }
+
+    @Test
     @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
