@@ -14,7 +14,6 @@ class CodeEditorControl extends BaseControl<ControlProps> {
           touched: true,
         }}
         singleLine={false}
-        forwardRef={React.createRef<HTMLTextAreaElement>()}
       />
     );
   }

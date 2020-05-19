@@ -264,13 +264,12 @@ export type DynamicAutocompleteInputProps = {
   link?: string;
   baseMode?: string | object;
   setMaxHeight?: boolean;
+  defaultValue?: string;
 };
 
 type Props = ReduxStateProps &
   DynamicAutocompleteInputProps & {
     input: Partial<WrappedFieldInputProps>;
-  } & {
-    forwardRef: React.RefObject<HTMLTextAreaElement>;
   };
 
 type State = {
@@ -288,11 +287,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       isFocused: false,
       autoCompleteVisible: false,
     };
-    console.log("ref inside DynamicAutoComplete", props.forwardRef);
   }
 
   componentDidMount(): void {
-    if (this.props.forwardRef.current) {
+    if (this.textArea.current) {
       const options: EditorConfiguration = {};
       if (this.props.theme === "DARK") options.theme = "monokai";
       if (!this.props.input.onChange || this.props.disabled) {
@@ -304,7 +302,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         "Ctrl-Space": "autocomplete",
       };
       if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
-      this.editor = CodeMirror.fromTextArea(this.props.forwardRef.current, {
+      this.editor = CodeMirror.fromTextArea(this.textArea.current, {
         mode: this.props.mode || { name: "javascript", globalVars: true },
         viewportMargin: 10,
         tabSize: 2,
@@ -367,6 +365,19 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           });
         }
       }
+    }
+    if (prevProps.defaultValue !== this.props.defaultValue) {
+      const cursorPosition = this.props.defaultValue
+        ? this.props.defaultValue.length + 1
+        : 1;
+      this.editor.setValue(
+        this.props.defaultValue ? this.props.defaultValue : "",
+      );
+      this.editor.focus();
+      this.editor.setCursor({
+        line: 1,
+        ch: cursorPosition,
+      });
     }
   }
 
@@ -485,7 +496,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     console.log(className);
-    console.log("textarea ref", this.props.forwardRef);
     return (
       <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
         <Wrapper
@@ -511,7 +521,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           )}
 
           <textarea
-            ref={this.props.forwardRef}
+            ref={this.textArea}
             {..._.omit(this.props.input, ["onChange", "value"])}
             defaultValue={input.value}
             placeholder={this.props.placeholder}
@@ -544,6 +554,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps, null, null, {
-  forwardRef: true,
-})(DynamicAutocompleteInput);
+export default connect(mapStateToProps)(DynamicAutocompleteInput);

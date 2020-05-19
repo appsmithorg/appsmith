@@ -45,6 +45,7 @@ export type CustomizedDropdownProps = {
   openDirection: Direction;
   openOnHover?: boolean;
   usePortal?: boolean;
+  themeType?: string;
 };
 
 const getIcon = (icon?: string, intent?: Intent) => {
@@ -71,7 +72,7 @@ const getIcon = (icon?: string, intent?: Intent) => {
 
 const getContentSection = (
   section: CustomizedDropdownOptionSection,
-  theme: Theme,
+  themeType: string,
 ) => {
   return (
     <React.Fragment>
@@ -87,6 +88,7 @@ const getContentSection = (
               onClick={option.onSelect}
               active={!!option.active}
               disabled={!!option.disabled}
+              themeType={themeType}
             >
               {option.content}
             </Option>
@@ -99,6 +101,7 @@ const getContentSection = (
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
+  const themeType = props.themeType ? props.themeType : "light";
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
@@ -112,13 +115,15 @@ export const CustomizedDropdown = (
           iconAlignment={Directions.RIGHT}
           text={props.trigger.text}
           intent={props.trigger.intent}
+          themeType={props.themeType}
         />
       )}
     </React.Fragment>
   );
+
   const content = props.sections.map((section, index) => (
     <DropdownContentSection key={index} stick={!!section.isSticky}>
-      {getContentSection(section, props.theme)}
+      {getContentSection(section, themeType)}
     </DropdownContentSection>
   ));
   return (
@@ -137,7 +142,7 @@ export const CustomizedDropdown = (
       enforceFocus={false}
     >
       <DropdownTrigger>{trigger}</DropdownTrigger>
-      <DropdownContent>{content}</DropdownContent>
+      <DropdownContent themeType={themeType}>{content}</DropdownContent>
     </Popover>
   );
 };

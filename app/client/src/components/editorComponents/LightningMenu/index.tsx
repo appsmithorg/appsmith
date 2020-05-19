@@ -16,7 +16,12 @@ const getApiOptions = (apis: RestAction[]) => ({
       options: [
         {
           content: (
-            <Button text="Create new API" icon="plus" iconAlignment="left" />
+            <Button
+              text="Create new API"
+              icon="plus"
+              iconAlignment="left"
+              themeType="dark"
+            />
           ),
         },
       ],
@@ -33,6 +38,7 @@ const getApiOptions = (apis: RestAction[]) => ({
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
+  themeType: "dark",
 });
 
 const getQueryOptions = (queries: RestAction[]) => ({
@@ -42,7 +48,12 @@ const getQueryOptions = (queries: RestAction[]) => ({
       options: [
         {
           content: (
-            <Button text="Create new Query" icon="plus" iconAlignment="left" />
+            <Button
+              text="Create new Query"
+              icon="plus"
+              iconAlignment="left"
+              themeType="dark"
+            />
           ),
         },
       ],
@@ -59,6 +70,7 @@ const getQueryOptions = (queries: RestAction[]) => ({
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
+  themeType: "dark",
 });
 
 const lightningMenuOptions = (
@@ -70,11 +82,11 @@ const lightningMenuOptions = (
     {
       options: [
         {
-          content: "PlainText/HTML/JS",
+          content: "Plain Text",
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("test");
+            updatePropertyValue("Plain Text");
           },
         },
         {
@@ -87,6 +99,27 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: false,
         },
+        // {
+        //   content: <CustomizedDropdown {...getQueryOptions(queries)} />,
+        //   disabled: false,
+        //   shouldCloseDropdown: false,
+        // },
+        {
+          content: "JS",
+          disabled: false,
+          shouldCloseDropdown: true,
+          onSelect: () => {
+            updatePropertyValue("{{}}");
+          },
+        },
+        {
+          content: "HTML",
+          disabled: false,
+          shouldCloseDropdown: true,
+          onSelect: () => {
+            updatePropertyValue("<p></p>");
+          },
+        },
       ],
     },
   ],
@@ -95,6 +128,7 @@ const lightningMenuOptions = (
   trigger: {
     text: "",
   },
+  themeType: "dark",
 });
 
 type LightningMenuProps = {
@@ -109,6 +143,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
       action => action.config.pageId === currentPageId,
     );
   });
+  // console.log("actions", actions);
   const apis = actions
     .filter(action => action.config.pluginType === "API")
     .map(action => action.config);

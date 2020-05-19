@@ -275,6 +275,7 @@ export type Theme = {
       hoverText: Color;
       inActiveBG: Color;
       inActiveText: Color;
+      border: Color;
     };
   };
   authCard: {
@@ -421,15 +422,16 @@ export const theme: Theme = {
   dropdown: {
     light: {
       hoverBG: Colors.GREEN,
-      hoverText: Colors.textOnDarkBG,
-      inActiveBG: Colors.GEYSER_LIGHT,
-      inActiveText: Colors.GEYSER_LIGHT,
+      hoverText: Colors.WHITE,
+      inActiveBG: Colors.WHITE,
+      inActiveText: Colors.BLACK_PEARL,
     },
     dark: {
-      hoverBG: Colors.GEYSER_LIGHT,
-      hoverText: Colors.GEYSER_LIGHT,
-      inActiveBG: Colors.GEYSER_LIGHT,
-      inActiveText: Colors.GEYSER_LIGHT,
+      hoverBG: Colors.TROUT_DARK,
+      hoverText: Colors.WHITE,
+      inActiveBG: Colors.BLUE_CHARCOAL,
+      inActiveText: Colors.WHITE,
+      border: Colors.TROUT_DARK,
     },
   },
   authCard: {

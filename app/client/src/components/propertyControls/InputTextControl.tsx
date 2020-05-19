@@ -27,10 +27,16 @@ export function InputText(props: {
   isValid: boolean;
   validationMessage?: string;
   placeholder?: string;
-  innerRef?: React.Ref<HTMLTextAreaElement>;
+  defaultValue?: string;
 }) {
-  const { validationMessage, value, isValid, onChange, placeholder } = props;
-  console.log("ref inside InputText", props.innerRef);
+  const {
+    validationMessage,
+    value,
+    isValid,
+    onChange,
+    placeholder,
+    defaultValue,
+  } = props;
   return (
     <StyledDynamicInput>
       <DynamicAutocompleteInput
@@ -45,25 +51,18 @@ export function InputText(props: {
         theme={"DARK"}
         singleLine={false}
         placeholder={placeholder}
-        forwardRef={props.innerRef as React.RefObject<HTMLTextAreaElement>}
+        defaultValue={defaultValue}
       />
     </StyledDynamicInput>
   );
 }
 
 class InputTextControl extends BaseControl<InputControlProps> {
-  private inputElement: React.RefObject<HTMLTextAreaElement> = React.createRef<
-    HTMLTextAreaElement
-  >();
-
+  state = {
+    defaultValue: "",
+  };
   updatePropertyValue = (value: string) => {
-    console.log(this.inputElement);
-    if (this.inputElement.current) {
-      console.log(this.inputElement.current);
-      const editor = CodeMirror.fromTextArea(this.inputElement.current);
-      console.log("editor", editor);
-      editor.setValue("value");
-    }
+    this.setState({ defaultValue: value });
   };
 
   render() {
@@ -74,7 +73,6 @@ class InputTextControl extends BaseControl<InputControlProps> {
       label,
       placeholderText,
     } = this.props;
-    console.log("ref inside InputTextControl", this.inputElement);
     return (
       <InputControlWrapper>
         <Suspense fallback={<div />}>
@@ -87,7 +85,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
           isValid={isValid}
           validationMessage={validationMessage}
           placeholder={placeholderText}
-          innerRef={this.inputElement}
+          defaultValue={this.state.defaultValue}
         />
       </InputControlWrapper>
     );

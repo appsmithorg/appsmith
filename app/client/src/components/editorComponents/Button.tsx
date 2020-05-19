@@ -21,6 +21,7 @@ const buttonStyles = css<{
   intent?: Intent;
   filled?: string;
   fluid?: boolean;
+  themeType?: string;
 }>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
@@ -33,14 +34,18 @@ const buttonStyles = css<{
       props.filled || props.outline ? "inherit" : "transparent"};
 
     width: ${props => (props.fluid ? "100%" : "auto")};
+    color: ${props =>
+      props.themeType === "dark"
+        ? props.theme.colors.textOnDarkBG
+        : props.theme.colors.textDefault};
   }
-
   ${props => (props.outline ? outline : "")}
 `;
 const StyledButton = styled(BlueprintButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
+  themeType?: string;
 }>`
   ${buttonStyles}
 `;
@@ -48,6 +53,7 @@ const StyledAnchorButton = styled(BlueprintAnchorButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
+  themeType?: string;
 }>`
   ${buttonStyles}
 `;
@@ -67,9 +73,11 @@ export type ButtonProps = {
   type?: "button" | "submit" | "reset";
   className?: string;
   fluid?: boolean;
+  themeType?: string;
 };
 
 export const Button = (props: ButtonProps) => {
+  console.log("theme", props.themeType);
   const icon: IconName | undefined =
     props.icon &&
     (props.iconAlignment === Directions.LEFT ||
@@ -94,7 +102,9 @@ export const Button = (props: ButtonProps) => {
     type: props.type,
     className: props.className,
     fluid: props.fluid ? props.fluid.toString() : undefined,
+    themeType: props.themeType ? props.themeType : undefined,
   };
+  // console.log("themeType", baseProps.themeType);
   if (props.href) {
     return (
       <StyledAnchorButton

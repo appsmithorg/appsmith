@@ -43,6 +43,8 @@ export const Colors: Record<string, string> = {
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
   JAFFA_DARK: "#EF7541",
+  SOLID_MERCURY: "#E5E5E5",
+  TROUT_DARK: "#535B62",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

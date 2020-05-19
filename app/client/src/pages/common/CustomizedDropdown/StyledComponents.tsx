@@ -18,16 +18,23 @@ export const DropdownTrigger = styled.div`
     outline: 0;
     span {
       color: inherit;
+      font-weight: 400;
     }
     &:hover {
       background: inherit;
     }
   }
 `;
-export const DropdownContent = styled.div`
+export const DropdownContent = styled.div<{ themeType: string }>`
   &&& * {
     font-size: ${props => props.theme.fontSizes[3]}px;
   }
+  border: ${props => (props.themeType === "dark" ? "1px solid" : "")};
+  border-color: ${props =>
+    props.themeType === "dark"
+      ? props.theme.dropdown[props.themeType].border
+      : ""};
+  background: ${props => props.theme.dropdown[props.themeType].inActiveBG};
 `;
 
 export const DropdownContentSection = styled.div<{ stick: boolean }>`
@@ -56,13 +63,12 @@ export const DropdownContentSection = styled.div<{ stick: boolean }>`
   }
 `;
 
-export const highlightOption = css<{ intent?: Intent }>`
-  color: ${props => props.theme.colors.textOnDarkBG};
+export const highlightOption = css<{ intent?: Intent; themeType: string }>`
   text-decoration: none;
-  background: ${props =>
-    props.intent ? IntentColors[props.intent] : IntentColors.primary};
+  color: ${props => props.theme.dropdown[props.themeType].hoverText};
+  background: ${props => props.theme.dropdown[props.themeType].hoverBG};
   * {
-    color: ${props => props.theme.colors.textOnDarkBG};
+    color: ${props => props.theme.dropdown[props.themeType].hoverText};
   }
 `;
 
@@ -70,6 +76,7 @@ export const Option = styled.div<{
   intent?: Intent;
   active?: boolean;
   disabled?: boolean;
+  themeType: string;
 }>`
   padding: 8px 16px;
   min-width: 200px;
@@ -79,6 +86,8 @@ export const Option = styled.div<{
     margin: 0;
   }
   cursor: pointer;
+  background: ${props => props.theme.dropdown[props.themeType].inActiveBG};
+  color: ${props => props.theme.dropdown[props.themeType].inActiveText};
   &:hover {
     ${props => (!props.disabled ? highlightOption : ``)};
   }
