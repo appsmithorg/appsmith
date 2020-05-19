@@ -384,7 +384,7 @@ public class DatabaseChangelog {
         );
 
         for (Datasource datasource : missingUpdatedAt) {
-            datasource.setCreatedAt(Instant.now());
+            datasource.setUpdatedAt(Instant.now());
             mongoTemplate.save(datasource);
         }
     }
