@@ -163,13 +163,13 @@ public class UserServiceTest {
         inviteUser.setEmail("inviteUserToApplication@test.com");
         inviteUser.setRole(AppsmithRole.APPLICATION_ADMIN);
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications")
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
 
         Mono<User> userMono = applicationMono.flatMap(application -> userService
                 .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"));
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS));
 
         StepVerifier.create(Mono.zip(updatedApplication, userMono))
                 .assertNext(tuple -> {
@@ -205,13 +205,13 @@ public class UserServiceTest {
         inviteUser.setEmail("inviteUserToApplication@test.com");
         inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications")
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new Exception("No such app")));
 
         Mono<User> userMono = applicationMono.flatMap(application -> userService
                 .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications"));
+        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS));
 
 
         StepVerifier.create(Mono.zip(updatedApplication, userMono))
