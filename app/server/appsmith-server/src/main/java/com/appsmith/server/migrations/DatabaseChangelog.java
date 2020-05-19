@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -362,6 +363,29 @@ public class DatabaseChangelog {
             }
 
             mongoTemplate.save(organization);
+        }
+    }
+
+    @ChangeSet(order = "012", id = "ensure-datasource-created-and-updated-at-fields", author = "")
+    public void ensureDatasourceCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+        final List<Datasource> missingCreatedAt = mongoTemplate.find(
+                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("createdAt").exists(false)),
+                Datasource.class
+        );
+
+        for (Datasource datasource : missingCreatedAt) {
+            datasource.setCreatedAt(Instant.now());
+            mongoTemplate.save(datasource);
+        }
+
+        final List<Datasource> missingUpdatedAt = mongoTemplate.find(
+                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("updatedAt").exists(false)),
+                Datasource.class
+        );
+
+        for (Datasource datasource : missingUpdatedAt) {
+            datasource.setCreatedAt(Instant.now());
+            mongoTemplate.save(datasource);
         }
     }
 
