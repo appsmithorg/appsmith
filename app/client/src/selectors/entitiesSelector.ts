@@ -8,6 +8,7 @@ import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { API_CONSTANT } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
 import { Page } from "constants/ReduxActionConstants";
+import { Datasource } from "api/DatasourcesApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -106,6 +107,20 @@ export const getActions = (state: AppState): ActionDataState =>
 
 export const getDatasourceRefs = (state: AppState): any =>
   state.ui.datasourcePane.datasourceRefs;
+
+export const getDatasource = (
+  state: AppState,
+  datasourceId: string,
+): Partial<Datasource> | undefined =>
+  state.entities.datasources.list.find(
+    datasource => datasource.id === datasourceId,
+  );
+
+export const getDatasourceDraft = (state: AppState, id: string) => {
+  const drafts = state.ui.datasourcePane.drafts;
+  if (id in drafts) return drafts[id];
+  return {};
+};
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
