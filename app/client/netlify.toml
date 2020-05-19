@@ -7,43 +7,58 @@
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
     REACT_APP_BASE_URL = "https://api.appsmith.com"
+    APP_HOST = "app.appsmith.com"
 
 [context.release]
   [context.release.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "release.app.appsmith.com"
 
 [context.develop]
   [context.develop.environment]
     REACT_APP_ENVIRONMENT = "DEVELOPMENT"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "develop.app.appsmith.com"
 
 [context.a]
   [context.a.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "a.app.appsmith.com"
 
 [context.b]
   [context.b.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "b.app.appsmith.com"
 
 [context.deploy-preview]
   [context.deploy-preview.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
 
 [[redirects]]
   from = "/api/*"
   to = "API_PLACEHOLDER/api/:splat"
   status = 200
   force = true
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
 [[redirects]]
   from = "/oauth2/*"
   to = "API_PLACEHOLDER/oauth2/:splat"
   status = 200
   force = true
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
+
+[[redirects]]
+  from = "/login/*"
+  to = "API_PLACEHOLDER/login/:splat"
+  status = 200
+  force = true
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
 # This must be the last redirect in the chain because it's a catch-all
 [[redirects]]
