@@ -44,14 +44,21 @@
   to = "API_PLACEHOLDER/api/:splat"
   status = 200
   force = true
-  # headers = { Host = "APP_HOST_PLACEHOLDER" }
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
 [[redirects]]
   from = "/oauth2/*"
   to = "API_PLACEHOLDER/oauth2/:splat"
   status = 200
   force = true
-  # headers = { Host = "APP_HOST_PLACEHOLDER" }
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
+
+[[redirects]]
+  from = "/login/*"
+  to = "API_PLACEHOLDER/login/:splat"
+  status = 200
+  force = true
+  headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
 # This must be the last redirect in the chain because it's a catch-all
 [[redirects]]
