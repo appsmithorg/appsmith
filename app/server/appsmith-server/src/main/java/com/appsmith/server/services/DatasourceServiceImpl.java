@@ -42,6 +42,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final ObjectMapper objectMapper;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final SequenceService sequenceService;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -54,7 +55,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  SessionUserService sessionUserService,
                                  ObjectMapper objectMapper,
                                  PluginService pluginService,
-                                 PluginExecutorHelper pluginExecutorHelper) {
+                                 PluginExecutorHelper pluginExecutorHelper,
+                                 SequenceService sequenceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -62,6 +64,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.objectMapper = objectMapper;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
+        this.sequenceService = sequenceService;
     }
 
     @Override
@@ -73,21 +76,16 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         if (StringUtils.isEmpty(datasource.getName())) {
-            datasourceMono = datasourceMono.zipWith(
-                    getNextUniqueName("Untitled datasource"),
-                    (datasource1, name) -> {
-                        datasource1.setName(name);
+            datasourceMono = sequenceService
+                    .getNextAsSuffix(Datasource.class)
+                    .zipWith(datasourceMono, (sequenceNumber, datasource1) -> {
+                        datasource1.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                         return datasource1;
                     });
         }
 
-        return datasourceMono.flatMap(this::validateAndSaveDatasourceToRepository);
-    }
-
-    @Override
-    public Mono<String> getNextUniqueName(String namePrefix) {
-        return repository.countNamesByPrefix(namePrefix)
-                .map(max -> namePrefix + (max == 0 ? "" : " " + (max + 1)));
+        return datasourceMono
+                .flatMap(this::validateAndSaveDatasourceToRepository);
     }
 
     @Override

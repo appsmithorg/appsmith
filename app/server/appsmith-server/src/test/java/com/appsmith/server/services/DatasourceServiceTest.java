@@ -253,12 +253,12 @@ public class DatasourceServiceTest {
                     final Datasource ds1 = tuple2.getT1();
                     assertThat(ds1.getId()).isNotEmpty();
                     assertThat(ds1.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds1.getName()).isEqualTo("Untitled datasource");
+                    assertThat(ds1.getName()).isEqualTo("Untitled Datasource");
 
                     final Datasource ds2 = tuple2.getT2();
                     assertThat(ds2.getId()).isNotEmpty();
                     assertThat(ds2.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds2.getName()).isEqualTo("Untitled datasource 2");
+                    assertThat(ds2.getName()).isEqualTo("Untitled Datasource 2");
                 })
                 .verifyComplete();
     }
