@@ -20,6 +20,10 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 public class Datasource extends BaseDomain {
+
+    @Transient
+    public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
+
     String name;
 
     String pluginId;
