@@ -16,7 +16,6 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Set<String> extractKeysFromDatasource(Datasource datasource);
 
-    Mono<String> getNextUniqueName(String initialSlug);
-
     Mono<Datasource> validateDatasource(Datasource datasource);
+
 }
