@@ -76,6 +76,7 @@ before(function() {
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
   cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
 
@@ -84,6 +85,7 @@ before(function() {
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
+    localStorage.setItem("AppName", appId);
   });
 
   cy.generateUUID().then(uid => {
