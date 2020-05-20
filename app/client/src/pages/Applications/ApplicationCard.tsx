@@ -97,9 +97,14 @@ const ApplicationTitle = styled.div`
       top: ${props => props.theme.spaces[4]}px;
       cursor: pointer;
     }
+    .apptitle{
+      white-space: nowrap; 
+      width: 70%; 
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 `;
-
 const ApplicationImage = styled.div`
   && {
     height: 100%;
@@ -131,7 +136,6 @@ const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
-  loading: boolean;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
@@ -189,9 +193,8 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
   return (
     <Wrapper key={props.application.id} hasReadPermission={hasReadPermission}>
       <ApplicationTitle
-        className={props.loading ? Classes.SKELETON : undefined}
       >
-        <span>{props.application.name}</span>
+        <div className="apptitle">{props.application.name}</div>
         {hasEditPermission && (
           <Link to={editApplicationURL} className="t--application-edit-link">
             <Control className="control">

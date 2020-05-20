@@ -1,16 +1,25 @@
-import { all, put, takeEvery, select } from "redux-saga/effects";
-import { change, initialize } from "redux-form";
+import { all, put, takeEvery, select, call } from "redux-saga/effects";
+import { change, initialize, getFormValues } from "redux-form";
 import _ from "lodash";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxFormActionTypes,
+  ReduxActionWithMeta,
 } from "constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getDatasourceRefs, getPluginForm } from "selectors/entitiesSelector";
+import {
+  getDatasourceRefs,
+  getPluginForm,
+  getDatasource,
+  getDatasourceDraft,
+} from "selectors/entitiesSelector";
+import { selectPlugin } from "actions/datasourceActions";
+import { fetchPluginForm } from "actions/pluginActions";
 import { GenericApiResponse } from "api/ApiResponses";
 import DatasourcesApi, {
   CreateDatasourceConfig,
@@ -99,6 +108,12 @@ export function* deleteDatasourceSaga(
         type: ReduxActionTypes.DELETE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
+      yield put({
+        type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+        payload: {
+          id: response.data.id,
+        },
+      });
       history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     }
   } catch (error) {
@@ -124,6 +139,12 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
+      });
+      yield put({
+        type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+        payload: {
+          id: response.data.id,
+        },
       });
     }
   } catch (error) {
@@ -269,6 +290,60 @@ function* createDatasourceFromFormSaga(
   }
 }
 
+function* updateDraftsSaga() {
+  const values = yield select(getFormValues(DATASOURCE_DB_FORM));
+
+  if (!values.id) return;
+  const datasource = yield select(getDatasource, values.id);
+
+  if (_.isEqual(values, datasource)) {
+    yield put({
+      type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+      payload: { id: values.id },
+    });
+  } else {
+    yield put({
+      type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
+      payload: { id: values.id, draft: values },
+    });
+  }
+}
+
+function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+  const { id, pluginId } = actionPayload.payload;
+  const datasource = actionPayload.payload;
+  const state = yield select();
+  const draft = yield select(getDatasourceDraft, id);
+  const formConfigs = state.entities.plugins.formConfigs;
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
+  let data;
+
+  if (_.isEmpty(draft)) {
+    data = actionPayload.payload;
+  } else {
+    data = draft;
+  }
+
+  yield put(initialize(DATASOURCE_DB_FORM, data));
+  yield put(selectPlugin(pluginId));
+
+  if (!formConfigs[pluginId]) {
+    yield put(fetchPluginForm({ id: pluginId }));
+  }
+  history.push(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+  );
+}
+
+function* formValueChangeSaga(
+  actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
+) {
+  const { form } = actionPayload.meta;
+  if (form !== DATASOURCE_DB_FORM) return;
+  yield all([call(updateDraftsSaga)]);
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -280,5 +355,8 @@ export function* watchDatasourcesSagas() {
     takeEvery(ReduxActionTypes.UPDATE_DATASOURCE_INIT, updateDatasourceSaga),
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
     takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
+    takeEvery(ReduxActionTypes.CHANGE_DATASOURCE, changeDatasourceSaga),
+    // Intercepting the redux-form change actionType
+    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
   ]);
 }

@@ -32,9 +32,16 @@ const ApplicationCardsWrapper = styled.div`
   flex-flow: row wrap;
   justify-content: flex-start;
   align-items: space-evenly;
+  font-size: ${props => props.theme.fontSizes[4]}px;
 `;
 
-const Wrapper = styled(Card)`
+const OrgName = styled.div`
+  font-size: ${props => props.theme.fontSizes[6]}px;
+  padding-top: ${props => props.theme.spaces[2]}px;
+  padding-left: ${props => props.theme.spaces[5]}px;
+`;
+
+const ApplicationAddCardWrapper = styled(Card)`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -84,18 +91,6 @@ class Applications extends Component<ApplicationProps> {
           ? AppToaster.show({ message: DELETING_APPLICATION })
           : AppToaster.clear()}
         <SubHeader
-          add={{
-            form: CreateApplicationForm,
-            title: "Create Application",
-            formName: CREATE_APPLICATION_FORM_NAME,
-            formSubmitIntent: "primary",
-            isAdding: this.props.isCreatingApplication,
-            errorAdding: this.props.createApplicationError,
-            formSubmitText: "Create",
-            onClick: () => {
-              AnalyticsUtil.logEvent("CREATE_APP_CLICK", {});
-            },
-          }}
           search={{
             placeholder: "Search",
             queryFn: this.props.searchApplications,
@@ -110,18 +105,21 @@ class Applications extends Component<ApplicationProps> {
 
           return (
             <>
-              <p>{organization.name}</p>
+              <OrgName>{organization.name}</OrgName>
+
+
               <ApplicationCardsWrapper key={organization.id}>
                 {hasCreateApplicationPemission && (
                   <FormDialogComponent
                     trigger={
-                      <Wrapper>
-                        <Icon
+                      <ApplicationAddCardWrapper>
+                         <Icon
                           icon="plus"
-                          iconSize={20}
+                          iconSize={70}
                           className="createIcon"
                         />
-                      </Wrapper>
+                        <div className="createnew">Create New</div>
+                      </ApplicationAddCardWrapper>
                     }
                     Form={CreateApplicationForm}
                     title={"Create Application"}
@@ -132,36 +130,18 @@ class Applications extends Component<ApplicationProps> {
                     application.pages?.length > 0 && (
                       <ApplicationCard
                         key={application.id}
-                        loading={this.props.isFetchingApplications}
                         application={application}
                         delete={this.props.deleteApplication}
                       />
                     )
                   );
                 })}
+                <PageSectionDivider />
               </ApplicationCardsWrapper>
             </>
           );
         })}
-        {/* <ApplicationCardsWrapper>
-          <FormDialogComponent
-            trigger={<Wrapper>Hello</Wrapper>}
-            Form={CreateApplicationForm}
-            title={"Create Application"}
-          />
-          {applicationList.map((application: ApplicationPayload) => {
-            return (
-              application.pageCount > 0 && (
-                <ApplicationCard
-                  key={application.id}
-                  loading={this.props.isFetchingApplications}
-                  application={application}
-                  delete={this.props.deleteApplication}
-                />
-              )
-            );
-          })}
-        </ApplicationCardsWrapper> */}
+        
       </PageWrapper>
     );
   }

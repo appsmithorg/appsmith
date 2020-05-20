@@ -1,4 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
+const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formdsl.json");
 
 describe("Form Widget Functionality", function() {
@@ -7,10 +8,30 @@ describe("Form Widget Functionality", function() {
   });
   it("Form Widget Functionality", function() {
     cy.openPropertyPane("formwidget");
-
-    //Checking the edit props for Form and also the properties of Form widget
-    cy.testCodeMirror("Gray");
-
+    /**
+     * @param{Text} Random Text
+     * @param{FormWidget}Mouseover
+     * @param{FormPre Css} Assertion
+     */
+    cy.widgetText(
+      "FormTest",
+      formWidgetsPage.formWidget,
+      formWidgetsPage.formInner,
+    );
+    /**
+     * @param{Text} Random Colour
+     */
+    cy.testCodeMirror(this.data.colour);
+    cy.get(formWidgetsPage.formD)
+      .should("have.css", "background-color")
+      .and("eq", "rgb(255, 0, 0)");
+    /**
+     * @param{toggleButton Css} Assert to be checked
+     */
+    cy.togglebar(commonlocators.scrollView);
+    cy.get(formWidgetsPage.formD)
+      .scrollTo("bottom")
+      .should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click();
   });
 

@@ -42,7 +42,7 @@ const Templates: Record<string, any> = {
     create: `INSERT INTO users(
 id, name, gender, avatar, email, address, role)
 VALUES (?, ?, ?, ?, ?, ?, ?);`,
-    read: "SELECT * FROM users LIMIT 10 ORDER BY id",
+    read: "SELECT * FROM users ORDER BY id LIMIT 10",
     delete: `DELETE FROM users WHERE id=?`,
     update: `UPDATE users
 Set status='APPROVED'
