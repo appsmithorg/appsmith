@@ -1,0 +1,4 @@
+{
+  "input": ".CodeMirror textarea",
+  "hints": "ul.CodeMirror-hints"
+}
