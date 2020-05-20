@@ -32,6 +32,21 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get("@getUser").should("have.property", "status", 200);
 });
 
+Cypress.Commands.add("DeleteApp", appName => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+ cy.get('button span[icon="chevron-down"]').should("be.visible");
+ cy.get(homePage.searchInput).type(appName, { force: true });
+ cy.get(homePage.appMoreIcon).should("have.length",1)
+   .first()
+   .click({ force: true });
+  cy.get(homePage.deleteButton).should("be.visible").click({ force: true });
+});
+
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.visit("/user/login");
   cy.get(loginPage.username).should("be.visible");
@@ -458,12 +473,16 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const myRegexp = /applications(.*)/;
     const match = myRegexp.exec(currentURL);
     appId = match[1].split("/")[1];
-    cy.log(appId + "appId");
-    cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-      expect(response.status).equal(200);
-    });
+
+    if (appId != null) {
+      cy.log(appId + "appId");
+      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
+        expect(response.status).equal(200);
+      });
+    }
   });
 });
+
 Cypress.Commands.add("togglebar", value => {
   cy.get(value)
     .check({ force: true })
