@@ -663,7 +663,7 @@ function useApiOptionTree() {
       const apiName = createNewApiName(actions, pageId);
       if (setter) {
         setter({
-          value: `${apiName}.run`,
+          value: `${apiName}`,
           type: ActionType.api,
         });
         dispatch(createNewApiAction(pageId));

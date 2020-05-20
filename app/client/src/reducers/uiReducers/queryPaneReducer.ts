@@ -5,6 +5,7 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { RestAction } from "api/ActionAPI";
+import _ from "lodash";
 
 const initialState: QueryPaneReduxState = {
   isFetching: false,
@@ -13,6 +14,7 @@ const initialState: QueryPaneReduxState = {
   isSaving: {},
   isDeleting: {},
   runQuerySuccessData: {},
+  runErrorMessage: {},
   lastUsed: "",
 };
 
@@ -22,6 +24,7 @@ export interface QueryPaneReduxState {
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   runQuerySuccessData: {};
+  runErrorMessage: Record<string, string>;
   lastUsed: string;
   isCreating: boolean;
 }
@@ -134,6 +137,8 @@ const queryPaneReducer = createReducer(initialState, {
     state: any,
     action: ReduxAction<{ actionId: string; data: object }>,
   ) => {
+    const { actionId } = action.payload;
+
     return {
       ...state,
       isRunning: {
@@ -144,17 +149,24 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.runQuerySuccessData,
         [action.payload.actionId]: action.payload.data,
       },
+      runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
     };
   },
   [ReduxActionErrorTypes.RUN_QUERY_ERROR]: (
     state: any,
-    action: ReduxAction<{ actionId: string }>,
+    action: ReduxAction<{ actionId: string; message: string }>,
   ) => {
+    const { actionId, message } = action.payload;
+
     return {
       ...state,
       isRunning: {
         ...state.isRunning,
-        [action.payload.actionId]: false,
+        [actionId]: false,
+      },
+      runErrorMessage: {
+        ...state.runError,
+        [actionId]: message,
       },
     };
   },
