@@ -44,6 +44,11 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     200,
   );
 });
+Cypress.Commands.add("LogOut", () => {
+  cy.request("POST", "/api/v1/logout").then(response => {
+    expect(response.status).equal(200);
+  });
+});
 
 Cypress.Commands.add("NavigateToWidgets", pageName => {
   cy.get(pages.pagesIcon).click({ force: true });
@@ -349,23 +354,21 @@ Cypress.Commands.add("testCodeMirror", value => {
     });
 });
 
-Cypress.Commands.add("testJsontext", (endp, value) => {
+Cypress.Commands.add("testJsontext", (endp, js) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
-    .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then($cm => {
-    if ($cm.val() !== "") {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .first()
-        .clear({
-          force: true,
-        });
+        .clear({ force: true });
     }
     cy.get(".CodeMirror textarea")
       .first()
-      .type(value, {
+      .type(js, {
         force: true,
         parseSpecialCharSequences: false,
       });

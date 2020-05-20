@@ -107,4 +107,6 @@ after(function() {
   //cy.PublishtheApp();
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
+  //-- LogOut Application---//
+  cy.LogOut();
 });

@@ -31,6 +31,7 @@
     "headingTextStyle": ".bp3-heading span",
     "editWidgetName": ".bp3-editable-text",
     "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
-    "onDateSelectedField":".t--property-control-ondateselected"
+    "onDateSelectedField":".t--property-control-ondateselected",
+    "TableRow":".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable"
 
 }
