@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector, change, Field } from "redux-form";
+import { formValueSelector, change } from "redux-form";
 import Select from "react-select";
 import {
   POST_BODY_FORMAT_OPTIONS,
