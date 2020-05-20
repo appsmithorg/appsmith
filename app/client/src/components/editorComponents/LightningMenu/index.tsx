@@ -74,7 +74,10 @@ const getQueryOptions = (queries: RestAction[]) => ({
   themeType: "dark",
 });
 
-const getWidgetOptions = (widgets: WidgetProps[]) => ({
+const getWidgetOptions = (
+  widgets: WidgetProps[],
+  updatePropertyValue: (value: string) => void,
+) => ({
   sections: [
     // {
     //   isSticky: true,
@@ -93,13 +96,38 @@ const getWidgetOptions = (widgets: WidgetProps[]) => ({
     // },
     {
       options: widgets.map(widget => ({
-        content: widget.widgetName,
-        onSelect: noop,
+        content: (
+          <CustomizedDropdown {...getWidgetData(widget, updatePropertyValue)} />
+        ),
+        disabled: false,
+        shouldCloseDropdown: false,
       })),
     },
   ],
   trigger: {
     text: "Use data from a Widget",
+  },
+  openDirection: Directions.RIGHT,
+  openOnHover: false,
+  themeType: "dark",
+});
+
+const getWidgetData = (
+  widget: WidgetProps,
+  updatePropertyValue: (value: string) => void,
+) => ({
+  sections: [
+    {
+      options: Object.keys(widget).map(widgetProp => ({
+        content: widgetProp,
+        onSelect: () => {
+          updatePropertyValue(`{{${widget.widgetName}.${widgetProp}}}`);
+        },
+      })),
+    },
+  ],
+  trigger: {
+    text: widget.widgetName,
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
@@ -134,7 +162,11 @@ const lightningMenuOptions = (
           shouldCloseDropdown: false,
         },
         {
-          content: <CustomizedDropdown {...getWidgetOptions(widgets)} />,
+          content: (
+            <CustomizedDropdown
+              {...getWidgetOptions(widgets, updatePropertyValue)}
+            />
+          ),
           disabled: false,
           shouldCloseDropdown: false,
         },
