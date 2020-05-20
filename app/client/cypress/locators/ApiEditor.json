@@ -12,5 +12,6 @@
     "ApiHomePage": ".t--apiHomePage",
     "formActionButtons": ".t--formActionButtons",
     "dataSourceField": ".t--dataSourceField",
-    "responseBody":".CodeMirror-code  span.cm-string.cm-property"
+    "responseBody": ".CodeMirror-code  span.cm-string.cm-property",
+    "ApiVerb": ".t--apiFormHttpMethod input"
 }
