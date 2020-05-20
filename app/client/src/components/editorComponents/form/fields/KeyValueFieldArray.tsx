@@ -42,6 +42,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 placeholder="Key"
                 singleLine
                 setMaxHeight
+                showLightningMenu={false}
               />
               {!props.actionConfig && (
                 <DynamicTextField

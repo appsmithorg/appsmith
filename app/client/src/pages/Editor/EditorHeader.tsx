@@ -80,6 +80,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
                 text="Manage Pages"
                 icon="page-layout"
                 iconAlignment="left"
+                themeType="light"
               />
             ),
             onSelect: () =>

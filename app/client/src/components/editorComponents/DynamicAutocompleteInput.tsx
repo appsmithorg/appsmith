@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import styled, { createGlobalStyle } from "styled-components";
@@ -21,6 +21,9 @@ import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+const LightningMenu = lazy(() =>
+  import("components/editorComponents/LightningMenu"),
+);
 require("codemirror/mode/javascript/javascript");
 require("codemirror/mode/sql/sql");
 require("codemirror/addon/hint/sql-hint");
@@ -233,6 +236,18 @@ const IconContainer = styled.div`
   }
 `;
 
+const DynamicAutocompleteInputWrapper = styled.div`
+  width: 100%;
+  position: relative;
+  & > span:first-of-type {
+    position: absolute;
+    right: 0;
+    top: 2px;
+    width: 14px;
+    z-index: 10;
+  }
+`;
+
 const THEMES = {
   LIGHT: "LIGHT",
   DARK: "DARK",
@@ -264,7 +279,7 @@ export type DynamicAutocompleteInputProps = {
   link?: string;
   baseMode?: string | object;
   setMaxHeight?: boolean;
-  defaultValue?: string;
+  showLightningMenu?: boolean;
 };
 
 type Props = ReduxStateProps &
@@ -292,6 +307,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   componentDidMount(): void {
     if (this.textArea.current) {
       const options: EditorConfiguration = {};
+      //use this for lightning menu theme
       if (this.props.theme === "DARK") options.theme = "monokai";
       if (!this.props.input.onChange || this.props.disabled) {
         options.readOnly = true;
@@ -365,19 +381,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           });
         }
       }
-    }
-    if (prevProps.defaultValue !== this.props.defaultValue) {
-      const cursorPosition = this.props.defaultValue
-        ? this.props.defaultValue.length + 1
-        : 1;
-      this.editor.setValue(
-        this.props.defaultValue ? this.props.defaultValue : "",
-      );
-      this.editor.focus();
-      this.editor.setCursor({
-        line: 1,
-        ch: cursorPosition,
-      });
     }
   }
 
@@ -479,6 +482,15 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
+  updatePropertyValue = (value: string, cursor: number) => {
+    this.editor.setValue(value);
+    this.editor.focus();
+    this.editor.setCursor({
+      line: 1,
+      ch: cursor,
+    });
+  };
+
   render() {
     const {
       input,
@@ -488,6 +500,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       disabled,
       className,
       setMaxHeight,
+      showLightningMenu,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let showError = false;
@@ -495,57 +508,65 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       showError =
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
-    console.log(className);
+    const themeType = this.props.theme === "DARK" ? "dark" : "light";
     return (
-      <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
-        <Wrapper
-          editorTheme={theme}
-          hasError={hasError}
-          singleLine={singleLine}
-          isFocused={this.state.isFocused}
-          disabled={disabled}
-          className={className}
-          setMaxHeight={setMaxHeight}
-        >
-          <HintStyles />
-          <IconContainer>
-            {this.props.leftIcon && <this.props.leftIcon />}
-          </IconContainer>
-
-          {this.props.leftImage && (
-            <img
-              src={this.props.leftImage}
-              alt="img"
-              className="leftImageStyles"
-            />
-          )}
-
-          <textarea
-            ref={this.textArea}
-            {..._.omit(this.props.input, ["onChange", "value"])}
-            defaultValue={input.value}
-            placeholder={this.props.placeholder}
+      <DynamicAutocompleteInputWrapper>
+        {(showLightningMenu === undefined || showLightningMenu === true) && (
+          <LightningMenu
+            themeType={themeType}
+            updatePropertyValue={this.updatePropertyValue}
           />
-          {this.props.link && (
-            <React.Fragment>
-              <a
-                href={this.props.link}
-                target="_blank"
-                className="linkStyles"
-                rel="noopener noreferrer"
-              >
-                API documentation
-              </a>
-            </React.Fragment>
-          )}
-          {this.props.rightIcon && (
-            <HelperTooltip
-              description={this.props.description}
-              rightIcon={this.props.rightIcon}
+        )}
+        <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
+          <Wrapper
+            editorTheme={theme}
+            hasError={hasError}
+            singleLine={singleLine}
+            isFocused={this.state.isFocused}
+            disabled={disabled}
+            className={className}
+            setMaxHeight={setMaxHeight}
+          >
+            <HintStyles />
+            <IconContainer>
+              {this.props.leftIcon && <this.props.leftIcon />}
+            </IconContainer>
+
+            {this.props.leftImage && (
+              <img
+                src={this.props.leftImage}
+                alt="img"
+                className="leftImageStyles"
+              />
+            )}
+
+            <textarea
+              ref={this.textArea}
+              {..._.omit(this.props.input, ["onChange", "value"])}
+              defaultValue={input.value}
+              placeholder={this.props.placeholder}
             />
-          )}
-        </Wrapper>
-      </ErrorTooltip>
+            {this.props.link && (
+              <React.Fragment>
+                <a
+                  href={this.props.link}
+                  target="_blank"
+                  className="linkStyles"
+                  rel="noopener noreferrer"
+                >
+                  API documentation
+                </a>
+              </React.Fragment>
+            )}
+            {this.props.rightIcon && (
+              <HelperTooltip
+                description={this.props.description}
+                rightIcon={this.props.rightIcon}
+              />
+            )}
+          </Wrapper>
+        </ErrorTooltip>
+      </DynamicAutocompleteInputWrapper>
     );
   }
 }

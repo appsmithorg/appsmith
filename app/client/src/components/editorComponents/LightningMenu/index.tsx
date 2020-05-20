@@ -10,7 +10,11 @@ import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
 import { noop } from "lodash";
 
-const getApiOptions = (apis: RestAction[]) => ({
+const getApiOptions = (
+  themeType: string,
+  apis: RestAction[],
+  updatePropertyValue: (value: string, cursor: number) => void,
+) => ({
   sections: [
     {
       isSticky: true,
@@ -21,7 +25,7 @@ const getApiOptions = (apis: RestAction[]) => ({
               text="Create new API"
               icon="plus"
               iconAlignment="left"
-              themeType="dark"
+              themeType={themeType}
             />
           ),
         },
@@ -30,7 +34,10 @@ const getApiOptions = (apis: RestAction[]) => ({
     {
       options: apis.map(api => ({
         content: api.name,
-        onSelect: noop,
+        onSelect: () => {
+          const value = `{{${api.name}.data}}`;
+          updatePropertyValue(value, value.length + 1);
+        },
       })),
     },
   ],
@@ -39,10 +46,14 @@ const getApiOptions = (apis: RestAction[]) => ({
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: "dark",
+  themeType: themeType,
 });
 
-const getQueryOptions = (queries: RestAction[]) => ({
+const getQueryOptions = (
+  themeType: string,
+  queries: RestAction[],
+  updatePropertyValue: (value: string, cursor: number) => void,
+) => ({
   sections: [
     {
       isSticky: true,
@@ -53,7 +64,7 @@ const getQueryOptions = (queries: RestAction[]) => ({
               text="Create new Query"
               icon="plus"
               iconAlignment="left"
-              themeType="dark"
+              themeType={themeType}
             />
           ),
         },
@@ -62,7 +73,10 @@ const getQueryOptions = (queries: RestAction[]) => ({
     {
       options: queries.map(query => ({
         content: query.name,
-        onSelect: noop,
+        onSelect: () => {
+          const value = `{{${query.name}.data}}`;
+          updatePropertyValue(value, value.length + 1);
+        },
       })),
     },
   ],
@@ -71,33 +85,21 @@ const getQueryOptions = (queries: RestAction[]) => ({
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: "dark",
+  themeType: themeType,
 });
 
 const getWidgetOptions = (
+  themeType: string,
   widgets: WidgetProps[],
-  updatePropertyValue: (value: string) => void,
+  updatePropertyValue: (value: string, cursor: number) => void,
 ) => ({
   sections: [
-    // {
-    //   isSticky: true,
-    //   options: [
-    //     {
-    //       content: (
-    //         <Button
-    //           text="Create new widget"
-    //           icon="plus"
-    //           iconAlignment="left"
-    //           themeType="dark"
-    //         />
-    //       ),
-    //     },
-    //   ],
-    // },
     {
       options: widgets.map(widget => ({
         content: (
-          <CustomizedDropdown {...getWidgetData(widget, updatePropertyValue)} />
+          <CustomizedDropdown
+            {...getWidgetData(themeType, widget, updatePropertyValue)}
+          />
         ),
         disabled: false,
         shouldCloseDropdown: false,
@@ -109,19 +111,21 @@ const getWidgetOptions = (
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: "dark",
+  themeType: themeType,
 });
 
 const getWidgetData = (
+  themeType: string,
   widget: WidgetProps,
-  updatePropertyValue: (value: string) => void,
+  updatePropertyValue: (value: string, cursor: number) => void,
 ) => ({
   sections: [
     {
       options: Object.keys(widget).map(widgetProp => ({
         content: widgetProp,
         onSelect: () => {
-          updatePropertyValue(`{{${widget.widgetName}.${widgetProp}}}`);
+          const value = `{{${widget.widgetName}.${widgetProp}}}`;
+          updatePropertyValue(value, value.length + 1);
         },
       })),
     },
@@ -131,14 +135,15 @@ const getWidgetData = (
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: "dark",
+  themeType: themeType,
 });
 
 const lightningMenuOptions = (
+  themeType: string,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
-  updatePropertyValue: (value: string) => void,
+  updatePropertyValue: (value: string, cursor: number) => void,
 ): CustomizedDropdownProps => ({
   sections: [
     {
@@ -148,23 +153,31 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("Plain Text");
+            updatePropertyValue("", 1);
           },
         },
         {
-          content: <CustomizedDropdown {...getApiOptions(apis)} />,
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: <CustomizedDropdown {...getQueryOptions(queries)} />,
+          content: (
+            <CustomizedDropdown
+              {...getApiOptions(themeType, apis, updatePropertyValue)}
+            />
+          ),
           disabled: false,
           shouldCloseDropdown: false,
         },
         {
           content: (
             <CustomizedDropdown
-              {...getWidgetOptions(widgets, updatePropertyValue)}
+              {...getQueryOptions(themeType, queries, updatePropertyValue)}
+            />
+          ),
+          disabled: false,
+          shouldCloseDropdown: false,
+        },
+        {
+          content: (
+            <CustomizedDropdown
+              {...getWidgetOptions(themeType, widgets, updatePropertyValue)}
             />
           ),
           disabled: false,
@@ -175,7 +188,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("{{}}");
+            updatePropertyValue("{{}}", 3);
           },
         },
         {
@@ -183,7 +196,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("<p></p>");
+            updatePropertyValue("<p></p>", 4);
           },
         },
       ],
@@ -194,12 +207,13 @@ const lightningMenuOptions = (
   trigger: {
     text: "",
   },
-  themeType: "dark",
+  themeType: themeType,
 });
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
-  updatePropertyValue: (value: string) => void;
+  updatePropertyValue: (value: string, cursor: number) => void;
+  themeType: string;
 };
 
 export const LightningMenu = (props: LightningMenuProps) => {
@@ -213,16 +227,14 @@ export const LightningMenu = (props: LightningMenuProps) => {
     const canvasWidgets = [];
     for (const i in state.entities.canvasWidgets) {
       if (
-        !["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-          state.entities.canvasWidgets[i].type,
-        )
+        !state.entities.canvasWidgets[i].children ||
+        state.entities.canvasWidgets[i].children?.length === 0
       ) {
         canvasWidgets.push(state.entities.canvasWidgets[i]);
       }
     }
     return canvasWidgets;
   });
-  console.log("widgets", widgets);
   const apis = actions
     .filter(action => action.config.pluginType === "API")
     .map(action => action.config);
@@ -233,6 +245,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
   return (
     <CustomizedDropdown
       {...lightningMenuOptions(
+        props.themeType,
         apis,
         queries,
         widgets,

@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import { Intent, IntentColors } from "constants/DefaultTheme";
 
-export const DropdownTrigger = styled.div`
+export const DropdownTrigger = styled.div<{ themeType: string }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -17,8 +17,13 @@ export const DropdownTrigger = styled.div`
     justify-content: space-between;
     outline: 0;
     span {
-      color: inherit;
       font-weight: 400;
+      color: ${props =>
+        props.themeType === "dark"
+          ? props.theme.colors.textOnDarkBG
+          : props.themeType === "light"
+          ? props.theme.colors.defaultText
+          : "initial"};
     }
     &:hover {
       background: inherit;
@@ -96,4 +101,14 @@ export const Option = styled.div<{
     ${props => (!props.disabled ? highlightOption : ``)};
   }
   ${props => (props.active && !props.disabled ? highlightOption : ``)};
+  &&& button {
+    span {
+      color: ${props =>
+        props.themeType === "dark"
+          ? props.theme.colors.textOnDarkBG
+          : props.themeType === "light"
+          ? props.theme.colors.defaultText
+          : "initial"};
+    }
+  }
 `;

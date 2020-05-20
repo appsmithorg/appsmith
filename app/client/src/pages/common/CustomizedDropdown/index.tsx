@@ -145,7 +145,7 @@ export const CustomizedDropdown = (
       minimal
       enforceFocus={false}
     >
-      <DropdownTrigger>{trigger}</DropdownTrigger>
+      <DropdownTrigger themeType={themeType}>{trigger}</DropdownTrigger>
       <DropdownContent themeType={themeType}>{content}</DropdownContent>
     </Popover>
   );
