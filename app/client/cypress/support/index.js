@@ -22,7 +22,7 @@ let appId;
 import "./commands";
 before(function() {
   console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
-
+  cy.viewport("macbook-15");
   cy.server();
   cy.route("GET", "/api/v1/applications").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
@@ -79,8 +79,8 @@ before(function() {
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
   cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
-
   cy.LogintoApp(loginData.username, loginData.password);
+
   // cy.SearchApp(inputData.appname)
   cy.generateUUID().then(id => {
     appId = id;

@@ -190,6 +190,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               filled
               onClick={onSaveClick}
               loading={isSaving}
+              className="t--apiFormSaveBtn"
               disabled={!allowSave}
             />
           </ActionButtons>
@@ -198,6 +199,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <DropdownField
             placeholder="Method"
             name="actionConfiguration.httpMethod"
+            className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourceWrapper className="t--dataSourceField">

@@ -17,6 +17,7 @@ describe("Test curl import api and run flow", function() {
         httpResponse.response.body.data.name,
       );
     });
+    /*
     cy.get(ApiEditor.ApiRunBtn).click();
     cy.get(ApiEditor.ApiRunBtn).should("be.disabled");
     cy.wait("@postExecute").should(
@@ -24,6 +25,8 @@ describe("Test curl import api and run flow", function() {
       "response.body.responseMeta.status",
       200,
     );
+    */
+    cy.SaveAPI();
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get("@postExecute").then(httpResponse => {
       cy.expect(httpResponse.response.body.responseMeta.success).to.eq(true);
