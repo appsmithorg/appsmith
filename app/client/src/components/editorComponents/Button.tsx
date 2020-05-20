@@ -86,7 +86,6 @@ export type ButtonProps = {
 };
 
 export const Button = (props: ButtonProps) => {
-  console.log("theme", props.themeType);
   const icon: IconName | undefined =
     props.icon &&
     (props.iconAlignment === Directions.LEFT ||
@@ -113,7 +112,6 @@ export const Button = (props: ButtonProps) => {
     fluid: props.fluid ? props.fluid.toString() : undefined,
     themeType: props.themeType ? props.themeType : undefined,
   };
-  // console.log("themeType", baseProps.themeType);
   if (props.href) {
     return (
       <StyledAnchorButton

@@ -7,6 +7,7 @@ import { AppState } from "reducers";
 import Button from "components/editorComponents/Button";
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
+import { WidgetProps } from "widgets/BaseWidget";
 import { noop } from "lodash";
 
 const getApiOptions = (apis: RestAction[]) => ({
@@ -34,7 +35,7 @@ const getApiOptions = (apis: RestAction[]) => ({
     },
   ],
   trigger: {
-    text: "Use data from API",
+    text: "Use data from a API",
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
@@ -66,7 +67,39 @@ const getQueryOptions = (queries: RestAction[]) => ({
     },
   ],
   trigger: {
-    text: "Use data from Query",
+    text: "Use data from a Query",
+  },
+  openDirection: Directions.RIGHT,
+  openOnHover: false,
+  themeType: "dark",
+});
+
+const getWidgetOptions = (widgets: WidgetProps[]) => ({
+  sections: [
+    // {
+    //   isSticky: true,
+    //   options: [
+    //     {
+    //       content: (
+    //         <Button
+    //           text="Create new widget"
+    //           icon="plus"
+    //           iconAlignment="left"
+    //           themeType="dark"
+    //         />
+    //       ),
+    //     },
+    //   ],
+    // },
+    {
+      options: widgets.map(widget => ({
+        content: widget.widgetName,
+        onSelect: noop,
+      })),
+    },
+  ],
+  trigger: {
+    text: "Use data from a Widget",
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
@@ -76,6 +109,7 @@ const getQueryOptions = (queries: RestAction[]) => ({
 const lightningMenuOptions = (
   apis: RestAction[],
   queries: RestAction[],
+  widgets: WidgetProps[],
   updatePropertyValue: (value: string) => void,
 ): CustomizedDropdownProps => ({
   sections: [
@@ -99,11 +133,11 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: false,
         },
-        // {
-        //   content: <CustomizedDropdown {...getQueryOptions(queries)} />,
-        //   disabled: false,
-        //   shouldCloseDropdown: false,
-        // },
+        {
+          content: <CustomizedDropdown {...getWidgetOptions(widgets)} />,
+          disabled: false,
+          shouldCloseDropdown: false,
+        },
         {
           content: "JS",
           disabled: false,
@@ -143,7 +177,20 @@ export const LightningMenu = (props: LightningMenuProps) => {
       action => action.config.pageId === currentPageId,
     );
   });
-  // console.log("actions", actions);
+  const widgets = useSelector((state: AppState) => {
+    const canvasWidgets = [];
+    for (const i in state.entities.canvasWidgets) {
+      if (
+        !["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
+          state.entities.canvasWidgets[i].type,
+        )
+      ) {
+        canvasWidgets.push(state.entities.canvasWidgets[i]);
+      }
+    }
+    return canvasWidgets;
+  });
+  console.log("widgets", widgets);
   const apis = actions
     .filter(action => action.config.pluginType === "API")
     .map(action => action.config);
@@ -153,7 +200,12 @@ export const LightningMenu = (props: LightningMenuProps) => {
 
   return (
     <CustomizedDropdown
-      {...lightningMenuOptions(apis, queries, props.updatePropertyValue)}
+      {...lightningMenuOptions(
+        apis,
+        queries,
+        widgets,
+        props.updatePropertyValue,
+      )}
     />
   );
 };
