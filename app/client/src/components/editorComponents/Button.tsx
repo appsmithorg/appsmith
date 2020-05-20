@@ -39,6 +39,15 @@ const buttonStyles = css<{
         ? props.theme.colors.textOnDarkBG
         : props.theme.colors.textDefault};
   }
+  &&&&&& {
+    &.bp3-button span {
+      font-weight: ${props => (props.themeType === "dark" ? 400 : 700)};
+    }
+    .bp3-icon svg {
+      width: ${props => (props.themeType === "dark" ? 14 : 16)}px;
+      height: ${props => (props.themeType === "dark" ? 14 : 16)}px;
+    }
+  }
   ${props => (props.outline ? outline : "")}
 `;
 const StyledButton = styled(BlueprintButton)<{

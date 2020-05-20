@@ -122,7 +122,11 @@ export const CustomizedDropdown = (
   );
 
   const content = props.sections.map((section, index) => (
-    <DropdownContentSection key={index} stick={!!section.isSticky}>
+    <DropdownContentSection
+      key={index}
+      stick={!!section.isSticky}
+      themeType={themeType}
+    >
       {getContentSection(section, themeType)}
     </DropdownContentSection>
   ));

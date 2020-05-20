@@ -37,7 +37,10 @@ export const DropdownContent = styled.div<{ themeType: string }>`
   background: ${props => props.theme.dropdown[props.themeType].inActiveBG};
 `;
 
-export const DropdownContentSection = styled.div<{ stick: boolean }>`
+export const DropdownContentSection = styled.div<{
+  stick: boolean;
+  themeType: string;
+}>`
   position: ${props => (props.stick ? "sticky" : "relative")};
   background: white;
   z-index: ${props => (props.stick ? 1 : 0)};
@@ -59,7 +62,8 @@ export const DropdownContentSection = styled.div<{ stick: boolean }>`
     right: 0;
     bottom: 0;
     height: 1px;
-    background: #ccc;
+    background: ${props =>
+      props.themeType === "dark" ? "transparent" : "#ccc"};
   }
 `;
 
