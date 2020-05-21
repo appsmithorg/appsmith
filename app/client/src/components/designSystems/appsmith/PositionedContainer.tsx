@@ -6,6 +6,7 @@ type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
   widgetId: string;
+  widgetType: string;
 };
 
 export const PositionedContainer = (props: PositionedContainerProps) => {
@@ -23,7 +24,14 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
         padding: padding + "px",
       }}
       //Before you remove: This is used by property pane to reference the element
-      className={generateClassName(props.widgetId)}
+      className={
+        generateClassName(props.widgetId) +
+        " " +
+        `t--widget-${props.widgetType
+          .split("_")
+          .join("")
+          .toLowerCase()}`
+      }
     >
       {props.children}
     </div>
