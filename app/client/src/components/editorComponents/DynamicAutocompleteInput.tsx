@@ -238,6 +238,8 @@ const IconContainer = styled.div`
 
 const DynamicAutocompleteInputWrapper = styled.div`
   width: 100%;
+  height: 100%;
+  flex: 1;
   position: relative;
   & > span:first-of-type {
     position: absolute;
@@ -509,14 +511,16 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     const themeType = this.props.theme === "DARK" ? "dark" : "light";
+    const hideLightningMenu = false;
     return (
       <DynamicAutocompleteInputWrapper>
-        {(showLightningMenu === undefined || showLightningMenu === true) && (
-          <LightningMenu
-            themeType={themeType}
-            updatePropertyValue={this.updatePropertyValue}
-          />
-        )}
+        {!hideLightningMenu &&
+          (showLightningMenu === undefined || showLightningMenu === true) && (
+            <LightningMenu
+              themeType={themeType}
+              updatePropertyValue={this.updatePropertyValue}
+            />
+          )}
         <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
           <Wrapper
             editorTheme={theme}
