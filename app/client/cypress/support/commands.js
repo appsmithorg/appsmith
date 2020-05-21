@@ -36,12 +36,15 @@ Cypress.Commands.add("DeleteApp", appName => {
     "response.body.responseMeta.status",
     200,
   );
- cy.get('button span[icon="chevron-down"]').should("be.visible");
- cy.get(homePage.searchInput).type(appName, { force: true });
- cy.get(homePage.appMoreIcon).should("have.length",1)
-   .first()
-   .click({ force: true });
-  cy.get(homePage.deleteButton).should("be.visible").click({ force: true });
+  cy.get('button span[icon="chevron-down"]').should("be.visible");
+  cy.get(homePage.searchInput).type(appName, { force: true });
+  cy.get(homePage.appMoreIcon)
+    .should("have.length", 1)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.deleteButton)
+    .should("be.visible")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
@@ -419,7 +422,11 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
-  cy.get(homePage.publishCrossButton).click();
+  cy.get('a[class="bp3-button"]')
+    .invoke("removeAttr", "target")
+    .click({ force: true });
+  cy.url().should("include", "/pages");
+  cy.log("pagename: " + localStorage.getItem("PageName"));
 });
 
 Cypress.Commands.add("getCodeMirror", () => {

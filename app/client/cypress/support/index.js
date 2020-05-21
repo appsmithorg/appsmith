@@ -92,6 +92,7 @@ before(function() {
     pageid = uid;
     cy.Createpage(pageid);
     cy.NavigateToWidgets(pageid);
+    localStorage.setItem("PageName", pageid);
   });
 
   cy.fixture("example").then(function(data) {
