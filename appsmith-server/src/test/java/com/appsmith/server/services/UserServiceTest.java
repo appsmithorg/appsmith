@@ -74,6 +74,9 @@ public class UserServiceTest {
                 .verify();
     }
 
+    /**
+     * The following function tests for switch organization
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void updateUserWithValidOrganization() {

@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +20,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
@@ -26,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @DirtiesContext
+@Slf4j
 public class OrganizationServiceTest {
 
     @Autowired
@@ -199,6 +205,42 @@ public class OrganizationServiceTest {
                 .assertNext(orgsTuple -> {
                     assertThat(orgsTuple.getT1().getSlug()).isEqualTo("really-good-org");
                     assertThat(orgsTuple.getT2().getSlug()).isEqualTo("really-good-org2");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllUserRolesForOrganizationDomain() {
+        Mono<Map<String, String>> userRolesForOrganization = organizationService.getUserRolesForOrganization();
+
+        StepVerifier.create(userRolesForOrganization)
+                .assertNext(roles -> {
+                    assertThat(roles).isNotEmpty();
+                    assertThat(roles).containsKeys("Administrator", "App Viewer", "Developer");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllMembersForOrganization() {
+        Organization testOrg = new Organization();
+        testOrg.setName("Get All Members For Organization Test");
+        testOrg.setDomain("test.com");
+        testOrg.setWebsite("https://test.com");
+
+        Mono<Organization> createOrganizationMono = organizationService.create(testOrg);
+        Mono<List<UserRole>> usersMono = createOrganizationMono
+                .flatMap(organization -> organizationService.getOrganizationMembers(organization.getId()));
+
+        StepVerifier
+                .create(usersMono)
+                .assertNext(users -> {
+                    assertThat(users).isNotNull();
+                    UserRole userRole = users.get(0);
+                    assertThat(userRole.getName()).isEqualTo("api_user");
+                    assertThat(userRole.getRole()).isEqualByComparingTo(AppsmithRole.ORGANIZATION_ADMIN);
+                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
                 })
                 .verifyComplete();
     }
