@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.BeanCopyUtils;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.InviteUserRepository;
@@ -39,19 +40,15 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
@@ -70,6 +67,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserOrganizationService userOrganizationService;
     private final ApplicationRepository applicationRepository;
     private final PolicyGenerator policyGenerator;
+    private final PolicyUtils policyUtils;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
@@ -94,7 +92,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            InviteUserRepository inviteUserRepository,
                            UserOrganizationService userOrganizationService,
                            ApplicationRepository applicationRepository,
-                           PolicyGenerator policyGenerator) {
+                           PolicyGenerator policyGenerator, PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -107,6 +105,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userOrganizationService = userOrganizationService;
         this.applicationRepository = applicationRepository;
         this.policyGenerator = policyGenerator;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -324,42 +323,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
 
                     Set<AclPermission> invitePermissions = inviteUser.getRole().getPermissions();
-                    // Append the permissions to the application
-                    Map<String, Policy> policyMap = invitePermissions.stream()
-                            .map(perm -> {
-                                // Create a policy for the invited user using the permission as per the role
-                                Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                                        .users(Set.of(inviteUser.getUsername())).build();
-                                // Generate any and all lateral policies that might come with the current permission
-                                Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, inviteUser);
-                                policiesForUser.add(policyWithCurrentPermission);
-                                return policiesForUser;
-                            })
-                            .flatMap(Collection::stream)
-                            .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-
-
-                    // Append the user to the existing permission policy if it already exists.
-                    for (Policy policy : application.getPolicies()) {
-                        String permission = policy.getPermission();
-                        if (policyMap.containsKey(permission)) {
-                            policy.getUsers().addAll(policyMap.get(permission).getUsers());
-                            if (policy.getGroups() == null) {
-                                policy.setGroups(new HashSet<>());
-                            }
-                            if (policyMap.get(permission).getGroups() != null) {
-                                policy.getGroups().addAll(policyMap.get(permission).getGroups());
-                            }
-                            // Remove this permission from the policyMap as this has been accounted for in the above code
-                            policyMap.remove(permission);
-                        }
-                    }
-
-                    // For all the remaining policies which exist in the policyMap but didnt exist in the application
-                    // earlier, just add them to the set
-                    application.getPolicies().addAll(policyMap.values());
-
-                    return application;
+                    // Append the permissions to the application and return
+                    return (Application) policyUtils.generateAndAddPoliciesFromPermissions(invitePermissions, application, inviteUser);
 
                     // Append the required permissions to all the pages
                     /**
@@ -632,7 +597,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<User> update(String id, User userUpdate) {
-        Mono<User> userFromRepository = repository.findById(id, READ_USERS)
+        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         if (userUpdate.getPassword() != null) {

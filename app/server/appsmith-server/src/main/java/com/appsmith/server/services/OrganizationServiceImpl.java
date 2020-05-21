@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
@@ -10,9 +11,11 @@ import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +30,15 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -45,6 +51,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
     private final PolicyGenerator policyGenerator;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -58,7 +65,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
-                                   PolicyGenerator policyGenerator) {
+                                   PolicyGenerator policyGenerator, PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
@@ -67,6 +74,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
         this.policyGenerator = policyGenerator;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -129,9 +137,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
             return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
-        // Set the admin policies for this organization & user
-        organization.setPolicies(crudOrgPolicy(user));
-
         Mono<Organization> setSlugMono;
         if (organization.getName() == null) {
             setSlugMono = Mono.just(organization);
@@ -161,6 +166,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                         }))
                 //Call the BaseService function to save the updated organization
                 .flatMap(super::create)
+                // Set the current user as admin for the organization
+                .flatMap(createdOrg -> addUserRoleToOrganization(createdOrg, user, AppsmithRole.ORGANIZATION_ADMIN))
+                // TODO : Remove the following code
                 .flatMap(savedOrganization -> userOrganizationService
                         .addUserToOrganization(savedOrganization.getId(), user)
                         .thenReturn(savedOrganization));
@@ -251,5 +259,87 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByIdsIn(ids, permission);
     }
 
+    @Override
+    public Mono<Map<String, String>> getUserRolesForOrganization() {
+        // Get all the roles for Organization entity from the enum AppsmithRole
+        Map<String, String> appsmithRoles = Arrays.asList(AppsmithRole.values())
+                .stream()
+                .filter(role -> {
+                    Set<AclPermission> permissions = role.getPermissions();
+                    if (permissions != null && !permissions.isEmpty()) {
+                        for (AclPermission permission : permissions) {
+                            if (permission.getEntity().equals(Organization.class)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                })
+                .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
+
+        return Mono.just(appsmithRoles);
+    }
+
+    @Override
+    public Mono<Organization> addUserRoleToOrganization(Organization organization, User user, AppsmithRole role) {
+        List<UserRole> userRoles = organization.getUserRoles();
+        if (userRoles == null) {
+            userRoles = new ArrayList<>();
+        }
+        UserRole userRole = new UserRole();
+        userRole.setUserId(user.getId());
+        userRole.setUsername(user.getUsername());
+        userRole.setName(user.getName());
+        userRole.setRole(role);
+        userRole.setRoleName(role.getName());
+
+        // Add the user and its role to the organization
+        userRoles.add(userRole);
+
+        Set<AclPermission> rolePermissions = role.getPermissions();
+        Organization updatedOrganization = (Organization) policyUtils.generateAndAddPoliciesFromPermissions(rolePermissions, organization, user);
+        updatedOrganization.setUserRoles(userRoles);
+        /**
+         * TODO : Update the underlying application/page/action
+         */
+        return repository.save(updatedOrganization);
+    }
+
+    @Override
+    public Mono<Organization> removeUserRoleFromOrganization(Organization organization, User user) {
+        List<UserRole> userRoles = organization.getUserRoles();
+        if (userRoles == null) {
+            // The user doesnt exist in this organization. Nothing to do here. Return as is.
+            return Mono.just(organization);
+        }
+        for (UserRole role : userRoles) {
+            if (role.getUsername().equals(user.getUsername())) {
+                // Update the organization permissions
+                Set<AclPermission> rolePermissions = role.getRole().getPermissions();
+                Organization updatedPermissionsOrg = (Organization) policyUtils.generateAndRemovePolicies(rolePermissions, organization, user);
+                List<UserRole> finalUserRoles = updatedPermissionsOrg.getUserRoles();
+                // The user exists. Remove the user from the organization :
+                finalUserRoles.remove(role);
+                updatedPermissionsOrg.setUserRoles(finalUserRoles);
+
+                /**
+                 * TODO : Update the underlying application/page/action
+                 */
+
+                return repository.save(updatedPermissionsOrg);
+            }
+        }
+
+        // The user was not found in the list of user roles in the organization. Throw the appropriate error.
+        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getId()));
+    }
+
+    @Override
+    public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
+        return repository
+                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .map(organization -> organization.getUserRoles());
+    }
 }
 
