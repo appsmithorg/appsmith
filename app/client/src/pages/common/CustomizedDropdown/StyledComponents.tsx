@@ -16,6 +16,7 @@ export const DropdownTrigger = styled.div<{ themeType: string }>`
     color: inherit;
     justify-content: space-between;
     outline: 0;
+    min-width: 20px;
     span {
       font-weight: 400;
       color: ${props =>
