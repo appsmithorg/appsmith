@@ -67,6 +67,8 @@ unit_test:
   only:
     - release
     - merge_requests
+  except:
+    - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 # all jobs that actually run tests can use the same definition
 .test_job_template:
@@ -93,6 +95,8 @@ unit_test:
     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
     - release
     - merge_requests
+  except:
+    - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 cypress-test-release-1:
   extends: .test_job_template
