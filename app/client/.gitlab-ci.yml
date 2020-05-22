@@ -58,7 +58,7 @@ react-build-release:
     - release
     - merge_requests
     - feature/acl
-
+  
 unit_test:
   stage: test
   script:
@@ -68,7 +68,8 @@ unit_test:
     - release
     - merge_requests
   except:
-    - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 # all jobs that actually run tests can use the same definition
 .test_job_template:
@@ -96,7 +97,8 @@ unit_test:
     - release
     - merge_requests
   except:
-    - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 cypress-test-release-1:
   extends: .test_job_template
