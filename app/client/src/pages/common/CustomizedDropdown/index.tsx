@@ -116,6 +116,7 @@ export const CustomizedDropdown = (
           text={props.trigger.text}
           intent={props.trigger.intent}
           themeType={props.themeType}
+          type="button"
         />
       )}
     </React.Fragment>
