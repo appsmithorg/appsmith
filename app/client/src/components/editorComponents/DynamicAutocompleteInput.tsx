@@ -581,10 +581,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       <DynamicAutocompleteInputWrapper>
         {!hideLightningMenu &&
           (showLightningMenu === undefined || showLightningMenu === true) && (
-            <LightningMenu
-              themeType={this.props.theme === "DARK" ? "dark" : "light"}
-              updatePropertyValue={this.updatePropertyValue}
-            />
+            <Suspense fallback={<div />}>
+              <LightningMenu
+                themeType={this.props.theme === "DARK" ? "dark" : "light"}
+                updatePropertyValue={this.updatePropertyValue}
+              />
+            </Suspense>
           )}
         <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
           <Wrapper
