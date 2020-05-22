@@ -29,7 +29,6 @@ import { fetchOrgsSaga } from "./OrgSagas";
 import { resetAuthExpiration } from "utils/storage";
 import {
   logoutUserSuccess,
-  fetchCurrentUser,
   logoutUserError,
   verifyInviteSuccess,
   verifyInviteError,
@@ -262,51 +261,6 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   }
 }
 
-export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
-  try {
-    const request: FetchUserRequest = action.payload;
-    const response: FetchUserResponse = yield call(UserApi.fetchUser, request);
-    const isValidResponse = yield validateResponse(response);
-
-    if (isValidResponse) {
-      const { user, applications, currentOrganization } = response.data;
-      const finalData = {
-        ...user,
-        applications,
-        currentOrganization,
-      };
-      AnalyticsUtil.identifyUser(finalData.id, finalData);
-      Sentry.configureScope(function(scope) {
-        scope.setUser({ email: finalData.email, id: finalData.id });
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_SUCCESS,
-        payload: finalData,
-      });
-      return yield finalData;
-    }
-    return yield false;
-  } catch (error) {
-    console.log(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_ERROR,
-      payload: error,
-    });
-  }
-}
-
-export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
-  const me = yield call(fetchUserSaga, action);
-  if (me) {
-    resetAuthExpiration();
-    yield put({
-      type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,
-      payload: me,
-    });
-    yield call(fetchOrgsSaga);
-  }
-}
-
 export function* switchUserOrgSaga(action: ReduxAction<SwitchUserOrgRequest>) {
   try {
     const request: SwitchUserOrgRequest = action.payload;
@@ -362,7 +316,6 @@ export function* logoutSaga() {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
-      yield put(fetchCurrentUser());
     }
   } catch (error) {
     console.log(error);
@@ -380,8 +333,6 @@ export default function* userSagas() {
       verifyResetPasswordTokenSaga,
     ),
     takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
-    takeLatest(ReduxActionTypes.FETCH_USER_INIT, fetchUserSaga),
-    takeLatest(ReduxActionTypes.SET_CURRENT_USER_INIT, setCurrentUserSaga),
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
     takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
     takeLatest(
