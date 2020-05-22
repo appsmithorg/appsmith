@@ -9,6 +9,8 @@ import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
 import { mergeWith } from "lodash";
+import { ControlIcons } from "icons/ControlIcons";
+import { Tooltip } from "@blueprintjs/core";
 
 const getApiOptions = (
   themeType: string,
@@ -137,12 +139,14 @@ const getWidgetData = (
   themeType: themeType,
 });
 
+const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
   themeType: string,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
   updatePropertyValue: (value: string, cursor?: number) => void,
+  trigger: React.ReactNode,
 ): CustomizedDropdownProps => ({
   sections: [
     {
@@ -204,7 +208,7 @@ const lightningMenuOptions = (
   openDirection: Directions.DOWN,
   usePortal: true,
   trigger: {
-    text: "",
+    content: <Tooltip content="Quick start data binding">{trigger}</Tooltip>,
   },
   themeType: themeType,
 });
@@ -242,6 +246,14 @@ export const LightningMenu = (props: LightningMenuProps) => {
     .filter(action => action.config.pluginType === "DB")
     .map(action => action.config);
 
+  const lightningMenuTrigger = (
+    <LightningIcon
+      width={14}
+      height={14}
+      color={props.themeType === "light" ? "#999" : undefined}
+    />
+  );
+
   return (
     <CustomizedDropdown
       {...lightningMenuOptions(
@@ -250,6 +262,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
         queries,
         widgets,
         props.updatePropertyValue,
+        lightningMenuTrigger,
       )}
     />
   );
