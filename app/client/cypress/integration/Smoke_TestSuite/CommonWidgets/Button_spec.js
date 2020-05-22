@@ -2,6 +2,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/commondsl.json");
 const homePage = require("../../../locators/HomePage.json");
+const pages = require("../../../locators/Pages.json");
 
 describe("Button Widget Functionality", function() {
   beforeEach(() => {
@@ -9,7 +10,7 @@ describe("Button Widget Functionality", function() {
   });
 
   it("Button Widget Functionality", function() {
-    cy.get(".t--nav-link-widgets-editor").click();
+    cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
 
     //changing the Button Name

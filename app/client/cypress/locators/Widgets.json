@@ -33,5 +33,6 @@
     "placeholder": ".t--property-control-placeholder .CodeMirror-code",
     "inputButtonPos": ".t--draggable-inputwidget button",
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
-    "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']"
+    "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
+    "textInputval": ".t--draggable-textwidget pre"
 }

@@ -8,6 +8,7 @@ import { Field } from "redux-form";
 
 interface DropdownFieldProps {
   name: string;
+  className?: string;
   options: Array<{
     label: string;
     value: string;
@@ -22,6 +23,7 @@ const DropdownField = (props: DropdownFieldProps & Partial<DropdownProps>) => {
   return (
     <Field
       name={props.name}
+      className={props.className}
       component={BaseDropdown}
       options={props.options}
       placeholder={props.placeholder}

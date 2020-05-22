@@ -11,9 +11,6 @@ const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const method = "(//pre//span)[2]";
-const headerkey = "(//pre//span)[3]";
-const headervalue = "(//pre//span)[4]";
 
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.CreateApp)
@@ -30,6 +27,24 @@ Cypress.Commands.add("CreateApp", appname => {
   cy.get("@getDataSources").should("have.property", "status", 200);
   cy.wait("@getUser");
   cy.get("@getUser").should("have.property", "status", 200);
+});
+
+Cypress.Commands.add("DeleteApp", appName => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get('button span[icon="chevron-down"]').should("be.visible");
+  cy.get(homePage.searchInput).type(appName, { force: true });
+  cy.get(homePage.appMoreIcon)
+    .should("have.length", 1)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.deleteButton)
+    .should("be.visible")
+    .click({ force: true });
 });
 
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
@@ -83,19 +98,18 @@ Cypress.Commands.add("SearchAPI", (apiname1, apiname2) => {
 });
 
 Cypress.Commands.add("ResponseStatusCheck", statusCode => {
-  cy.xpath('//div[@id="root"]').should("be.visible");
-  cy.xpath('//div[@id="root"]').contains(statusCode);
+  cy.xpath(apiwidget.responseStatus).should("be.visible");
+  cy.xpath(apiwidget.responseStatus).contains(statusCode);
 });
 
 Cypress.Commands.add("ResponseCheck", textTocheck => {
   //Explicit assert
-  cy.get('.CodeMirror-line > [role="presentation"]').should($x => {
+  cy.get(apiwidget.responseText).should($x => {
     console.log($x);
     expect($x).contain(textTocheck);
   });
-
   //implicit assert
-  cy.get('.CodeMirror-line > [role="presentation"]').contains(textTocheck);
+  cy.get(apiwidget.responseText).contains(textTocheck);
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
@@ -106,7 +120,7 @@ Cypress.Commands.add("NavigateToAPI_Panel", () => {
 });
 
 Cypress.Commands.add("CreateAPI", apiname => {
-  cy.get('button:contains("Create new API")')
+  cy.get(apiwidget.createApiOnSideBar)
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
@@ -118,6 +132,19 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .should("have.value", apiname);
   cy.SaveAPI();
 });
+
+Cypress.Commands.add("CreateSubsequentAPI", apiname => {
+  cy.get(apiwidget.createApiOnSideBar)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.apiTxt)
+    .clear()
+    .type(apiname)
+    .should("have.value", apiname);
+  cy.SaveAPI();
+});
+
 Cypress.Commands.add("EditApiName", apiname => {
   cy.wait("@getUser");
   cy.get(apiwidget.apiTxt)
@@ -128,7 +155,7 @@ Cypress.Commands.add("EditApiName", apiname => {
 });
 
 Cypress.Commands.add("SaveAPI", () => {
-  cy.get('button:contains("Save")').click({ force: true });
+  cy.get(apiwidget.saveButton).click({ force: true });
   cy.wait("@saveQuery");
   cy.wait("@postExecute");
 });
@@ -144,38 +171,116 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.RunAPI();
 });
 
+Cypress.Commands.add("SelectAction", action => {
+  cy.get(ApiEditor.ApiVerb)
+    .first()
+    .click({ force: true });
+  cy.xpath(action)
+    .should("be.visible")
+    .click({ force: true });
+});
+
+Cypress.Commands.add("ClearSearch", () => {
+  cy.get(apiwidget.searchApi).clear();
+});
+
+Cypress.Commands.add("SearchAPIandClick", apiname1 => {
+  cy.get(apiwidget.searchApi)
+    .click({ force: true })
+    .type(apiname1, { force: true });
+  cy.get(".t--sidebar span:contains(".concat(apiname1).concat(")"))
+    .should("be.visible")
+    .click({ force: true });
+});
+
+Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
+  cy.get(apiwidget.resourceUrl)
+    .first()
+    .click({ force: true })
+    .type(datasource);
+  cy.xpath(apiwidget.autoSuggest)
+    .first()
+    .click({ force: true });
+  cy.get(apiwidget.path)
+    .click({ force: true })
+    .type(path, { parseSpecialCharSequences: false });
+});
+
 Cypress.Commands.add(
   "EnterSourceDetailsWithHeader",
   (baseUrl, v1method, hKey, hValue) => {
-    cy.get(apiwidget.resourceUrl)
+    cy.enterDatasourceAndPath(baseUrl, v1method);
+    cy.xpath(apiwidget.headerKey)
       .first()
       .click({ force: true })
-      .type(baseUrl);
-    cy.xpath('//div[contains(@id,"react-select")]')
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(".t--path >div textarea")
-      .click({ force: true })
-      .type(v1method, { force: true })
-      .should("have.value", v1method);
-    //cy.get(method).click({force: true});
-    //cy.get(method).focused().type(v1method,{force: true}).should("have.value",v1method);
-    cy.xpath(headerkey)
-      .click({ force: true })
-      .focused()
       .type(hKey, { force: true })
       .should("have.value", hKey);
-    cy.xpath(headervalue)
+    cy.xpath(apiwidget.headerValue)
+      .first()
       .click({ force: true })
-      .focused()
-      .type(hValue)
+      .type(hValue, { force: true })
       .should("have.value", hValue);
     cy.SaveAPI();
   },
 );
 
+Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
+  cy.get(apiwidget.editResourceUrl)
+    .first()
+    .clear()
+    .click({ force: true })
+    .type(baseUrl);
+  cy.xpath(apiwidget.autoSuggest)
+    .first()
+    .click({ force: true });
+  cy.get(ApiEditor.ApiRunBtn).scrollIntoView();
+  cy.get(apiwidget.path)
+    .focus()
+    .type("{selectall}{backspace}api/users/2")
+    .should("have.value", v1method);
+  cy.SaveAPI();
+});
+
+Cypress.Commands.add(
+  "EnterSourceDetailsWithQueryParam",
+  (baseUrl, v1method, hKey, hValue, qKey, qValue) => {
+    cy.enterDatasourceAndPath(baseUrl, v1method);
+    cy.xpath(apiwidget.headerKey)
+      .first()
+      .click({ force: true })
+      .type(hKey, { force: true })
+      .should("have.value", hKey);
+    cy.xpath(apiwidget.headerValue)
+      .first()
+      .click({ force: true })
+      .type(hValue, { force: true })
+      .should("have.value", hValue);
+    cy.xpath(apiwidget.queryKey)
+      .first()
+      .click({ force: true })
+      .type(qKey, { force: true })
+      .should("have.value", qKey);
+    cy.xpath(apiwidget.queryValue)
+      .first()
+      .click({ force: true })
+      .type(qValue, { force: true })
+      .should("have.value", qValue);
+    cy.SaveAPI();
+  },
+);
+
+Cypress.Commands.add(
+  "EnterSourceDetailsWithbody",
+  (baseUrl, v1method, hKey, hValue) => {
+    cy.enterDatasourceAndPath(baseUrl, v1method);
+    cy.get(apiwidget.addHeader)
+      .first()
+      .click({ first: true });
+  },
+);
+
 Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
-  cy.get('button:contains("Create new API")')
+  cy.get(apiwidget.createApiOnSideBar)
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
@@ -317,7 +422,11 @@ Cypress.Commands.add("PublishtheApp", () => {
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
-  cy.get(homePage.publishCrossButton).click();
+  cy.get('a[class="bp3-button"]')
+    .invoke("removeAttr", "target")
+    .click({ force: true });
+  cy.url().should("include", "/pages");
+  cy.log("pagename: " + localStorage.getItem("PageName"));
 });
 
 Cypress.Commands.add("getCodeMirror", () => {
@@ -456,12 +565,16 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const myRegexp = /applications(.*)/;
     const match = myRegexp.exec(currentURL);
     appId = match[1].split("/")[1];
-    cy.log(appId + "appId");
-    cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
-      expect(response.status).equal(200);
-    });
+
+    if (appId != null) {
+      cy.log(appId + "appId");
+      cy.request("DELETE", "api/v1/applications/" + appId).then(response => {
+        expect(response.status).equal(200);
+      });
+    }
   });
 });
+
 Cypress.Commands.add("togglebar", value => {
   cy.get(value)
     .check({ force: true })

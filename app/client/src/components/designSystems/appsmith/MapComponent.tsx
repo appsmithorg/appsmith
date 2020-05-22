@@ -7,8 +7,8 @@ import {
 } from "react-google-maps";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "widgets/MapWidget";
-import { ControlIcons } from "icons/ControlIcons";
-import styled, { AnyStyledComponent } from "styled-components";
+import PickMyLocation from "./PickMyLocation";
+import styled from "styled-components";
 
 interface MapComponentProps {
   widgetId: string;
@@ -67,15 +67,8 @@ type PickMyLocationProps = {
 const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
   position: absolute;
   bottom: ${props => (props.allowZoom ? 110 : 20)}px;
-  right: -95px;
+  right: -90px;
   width: 140px;
-`;
-
-const StyledPickMyLocationIcon = styled(
-  ControlIcons.PICK_MY_LOCATION_CONTROL as AnyStyledComponent,
-)`
-  position: relative;
-  cursor: pointer;
 `;
 
 const MyMapComponent = withScriptjs(
@@ -127,14 +120,10 @@ const MyMapComponent = withScriptjs(
       ))}
       {props.enablePickLocation && (
         <PickMyLocationWrapper
-          onClick={e => {
-            props.getUserLocation();
-            e.stopPropagation();
-          }}
           title="Pick My Location"
           allowZoom={props.allowZoom}
         >
-          <StyledPickMyLocationIcon />
+          <PickMyLocation updateCenter={props.updateCenter} />
         </PickMyLocationWrapper>
       )}
     </GoogleMap>
@@ -165,17 +154,6 @@ class MapComponent extends React.Component<MapComponentProps> {
     }
   };
 
-  getUserLocation = () => {
-    if ("geolocation" in navigator) {
-      return navigator.geolocation.getCurrentPosition(data => {
-        const {
-          coords: { latitude: lat, longitude: long },
-        } = data;
-        this.props.updateCenter(lat, long);
-      });
-    }
-  };
-
   render() {
     const zoom = Math.floor(this.props.zoomLevel / 5);
     return (
@@ -189,7 +167,6 @@ class MapComponent extends React.Component<MapComponentProps> {
           zoom={zoom}
           onPlacesChanged={this.onPlacesChanged}
           onSearchBoxMounted={this.onSearchBoxMounted}
-          getUserLocation={this.getUserLocation}
         />
       </MapWrapper>
     );
