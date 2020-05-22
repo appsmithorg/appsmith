@@ -96,7 +96,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 });
     }
 
-    // TODO: This doesn't work for some reason.
     @Override
     public Flux<T> findAll(Example example, Sort sort) {
         Assert.notNull(example, "Sample must not be null!");
@@ -107,10 +106,24 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
 
-                    Query query = new Query(notDeleted())
+                    Criteria criteria = new Criteria().andOperator(
+                            //Older check for deleted
+                            new Criteria().orOperator(
+                                    where(FieldName.DELETED).exists(false),
+                                    where(FieldName.DELETED).is(false)
+                            ),
+                            //New check for deleted
+                            new Criteria().orOperator(
+                                    where(FieldName.DELETED_AT).exists(false),
+                                    where(FieldName.DELETED_AT).is(null)
+                            ),
+                            // Set the criteria as the example
+                            new Criteria().alike(example)
+                    );
+
+                    Query query = new Query(criteria)
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
-                    query.addCriteria(new Criteria().alike(example));
 
                     return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
                 });
