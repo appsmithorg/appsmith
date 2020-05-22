@@ -253,10 +253,10 @@ const DynamicAutocompleteInputWrapper = styled.div`
   position: relative;
   & > span:first-of-type {
     position: absolute;
-    right: 1px;
-    top: 1px;
-    width: 30px;
-    height: 30px;
+    right: 4px;
+    top: 6px;
+    width: 20px;
+    height: 20px;
     z-index: 10;
     cursor: pointer;
     display: flex;

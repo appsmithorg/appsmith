@@ -1,6 +1,7 @@
 import React from "react";
 import CustomizedDropdown, {
   CustomizedDropdownProps,
+  CustomizedDropdownOption,
 } from "pages/common/CustomizedDropdown";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -18,22 +19,22 @@ const getApiOptions = (
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
-    {
-      isSticky: true,
-      options: [
-        {
-          content: (
-            <Button
-              text="Create new API"
-              icon="plus"
-              iconAlignment="left"
-              themeType={themeType}
-              type="button"
-            />
-          ),
-        },
-      ],
-    },
+    // {
+    //   isSticky: true,
+    //   options: [
+    //     {
+    //       content: (
+    //         <Button
+    //           text="Create new API"
+    //           icon="plus"
+    //           iconAlignment="left"
+    //           themeType={themeType}
+    //           type="button"
+    //         />
+    //       ),
+    //     },
+    //   ],
+    // },
     {
       options: apis.map(api => ({
         content: api.name,
@@ -57,22 +58,22 @@ const getQueryOptions = (
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
-    {
-      isSticky: true,
-      options: [
-        {
-          content: (
-            <Button
-              text="Create new Query"
-              icon="plus"
-              iconAlignment="left"
-              themeType={themeType}
-              type="button"
-            />
-          ),
-        },
-      ],
-    },
+    // {
+    //   isSticky: true,
+    //   options: [
+    //     {
+    //       content: (
+    //         <Button
+    //           text="Create new Query"
+    //           icon="plus"
+    //           iconAlignment="left"
+    //           themeType={themeType}
+    //           type="button"
+    //         />
+    //       ),
+    //     },
+    //   ],
+    // },
     {
       options: queries.map(query => ({
         content: query.name,
@@ -152,71 +153,86 @@ const lightningMenuOptions = (
   widgets: WidgetProps[],
   updatePropertyValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
-): CustomizedDropdownProps => ({
-  sections: [
+): CustomizedDropdownProps => {
+  const options: CustomizedDropdownOption[] = [
     {
-      options: [
-        {
-          content: "Plain Text",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("");
-          },
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getApiOptions(themeType, apis, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getQueryOptions(themeType, queries, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getWidgetOptions(themeType, widgets, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "JS",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("{{}}");
-          },
-        },
-        {
-          content: "HTML",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("<p></p>", 3);
-          },
-        },
-      ],
+      content: "Plain Text",
+      disabled: false,
+      shouldCloseDropdown: true,
+      onSelect: () => {
+        updatePropertyValue("");
+      },
     },
-  ],
-  openDirection: Directions.DOWN,
-  usePortal: true,
-  trigger: {
-    content: <Tooltip content="Quick start data binding">{trigger}</Tooltip>,
-  },
-  themeType: themeType,
-});
+  ];
+  if (apis.length > 0) {
+    options.push({
+      content: (
+        <CustomizedDropdown
+          {...getApiOptions(themeType, apis, updatePropertyValue)}
+        />
+      ),
+      disabled: false,
+      shouldCloseDropdown: false,
+    });
+  }
+  if (queries.length > 0) {
+    options.push({
+      content: (
+        <CustomizedDropdown
+          {...getQueryOptions(themeType, queries, updatePropertyValue)}
+        />
+      ),
+      disabled: false,
+      shouldCloseDropdown: false,
+    });
+  }
+  if (widgets.length > 0) {
+    options.push({
+      content: (
+        <CustomizedDropdown
+          {...getWidgetOptions(themeType, widgets, updatePropertyValue)}
+        />
+      ),
+      disabled: false,
+      shouldCloseDropdown: false,
+    });
+  }
+  return {
+    sections: [
+      {
+        options: [
+          ...options,
+          {
+            content: "JS",
+            disabled: false,
+            shouldCloseDropdown: true,
+            onSelect: () => {
+              updatePropertyValue("{{}}");
+            },
+          },
+          {
+            content: "HTML",
+            disabled: false,
+            shouldCloseDropdown: true,
+            onSelect: () => {
+              updatePropertyValue("<p></p>", 3);
+            },
+          },
+        ],
+      },
+    ],
+    openDirection: Directions.DOWN,
+    usePortal: true,
+    trigger: {
+      content: (
+        <Tooltip hoverOpenDelay={1000} content="Quick start data binding">
+          {trigger}
+        </Tooltip>
+      ),
+    },
+    themeType: themeType,
+  };
+};
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
