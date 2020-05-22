@@ -8,7 +8,7 @@ import Button from "components/editorComponents/Button";
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
-import { noop } from "lodash";
+import { mergeWith } from "lodash";
 
 const getApiOptions = (
   themeType: string,
@@ -222,17 +222,18 @@ export const LightningMenu = (props: LightningMenuProps) => {
       action => action.config.pageId === currentPageId,
     );
   });
+  // TODO(abhinav): Meta props should be available even before the meta value exists
+  // For example: Input text shows up only when we have an input text value
   const widgets = useSelector((state: AppState) => {
-    const canvasWidgets = [];
-    for (const i in state.entities.canvasWidgets) {
-      if (
-        !state.entities.canvasWidgets[i].children ||
-        state.entities.canvasWidgets[i].children?.length === 0
-      ) {
-        canvasWidgets.push(state.entities.canvasWidgets[i]);
-      }
-    }
-    return canvasWidgets;
+    const canvasWidgets = state.entities.canvasWidgets;
+    const metaProps = state.entities.meta;
+    const widgets = mergeWith(canvasWidgets, metaProps, (obj, src) => {
+      return Object.assign(obj, src);
+    });
+    return Object.values(widgets).filter(
+      (widget: WidgetProps) =>
+        !widget.children || widget.children?.length === 0,
+    );
   });
   const apis = actions
     .filter(action => action.config.pluginType === "API")
