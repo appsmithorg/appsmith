@@ -15,12 +15,6 @@ export const logoutUserError = (error: any) => ({
     error,
   },
 });
-
-export const fetchCurrentUser = () => ({
-  type: ReduxActionTypes.FETCH_USER_INIT,
-  payload: CurrentUserDetailsRequestPayload,
-});
-
 export const setCurrentUserDetails = () => ({
   type: ReduxActionTypes.SET_CURRENT_USER_INIT,
   payload: CurrentUserDetailsRequestPayload,

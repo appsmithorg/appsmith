@@ -32,11 +32,6 @@ const AppRoute = ({
   location?: any;
 }) => {
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (!/^\/user\/\w+/.test(rest.location.pathname)) {
-      dispatch(setCurrentUserDetails());
-    }
-  }, [rest.name, rest.location.pathname, dispatch]);
 
   useEffect(() => {
     if (!rest.logDisable) {
