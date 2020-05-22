@@ -8,12 +8,12 @@ import Button from "components/editorComponents/Button";
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
-import { noop } from "lodash";
+import { mergeWith } from "lodash";
 
 const getApiOptions = (
   themeType: string,
   apis: RestAction[],
-  updatePropertyValue: (value: string, cursor: number) => void,
+  updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -26,6 +26,7 @@ const getApiOptions = (
               icon="plus"
               iconAlignment="left"
               themeType={themeType}
+              type="button"
             />
           ),
         },
@@ -35,8 +36,7 @@ const getApiOptions = (
       options: apis.map(api => ({
         content: api.name,
         onSelect: () => {
-          const value = `{{${api.name}.data}}`;
-          updatePropertyValue(value, value.length + 1);
+          updatePropertyValue(`{{${api.name}.data}}`);
         },
       })),
     },
@@ -52,7 +52,7 @@ const getApiOptions = (
 const getQueryOptions = (
   themeType: string,
   queries: RestAction[],
-  updatePropertyValue: (value: string, cursor: number) => void,
+  updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -65,6 +65,7 @@ const getQueryOptions = (
               icon="plus"
               iconAlignment="left"
               themeType={themeType}
+              type="button"
             />
           ),
         },
@@ -74,8 +75,7 @@ const getQueryOptions = (
       options: queries.map(query => ({
         content: query.name,
         onSelect: () => {
-          const value = `{{${query.name}.data}}`;
-          updatePropertyValue(value, value.length + 1);
+          updatePropertyValue(`{{${query.name}.data}}`);
         },
       })),
     },
@@ -91,7 +91,7 @@ const getQueryOptions = (
 const getWidgetOptions = (
   themeType: string,
   widgets: WidgetProps[],
-  updatePropertyValue: (value: string, cursor: number) => void,
+  updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -117,15 +117,14 @@ const getWidgetOptions = (
 const getWidgetData = (
   themeType: string,
   widget: WidgetProps,
-  updatePropertyValue: (value: string, cursor: number) => void,
+  updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
       options: Object.keys(widget).map(widgetProp => ({
         content: widgetProp,
         onSelect: () => {
-          const value = `{{${widget.widgetName}.${widgetProp}}}`;
-          updatePropertyValue(value, value.length);
+          updatePropertyValue(`{{${widget.widgetName}.${widgetProp}}}`);
         },
       })),
     },
@@ -143,7 +142,7 @@ const lightningMenuOptions = (
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
-  updatePropertyValue: (value: string, cursor: number) => void,
+  updatePropertyValue: (value: string, cursor?: number) => void,
 ): CustomizedDropdownProps => ({
   sections: [
     {
@@ -153,7 +152,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("", 0);
+            updatePropertyValue("");
           },
         },
         {
@@ -188,7 +187,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("{{}}", 2);
+            updatePropertyValue("{{}}");
           },
         },
         {
@@ -212,7 +211,7 @@ const lightningMenuOptions = (
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
-  updatePropertyValue: (value: string, cursor: number) => void;
+  updatePropertyValue: (value: string, cursor?: number) => void;
   themeType: string;
 };
 
@@ -223,17 +222,18 @@ export const LightningMenu = (props: LightningMenuProps) => {
       action => action.config.pageId === currentPageId,
     );
   });
+  // TODO(abhinav): Meta props should be available even before the meta value exists
+  // For example: Input text shows up only when we have an input text value
   const widgets = useSelector((state: AppState) => {
-    const canvasWidgets = [];
-    for (const i in state.entities.canvasWidgets) {
-      if (
-        !state.entities.canvasWidgets[i].children ||
-        state.entities.canvasWidgets[i].children?.length === 0
-      ) {
-        canvasWidgets.push(state.entities.canvasWidgets[i]);
-      }
-    }
-    return canvasWidgets;
+    const canvasWidgets = state.entities.canvasWidgets;
+    const metaProps = state.entities.meta;
+    const widgets = mergeWith(canvasWidgets, metaProps, (obj, src) => {
+      return Object.assign(obj, src);
+    });
+    return Object.values(widgets).filter(
+      (widget: WidgetProps) =>
+        !widget.children || widget.children?.length === 0,
+    );
   });
   const apis = actions
     .filter(action => action.config.pluginType === "API")
