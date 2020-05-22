@@ -536,9 +536,14 @@ function Fields(props: {
   apiOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
+  depth: number;
+  maxDepth: number;
 }) {
   const ui = props.fields.map((field: any) => {
     if (Array.isArray(field)) {
+      if (props.depth > props.maxDepth) {
+        return null;
+      }
       const selectorField = field[0];
       return (
         <Fields
@@ -550,6 +555,8 @@ function Fields(props: {
           apiOptionTree={props.apiOptionTree}
           modalDropdownList={props.modalDropdownList}
           pageDropdownOptions={props.pageDropdownOptions}
+          depth={props.depth + 1}
+          maxDepth={props.maxDepth}
           onValueChange={(value: any) => {
             props.onValueChange(
               selectorField.getParentValue(
@@ -711,7 +718,7 @@ function useApiOptionTree() {
       const apiName = createNewApiName(actions, pageId);
       if (setter) {
         setter({
-          value: `${apiName}.run`,
+          value: `${apiName}`,
           type: ActionType.api,
         });
         dispatch(createNewApiAction(pageId));
@@ -736,6 +743,8 @@ export function ActionCreator(props: ActionCreatorProps) {
       modalDropdownList={modalDropdownList}
       pageDropdownOptions={pageDropdownOptions}
       onValueChange={props.onValueChange}
+      depth={1}
+      maxDepth={1}
     />
   );
 }

@@ -89,6 +89,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   {index === props.fields.length - 1 ? (
                     <Icon
                       icon="plus"
+                      className="t--addApiHeader"
                       iconSize={20}
                       onClick={() => props.fields.push({ key: "", value: "" })}
                       color={"#A3B3BF"}

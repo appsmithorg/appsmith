@@ -125,7 +125,7 @@ const getWidgetData = (
         content: widgetProp,
         onSelect: () => {
           const value = `{{${widget.widgetName}.${widgetProp}}}`;
-          updatePropertyValue(value, value.length + 1);
+          updatePropertyValue(value, value.length);
         },
       })),
     },
@@ -153,7 +153,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("", 1);
+            updatePropertyValue("", 0);
           },
         },
         {
@@ -188,7 +188,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("{{}}", 3);
+            updatePropertyValue("{{}}", 2);
           },
         },
         {
@@ -196,7 +196,7 @@ const lightningMenuOptions = (
           disabled: false,
           shouldCloseDropdown: true,
           onSelect: () => {
-            updatePropertyValue("<p></p>", 4);
+            updatePropertyValue("<p></p>", 3);
           },
         },
       ],

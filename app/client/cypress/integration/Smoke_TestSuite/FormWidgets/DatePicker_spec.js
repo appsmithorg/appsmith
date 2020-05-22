@@ -10,15 +10,30 @@ describe("DatePicker Widget Functionality", function() {
   it("DatePicker Widget Functionality", function() {
     cy.openPropertyPane("datepickerwidget");
 
-    //Checking the edit props for DatePicker and also the properties of DatePicker widget
-    cy.testCodeMirror(this.data.DatepickerLable);
-
     // changing the date to today
     cy.SetDateToToday();
 
+    //changing the Button Name
+    cy.widgetText(
+      this.data.Datepickername,
+      formWidgetsPage.datepickerWidget,
+      formWidgetsPage.datepickerWidget + " pre",
+    );
+
+    //Checking the edit props for DatePicker and also the properties of DatePicker widget
+    cy.testCodeMirror(this.data.DatepickerLable);
+    cy.wait("@updateLayout");
+
     // change the date to next day
     cy.get(".t--property-control-defaultdate input").click();
-    cy.get(".DayPicker-Day[aria-selected='true'] + div").click();
+
+    /**
+     * setDate--> is a Command to select the date in the date picker
+     * @param1 --> its takes currentday+ <future day> eg: 1
+     * @param2 --> user date formate
+     */
+    cy.setDate(1, "ddd MMM DD YYYY");
+
     const nd = Cypress.moment()
       .add(1, "days")
       .format("DD/MM/YYYY");

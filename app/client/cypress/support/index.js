@@ -22,7 +22,7 @@ let appId;
 import "./commands";
 before(function() {
   console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
-
+  cy.viewport("macbook-15");
   cy.server();
   cy.route("GET", "/api/v1/applications").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
@@ -41,6 +41,7 @@ before(function() {
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAPI");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
+  cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
 
   cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
@@ -76,20 +77,23 @@ before(function() {
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
+  cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
   cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
-
   cy.LogintoApp(loginData.username, loginData.password);
+
   // cy.SearchApp(inputData.appname)
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
+    localStorage.setItem("AppName", appId);
   });
 
   cy.generateUUID().then(uid => {
     pageid = uid;
     cy.Createpage(pageid);
     cy.NavigateToWidgets(pageid);
+    localStorage.setItem("PageName", pageid);
   });
 
   cy.fixture("example").then(function(data) {
@@ -103,10 +107,10 @@ beforeEach(function() {
 
 after(function() {
   // ---commenting Publish app and Delete page as of now--- //
-
   //cy.Deletepage(pageid);
   //cy.PublishtheApp();
-  //cy.DeleteApp(appId);
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
+  //-- LogOut Application---//
+  cy.LogOut();
 });

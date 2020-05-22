@@ -17,6 +17,12 @@
       REACT_APP_BASE_URL="https://release-api.appsmith.com"
     fi
 
+.set_automation_env: &set_automation_env
+  - |
+    REACT_APP_ENVIRONMENT="AUTOMATION"
+    REACT_APP_BASE_URL="https://release-api.appsmith.com"
+
+
 # This image contains Nginx & Cypress binaries
 image: appsmith/cypress-nginx
 
@@ -40,42 +46,66 @@ stages:
   - deploy
 
 react-build-release:
+  image: tarampampam/node:10.16-alpine
   stage: build
   script:
     - *set_env_variables
+    - echo $REACT_APP_ENVIRONMENT
     - yarn install
-    # show where the Cypress test runner binaries are cached
-    - $(npm bin)/cypress cache path
-    # show all installed versions of Cypress binary
-    - $(npm bin)/cypress cache list
-    - $(npm bin)/cypress verify
     - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
   artifacts:
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - build/
+  only:
+    - release
+
+react-build-automation:
+  image: tarampampam/node:10.16-alpine
+  stage: build
+  script:
+    - *set_automation_env
+    - echo $REACT_APP_ENVIRONMENT
+    - yarn install
+    - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
+    # Copying the build folder so that it doesn't conflict with build images created for docker packaging
+    - mv build/ build-automation/
+  artifacts:
+    expire_in: 6 hours
+    paths:
+      - build-automation/
   only:
     - release
     - merge_requests
 
 unit_test:
+  image: tarampampam/node:10.16-alpine
   stage: test
   script:
-    - *set_env_variables
+    - *set_automation_env
     - yarn run test:unit
   only:
     - release
     - merge_requests
 
 # all jobs that actually run tests can use the same definition
-.test_job_template:
+cypress-test:
   image: appsmith/cypress-nginx
   stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
+  # Run 6 machines in parallel for this job
+  parallel: 6
   script:
-    - *set_env_variables
+    - *set_automation_env
+    # show where the Cypress test runner binaries are cached
+    - $(npm bin)/cypress cache path
+    # show all installed versions of Cypress binary
+    - $(npm bin)/cypress cache list
+    - $(npm bin)/cypress verify    
     # This is required in order to ensure that all the test cases pass
     - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
-    - serve -s build -p 3000 &
+    - serve -s build-automation -p 3000 &
     - mkdir -p /var/www/appsmith /etc/certificate
     - cp ./docker/nginx-linux.conf /etc/nginx/conf.d/app.conf
     - cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
@@ -93,24 +123,6 @@ unit_test:
     - release
     - merge_requests
 
-cypress-test-release-1:
-  extends: .test_job_template
-
-cypress-test-release-2:
-  extends: .test_job_template
-
-cypress-test-release-3:
-  extends: .test_job_template
-
-cypress-test-release-4:
-    extends: .test_job_template
-
-cypress-test-release-5:
-  extends: .test_job_template
-
-cypress-test-release-6:
-  extends: .test_job_template
-  
 docker-package-release:
   image: docker:dind
   services:
@@ -125,6 +137,7 @@ docker-package-release:
     - release
 
 react-build-prod:
+  image: tarampampam/node:10.16-alpine
   stage: build
   script:
     - *set_env_variables

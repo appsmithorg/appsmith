@@ -1,5 +1,83 @@
 {
-  "name": "Using fixtures to represent data",
+  "country": "India",
+  "link": "www.google.com",
+  "command": "{command}{A}{del}",
+  "marker": [
+    {
+      "lat": -34.397,
+      "lng": 150.644,
+      "title": "Marker Test"
+    }
+  ],
+  "location2": "Australia",
+  "name": "containtest",
+  "colour": "Red",
+  "Hover": "mouseover",
+  "inputdata": "one",
+  "text": "Adi12",
+  "number": "2",
+  "default": "initial",
+  "radio1": "test1",
+  "radio2": "test2",
+  "radio3": "test3",
+  "radio4": "test4",
+  "textcheck": "checker",
+  "textverify": "input",
+  "alert": "hello",
+  "layoutId": "5e86eb6492fdf85af565096f",
+  "contains": "lock",
+  "input": [
+    {
+      "label": "Option 1",
+      "value": "1"
+    },
+    {
+      "label": "Option 2",
+      "value": "2"
+    },
+    {
+      "label": "Option 3",
+      "value": "3"
+    },
+    {
+      "label": "Option 4",
+      "value": "4"
+    },
+    {
+      "label": "Option 5",
+      "value": "5"
+    }
+  ],
+  "para": "This is to test the system data.",
+  "regex": "z{3}",
+  "chartInput": [
+    {
+      "x": "Day1",
+      "y": 10000
+    },
+    {
+      "x": "Day2",
+      "y": 12000
+    },
+    {
+      "x": "Day3",
+      "y": 32000
+    }
+  ],
+  "series": "Weekly",
+  "plan": "Weekly plan",
+  "ylabel": "total wages",
+  "placeholder": "check",
+  "chartIndata": "App Sign Up",
+  "dropdownInput": "TestD",
+  "radioInputName": "Test Radio",
+  "checkbocInputName": "value",
+  "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
+  "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "textfun": "{{Table1.selectedRow.userName}}",
+  "textfunID": "{{Table1.selectedRow.id}}",
+  "textfunemail": "{{Table1.selectedRow.email}}",
+  "name1": "Using fixtures to represent data",
   "email": "hello@cypress.io",
   "body": "Fixtures are a great way to mock data for responses to routes",
   "ButtonLabel": "Test Button",
@@ -15,5 +93,7 @@
   "DatepickerLable": "date",
   "RichTextEditorName": "RichtextEditor",
   "HtmlText": "This is the initial<b>content </b> <h1> This is a Heading</h1> <p> This is a paragraph.</p>",
-  "RichTexteditorBody": "Here is the text area to edit html"
+  "RichTexteditorBody": "Here is the text area to edit html",
+  "userApi": "http://postgrest.appsmith.com:3000",
+  "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png"
 }
