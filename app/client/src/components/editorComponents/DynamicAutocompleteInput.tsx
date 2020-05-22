@@ -6,11 +6,11 @@ import CodeMirror, { EditorConfiguration, LineHandle } from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/monokai.css";
 import "codemirror/addon/hint/show-hint";
-import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
+import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -21,6 +21,8 @@ import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import TernServer from "utils/autocomplete/TernServer";
+import KeyboardShortcuts from "constants/KeyboardShortcuts";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -113,6 +115,14 @@ const HintStyles = createGlobalStyle`
   li.CodeMirror-hint-active {
     background: #E9FAF3;
     border-radius: 4px;
+  }
+  .CodeMirror-Tern-completion {
+    padding-left: 22px !important;
+  }
+  .CodeMirror-Tern-completion:before {
+    left: 4px !important;
+    bottom: 7px !important;
+    line-height: 15px !important;
   }
 `;
 
@@ -297,6 +307,7 @@ type State = {
 class DynamicAutocompleteInput extends Component<Props, State> {
   textArea = React.createRef<HTMLTextAreaElement>();
   editor: any;
+  ternServer?: TernServer = undefined;
 
   constructor(props: Props) {
     super(props);
@@ -316,9 +327,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
       if (this.props.showLineNumbers) options.lineNumbers = true;
-      const extraKeys: Record<string, any> = {
-        "Ctrl-Space": "autocomplete",
-      };
+      const extraKeys: Record<string, any> = {};
       if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
       this.editor = CodeMirror.fromTextArea(this.textArea.current, {
         mode: this.props.mode || { name: "javascript", globalVars: true },
@@ -326,21 +335,15 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         tabSize: 2,
         indentWithTabs: true,
         lineWrapping: !this.props.singleLine,
-        showHint: true,
         extraKeys,
         autoCloseBrackets: true,
         ...options,
       });
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
-      this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
-      this.editor.setOption("hintOptions", {
-        completeSingle: false,
-        globalScope: this.props.dynamicData,
-      });
       if (this.props.height) {
         this.editor.setSize(0, this.props.height);
       } else {
@@ -353,6 +356,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         inputValue = JSON.stringify(inputValue, null, 2);
       }
       this.editor.setValue(inputValue);
+      this.startAutocomplete();
     }
   }
 
@@ -377,13 +381,52 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       } else {
         // Update the dynamic bindings for autocomplete
         if (prevProps.dynamicData !== this.props.dynamicData) {
-          this.editor.setOption("hintOptions", {
-            completeSingle: false,
-            globalScope: this.props.dynamicData,
-          });
+          if (this.ternServer) {
+            // const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
+            // this.ternServer.updateDef("dataTree", dataTreeDef);
+          } else {
+            this.editor.setOption("hintOptions", {
+              completeSingle: false,
+              globalScope: this.props.dynamicData,
+            });
+          }
         }
       }
     }
+  }
+
+  startAutocomplete() {
+    try {
+      this.ternServer = new TernServer(this.props.dynamicData);
+    } catch (e) {
+      console.error(e);
+    }
+    if (this.ternServer) {
+      this.editor.setOption("extraKeys", {
+        [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
+          cm: CodeMirror.Editor,
+        ) => {
+          if (this.ternServer) this.ternServer.complete(cm);
+        },
+        [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: any) => {
+          if (this.ternServer) this.ternServer.showType(cm);
+        },
+        [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: any) => {
+          if (this.ternServer) this.ternServer.showDocs(cm);
+        },
+      });
+    } else {
+      // start normal autocomplete
+      this.editor.setOption("extraKeys", {
+        [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: "autocomplete",
+      });
+      this.editor.setOption("showHint", true);
+      this.editor.setOption("hintOptions", {
+        completeSingle: false,
+        globalScope: this.props.dynamicData,
+      });
+    }
+    this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
   }
 
   handleEditorFocus = () => {
@@ -441,23 +484,27 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         cumulativeCharCount = start + segment.length;
       });
 
-      const shouldShow = cursorBetweenBinding && !cm.state.completionActive;
+      const shouldShow = cursorBetweenBinding;
 
       if (this.props.baseMode) {
         // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
         cm.doc.modeOption = this.props.baseMode;
       }
-
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         this.setState({
           autoCompleteVisible: true,
         });
-        cm.showHint(cm);
+        if (this.ternServer) {
+          this.ternServer.complete(cm);
+        } else {
+          cm.showHint(cm);
+        }
       } else {
         this.setState({
           autoCompleteVisible: false,
         });
+        cm.closeHint();
       }
     }
   };
@@ -511,14 +558,13 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       showError =
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
-    const themeType = this.props.theme === "DARK" ? "dark" : "light";
     const hideLightningMenu = false;
     return (
       <DynamicAutocompleteInputWrapper>
         {!hideLightningMenu &&
           (showLightningMenu === undefined || showLightningMenu === true) && (
             <LightningMenu
-              themeType={themeType}
+              themeType={this.props.theme === "DARK" ? "dark" : "light"}
               updatePropertyValue={this.updatePropertyValue}
             />
           )}

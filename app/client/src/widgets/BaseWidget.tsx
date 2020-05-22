@@ -200,7 +200,11 @@ abstract class BaseWidget<
   makePositioned(content: ReactNode) {
     const style = this.getPositionStyle();
     return (
-      <PositionedContainer widgetId={this.props.widgetId} style={style}>
+      <PositionedContainer
+        widgetId={this.props.widgetId}
+        widgetType={this.props.type}
+        style={style}
+      >
         {content}
       </PositionedContainer>
     );

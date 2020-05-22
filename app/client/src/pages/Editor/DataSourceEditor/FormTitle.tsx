@@ -4,25 +4,31 @@ import { WrappedFieldInputProps } from "redux-form";
 
 import Edit from "assets/images/EditPen.svg";
 
-const InputContainer = styled.div`
+const InputContainer = styled.div<{ focused: boolean }>`
   align-items: center;
   display: flex;
   width: 300px;
   input {
     margin-left: 10px;
     font-size: 18px;
-    border: 0;
+    border: ${props => (props.focused ? 1 : 0)};
     display: block;
     width: 100%;
     font-weight: 500;
     line-height: 24px;
     text-overflow: ellipsis;
+    :hover {
+      cursor: ${props => (props.focused ? "auto" : "pointer")};
+    }
   }
 `;
 
 const EditPen = styled.img`
   height: 17px;
   width: 17px;
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 interface FormTitleProps {
@@ -32,7 +38,7 @@ interface FormTitleProps {
 
 interface FormTitleState {
   readOnly: boolean;
-  hideIcon: boolean;
+  focused: boolean;
 }
 
 class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
@@ -43,7 +49,7 @@ class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
 
     this.state = {
       readOnly: false,
-      hideIcon: false,
+      focused: false,
     };
   }
 
@@ -59,13 +65,13 @@ class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
     event.target.select();
   };
 
-  onFocus = (event: any) => {
-    event.target.select();
-    this.setState({ hideIcon: true });
+  onFocus = () => {
+    this.nameInput?.select();
+    this.setState({ focused: true });
   };
 
-  onBlur = (e: any) => {
-    this.setState({ hideIcon: false });
+  onBlur = () => {
+    this.setState({ focused: false });
   };
 
   onPressEnter = (event: any) => {
@@ -75,10 +81,10 @@ class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
 
   render() {
     const { input } = this.props;
-    const { hideIcon } = this.state;
+    const { focused } = this.state;
 
     return (
-      <InputContainer>
+      <InputContainer focused={focused}>
         <input
           ref={input => {
             this.nameInput = input;
@@ -93,7 +99,9 @@ class FormTitle extends React.Component<FormTitleProps, FormTitleState> {
           onFocus={this.onFocus}
           onBlur={this.onBlur}
         />
-        {!hideIcon && <EditPen src={Edit} alt="Edit pen" />}
+        {!focused && (
+          <EditPen onClick={this.onFocus} src={Edit} alt="Edit pen" />
+        )}
       </InputContainer>
     );
   }

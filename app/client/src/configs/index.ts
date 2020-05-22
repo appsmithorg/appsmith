@@ -1,5 +1,6 @@
 import prodConfig from "./prod.config";
 import stageConfig from "./stage.config";
+import autoConfig from "./stage.config";
 import devConfig from "./dev.config";
 import { AppsmithUIConfigs } from "./types";
 declare global {
@@ -18,6 +19,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       return stageConfig(BASE_URL);
     case "DEVELOPMENT":
       return devConfig(BASE_URL);
+    case "AUTOMATION":
+      return autoConfig(BASE_URL);
     default:
       console.log(
         "Unknown environment set: ",
