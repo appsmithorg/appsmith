@@ -208,14 +208,14 @@ function* createDatasourceFromFormSaga(
       return _.map(section.children, (subSection: any) => {
         if ("children" in subSection) {
           return parseConfig(subSection);
-        } else {
-          if (subSection.initialValue) {
-            _.set(
-              initialValues,
-              subSection.configProperty,
-              subSection.initialValue,
-            );
-          }
+        }
+
+        if (subSection.initialValue) {
+          _.set(
+            initialValues,
+            subSection.configProperty,
+            subSection.initialValue,
+          );
         }
       });
     };
@@ -237,7 +237,7 @@ function* createDatasourceFromFormSaga(
       formConfig = yield select(getPluginForm, actionPayload.payload.pluginId);
     }
 
-    formConfig.map((section: any) => {
+    formConfig.forEach((section: any) => {
       parseConfig(section);
     });
 
