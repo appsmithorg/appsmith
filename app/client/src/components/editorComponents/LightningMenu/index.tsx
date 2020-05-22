@@ -253,12 +253,13 @@ export const LightningMenu = (props: LightningMenuProps) => {
     const canvasWidgets = state.entities.canvasWidgets;
     const metaProps = state.entities.meta;
     const widgets = mergeWith(canvasWidgets, metaProps, (obj, src) => {
-      return Object.assign(obj, src);
+      return Object.assign({}, obj, src);
     });
-    return Object.values(widgets).filter(
+    const final = Object.values(widgets).filter(
       (widget: WidgetProps) =>
-        !widget.children || widget.children?.length === 0,
+        !widget.children || widget.children?.length === 0 || !widget.widgetName,
     );
+    return final;
   });
   const apis = actions
     .filter(action => action.config.pluginType === "API")
