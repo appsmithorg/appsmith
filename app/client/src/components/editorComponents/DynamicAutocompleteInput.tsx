@@ -531,10 +531,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
-  updatePropertyValue = (value: string, cursor: number) => {
+  updatePropertyValue = (value: string, cursor?: number) => {
     this.editor.setValue(value);
     this.editor.focus();
-    console.log(value, cursor);
+    if (cursor === undefined) {
+      cursor = value.length - 2;
+    }
     this.editor.setCursor({
       line: 0,
       ch: cursor,
