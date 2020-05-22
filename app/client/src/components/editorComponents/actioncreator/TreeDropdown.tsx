@@ -5,10 +5,10 @@ import {
   StyledPopover,
   StyledDropDownContainer,
   StyledMenuItem,
+  StyledMenu,
 } from "components/propertyControls/StyledControls";
 import {
   Button as BlueprintButton,
-  Menu,
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";
@@ -105,7 +105,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
-  const menuItems = <Menu>{list}</Menu>;
+  const menuItems = <StyledMenu>{list}</StyledMenu>;
   const defaultToggle = (
     <StyledDropDownContainer>
       <BlueprintButton

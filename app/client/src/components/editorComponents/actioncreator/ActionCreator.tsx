@@ -10,7 +10,12 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useSelector, useDispatch } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
-import { ControlWrapper } from "components/propertyControls/StyledControls";
+import {
+  FieldWrapper,
+  ControlWrapper,
+  TreeStructureHorizontalWrapper,
+  TreeStructureVerticalWrapper,
+} from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
@@ -143,6 +148,7 @@ type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
   getDefaults?: Function;
+  level: number;
   selectedLabelModifier?: (option: TreeDropdownOption) => string;
 };
 
@@ -150,24 +156,39 @@ type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
+  level: number;
 };
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
     return (
-      <ControlWrapper key={props.label}>
-        <label>{props.label}</label>
-        <TreeDropdown
-          optionTree={props.options}
-          selectedValue={props.get(props.value, false) as string}
-          defaultText={props.defaultText}
-          onSelect={(value, defaultValue?: string) => {
-            props.set(value, defaultValue);
-          }}
-          getDefaults={props.getDefaults}
-          selectedLabelModifier={props.selectedLabelModifier}
-        />
-      </ControlWrapper>
+      <FieldWrapper>
+        <ControlWrapper key={props.label} level={props.level}>
+          {props.label && <label>{props.label}</label>}
+          <TreeDropdown
+            optionTree={props.options}
+            selectedValue={props.get(props.value, false) as string}
+            defaultText={props.defaultText}
+            onSelect={(value, defaultValue?: string) => {
+              props.set(value, defaultValue);
+            }}
+            getDefaults={props.getDefaults}
+            selectedLabelModifier={props.selectedLabelModifier}
+          />
+        </ControlWrapper>
+        {props.level ? (
+          <TreeStructureHorizontalWrapper
+            label={props.label}
+            level={props.level}
+          />
+        ) : null}
+        {props.level ? (
+          <TreeStructureVerticalWrapper
+            label={props.label}
+            level={props.level}
+          />
+        ) : null}
+      </FieldWrapper>
     );
   },
   [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
@@ -183,22 +204,36 @@ const views = {
   },
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
     return (
-      <ControlWrapper key={props.label}>
-        <label>{props.label}</label>
-        <InputText
-          label={props.label}
-          value={props.get(props.value, false) as string}
-          onChange={(event: any) => {
-            if (event.target) {
-              props.set(event.target.value);
-            } else {
-              props.set(event);
-            }
-          }}
-          isValid={props.isValid}
-          validationMessage={props.validationMessage}
-        />
-      </ControlWrapper>
+      <FieldWrapper>
+        <ControlWrapper key={props.label} level={props.level}>
+          {props.label && <label>{props.label}</label>}
+          <InputText
+            label={props.label}
+            value={props.get(props.value, false) as string}
+            onChange={(event: any) => {
+              if (event.target) {
+                props.set(event.target.value);
+              } else {
+                props.set(event);
+              }
+            }}
+            isValid={props.isValid}
+            validationMessage={props.validationMessage}
+          />
+        </ControlWrapper>
+        {props.level ? (
+          <TreeStructureHorizontalWrapper
+            label={props.label}
+            level={props.level}
+          />
+        ) : null}
+        {props.level ? (
+          <TreeStructureVerticalWrapper
+            label={props.label}
+            level={props.level}
+          />
+        ) : null}
+      </FieldWrapper>
     );
   },
 };
@@ -375,6 +410,7 @@ function getOptionsWithChildren(
 
 function getFieldFromValue(
   value: string | undefined,
+  level: number,
   getParentValue?: Function,
 ): any[] {
   const fields: any[] = [
@@ -400,6 +436,7 @@ function getFieldFromValue(
       }
       const successFields = getFieldFromValue(
         `{{${sucesssValue}}}`,
+        level + 1,
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -416,6 +453,7 @@ function getFieldFromValue(
         },
       );
       successFields[0].label = "onSuccess";
+      successFields[0].level = level + 1;
       fields.push(successFields);
 
       let errorValue;
@@ -424,6 +462,7 @@ function getFieldFromValue(
       }
       const errorFields = getFieldFromValue(
         `{{${errorValue}}}`,
+        level + 1,
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -439,6 +478,7 @@ function getFieldFromValue(
         },
       );
       errorFields[0].label = "onError";
+      errorFields[0].level = level + 1;
       fields.push(errorFields);
     }
     return fields;
@@ -447,26 +487,31 @@ function getFieldFromValue(
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
+      level: level,
     });
   }
 
   if (value.indexOf("showModal") !== -1) {
     fields.push({
       field: FieldType.SHOW_MODAL_FIELD,
+      level: level,
     });
   }
   if (value.indexOf("closeModal") !== -1) {
     fields.push({
       field: FieldType.CLOSE_MODAL_FIELD,
+      level: level,
     });
   }
   if (value.indexOf("showAlert") !== -1) {
     fields.push(
       {
         field: FieldType.ALERT_TEXT_FIELD,
+        level: level,
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
+        level: level,
       },
     );
   }
@@ -581,6 +626,7 @@ function Fields(props: {
           defaultText: defaultText,
           getDefaults: getDefaults,
           selectedLabelModifier: selectedLabelModifier,
+          level: field.level,
         });
         break;
       case FieldType.KEY_VALUE_FIELD:
@@ -594,6 +640,7 @@ function Fields(props: {
           },
           value: props.value,
           defaultText: "Select Action",
+          level: field.level,
         });
         break;
       case FieldType.ALERT_TEXT_FIELD:
@@ -608,6 +655,7 @@ function Fields(props: {
           value: props.value,
           isValid: props.isValid,
           validationMessage: props.validationMessage,
+          level: field.level,
         });
         break;
       default:
@@ -677,8 +725,7 @@ export function ActionCreator(props: ActionCreatorProps) {
   const apiOptionTree = useApiOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  const fields = getFieldFromValue(props.value);
-
+  const fields = getFieldFromValue(props.value, 0);
   return (
     <Fields
       value={props.value}

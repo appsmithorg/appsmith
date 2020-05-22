@@ -7,6 +7,7 @@ import {
   Classes,
   Popover,
   MenuItem,
+  Menu,
 } from "@blueprintjs/core";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
@@ -15,6 +16,7 @@ import { Colors } from "constants/Colors";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
+  level?: number;
 };
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
@@ -23,7 +25,8 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${props =>
     props.orientation === "VERTICAL" ? "column" : "row"}
-  margin: ${props => props.theme.spaces[3]}px 0;
+  padding: ${props => props.theme.spaces[3]}px 0;
+  padding-left: ${props => (props.level ? 18 : 0)}px;    
   & > label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
@@ -34,7 +37,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
   &&& > label {
     display: inline-block;
-  }
+  }  
 `;
 
 export const ControlPropertyLabelContainer = styled.div`
@@ -121,6 +124,16 @@ export const StyledDropDownContainer = styled.div`
   }
   width: 100%;
 `;
+
+export const StyledMenu = styled(Menu)`
+  && {
+    background: ${props => props.theme.dropdown.dark.inActiveBG};
+  }
+  .bp3-submenu .bp3-menu {
+    background: ${props => props.theme.dropdown.dark.inActiveBG};
+  }
+`;
+
 const DropDown = Select.ofType<DropdownOption>();
 export const StyledDropDown = styled(DropDown)`
   div {
@@ -188,15 +201,19 @@ export const StyledPopover = styled(Popover)`
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
     border-radius: ${props => props.theme.radii[1]}px;
+    background: ${props => props.theme.dropdown.dark.inActiveBG};
+    color: ${props => props.theme.dropdown.dark.inActiveText};
+    padding: 4px 8px;
+    margin: 4px 0px;
     &:hover {
-      background: ${Colors.POLAR};
+      background: ${props => props.theme.dropdown.dark.hoverBG};
       &&&.bp3-menu-item.bp3-intent-danger:hover {
         background: ${props => props.theme.colors.error};
       }
     }
     &.${Classes.ACTIVE} {
-      background: ${Colors.POLAR};
-      color: ${props => props.theme.colors.textDefault};
+      background: ${props => props.theme.dropdown.dark.hoverBG};
+      color: ${props => props.theme.dropdown.dark.hoverText};
       position: relative;
       &.single-select {
         &:before {
@@ -204,12 +221,15 @@ export const StyledMenuItem = styled(MenuItem)`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.colors.primary};
+          background: ${props => props.theme.dropdown.dark.hoverBG};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
         }
       }
+    }
+    &&&& .${Classes.MENU} {
+      background: ${props => props.theme.dropdown.dark.inActiveBG};
     }
   }
 `;
@@ -274,4 +294,35 @@ export const StyledPropertyPaneButton = styled(Button)`
       height: 14px;
     }
   }
+`;
+
+export const FieldWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+export const TreeStructureHorizontalWrapper = styled.div<{
+  level: number;
+  label: string;
+}>`
+  position: absolute;
+  width: calc(100% - 9px);
+  height: 2px;
+  background: #a2a6a8;
+  top: ${props => (props.label ? "66.66%" : "50%")};
+  left: 9px;
+  z-index: -1;
+`;
+
+export const TreeStructureVerticalWrapper = styled.div<{
+  level: number;
+  label: string;
+}>`
+  position: absolute;
+  height: 100%;
+  width: 2px;
+  background: #a2a6a8;
+  top: ${props => (props.label ? "-33.33%" : "-50%")};
+  left: 9px;
+  z-index: -1;
 `;
