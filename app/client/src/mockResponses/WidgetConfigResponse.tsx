@@ -42,6 +42,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       rows: 1,
+      label: "",
       columns: 5,
       widgetName: "Input",
     },
@@ -83,6 +84,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       datePickerType: "DATE_PICKER",
       rows: 1,
+      label: "",
       dateFormat: "DD/MM/YYYY",
       columns: 5,
       widgetName: "DatePicker",
@@ -120,6 +122,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     DROP_DOWN_WIDGET: {
       rows: 1,
       columns: 5,
+      label: "",
       selectionType: "SINGLE_SELECT",
       options: [
         { label: "Option 1", value: "1" },
@@ -138,6 +141,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     RADIO_GROUP_WIDGET: {
       rows: 2,
       columns: 3,
+      label: "",
       options: [
         { id: "1", label: "Alpha", value: "1" },
         { id: "2", label: "Bravo", value: "2" },
