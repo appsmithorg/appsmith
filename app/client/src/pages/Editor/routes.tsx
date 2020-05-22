@@ -40,7 +40,7 @@ const DrawerWrapper = styled.div<{
   showOnlySidebar?: boolean;
 }>`
   background-color: white;
-  width: ${props => (props.showOnlySidebar ? "0px" : "100%")};
+  width: ${props => (props.showOnlySidebar ? "0px" : "75%")};
   height: 100%;
 `;
 

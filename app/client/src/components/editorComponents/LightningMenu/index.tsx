@@ -98,13 +98,18 @@ const getWidgetOptions = (
   sections: [
     {
       options: widgets.map(widget => ({
-        content: (
-          <CustomizedDropdown
-            {...getWidgetData(themeType, widget, updatePropertyValue)}
-          />
-        ),
+        // content: (
+        //   <CustomizedDropdown
+        //     {...getWidgetData(themeType, widget, updatePropertyValue)}
+        //   />
+        // ),
+        // shouldCloseDropdown: false,
+        content: widget.widgetName,
         disabled: false,
-        shouldCloseDropdown: false,
+        shouldCloseDropdown: true,
+        onSelect: () => {
+          updatePropertyValue(`{{${widget.widgetName}.}}`);
+        },
       })),
     },
   ],

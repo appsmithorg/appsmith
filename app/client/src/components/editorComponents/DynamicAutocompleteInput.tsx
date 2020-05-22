@@ -554,6 +554,9 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       line: 0,
       ch: cursor,
     });
+    this.setState({ isFocused: true }, () => {
+      this.handleAutocompleteVisibility(this.editor);
+    });
   }
 
   render() {
