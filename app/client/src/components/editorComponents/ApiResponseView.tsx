@@ -86,6 +86,8 @@ const EMPTY_RESPONSE = {
   duration: "",
   body: {},
   headers: {},
+  requestBody: null,
+  requestHeaders: {},
   size: "",
 };
 
@@ -103,6 +105,45 @@ const ApiResponseView = (props: Props) => {
     response = responses[apiId] || EMPTY_RESPONSE;
     isRunning = apiPane.isRunning[apiId];
   }
+  const tabs = [
+    {
+      key: "body",
+      title: "Response Body",
+      panelComponent: (
+        <CodeEditor
+          input={{
+            value: response.body ? JSON.stringify(response.body, null, 2) : "",
+          }}
+          height={700}
+        />
+      ),
+    },
+    {
+      key: "headers",
+      title: "Response Headers",
+      panelComponent: <ResponseHeadersView data={response.headers} />,
+    },
+    {
+      key: "requestHeaders",
+      title: "Request Headers",
+      panelComponent: <ResponseHeadersView data={response.requestHeaders} />,
+    },
+    {
+      key: "requestBody",
+      title: "Request Body",
+      panelComponent: (
+        <CodeEditor
+          input={{
+            value: response.requestBody
+              ? JSON.stringify(response.requestBody, null, 2)
+              : "",
+          }}
+          height={700}
+        />
+      ),
+    },
+  ];
+
   return (
     <ResponseWrapper>
       {isRunning && (
@@ -132,36 +173,16 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaInfo>
         </React.Fragment>
       </FormRow>
-      <BaseTabbedView
-        tabs={[
-          {
-            key: "body",
-            title: "Response Body",
-            panelComponent: (
-              <CodeEditor
-                input={{
-                  value: response.body
-                    ? JSON.stringify(response.body, null, 2)
-                    : "",
-                }}
-                height={700}
-              />
-            ),
-          },
-          {
-            key: "headers",
-            title: "Response Headers",
-            panelComponent: <ResponseHeadersView data={response.headers} />,
-          },
-        ]}
-      />
+      <BaseTabbedView overflow tabs={tabs} />
     </ResponseWrapper>
   );
 };
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  responses: getActionResponses(state),
-  apiPane: state.ui.apiPane,
-});
+const mapStateToProps = (state: AppState): ReduxStateProps => {
+  return {
+    responses: getActionResponses(state),
+    apiPane: state.ui.apiPane,
+  };
+};
 
 export default connect(mapStateToProps)(withRouter(ApiResponseView));

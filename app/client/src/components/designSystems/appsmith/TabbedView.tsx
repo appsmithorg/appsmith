@@ -3,7 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 
-const TabsWrapper = styled.div`
+const TabsWrapper = styled.div<{ overflow?: boolean }>`
   height: 100%;
   .react-tabs {
     height: 100%;
@@ -14,6 +14,16 @@ const TabsWrapper = styled.div`
   .react-tabs__tab-list {
     border-bottom-color: #d0d7dd;
     color: #a3b3bf;
+    ${props =>
+      props.overflow &&
+      `
+      overflow-y: hidden;
+      overflow-x: auto;
+      white-space: nowrap;
+    `}
+  }
+  .react-tabs__tab {
+    padding: 6px 9px;
   }
   .react-tabs__tab:focus {
     box-shadow: none;
@@ -33,11 +43,12 @@ type TabbedViewComponentType = {
     title: string;
     panelComponent: JSX.Element;
   }>;
+  overflow?: boolean;
 };
 
 export const BaseTabbedView = (props: TabbedViewComponentType) => {
   return (
-    <TabsWrapper>
+    <TabsWrapper overflow={props.overflow}>
       <Tabs>
         <TabList>
           {props.tabs.map(tab => (
