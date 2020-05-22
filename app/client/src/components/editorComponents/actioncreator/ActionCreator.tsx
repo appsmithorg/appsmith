@@ -487,31 +487,31 @@ function getFieldFromValue(
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
-      level: level,
+      level: level + 1,
     });
   }
 
   if (value.indexOf("showModal") !== -1) {
     fields.push({
       field: FieldType.SHOW_MODAL_FIELD,
-      level: level,
+      level: level + 1,
     });
   }
   if (value.indexOf("closeModal") !== -1) {
     fields.push({
       field: FieldType.CLOSE_MODAL_FIELD,
-      level: level,
+      level: level + 1,
     });
   }
   if (value.indexOf("showAlert") !== -1) {
     fields.push(
       {
         field: FieldType.ALERT_TEXT_FIELD,
-        level: level,
+        level: level + 1,
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
-        level: level,
+        level: level + 1,
       },
     );
   }
