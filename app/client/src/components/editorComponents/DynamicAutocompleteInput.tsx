@@ -315,6 +315,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       isFocused: false,
       autoCompleteVisible: false,
     };
+    this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 
   componentDidMount(): void {
@@ -531,7 +532,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
-  updatePropertyValue = (value: string, cursor: number) => {
+  updatePropertyValue(value: string, cursor: number) {
     this.editor.setValue(value);
     this.editor.focus();
     console.log(value, cursor);
@@ -539,7 +540,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       line: 0,
       ch: cursor,
     });
-  };
+  }
 
   render() {
     const {
