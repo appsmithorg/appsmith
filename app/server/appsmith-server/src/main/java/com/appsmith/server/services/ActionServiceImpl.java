@@ -427,6 +427,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     datasourceConfiguration,
                                     actionConfiguration))
                             .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorResume(e -> {
+                                log.debug("In the action execution error mode. Cause: {}", e.getMessage());
+                                ActionExecutionResult result = new ActionExecutionResult();
+                                result.setBody(e.getMessage());
+                                result.setIsExecutionSuccess(false);
+                                return Mono.just(result);
+                            })
                             .map(obj -> populateRequestFields(actionConfiguration, (ActionExecutionResult) obj));
                 }))
                 .flatMap(obj -> obj);
