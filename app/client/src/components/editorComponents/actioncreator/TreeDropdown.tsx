@@ -27,7 +27,11 @@ type TreeDropdownProps = {
   getDefaults?: Function;
   defaultText: string;
   onSelect: (value: TreeDropdownOption, defaultVal?: string) => void;
-  selectedLabelModifier?: (option: TreeDropdownOption) => string;
+  selectedLabelModifier?: (
+    option: TreeDropdownOption,
+    displayValue?: string,
+  ) => string;
+  displayValue?: string;
   toggle?: React.ReactNode;
 };
 
@@ -65,6 +69,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     onSelect,
     getDefaults,
     selectedLabelModifier,
+    displayValue,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -112,7 +117,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         rightIcon={IconNames.CHEVRON_DOWN}
         text={
           selectedLabelModifier
-            ? selectedLabelModifier(selectedOption)
+            ? selectedLabelModifier(selectedOption, displayValue)
             : selectedOption.label
         }
         className={`t--open-dropdown-${defaultText.split(" ").join("-")}`}

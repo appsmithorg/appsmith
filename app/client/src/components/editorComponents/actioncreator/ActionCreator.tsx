@@ -149,7 +149,11 @@ type SelectorViewProps = ViewProps & {
   defaultText: string;
   getDefaults?: Function;
   level: number;
-  selectedLabelModifier?: (option: TreeDropdownOption) => string;
+  displayValue?: string;
+  selectedLabelModifier?: (
+    option: TreeDropdownOption,
+    displayValue?: string,
+  ) => string;
 };
 
 type KeyValueViewProps = ViewProps;
@@ -174,6 +178,7 @@ const views = {
             }}
             getDefaults={props.getDefaults}
             selectedLabelModifier={props.selectedLabelModifier}
+            displayValue={props.displayValue}
           />
         </ControlWrapper>
         {props.level ? (
@@ -584,12 +589,22 @@ function Fields(props: {
         let defaultText = "Select Action";
         let options = props.apiOptionTree;
         let selectedLabelModifier = undefined;
+        let displayValue = undefined;
         let getDefaults = undefined;
         if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
           label = props.label || "";
-          selectedLabelModifier = (option: TreeDropdownOption) => {
+          if (props.label === "onSuccess" || props.label === "onError") {
+            displayValue = field.value;
+          }
+          selectedLabelModifier = (
+            option: TreeDropdownOption,
+            displayValue?: string,
+          ) => {
             if (option.type === ActionType.api) {
-              return `Call ${option.label}`;
+              return `{{${option.label}.run()}}`;
+              // return `Call ${option.label}`;
+            } else if (displayValue) {
+              return displayValue;
             }
             return option.label;
           };
@@ -633,6 +648,7 @@ function Fields(props: {
           defaultText: defaultText,
           getDefaults: getDefaults,
           selectedLabelModifier: selectedLabelModifier,
+          displayValue: displayValue,
           level: field.level,
         });
         break;
