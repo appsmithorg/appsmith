@@ -1,4 +1,8 @@
-import { HTTP_METHODS, POST_BODY_FORMATS } from "constants/ApiEditorConstants";
+import {
+  CONTENT_TYPE,
+  HTTP_METHODS,
+  POST_BODY_FORMATS,
+} from "constants/ApiEditorConstants";
 import _ from "lodash";
 
 export const transformRestAction = (data: any): any => {
@@ -30,9 +34,12 @@ export const transformRestAction = (data: any): any => {
       action.actionConfiguration.headers &&
       action.actionConfiguration.headers.length
     ) {
-      const contentTypeHeader = _.find(action.actionConfiguration.headers, {
-        key: "content-type",
-      });
+      const contentTypeHeader = _.find(
+        action.actionConfiguration.headers,
+        header => {
+          return header.key.toLowerCase() === CONTENT_TYPE;
+        },
+      );
       if (contentTypeHeader) {
         contentType = contentTypeHeader.value;
       }
