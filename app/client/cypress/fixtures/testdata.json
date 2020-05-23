@@ -2,7 +2,7 @@
   "baseUrl": "https://mock-api.appsmith.com",
   "methods": "users",
   "headerKey": "Content-Type",
-  "headerValue": "application/xml",
+  "headerValue": "application/json",
   "headerValueBlank": " ",
   "queryKey": "page",
   "queryValue": "2",
