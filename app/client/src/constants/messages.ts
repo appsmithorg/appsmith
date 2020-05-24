@@ -136,3 +136,12 @@ export const TIMEZONE = "Timezone";
 export const ENABLE_TIME = "Enable Time";
 
 export const BACK_TO_EDITOR = "Back to Editor";
+
+export const LIGHTNING_MENU_DATA_API = "Use data from an API";
+export const LIGHTNING_MENU_DATA_QUERY = "Use data from a Query";
+export const LIGHTNING_MENU_DATA_TOOLTIP = "Quick start data binding";
+export const LIGHTNING_MENU_DATA_WIDGET = "Use data from a Widget";
+
+export const LIGHTNING_MENU_OPTION_TEXT = "Plain Text";
+export const LIGHTNING_MENU_OPTION_JS = "JS";
+export const LIGHTNING_MENU_OPTION_HTML = "HTML";

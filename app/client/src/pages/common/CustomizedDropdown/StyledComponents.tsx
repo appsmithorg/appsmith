@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { Intent, IntentColors } from "constants/DefaultTheme";
+import { Intent } from "constants/DefaultTheme";
 
 export const DropdownTrigger = styled.div<{ themeType: string }>`
   display: flex;
