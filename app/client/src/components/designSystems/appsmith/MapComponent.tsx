@@ -8,7 +8,7 @@ import {
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "widgets/MapWidget";
 import PickMyLocation from "./PickMyLocation";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 
 interface MapComponentProps {
   widgetId: string;
