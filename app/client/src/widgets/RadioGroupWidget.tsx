@@ -53,7 +53,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         widgetId={this.props.widgetId}
         onRadioSelectionChange={this.onRadioSelectionChange}
         key={this.props.widgetId}
-        label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
+        label={`${this.props.label}`}
         selectedOptionValue={this.props.selectedOptionValue}
         options={this.props.options}
         isLoading={this.props.isLoading}
