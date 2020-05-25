@@ -4,7 +4,6 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
 import "url-search-params-polyfill";
@@ -83,7 +82,6 @@ export const getDataTreeForAutocomplete = createSelector(
         }
       });
     }
-    _.omit(tree, ["MainContainer", "actionPaths"]);
     const libs: Record<string, any> = {};
     extraLibraries.forEach(config => (libs[config.accessor] = config.lib));
     return { ...tree, ...cachedResponses, ...libs };

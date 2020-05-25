@@ -1,5 +1,4 @@
 #!/bin/sh
-# GIT_BRANCH=$(git branch  --no-color  | grep -E '^\*' | sed 's/\*[^a-z]*//g')
 
 GIT_SHA=$(eval git rev-parse HEAD)
 echo $GIT_SHA
