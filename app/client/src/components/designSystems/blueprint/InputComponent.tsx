@@ -197,7 +197,7 @@ class InputComponent extends React.Component<
           )
         }
         type={this.getType(this.props.inputType)}
-        leftIcon={this.getIcon(this.props.inputType)}
+        // leftIcon={this.getIcon(this.props.inputType)}
         onFocus={() => this.setFocusState(true)}
         onBlur={() => this.setFocusState(false)}
       />

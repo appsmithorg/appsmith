@@ -72,7 +72,7 @@ class ColumnActionSelectorControl extends BaseControl<
             );
           })}
         <StyledPropertyPaneButton
-          text={"Row Button"}
+          text={"New Button"}
           icon={"plus"}
           color={"#FFFFFF"}
           minimal={true}
