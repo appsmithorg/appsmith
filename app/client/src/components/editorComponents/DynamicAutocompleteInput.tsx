@@ -564,16 +564,14 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       showError =
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
-    const hideLightningMenu = false;
     return (
       <DynamicAutocompleteInputWrapper>
-        {!hideLightningMenu &&
-          (showLightningMenu === undefined || showLightningMenu === true) && (
-            <LightningMenu
-              themeType={this.props.theme === "DARK" ? "dark" : "light"}
-              updatePropertyValue={this.updatePropertyValue}
-            />
-          )}
+        {(showLightningMenu === undefined || showLightningMenu === true) && (
+          <LightningMenu
+            themeType={this.props.theme === "DARK" ? "dark" : "light"}
+            updatePropertyValue={this.updatePropertyValue}
+          />
+        )}
         <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
           <Wrapper
             editorTheme={theme}
