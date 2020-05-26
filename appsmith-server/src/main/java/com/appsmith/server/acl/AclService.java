@@ -79,7 +79,7 @@ public class AclService {
                             .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                             .build();
 
-                    WebClient.RequestHeadersSpec<?> request = webClient.post().syncBody(requestBody.toString());
+                    WebClient.RequestHeadersSpec<?> request = webClient.post().bodyValue(requestBody.toString());
                     return request.retrieve().bodyToMono(OpaResponse.class);
                 });
     }
