@@ -203,7 +203,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
 
         if (params != null) {
             for (String key : params.keySet()) {
-                uriBuilder.queryParam(key, URLEncoder.encode(params.getFirst(key)));
+                uriBuilder.queryParam(key, URLEncoder.encode(params.getFirst(key), StandardCharsets.UTF_8));
             }
         }
 

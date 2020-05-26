@@ -10,6 +10,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -34,6 +35,11 @@ public class Action extends BaseDomain {
     PluginType pluginType;
 
     Boolean executeOnLoad;
+
+    /* This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
+        TODO: The server can use this field to simplify our Mustache substitutions in the future
+     */
+    Map<String, Boolean> dynamicBindings;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Boolean isValid;

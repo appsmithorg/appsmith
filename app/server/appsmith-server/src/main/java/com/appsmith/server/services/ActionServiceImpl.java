@@ -8,6 +8,8 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
@@ -432,6 +434,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                 ActionExecutionResult result = new ActionExecutionResult();
                                 result.setBody(e.getMessage());
                                 result.setIsExecutionSuccess(false);
+                                // Set the status code for Appsmith plugin errors
+                                if (e instanceof AppsmithPluginException) {
+                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                                } else {
+                                    result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                                }
                                 return Mono.just(result);
                             })
                             .map(obj -> populateRequestFields(actionConfiguration, (ActionExecutionResult) obj));
