@@ -4,3 +4,9 @@ target/**
 **/.idea
 **/target
 **/dist
+.settings/**
+**/.settings
+**/.classpath
+**/.project
+**/.factorypath
+**.iml
