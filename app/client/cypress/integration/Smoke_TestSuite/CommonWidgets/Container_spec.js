@@ -3,7 +3,7 @@ const widgetsPage = require("../../../locators/Widgets.json");
 const dsl = require("../../../fixtures/commondsl.json");
 
 describe("Container Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 
@@ -25,7 +25,7 @@ describe("Container Widget Functionality", function() {
     cy.testCodeMirror(this.data.colour);
     cy.get(widgetsPage.containerD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(255, 0, 0)");
+      .and("eq", this.data.rgbValue);
     /**
      * @param{toggleButton Css} Assert to be checked
      */
@@ -35,8 +35,14 @@ describe("Container Widget Functionality", function() {
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click();
+    cy.PublishtheApp();
   });
-
+  it("Container Widget Functionality To Verify The Colour", function() {
+    cy.get(widgetsPage.containerD)
+      .eq(0)
+      .should("have.css", "background-color")
+      .and("eq", this.data.rgbValue);
+  });
   afterEach(() => {
     // put your clean up code if any
   });

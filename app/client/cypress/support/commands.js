@@ -419,6 +419,8 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
+  cy.server();
+  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
@@ -579,6 +581,11 @@ Cypress.Commands.add("togglebar", value => {
   cy.get(value)
     .check({ force: true })
     .should("be.checked");
+});
+Cypress.Commands.add("togglebarDisable", value => {
+  cy.get(value)
+    .uncheck({ force: true })
+    .should("not.checked");
 });
 Cypress.Commands.add("radiovalue", (value, value2) => {
   cy.get(value)
@@ -880,4 +887,9 @@ Cypress.Commands.add("pageNoValidate", index => {
   const data = '.e-numericcontainer a[index="' + index + '"]';
   const pageVal = cy.get(data);
   return pageVal;
+});
+Cypress.Commands.add("alertValidate", text => {
+  cy.get(commonlocators.success)
+    .should("be.visible")
+    .and("have.text", text);
 });
