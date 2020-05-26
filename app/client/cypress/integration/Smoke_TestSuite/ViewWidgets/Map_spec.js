@@ -35,10 +35,7 @@ describe("Map Widget Functionality", function() {
     cy.get(viewWidgetsPage.zoomLevel)
       .eq(1)
       .click({ force: true });
-    /**
-     * @param{Show Alert} Css for InputChange
-     */
-    cy.getAlert(commonlocators.mapOptionChange);
+
     cy.get(viewWidgetsPage.mapSearch).should("be.visible");
     cy.get(viewWidgetsPage.mapSearch)
       .invoke("attr", "placeholder")

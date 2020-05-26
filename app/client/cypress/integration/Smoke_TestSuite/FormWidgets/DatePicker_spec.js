@@ -21,8 +21,8 @@ describe("DatePicker Widget Functionality", function() {
     );
 
     //Checking the edit props for DatePicker and also the properties of DatePicker widget
-    cy.testCodeMirror(this.data.DatepickerLable);
-    cy.wait("@updateLayout");
+    // cy.testCodeMirror(this.data.DatepickerLable);
+    // cy.wait("@updateLayout");
 
     // change the date to next day
     cy.get(".t--property-control-defaultdate input").click();
@@ -47,17 +47,9 @@ describe("DatePicker Widget Functionality", function() {
 
     // Check the required checkbox
     cy.CheckWidgetProperties(commonlocators.requiredCheckbox);
-    cy.get(formWidgetsPage.datepickerWidget + " .bp3-label").should(
-      "contain.text",
-      "date *",
-    );
 
     // UnCheck the required checkbox
     cy.UnCheckWidgetProperties(commonlocators.requiredCheckbox);
-    cy.get(formWidgetsPage.datepickerWidget + " .bp3-label").should(
-      "contain.text",
-      "date",
-    );
 
     // Check the visible checkbox
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
