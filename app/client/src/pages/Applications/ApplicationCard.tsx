@@ -18,6 +18,10 @@ import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
 import { Colors } from "constants/Colors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const Wrapper = styled(Card)<{ hasReadPermission?: boolean }>`
   display: flex;
@@ -97,9 +101,9 @@ const ApplicationTitle = styled.div`
       top: ${props => props.theme.spaces[4]}px;
       cursor: pointer;
     }
-    .apptitle{
-      white-space: nowrap; 
-      width: 70%; 
+    .apptitle {
+      white-space: nowrap;
+      width: 70%;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -142,11 +146,13 @@ type ApplicationCardProps = {
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
-  const hasEditPermission = props.application.userPermissions?.includes(
-    "manage:applications",
+  const hasEditPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.MANAGE_APPLICATION,
   );
-  const hasReadPermission = props.application.userPermissions?.includes(
-    "read:applications",
+  const hasReadPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.READ_APPLICATION,
   );
   const duplicateApp = () => {
     props.duplicate && props.duplicate(props.application.id);
@@ -192,8 +198,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
 
   return (
     <Wrapper key={props.application.id} hasReadPermission={hasReadPermission}>
-      <ApplicationTitle
-      >
+      <ApplicationTitle>
         <div className="apptitle">{props.application.name}</div>
         {hasEditPermission && (
           <Link to={editApplicationURL} className="t--application-edit-link">

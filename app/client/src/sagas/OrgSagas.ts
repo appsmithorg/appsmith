@@ -141,8 +141,6 @@ export function* createOrgSaga(
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ORG_ROLES_INIT, fetchRolesSaga),
-    takeLatest(ReduxActionTypes.FETCH_ORG_INIT, fetchOrgSaga),
-    takeLatest(ReduxActionTypes.FETCH_ORGS_INIT, fetchOrgsSaga),
     takeLatest(ReduxActionTypes.SAVE_ORG_INIT, saveOrgSaga),
     takeLatest(ReduxActionTypes.CREATE_ORGANIZATION_INIT, createOrgSaga),
   ]);

@@ -9,6 +9,7 @@ import {
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
+  getUserApplicationsOrgs,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -21,11 +22,24 @@ import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import { PERMISSION_TYPE } from "./permissionHelpers";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
+import { User } from "constants/userConstants";
+import CustomizedDropdown from "pages/common/CustomizedDropdown";
+import DropdownProps from "pages/common/CustomizedDropdown/OrgDropdownData";
+import { getCurrentUser } from "selectors/usersSelectors";
+import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
+import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+
+const OrgDropDown = styled.div`
+  display: flex;
+  padding: 0px 30px;
+  font-size: ${props => props.theme.fontSizes[1]}px;
+`;
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
@@ -75,11 +89,13 @@ type ApplicationProps = {
   searchApplications: (keyword: string) => void;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
+  getAllApplication: () => void;
+  userApplicationsOrgs: any;
+  currentUser?: User;
 };
-
 class Applications extends Component<ApplicationProps> {
   componentDidMount() {
-    this.props.fetchApplications();
+    this.props.getAllApplication();
   }
   public render() {
     const applicationList = this.props.isFetchingApplications
@@ -91,29 +107,47 @@ class Applications extends Component<ApplicationProps> {
           ? AppToaster.show({ message: DELETING_APPLICATION })
           : AppToaster.clear()}
         <SubHeader
+          add={{
+            form: CreateOrganizationForm,
+            title: "Create Organization",
+            formName: CREATE_ORGANIZATION_FORM_NAME,
+            formSubmitIntent: "primary",
+            isAdding: false,
+            formSubmitText: "Create",
+            onClick: () => {
+              return null;
+            },
+          }}
           search={{
             placeholder: "Search",
             queryFn: this.props.searchApplications,
           }}
         />
         <PageSectionDivider />
-        {OrganizationListMockResponse.map((organizationObject: any) => {
-          const { organization, applications } = organizationObject;
-          const hasCreateApplicationPemission = organization.userPermissions.includes(
-            "manage:orgApplications",
-          );
+        {this.props.userApplicationsOrgs &&
+          this.props.userApplicationsOrgs.length != 0 &&
+          this.props.userApplicationsOrgs.map((organizationObject: any) => {
+            const { organization, applications } = organizationObject;
 
-          return (
-            <>
-              <OrgName>{organization.name}</OrgName>
-
-
-              <ApplicationCardsWrapper key={organization.id}>
-                {hasCreateApplicationPemission && (
+            return (
+              <>
+                <OrgDropDown>
+                  {this.props.currentUser && (
+                    <CustomizedDropdown
+                      {...DropdownProps(
+                        this.props.currentUser,
+                        organization.name,
+                      )}
+                    />
+                  )}
+                </OrgDropDown>
+                <ApplicationCardsWrapper key={organization.id}>
                   <FormDialogComponent
+                    permissions={organization.userPermissions}
+                    permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
                     trigger={
                       <ApplicationAddCardWrapper>
-                         <Icon
+                        <Icon
                           icon="plus"
                           iconSize={70}
                           className="createIcon"
@@ -122,42 +156,44 @@ class Applications extends Component<ApplicationProps> {
                       </ApplicationAddCardWrapper>
                     }
                     Form={CreateApplicationForm}
+                    orgId={organization.id}
                     title={"Create Application"}
                   />
-                )}
-                {applications.map((application: any) => {
-                  return (
-                    application.pages?.length > 0 && (
-                      <ApplicationCard
-                        key={application.id}
-                        application={application}
-                        delete={this.props.deleteApplication}
-                      />
-                    )
-                  );
-                })}
-                <PageSectionDivider />
-              </ApplicationCardsWrapper>
-            </>
-          );
-        })}
-        
+                  {applications.map((application: any) => {
+                    return (
+                      application.pages?.length > 0 && (
+                        <ApplicationCard
+                          key={application.id}
+                          application={application}
+                          delete={this.props.deleteApplication}
+                        />
+                      )
+                    );
+                  })}
+                  <PageSectionDivider />
+                </ApplicationCardsWrapper>
+              </>
+            );
+          })}
       </PageWrapper>
     );
   }
 }
-
 const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
+  userApplicationsOrgs: getUserApplicationsOrgs(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   fetchApplications: () =>
     dispatch({ type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT }),
+  getAllApplication: () =>
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
   createApplication: (appName: string) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
