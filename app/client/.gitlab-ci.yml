@@ -81,6 +81,8 @@ react-build-automation:
 unit_test:
   image: tarampampam/node:10.16-alpine
   stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
   script:
     - *set_automation_env
     - yarn run test:unit

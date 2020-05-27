@@ -1,246 +1,106 @@
 import React from "react";
+import { Tooltip } from "@blueprintjs/core";
+
 import CustomizedDropdown, {
   CustomizedDropdownProps,
 } from "pages/common/CustomizedDropdown";
-import { useSelector } from "react-redux";
-import { AppState } from "reducers";
-import Button from "components/editorComponents/Button";
+
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
-import { mergeWith } from "lodash";
+import { ControlIcons } from "icons/ControlIcons";
+import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 
-const getApiOptions = (
-  themeType: string,
-  apis: RestAction[],
-  updatePropertyValue: (value: string, cursor?: number) => void,
-) => ({
-  sections: [
-    {
-      isSticky: true,
-      options: [
-        {
-          content: (
-            <Button
-              text="Create new API"
-              icon="plus"
-              iconAlignment="left"
-              themeType={themeType}
-              type="button"
-            />
-          ),
-        },
-      ],
-    },
-    {
-      options: apis.map(api => ({
-        content: api.name,
-        onSelect: () => {
-          updatePropertyValue(`{{${api.name}.data}}`);
-        },
-      })),
-    },
-  ],
-  trigger: {
-    text: "Use data from a API",
-  },
-  openDirection: Directions.RIGHT,
-  openOnHover: false,
-  themeType: themeType,
-});
+import { getLightningMenuOptions } from "./helpers";
+import {
+  useActions,
+  useWidgets,
+  usePageId,
+  useAllActions,
+  useDataSources,
+  useApplicationId,
+  usePluginIdsOfPackageNames,
+} from "./hooks";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { Datasource } from "api/DatasourcesApi";
+import { Theme } from "constants/DefaultTheme";
+import { withTheme } from "styled-components";
 
-const getQueryOptions = (
-  themeType: string,
-  queries: RestAction[],
-  updatePropertyValue: (value: string, cursor?: number) => void,
-) => ({
-  sections: [
-    {
-      isSticky: true,
-      options: [
-        {
-          content: (
-            <Button
-              text="Create new Query"
-              icon="plus"
-              iconAlignment="left"
-              themeType={themeType}
-              type="button"
-            />
-          ),
-        },
-      ],
-    },
-    {
-      options: queries.map(query => ({
-        content: query.name,
-        onSelect: () => {
-          updatePropertyValue(`{{${query.name}.data}}`);
-        },
-      })),
-    },
-  ],
-  trigger: {
-    text: "Use data from a Query",
-  },
-  openDirection: Directions.RIGHT,
-  openOnHover: false,
-  themeType: themeType,
-});
-
-const getWidgetOptions = (
-  themeType: string,
-  widgets: WidgetProps[],
-  updatePropertyValue: (value: string, cursor?: number) => void,
-) => ({
-  sections: [
-    {
-      options: widgets.map(widget => ({
-        content: (
-          <CustomizedDropdown
-            {...getWidgetData(themeType, widget, updatePropertyValue)}
-          />
-        ),
-        disabled: false,
-        shouldCloseDropdown: false,
-      })),
-    },
-  ],
-  trigger: {
-    text: "Use data from a Widget",
-  },
-  openDirection: Directions.RIGHT,
-  openOnHover: false,
-  themeType: themeType,
-});
-
-const getWidgetData = (
-  themeType: string,
-  widget: WidgetProps,
-  updatePropertyValue: (value: string, cursor?: number) => void,
-) => ({
-  sections: [
-    {
-      options: Object.keys(widget).map(widgetProp => ({
-        content: widgetProp,
-        onSelect: () => {
-          updatePropertyValue(`{{${widget.widgetName}.${widgetProp}}}`);
-        },
-      })),
-    },
-  ],
-  trigger: {
-    text: widget.widgetName,
-  },
-  openDirection: Directions.RIGHT,
-  openOnHover: false,
-  themeType: themeType,
-});
-
+const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
   themeType: string,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
+  pageId: string,
+  applicationId: string,
+  actions: ActionData[],
+  pluginIds: string[],
+  dataSources: Datasource[],
+  createNewApiAction: (pageId: string) => void,
+  createAction: (data: Partial<RestAction>) => void,
   updatePropertyValue: (value: string, cursor?: number) => void,
-): CustomizedDropdownProps => ({
-  sections: [
-    {
-      options: [
-        {
-          content: "Plain Text",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("");
-          },
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getApiOptions(themeType, apis, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getQueryOptions(themeType, queries, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: (
-            <CustomizedDropdown
-              {...getWidgetOptions(themeType, widgets, updatePropertyValue)}
-            />
-          ),
-          disabled: false,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "JS",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("{{}}");
-          },
-        },
-        {
-          content: "HTML",
-          disabled: false,
-          shouldCloseDropdown: true,
-          onSelect: () => {
-            updatePropertyValue("<p></p>", 3);
-          },
-        },
-      ],
+  trigger: React.ReactNode,
+): CustomizedDropdownProps => {
+  const options = getLightningMenuOptions(
+    apis,
+    queries,
+    widgets,
+    pageId,
+    applicationId,
+    actions,
+    pluginIds,
+    dataSources,
+    createNewApiAction,
+    createAction,
+    themeType,
+    updatePropertyValue,
+  );
+  return {
+    sections: [
+      {
+        options,
+      },
+    ],
+    openDirection: Directions.DOWN,
+    usePortal: true,
+    trigger: {
+      content: (
+        <Tooltip hoverOpenDelay={1000} content={LIGHTNING_MENU_DATA_TOOLTIP}>
+          {trigger}
+        </Tooltip>
+      ),
     },
-  ],
-  openDirection: Directions.DOWN,
-  usePortal: true,
-  trigger: {
-    text: "",
-  },
-  themeType: themeType,
-});
+    themeType: themeType,
+  };
+};
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
   updatePropertyValue: (value: string, cursor?: number) => void;
+  createNewApiAction: (pageId: string) => void;
+  createAction: (data: Partial<RestAction>) => void;
   themeType: string;
+  theme: Theme;
 };
 
 export const LightningMenu = (props: LightningMenuProps) => {
-  const actions = useSelector((state: AppState) => {
-    const currentPageId = state.entities.pageList.currentPageId;
-    return state.entities.actions.filter(
-      action => action.config.pageId === currentPageId,
-    );
-  });
-  // TODO(abhinav): Meta props should be available even before the meta value exists
-  // For example: Input text shows up only when we have an input text value
-  const widgets = useSelector((state: AppState) => {
-    const canvasWidgets = state.entities.canvasWidgets;
-    const metaProps = state.entities.meta;
-    const widgets = mergeWith(canvasWidgets, metaProps, (obj, src) => {
-      return Object.assign(obj, src);
-    });
-    return Object.values(widgets).filter(
-      (widget: WidgetProps) =>
-        !widget.children || widget.children?.length === 0,
-    );
-  });
-  const apis = actions
-    .filter(action => action.config.pluginType === "API")
-    .map(action => action.config);
-  const queries = actions
-    .filter(action => action.config.pluginType === "DB")
-    .map(action => action.config);
+  const widgets = useWidgets();
+  const { apis, queries } = useActions();
+  const pageId = usePageId();
+  const actions = useAllActions();
+  const dataSources = useDataSources();
+  const applicationId = useApplicationId();
+  const pluginIds = usePluginIdsOfPackageNames();
+  const lightningMenuTrigger = (
+    <LightningIcon
+      width={props.theme.lightningMenu.iconSize}
+      height={props.theme.lightningMenu.iconSize}
+      color={
+        props.theme.lightningMenu[props.themeType as "light" | "dark"].color
+      }
+    />
+  );
 
   return (
     <CustomizedDropdown
@@ -249,10 +109,18 @@ export const LightningMenu = (props: LightningMenuProps) => {
         apis,
         queries,
         widgets,
+        pageId,
+        applicationId,
+        actions,
+        pluginIds,
+        dataSources,
+        props.createNewApiAction,
+        props.createAction,
         props.updatePropertyValue,
+        lightningMenuTrigger,
       )}
     />
   );
 };
 
-export default LightningMenu;
+export default withTheme(LightningMenu);

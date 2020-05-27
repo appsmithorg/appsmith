@@ -294,6 +294,11 @@ export type Theme = {
   };
   pageContentWidth: number;
   alert: Record<string, { color: Color }>;
+  lightningMenu: {
+    iconSize: number;
+    dark: { color: Color };
+    light: { color: Color };
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -466,6 +471,15 @@ export const theme: Theme = {
     },
     warning: {
       color: Colors.BUTTER_CUP,
+    },
+  },
+  lightningMenu: {
+    iconSize: 14,
+    dark: {
+      color: Colors.WHITE,
+    },
+    light: {
+      color: Colors.HIT_GRAY,
     },
   },
 };

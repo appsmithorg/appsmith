@@ -23,6 +23,9 @@ import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { RestAction } from "api/ActionAPI";
+import { createActionRequest } from "actions/actionActions";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -253,10 +256,22 @@ const DynamicAutocompleteInputWrapper = styled.div`
   position: relative;
   & > span:first-of-type {
     position: absolute;
-    right: 0;
-    top: 2px;
-    width: 14px;
+    right: 4px;
+    top: 6px;
+    width: 20px;
+    height: 20px;
     z-index: 10;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    & > span {
+      margin-top: 6px;
+    }
+    &:hover {
+      border: 2px solid #ccc;
+    }
   }
 `;
 
@@ -271,6 +286,10 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+}
+interface ReduxDispatchProps {
+  createNewApiAction: (pageId: string) => void;
+  createAction: (data: Partial<RestAction>) => void;
 }
 
 export type DynamicAutocompleteInputProps = {
@@ -295,6 +314,7 @@ export type DynamicAutocompleteInputProps = {
 };
 
 type Props = ReduxStateProps &
+  ReduxDispatchProps &
   DynamicAutocompleteInputProps & {
     input: Partial<WrappedFieldInputProps>;
   };
@@ -564,16 +584,18 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       showError =
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
-    const hideLightningMenu = false;
     return (
       <DynamicAutocompleteInputWrapper>
-        {!hideLightningMenu &&
-          (showLightningMenu === undefined || showLightningMenu === true) && (
+        {(showLightningMenu === undefined || showLightningMenu === true) && (
+          <Suspense fallback={<div />}>
             <LightningMenu
               themeType={this.props.theme === "DARK" ? "dark" : "light"}
               updatePropertyValue={this.updatePropertyValue}
+              createNewApiAction={this.props.createNewApiAction}
+              createAction={this.props.createAction}
             />
-          )}
+          </Suspense>
+        )}
         <ErrorTooltip message={meta ? meta.error : ""} isOpen={showError}>
           <Wrapper
             editorTheme={theme}
@@ -632,4 +654,14 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps)(DynamicAutocompleteInput);
+const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
+  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
+  createAction: (data: Partial<RestAction>) => {
+    dispatch(createActionRequest(data));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DynamicAutocompleteInput);

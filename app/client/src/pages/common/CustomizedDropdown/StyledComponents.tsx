@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { Intent, IntentColors } from "constants/DefaultTheme";
+import { Intent } from "constants/DefaultTheme";
 
 export const DropdownTrigger = styled.div<{ themeType: string }>`
   display: flex;
@@ -68,8 +68,7 @@ export const DropdownContentSection = styled.div<{
     right: 0;
     bottom: 0;
     height: 1px;
-    background: ${props =>
-      props.themeType === "dark" ? "transparent" : "#ccc"};
+    background: ${props => (props.themeType === "dark" ? "#535B62" : "#ccc")};
   }
 `;
 

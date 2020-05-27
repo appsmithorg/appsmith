@@ -345,7 +345,7 @@ function* updateFormFields(
           change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
             ...actionConfigurationHeaders,
             {
-              key: "Content-Type",
+              key: CONTENT_TYPE,
               value: POST_BODY_FORMAT_OPTIONS[0].value,
             },
           ]),

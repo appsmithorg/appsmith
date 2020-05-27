@@ -18,9 +18,6 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import Postgres from "assets/images/Postgress.png";
 import MongoDB from "assets/images/MongoDB.png";
 import RestTemplateImage from "assets/images/RestAPI.png";
-import MongoConfigResponse from "mockResponses/MongoConfigResponse";
-import PostgresConfigResponse from "mockResponses/PostgresConfigResponse";
-import RestTemplateConfigResponse from "mockResponses/RestTemplateConfigResponse";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
@@ -183,19 +180,6 @@ class DatasourceDBEditor extends React.Component<
     return !_.isEmpty(errors);
   };
 
-  getMockResponse = (packageName: string) => {
-    switch (packageName) {
-      case PLUGIN_PACKAGE_POSTGRES:
-        return PostgresConfigResponse;
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoConfigResponse;
-      case REST_PLUGIN_PACKAGE_NAME:
-        return RestTemplateConfigResponse;
-      default:
-        return [];
-    }
-  };
-
   getImageSrc = (pluginPackage: string) => {
     switch (pluginPackage) {
       case PLUGIN_PACKAGE_POSTGRES:
@@ -246,13 +230,15 @@ class DatasourceDBEditor extends React.Component<
         const values = _.get(formData, properties[0]);
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
-        values.map((object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-          const isEmpty = Object.values(object).every(x => x === "");
+        values.forEach(
+          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
+            const isEmpty = Object.values(object).every(x => x === "");
 
-          if (!isEmpty) {
-            newValues.push(object);
-          }
-        });
+            if (!isEmpty) {
+              newValues.push(object);
+            }
+          },
+        );
 
         if (newValues.length) {
           formData = _.set(formData, properties[0], newValues);
@@ -265,13 +251,15 @@ class DatasourceDBEditor extends React.Component<
         const values = _.get(formData, configProperty);
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
-        values.map((object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-          const isEmpty = Object.values(object).every(x => x === "");
+        values.forEach(
+          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
+            const isEmpty = Object.values(object).every(x => x === "");
 
-          if (!isEmpty) {
-            newValues.push(object);
-          }
-        });
+            if (!isEmpty) {
+              newValues.push(object);
+            }
+          },
+        );
 
         if (newValues.length) {
           formData = _.set(formData, configProperty, newValues);

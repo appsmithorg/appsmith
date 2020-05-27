@@ -213,6 +213,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             className="t--path"
             placeholder="v1/method"
             name="actionConfiguration.path"
+            showLightningMenu={false}
             leftIcon={FormIcons.SLASH_ICON}
             normalize={value => value.trim()}
             singleLine
