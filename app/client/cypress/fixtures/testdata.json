@@ -30,5 +30,7 @@
   "putAction": "//div[contains(@id,'react-select') and contains(text(),'PUT')]",
   "postAction": "//div[contains(@id,'react-select') and contains(text(),'POST')]",
   "patchAction": "//div[contains(@id,'react-select') and contains(text(),'PATCH')]",
-  "moustacheMethod": "{{Api.text}}"
+  "moustacheMethod": "{{Api.text}}",
+  "nextUrl": ".data.next}}",
+  "prevUrl": ".data.previous}}"
 }
