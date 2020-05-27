@@ -4,8 +4,17 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.repositories.ActionRepository;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.PageRepository;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,44 +23,32 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+
 @Component
 public class PolicyUtils<T extends BaseDomain> {
 
     private final PolicyGenerator policyGenerator;
+    private final ApplicationRepository applicationRepository;
+    private final PageRepository pageRepository;
+    private final ActionRepository actionRepository;
 
-    public PolicyUtils(PolicyGenerator policyGenerator) {
+    public PolicyUtils(PolicyGenerator policyGenerator,
+                       ApplicationRepository applicationRepository,
+                       PageRepository pageRepository,
+                       ActionRepository actionRepository) {
         this.policyGenerator = policyGenerator;
+        this.applicationRepository = applicationRepository;
+        this.pageRepository = pageRepository;
+        this.actionRepository = actionRepository;
     }
 
-    public T setUserPermissionsInObject(T obj, User user) {
-
-        Set<String> permissions = new HashSet<>();
-
-        for (Policy policy : obj.getPolicies()) {
-            Set<String> policyUsers = policy.getUsers();
-            Set<String> policyGroups = policy.getGroups();
-
-
-            if (policyUsers != null && policyUsers.contains(user.getUsername())) {
-                permissions.add(policy.getPermission());
-            }
-
-            if (user.getGroupIds() != null) {
-                for (String groupId : user.getGroupIds()) {
-                    if (policyGroups != null && policyGroups.contains(groupId)) {
-                        permissions.add(policy.getPermission());
-                        break;
-                    }
-                }
-            }
-        }
-
-        obj.setUserPermissions(permissions);
-        return obj;
-    }
-
-    public T generateAndAddPoliciesFromPermissions(Set<AclPermission> permissions, T obj, User user) {
-        Map<String, Policy> policyMap = generatePolicyFromPermission(permissions, user);
+    public T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
 
         // Append the user to the existing permission policy if it already exists.
         for (Policy policy : obj.getPolicies()) {
@@ -73,8 +70,7 @@ public class PolicyUtils<T extends BaseDomain> {
         return obj;
     }
 
-    public T generateAndRemovePolicies(Set<AclPermission> permissions, T obj, User user) {
-        Map<String, Policy> policyMap = generatePolicyFromPermission(permissions, user);
+    public T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
 
         // Remove the user from the existing permission policy if it exists.
         for (Policy policy : obj.getPolicies()) {
@@ -101,7 +97,7 @@ public class PolicyUtils<T extends BaseDomain> {
      * @param user
      * @return
      */
-    private Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
@@ -116,4 +112,88 @@ public class PolicyUtils<T extends BaseDomain> {
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
 
+    public Map<String, Policy> generateApplicationPoliciesFromOrganizationPolicies(Map<String, Policy> orgPolicyMap, User user) {
+        Set<Policy> extractedInterestingPolicySet = new HashSet<>(orgPolicyMap.values())
+                .stream()
+                .filter(policy -> policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                        || policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue()))
+                .collect(Collectors.toSet());
+
+        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Organization.class)
+                .stream()
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Flux<Application> updateWithNewPoliciesToApplicationsByOrgId(String orgId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
+
+        return applicationRepository
+                .findByOrganizationId(orgId, AclPermission.MANAGE_APPLICATIONS)
+                // In case we have come across an application for this organization that the current user is not allowed to manage, move on.
+                .switchIfEmpty(Mono.empty())
+                .map(application -> {
+                    if (addPolicyToObject) {
+                        return (Application) addPoliciesToExistingObject(newAppPoliciesMap, (T) application);
+                    } else {
+                        return (Application) removePoliciesFromExistingObject(newAppPoliciesMap, (T) application);
+                    }
+                })
+                .collectList()
+                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
+    }
+
+    public Map<String, Policy> generatePagePoliciesFromApplicationPolicies(Map<String, Policy> applicationPolicyMap, User user) {
+        Set<Policy> extractedInterestingPolicySet = new HashSet<>(applicationPolicyMap.values())
+                .stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
+                        || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
+                .collect(Collectors.toSet());
+
+        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Application.class)
+                .stream()
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Flux<Page> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
+
+        return pageRepository
+                .findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
+                .switchIfEmpty(Mono.empty())
+                .map(page -> {
+                    if (addPolicyToObject) {
+                        return (Page) addPoliciesToExistingObject(newPagePoliciesMap, (T) page);
+                    } else {
+                        return (Page) removePoliciesFromExistingObject(newPagePoliciesMap, (T) page);
+                    }
+                })
+                .collectList()
+                .flatMapMany(updatedPages -> pageRepository.saveAll(updatedPages));
+    }
+
+    public Map<String, Policy> generateActionPoliciesFromPagePolicies(Map<String, Policy> pagePolicyMap, User user) {
+        Set<Policy> extractedInterestingPolicySet = new HashSet<>(pagePolicyMap.values())
+                .stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
+                        || policy.getPermission().equals(READ_PAGES.getValue()))
+                .collect(Collectors.toSet());
+
+        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Page.class)
+                .stream()
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
+    public Flux<Action> updateWithPagePermissionsToAllItsActions(String pageId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+
+        return actionRepository
+                .findByPageId(pageId, AclPermission.MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.empty())
+                .map(action -> {
+                    if (addPolicyToObject) {
+                        return (Action) addPoliciesToExistingObject(newActionPoliciesMap, (T) action);
+                    } else {
+                        return (Action) removePoliciesFromExistingObject(newActionPoliciesMap, (T) action);
+                    }
+                })
+                .collectList()
+                .flatMapMany(updatedActions -> actionRepository.saveAll(updatedActions));
+    }
 }
