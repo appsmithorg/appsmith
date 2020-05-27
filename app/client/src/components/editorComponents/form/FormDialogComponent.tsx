@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { Dialog, Classes } from "@blueprintjs/core";
+import { isPermitted } from "pages/Applications/permissionHelpers";
 
 const StyledDialog = styled(Dialog)`
   && {
@@ -16,9 +17,12 @@ const TriggerWrapper = styled.div``;
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
+  orgId?: string;
   title: string;
   Form: any;
   trigger: ReactNode;
+  permissionRequired?: string;
+  permissions?: string[];
 };
 
 export const FormDialogComponent = (props: FormDialogComponentProps) => {
@@ -29,6 +33,13 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
   };
 
   const Form = props.Form;
+
+  if (
+    props.permissions &&
+    props.permissionRequired &&
+    !isPermitted(props.permissions, props.permissionRequired)
+  )
+    return null;
 
   return (
     <React.Fragment>
@@ -44,7 +55,10 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         isOpen={isOpen}
       >
         <div className={Classes.DIALOG_BODY}>
-          <Form onCancel={onClose} />
+          <Form
+            onCancel={onClose}
+            orgId={props.orgId ? props.orgId : undefined}
+          />
         </div>
       </StyledDialog>
     </React.Fragment>

@@ -12,6 +12,7 @@ const initialState: ApplicationsReduxState = {
   applicationList: [],
   creatingApplication: false,
   deletingApplication: false,
+  userApplicationsOrgs: [],
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -49,6 +50,14 @@ const applicationsReducer = createReducer(initialState, {
     applicationList: action.payload,
     isFetchingApplications: false,
   }),
+  [ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationList: any }>,
+  ) => ({
+    ...state,
+    userApplicationsOrgs: action.payload,
+  }),
+
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplication: true }),
@@ -105,6 +114,7 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   currentApplication?: ApplicationPayload;
+  userApplicationsOrgs: any;
 }
 
 export default applicationsReducer;

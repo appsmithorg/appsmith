@@ -5,7 +5,7 @@ import { getOrgs, getCurrentOrg } from "selectors/organizationSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown from "./CustomizedDropdown";
-import DropdownProps from "./CustomizedDropdown/OrgDropdownData";
+import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
@@ -21,12 +21,10 @@ type PageHeaderProps = {
 };
 
 export const PageHeader = (props: PageHeaderProps) => {
-  const { orgs, currentOrg, user } = props;
+  const { user } = props;
   return (
     <StyledPageHeader>
-      {orgs && user && currentOrg && (
-        <CustomizedDropdown {...DropdownProps(orgs, currentOrg, user)} />
-      )}
+      {user && <CustomizedDropdown {...DropdownProps(user, user.username)} />}
     </StyledPageHeader>
   );
 };

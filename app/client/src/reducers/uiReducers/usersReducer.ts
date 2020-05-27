@@ -14,6 +14,7 @@ const initialState: UsersReduxState = {
     fetchingUser: false,
   },
   list: [],
+  users: [],
 };
 
 const usersReducer = createReducer(initialState, {
@@ -24,6 +25,27 @@ const usersReducer = createReducer(initialState, {
       fetchingUser: true,
     },
   }),
+  [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<User>,
+  ) => {
+    const users = [...state.users];
+    const userIndex = _.findIndex(users, { id: action.payload.id });
+    if (userIndex > -1) {
+      users[userIndex] = action.payload;
+    } else {
+      users.push(action.payload);
+    }
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingUser: false,
+      },
+      users,
+      currentUser: action.payload,
+    };
+  },
   [ReduxActionTypes.FETCH_USER_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
@@ -64,6 +86,8 @@ export interface UsersReduxState {
     fetchingUser: boolean;
     fetchingUsers: boolean;
   };
+  users: User[];
+  currentUser?: User;
 }
 
 export default usersReducer;
