@@ -1,13 +1,13 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
@@ -24,8 +24,10 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -38,15 +40,11 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final MongoConverter mongoConverter;
 
-    protected final PolicyUtils policyUtils;
-
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                      MongoConverter mongoConverter,
-                                      PolicyUtils policyUtils) {
+                                      MongoConverter mongoConverter) {
         this.mongoOperations = mongoOperations;
         this.mongoConverter = mongoConverter;
-        this.policyUtils = policyUtils;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
     }
 
@@ -62,7 +60,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public static final Criteria userAcl(User user, AclPermission permission) {
-        log.debug("Going to add userAcl for user: {} and permission: {}", user.getUsername(), permission.getValue());
 
         Criteria userCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
                 .elemMatch(Criteria.where("users").all(user.getUsername())
@@ -99,7 +96,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .one()
-                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -127,7 +124,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                                 }
                                 return findById(id, permission);
                             })
-                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -148,7 +145,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .one()
-                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
     }
 
@@ -169,8 +166,35 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .all()
-                            .map(obj -> (T) policyUtils.setUserPermissionsInObject(obj, user));
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
                 });
+    }
+
+    public T setUserPermissionsInObject(T obj, User user) {
+
+        Set<String> permissions = new HashSet<>();
+
+        for (Policy policy : obj.getPolicies()) {
+            Set<String> policyUsers = policy.getUsers();
+            Set<String> policyGroups = policy.getGroups();
+
+
+            if (policyUsers != null && policyUsers.contains(user.getUsername())) {
+                permissions.add(policy.getPermission());
+            }
+
+            if (user.getGroupIds() != null) {
+                for (String groupId : user.getGroupIds()) {
+                    if (policyGroups != null && policyGroups.contains(groupId)) {
+                        permissions.add(policy.getPermission());
+                        break;
+                    }
+                }
+            }
+        }
+
+        obj.setUserPermissions(permissions);
+        return obj;
     }
 
 }

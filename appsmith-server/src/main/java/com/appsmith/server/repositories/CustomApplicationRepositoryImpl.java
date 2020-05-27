@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.helpers.PolicyUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +24,14 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepository {
 
-    private final PolicyUtils policyUtils;
+    private final PolicyGenerator policyGenerator;
 
     @Autowired
     public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter, PolicyUtils policyUtils) {
-        super(mongoOperations, mongoConverter, policyUtils);
-        this.policyUtils = policyUtils;
+                                           @NonNull MongoConverter mongoConverter,
+                                           PolicyGenerator policyGenerator) {
+        super(mongoOperations, mongoConverter);
+        this.policyGenerator = policyGenerator;
     }
 
     protected Criteria getIdCriteria(Object id) {
@@ -62,4 +63,5 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         Criteria orgIdsCriteria = where(fieldName(QApplication.application.organizationId)).in(orgIds);
         return queryAll(List.of(orgIdsCriteria), permission);
     }
+
 }

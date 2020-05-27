@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.QOrganization;
-import com.appsmith.server.helpers.PolicyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -22,11 +21,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl<Organization>
         implements CustomOrganizationRepository {
 
-    private final PolicyUtils policyUtils;
-
-    public CustomOrganizationRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, PolicyUtils policyUtils) {
-        super(mongoOperations, mongoConverter, policyUtils);
-        this.policyUtils = policyUtils;
+    public CustomOrganizationRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
+        super(mongoOperations, mongoConverter);
     }
 
     @Override
