@@ -59,6 +59,7 @@ react-build-release:
       - build/
   only:
     - release
+    - feature/acl
 
 react-build-automation:
   image: tarampampam/node:10.16-alpine
@@ -77,7 +78,6 @@ react-build-automation:
   only:
     - release
     - merge_requests
-    - feature/acl
   
 unit_test:
   image: tarampampam/node:10.16-alpine
