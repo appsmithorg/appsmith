@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /*
@@ -22,7 +23,9 @@ public class Policy implements Serializable {
 
     String permission;
 
-    Set<String> users;
+    @Builder.Default
+    Set<String> users = new HashSet<>();
 
-    Set<String> groups;
+    @Builder.Default
+    Set<String> groups = new HashSet<>();
 }

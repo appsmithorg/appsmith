@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
@@ -33,10 +32,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Flux<Organization> findByIdsIn(Set<String> ids,AclPermission permission);
 
     Mono<Map<String, String>> getUserRolesForOrganization();
-
-    Mono<Organization> addUserRoleToOrganization(Organization organization, User user, AppsmithRole role);
-
-    Mono<Organization> removeUserRoleFromOrganization(Organization organization, User user);
 
     Mono<List<UserRole>> getOrganizationMembers(String orgId);
 }

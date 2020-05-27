@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
@@ -83,6 +84,10 @@ public class SeedMongoData {
                 .users(Set.of(API_USER_EMAIL))
                 .build();
 
+        Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                .users(Set.of(API_USER_EMAIL))
+                .build();
+
         Policy readApiUserPolicy = Policy.builder().permission(READ_USERS.getValue())
                 .users(Set.of(API_USER_EMAIL))
                 .build();
@@ -101,9 +106,9 @@ public class SeedMongoData {
         };
         Object[][] orgData = {
                 {"Spring Test Organization", "appsmith-spring-test.com", "appsmith.com", "spring-test-organization",
-                        Set.of(manageOrgAppPolicy, readOrgPolicy)},
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy)},
                 {"Another Test Organization", "appsmith-another-test.com", "appsmith.com", "another-test-organization",
-                        Set.of(manageOrgAppPolicy, readOrgPolicy)}
+                        Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy)}
         };
 
         Object[][] appData = {
