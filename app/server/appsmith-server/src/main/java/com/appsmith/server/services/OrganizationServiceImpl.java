@@ -167,7 +167,14 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 //Call the BaseService function to save the updated organization
                 .flatMap(super::create)
                 // Set the current user as admin for the organization
-                .flatMap(createdOrg -> addUserRoleToOrganization(createdOrg, user, AppsmithRole.ORGANIZATION_ADMIN))
+                .flatMap(createdOrg -> {
+                    UserRole userRole = new UserRole();
+                    userRole.setUsername(user.getUsername());
+                    userRole.setUserId(user.getId());
+                    userRole.setName(user.getName());
+                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    return userOrganizationService.addUserToOrganizationGivenUserObject(createdOrg, user, userRole);
+                })
                 // TODO : Remove the following code
                 .flatMap(savedOrganization -> userOrganizationService
                         .addUserToOrganization(savedOrganization.getId(), user)
@@ -278,60 +285,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
 
         return Mono.just(appsmithRoles);
-    }
-
-    @Override
-    public Mono<Organization> addUserRoleToOrganization(Organization organization, User user, AppsmithRole role) {
-        List<UserRole> userRoles = organization.getUserRoles();
-        if (userRoles == null) {
-            userRoles = new ArrayList<>();
-        }
-        UserRole userRole = new UserRole();
-        userRole.setUserId(user.getId());
-        userRole.setUsername(user.getUsername());
-        userRole.setName(user.getName());
-        userRole.setRole(role);
-        userRole.setRoleName(role.getName());
-
-        // Add the user and its role to the organization
-        userRoles.add(userRole);
-
-        Set<AclPermission> rolePermissions = role.getPermissions();
-        Organization updatedOrganization = (Organization) policyUtils.generateAndAddPoliciesFromPermissions(rolePermissions, organization, user);
-        updatedOrganization.setUserRoles(userRoles);
-        /**
-         * TODO : Update the underlying application/page/action
-         */
-        return repository.save(updatedOrganization);
-    }
-
-    @Override
-    public Mono<Organization> removeUserRoleFromOrganization(Organization organization, User user) {
-        List<UserRole> userRoles = organization.getUserRoles();
-        if (userRoles == null) {
-            // The user doesnt exist in this organization. Nothing to do here. Return as is.
-            return Mono.just(organization);
-        }
-        for (UserRole role : userRoles) {
-            if (role.getUsername().equals(user.getUsername())) {
-                // Update the organization permissions
-                Set<AclPermission> rolePermissions = role.getRole().getPermissions();
-                Organization updatedPermissionsOrg = (Organization) policyUtils.generateAndRemovePolicies(rolePermissions, organization, user);
-                List<UserRole> finalUserRoles = updatedPermissionsOrg.getUserRoles();
-                // The user exists. Remove the user from the organization :
-                finalUserRoles.remove(role);
-                updatedPermissionsOrg.setUserRoles(finalUserRoles);
-
-                /**
-                 * TODO : Update the underlying application/page/action
-                 */
-
-                return repository.save(updatedPermissionsOrg);
-            }
-        }
-
-        // The user was not found in the list of user roles in the organization. Throw the appropriate error.
-        return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getId()));
     }
 
     @Override
