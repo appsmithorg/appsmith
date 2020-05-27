@@ -23,5 +23,14 @@
   "marketPlaceapi": ".t--eachProviderCard p",
   "addPageButton": ".t--addToPageBtn",
   "apidocumentaionLink": ".linkStyles",
-  "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[1]"
+  "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[1]",
+  "paginationTab": "li:contains('Pagination')",
+  "apiInputTab": "li:contains('API Input')",
+  "paginationOption": ".t--apiFormPaginationType div>input",
+  "paginationWithTable": "//div[contains(@id,'react') and contains(text(),'Paginate with Table Page No')] ",
+  "paginationWithUrl": "//div[contains(@id,'react') and contains(text(),'Paginate with Response Url')]",
+  "panigationNextUrl": ".t--apiFormPaginationNext div>textarea",
+  "panigationPrevUrl": ".t--apiFormPaginationPrev div>textarea",
+  "TestNextUrl": ".t--apiFormPaginationNextTest",
+  "TestPreUrl": ".t--apiFormPaginationPrevTest"
 }

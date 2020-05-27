@@ -1,9 +1,10 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 
 describe("Input Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
   it("Input Widget Functionality", function() {
@@ -14,29 +15,26 @@ describe("Input Widget Functionality", function() {
      * @param{InputPre Css} Assertion
      */
     cy.widgetText("day", widgetsPage.inputWidget, widgetsPage.inputval);
-    /**
-     * @param{Text} Random Value
-     */
-    cy.testCodeMirror(this.data.inputdata);
-    cy.get(widgetsPage.label)
-      .first()
-      .trigger(this.data.Hover, { force: true })
-      .should("have.text", "one");
     cy.get(widgetsPage.datatype)
       .find(commonlocators.dropdownbuttonclick)
       .click({ force: true })
       .get(commonlocators.dropdownmenu)
       .children()
-      .contains("Number")
+      .contains("Text")
       .click();
     cy.get(widgetsPage.innertext)
       .click({ force: true })
-      .type(this.data.para)
-      .should("be.empty");
+      .type(this.data.para);
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "value")
+      .should("contain", this.data.para);
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput)
       .type(this.data.command)
-      .type("hello");
+      .type(this.data.defaultdata);
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "value")
+      .should("contain", this.data.defaultdata);
     cy.get(widgetsPage.placeholder)
       .type(this.data.command)
       .type(this.data.placeholder);
@@ -45,7 +43,7 @@ describe("Input Widget Functionality", function() {
      */
     cy.get(widgetsPage.innertext)
       .invoke("attr", "placeholder")
-      .should("contain", "check");
+      .should("contain", this.data.placeholder);
     cy.get(widgetsPage.Regex)
       .click()
       .type(this.data.regex);
@@ -53,12 +51,46 @@ describe("Input Widget Functionality", function() {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert(commonlocators.optionchangetextInput);
-    cy.get(widgetsPage.inputButtonPos)
-      .eq(0)
-      .click({ force: true });
+    cy.PublishtheApp();
   });
-
-  afterEach(() => {
-    // put your clean up code if any
+  it("Input Widget Functionality To Validate Default Text and Placeholder", function() {
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "value")
+      .should("contain", this.data.defaultdata);
+    cy.get(publish.inputWidget + " " + "input")
+      .invoke("attr", "placeholder")
+      .should("contain", this.data.placeholder);
+    cy.get(publish.backToEditor).click();
   });
+  it("Input Widget Functionality To Check Disabled Widget", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebar(commonlocators.Disablejs + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input").should("be.disabled");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Input Widget Functionality To Check Enabled Widget", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input").should("be.enabled");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Input Functionality To Unchecked Visible Widget", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Input Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.inputWidget + " " + "input").should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });

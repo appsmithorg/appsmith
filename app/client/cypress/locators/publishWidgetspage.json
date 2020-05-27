@@ -1,0 +1,9 @@
+{
+    "inputWidget":".t--widget-inputwidget",
+    "backToEditor":".bp3-icon.bp3-icon-chevron-left",
+    "checkboxWidget":".t--widget-checkboxwidget",
+    "radioWidget":".t--widget-radiogroupwidget",
+    "formWidget":".t--widget-formwidget",
+    "imageWidget":".t--widget-imagewidget",
+    "tabWidget":".t--widget-tabswidget"
+}
