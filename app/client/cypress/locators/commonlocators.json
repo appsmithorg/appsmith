@@ -1,5 +1,6 @@
 {
     "editIcon": ".t--widget-propertypane-toggle",
+    "helpIcon": ".t--widget-help-control",
     "editPropCrossButton": ".t--property-pane-close-btn",
     "deleteWidgetIcon": ".t--widget-delete-control",
     "dropdownSelectButton": ".t--open-dropdown-Select-Action",

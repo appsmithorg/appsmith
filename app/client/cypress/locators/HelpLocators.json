@@ -1,0 +1,10 @@
+{
+    "HelpButton":"t--helpGlobalButton",
+    "DocSearchResult": "t--docHit",
+    "DocSearchResultTitle": "t--docHitTitle",
+    "DocSearchResultDesc": "t--docHitDesc",
+    "DocSearchResultOpenLink": "t--docOpenLink",
+    "DocSearchModal": "t--docSearchModal",
+    "DocMinimise": "t--docsMinimize",
+    "DocSearch": "ais-SearchBox-input"
+}

@@ -4,7 +4,6 @@ import {
   HOTJAR_PROD_HJSV,
 } from "constants/ThirdPartyConstants";
 import { AppsmithUIConfigs } from "./types";
-import { FeatureFlagEnum } from "utils/featureFlags";
 
 export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
   sentry: {
@@ -25,11 +24,17 @@ export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
   apiUrl: "/api/",
   baseUrl,
   logLevel: "error",
-  featureFlags: [
-    FeatureFlagEnum.ApiPaneV2,
-    FeatureFlagEnum.DatasourcePane,
-    FeatureFlagEnum.QueryPane,
-  ],
+  featureFlag: {
+    remoteConfig: {
+      optimizely: "Jq3K2kVdvuvxecHyHbVYcj",
+    },
+    default: {
+      documentationv2: true,
+      apipanev2: true,
+      datasourcepane: true,
+      querypane: true,
+    },
+  },
 });
 
 export default prodConfig;

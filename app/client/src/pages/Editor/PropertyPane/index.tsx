@@ -14,7 +14,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { Divider } from "@blueprintjs/core";
+import { Divider, Icon, Tooltip, Position } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
@@ -28,6 +28,7 @@ import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import { BindingText } from "pages/Editor/APIEditor/Form";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -44,6 +45,11 @@ const PropertyPaneWrapper = styled.div`
   width: 100%;
 `;
 
+const StyledToolTip = styled(Tooltip)`
+  position: absolute;
+  top: 0;
+  right: 35px;
+`;
 class PropertyPane extends Component<
   PropertyPaneProps & PropertyPaneFunctions
 > {
@@ -79,6 +85,27 @@ class PropertyPane extends Component<
           title={widgetProperties.widgetName}
           widgetId={this.props.widgetId}
         />
+        <StyledToolTip
+          content={
+            <div>
+              <span>You can connect data from your API by adding </span>
+              <BindingText>{`{{apiName.data}}`}</BindingText>
+              <span> to a widget property</span>
+            </div>
+          }
+          position={Position.TOP}
+          hoverOpenDelay={200}
+        >
+          <Icon
+            style={{
+              // position: "absolute",
+              // right: 35,
+              padding: 7,
+            }}
+            color={theme.colors.paneSectionLabel}
+            icon="help"
+          />
+        </StyledToolTip>
 
         <CloseButton
           onClick={(e: any) => {
