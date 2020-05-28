@@ -133,3 +133,5 @@ export const AUTOFIT_COLUMN = "Autofit column";
 
 export const TIMEZONE = "Timezone";
 export const ENABLE_TIME = "Enable Time";
+
+export const BACK_TO_EDITOR = "Back to Editor";

@@ -10,9 +10,9 @@ import {
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
-import ReactJson from "react-json-view";
 import styled, { createGlobalStyle } from "styled-components";
-import { Popover } from "@blueprintjs/core";
+import { Popover, Icon } from "@blueprintjs/core";
+import { components, MenuListComponentProps } from "react-select";
 import history from "utils/history";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
@@ -29,6 +29,8 @@ import { RestAction } from "api/ActionAPI";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
+import { Colors } from "constants/Colors";
+import JSONViewer from "./JSONViewer";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -178,6 +180,26 @@ const StyledGridComponent = styled(GridComponent)`
   }
 `;
 
+const ErrorMessage = styled.p`
+  font-size: 14px;
+  color: ${Colors.RED};
+`;
+const CreateDatasource = styled.div`
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-top: 1px solid ${Colors.ATHENS_GRAY};
+  :hover {
+    cursor: pointer;
+  }
+
+  .createIcon {
+    margin-right: 6px;
+  }
+`;
+
 type QueryFormProps = {
   isCreating: boolean;
   onDeleteClick: () => void;
@@ -194,6 +216,7 @@ type QueryFormProps = {
   executedQueryData: any;
   applicationId: string;
   selectedPluginPackage: string;
+  runErrorMessage: string | undefined;
   pageId: string;
   location: {
     state: any;
@@ -223,6 +246,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     selectedPluginPackage,
     createTemplate,
     isCreating,
+    runErrorMessage,
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
@@ -251,6 +275,23 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       </LoadingContainer>
     );
   }
+
+  const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
+    return (
+      <>
+        <components.MenuList {...props}>{props.children}</components.MenuList>
+        <CreateDatasource
+          onClick={() => {
+            history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+          }}
+        >
+          <Icon icon="plus" iconSize={11} className="createIcon" />
+          Create new datasource
+        </CreateDatasource>
+      </>
+    );
+  };
+
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
@@ -268,6 +309,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               options={DATASOURCES_OPTIONS}
               width={200}
               maxMenuHeight={200}
+              components={{ MenuList }}
             />
           </DropdownSelect>
           <ActionButtons>
@@ -284,8 +326,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 <Popover
                   autoFocus={true}
                   canEscapeKeyClose={true}
-                  content="You don’t have a Data Source to run this query
-                "
+                  content="You don’t have a Data Source to run this query"
                   position="bottom"
                   defaultIsOpen={false}
                   usePortal
@@ -411,6 +452,13 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </NoDataSourceContainer>
       )}
 
+      {runErrorMessage && (
+        <>
+          <p className="statementTextArea">Query error</p>
+          <ErrorMessage>{runErrorMessage}</ErrorMessage>
+        </>
+      )}
+
       {executedQueryData && dataSources.length && (
         <ResponseContainer>
           <p className="statementTextArea">Query response</p>
@@ -435,16 +483,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 </ColumnsDirective>
               </StyledGridComponent>
             ) : (
-              <ReactJson
-                src={executedQueryData.body}
-                name={null}
-                enableClipboard={false}
-                displayObjectSize={false}
-                displayDataTypes={false}
-                style={{
-                  fontSize: "14px",
-                }}
-              />
+              <JSONViewer src={executedQueryData.body} />
             )}
           </ResponseContent>
         </ResponseContainer>

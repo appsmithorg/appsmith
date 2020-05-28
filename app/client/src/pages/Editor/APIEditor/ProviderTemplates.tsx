@@ -27,32 +27,13 @@ import {
   fetchProviderTemplates,
   addApiToPage,
 } from "actions/providerActions";
-import { Colors } from "constants/Colors";
 import { getDuplicateName } from "utils/AppsmithUtils";
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
-import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const TEMPLATES_TOP_SECTION_HEIGHT = "125px";
-
-const SearchContainer = styled.div`
-  display: flex;
-  width: 40%;
-  .closeBtn {
-    position: absolute;
-    left: 70%;
-  }
-`;
-
-const SearchBar = styled(BaseTextInput)`
-  margin-bottom: 10px;
-  input {
-    background-color: ${Colors.WHITE};
-    1px solid ${Colors.GEYSER};
-  }
-`;
+const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
 const ProviderInfo = styled.div`
   display: flex;
@@ -190,6 +171,11 @@ const URLContainer = styled.div`
     line-height: 24px;
     padding-top: 10px !important;
     padding-left: 11px;
+    display: flex;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 98%;
   }
   .endpoint {
     padding-left: 11px;
@@ -306,7 +292,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     return (
       <TemplateDetailPage>
         <ProviderInfoTopSection>
-          <SearchContainer>
+          {/* <SearchContainer>
             <SearchBar
               icon="search"
               input={{
@@ -314,7 +300,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
               }}
               placeholder="Search"
             />
-          </SearchContainer>
+          </SearchContainer> */}
 
           <Icon
             icon="chevron-left"
@@ -408,7 +394,12 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
                                 .httpMethod
                             }
                           </strong>{" "}
-                          <span className="endpoint">
+                          <span
+                            className="endpoint"
+                            title={
+                              template.templateData.actionConfiguration.path
+                            }
+                          >
                             {template.templateData.actionConfiguration.path}
                           </span>
                         </p>

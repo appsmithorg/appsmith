@@ -68,6 +68,7 @@ class DatePickerComponent extends React.Component<
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
+      this.props.selectedDate !== this.state.selectedDate &&
       !moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
@@ -145,7 +146,7 @@ class DatePickerComponent extends React.Component<
   };
 
   onDateSelected = (selectedDate: Date) => {
-    const date = moment(selectedDate).toISOString(true);
+    const date = selectedDate ? moment(selectedDate).toISOString(true) : "";
     this.setState({ selectedDate: date });
     this.props.onDateSelected(date);
   };
