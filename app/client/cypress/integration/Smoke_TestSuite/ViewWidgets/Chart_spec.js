@@ -1,12 +1,12 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/viewdsl.json");
 
 describe("Chart Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
-
   it("Chart Widget Functionality", function() {
     cy.openPropertyPane("chartwidget");
 
@@ -64,8 +64,37 @@ describe("Chart Widget Functionality", function() {
     //Close edit prop
     cy.get(commonlocators.editPropCrossButton).click();
   });
-
-  afterEach(() => {
-    // put your clean up code if any
+  it("Chart Widget Functionality To Unchecked Visible Widget", function() {
+    cy.openPropertyPane("chartwidget");
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.chartWidget).should("not.be.visible");
+    cy.get(publish.backToEditor).click();
   });
+  it("Chart Widget Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("chartwidget");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.chartWidget).should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
+    cy.openPropertyPane("chartwidget");
+    cy.togglebarDisable(commonlocators.horizontalScroll);
+    cy.PublishtheApp();
+    cy.get(publish.horizontalTab).should("not.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
+    cy.openPropertyPane("chartwidget");
+    cy.togglebar(commonlocators.horizontalScroll);
+    cy.PublishtheApp();
+    cy.get(publish.horizontalTab)
+      .eq(1)
+      .should("exist");
+    cy.get(publish.backToEditor).click();
+  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });

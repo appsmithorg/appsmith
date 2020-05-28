@@ -14,7 +14,7 @@
     "optionvalue": ".t--property-control-defaultselectedvalue .kDwnRc",
     "defselected": ".CodeMirror textarea",
     "dropdowninner": ".bp3-button > .bp3-button-text",
-    "Textinput": ".t--property-control-options .CodeMirror textarea",
+    "Textinput": ".t--property-control-options .CodeMirror-code",
     "labelvalue": ".t--draggable-dropdownwidget label",
     "dropdownInput": ".bp3-tag-input-values",
     "labelradio": ".t--draggable-radiogroupwidget label",
