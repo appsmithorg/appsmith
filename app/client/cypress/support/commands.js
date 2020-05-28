@@ -683,9 +683,9 @@ Cypress.Commands.add("dropdownDynamic", text => {
 Cypress.Commands.add("getAlert", alertcss => {
   cy.get(commonlocators.dropdownSelectButton).click({ force: true });
   cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
+    .contains("Show Message")
     .click({ force: true })
-    .should("have.text", "Show Alert");
+    .should("have.text", "Show Message");
 
   cy.get(alertcss)
     .click({ force: true })
