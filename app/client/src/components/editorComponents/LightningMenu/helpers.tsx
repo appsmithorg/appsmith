@@ -27,7 +27,7 @@ import {
 } from "constants/messages";
 
 export const getApiOptions = (
-  themeType: string,
+  skin: string,
   apis: RestAction[],
   pageId: string,
   createNewApiAction: (pageId: string) => void,
@@ -43,7 +43,7 @@ export const getApiOptions = (
               text={LIGHTNING_MENU_API_CREATE_NEW}
               icon="plus"
               iconAlignment="left"
-              themeType={themeType}
+              skin={skin}
               type="button"
             />
           ),
@@ -67,11 +67,11 @@ export const getApiOptions = (
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: themeType,
+  skin: skin,
 });
 
 export const getQueryOptions = (
-  themeType: string,
+  skin: string,
   queries: RestAction[],
   pageId: string,
   applicationId: string,
@@ -91,7 +91,7 @@ export const getQueryOptions = (
               text={LIGHTNING_MENU_QUERY_CREATE_NEW}
               icon="plus"
               iconAlignment="left"
-              themeType={themeType}
+              skin={skin}
               type="button"
             />
           ),
@@ -144,11 +144,11 @@ export const getQueryOptions = (
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: themeType,
+  skin: skin,
 });
 
 export const getWidgetOptions = (
-  themeType: string,
+  skin: string,
   widgets: WidgetProps[],
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
@@ -169,7 +169,7 @@ export const getWidgetOptions = (
   },
   openDirection: Directions.RIGHT,
   openOnHover: false,
-  themeType: themeType,
+  skin: skin,
 });
 
 export const getLightningMenuOptions = (
@@ -183,7 +183,7 @@ export const getLightningMenuOptions = (
   dataSources: Datasource[],
   createNewApiAction: (pageId: string) => void,
   createAction: (data: Partial<RestAction>) => void,
-  themeType: string,
+  skin: string,
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => {
   const options: CustomizedDropdownOption[] = [
@@ -199,7 +199,7 @@ export const getLightningMenuOptions = (
       content: (
         <CustomizedDropdown
           {...getApiOptions(
-            themeType,
+            skin,
             apis,
             pageId,
             createNewApiAction,
@@ -214,7 +214,7 @@ export const getLightningMenuOptions = (
       content: (
         <CustomizedDropdown
           {...getQueryOptions(
-            themeType,
+            skin,
             queries,
             pageId,
             applicationId,
@@ -234,7 +234,7 @@ export const getLightningMenuOptions = (
     options.push({
       content: (
         <CustomizedDropdown
-          {...getWidgetOptions(themeType, widgets, updatePropertyValue)}
+          {...getWidgetOptions(skin, widgets, updatePropertyValue)}
         />
       ),
       disabled: false,
