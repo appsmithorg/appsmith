@@ -7,6 +7,17 @@ const autoConfig = (baseUrl: string): AppsmithUIConfigs => ({
     enabled: false,
     key: "NZALSCjsaxOIyprzITLz2yZwFzQynGt1",
   },
+  featureFlag: {
+    // remoteConfig: {
+    //   optimizely: "PVDSYRhBhvUVY3tN6mkV1s",
+    // },
+    default: {
+      documentationv2: true,
+      apipanev2: true,
+      datasourcepane: true,
+      querypane: true,
+    },
+  },
 });
 
 export default autoConfig;
