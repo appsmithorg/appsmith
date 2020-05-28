@@ -21,7 +21,10 @@ import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { createNewApiAction } from "actions/apiPaneActions";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
@@ -168,7 +171,6 @@ type TextViewProps = ViewProps & {
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
-    console.log(props.label, props.level, props.levelSeparator, props.value);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
@@ -224,7 +226,6 @@ const views = {
     );
   },
   [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
-    // console.log(props.label, props.level, props.levelSeparator, props.value);
     return (
       <ControlWrapper key={props.label}>
         <KeyValueComponent
@@ -236,7 +237,6 @@ const views = {
     );
   },
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
-    console.log(props.label, props.level, props.levelSeparator, props.value);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
@@ -426,11 +426,11 @@ const baseOptions: any = [
     value: ActionType.none,
   },
   {
-    label: "Call API",
+    label: "Call An API",
     value: ActionType.api,
   },
   {
-    label: "Execute Query",
+    label: "Execute a DB Query",
     value: ActionType.query,
   },
   {
@@ -662,9 +662,10 @@ function Fields(props: {
         let getDefaults = undefined;
         if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
           label = props.label || "";
-          if (props.label === "onSuccess" || props.label === "onError") {
-            displayValue = field.value;
-          }
+          displayValue =
+            field.value !== "{{undefined}}" && field.value !== "{{()}}"
+              ? field.value
+              : undefined;
           selectedLabelModifier = (
             option: TreeDropdownOption,
             displayValue?: string,
@@ -720,7 +721,7 @@ function Fields(props: {
           defaultText: defaultText,
           getDefaults: getDefaults,
           selectedLabelModifier: selectedLabelModifier,
-          displayValue: displayValue,
+          displayValue: displayValue ? displayValue : "",
           level: field.level,
           levelSeparator: field.levelSeparator,
         });
@@ -860,7 +861,7 @@ function useQueryOptionTree() {
           value: `${queryName}`,
           type: ActionType.query,
         });
-        // dispatch(createNewQueryAction(pageId));
+        dispatch(createNewQueryAction(pageId));
       }
     },
   });

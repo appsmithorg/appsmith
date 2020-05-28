@@ -309,7 +309,7 @@ export const TreeStructureHorizontalWrapper = styled.div<{
   width: calc(100% - ${props => (props.level - 1) * 18 + 9}px);
   height: 2px;
   background: #a2a6a8;
-  top: ${props => (props.label ? "66.66%" : "50%")};
+  top: ${props => (props.label ? "65%" : "50%")};
   left: ${props => (props.level - 1) * 18 + 9}px;
   z-index: -1;
 `;
@@ -322,7 +322,7 @@ export const TreeStructureVerticalWrapper = styled.div<{
   height: 100%;
   width: 2px;
   background: #a2a6a8;
-  top: ${props => (props.label ? "-33.33%" : "-50%")};
+  top: ${props => (props.label ? "-35%" : "-50%")};
   left: ${props => (props.level - 1) * 18 + 9}px;
   z-index: -1;
 `;
