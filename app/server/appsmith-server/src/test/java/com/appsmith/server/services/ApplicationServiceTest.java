@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
@@ -50,6 +51,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
 
     String orgId;
 
@@ -285,6 +289,34 @@ public class ApplicationServiceTest {
 
                     Application application = orgAppDto.getApplications().get(0);
                     assertThat(application.getUserPermissions()).contains("read:applications");
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void getAllApplicationsForHomeWhenNoApplicationPresent() {
+        // Create an organization for this user first.
+        Organization organization = new Organization();
+        organization.setName("usertest's organization");
+        Mono<Organization> organizationMono = organizationService.create(organization);
+
+        Mono<UserHomepageDTO> allApplications = organizationMono
+                .then(applicationService.getAllApplications());
+
+        StepVerifier
+                .create(allApplications)
+                .assertNext(userHomepageDTO -> {
+                    assertThat(userHomepageDTO).isNotNull();
+                    //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
+
+                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+
+                    // There should be atleast one organization present in the output.
+                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
                 })
                 .verifyComplete();
 

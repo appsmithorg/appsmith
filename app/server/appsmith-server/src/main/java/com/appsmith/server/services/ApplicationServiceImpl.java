@@ -8,8 +8,8 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -205,16 +205,20 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                 Map<String, Collection<Application>> applicationsCollectionByOrgId = tuple.getT1();
                                 Map<String, Organization> organizationsMap = tuple.getT2();
 
-                                Iterator<Map.Entry<String, Collection<Application>>> itr =
-                                        applicationsCollectionByOrgId.entrySet().iterator();
-
                                 List<OrganizationApplicationsDTO> organizationApplicationsDTOS = new ArrayList<>();
-                                while (itr.hasNext()) {
-                                    Map.Entry<String, Collection<Application>> next = itr.next();
-                                    String orgId = next.getKey();
-                                    Collection<Application> applicationCollection = next.getValue();
-                                    List<Application> applicationList = applicationCollection.stream().collect(Collectors.toList());
-                                    Organization organization = organizationsMap.get(orgId);
+
+                                Iterator<Map.Entry<String, Organization>> orgIterator = organizationsMap.entrySet().iterator();
+
+                                while (orgIterator.hasNext()) {
+                                    Map.Entry<String, Organization> organizationEntry = orgIterator.next();
+                                    String orgId = organizationEntry.getKey();
+                                    Organization organization = organizationEntry.getValue();
+                                    Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(orgId);
+
+                                    List<Application> applicationList = null;
+                                    if (applicationCollection!=null && !applicationCollection.isEmpty()) {
+                                        applicationList = applicationCollection.stream().collect(Collectors.toList());
+                                    }
 
                                     OrganizationApplicationsDTO organizationApplicationsDTO = new OrganizationApplicationsDTO();
                                     organizationApplicationsDTO.setOrganization(organization);
