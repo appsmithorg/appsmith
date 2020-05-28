@@ -34,5 +34,6 @@
     "inputButtonPos": ".t--draggable-inputwidget button",
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
-    "textInputval": ".t--draggable-textwidget pre"
+    "textInputval": ".t--draggable-textwidget pre",
+    "textAlign": ".t--property-control-textalign"
 }

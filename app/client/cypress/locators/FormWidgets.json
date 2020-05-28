@@ -6,6 +6,7 @@
     "radioOnSelectionChangeDropdown": ".t--property-control-onselectionchange",
     "nextDayBtn": ".DayPicker-Day[aria-selected='true'] + div.DayPicker-Day",
     "datepickerWidget": ".t--draggable-datepickerwidget",
+    "defaultDate": ".t--property-control-defaultdate input",
     "filepickerWidget": ".t--draggable-filepickerwidget",
     "formWidget": ".t--draggable-formwidget",
     "richTextEditorWidget": ".t--draggable-richtexteditorwidget",
@@ -23,5 +24,7 @@
     "formInner": ".t--draggable-formwidget pre",
     "radioInput": ".t--draggable-radiogroupwidget pre",
     "radioAddButton": ".t--property-control-options button",
-    "formD": "div[type='FORM_WIDGET']"
+    "formD": "div[type='FORM_WIDGET']",
+    "datepickerFooter": ".bp3-datepicker-footer span",
+    "disableJs":".t--property-control-disable input[type='checkbox']"
   }
