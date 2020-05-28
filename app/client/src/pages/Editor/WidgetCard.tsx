@@ -92,7 +92,7 @@ const WidgetCard = (props: CardProps) => {
   });
 
   const iconType: string = props.details.type;
-  const Icon = WidgetIcons[iconType]();
+  const Icon = WidgetIcons[iconType];
   const className = `t--widget-card-draggable-${props.details.type
     .split("_")
     .join("")
@@ -102,7 +102,7 @@ const WidgetCard = (props: CardProps) => {
       <DragPreviewImage connect={preview} src={blankImage} />
       <Wrapper ref={drag} className={className}>
         <div>
-          {Icon}
+          <Icon />
           <IconLabel>{props.details.widgetCardName}</IconLabel>
         </div>
       </Wrapper>
