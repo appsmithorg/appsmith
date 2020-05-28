@@ -35,5 +35,6 @@
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
     "textInputval": ".t--draggable-textwidget pre",
-    "textAlign": ".t--property-control-textalign"
+    "textAlign": ".t--property-control-textalign",
+    "ColumnAction": ".t--property-control-rowbutton button"
 }
