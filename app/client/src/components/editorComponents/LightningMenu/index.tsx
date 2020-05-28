@@ -24,7 +24,7 @@ const lightningMenuOptions = (
   widgets: WidgetProps[],
   pageId: string,
   dispatch: Function,
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
 ): CustomizedDropdownProps => {
   const options = getLightningMenuOptions(
@@ -34,7 +34,7 @@ const lightningMenuOptions = (
     pageId,
     dispatch,
     skin,
-    updatePropertyValue,
+    updateDynamicInputValue,
   );
   return {
     sections: [
@@ -57,7 +57,7 @@ const lightningMenuOptions = (
 
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
-  updatePropertyValue: (value: string, cursor?: number) => void;
+  updateDynamicInputValue: (value: string, cursor?: number) => void;
   skin: string;
   theme: Theme;
 };
@@ -84,7 +84,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
         widgets,
         pageId,
         dispatch,
-        props.updatePropertyValue,
+        props.updateDynamicInputValue,
         lightningMenuTrigger,
       )}
     />

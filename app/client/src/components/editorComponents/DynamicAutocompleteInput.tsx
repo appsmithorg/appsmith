@@ -334,7 +334,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   componentDidMount(): void {
     if (this.textArea.current) {
       const options: EditorConfiguration = {};
-      //use this for lightning menu theme
       if (this.props.theme === "DARK") options.theme = "monokai";
       if (!this.props.input.onChange || this.props.disabled) {
         options.readOnly = true;
@@ -579,11 +578,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     return (
       <DynamicAutocompleteInputWrapper>
-        {(showLightningMenu === undefined || showLightningMenu === true) && (
+        {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
               skin={this.props.theme === "DARK" ? "dark" : "light"}
-              updatePropertyValue={this.updatePropertyValue}
+              updateDynamicInputValue={this.updatePropertyValue}
             />
           </Suspense>
         )}
