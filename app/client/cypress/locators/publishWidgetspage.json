@@ -1,6 +1,10 @@
 {
+    "buttonWidget": ".t--widget-buttonwidget",
+    "textWidget": ".t--widget-textwidget",
+    "richTextEditorWidget": ".t--widget-richtexteditorwidget",
+    "datepickerWidget": ".t--widget-datepickerwidget",
+    "backToEditor": ".bp3-icon.bp3-icon-chevron-left",
     "inputWidget":".t--widget-inputwidget",
-    "backToEditor":".bp3-icon.bp3-icon-chevron-left",
     "checkboxWidget":".t--widget-checkboxwidget",
     "radioWidget":".t--widget-radiogroupwidget",
     "formWidget":".t--widget-formwidget",
