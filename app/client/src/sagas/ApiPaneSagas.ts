@@ -16,6 +16,7 @@ import {
   POST_BODY_FORMAT_OPTIONS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -206,7 +207,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     const headers = data.actionConfiguration.headers;
     if (headers) {
       contentType = headers.find(
-        (header: any) => header.key === "content-type",
+        (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
       );
     }
 
@@ -335,7 +336,7 @@ function* updateFormFields(
 
       if (actionConfigurationHeaders) {
         contentType = actionConfigurationHeaders.find(
-          (header: any) => header.key === "content-type",
+          (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
         );
       }
 
@@ -344,7 +345,7 @@ function* updateFormFields(
           change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", [
             ...actionConfigurationHeaders,
             {
-              key: "content-type",
+              key: CONTENT_TYPE,
               value: POST_BODY_FORMAT_OPTIONS[0].value,
             },
           ]),
@@ -362,7 +363,7 @@ function* updateFormFields(
 
     if (actionConfigurationHeaders) {
       const contentType = actionConfigurationHeaders.find(
-        (header: any) => header.key === "content-type",
+        (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
       );
 
       if (contentType && POST_BODY_FORMATS.includes(contentType.value)) {

@@ -21,66 +21,40 @@ let appId;
 // Import commands.js using ES2015 syntax:
 import "./commands";
 before(function() {
-  cy.server();
-  cy.route("GET", "/api/v1/applications").as("applications");
-  cy.route("GET", "/api/v1/users/profile").as("getUser");
-  cy.route("GET", "/api/v1/plugins").as("getPlugins");
-
-  cy.route("GET", "/api/v1/configs/name/propertyPane").as("getPropertyPane");
-  cy.route("GET", "/api/v1/datasources").as("getDataSources");
-  cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
-  cy.route("GET", "/api/v1/pages/*").as("getPage");
-  cy.route("GET", "/api/v1/actions*").as("getActions");
-
-  cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
-  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
-
-  cy.route("GET", "/api/v1/organizations").as("organizations");
-  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
-  cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
-  cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
-
-  cy.route("POST", "/api/v1/actions").as("createNewApi");
-  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
-  cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
-    "get3PProviders",
-  );
-  cy.route("GET", "/api/v1/marketplace/templates?providerId=*").as(
-    "get3PProviderTemplates",
-  );
-  cy.route("POST", "/api/v1/items/addToPage").as("add3PApiToPage");
-
-  cy.route("GET", "/api/v1/plugins/*/form").as("getPluginForm");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
-  cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
-  cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
-
-  cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
-
+  console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
+  cy.viewport("macbook-15");
+  cy.startServerAndRoutes();
   cy.LogintoApp(loginData.username, loginData.password);
+  // cy.SearchApp(inputData.appname)
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
+    localStorage.setItem("AppName", appId);
   });
+
   cy.generateUUID().then(uid => {
     pageid = uid;
     cy.Createpage(pageid);
     cy.NavigateToWidgets(pageid);
+    localStorage.setItem("PageName", pageid);
   });
 
-  beforeEach(function() {
-    Cypress.Cookies.preserveOnce("session_id", "remember_token");
+  cy.fixture("example").then(function(data) {
+    this.data = data;
   });
+});
 
-  after(function() {
-    // ---commenting Publish app and Delete page as of now--- //
-    //cy.Deletepage(pageid);
-    //cy.PublishtheApp();
-    cy.DeleteApp(appId);
-  });
+beforeEach(function() {
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  cy.startServerAndRoutes();
+});
+
+after(function() {
+  // ---commenting Publish app and Delete page as of now--- //
+  //cy.Deletepage(pageid);
+  //cy.PublishtheApp();
+  //-- Deleting the application by Api---//
+  cy.DeleteAppByApi();
+  //-- LogOut Application---//
+  cy.LogOut();
 });

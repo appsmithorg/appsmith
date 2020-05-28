@@ -10,7 +10,6 @@ import {
   getCurlImportPageURL,
   getProviderTemplatesURL,
 } from "constants/routes";
-import { RestAction } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getImportedCollections } from "selectors/applicationSelectors";

@@ -1,11 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector, change, Field } from "redux-form";
+import { formValueSelector, change } from "redux-form";
 import Select from "react-select";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMATS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -61,6 +62,7 @@ const PostBodyData = (props: Props) => {
       <FormLabel>{"Post Body"}</FormLabel>
       <DropDownContainer>
         <Select
+          className={"t--apiFormPostBodyType"}
           defaultValue={POST_BODY_FORMAT_OPTIONS[0]}
           placeholder="Format"
           isSearchable={false}
@@ -79,7 +81,7 @@ const PostBodyData = (props: Props) => {
 
             const elementsIndex = actionConfigurationHeaders.findIndex(
               (element: { key: string; value: string }) =>
-                element.key === "content-type",
+                element.key.toLowerCase() === CONTENT_TYPE,
             );
 
             if (elementsIndex >= 0 && displayFormatObject) {
@@ -106,7 +108,7 @@ const PostBodyData = (props: Props) => {
 
       {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[0].value && (
         <React.Fragment>
-          <JSONEditorFieldWrapper>
+          <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
             <DynamicTextField
               name="actionConfiguration.body[0]"
               height={300}
@@ -166,7 +168,9 @@ export default connect((state: AppState) => {
   const headers = selector(state, "actionConfiguration.headers");
   let contentType;
   if (headers) {
-    contentType = headers.find((header: any) => header.key === "content-type");
+    contentType = headers.find(
+      (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
+    );
   }
 
   return {

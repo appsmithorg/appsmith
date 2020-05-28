@@ -61,6 +61,7 @@ export default function Pagination(props: PaginationProps) {
         <DropdownField
           placeholder="Method"
           name="actionConfiguration.paginationType"
+          className="t--apiFormPaginationType"
           width={223}
           options={[
             {
@@ -86,8 +87,13 @@ export default function Pagination(props: PaginationProps) {
       >
         <StyledLabel>Previous url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField name="actionConfiguration.prev" singleLine />
+          <StyledDynamicTextField
+            className="t--apiFormPaginationPrev"
+            name="actionConfiguration.prev"
+            singleLine
+          />
           <TestButton
+            className="t--apiFormPaginationPrevTest"
             accent="secondary"
             onClick={() => {
               props.onTestClick("PREV");
@@ -98,8 +104,13 @@ export default function Pagination(props: PaginationProps) {
         </PaginationFieldWrapper>
         <StyledLabel>Next url</StyledLabel>
         <PaginationFieldWrapper>
-          <StyledDynamicTextField name="actionConfiguration.next" singleLine />
+          <StyledDynamicTextField
+            className="t--apiFormPaginationNext"
+            name="actionConfiguration.next"
+            singleLine
+          />
           <TestButton
+            className="t--apiFormPaginationNextTest"
             accent="secondary"
             onClick={() => {
               props.onTestClick("NEXT");

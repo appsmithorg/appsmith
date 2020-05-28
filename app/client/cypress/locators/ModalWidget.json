@@ -1,7 +1,9 @@
 {
-    "selectModal":".t--open-dropdown-Select-Modal",
-    "createModalButton":".t--create-modal-btn",
+    "selectModal": ".t--open-dropdown-Select-Modal",
+    "createModalButton": ".t--create-modal-btn",
     "controlModalType": ".t--property-control-modaltype",
-    "modalWidget":".t--modal-widget"
+    "modalWidget": ".t--modal-widget",
+    "modalName": ".t--modal-widget >div>pre",
+    "modelTextField": ".t--modal-widget  .t--widget-textwidget"
 
 }

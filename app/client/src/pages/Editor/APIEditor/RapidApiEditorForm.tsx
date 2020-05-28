@@ -19,7 +19,6 @@ import {
 } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -86,11 +85,6 @@ const ActionButton = styled(BaseButton)`
     margin: 0 5px;
     min-height: 30px;
   }
-`;
-
-const DropDownContainer = styled.div`
-  margin: 5px;
-  margin-bottom: 21px;
 `;
 
 const PostbodyContainer = styled.div`

@@ -40,6 +40,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         key={this.props.widgetId}
         textStyle={this.props.textStyle}
         text={this.props.text}
+        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
         isLoading={this.props.isLoading}
         shouldScroll={this.props.shouldScroll}
         // lines={lines}
@@ -53,11 +54,13 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 }
 
 export type TextStyle = "BODY" | "HEADING" | "LABEL" | "SUB_TEXT";
+export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 export interface TextWidgetProps extends WidgetProps {
   text?: string;
   textStyle: TextStyle;
   isLoading: boolean;
+  textAlign: TextAlign;
   shouldScroll: boolean;
 }
 

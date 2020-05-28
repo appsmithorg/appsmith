@@ -40,7 +40,6 @@ import { changeQuery, deleteQuerySuccess } from "actions/queryPaneActions";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { PageAction } from "constants/ActionConstants";
-import { transformRestAction } from "transformers/RestActionTransformer";
 import { isDynamicValue, getDynamicBindings } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -247,6 +246,7 @@ export function* executeQuerySaga(
       type: ReduxActionErrorTypes.RUN_QUERY_ERROR,
       payload: {
         actionId: actionPayload.payload.actionId,
+        message: error.message,
         show: false,
       },
     });

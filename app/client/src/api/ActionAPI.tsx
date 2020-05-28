@@ -127,6 +127,9 @@ export interface ActionApiResponse {
     body: object;
     headers: Record<string, string[]>;
     statusCode: string;
+    isExecutionSuccess: boolean;
+    requestHeaders: Record<string, string[]>;
+    requestBody: object | null;
   };
   clientMeta: {
     duration: string;
@@ -137,6 +140,8 @@ export interface ActionApiResponse {
 export interface ActionResponse {
   body: object;
   headers: Record<string, string[]>;
+  requestBody: object | null;
+  requestHeaders: Record<string, string[]>;
   statusCode: string;
   duration: string;
   size: string;

@@ -8,6 +8,7 @@
   - |
     if [ "$CI_COMMIT_BRANCH" == "master" ]; then
       REACT_APP_ENVIRONMENT="PRODUCTION"
+      REACT_APP_BASE_URL="https://api.appsmith.com"
     elif [ "$CI_COMMIT_BRANCH" == "release" ]; then
       REACT_APP_ENVIRONMENT="STAGING"
       REACT_APP_BASE_URL="https://release-api.appsmith.com"
@@ -15,7 +16,15 @@
       REACT_APP_ENVIRONMENT="DEVELOPMENT"
       REACT_APP_BASE_URL="https://release-api.appsmith.com"
     fi
-image: cypress/base:10.16.3
+
+.set_automation_env: &set_automation_env
+  - |
+    REACT_APP_ENVIRONMENT="AUTOMATION"
+    REACT_APP_BASE_URL="https://release-api.appsmith.com"
+
+
+# This image contains Nginx & Cypress binaries
+image: appsmith/cypress-nginx
 
 variables:
   npm_config_cache: "$CI_PROJECT_DIR/.npm"
@@ -37,33 +46,74 @@ stages:
   - deploy
 
 react-build-release:
+  image: tarampampam/node:10.16-alpine
   stage: build
   script:
     - *set_env_variables
+    - echo $REACT_APP_ENVIRONMENT
     - yarn install
-    # show where the Cypress test runner binaries are cached
-    - $(npm bin)/cypress cache path
-    # show all installed versions of Cypress binary
-    - $(npm bin)/cypress cache list
-    - $(npm bin)/cypress verify
     - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
   artifacts:
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - build/
   only:
     - release
+
+react-build-automation:
+  image: tarampampam/node:10.16-alpine
+  stage: build
+  script:
+    - *set_automation_env
+    - echo $REACT_APP_ENVIRONMENT
+    - yarn install
+    - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
+    # Copying the build folder so that it doesn't conflict with build images created for docker packaging
+    - mv build/ build-automation/
+  artifacts:
+    expire_in: 6 hours
+    paths:
+      - build-automation/
+  only:
+    - release
     - merge_requests
 
-cypress-test-release:
+unit_test:
+  image: tarampampam/node:10.16-alpine
   stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
   script:
-    - *set_env_variables
-    - yarn global add serve
-    - serve -s build -p 3000 &
+    - *set_automation_env
+    - yarn run test:unit
+  only:
+    - release
+    - merge_requests
+
+# all jobs that actually run tests can use the same definition
+cypress-test:
+  image: appsmith/cypress-nginx
+  stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
+  # Run 6 machines in parallel for this job
+  parallel: 6
+  script:
+    - *set_automation_env
+    # show where the Cypress test runner binaries are cached
+    - $(npm bin)/cypress cache path
+    # show all installed versions of Cypress binary
+    - $(npm bin)/cypress cache list
+    - $(npm bin)/cypress verify    
     # This is required in order to ensure that all the test cases pass
     - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
-    - yarn test
+    - serve -s build-automation -p 3000 &
+    - mkdir -p /var/www/appsmith /etc/certificate
+    - cp ./docker/nginx-linux.conf /etc/nginx/conf.d/app.conf
+    - cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
+    - cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
+    - nginx
+    - yarn test:ci
   artifacts:
     when: always
     expire_in: 1 week
@@ -74,33 +124,6 @@ cypress-test-release:
     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
     - release
     - merge_requests
-
-# cypress-test-fix:
-#   stage: build
-#   script:
-#     - *set_env_variables
-#     - yarn install
-#     # show where the Cypress test runner binaries are cached
-#     - $(npm bin)/cypress cache path
-#     # show all installed versions of Cypress binary
-#     - $(npm bin)/cypress cache list
-#     - $(npm bin)/cypress verify
-#     - curl https://s3.ap-south-1.amazonaws.com/dev.public.appsmith/react-build/build1.tar.gz --output build.tar.gz
-#     - tar xvf build.tar.gz
-#     - yarn global add serve
-#     - serve -s build -p 3000 &
-#     # This is required in order to ensure that all the test cases pass
-#     - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
-#     - yarn test
-#   artifacts:
-#     when: always
-#     expire_in: 1 week
-#     paths:
-#       - cypress/screenshots
-#       - cypress/videos
-#   only:
-#     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
-#     - fix/test-revert
 
 docker-package-release:
   image: docker:dind
@@ -116,6 +139,7 @@ docker-package-release:
     - release
 
 react-build-prod:
+  image: tarampampam/node:10.16-alpine
   stage: build
   script:
     - *set_env_variables
@@ -137,7 +161,9 @@ docker-package-prod:
   script:
     - *set_env_variables
     - docker build -t appsmith/appsmith-editor:latest .
+    - docker build -t appsmith/appsmith-editor:$CI_COMMIT_SHORT_SHA .
     - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
-    - docker push appsmith/appsmith-editor:latest
+    # If we don't add the tag to the `docker push` command, all the tags for this image will be pushed
+    - docker push appsmith/appsmith-editor
   only:
     - master

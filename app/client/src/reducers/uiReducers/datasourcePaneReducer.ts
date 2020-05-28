@@ -2,15 +2,18 @@ import React from "react";
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
+import _ from "lodash";
 
 const initialState: DatasourcePaneReduxState = {
   selectedPlugin: "",
   datasourceRefs: {},
+  drafts: {},
 };
 
 export interface DatasourcePaneReduxState {
   selectedPlugin: string;
   datasourceRefs: {};
+  drafts: Record<string, Datasource>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -42,6 +45,25 @@ const datasourcePaneReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_DATASOURCE_DRAFT]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<{ id: string; draft: Partial<Datasource> }>,
+  ) => {
+    return {
+      ...state,
+      drafts: {
+        ...state.drafts,
+        [action.payload.id]: action.payload.draft,
+      },
+    };
+  },
+  [ReduxActionTypes.DELETE_DATASOURCE_DRAFT]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    drafts: _.omit(state.drafts, action.payload.id),
+  }),
 });
 
 export default datasourcePaneReducer;

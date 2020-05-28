@@ -9,6 +9,7 @@ import {
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
+  CONTENT_TYPE,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import PostBodyData from "./PostBodyData";
@@ -189,6 +190,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
               filled
               onClick={onSaveClick}
               loading={isSaving}
+              className="t--apiFormSaveBtn"
               disabled={!allowSave}
             />
           </ActionButtons>
@@ -197,6 +199,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <DropdownField
             placeholder="Method"
             name="actionConfiguration.httpMethod"
+            className="t--apiFormHttpMethod"
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourceWrapper className="t--dataSourceField">
@@ -207,6 +210,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
           </DatasourceWrapper>
           <DynamicTextField
+            className="t--path"
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}
@@ -284,7 +288,7 @@ export default connect(state => {
   let contentType;
   if (actionConfigurationHeaders) {
     contentType = actionConfigurationHeaders.find(
-      (header: any) => header.key === "content-type",
+      (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
     );
   }
 

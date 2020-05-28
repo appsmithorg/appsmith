@@ -45,6 +45,7 @@ type QueryPageProps = {
   submitForm: (name: string) => void;
   createAction: (values: RestAction) => void;
   runAction: (action: RestAction, actionId: string) => void;
+  runErrorMessage: Record<string, string>;
   deleteAction: (id: string) => void;
   updateAction: (data: RestAction) => void;
   createTemplate: (template: string) => void;
@@ -91,6 +92,7 @@ class QueryEditor extends React.Component<Props> {
       selectedPluginPackage,
       apiPane,
       isCreating,
+      runErrorMessage,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -113,10 +115,6 @@ class QueryEditor extends React.Component<Props> {
       label: dataSource.name,
       value: dataSource.id,
     }));
-    DATASOURCES_OPTIONS.push({
-      label: "Create new Datasource",
-      value: "createNew",
-    });
 
     return (
       <React.Fragment>
@@ -139,6 +137,7 @@ class QueryEditor extends React.Component<Props> {
             DATASOURCES_OPTIONS={DATASOURCES_OPTIONS}
             selectedPluginPackage={selectedPluginPackage}
             executedQueryData={executedQueryData[queryId]}
+            runErrorMessage={runErrorMessage[queryId]}
           />
         ) : (
           <QueryHomeScreen
@@ -156,6 +155,7 @@ class QueryEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): any => {
+  const { runErrorMessage } = state.ui.queryPane;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as RestAction;
   const initialValues = getFormInitialValues(QUERY_EDITOR_FORM_NAME)(
     state,
@@ -167,6 +167,7 @@ const mapStateToProps = (state: AppState): any => {
   );
 
   return {
+    runErrorMessage,
     apiPane: state.ui.apiPane,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDataSources(state),
