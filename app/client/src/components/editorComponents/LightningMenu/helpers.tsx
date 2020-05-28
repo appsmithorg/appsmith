@@ -6,15 +6,10 @@ import CustomizedDropdown, {
   CustomizedDropdownOption,
 } from "pages/common/CustomizedDropdown";
 import Button from "components/editorComponents/Button";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { Datasource } from "api/DatasourcesApi";
-import history from "utils/history";
 import {
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  DATA_SOURCES_EDITOR_URL,
-} from "constants/routes";
-
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
 import {
   LIGHTNING_MENU_DATA_API,
   LIGHTNING_MENU_DATA_QUERY,
@@ -30,7 +25,7 @@ export const getApiOptions = (
   skin: string,
   apis: RestAction[],
   pageId: string,
-  createNewApiAction: (pageId: string) => void,
+  dispatch: Function,
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
@@ -48,7 +43,7 @@ export const getApiOptions = (
             />
           ),
           onSelect: () => {
-            createNewApiAction(pageId);
+            dispatch(createNewApiAction(pageId));
           },
         },
       ],
@@ -74,11 +69,7 @@ export const getQueryOptions = (
   skin: string,
   queries: RestAction[],
   pageId: string,
-  applicationId: string,
-  actions: ActionData[],
-  pluginIds: string[],
-  dataSources: Datasource[],
-  createAction: (data: Partial<RestAction>) => void,
+  dispatch: Function,
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
@@ -96,36 +87,7 @@ export const getQueryOptions = (
             />
           ),
           onSelect: () => {
-            const pageApiNames = actions
-              .filter(a => a.config.pageId === pageId)
-              .map(a => a.config.name);
-            const validDataSources: Array<Datasource> = [];
-            dataSources.forEach(dataSource => {
-              if (pluginIds?.includes(dataSource.pluginId)) {
-                validDataSources.push(dataSource);
-              }
-            });
-            if (validDataSources.length) {
-              const newQueryName = getNextEntityName("Query", pageApiNames);
-              const dataSourceId = validDataSources[0].id;
-              createAction({
-                name: newQueryName,
-                pageId,
-                datasource: {
-                  id: dataSourceId,
-                },
-                actionConfiguration: {},
-              });
-              history.push(
-                QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-                  applicationId,
-                  pageId,
-                  pageId,
-                ),
-              );
-            } else {
-              history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
-            }
+            dispatch(createNewQueryAction(pageId));
           },
         },
       ],
@@ -177,12 +139,7 @@ export const getLightningMenuOptions = (
   queries: RestAction[],
   widgets: WidgetProps[],
   pageId: string,
-  applicationId: string,
-  actions: ActionData[],
-  pluginIds: string[],
-  dataSources: Datasource[],
-  createNewApiAction: (pageId: string) => void,
-  createAction: (data: Partial<RestAction>) => void,
+  dispatch: Function,
   skin: string,
   updatePropertyValue: (value: string, cursor?: number) => void,
 ) => {
@@ -198,13 +155,7 @@ export const getLightningMenuOptions = (
     {
       content: (
         <CustomizedDropdown
-          {...getApiOptions(
-            skin,
-            apis,
-            pageId,
-            createNewApiAction,
-            updatePropertyValue,
-          )}
+          {...getApiOptions(skin, apis, pageId, dispatch, updatePropertyValue)}
         />
       ),
       disabled: false,
@@ -217,11 +168,7 @@ export const getLightningMenuOptions = (
             skin,
             queries,
             pageId,
-            applicationId,
-            actions,
-            pluginIds,
-            dataSources,
-            createAction,
+            dispatch,
             updatePropertyValue,
           )}
         />

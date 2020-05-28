@@ -1,6 +1,5 @@
 import React from "react";
 import { Tooltip } from "@blueprintjs/core";
-
 import CustomizedDropdown, {
   CustomizedDropdownProps,
 } from "pages/common/CustomizedDropdown";
@@ -12,19 +11,10 @@ import { ControlIcons } from "icons/ControlIcons";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 
 import { getLightningMenuOptions } from "./helpers";
-import {
-  useActions,
-  useWidgets,
-  usePageId,
-  useAllActions,
-  useDataSources,
-  useApplicationId,
-  usePluginIdsOfPackageNames,
-} from "./hooks";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { Datasource } from "api/DatasourcesApi";
+import { useActions, useWidgets, usePageId } from "./hooks";
 import { Theme } from "constants/DefaultTheme";
 import { withTheme } from "styled-components";
+import { useDispatch } from "react-redux";
 
 const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
@@ -33,12 +23,7 @@ const lightningMenuOptions = (
   queries: RestAction[],
   widgets: WidgetProps[],
   pageId: string,
-  applicationId: string,
-  actions: ActionData[],
-  pluginIds: string[],
-  dataSources: Datasource[],
-  createNewApiAction: (pageId: string) => void,
-  createAction: (data: Partial<RestAction>) => void,
+  dispatch: Function,
   updatePropertyValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
 ): CustomizedDropdownProps => {
@@ -47,12 +32,7 @@ const lightningMenuOptions = (
     queries,
     widgets,
     pageId,
-    applicationId,
-    actions,
-    pluginIds,
-    dataSources,
-    createNewApiAction,
-    createAction,
+    dispatch,
     skin,
     updatePropertyValue,
   );
@@ -78,8 +58,6 @@ const lightningMenuOptions = (
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
   updatePropertyValue: (value: string, cursor?: number) => void;
-  createNewApiAction: (pageId: string) => void;
-  createAction: (data: Partial<RestAction>) => void;
   skin: string;
   theme: Theme;
 };
@@ -88,10 +66,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
   const widgets = useWidgets();
   const { apis, queries } = useActions();
   const pageId = usePageId();
-  const actions = useAllActions();
-  const dataSources = useDataSources();
-  const applicationId = useApplicationId();
-  const pluginIds = usePluginIdsOfPackageNames();
+  const dispatch = useDispatch();
   const lightningMenuTrigger = (
     <LightningIcon
       width={props.theme.lightningMenu.iconSize}
@@ -108,12 +83,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
         queries,
         widgets,
         pageId,
-        applicationId,
-        actions,
-        pluginIds,
-        dataSources,
-        props.createNewApiAction,
-        props.createAction,
+        dispatch,
         props.updatePropertyValue,
         lightningMenuTrigger,
       )}

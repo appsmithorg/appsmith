@@ -23,9 +23,6 @@ import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
-import { createNewApiAction } from "actions/apiPaneActions";
-import { RestAction } from "api/ActionAPI";
-import { createActionRequest } from "actions/actionActions";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -288,10 +285,6 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
 interface ReduxStateProps {
   dynamicData: DataTree;
 }
-interface ReduxDispatchProps {
-  createNewApiAction: (pageId: string) => void;
-  createAction: (data: Partial<RestAction>) => void;
-}
 
 export type DynamicAutocompleteInputProps = {
   placeholder?: string;
@@ -315,7 +308,6 @@ export type DynamicAutocompleteInputProps = {
 };
 
 type Props = ReduxStateProps &
-  ReduxDispatchProps &
   DynamicAutocompleteInputProps & {
     input: Partial<WrappedFieldInputProps>;
   };
@@ -592,8 +584,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
             <LightningMenu
               skin={this.props.theme === "DARK" ? "dark" : "light"}
               updatePropertyValue={this.updatePropertyValue}
-              createNewApiAction={this.props.createNewApiAction}
-              createAction={this.props.createAction}
             />
           </Suspense>
         )}
@@ -655,14 +645,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
-  createNewApiAction: (pageId: string) => dispatch(createNewApiAction(pageId)),
-  createAction: (data: Partial<RestAction>) => {
-    dispatch(createActionRequest(data));
-  },
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DynamicAutocompleteInput);
+export default connect(mapStateToProps)(DynamicAutocompleteInput);
