@@ -535,11 +535,11 @@ Cypress.Commands.add("testJsontext", (endp, js) => {
   cy.focused().then($cm => {
     if ($cm.contents != "") {
       cy.log("The field is empty");
-      cy.get(".CodeMirror textarea")
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .clear({ force: true });
     }
-    cy.get(".CodeMirror textarea")
+    cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
       .type(js, {
         force: true,
@@ -1041,4 +1041,16 @@ Cypress.Commands.add("alertValidate", text => {
   cy.get(commonlocators.success)
     .should("be.visible")
     .and("have.text", text);
+});
+Cypress.Commands.add("ExportVerify", (togglecss, name) => {
+  cy.togglebar(togglecss);
+  cy.get(".t--draggable-tablewidget button")
+    .invoke("attr", "aria-label")
+    .should("contain", name);
+  cy.togglebarDisable(togglecss);
+});
+Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
 });
