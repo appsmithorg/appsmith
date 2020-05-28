@@ -626,7 +626,7 @@ function useModalDropdownList() {
 
   let finalList: TreeDropdownOption[] = [
     {
-      label: "Create Modal",
+      label: "Open Popup",
       value: "Modal",
       id: "create",
       className: "t--create-modal-btn",
