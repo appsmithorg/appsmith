@@ -1,15 +1,18 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const dsl = require("../../../fixtures/formdsl1.json");
-const homePage = require("../../../locators/HomePage.json");
+const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("RichTextEditor Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
-  it("RichTextEditor Widget Functionality", function() {
-    cy.openPropertyPane("richtexteditorwidget");
 
+  beforeEach(() => {
+    cy.openPropertyPane("richtexteditorwidget");
+  });
+
+  it("RichTextEditor-Edit Text area with HTML body functionality", function() {
     //changing the Text Name
     cy.widgetText(
       this.data.RichTextEditorName,
@@ -18,47 +21,68 @@ describe("RichTextEditor Widget Functionality", function() {
     );
 
     //Edit the text area with Html
-    cy.testCodeMirror(this.data.HtmlText);
+    cy.testJsontext("defaulttext", this.data.HtmlText);
 
-    //Validating Html
-    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then($iframe => {
-      const $body = $iframe.contents().find("body");
-      cy.wrap($body)
-        .find("h1")
-        .should("have.text", "This is a Heading");
-    });
+    //Validate Html
+    cy.validateHTMLText(
+      formWidgetsPage.richTextEditorWidget,
+      "h1",
+      "This is a Heading",
+    );
 
-    //Edit the text area with Plain text
-    cy.testCodeMirror(this.data.RichTexteditorBody);
+    cy.PublishtheApp();
+    cy.validateHTMLText(
+      publishPage.richTextEditorWidget,
+      "h1",
+      "This is a Heading",
+    );
+  });
 
-    //Validating Plain text
-    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then($iframe => {
-      const $body = $iframe.contents().find("body");
-      cy.wrap($body)
-        .find("p")
-        .should("contain.text", this.data.RichTexteditorBody);
-    });
+  it("RichTextEditor-Enable Validation", function() {
+    //Uncheck the Disabled checkbox
+    cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
+    cy.validateEnableWidget(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.disabledBtn,
+    );
 
+    cy.PublishtheApp();
+    cy.validateEnableWidget(
+      publishPage.richTextEditorWidget,
+      commonlocators.disabledBtn,
+    );
+  });
+
+  it("RichTextEditor-Disable Validation", function() {
     //Check the Disabled checkbox
-    cy.CheckWidgetProperties(
-      ".t--property-control-disable input[type='checkbox']",
+    cy.CheckWidgetProperties(formWidgetsPage.disableJs);
+    cy.validateDisableWidget(
+      formWidgetsPage.richTextEditorWidget,
+      commonlocators.disabledBtn,
     );
-    cy.get(
-      formWidgetsPage.richTextEditorWidget + " button[disabled='disabled']",
-    ).should("exist");
 
-    //UnCheck the Disabled checkbox
-    cy.UnCheckWidgetProperties(
-      ".t--property-control-disable input[type='checkbox']",
+    cy.PublishtheApp();
+    cy.validateDisableWidget(
+      publishPage.richTextEditorWidget,
+      commonlocators.disabledBtn,
     );
-    cy.get(
-      formWidgetsPage.richTextEditorWidget + " button[disabled='disabled']",
-    ).should("not.exist");
+  });
 
-    cy.get(commonlocators.editPropCrossButton).click();
+  it("RichTextEditor-check Visible field  validation", function() {
+    // Uncheck the visible checkbox
+    cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publishPage.richTextEditorWidget).should("not.be.visible");
+  });
+
+  it("RichTextEditor-uncheck Visible field validation", function() {
+    // Check the visible checkbox
+    cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
   afterEach(() => {
-    // put your clean up code if any
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });

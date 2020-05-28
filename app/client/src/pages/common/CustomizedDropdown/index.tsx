@@ -45,7 +45,7 @@ export type CustomizedDropdownProps = {
   openDirection: Direction;
   openOnHover?: boolean;
   usePortal?: boolean;
-  themeType?: string;
+  skin?: string;
 };
 
 const getIcon = (icon?: string, intent?: Intent) => {
@@ -72,7 +72,7 @@ const getIcon = (icon?: string, intent?: Intent) => {
 
 const getContentSection = (
   section: CustomizedDropdownOptionSection,
-  themeType: string,
+  skin: string,
 ) => {
   return (
     <React.Fragment>
@@ -88,7 +88,7 @@ const getContentSection = (
               onClick={option.onSelect}
               active={!!option.active}
               disabled={!!option.disabled}
-              themeType={themeType}
+              skin={skin}
             >
               {option.content}
             </Option>
@@ -101,7 +101,7 @@ const getContentSection = (
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
-  const themeType = props.themeType ? props.themeType : "light";
+  const skin = props.skin ? props.skin : "light";
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
@@ -115,7 +115,7 @@ export const CustomizedDropdown = (
           iconAlignment={Directions.RIGHT}
           text={props.trigger.text}
           intent={props.trigger.intent}
-          themeType={props.themeType}
+          skin={props.skin}
           type="button"
         />
       )}
@@ -123,12 +123,8 @@ export const CustomizedDropdown = (
   );
 
   const content = props.sections.map((section, index) => (
-    <DropdownContentSection
-      key={index}
-      stick={!!section.isSticky}
-      themeType={themeType}
-    >
-      {getContentSection(section, themeType)}
+    <DropdownContentSection key={index} stick={!!section.isSticky} skin={skin}>
+      {getContentSection(section, skin)}
     </DropdownContentSection>
   ));
   return (
@@ -146,8 +142,8 @@ export const CustomizedDropdown = (
       minimal
       enforceFocus={false}
     >
-      <DropdownTrigger themeType={themeType}>{trigger}</DropdownTrigger>
-      <DropdownContent themeType={themeType}>{content}</DropdownContent>
+      <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
+      <DropdownContent skin={skin}>{content}</DropdownContent>
     </Popover>
   );
 };

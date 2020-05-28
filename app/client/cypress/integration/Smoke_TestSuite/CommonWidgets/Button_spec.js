@@ -3,16 +3,20 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/commondsl.json");
 const homePage = require("../../../locators/HomePage.json");
 const pages = require("../../../locators/Pages.json");
+const publishPage = require("../../../locators/publishWidgetspage.json");
+const modalWidgetPage = require("../../../locators/ModalWidget.json");
 
 describe("Button Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Button Widget Functionality", function() {
+  beforeEach(() => {
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
+  });
 
+  it("Button-Name validation", function() {
     //changing the Button Name
     cy.widgetText(
       this.data.ButtonName,
@@ -30,29 +34,78 @@ describe("Button Widget Functionality", function() {
       "have.text",
       this.data.ButtonLabel,
     );
+    cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget + " span.bp3-button-text").should(
+      "have.text",
+      this.data.ButtonLabel,
+    );
+  });
 
+  it("Button-Disable Validation", function() {
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
-    cy.get(widgetsPage.buttonWidget + " .bp3-minimal.bp3-disabled").should(
-      "exist",
+    cy.validateDisableWidget(
+      widgetsPage.buttonWidget,
+      commonlocators.disabledField,
     );
-
-    // //UnCheck the disabled checkbox and validate
-    cy.UnCheckWidgetProperties(commonlocators.disableCheckbox);
-    cy.get(widgetsPage.buttonWidget + " .bp3-minimal.bp3-disabled").should(
-      "not.exist",
+    cy.PublishtheApp();
+    cy.validateDisableWidget(
+      publishPage.buttonWidget,
+      commonlocators.disabledField,
     );
+  });
 
+  it("Button-Enable Validation", function() {
+    //Uncheck the disabled checkbox and validate
+    cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
+    cy.validateEnableWidget(
+      widgetsPage.buttonWidget,
+      commonlocators.disabledField,
+    );
+    cy.PublishtheApp();
+    cy.validateEnableWidget(
+      publishPage.buttonWidget,
+      commonlocators.disabledField,
+    );
+  });
+
+  it("Button-Unckeck Visible field Validation", function() {
+    //Uncheck the disabled checkbox and validate
+    cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget).should("not.be.visible");
+  });
+
+  it("Button-Check Visible field Validation", function() {
+    //Check the disableed checkbox and Validate
+    cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget).should("be.visible");
+  });
+
+  it("Button-AlertModal Validation", function() {
     //creating the Alert Modal and verify Modal name
     cy.createModal("Alert Modal", this.data.AlertModalName);
+    cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget).click();
+    cy.get(modalWidgetPage.modelTextField).should(
+      "have.text",
+      this.data.AlertModalName,
+    );
+  });
 
+  it("Button-FormModal Validation", function() {
     //creating the Form Modal and verify Modal name
-    cy.openPropertyPane("buttonwidget");
     cy.createModal("Form Modal", this.data.FormModalName);
+    cy.PublishtheApp();
+    cy.get(publishPage.buttonWidget).click();
+    cy.get(modalWidgetPage.modelTextField).should(
+      "have.text",
+      this.data.FormModalName,
+    );
   });
 
   afterEach(() => {
-    //clean up
-    //  cy.DeleteModal();
+    cy.get(publishPage.backToEditor).click({ force: true });
   });
 });

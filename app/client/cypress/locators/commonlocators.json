@@ -14,7 +14,7 @@
     "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
     "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror-code",
     "onMarkerclick": ".t--property-control-onmarkerclick .CodeMirror-code",
-    "success": "div[type='success']",
+    "success": "div[type='success'] span",
     "mapOptionChange": ".t--property-control-onmarkerclick .CodeMirror-code",
     "dropdownbuttonclick": ".bp3-button",
     "menuSelection": ".bp3-button > .bp3-button-text",
@@ -31,7 +31,11 @@
     "headingTextStyle": ".bp3-heading span",
     "editWidgetName": ".bp3-editable-text",
     "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
-    "onDateSelectedField":".t--property-control-ondateselected",
-    "TableRow":".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable"
-
-}
+    "onDateSelectedField": ".t--property-control-ondateselected",
+    "TableRow": ".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable",
+    "dropDownBtn": ".bp3-icon-chevron-down",
+    "Disablejs": ".t--property-control-disabled",
+    "requiredjs": ".t--property-control-required",
+    "disabledField": " .bp3-disabled",
+    "disabledBtn": " button[disabled='disabled']"
+  }

@@ -1,10 +1,11 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const Layoutpage = require("../../../locators/Layout.json");
 const widgetsPage = require("../../../locators/Widgets.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/layoutdsl.json");
 
 describe("Tab widget test", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
   it("Tab Widget Functionality Test", function() {
@@ -39,9 +40,29 @@ describe("Tab widget test", function() {
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
     cy.get(commonlocators.crossbutton).click({ force: true });
+    cy.PublishtheApp();
   });
-
-  afterEach(() => {
-    // put your clean up code if any
+  it("Tab Widget Functionality To Select Tabs", function() {
+    cy.get(publish.tabWidget)
+      .contains(this.data.tabName)
+      .click({ force: true })
+      .should("be.selected");
   });
+  it("Tab Widget Functionality To Unchecked Visible Widget", function() {
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("tabswidget");
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget).should("not.be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Tab Widget Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("tabswidget");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.tabWidget).should("be.visible");
+  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });

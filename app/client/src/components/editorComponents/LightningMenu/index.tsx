@@ -28,7 +28,7 @@ import { withTheme } from "styled-components";
 
 const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
-  themeType: string,
+  skin: string,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
@@ -53,7 +53,7 @@ const lightningMenuOptions = (
     dataSources,
     createNewApiAction,
     createAction,
-    themeType,
+    skin,
     updatePropertyValue,
   );
   return {
@@ -71,7 +71,7 @@ const lightningMenuOptions = (
         </Tooltip>
       ),
     },
-    themeType: themeType,
+    skin,
   };
 };
 
@@ -80,7 +80,7 @@ type LightningMenuProps = {
   updatePropertyValue: (value: string, cursor?: number) => void;
   createNewApiAction: (pageId: string) => void;
   createAction: (data: Partial<RestAction>) => void;
-  themeType: string;
+  skin: string;
   theme: Theme;
 };
 
@@ -96,16 +96,14 @@ export const LightningMenu = (props: LightningMenuProps) => {
     <LightningIcon
       width={props.theme.lightningMenu.iconSize}
       height={props.theme.lightningMenu.iconSize}
-      color={
-        props.theme.lightningMenu[props.themeType as "light" | "dark"].color
-      }
+      color={props.theme.lightningMenu[props.skin as "light" | "dark"].color}
     />
   );
 
   return (
     <CustomizedDropdown
       {...lightningMenuOptions(
-        props.themeType,
+        props.skin,
         apis,
         queries,
         widgets,

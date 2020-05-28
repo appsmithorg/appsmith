@@ -254,6 +254,7 @@ const DynamicAutocompleteInputWrapper = styled.div`
   height: 100%;
   flex: 1;
   position: relative;
+  //TODO(abhinav): Fix these styles when we have the designs for the lightning icon in both themes
   & > span:first-of-type {
     position: absolute;
     right: 4px;
@@ -589,7 +590,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         {(showLightningMenu === undefined || showLightningMenu === true) && (
           <Suspense fallback={<div />}>
             <LightningMenu
-              themeType={this.props.theme === "DARK" ? "dark" : "light"}
+              skin={this.props.theme === "DARK" ? "dark" : "light"}
               updatePropertyValue={this.updatePropertyValue}
               createNewApiAction={this.props.createNewApiAction}
               createAction={this.props.createAction}

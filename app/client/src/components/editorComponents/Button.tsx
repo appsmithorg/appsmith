@@ -21,7 +21,7 @@ const buttonStyles = css<{
   intent?: Intent;
   filled?: string;
   fluid?: boolean;
-  themeType?: string;
+  skin?: string;
   iconAlignment?: Direction;
 }>`
   ${BlueprintButtonIntentsCSS}
@@ -38,19 +38,21 @@ const buttonStyles = css<{
   }
   &&&&&& {
     &.bp3-button span {
-      font-weight: ${props => (props.themeType ? 400 : 700)};
+      font-weight: ${props => (props.skin ? 400 : 700)};
     }
     .bp3-icon svg {
-      width: ${props => (props.themeType ? 14 : 16)}px;
-      height: ${props => (props.themeType ? 14 : 16)}px;
+      width: ${props => (props.skin ? 14 : 16)}px;
+      height: ${props => (props.skin ? 14 : 16)}px;
     }
     &.bp3-button {
-      ${props =>
-        props.themeType !== undefined
-          ? props.iconAlignment === "right"
-            ? "display: flex; justify-content: space-between;width: 100%;"
-            : props.iconAlignment === "left"
-            ? "display: flex; justify-content: flex-start;width: 100%;"
+      display: flex;
+      width: 100%;
+      justify-content: ${props =>
+        props.skin !== undefined
+          ? props.iconAlignment === Directions.RIGHT
+            ? "space-between"
+            : props.iconAlignment === Directions.LEFT
+            ? "flex-start"
             : ""
           : ""};
     }
@@ -61,7 +63,7 @@ const StyledButton = styled(BlueprintButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
-  themeType?: string;
+  skin?: string;
   iconAlignment?: Direction;
 }>`
   ${buttonStyles}
@@ -70,7 +72,7 @@ const StyledAnchorButton = styled(BlueprintAnchorButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
-  themeType?: string;
+  skin?: string;
   iconAlignment?: Direction;
 }>`
   ${buttonStyles}
@@ -91,7 +93,7 @@ export type ButtonProps = {
   type?: "button" | "submit" | "reset";
   className?: string;
   fluid?: boolean;
-  themeType?: string;
+  skin?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -119,7 +121,7 @@ export const Button = (props: ButtonProps) => {
     type: props.type,
     className: props.className,
     fluid: props.fluid ? props.fluid.toString() : undefined,
-    themeType: props.themeType ? props.themeType : undefined,
+    skin: props.skin ? props.skin : undefined,
     iconAlignment: props.iconAlignment ? props.iconAlignment : undefined,
   };
   if (props.href) {
