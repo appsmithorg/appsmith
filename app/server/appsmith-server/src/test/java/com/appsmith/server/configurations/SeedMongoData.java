@@ -69,7 +69,7 @@ public class SeedMongoData {
                 .build();
 
         Policy userManageOrgPolicy = Policy.builder().permission(USER_MANAGE_ORGANIZATIONS.getValue())
-                .users(Set.of(API_USER_EMAIL))
+                .users(Set.of(API_USER_EMAIL, TEST_USER_EMAIL))
                 .build();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
@@ -101,7 +101,7 @@ public class SeedMongoData {
                 .build();
 
         Object[][] userData = {
-                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, Set.of(readTestUserPolicy)},
+                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, Set.of(readTestUserPolicy, userManageOrgPolicy)},
                 {"api_user", API_USER_EMAIL, UserState.ACTIVATED, Set.of(userManageOrgPolicy, readApiUserPolicy, manageApiUserPolicy)},
         };
         Object[][] orgData = {
