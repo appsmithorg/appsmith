@@ -5,33 +5,6 @@ import { generateReactKey } from "utils/generators";
 const WidgetSidebarResponse: {
   [id: string]: WidgetCardProps[];
 } = {
-  // ["Common Widgets"]: [
-  //   {
-  //     type: "CONTAINER_WIDGET",
-  //     widgetCardName: "Container",
-  //     key: generateReactKey(),
-  //   },
-  //   {
-  //     type: "TABLE_WIDGET",
-  //     widgetCardName: "Table",
-  //     key: generateReactKey(),
-  //   },
-  //   {
-  //     type: "INPUT_WIDGET",
-  //     widgetCardName: "Input",
-  //     key: generateReactKey(),
-  //   },
-  //   {
-  //     type: "BUTTON_WIDGET",
-  //     widgetCardName: "Button",
-  //     key: generateReactKey(),
-  //   },
-  //   {
-  //     type: "TEXT_WIDGET",
-  //     widgetCardName: "Text",
-  //     key: generateReactKey(),
-  //   },
-  // ],
   ["Form Widgets"]: [
     // {
     //   type: "FORM_WIDGET",
