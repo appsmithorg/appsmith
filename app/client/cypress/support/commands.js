@@ -327,7 +327,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .should("have.value", apiname);
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
-    expect($x).contain("Action name must be unique");
+    expect($x).contain("Name must be unique");
   });
 });
 
