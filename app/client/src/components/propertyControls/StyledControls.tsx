@@ -26,7 +26,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   flex-direction: ${props =>
     props.orientation === "VERTICAL" ? "column" : "row"}
   padding: ${props => props.theme.spaces[3]}px 0;
-  padding-left: ${props => (props.level ? 18 : 0)}px;    
+  padding-left: ${props => (props.level ? 18 * props.level : 0)}px;    
   & > label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
@@ -306,11 +306,11 @@ export const TreeStructureHorizontalWrapper = styled.div<{
   label: string;
 }>`
   position: absolute;
-  width: calc(100% - 9px);
+  width: calc(100% - ${props => (props.level - 1) * 18 + 9}px);
   height: 2px;
   background: #a2a6a8;
   top: ${props => (props.label ? "66.66%" : "50%")};
-  left: 9px;
+  left: ${props => (props.level - 1) * 18 + 9}px;
   z-index: -1;
 `;
 
@@ -323,6 +323,6 @@ export const TreeStructureVerticalWrapper = styled.div<{
   width: 2px;
   background: #a2a6a8;
   top: ${props => (props.label ? "-33.33%" : "-50%")};
-  left: 9px;
+  left: ${props => (props.level - 1) * 18 + 9}px;
   z-index: -1;
 `;
