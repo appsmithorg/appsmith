@@ -49,6 +49,8 @@ export const entityDefinitions = {
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
+    pageNo: "number",
+    pageSize: "number",
     isVisible: isVisible,
   }),
   DROP_DOWN_WIDGET: {

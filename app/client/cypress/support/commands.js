@@ -428,18 +428,30 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     modalWidgetPage.modalName,
   );
   cy.get(commonlocators.editPropCrossButton).click();
-  cy.reload();
+
+  //changing the Model label
+  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+    .first()
+    .trigger("mouseover");
+
+  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  cy.testCodeMirror(ModalName);
+  cy.get(widgetsPage.textAlign + " " + commonlocators.dropDownBtn).click();
+  cy.get(widgetsPage.textAlign + " .bp3-menu-item")
+    .contains("Center")
+    .click();
+  cy.xpath(homePage.homePageID).contains("All changes saved");
 });
 
-Cypress.Commands.add("CheckWidgetProperties", checkBoxTypeCss => {
-  cy.get(checkBoxTypeCss).check({
+Cypress.Commands.add("CheckWidgetProperties", checkboxCss => {
+  cy.get(checkboxCss).check({
     force: true,
   });
   cy.xpath(homePage.homePageID).contains("All changes saved");
 });
 
-Cypress.Commands.add("UnCheckWidgetProperties", checkBoxTypeCss => {
-  cy.get(checkBoxTypeCss).uncheck({
+Cypress.Commands.add("UncheckWidgetProperties", checkboxCss => {
+  cy.get(checkboxCss).uncheck({
     force: true,
   });
   cy.xpath(homePage.homePageID).contains("All changes saved");
@@ -537,9 +549,17 @@ Cypress.Commands.add("testJsontext", (endp, js) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(".t--property-control-defaultdate input").click();
-  cy.get(".bp3-datepicker-footer span")
+  cy.get(formWidgetsPage.defaultDate).click();
+  cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
+    .click();
+  cy.xpath(homePage.homePageID).contains("All changes saved");
+});
+
+Cypress.Commands.add("ClearDate", () => {
+  cy.get(formWidgetsPage.defaultDate).click();
+  cy.get(formWidgetsPage.datepickerFooter)
+    .contains("Clear")
     .click();
   cy.xpath(homePage.homePageID).contains("All changes saved");
 });
@@ -913,11 +933,10 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const expDate = Cypress.moment()
+  const eDate = Cypress.moment()
     .add(date, "days")
     .format(dateFormate);
-  cy.log(date);
-  return expDate;
+  return eDate;
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate) => {
@@ -939,6 +958,23 @@ Cypress.Commands.add("pageNoValidate", index => {
   const data = '.e-numericcontainer a[index="' + index + '"]';
   const pageVal = cy.get(data);
   return pageVal;
+});
+
+Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
+  cy.get(widgetCss + disableCss).should("exist");
+});
+
+Cypress.Commands.add("validateEnableWidget", (widgetCss, disableCss) => {
+  cy.get(widgetCss + disableCss).should("not.exist");
+});
+
+Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
+  cy.get(widgetCss + " iframe").then($iframe => {
+    const $body = $iframe.contents().find("body");
+    cy.wrap($body)
+      .find(htmlTag)
+      .should("have.text", value);
+  });
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
