@@ -12,6 +12,7 @@ import {
   QUERIES_EDITOR_ID_URL,
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  EXPLORER_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
 
@@ -20,6 +21,7 @@ import QuerySidebar from "pages/Editor/QuerySidebar";
 import DataSourceSidebar from "pages/Editor/DataSourceSidebar";
 import ApiSidebar from "pages/Editor/ApiSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
+import ExplorerSidebar from "pages/Editor/Explorer";
 import AppRoute from "pages/common/AppRoute";
 
 const SidebarWrapper = styled.div`
@@ -56,6 +58,12 @@ export const Sidebar = () => {
           path={PAGE_LIST_EDITOR_URL()}
           component={PageListSidebar}
           name={"PageListSidebar"}
+        />
+        <AppRoute
+          exact
+          path={EXPLORER_URL()}
+          component={ExplorerSidebar}
+          name="ExplorerSidebar"
         />
         <AppRoute
           exact

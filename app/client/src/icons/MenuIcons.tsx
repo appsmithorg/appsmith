@@ -7,6 +7,7 @@ import { ReactComponent as PagesIcon } from "assets/icons/menu/pages.svg";
 import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-sources.svg";
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
 import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
+import { ReactComponent as ExplorerIcon } from "assets/icons/menu/explorer.svg";
 /* eslint-disable react/display-name */
 
 export const MenuIcons: {
@@ -45,6 +46,11 @@ export const MenuIcons: {
   HOMEPAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <HomepageIcon />
+    </IconWrapper>
+  ),
+  EXPLORER_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ExplorerIcon />
     </IconWrapper>
   ),
 };

@@ -61,6 +61,11 @@ export const PAGE_LIST_EDITOR_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/pages`;
 
+export const EXPLORER_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
+
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -154,6 +159,13 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 };
 
 export const EDITOR_ROUTES = [
+  {
+    icon: MenuIcons.EXPLORER_ICON,
+    path: EXPLORER_URL,
+    title: "Explorer",
+    className: "t--nav-link-entity-explorer",
+    exact: true,
+  },
   {
     icon: MenuIcons.WIDGETS_ICON,
     path: BUILDER_PAGE_URL,

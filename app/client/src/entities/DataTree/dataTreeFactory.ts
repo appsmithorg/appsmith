@@ -21,6 +21,7 @@ type ActionDispatcher<T, A extends string[]> = (
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
   WIDGET = "WIDGET",
+  PAGE = "PAGE",
 }
 
 export type RunActionPayload = {
