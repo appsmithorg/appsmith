@@ -215,7 +215,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                     Organization organization = organizationEntry.getValue();
                                     Collection<Application> applicationCollection = applicationsCollectionByOrgId.get(orgId);
 
-                                    List<Application> applicationList = null;
+                                    List<Application> applicationList = new ArrayList<>();
                                     if (applicationCollection!=null && !applicationCollection.isEmpty()) {
                                         applicationList = applicationCollection.stream().collect(Collectors.toList());
                                     }
