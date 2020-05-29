@@ -4,11 +4,19 @@ import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
+import { WidgetPropertyValidationType } from "utils/ValidationFactory";
+import { VALIDATION_TYPES } from "constants/WidgetValidation";
 
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  static getPropertyValidationMap(): WidgetPropertyValidationType {
+    return {
+      tabs: VALIDATION_TYPES.TABS_DATA,
+    };
+  }
+
   onTabChange = (tabId: string) => {
     this.updateWidgetMetaProperty("selectedTabId", tabId);
   };

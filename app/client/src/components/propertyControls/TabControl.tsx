@@ -7,6 +7,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import _ from "lodash";
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0;
@@ -98,14 +99,16 @@ function TabControlComponent(props: RenderComponentProps) {
 
 class TabControl extends BaseControl<ControlProps> {
   updateItems = (items: object[]) => {
-    this.updateProperty(this.props.propertyName, items);
+    this.updateProperty(this.props.propertyName, JSON.stringify(items));
   };
 
   render() {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = this.props.propertyValue || [{ id: "" }];
+    }> = _.isString(this.props.propertyValue)
+      ? JSON.parse(this.props.propertyValue)
+      : this.props.propertyValue;
     return (
       <TabsWrapper>
         <DroppableComponent
@@ -128,35 +131,39 @@ class TabControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const tabs: object[] = this.props.propertyValue.slice();
+    const tabs: object[] = _.isString(this.props.propertyValue)
+      ? JSON.parse(this.props.propertyValue).slice()
+      : this.props.propertyValue.slice();
     tabs.splice(index, 1);
-    this.updateProperty(this.props.propertyName, tabs);
+    this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = this.props.propertyValue;
-    this.updateProperty(
-      this.props.propertyName,
-      tabs.map((tab, tabIndex) => {
-        if (index === tabIndex) {
-          tab.label = updatedLabel;
-        }
-        return tab;
-      }),
-    );
+    }> = _.isString(this.props.propertyValue)
+      ? JSON.parse(this.props.propertyValue)
+      : this.props.propertyValue;
+    const updatedTabs = tabs.map((tab, tabIndex) => {
+      if (index === tabIndex) {
+        tab.label = updatedLabel;
+      }
+      return tab;
+    });
+    this.updateProperty(this.props.propertyName, JSON.stringify(updatedTabs));
   };
 
   addOption = () => {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = this.props.propertyValue ? this.props.propertyValue.slice() : [];
+    }> = _.isString(this.props.propertyValue)
+      ? JSON.parse(this.props.propertyValue)
+      : this.props.propertyValue;
     const newTabId = generateReactKey({ prefix: "tab" });
     tabs.push({ id: newTabId, label: `Tab ${tabs.length + 1}` });
-    this.updateProperty(this.props.propertyName, tabs);
+    this.updateProperty(this.props.propertyName, JSON.stringify(tabs));
   };
 
   static getControlType() {
