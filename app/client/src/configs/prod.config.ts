@@ -33,6 +33,7 @@ export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
       apipanev2: true,
       datasourcepane: true,
       querypane: true,
+      lightningmenu: false,
     },
   },
 });

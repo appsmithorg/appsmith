@@ -51,49 +51,13 @@ function updateFlagsInLocalStorage(userData: any) {
   const userId = userData.id;
   const email = userData.email;
   const optimizelyClientInstance = FeatureFlag.remote as any;
-  localStorage.setItem(
-    FeatureFlagsEnum.DatasourcePane,
-    optimizelyClientInstance.isFeatureEnabled(
-      FeatureFlagsEnum.DatasourcePane,
-      userId,
-      {
-        email: email,
-      },
-    ),
-  );
 
-  localStorage.setItem(
-    FeatureFlagsEnum.ApiPaneV2,
-    optimizelyClientInstance.isFeatureEnabled(
-      FeatureFlagsEnum.ApiPaneV2,
-      userId,
-      {
-        email: email,
-      },
-    ),
-  );
-
-  localStorage.setItem(
-    FeatureFlagsEnum.documentationV2,
-    optimizelyClientInstance.isFeatureEnabled(
-      FeatureFlagsEnum.documentationV2,
-      userId,
-      {
-        email: email,
-      },
-    ),
-  );
-
-  localStorage.setItem(
-    FeatureFlagsEnum.QueryPane,
-    optimizelyClientInstance.isFeatureEnabled(
-      FeatureFlagsEnum.QueryPane,
-      userId,
-      {
-        email: email,
-      },
-    ),
-  );
+  Object.values(FeatureFlagsEnum).forEach((flag: string) => {
+    localStorage.setItem(
+      flag,
+      optimizelyClientInstance.isFeatureEnabled(flag, userId, { email }),
+    );
+  });
 }
 
 export default FeatureFlag;
