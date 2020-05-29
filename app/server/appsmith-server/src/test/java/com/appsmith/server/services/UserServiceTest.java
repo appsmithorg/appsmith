@@ -29,7 +29,9 @@ import java.util.Set;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -143,6 +145,14 @@ public class UserServiceTest {
                 .permission(USER_MANAGE_ORGANIZATIONS.getValue())
                 .users(Set.of(newUser.getUsername())).build();
 
+        Policy readUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .users(Set.of(newUser.getUsername())).build();
+
+        Policy readUserOrgPolicy = Policy.builder()
+                .permission(USER_READ_ORGANIZATIONS.getValue())
+                .users(Set.of(newUser.getUsername())).build();
+
         Mono<User> userMono = userService.create(newUser);
 
         StepVerifier.create(userMono)
@@ -153,7 +163,7 @@ public class UserServiceTest {
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy));
+                    assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
                 })
                 .verifyComplete();
     }

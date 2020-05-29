@@ -41,11 +41,11 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
@@ -507,23 +507,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     private Set<Policy> crudUserPolicy(User user) {
-        Policy manageUserPolicy = Policy.builder()
-                .permission(MANAGE_USERS.getValue())
-                .users(Set.of(user.getUsername())).build();
 
-        Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_ORGANIZATIONS.getValue())
-                .users(Set.of(user.getUsername())).build();
+        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_ORGANIZATIONS);
 
-        user.getPolicies().addAll(Set.of(manageUserPolicy, manageUserOrgPolicy));
+        Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
 
-        Set<Policy> policySet = user.getPolicies().stream()
-                .filter(policy ->
-                        policy.getPermission().equals(MANAGE_USERS.getValue()) ||
-                                policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
-                ).collect(Collectors.toSet());
-
-        return policyGenerator.getAllChildPolicies(user, policySet, User.class);
+        return new HashSet<>(userPolicies.values());
     }
 
     /**
