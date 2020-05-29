@@ -37,6 +37,11 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   warning: AlertIcons.WARNING,
 };
 
+export enum Skin {
+  LIGHT,
+  DARK,
+}
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
@@ -264,13 +269,13 @@ export type Theme = {
     hoverBGOpacity: number;
   };
   dropdown: {
-    light: {
+    [Skin.LIGHT]: {
       hoverBG: Color;
       hoverText: Color;
       inActiveBG: Color;
       inActiveText: Color;
     };
-    dark: {
+    [Skin.DARK]: {
       hoverBG: Color;
       hoverText: Color;
       inActiveBG: Color;
@@ -296,8 +301,8 @@ export type Theme = {
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     iconSize: number;
-    dark: { color: Color };
-    light: { color: Color };
+    [Skin.DARK]: { color: Color };
+    [Skin.LIGHT]: { color: Color };
   };
 };
 
@@ -425,13 +430,13 @@ export const theme: Theme = {
     hoverBGOpacity: 0.5,
   },
   dropdown: {
-    light: {
+    [Skin.LIGHT]: {
       hoverBG: Colors.GREEN,
       hoverText: Colors.WHITE,
       inActiveBG: Colors.WHITE,
       inActiveText: Colors.BLACK_PEARL,
     },
-    dark: {
+    [Skin.DARK]: {
       hoverBG: Colors.TROUT_DARK,
       hoverText: Colors.WHITE,
       inActiveBG: Colors.BLUE_CHARCOAL,
@@ -475,10 +480,10 @@ export const theme: Theme = {
   },
   lightningMenu: {
     iconSize: 14,
-    dark: {
+    [Skin.DARK]: {
       color: Colors.WHITE,
     },
-    light: {
+    [Skin.LIGHT]: {
       color: Colors.HIT_GRAY,
     },
   },

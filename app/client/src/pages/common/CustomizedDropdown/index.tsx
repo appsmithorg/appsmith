@@ -13,7 +13,7 @@ import { MenuIcons } from "icons/MenuIcons";
 import { Intent, IntentColors } from "constants/DefaultTheme";
 import { Direction, Directions } from "utils/helpers";
 import { getDirectionBased } from "./dropdownHelpers";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
 import {
   Option,
   DropdownContentSection,
@@ -45,7 +45,7 @@ export type CustomizedDropdownProps = {
   openDirection: Direction;
   openOnHover?: boolean;
   usePortal?: boolean;
-  skin?: string;
+  skin?: Skin;
 };
 
 const getIcon = (icon?: string, intent?: Intent) => {
@@ -72,7 +72,7 @@ const getIcon = (icon?: string, intent?: Intent) => {
 
 const getContentSection = (
   section: CustomizedDropdownOptionSection,
-  skin: string,
+  skin: Skin,
 ) => {
   return (
     <React.Fragment>
@@ -101,7 +101,9 @@ const getContentSection = (
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
-  const skin = props.skin ? props.skin : "light";
+  console.log("skin", props.skin);
+  const skin = props.skin ? props.skin : Skin.LIGHT;
+  console.log("skin", skin);
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
@@ -115,7 +117,7 @@ export const CustomizedDropdown = (
           iconAlignment={Directions.RIGHT}
           text={props.trigger.text}
           intent={props.trigger.intent}
-          skin={props.skin}
+          skin={skin}
           type="button"
         />
       )}

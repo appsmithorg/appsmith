@@ -20,6 +20,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Skin } from "constants/DefaultTheme";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -79,8 +80,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               <Button
                 text="Manage Pages"
                 icon="page-layout"
-                iconAlignment="left"
-                skin="light"
+                iconAlignment={Directions.LEFT}
+                skin={Skin.LIGHT}
               />
             ),
             onSelect: () =>

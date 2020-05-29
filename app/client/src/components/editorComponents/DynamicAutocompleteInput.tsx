@@ -19,7 +19,7 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
@@ -581,7 +581,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
-              skin={this.props.theme === "DARK" ? "dark" : "light"}
+              skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
               updateDynamicInputValue={this.updatePropertyValue}
             />
           </Suspense>

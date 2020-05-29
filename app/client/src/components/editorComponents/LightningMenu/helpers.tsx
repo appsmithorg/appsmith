@@ -20,9 +20,10 @@ import {
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
 } from "constants/messages";
+import { Skin } from "constants/DefaultTheme";
 
 export const getApiOptions = (
-  skin: string,
+  skin: Skin,
   apis: RestAction[],
   pageId: string,
   dispatch: Function,
@@ -66,7 +67,7 @@ export const getApiOptions = (
 });
 
 export const getQueryOptions = (
-  skin: string,
+  skin: Skin,
   queries: RestAction[],
   pageId: string,
   dispatch: Function,
@@ -110,7 +111,7 @@ export const getQueryOptions = (
 });
 
 export const getWidgetOptions = (
-  skin: string,
+  skin: Skin,
   widgets: WidgetProps[],
   updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
@@ -140,7 +141,7 @@ export const getLightningMenuOptions = (
   widgets: WidgetProps[],
   pageId: string,
   dispatch: Function,
-  skin: string,
+  skin: Skin,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => {
   const options: CustomizedDropdownOption[] = [

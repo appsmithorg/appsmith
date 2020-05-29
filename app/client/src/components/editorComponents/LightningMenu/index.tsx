@@ -12,13 +12,13 @@ import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 
 import { getLightningMenuOptions } from "./helpers";
 import { useActions, useWidgets, usePageId } from "./hooks";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
 import { withTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 
 const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
-  skin: string,
+  skin: Skin,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
@@ -58,7 +58,7 @@ const lightningMenuOptions = (
 type LightningMenuProps = {
   onSelect?: (value: string) => void;
   updateDynamicInputValue: (value: string, cursor?: number) => void;
-  skin: string;
+  skin: Skin;
   theme: Theme;
 };
 
@@ -71,7 +71,7 @@ export const LightningMenu = (props: LightningMenuProps) => {
     <LightningIcon
       width={props.theme.lightningMenu.iconSize}
       height={props.theme.lightningMenu.iconSize}
-      color={props.theme.lightningMenu[props.skin as "light" | "dark"].color}
+      color={props.theme.lightningMenu[props.skin].color}
     />
   );
 
