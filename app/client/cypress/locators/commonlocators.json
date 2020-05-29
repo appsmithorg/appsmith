@@ -43,5 +43,7 @@
     "dropDownBtn": ".bp3-icon-chevron-down",
     "disabledField": " .bp3-disabled",
     "disabledBtn": " button[disabled='disabled']",
-    "csvSupport": ".t--property-control-csvexport input"
+    "inputField": " .bp3-input",
+    "csvSupport": ".t--property-control-csvexport input",
+    "backToEditor": ".bp3-icon.bp3-icon-chevron-left  + span.bp3-button-text"
 }

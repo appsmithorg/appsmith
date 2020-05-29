@@ -549,7 +549,6 @@ Cypress.Commands.add("testJsontext", (endp, js) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.defaultDate).click();
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
     .click();
@@ -557,7 +556,6 @@ Cypress.Commands.add("SetDateToToday", () => {
 });
 
 Cypress.Commands.add("ClearDate", () => {
-  cy.get(formWidgetsPage.defaultDate).click();
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
     .click();
@@ -1042,6 +1040,7 @@ Cypress.Commands.add("alertValidate", text => {
     .should("be.visible")
     .and("have.text", text);
 });
+
 Cypress.Commands.add("ExportVerify", (togglecss, name) => {
   cy.togglebar(togglecss);
   cy.get(".t--draggable-tablewidget button")
@@ -1049,6 +1048,7 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
     .should("contain", name);
   cy.togglebarDisable(togglecss);
 });
+
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
   const tabVal = cy.get(selector).invoke("text");
