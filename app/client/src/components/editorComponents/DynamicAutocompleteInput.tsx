@@ -171,7 +171,9 @@ const Wrapper = styled.div<{
   && {
     .binding-highlight {
       color: ${props =>
-        props.editorTheme === THEMES.DARK ? "#f7c75b" : "#ffb100"};
+        props.editorTheme === THEMES.DARK
+          ? props.theme.colors.bindingTextDark
+          : props.theme.colors.bindingText};
       font-weight: 700;
     }
     .CodeMirror {

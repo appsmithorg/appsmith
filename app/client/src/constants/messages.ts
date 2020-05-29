@@ -5,8 +5,8 @@ export const ERROR_MESSAGE_CREATE_APPLICATION =
 export const API_PATH_START_WITH_SLASH_ERROR = "Path cannot start with /";
 export const FIELD_REQUIRED_ERROR = "This field is required";
 export const VALID_FUNCTION_NAME_ERROR =
-  "Action name is not a valid function name";
-export const UNIQUE_NAME_ERROR = "Action name must be unique";
+  "Must be a valid variable name (camelCase)";
+export const UNIQUE_NAME_ERROR = "Name must be unique";
 
 export const FORM_VALIDATION_EMPTY_EMAIL = "Please enter an email";
 export const FORM_VALIDATION_INVALID_EMAIL =

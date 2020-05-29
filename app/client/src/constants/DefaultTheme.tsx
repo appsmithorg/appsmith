@@ -372,6 +372,9 @@ export const theme: Theme = {
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
+    notification: Colors.JAFFA,
+    bindingTextDark: Colors.SOFT_ORANGE,
+    bindingText: Colors.PURE_ORANGE,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [

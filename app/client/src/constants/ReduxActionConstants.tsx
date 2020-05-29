@@ -214,6 +214,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_SUCCESS:
     "FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_SUCCESS",
   SET_PROVIDERS_LENGTH: "SET_PROVIDERS_LENGTH",
+  SET_DEFAULT_REFINEMENT: "SET_DEFAULT_REFINEMENT",
+  SET_HELP_MODAL_OPEN: "SET_HELP_MODAL_OPEN",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
