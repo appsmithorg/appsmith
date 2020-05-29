@@ -52,7 +52,9 @@ const buttonStyles = css<{
       display: flex;
       width: 100%;
       justify-content: ${props =>
-        props.iconAlignment === Directions.RIGHT
+        props.skin === undefined
+          ? "center"
+          : props.iconAlignment === Directions.RIGHT
           ? "space-between"
           : "flex-start"};
     }
