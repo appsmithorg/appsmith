@@ -327,7 +327,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .should("have.value", apiname);
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
-    expect($x).contain("Action name must be unique");
+    expect($x).contain("Name must be unique");
   });
 });
 
@@ -407,7 +407,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Show Modal")
+    .contains("Open Popup")
     .click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -683,9 +683,9 @@ Cypress.Commands.add("dropdownDynamic", text => {
 Cypress.Commands.add("getAlert", alertcss => {
   cy.get(commonlocators.dropdownSelectButton).click({ force: true });
   cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
+    .contains("Show Message")
     .click({ force: true })
-    .should("have.text", "Show Alert");
+    .should("have.text", "Show Message");
 
   cy.get(alertcss)
     .click({ force: true })

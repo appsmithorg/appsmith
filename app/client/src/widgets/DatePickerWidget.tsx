@@ -58,7 +58,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
-        label={`${this.props.label}${this.props.isRequired ? " *" : ""}`}
+        label={`${this.props.label}`}
         dateFormat={"DD/MM/YYYY HH:mm"}
         widgetId={this.props.widgetId}
         isDisabled={this.props.isDisabled}

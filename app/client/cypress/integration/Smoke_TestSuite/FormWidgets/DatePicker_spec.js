@@ -65,12 +65,12 @@ describe("DatePicker Widget Functionality", function() {
     cy.CheckWidgetProperties(commonlocators.requiredCheckbox);
     cy.get(formWidgetsPage.datepickerWidget + " .bp3-label").should(
       "contain.text",
-      "From Date *",
+      "From Date",
     );
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget + " .bp3-label").should(
       "contain.text",
-      "From Date *",
+      "From Date",
     );
   });
 
