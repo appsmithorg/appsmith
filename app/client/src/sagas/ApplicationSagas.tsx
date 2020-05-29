@@ -64,19 +64,21 @@ export function* getAllApplicationSaga() {
       const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
         (userApplicationsOrgs: OrganizationApplicationObject) => ({
           organization: userApplicationsOrgs.organization,
-          applications: userApplicationsOrgs.applications.map(
-            (application: ApplicationObject) => {
-              return {
-                name: application.name,
-                organizationId: application.organizationId,
-                id: application.id,
-                pages: application.pages,
-                userPermissions: application.userPermissions,
-                pageCount: application.pages ? application.pages.length : 0,
-                defaultPageId: getDefaultPageId(application.pages),
-              };
-            },
-          ),
+          applications: !userApplicationsOrgs.applications
+            ? []
+            : userApplicationsOrgs.applications.map(
+                (application: ApplicationObject) => {
+                  return {
+                    name: application.name,
+                    organizationId: application.organizationId,
+                    id: application.id,
+                    pages: application.pages,
+                    userPermissions: application.userPermissions,
+                    pageCount: application.pages ? application.pages.length : 0,
+                    defaultPageId: getDefaultPageId(application.pages),
+                  };
+                },
+              ),
         }),
       );
 

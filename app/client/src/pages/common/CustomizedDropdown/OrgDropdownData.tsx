@@ -41,6 +41,7 @@ const switchdropdown = (
 export const options = (
   user: User,
   orgName: string,
+  orgId: string,
 ): CustomizedDropdownProps => ({
   sections: [
     {
@@ -56,7 +57,7 @@ export const options = (
           content: "Organization Settings",
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/org/settings",
+              path: `/org/${orgId}/settings`,
             }),
         },
         {

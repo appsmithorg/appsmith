@@ -137,6 +137,7 @@ class Applications extends Component<ApplicationProps> {
                       {...DropdownProps(
                         this.props.currentUser,
                         organization.name,
+                        organization.id,
                       )}
                     />
                   )}
