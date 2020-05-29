@@ -10,3 +10,9 @@ export type Org = {
   name: string;
   website?: string;
 };
+
+export type OrgUser = {
+  username: string;
+  name: string;
+  roleName: string;
+};
