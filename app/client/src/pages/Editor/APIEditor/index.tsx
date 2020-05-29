@@ -25,8 +25,9 @@ import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { checkForFlag, FeatureFlagEnum } from "utils/featureFlags";
 import styled from "styled-components";
+import FeatureFlag from "utils/featureFlags";
+import { FeatureFlagsEnum } from "configs/types";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -163,10 +164,14 @@ class ApiEditor extends React.Component<Props> {
         {"Create / Select an API from the list"}
       </EmptyStateContainer>
     );
-    const v2Flag = checkForFlag(FeatureFlagEnum.ApiPaneV2);
+    const v2Flag = FeatureFlag.check(FeatureFlagsEnum.ApiPaneV2);
     const homeScreen = v2Flag ? apiHomeScreen : defaultHomeScreen;
     return (
-      <React.Fragment>
+      <div
+        style={{
+          position: "relative",
+        }}
+      >
         {apiId ? (
           <>
             {formUiComponent === "ApiEditorForm" && (
@@ -213,7 +218,7 @@ class ApiEditor extends React.Component<Props> {
         ) : (
           homeScreen
         )}
-      </React.Fragment>
+      </div>
     );
   }
 }

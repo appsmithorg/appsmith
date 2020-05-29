@@ -1,5 +1,6 @@
 {
     "editIcon": ".t--widget-propertypane-toggle",
+    "helpIcon": ".t--widget-help-control",
     "editPropCrossButton": ".t--property-pane-close-btn",
     "deleteWidgetIcon": ".t--widget-delete-control",
     "dropdownSelectButton": ".t--open-dropdown-Select-Action",
@@ -14,7 +15,7 @@
     "optionchangetextInput": ".t--property-control-ontextchanged .CodeMirror-code",
     "optionchangeRadioselect": ".t--property-control-onselectionchange .CodeMirror-code",
     "onMarkerclick": ".t--property-control-onmarkerclick .CodeMirror-code",
-    "success": "div[type='success']",
+    "success": "div[type='success'] span",
     "mapOptionChange": ".t--property-control-onmarkerclick .CodeMirror-code",
     "dropdownbuttonclick": ".bp3-button",
     "menuSelection": ".bp3-button > .bp3-button-text",
@@ -31,6 +32,16 @@
     "headingTextStyle": ".bp3-heading span",
     "editWidgetName": ".bp3-editable-text",
     "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
-    "onDateSelectedField":".t--property-control-ondateselected"
-
+    "onDateSelectedField": ".t--property-control-ondateselected",
+    "TableRow": ".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable",
+    "Disablejs": ".t--property-control-disabled",
+    "requiredjs": ".t--property-control-required",
+    "horizontalScroll": ".t--property-control-allowhorizontalscroll input",
+    "tableInner": ".t--draggable-tablewidget pre",
+    "pdfSupport": ".t--property-control-pdfexport input",
+    "ExcelSupport": ".t--property-control-excelexport input",
+    "dropDownBtn": ".bp3-icon-chevron-down",
+    "disabledField": " .bp3-disabled",
+    "disabledBtn": " button[disabled='disabled']",
+    "csvSupport": ".t--property-control-csvexport input"
 }

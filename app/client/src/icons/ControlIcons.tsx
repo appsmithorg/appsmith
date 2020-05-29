@@ -12,6 +12,8 @@ import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.sv
 
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
 /* eslint-disable react/display-name */
 
@@ -76,6 +78,11 @@ export const ControlIcons: {
   PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <PickMyLocationSelectedIcon />
+    </IconWrapper>
+  ),
+  HELP_CONTROL: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <HelpIcon />
     </IconWrapper>
   ),
 };

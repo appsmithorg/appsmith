@@ -5,39 +5,12 @@ import { generateReactKey } from "utils/generators";
 const WidgetSidebarResponse: {
   [id: string]: WidgetCardProps[];
 } = {
-  ["Common Widgets"]: [
-    {
-      type: "CONTAINER_WIDGET",
-      widgetCardName: "Container",
-      key: generateReactKey(),
-    },
-    {
-      type: "TABLE_WIDGET",
-      widgetCardName: "Table",
-      key: generateReactKey(),
-    },
-    {
-      type: "INPUT_WIDGET",
-      widgetCardName: "Input",
-      key: generateReactKey(),
-    },
-    {
-      type: "BUTTON_WIDGET",
-      widgetCardName: "Button",
-      key: generateReactKey(),
-    },
-    {
-      type: "TEXT_WIDGET",
-      widgetCardName: "Text",
-      key: generateReactKey(),
-    },
-  ],
   ["Form Widgets"]: [
-    {
-      type: "FORM_WIDGET",
-      widgetCardName: "Form",
-      key: generateReactKey(),
-    },
+    // {
+    //   type: "FORM_WIDGET",
+    //   widgetCardName: "Form",
+    //   key: generateReactKey(),
+    // },
     {
       type: "INPUT_WIDGET",
       widgetCardName: "Input",
@@ -46,6 +19,11 @@ const WidgetSidebarResponse: {
     {
       type: "DROP_DOWN_WIDGET",
       widgetCardName: "Dropdown",
+      key: generateReactKey(),
+    },
+    {
+      type: "BUTTON_WIDGET",
+      widgetCardName: "Button",
       key: generateReactKey(),
     },
     {
@@ -70,22 +48,17 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
-      type: "FILE_PICKER_WIDGET",
-      widgetCardName: "FilePicker",
-      key: generateReactKey(),
-    },
-    {
-      type: "BUTTON_WIDGET",
-      widgetCardName: "Button",
-      key: generateReactKey(),
-    },
-    {
       type: "RICH_TEXT_EDITOR_WIDGET",
       widgetCardName: "Rich Text Editor",
       key: generateReactKey(),
     },
+    {
+      type: "FILE_PICKER_WIDGET",
+      widgetCardName: "FilePicker",
+      key: generateReactKey(),
+    },
   ],
-  ["View widgets"]: [
+  ["Display widgets"]: [
     {
       type: "IMAGE_WIDGET",
       widgetCardName: "Image",
@@ -102,25 +75,25 @@ const WidgetSidebarResponse: {
       key: generateReactKey(),
     },
     {
-      type: "CHART_WIDGET",
-      widgetCardName: "Chart",
+      type: "MAP_WIDGET",
+      widgetCardName: "Map",
       key: generateReactKey(),
     },
     {
-      type: "MAP_WIDGET",
-      widgetCardName: "Map",
+      type: "CHART_WIDGET",
+      widgetCardName: "Chart",
       key: generateReactKey(),
     },
   ],
   ["Layout widgets"]: [
     {
-      type: "CONTAINER_WIDGET",
-      widgetCardName: "Container",
+      type: "TABS_WIDGET",
+      widgetCardName: "Tabs",
       key: generateReactKey(),
     },
     {
-      type: "TABS_WIDGET",
-      widgetCardName: "Tabs",
+      type: "CONTAINER_WIDGET",
+      widgetCardName: "Container",
       key: generateReactKey(),
     },
   ],
