@@ -24,7 +24,6 @@ import {
   BASE_SIGNUP_URL,
   USERS_URL,
 } from "constants/routes";
-import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 import { LayersContext, Layers } from "constants/Layers";
 
 const loadingIndicator = <Loader />;
