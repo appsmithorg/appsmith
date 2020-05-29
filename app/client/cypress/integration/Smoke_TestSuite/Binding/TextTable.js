@@ -1,4 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/TextTabledsl.json");
 
 describe("Text-Table Binding Functionality", function() {
@@ -20,9 +21,16 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.PublishtheApp();
+      cy.isSelectRow(1);
+      cy.readTabledataPublish("1", "0").then(tabDataP => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+      });
     });
   });
   it("Text-Table Binding Functionality For Email", function() {
+    cy.get(publish.backToEditor).click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
@@ -33,9 +41,16 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("2", "1").then(tabData => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.PublishtheApp();
+      cy.isSelectRow(2);
+      cy.readTabledataPublish("2", "1").then(tabDataP => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+      });
     });
   });
   it("Text-Table Binding Functionality For Total Length", function() {
+    cy.get(publish.backToEditor).click();
     cy.pageNo(1);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
@@ -44,13 +59,24 @@ describe("Text-Table Binding Functionality", function() {
       .then(listing => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).should("have.text", listingCount);
+        cy.PublishtheApp();
+        cy.pageNo(1);
+        cy.get(publish.tableLength)
+          .find("tr")
+          .then(listing => {
+            const listingCountP = listing.length.toString();
+            cy.get(commonlocators.TextInside).should(
+              "have.text",
+              listingCountP,
+            );
+          });
       });
   });
   it("Text-Table Binding Functionality For Username", function() {
+    cy.get(publish.backToEditor).click();
     /**
      * @param(Index)  Provide index value to select the row.
      */
-    cy.pageNo(1);
     cy.isSelectRow(1);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.userName}}");
@@ -61,10 +87,15 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "2").then(tabData => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.PublishtheApp();
+      cy.isSelectRow(1);
+      cy.readTabledataPublish("1", "2").then(tabDataP => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+      });
     });
   });
-  afterEach(() => {
-    // put your clean up code if any
-    cy.get(commonlocators.editPropCrossButton).click();
-  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });
