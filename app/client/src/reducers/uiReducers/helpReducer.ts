@@ -4,8 +4,8 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 const initialState: HelpReduxState = {
   url: "",
   modalOpen: false,
-  height: 442,
-  width: 352,
+  height: 243,
+  width: 245,
   defaultRefinement: "",
 };
 

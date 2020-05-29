@@ -56,12 +56,13 @@ const searchClient = algoliasearch(
 // `;
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
+const DocumentIcon = HelpIcons.DOCUMENT;
 
 const StyledOpenLinkIcon = styled(OenLinkIcon)`
   position: absolute;
-  right: 0;
+  right: 14px;
   top: 0;
-  color: #888;
+  // color: #888;
   width: 12px;
   height: 12px;
   svg {
@@ -69,15 +70,19 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)`
     height: 12px;
   }
 `;
+
+const StyledDocumentIcon = styled(DocumentIcon)`
+  margin-left: 14px;
+  margin-right: 10.8px;
+  margin-top: 1px;
+  position: absolute;
+`;
 function Hit(props: any) {
   // const dispatch = useDispatch();
 
   return (
     <div
       className="t--docHit"
-      style={{
-        cursor: "pointer",
-      }}
       onClick={() => {
         window.open(
           (props.hit.path as string).replace("master", HelpBaseURL),
@@ -95,16 +100,22 @@ function Hit(props: any) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <div>
-          <Highlight attribute="title" hit={props.hit} />
-        </div>
-        <StyledOpenLinkIcon className="t--docOpenLink"></StyledOpenLinkIcon>
+        <StyledDocumentIcon
+          width={11.2}
+          height={14}
+          color="#181F24"
+        ></StyledDocumentIcon>
+        <Highlight attribute="title" hit={props.hit} />
+        <StyledOpenLinkIcon
+          className="t--docOpenLink"
+          color={"#181F24"}
+        ></StyledOpenLinkIcon>
       </div>
 
-      <div className="hit-description t--docHitDesc">
+      {/* <div className="hit-description t--docHitDesc">
         <Highlight attribute="description" hit={props.hit} />
-        {/* <Highlight attribute="document" hit={props.hit} /> */}
-      </div>
+        <Highlight attribute="document" hit={props.hit} />
+      </div> */}
     </div>
   );
 }
@@ -116,20 +127,22 @@ Hit.propTypes = {
 const Header = styled.div`
   position: absolute;
   width: 100%;
-  background: #363e44;
-  padding-bottom: 20px;
+  // background: #363e44;
+  // padding-bottom: 20px;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
 `;
 
 const SearchContainer = styled.div`
   height: 100%;
+  background: #181f24;
 
   .ais-SearchBox {
     position: relative;
-    width: 316px;
-    height: 50px;
-    margin: 17px;
+    width: 217px;
+    height: 30px;
+    margin: 14px;
+    margin-top: 0;
   }
 
   .ais-SearchBox-form {
@@ -141,22 +154,24 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits {
-    margin-top: 142px;
-    height: calc(100% - 142px);
+    margin-top: 86px;
+    height: calc(100% - 86px);
     overflow: auto;
-    border: 1px solid #d0d7dd;
+    // border: 1px solid #d0d7dd;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
   }
   .ais-SearchBox-input {
     height: 100%;
-    padding: 4px 48px;
+    padding: 4px 27px;
     padding-right: 14px;
+    border-radius: 2px;
+    border: 0;
   }
 
   .ais-SearchBox-submitIcon {
-    width: 18px;
-    height: 18px;
+    width: 10.5px;
+    height: 10.5px;
   }
 
   .ais-Pagination {
@@ -170,24 +185,30 @@ const SearchContainer = styled.div`
     margin-bottom: 1em;
     width: 100%;
     margin: 0;
-    padding: 20px;
+    padding: 5px;
     border: 0;
-    border-bottom: 1px solid #d0d7dd;
-    box-sizing: border-box;
+    cursor: pointer;
+    // border-bottom: 1px solid #d0d7dd;
+    // box-sizing: border-box;
     box-shadow: none;
   }
 
   .ais-Hits-item:hover {
-    background-color: #f8f9fa;
+    background-color: #313740;
   }
 
   .hit-name {
-    margin-bottom: 0.5em;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 23px;
-    color: #000000;
+    // margin-bottom: 0.5em;
+    // font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    color: #e7e9e9;
     position: relative;
+  }
+
+  .ais-SearchBox-resetIcon {
+    width: 10px;
+    height: 10px;
   }
 
   .hit-description {
@@ -211,11 +232,20 @@ const SearchContainer = styled.div`
     letter-spacing: 0.2px;
   }
 
+  .ais-Highlight {
+    margin-left: 36px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 169px;
+    display: inline-block;
+  }
+
   .ais-Highlight-highlighted {
-    background-color: #ffb100;
+    background-color: #238770;
   }
   .ais-SearchBox-submit {
-    left: 16px;
+    left: 4px;
   }
 `;
 
@@ -229,15 +259,15 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
         className="t--docsMinimize"
         style={{
           position: "absolute",
-          top: 10,
-          right: 10,
+          top: 4,
+          right: 6,
           padding: 8,
           cursor: "pointer",
           zIndex: 1,
         }}
         icon="minus"
         color="white"
-        iconSize={18}
+        iconSize={14}
         onClick={() => {
           dispatch(setHelpModalVisibility(false));
           dispatch(setHelpDefaultRefinement(""));
@@ -254,8 +284,10 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
           <Header>
             <h3
               style={{
-                padding: "0 115px",
+                padding: "0 69px",
                 marginTop: "14px",
+                marginBottom: "14px",
+                lineHeight: "14px",
               }}
             >
               <span
@@ -265,8 +297,8 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
                   // zIndex: 55,
                   position: "relative",
                   fontWeight: 500,
-                  fontSize: "16px",
-                  lineHeight: "24px",
+                  fontSize: "14px",
+                  lineHeight: "14px",
                   letterSpacing: "0.2px",
                   margin: "0 auto",
                   width: "121px",
