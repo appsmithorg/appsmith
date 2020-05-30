@@ -61,10 +61,11 @@ const DocumentIcon = HelpIcons.DOCUMENT;
 const StyledOpenLinkIcon = styled(OenLinkIcon)`
   position: absolute;
   right: 14px;
-  top: 0;
+  top: 1px;
   // color: #888;
   width: 12px;
   height: 12px;
+  display: none;
   svg {
     width: 12px;
     height: 12px;
@@ -107,7 +108,7 @@ function Hit(props: any) {
         ></StyledDocumentIcon>
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
-          className="t--docOpenLink"
+          className="t--docOpenLink open-link"
           color={"#181F24"}
         ></StyledOpenLinkIcon>
       </div>
@@ -139,7 +140,6 @@ const SearchContainer = styled.div`
 
   .ais-SearchBox {
     position: relative;
-    width: 217px;
     height: 30px;
     margin: 14px;
     margin-top: 0;
@@ -167,6 +167,7 @@ const SearchContainer = styled.div`
     padding-right: 14px;
     border-radius: 2px;
     border: 0;
+    font-size: 14px;
   }
 
   .ais-SearchBox-submitIcon {
@@ -195,6 +196,9 @@ const SearchContainer = styled.div`
 
   .ais-Hits-item:hover {
     background-color: #313740;
+  }
+  .ais-Hits-item:hover .open-link {
+    display: block;
   }
 
   .hit-name {
@@ -237,7 +241,7 @@ const SearchContainer = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 169px;
+    width: calc(100% - 36px);
     display: inline-block;
   }
 
