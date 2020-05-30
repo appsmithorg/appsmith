@@ -5,7 +5,7 @@ const initialState: HelpReduxState = {
   url: "",
   modalOpen: false,
   height: 243,
-  width: 245,
+  width: 269,
   defaultRefinement: "",
 };
 
