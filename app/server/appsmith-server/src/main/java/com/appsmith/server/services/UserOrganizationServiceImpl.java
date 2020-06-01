@@ -39,7 +39,10 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
     @Autowired
     public UserOrganizationServiceImpl(SessionUserService sessionUserService,
-                                       OrganizationRepository organizationRepository, UserRepository userRepository, PolicyUtils policyUtils) {
+                                       OrganizationRepository organizationRepository,
+                                       UserRepository userRepository,
+                                       PolicyUtils policyUtils
+    ) {
         this.sessionUserService = sessionUserService;
         this.organizationRepository = organizationRepository;
         this.userRepository = userRepository;

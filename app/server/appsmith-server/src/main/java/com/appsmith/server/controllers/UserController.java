@@ -1,11 +1,10 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserOrganizationService;
 import com.appsmith.server.services.UserService;
@@ -47,7 +46,7 @@ public class UserController extends BaseController<UserService, User, String> {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource,
                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return service.createUser(resource, originHeader)
+        return service.createUserAndSendEmail(resource, originHeader)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -98,26 +97,6 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
-    @GetMapping("/profile")
-    public Mono<ResponseDTO<UserProfileDTO>> getEnhancedUserProfile() {
-        return service.getUserProfile()
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
-    }
-
-    /**
-     * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
-     * in order to construct client facing URLs that will be sent to the user via email.
-     *
-     * @param user         The user object for the new user being invited to the Appsmith platform
-     * @param originHeader Origin header in the request
-     * @return
-     */
-    @PostMapping("/invite")
-    public Mono<ResponseDTO<User>> inviteUser(@RequestBody User user, @RequestHeader("Origin") String originHeader) {
-        return service.inviteUser(user, originHeader)
-                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
-    }
-
     @GetMapping("/invite/verify")
     public Mono<ResponseDTO<Boolean>> verifyInviteToken(@RequestParam String email, @RequestParam String token) {
         return service.verifyInviteToken(email, token)
@@ -125,9 +104,23 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PutMapping("/invite/confirm")
-    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody InviteUser inviteUser,
+    public Mono<ResponseDTO<Boolean>> confirmInviteUser(@RequestBody User inviteUser,
                                                         @RequestHeader("Origin") String originHeader) {
         return service.confirmInviteUser(inviteUser, originHeader)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    /**
+     * This function creates an invite for a new user to join the Appsmith platform. We require the Origin header
+     * in order to construct client facing URLs that will be sent to the user via email.
+     *
+     * @param inviteUserDTO The inviteUserDto object for the new user being invited to the Appsmith platform
+     * @param originHeader Origin header in the request
+     * @return The new user who has been created.
+     */
+    @PostMapping("/invite")
+    public Mono<ResponseDTO<User>> inviteUserNew(@RequestBody InviteUserDTO inviteUserDTO, @RequestHeader("Origin") String originHeader) {
+        return service.inviteUser(inviteUserDTO, originHeader)
+                .map(resUser -> new ResponseDTO<>(HttpStatus.OK.value(), resUser, null));
     }
 }
