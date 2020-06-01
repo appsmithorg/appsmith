@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,9 @@ public class UserServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    UserRepository userRepository;
 
     Mono<User> userMono;
 
@@ -103,17 +107,6 @@ public class UserServiceTest {
                     assertThat(user.getCurrentOrganizationId()).isEqualTo(updateUser.getCurrentOrganizationId());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void updateUserWithInvalidOrganization() {
-        User updateUser = new User();
-        updateUser.setCurrentOrganizationId("Random-OrgId-%Not-In_The-System_For_SUre");
-        Mono<User> userMono1 = userMono.flatMap(user -> userService.update(user.getId(), updateUser));
-        StepVerifier.create(userMono1)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage("Random-OrgId-%Not-In_The-System_For_SUre")))
-                .verify();
     }
 
     @Test
@@ -250,6 +243,29 @@ public class UserServiceTest {
                     assertThat(user).isNotNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void confirmInviteTokenFlow() {
+        User newUser = new User();
+        newUser.setEmail("newEmail@newEmail.com");
+        newUser.setIsEnabled(false);
+        newUser.setInviteToken("inviteToken");
+
+        userRepository.save(newUser).block();
+
+        newUser.setPassword("newPassword");
+
+        Mono<User> afterConfirmationUserMono = userService.confirmInviteUser(newUser, "http://localhost:8080")
+                .then(userRepository.findByEmail("newEmail@newEmail.com"));
+
+        StepVerifier.create(afterConfirmationUserMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+
     }
 }
 

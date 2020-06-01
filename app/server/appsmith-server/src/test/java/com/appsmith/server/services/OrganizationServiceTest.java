@@ -6,7 +6,9 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -55,6 +57,9 @@ public class OrganizationServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    UserService userService;
 
     Organization organization;
 
@@ -266,26 +271,35 @@ public class OrganizationServiceTest {
 
     /**
      * This test tests for an existing user being added to an organzation as admin.
-     * The organization object should have permissions to
+     * The organization object should have permissions to manage the org for the invited user.
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void addUserToOrganizationAsAdmin() {
+    public void addExistingUserToOrganizationAsAdmin() {
         Mono<Organization> seedOrganization = organizationRepository.findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
-        Mono<Organization> userAddedToOrgMono = seedOrganization
+        Mono<User> userAddedToOrgMono = seedOrganization
                 .flatMap(organization1 -> {
                     // Add user to organization
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    userRole.setUsername("usertest@usertest.com");
-                    return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
-                });
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail("usertest@usertest.com");
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                })
+                .cache();
+
+        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+                .then(seedOrganization);
 
         StepVerifier
-                .create(userAddedToOrgMono)
-                .assertNext(org -> {
+                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    Organization org = tuple.getT2();
+
                     assertThat(org).isNotNull();
                     assertThat(org.getName()).isEqualTo("Spring Test Organization");
                     assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("usertest@usertest.com");
@@ -304,6 +318,68 @@ public class OrganizationServiceTest {
 
                     assertThat(org.getPolicies()).isNotEmpty();
                     assertThat(org.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
+
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    assertThat(organizationIds).contains(org.getId());
+
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test tests for a new user being added to an organzation as admin.
+     * The new user must be created at after invite flow and the new user must be disabled.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addNewUserToOrganization() {
+        Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+
+        Mono<User> userAddedToOrgMono = seedOrganization
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail("newEmailWhichShouldntExist@usertest.com");
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                })
+                .cache();
+
+        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+                .then(seedOrganization);
+
+        StepVerifier
+                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    Organization org = tuple.getT2();
+
+                    assertThat(org).isNotNull();
+                    assertThat(org.getName()).isEqualTo("Another Test Organization");
+                    assertThat(org.getUserRoles().get(0).getUsername()).isEqualTo("newEmailWhichShouldntExist@usertest.com");
+
+                    Policy manageOrgAppPolicy = Policy.builder().permission(ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .build();
+
+                    Policy manageOrgPolicy = Policy.builder().permission(MANAGE_ORGANIZATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .build();
+
+                    Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExist@usertest.com"))
+                            .build();
+
+                    assertThat(org.getPolicies()).isNotEmpty();
+                    assertThat(org.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getIsEnabled()).isFalse();
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    assertThat(organizationIds).contains(org.getId());
 
                 })
                 .verifyComplete();
