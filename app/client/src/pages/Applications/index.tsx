@@ -10,6 +10,7 @@ import {
   getCreateApplicationError,
   getIsDeletingApplication,
   getUserApplicationsOrgs,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -186,7 +187,7 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  userApplicationsOrgs: getUserApplicationsOrgs(state),
+  userApplicationsOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
 });
 
