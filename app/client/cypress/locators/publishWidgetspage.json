@@ -14,5 +14,8 @@
   "chartWidget": ".t--widget-chartwidget",
   "horizontalTab": ".t--widget-chartwidget g[class='raphael-group-104-axis-Line-group'] rect",
   "tableWidget": ".t--widget-tablewidget",
-  "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable"
+  "mapWidget": ".t--widget-mapwidget",
+  "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable",
+  "mapSearch": ".t--widget-mapwidget input",
+  "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']"
 }
