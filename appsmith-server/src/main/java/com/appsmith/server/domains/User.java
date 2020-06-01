@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
@@ -54,6 +53,11 @@ public class User extends BaseDomain implements UserDetails {
     // to users instead of creating a group for them. To be used only for one-off permissions.
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     private Set<String> permissions = new HashSet<>();
+
+    // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
+    // token flow.
+    @JsonIgnore
+    private String inviteToken;
 
     @Transient
     Boolean isAnonymous = false;
