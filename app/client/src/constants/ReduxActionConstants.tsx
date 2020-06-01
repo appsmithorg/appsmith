@@ -379,6 +379,11 @@ export type ApplicationPayload = {
   userPermissions?: string[];
 };
 
+export type OrganizationDetails = {
+  organization: {};
+  applications: [];
+};
+
 // export interface LoadAPIResponsePayload extends ExecuteActionResponse {}
 
 // export interface LoadQueryResponsePayload extends ExecuteActionResponse {}
