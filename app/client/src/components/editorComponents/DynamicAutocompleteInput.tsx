@@ -253,26 +253,6 @@ const DynamicAutocompleteInputWrapper = styled.div`
   height: 100%;
   flex: 1;
   position: relative;
-  //TODO(abhinav): Fix these styles when we have the designs for the lightning icon in both themes
-  & > span:first-of-type {
-    position: absolute;
-    right: 4px;
-    top: 6px;
-    width: 20px;
-    height: 20px;
-    z-index: 10;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    & > span {
-      margin-top: 6px;
-    }
-    &:hover {
-      border: 2px solid #ccc;
-    }
-  }
 `;
 
 const THEMES = {
@@ -316,6 +296,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
+  isHover: boolean;
   autoCompleteVisible: boolean;
 };
 
@@ -328,6 +309,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     super(props);
     this.state = {
       isFocused: false,
+      isHover: false,
       autoCompleteVisible: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
@@ -579,12 +561,21 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     return (
-      <DynamicAutocompleteInputWrapper>
+      <DynamicAutocompleteInputWrapper
+        onMouseOver={() => {
+          this.setState({ isHover: true });
+        }}
+        onMouseOut={() => {
+          this.setState({ isHover: false });
+        }}
+      >
         {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
               skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
               updateDynamicInputValue={this.updatePropertyValue}
+              isHover={this.state.isHover}
+              isFocused={this.state.isFocused}
             />
           </Suspense>
         )}

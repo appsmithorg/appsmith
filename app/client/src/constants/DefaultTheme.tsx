@@ -300,9 +300,42 @@ export type Theme = {
   pageContentWidth: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
-    iconSize: number;
-    [Skin.DARK]: { color: Color };
-    [Skin.LIGHT]: { color: Color };
+    [Skin.DARK]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+    [Skin.LIGHT]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
   };
 };
 
@@ -375,6 +408,7 @@ export const theme: Theme = {
     notification: Colors.JAFFA,
     bindingTextDark: Colors.SOFT_ORANGE,
     bindingText: Colors.PURE_ORANGE,
+    cmBacground: Colors.BLUE_CHARCOAL,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -482,12 +516,41 @@ export const theme: Theme = {
     },
   },
   lightningMenu: {
-    iconSize: 14,
     [Skin.DARK]: {
-      color: Colors.WHITE,
+      default: {
+        color: Colors.ALABASTER,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.ALABASTER,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
     },
     [Skin.LIGHT]: {
-      color: Colors.HIT_GRAY,
+      default: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.ALABASTER,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.ALABASTER,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
     },
   },
 };

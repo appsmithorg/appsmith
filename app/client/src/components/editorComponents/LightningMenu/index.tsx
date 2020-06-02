@@ -7,16 +7,14 @@ import CustomizedDropdown, {
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ControlIcons } from "icons/ControlIcons";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
-
 import { getLightningMenuOptions } from "./helpers";
+import LightningMenuTrigger from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
 import { Theme, Skin } from "constants/DefaultTheme";
 import { withTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 
-const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
   skin: Skin,
   apis: RestAction[],
@@ -56,6 +54,8 @@ const lightningMenuOptions = (
 };
 
 type LightningMenuProps = {
+  isHover: boolean;
+  isFocused: boolean;
   onSelect?: (value: string) => void;
   updateDynamicInputValue: (value: string, cursor?: number) => void;
   skin: Skin;
@@ -67,13 +67,6 @@ export const LightningMenu = (props: LightningMenuProps) => {
   const { apis, queries } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
-  const lightningMenuTrigger = (
-    <LightningIcon
-      width={props.theme.lightningMenu.iconSize}
-      height={props.theme.lightningMenu.iconSize}
-      color={props.theme.lightningMenu[props.skin].color}
-    />
-  );
 
   return (
     <CustomizedDropdown
@@ -85,7 +78,12 @@ export const LightningMenu = (props: LightningMenuProps) => {
         pageId,
         dispatch,
         props.updateDynamicInputValue,
-        lightningMenuTrigger,
+        <LightningMenuTrigger
+          skin={props.skin}
+          theme={props.theme}
+          isHover={props.isHover}
+          isFocused={props.isFocused}
+        />,
       )}
     />
   );

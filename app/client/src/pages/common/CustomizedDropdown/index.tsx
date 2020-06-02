@@ -101,9 +101,7 @@ const getContentSection = (
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
-  console.log("skin", props.skin);
   const skin = props.skin ? props.skin : Skin.LIGHT;
-  console.log("skin", skin);
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
