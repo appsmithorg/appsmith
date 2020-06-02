@@ -16,6 +16,8 @@ import UserApi, {
   SwitchUserOrgRequest,
   AddUserToOrgRequest,
 } from "api/UserApi";
+import { AUTH_LOGIN_URL } from "constants/routes";
+import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
   validateResponse,
@@ -316,6 +318,7 @@ export function* logoutSaga() {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
+      history.push(AUTH_LOGIN_URL);
     }
   } catch (error) {
     console.log(error);

@@ -68,7 +68,7 @@ export const options = (
           content: "Members",
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/users",
+              path: `/org/${orgId}/settings`,
             }),
         },
       ],
