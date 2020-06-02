@@ -109,7 +109,9 @@ export const OrgSettings = (props: PageProps) => {
         {Object.entries(props.userRoles).map((role, index) => {
           const MenuContent = (
             <div>
-              <span>{role[0]}</span>
+              <span>
+                <b>{role[0]}</b>
+              </span>
               <div>{role[1]}</div>
             </div>
           );

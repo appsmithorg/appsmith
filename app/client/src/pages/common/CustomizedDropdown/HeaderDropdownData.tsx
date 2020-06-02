@@ -59,17 +59,6 @@ export const options = (
     {
       options: [
         {
-          content: (
-            <Badge
-              text={user.email}
-              subtext={user.email}
-              imageURL="https://via.placeholder.com/32"
-            />
-          ),
-          disabled: true,
-          shouldCloseDropdown: false,
-        },
-        {
           content: "Sign Out",
           onSelect: () =>
             getOnSelectAction(DropdownOnSelectActions.DISPATCH, {

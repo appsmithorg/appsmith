@@ -9,10 +9,19 @@ import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
+import Logo from "assets/images/appsmith_logo.png";
 
 const StyledPageHeader = styled(StyledHeader)`
+  width: 100%;
+  display: flex;
   justify-content: space-between;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
 `;
+
+const StyledDropDownContainer = styled.div``;
+
+const LogoContainer = styled.div``;
 
 type PageHeaderProps = {
   orgs?: Org[];
@@ -24,7 +33,14 @@ export const PageHeader = (props: PageHeaderProps) => {
   const { user } = props;
   return (
     <StyledPageHeader>
-      {user && <CustomizedDropdown {...DropdownProps(user, user.username)} />}
+      <LogoContainer>
+        <a href="/applications">
+          <img src={Logo} />
+        </a>
+      </LogoContainer>
+      <StyledDropDownContainer>
+        {user && <CustomizedDropdown {...DropdownProps(user, user.username)} />}
+      </StyledDropDownContainer>
     </StyledPageHeader>
   );
 };
