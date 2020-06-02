@@ -6,6 +6,7 @@ const dsl = require("../../../fixtures/viewdsl.json");
 describe("Chart Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.viewport("macbook-15"); //To avoid screen Resize issues
   });
   it("Chart Widget Functionality", function() {
     cy.openPropertyPane("chartwidget");
@@ -65,6 +66,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(commonlocators.editPropCrossButton).click();
   });
   it("Chart Widget Functionality To Unchecked Visible Widget", function() {
+    cy.viewport("macbook-15"); //To avoid screen Resize issues
     cy.openPropertyPane("chartwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -72,6 +74,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Visible Widget", function() {
+    cy.viewport("macbook-15"); //To avoid screen Resize issues
     cy.openPropertyPane("chartwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -79,6 +82,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
+    cy.viewport("macbook-15"); //To avoid screen Resize issues
     cy.openPropertyPane("chartwidget");
     cy.togglebarDisable(commonlocators.horizontalScroll);
     cy.PublishtheApp();
@@ -86,6 +90,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
+    cy.viewport("macbook-15"); //To avoid screen Resize issues
     cy.openPropertyPane("chartwidget");
     cy.togglebar(commonlocators.horizontalScroll);
     cy.PublishtheApp();
