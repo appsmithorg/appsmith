@@ -24,6 +24,7 @@ import {
   BASE_SIGNUP_URL,
   USERS_URL,
 } from "constants/routes";
+import { LayersContext, Layers } from "constants/Layers";
 
 const loadingIndicator = <Loader />;
 const App = lazy(() =>
@@ -56,73 +57,75 @@ appInitializer();
 
 ReactDOM.render(
   <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <ToastContainer
-        hideProgressBar
-        draggable={false}
-        transition={Slide}
-        autoClose={5000}
-        closeButton={false}
-      />
-      <Helmet>
-        <meta charSet="utf-8" />
-        <link rel="shortcut icon" href="/favicon-orange.ico" />
-      </Helmet>
-      <Router history={history}>
-        <Suspense fallback={loadingIndicator}>
-          <Switch>
-            <AppRoute
-              exact
-              path={BASE_URL}
-              component={App}
-              name={"App"}
-              routeProtected
-            />
-            <AppRoute
-              path={ORG_URL}
-              component={Organization}
-              name={"Organisation"}
-              routeProtected
-            />
-            <AppRoute
-              exact
-              path={USERS_URL}
-              component={Users}
-              name={"Users"}
-              routeProtected
-            />
-            <AppRoute
-              path={USER_AUTH_URL}
-              component={UserAuth}
-              name={"UserAuth"}
-            />
-            <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-            <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-            <AppRoute
-              exact
-              path={APPLICATIONS_URL}
-              component={Applications}
-              name={"Home"}
-              routeProtected
-            />
-            <AppRoute
-              path={BUILDER_URL}
-              component={Editor}
-              name={"Editor"}
-              routeProtected
-            />
-            <AppRoute
-              path={APP_VIEW_URL}
-              component={AppViewer}
-              name={"AppViewer"}
-              routeProtected
-              logDisable
-            />
-            <AppRoute component={PageNotFound} name={"PageNotFound"} />
-          </Switch>
-        </Suspense>
-      </Router>
-    </ThemeProvider>
+    <LayersContext.Provider value={Layers}>
+      <ThemeProvider theme={theme}>
+        <ToastContainer
+          hideProgressBar
+          draggable={false}
+          transition={Slide}
+          autoClose={5000}
+          closeButton={false}
+        />
+        <Helmet>
+          <meta charSet="utf-8" />
+          <link rel="shortcut icon" href="/favicon-orange.ico" />
+        </Helmet>
+        <Router history={history}>
+          <Suspense fallback={loadingIndicator}>
+            <Switch>
+              <AppRoute
+                exact
+                path={BASE_URL}
+                component={App}
+                name={"App"}
+                routeProtected
+              />
+              <AppRoute
+                path={ORG_URL}
+                component={Organization}
+                name={"Organisation"}
+                routeProtected
+              />
+              <AppRoute
+                exact
+                path={USERS_URL}
+                component={Users}
+                name={"Users"}
+                routeProtected
+              />
+              <AppRoute
+                path={USER_AUTH_URL}
+                component={UserAuth}
+                name={"UserAuth"}
+              />
+              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
+              <AppRoute
+                exact
+                path={APPLICATIONS_URL}
+                component={Applications}
+                name={"Home"}
+                routeProtected
+              />
+              <AppRoute
+                path={BUILDER_URL}
+                component={Editor}
+                name={"Editor"}
+                routeProtected
+              />
+              <AppRoute
+                path={APP_VIEW_URL}
+                component={AppViewer}
+                name={"AppViewer"}
+                routeProtected
+                logDisable
+              />
+              <AppRoute component={PageNotFound} name={"PageNotFound"} />
+            </Switch>
+          </Suspense>
+        </Router>
+      </ThemeProvider>
+    </LayersContext.Provider>
   </Provider>,
   document.getElementById("root"),
 );

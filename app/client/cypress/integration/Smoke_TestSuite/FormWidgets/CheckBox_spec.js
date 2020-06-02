@@ -1,13 +1,13 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../locators/Widgets.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/formdsl.json");
 
 describe("Checkbox Widget Functionality", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
-
   it("Checkbox Widget Functionality", function() {
     cy.openPropertyPane("checkboxwidget");
     /**
@@ -33,12 +33,44 @@ describe("Checkbox Widget Functionality", function() {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert(commonlocators.optionchangetextCheckbox);
-    cy.get(widgetsPage.checkboxLabel)
-      .contains("value")
-      .click({ force: true });
+    cy.PublishtheApp();
   });
-
-  afterEach(() => {
-    // put your clean up code if any
+  it("Checkbox Functionality To Check Label", function() {
+    cy.get(publish.checkboxWidget + " " + "label").should(
+      "have.text",
+      this.data.checkbocInputName,
+    );
+    cy.get(publish.backToEditor).click();
   });
+  it("Checkbox Functionality To Check Disabled Widget", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.togglebar(commonlocators.Disablejs + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + "input").should("be.disabled");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Checkbox Functionality To Check Enabled Widget", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + "input").should("be.enabled");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Checkbox Functionality To Unchecked Visible Widget", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + "input").should("not.be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+  it("Checkbox Functionality To Check Visible Widget", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.togglebar(commonlocators.visibleCheckbox);
+    cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + "input").should("be.visible");
+    cy.get(publish.backToEditor).click();
+  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });

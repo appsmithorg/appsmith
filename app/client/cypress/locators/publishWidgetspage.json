@@ -1,0 +1,21 @@
+{
+  "buttonWidget": ".t--widget-buttonwidget",
+  "textWidget": ".t--widget-textwidget",
+  "richTextEditorWidget": ".t--widget-richtexteditorwidget",
+  "datepickerWidget": ".t--widget-datepickerwidget",
+  "backToEditor": ".bp3-icon.bp3-icon-chevron-left  + span.bp3-button-text",
+  "inputWidget": ".t--widget-inputwidget",
+  "checkboxWidget": ".t--widget-checkboxwidget",
+  "radioWidget": ".t--widget-radiogroupwidget",
+  "formWidget": ".t--widget-formwidget",
+  "imageWidget": ".t--widget-imagewidget",
+  "dropdownWidget": ".t--widget-dropdownwidget",
+  "tabWidget": ".t--widget-tabswidget",
+  "chartWidget": ".t--widget-chartwidget",
+  "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
+  "tableWidget": ".t--widget-tablewidget",
+  "mapWidget": ".t--widget-mapwidget",
+  "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable",
+  "mapSearch": ".t--widget-mapwidget input",
+  "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']"
+}

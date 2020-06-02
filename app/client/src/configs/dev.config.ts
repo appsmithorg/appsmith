@@ -1,6 +1,5 @@
 import { SENTRY_STAGE_CONFIG } from "constants/ThirdPartyConstants";
 import { AppsmithUIConfigs } from "./types";
-import { FeatureFlagEnum } from "utils/featureFlags";
 
 const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
   sentry: {
@@ -14,14 +13,21 @@ const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
     enabled: false,
     key: "NZALSCjsaxOIyprzITLz2yZwFzQynGt1",
   },
+  featureFlag: {
+    remoteConfig: {
+      optimizely: "PVDSYRhBhvUVY3tN6mkV1s",
+    },
+    default: {
+      documentationv2: true,
+      apipanev2: true,
+      datasourcepane: true,
+      querypane: true,
+      lightningmenu: true,
+    },
+  },
   apiUrl: "/api/",
   baseUrl,
   logLevel: "debug",
-  featureFlags: [
-    FeatureFlagEnum.ApiPaneV2,
-    FeatureFlagEnum.DatasourcePane,
-    FeatureFlagEnum.QueryPane,
-  ],
 });
 
 export default devConfig;

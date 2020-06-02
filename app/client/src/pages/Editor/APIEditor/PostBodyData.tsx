@@ -115,6 +115,9 @@ const PostBodyData = (props: Props) => {
               showLineNumbers
               allowTabIndent
               singleLine={false}
+              placeholder={
+                'Please enter this POST request\'s JSON body.\n\n\nDid you know?\n\tIn Appsmith, we can use a widget\'s or API\'s property dynamically, using {{ }} templates.\n\n\tFor example: If we have an input widget named Input1 in which the user would provide their name \n\tand this post body structure should be { "name": "<text from Input1>" } \n\tWe can access it in this post body using { "name": "{{Input1.text}}" }'
+              }
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>

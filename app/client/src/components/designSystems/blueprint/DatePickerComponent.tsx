@@ -81,8 +81,8 @@ class DatePickerComponent extends React.Component<
   render() {
     const now = moment();
     const year = now.get("year");
-    const minDate = now.clone().set({ month: 0, date: 1, year: year - 20 });
-    const maxDate = now.clone().set({ month: 11, date: 31, year: year + 20 });
+    const minDate = now.clone().set({ month: 0, date: 1, year: year - 100 });
+    const maxDate = now.clone().set({ month: 11, date: 31, year: year + 5 });
     return (
       <StyledControlGroup
         fill
