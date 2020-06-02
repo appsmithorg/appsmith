@@ -42,6 +42,30 @@ export default class LightningMenuTrigger extends React.Component<
     };
   }
 
+  componentDidUpdate(prevProps: LightningMenuTriggerProps) {
+    if (prevProps.isHover !== this.props.isHover) {
+      if (this.props.isHover) {
+        this.setState({
+          menuState: "hover",
+        });
+      } else {
+        this.setState({
+          menuState: "none",
+        });
+      }
+    } else if (prevProps.isFocused !== this.props.isFocused) {
+      if (this.props.isFocused) {
+        this.setState({
+          menuState: "active",
+        });
+      } else if (this.props.isHover) {
+        this.setState({
+          menuState: "hover",
+        });
+      }
+    }
+  }
+
   updateMenuState = (menuState: MenuState) => {
     this.setState({ menuState });
   };
@@ -54,6 +78,7 @@ export default class LightningMenuTrigger extends React.Component<
       height: 14,
       color: theme.lightningMenu[skin][menuState].color,
     };
+    console.log("menu state", menuState);
     return (
       <LightningIconWrapper
         background={theme.lightningMenu[skin][menuState].background}
@@ -61,7 +86,10 @@ export default class LightningMenuTrigger extends React.Component<
           this.updateMenuState("hover");
         }}
         onMouseOut={() => {
-          this.updateMenuState("none");
+          // this.updateMenuState("none");
+        }}
+        onClick={() => {
+          this.updateMenuState("active");
         }}
       >
         <IconWrapper {...iconProps}>

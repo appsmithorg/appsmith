@@ -43,11 +43,7 @@ const lightningMenuOptions = (
     openDirection: Directions.DOWN,
     usePortal: true,
     trigger: {
-      content: (
-        <Tooltip hoverOpenDelay={1000} content={LIGHTNING_MENU_DATA_TOOLTIP}>
-          {trigger}
-        </Tooltip>
-      ),
+      content: trigger,
     },
     skin,
   };

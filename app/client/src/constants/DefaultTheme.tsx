@@ -530,7 +530,7 @@ export const theme: Theme = {
         background: Colors.ALABASTER,
       },
       none: {
-        color: "transparent",
+        color: "none",
         background: "transparent",
       },
     },
@@ -548,7 +548,7 @@ export const theme: Theme = {
         background: Colors.BLUE_CHARCOAL,
       },
       none: {
-        color: "transparent",
+        color: "none",
         background: "transparent",
       },
     },
