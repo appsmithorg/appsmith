@@ -4,16 +4,16 @@ import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.
 import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 
-const LightningIconWrapper = styled.span<{ background: string }>`
+const LightningIconWrapper = styled.span<{ background: string; skin: Skin }>`
   background: ${props => props.background};
   position: absolute;
-  right: 0;
-  top: 0;
+  right: ${props => (props.skin === Skin.LIGHT ? 2 : 0)}px;
+  top: ${props => (props.skin === Skin.LIGHT ? 1 : 0)}px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 32px;
-  height: 32px;
+  width: ${props => (props.skin === Skin.LIGHT ? 30 : 32)}px;
+  height: ${props => (props.skin === Skin.LIGHT ? 30 : 32)}px;
   z-index: 10;
   cursor: pointer;
 `;
@@ -21,8 +21,10 @@ const LightningIconWrapper = styled.span<{ background: string }>`
 interface LightningMenuTriggerProps {
   isHover: boolean;
   isFocused: boolean;
+  isClosed: boolean;
   skin: Skin;
   theme: Theme;
+  onOpenLightningMenu: () => void;
 }
 
 type MenuState = "none" | "default" | "active" | "hover";
@@ -43,26 +45,20 @@ export default class LightningMenuTrigger extends React.Component<
   }
 
   componentDidUpdate(prevProps: LightningMenuTriggerProps) {
-    if (prevProps.isHover !== this.props.isHover) {
-      if (this.props.isHover) {
-        this.setState({
-          menuState: "hover",
-        });
-      } else {
-        this.setState({
-          menuState: "none",
-        });
-      }
-    } else if (prevProps.isFocused !== this.props.isFocused) {
-      if (this.props.isFocused) {
-        this.setState({
-          menuState: "active",
-        });
-      } else if (this.props.isHover) {
-        this.setState({
-          menuState: "hover",
-        });
-      }
+    const { menuState } = this.state;
+    const { isHover, isFocused, isClosed } = this.props;
+    if (menuState === "none" && isHover) {
+      this.setState({ menuState: "hover" });
+    } else if (menuState === "active" && isFocused) {
+      this.setState({ menuState: "default" });
+    } else if (menuState === "default" && !isFocused) {
+      this.setState({ menuState: "none" });
+    } else if (menuState === "hover" && !isHover) {
+      this.setState({ menuState: "none" });
+    } else if (menuState === "active" && isClosed) {
+      this.setState({ menuState: "none" });
+    } else if (menuState === "none" && isFocused) {
+      this.setState({ menuState: "default" });
     }
   }
 
@@ -78,19 +74,16 @@ export default class LightningMenuTrigger extends React.Component<
       height: 14,
       color: theme.lightningMenu[skin][menuState].color,
     };
-    console.log("menu state", menuState);
     return (
       <LightningIconWrapper
         background={theme.lightningMenu[skin][menuState].background}
-        onMouseOver={() => {
-          this.updateMenuState("hover");
-        }}
-        onMouseOut={() => {
-          // this.updateMenuState("none");
-        }}
         onClick={() => {
+          if (this.props.onOpenLightningMenu) {
+            this.props.onOpenLightningMenu();
+          }
           this.updateMenuState("active");
         }}
+        skin={skin}
       >
         <IconWrapper {...iconProps}>
           <LightningIcon />

@@ -409,6 +409,7 @@ export const theme: Theme = {
     bindingTextDark: Colors.SOFT_ORANGE,
     bindingText: Colors.PURE_ORANGE,
     cmBacground: Colors.BLUE_CHARCOAL,
+    lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -530,25 +531,25 @@ export const theme: Theme = {
         background: Colors.ALABASTER,
       },
       none: {
-        color: "none",
+        color: "transparent",
         background: "transparent",
       },
     },
     [Skin.LIGHT]: {
       default: {
         color: Colors.BLUE_CHARCOAL,
-        background: Colors.ALABASTER,
+        background: Colors.WHITE,
       },
       active: {
         color: Colors.BLUE_CHARCOAL,
         background: Colors.JAFFA_DARK,
       },
       hover: {
-        color: Colors.ALABASTER,
+        color: Colors.WHITE,
         background: Colors.BLUE_CHARCOAL,
       },
       none: {
-        color: "none",
+        color: "transparent",
         background: "transparent",
       },
     },

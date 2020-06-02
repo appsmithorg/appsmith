@@ -42,6 +42,7 @@ export type CustomizedDropdownProps = {
     content?: ReactNode;
     size?: "large" | "small";
   };
+  onCloseDropDown?: () => void;
   openDirection: Direction;
   openOnHover?: boolean;
   usePortal?: boolean;
@@ -141,6 +142,11 @@ export const CustomizedDropdown = (
       }
       minimal
       enforceFocus={false}
+      onClose={() => {
+        if (props.onCloseDropDown) {
+          props.onCloseDropDown();
+        }
+      }}
     >
       <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
       <DropdownContent skin={skin}>{content}</DropdownContent>

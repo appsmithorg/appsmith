@@ -24,6 +24,7 @@ const lightningMenuOptions = (
   dispatch: Function,
   updateDynamicInputValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
+  onCloseLightningMenu?: () => void,
 ): CustomizedDropdownProps => {
   const options = getLightningMenuOptions(
     apis,
@@ -41,18 +42,29 @@ const lightningMenuOptions = (
       },
     ],
     openDirection: Directions.DOWN,
-    usePortal: true,
     trigger: {
-      content: trigger,
+      content: (
+        <Tooltip hoverOpenDelay={1000} content={LIGHTNING_MENU_DATA_TOOLTIP}>
+          {trigger}
+        </Tooltip>
+      ),
     },
     skin,
+    onCloseDropDown: () => {
+      if (onCloseLightningMenu) {
+        onCloseLightningMenu();
+      }
+    },
   };
 };
 
 type LightningMenuProps = {
   isHover: boolean;
   isFocused: boolean;
+  isClosed: boolean;
   onSelect?: (value: string) => void;
+  onOpenLightningMenu: () => void;
+  onCloseLightningMenu?: () => void;
   updateDynamicInputValue: (value: string, cursor?: number) => void;
   skin: Skin;
   theme: Theme;
@@ -79,7 +91,10 @@ export const LightningMenu = (props: LightningMenuProps) => {
           theme={props.theme}
           isHover={props.isHover}
           isFocused={props.isFocused}
+          isClosed={props.isClosed}
+          onOpenLightningMenu={props.onOpenLightningMenu}
         />,
+        props.onCloseLightningMenu,
       )}
     />
   );

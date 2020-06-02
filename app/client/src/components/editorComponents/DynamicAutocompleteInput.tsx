@@ -20,6 +20,7 @@ import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme, Skin } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
@@ -248,11 +249,23 @@ const IconContainer = styled.div`
   }
 `;
 
-const DynamicAutocompleteInputWrapper = styled.div`
+const DynamicAutocompleteInputWrapper = styled.div<{
+  skin: Skin;
+  theme: Theme;
+  isActive: boolean;
+}>`
   width: 100%;
   height: 100%;
   flex: 1;
   position: relative;
+  border: ${props =>
+    props.isActive && props.skin === Skin.DARK
+      ? "1px solid " + Colors.ALABASTER
+      : "none"};
+  &:hover {
+    border: ${props =>
+      props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
+  }
 `;
 
 const THEMES = {
@@ -297,6 +310,7 @@ type Props = ReduxStateProps &
 type State = {
   isFocused: boolean;
   isHover: boolean;
+  isOpened: boolean;
   autoCompleteVisible: boolean;
 };
 
@@ -310,6 +324,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     this.state = {
       isFocused: false,
       isHover: false,
+      isOpened: false,
       autoCompleteVisible: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
@@ -568,6 +583,9 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         onMouseOut={() => {
           this.setState({ isHover: false });
         }}
+        theme={this.props.theme}
+        skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
       >
         {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
@@ -576,6 +594,13 @@ class DynamicAutocompleteInput extends Component<Props, State> {
               updateDynamicInputValue={this.updatePropertyValue}
               isHover={this.state.isHover}
               isFocused={this.state.isFocused}
+              isClosed={!this.state.isOpened}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
             />
           </Suspense>
         )}
