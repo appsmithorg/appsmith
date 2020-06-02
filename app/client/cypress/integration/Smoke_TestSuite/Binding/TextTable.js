@@ -1,4 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
+const publish = require("../../../locators/publishWidgetspage.json");
 const dsl = require("../../../fixtures/TextTabledsl.json");
 
 describe("Text-Table Binding Functionality", function() {
@@ -20,10 +21,15 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "2").then(tabData => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.PublishtheApp();
+      cy.isSelectRow(1);
+      cy.readTabledataPublish("1", "2").then(tabDataP => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+      });
     });
   });
-  afterEach(() => {
-    // put your clean up code if any
-    cy.get(commonlocators.editPropCrossButton).click();
-  });
+});
+afterEach(() => {
+  // put your clean up code if any
 });

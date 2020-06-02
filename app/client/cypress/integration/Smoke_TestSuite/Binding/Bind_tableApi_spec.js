@@ -2,9 +2,10 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const dsl = require("../../../fixtures/tableWidgetDsl.json");
 const pages = require("../../../locators/Pages.json");
 const apiPage = require("../../../locators/ApiEditor.json");
-let apiData;
+const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
+  let apiData;
   before(() => {
     cy.addDsl(dsl);
   });
@@ -35,6 +36,10 @@ describe("Test Create Api and Bind to Table widget", function() {
      * @param --> "row num" and "col num"
      */
     cy.readTabledata("0", "1").then(tabData => {
+      expect(apiData).to.eq(`\"${tabData}\"`);
+    });
+    cy.PublishtheApp();
+    cy.readTabledataPublish("0", "1").then(tabData => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
   });

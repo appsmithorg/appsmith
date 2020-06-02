@@ -17,8 +17,9 @@ import { IntentColors, theme } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { LayersContext } from "constants/Layers";
+import { HelpIcons } from "icons/HelpIcons";
 
-const HelpButton = styled(Button)<{
+const HelpButton = styled.div<{
   highlight: boolean;
   layer: number;
 }>`
@@ -29,14 +30,26 @@ const HelpButton = styled(Button)<{
     z-index: ${props => props.layer};
     background: ${props =>
       props.highlight ? "#231f20" : theme.colors.primaryDarker};
-    width: 105px;
-    height: 40px;
-    border-radius: 134px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     color: white;
     border: 0;
-    box-shadow: 2px 4px 5px #888888;
+    cursor: pointer;
+    font-size: 20px;
+    // box-shadow: 2px 4px 5px #888888;
+
+    svg {
+      width: 25px;
+      height: 17px;
+      position: absolute;
+      top: 32%;
+      right: 25%;
+    }
   }
 `;
+
+const HelpIcon = HelpIcons.HELP_ICON;
 
 export function HelpModal() {
   const isHelpModalOpen = useSelector(getHelpModalOpen);
@@ -53,7 +66,7 @@ export function HelpModal() {
         scrollContents
         width={helpDimensions.width}
         height={helpDimensions.height}
-        top={window.innerHeight - 95 - helpDimensions.height}
+        top={window.innerHeight - 105 - helpDimensions.height}
         left={window.innerWidth - 31 - helpDimensions.width}
         data-cy={"help-modal"}
         hasBackDrop={false}
@@ -69,16 +82,13 @@ export function HelpModal() {
       <HelpButton
         className="t--helpGlobalButton"
         highlight={!helpModalOpen}
-        text="Docs"
-        icon="search"
-        filled
-        intent={IntentColors.primary}
-        iconAlignment={Position.LEFT}
         layer={layers.help}
         onClick={() => {
           dispatch(setHelpModalVisibility(!helpModalOpen));
         }}
-      />
+      >
+        <HelpIcon></HelpIcon>
+      </HelpButton>
     </>
   );
 }

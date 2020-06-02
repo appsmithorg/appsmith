@@ -1,5 +1,5 @@
 {
-    "dsl": {
+  "dsl": {
     "widgetName": "MainContainer",
     "backgroundColor": "none",
     "rightColumn": 1224,
@@ -14,7 +14,7 @@
     "type": "CANVAS_WIDGET",
     "canExtend": true,
     "dynamicBindings": {},
-    "version": 3,
+    "version": 4,
     "minHeight": 1292,
     "parentColumnSpace": 1,
     "leftColumn": 0,
@@ -29,8 +29,8 @@
         "parentColumnSpace": 75.25,
         "parentRowSpace": 38,
         "dynamicBindings": {},
-        "leftColumn": 1,
-        "rightColumn": 15,
+        "leftColumn": 0,
+        "rightColumn": 14,
         "topRow": 0,
         "bottomRow": 15,
         "snapColumns": 16,
@@ -59,25 +59,17 @@
                 "dateFormat": "DD/MM/YYYY",
                 "label": "Date",
                 "widgetName": "DatePicker1",
-                "defaultDate": "2020-04-25T13:33:46.277+05:30",
+                "defaultDate": "2020-05-29T12:02:04.074+05:30",
                 "type": "DATE_PICKER_WIDGET",
                 "isLoading": false,
-                "parentColumnSpace": 34.6875,
+                "parentColumnSpace": 62.484375,
                 "parentRowSpace": 38,
                 "leftColumn": 1,
-                "rightColumn": 9,
-                "topRow": 1,
-                "bottomRow": 2,
+                "rightColumn": 11,
+                "topRow": 2,
+                "bottomRow": 3,
                 "parentId": "acizsl94my",
-                "widgetId": "o87a4mf3lq",
-                "dynamicProperties": {},
-                "dynamicBindings": {
-                  "isValid": true
-                },
-                "dynamicTriggers": {
-                  "onDateSelected": true
-                },
-                "onDateSelected": "{{showModal('Modal1')}}"
+                "widgetId": "d8o3gylso2"
               },
               {
                 "isVisible": true,
@@ -86,36 +78,34 @@
                 "dateFormat": "DD/MM/YYYY",
                 "label": "Date",
                 "widgetName": "DatePicker2",
-                "defaultDate": "2020-04-24T13:03:46.277+05:30",
+                "defaultDate": "2020-05-29T12:02:04.074+05:30",
                 "type": "DATE_PICKER_WIDGET",
                 "isLoading": false,
-                "parentColumnSpace": 34.6875,
+                "parentColumnSpace": 62.484375,
                 "parentRowSpace": 38,
                 "leftColumn": 1,
-                "rightColumn": 9,
-                "topRow": 3,
-                "bottomRow": 4,
+                "rightColumn": 11,
+                "topRow": 4,
+                "bottomRow": 5,
                 "parentId": "acizsl94my",
-                "widgetId": "tq86uzjesl"
+                "widgetId": "3v5mockpwf"
               },
               {
                 "isVisible": true,
-                "text": "{{DatePicker1.defaultDate}}",
+                "text": "Label",
                 "textStyle": "LABEL",
+                "textAlign": "LEFT",
                 "widgetName": "Text5",
                 "type": "TEXT_WIDGET",
                 "isLoading": false,
-                "parentColumnSpace": 34.6875,
+                "parentColumnSpace": 62.484375,
                 "parentRowSpace": 38,
                 "leftColumn": 4,
                 "rightColumn": 8,
-                "topRow": 5,
-                "bottomRow": 6,
+                "topRow": 7,
+                "bottomRow": 8,
                 "parentId": "acizsl94my",
-                "widgetId": "dodyn4d4qd",
-                "dynamicBindings": {
-                  "text": true
-                }
+                "widgetId": "t7c7i4gv0f"
               }
             ],
             "widgetId": "acizsl94my",

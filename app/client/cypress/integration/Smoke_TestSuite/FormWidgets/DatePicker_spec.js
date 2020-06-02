@@ -14,6 +14,7 @@ describe("DatePicker Widget Functionality", function() {
 
   it("DatePicker-Date Name validation", function() {
     // changing the date to today
+    cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
 
     //changing the Button Name
@@ -52,6 +53,7 @@ describe("DatePicker Widget Functionality", function() {
     const today = Cypress.moment()
       .add(0, "days")
       .format("DD/MM/YYYY");
+    cy.get(formWidgetsPage.defaultDate).click();
     cy.ClearDate();
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(

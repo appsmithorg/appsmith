@@ -22,6 +22,7 @@ const devConfig = (baseUrl: string): AppsmithUIConfigs => ({
       apipanev2: true,
       datasourcepane: true,
       querypane: true,
+      lightningmenu: true,
     },
   },
   apiUrl: "/api/",

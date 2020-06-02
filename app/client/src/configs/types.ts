@@ -17,6 +17,7 @@ export enum FeatureFlagsEnum {
   DatasourcePane = "datasourcepane",
   QueryPane = "querypane",
   documentationV2 = "documentationv2",
+  LightningMenu = "lightningmenu",
 }
 
 export type FeatureFlags = Record<FeatureFlagsEnum, boolean>;
