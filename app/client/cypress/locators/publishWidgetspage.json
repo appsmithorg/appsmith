@@ -12,7 +12,7 @@
   "dropdownWidget": ".t--widget-dropdownwidget",
   "tabWidget": ".t--widget-tabswidget",
   "chartWidget": ".t--widget-chartwidget",
-  "horizontalTab": ".t--widget-chartwidget g[class='raphael-group-104-axis-Line-group'] rect",
+  "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
   "tableWidget": ".t--widget-tablewidget",
   "mapWidget": ".t--widget-mapwidget",
   "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable",
