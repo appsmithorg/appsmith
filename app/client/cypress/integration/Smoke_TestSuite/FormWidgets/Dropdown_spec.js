@@ -19,11 +19,6 @@ describe("Dropdown Widget Functionality", function() {
       formWidgetsPage.dropdownWidget,
       commonlocators.containerInnerText,
     );
-    /**
-     * @param{Text} Random Value
-     */
-    cy.testCodeMirror(this.data.dropdownInput);
-    cy.get(formWidgetsPage.labelvalue).should("have.text", "TestD");
     cy.get(formWidgetsPage.dropdownSelectionType)
       .find(commonlocators.dropdownbuttonclick)
       .click({ force: true })
@@ -43,11 +38,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.dropdownDynamic("Option 1");
     cy.PublishtheApp();
   });
-  it("Dropdown Functionality To Validate Options and Label Text", function() {
-    cy.get(publish.dropdownWidget + " " + "label").should(
-      "have.text",
-      this.data.dropdownInput,
-    );
+  it("Dropdown Functionality To Validate Options", function() {
     cy.get(formWidgetsPage.dropdownInput).click({ force: true });
     cy.get(formWidgetsPage.dropdownInput).type("Option");
     cy.dropdownDynamic("Option 2");

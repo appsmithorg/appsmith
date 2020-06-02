@@ -15,7 +15,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import { HelpMap } from "constants/HelpConstants";
 import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
