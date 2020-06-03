@@ -589,14 +589,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     });
   }
 
-  onMouseOver = () => {
-    this.setState({ isHover: true });
-  };
-
-  onMouseOut = () => {
-    this.setState({ isHover: false });
-  };
-
   render() {
     const {
       input,
