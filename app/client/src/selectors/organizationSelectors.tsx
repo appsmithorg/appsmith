@@ -2,7 +2,9 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { OrgRole, Org } from "constants/orgConstants";
 
-export const getRolesFromState = (state: AppState) => state.ui.orgs.roles;
+export const getRolesFromState = (state: AppState) => {
+  return state.ui.orgs.roles;
+};
 export const getOrgs = (state: AppState) => state.ui.orgs.list;
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
@@ -28,6 +30,15 @@ export const getRoles = createSelector(getRolesFromState, (roles?: OrgRole[]):
     name: role.displayName || role.name,
     isDefault: role.isDefault,
   }));
+});
+
+export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
+  return Object.entries(roles).map(role => {
+    return {
+      id: role[0],
+      name: role[0],
+    };
+  });
 });
 
 export const getDefaultRole = createSelector(getRoles, (roles?: OrgRole[]) => {

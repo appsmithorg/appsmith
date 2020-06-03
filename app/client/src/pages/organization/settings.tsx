@@ -18,15 +18,16 @@ import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import Button from "components/editorComponents/Button";
 import { Org, OrgUser } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import "@syncfusion/ej2-react-grids/styles/material.css";
-import { stringify } from "querystring";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 type OrgProps = {
   org?: Org;
   changeOrgName: (value: string) => void;
@@ -138,13 +139,20 @@ export const OrgSettings = (props: PageProps) => {
       <PageSectionDivider />
       <PageSectionHeader>
         <h2>Users</h2>
-        <Button
-          intent="primary"
-          text="Invite Users"
-          icon="plus"
-          iconAlignment="left"
-          filled
-          onClick={() => history.push(ORG_INVITE_USERS_PAGE_URL)}
+        <FormDialogComponent
+          trigger={
+            <Button
+              intent="primary"
+              text="Invite Users"
+              icon="plus"
+              iconAlignment="left"
+              filled
+            />
+          }
+          Form={InviteUsersFormv2}
+          orgId={orgId}
+          title={"Invite Users"}
+          setMaxWidth
         />
       </PageSectionHeader>
       {props.isFetchAllUsers && props.isFetchAllRoles ? (

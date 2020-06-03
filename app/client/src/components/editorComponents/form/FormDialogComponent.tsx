@@ -4,12 +4,13 @@ import { connect } from "react-redux";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { isPermitted } from "pages/Applications/permissionHelpers";
 
-const StyledDialog = styled(Dialog)`
+const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
     background: white;
     & .bp3-dialog-footer-actions {
       display: block;
     }
+    ${props => props.setMaxWidth && `width: 100vh;`}
   }
 `;
 
@@ -23,6 +24,7 @@ type FormDialogComponentProps = {
   trigger: ReactNode;
   permissionRequired?: string;
   permissions?: string[];
+  setMaxWidth?: boolean;
 };
 
 export const FormDialogComponent = (props: FormDialogComponentProps) => {
@@ -53,6 +55,7 @@ export const FormDialogComponent = (props: FormDialogComponentProps) => {
         title={props.title}
         onClose={onClose}
         isOpen={isOpen}
+        setMaxWidth={props.setMaxWidth}
       >
         <div className={Classes.DIALOG_BODY}>
           <Form
