@@ -135,6 +135,8 @@ const Wrapper = styled.div<{
   disabled?: boolean;
   setMaxHeight?: boolean;
 }>`
+  width: ${props =>
+    props.editorTheme === THEMES.DARK ? "calc(100% - 32px)" : "100%"};
   ${props =>
     props.singleLine && props.isFocused
       ? `
@@ -142,7 +144,7 @@ const Wrapper = styled.div<{
   position: absolute;
   right: 0;
   left: 0;
-  top: 0;
+  top: 0;  
   `
       : `z-index: 0; position: relative`}
   background-color: ${props =>
@@ -256,6 +258,9 @@ const DynamicAutocompleteInputWrapper = styled.div<{
 }>`
   width: 100%;
   height: 100%;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background: ${props => (props.skin === Skin.DARK ? "#272822" : "none")};
   flex: 1;
   position: relative;
   border: ${props =>
@@ -544,10 +549,16 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   updatePropertyValue(value: string, cursor?: number) {
-    this.editor.setValue(value);
+    if (value) {
+      this.editor.setValue(value);
+    }
     this.editor.focus();
     if (cursor === undefined) {
-      cursor = value.length - 2;
+      if (value) {
+        cursor = value.length - 2;
+      } else {
+        cursor = 1;
+      }
     }
     this.editor.setCursor({
       line: 0,
@@ -557,6 +568,14 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       this.handleAutocompleteVisibility(this.editor);
     });
   }
+
+  onMouseOver = () => {
+    this.setState({ isHover: true });
+  };
+
+  onMouseOut = () => {
+    this.setState({ isHover: false });
+  };
 
   render() {
     const {
@@ -577,12 +596,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     return (
       <DynamicAutocompleteInputWrapper
-        onMouseOver={() => {
-          this.setState({ isHover: true });
-        }}
-        onMouseOut={() => {
-          this.setState({ isHover: false });
-        }}
+        onMouseOver={this.onMouseOver}
+        onMouseOut={this.onMouseOut}
         theme={this.props.theme}
         skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}

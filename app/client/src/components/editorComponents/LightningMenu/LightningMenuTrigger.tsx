@@ -47,18 +47,29 @@ export default class LightningMenuTrigger extends React.Component<
   componentDidUpdate(prevProps: LightningMenuTriggerProps) {
     const { menuState } = this.state;
     const { isHover, isFocused, isClosed } = this.props;
+    // if (menuState !== "none") {
+    //   console.log(
+    //     "isHover, isFocused, isClosed",
+    //     isHover,
+    //     isFocused,
+    //     isClosed,
+    //     menuState,
+    //   );
+    // }
     if (menuState === "none" && isHover) {
       this.setState({ menuState: "hover" });
-    } else if (menuState === "active" && isFocused) {
+    } else if (
+      (menuState === "active" && isFocused) ||
+      (menuState === "none" && isFocused)
+    ) {
       this.setState({ menuState: "default" });
-    } else if (menuState === "default" && !isFocused) {
+    } else if (
+      (menuState === "default" && !isFocused) ||
+      (menuState === "hover" && !isHover) ||
+      (menuState === "active" && isClosed) ||
+      (menuState !== "none" && !isHover && !isFocused && isClosed)
+    ) {
       this.setState({ menuState: "none" });
-    } else if (menuState === "hover" && !isHover) {
-      this.setState({ menuState: "none" });
-    } else if (menuState === "active" && isClosed) {
-      this.setState({ menuState: "none" });
-    } else if (menuState === "none" && isFocused) {
-      this.setState({ menuState: "default" });
     }
   }
 
