@@ -9,7 +9,7 @@ import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { getLightningMenuOptions } from "./helpers";
-import LightningMenuTrigger from "./LightningMenuTrigger";
+import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
 import { Theme, Skin } from "constants/DefaultTheme";
 import { withTheme } from "styled-components";
@@ -59,9 +59,8 @@ const lightningMenuOptions = (
 };
 
 type LightningMenuProps = {
-  isHover: boolean;
   isFocused: boolean;
-  isClosed: boolean;
+  isOpened: boolean;
   onSelect?: (value: string) => void;
   onOpenLightningMenu: () => void;
   onCloseLightningMenu?: () => void;
@@ -89,9 +88,8 @@ export const LightningMenu = (props: LightningMenuProps) => {
         <LightningMenuTrigger
           skin={props.skin}
           theme={props.theme}
-          isHover={props.isHover}
           isFocused={props.isFocused}
-          isClosed={props.isClosed}
+          isOpened={props.isOpened}
           onOpenLightningMenu={props.onOpenLightningMenu}
         />,
         props.onCloseLightningMenu,
