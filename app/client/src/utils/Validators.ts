@@ -248,11 +248,19 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
       };
-    } else if (!_.every(parsed, datum => _.isObject(datum))) {
+    } else if (
+      !_.every(parsed, datum => {
+        return (
+          _.isObject(datum) &&
+          Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
+            .length === 0
+        );
+      })
+    ) {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }, { "key1" : "val3", "key2" : "val4" }]`,
       };
     }
     return { isValid, parsed };

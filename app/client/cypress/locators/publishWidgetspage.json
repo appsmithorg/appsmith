@@ -3,7 +3,7 @@
   "textWidget": ".t--widget-textwidget",
   "richTextEditorWidget": ".t--widget-richtexteditorwidget",
   "datepickerWidget": ".t--widget-datepickerwidget",
-  "backToEditor": ".bp3-icon.bp3-icon-chevron-left  + span.bp3-button-text",
+  "backToEditor": ".t--back-to-editor",
   "inputWidget": ".t--widget-inputwidget",
   "checkboxWidget": ".t--widget-checkboxwidget",
   "radioWidget": ".t--widget-radiogroupwidget",
@@ -15,7 +15,7 @@
   "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
   "tableWidget": ".t--widget-tablewidget",
   "mapWidget": ".t--widget-mapwidget",
-  "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable",
+  "tableLength": ".t--widget-tablewidget .tbody",
   "mapSearch": ".t--widget-mapwidget input",
   "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']"
 }
