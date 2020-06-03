@@ -20,10 +20,20 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       chartName: VALIDATION_TYPES.TEXT,
       isVisible: VALIDATION_TYPES.BOOLEAN,
       chartData: VALIDATION_TYPES.CHART_DATA,
+      singleChartData: VALIDATION_TYPES.SINGLE_CHART_DATA,
     };
   }
 
   getPageView() {
+    let chartData: ChartData[] = this.props.chartData;
+    if (this.props.singleChartData) {
+      chartData = [
+        {
+          seriesName: this.props.chartName,
+          data: this.props.singleChartData,
+        },
+      ];
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
@@ -33,7 +43,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           xAxisName={this.props.xAxisName}
           yAxisName={this.props.yAxisName}
           chartName={this.props.chartName}
-          chartData={this.props.chartData}
+          chartData={chartData}
           widgetId={this.props.widgetId}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
@@ -67,6 +77,7 @@ export interface ChartData {
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
   chartData: ChartData[];
+  singleChartData: ChartDataPoint[];
   xAxisName: string;
   yAxisName: string;
   chartName: string;
