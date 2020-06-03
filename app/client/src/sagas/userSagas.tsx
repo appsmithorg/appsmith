@@ -170,7 +170,10 @@ type InviteUserPayload = {
   groupIds: string[];
 };
 
-export function* inviteUser(payload: InviteUserPayload, reject: any) {
+export function* inviteUser(
+  payload: { email: string; orgId: string; roleName: string },
+  reject: any,
+) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {
@@ -183,29 +186,22 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: Array<{ roleId: string; emails: string[] }>;
+    data: { emails: string[]; orgId: string; roleName: string };
   }>,
 ) {
   const { data, resolve, reject } = action.payload;
   try {
-    const sagasToCall = [];
-    const emailSet: Record<string, string[]> = {};
-    data.forEach((groupSet: { roleId: string; emails: string[] }) => {
-      const { emails, roleId } = groupSet;
-      emails.forEach((email: string) => {
-        if (emailSet.hasOwnProperty(email)) {
-          emailSet[email].push(roleId);
-        } else {
-          emailSet[email] = [roleId];
-        }
-      });
-    });
+    const sagasToCall: any[] = [];
 
-    for (const email in emailSet) {
+    data.emails.forEach((email: string) => {
       sagasToCall.push(
-        call(inviteUser, { email, groupIds: emailSet[email] }, reject),
+        call(
+          inviteUser,
+          { email, orgId: data.orgId, roleName: data.roleName },
+          reject,
+        ),
       );
-    }
+    });
     yield all(sagasToCall);
     yield put({
       type: ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS,

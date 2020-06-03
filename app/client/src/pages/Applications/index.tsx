@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import { Card, Icon } from "@blueprintjs/core";
+import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
   getIsFetchingApplications,
@@ -22,6 +23,7 @@ import PageSectionDivider from "pages/common/PageSectionDivider";
 import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { PERMISSION_TYPE } from "./permissionHelpers";
 import { DELETING_APPLICATION } from "constants/messages";
@@ -40,6 +42,7 @@ const OrgDropDown = styled.div`
   display: flex;
   padding: 0px 30px;
   font-size: ${props => props.theme.fontSizes[1]}px;
+  justify-content: space-between;
 `;
 
 const ApplicationCardsWrapper = styled.div`
@@ -142,6 +145,13 @@ class Applications extends Component<ApplicationProps> {
                       )}
                     />
                   )}
+                  <FormDialogComponent
+                    trigger={<Button text="Share" intent={"primary"} filled />}
+                    Form={InviteUsersFormv2}
+                    orgId={organization.id}
+                    title={"Invite Users"}
+                    setMaxWidth
+                  />
                 </OrgDropDown>
                 <ApplicationCardsWrapper key={organization.id}>
                   <FormDialogComponent
