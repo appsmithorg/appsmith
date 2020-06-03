@@ -30,7 +30,7 @@ type TreeDropdownProps = {
   selectedLabelModifier?: (
     option: TreeDropdownOption,
     displayValue?: string,
-  ) => string;
+  ) => React.ReactNode;
   displayValue?: string;
   toggle?: React.ReactNode;
 };
@@ -120,7 +120,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? selectedLabelModifier(selectedOption, displayValue)
             : selectedOption.label
         }
-        className={`t--open-dropdown-${defaultText.split(" ").join("-")}`}
+        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
+          selectedLabelModifier ? "code-highlight" : ""
+        }`}
       />
     </StyledDropDownContainer>
   );

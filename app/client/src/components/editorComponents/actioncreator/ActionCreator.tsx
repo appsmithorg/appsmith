@@ -21,6 +21,7 @@ import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import HightlightedCode from "components/editorComponents/HighlightedCode";
 import {
   createNewApiAction,
   createNewQueryAction,
@@ -158,7 +159,7 @@ type SelectorViewProps = ViewProps & {
   selectedLabelModifier?: (
     option: TreeDropdownOption,
     displayValue?: string,
-  ) => string;
+  ) => React.ReactNode;
 };
 
 type KeyValueViewProps = ViewProps;
@@ -433,6 +434,7 @@ const baseOptions: any = [
     label: "Execute a DB Query",
     value: ActionType.query,
   },
+
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -666,6 +668,7 @@ function Fields(props: {
             field.value !== "{{undefined}}" && field.value !== "{{()}}"
               ? field.value
               : undefined;
+          // eslint-disable-next-line react/display-name
           selectedLabelModifier = (
             option: TreeDropdownOption,
             displayValue?: string,
@@ -674,12 +677,13 @@ function Fields(props: {
               option.type === ActionType.api ||
               option.type === ActionType.query
             ) {
-              return `{{${option.label}.run()}}`;
-              // return `Call ${option.label}`;
+              return (
+                <HightlightedCode codeText={`{{${option.label}.run()}}`} />
+              );
             } else if (displayValue) {
-              return displayValue;
+              return <HightlightedCode codeText={displayValue} />;
             }
-            return option.label;
+            return <span>{option.label}</span>;
           };
           getDefaults = (value: string) => {
             return {

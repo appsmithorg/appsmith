@@ -13,6 +13,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
+import { Skin } from "constants/DefaultTheme";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -75,6 +76,13 @@ export const StyledDropDownContainer = styled.div`
     background-color: ${Colors.SHARK};
     color: ${Colors.CADET_BLUE};
     background-image: none;
+    &.code-highlight {
+      .language-javascript {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+      }
+    }
   }
   &&&& .${Classes.MENU_ITEM} {
     border-radius: ${props => props.theme.radii[1]}px;
@@ -127,10 +135,10 @@ export const StyledDropDownContainer = styled.div`
 
 export const StyledMenu = styled(Menu)`
   && {
-    background: ${props => props.theme.dropdown.dark.inActiveBG};
+    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
   }
   .bp3-submenu .bp3-menu {
-    background: ${props => props.theme.dropdown.dark.inActiveBG};
+    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
   }
 `;
 
@@ -201,19 +209,19 @@ export const StyledPopover = styled(Popover)`
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
     border-radius: ${props => props.theme.radii[1]}px;
-    background: ${props => props.theme.dropdown.dark.inActiveBG};
-    color: ${props => props.theme.dropdown.dark.inActiveText};
+    background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
+    color: ${props => props.theme.dropdown[Skin.DARK].inActiveText};
     padding: 4px 8px;
     margin: 4px 0px;
     &:hover {
-      background: ${props => props.theme.dropdown.dark.hoverBG};
+      background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
       &&&.bp3-menu-item.bp3-intent-danger:hover {
         background: ${props => props.theme.colors.error};
       }
     }
     &.${Classes.ACTIVE} {
-      background: ${props => props.theme.dropdown.dark.hoverBG};
-      color: ${props => props.theme.dropdown.dark.hoverText};
+      background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
+      color: ${props => props.theme.dropdown[Skin.DARK].hoverText};
       position: relative;
       &.single-select {
         &:before {
@@ -221,7 +229,7 @@ export const StyledMenuItem = styled(MenuItem)`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${props => props.theme.dropdown.dark.hoverBG};
+          background: ${props => props.theme.dropdown[Skin.DARK].hoverBG};
           border-radius: 4px 0 0 4px;
           width: 4px;
           height: 100%;
@@ -229,7 +237,7 @@ export const StyledMenuItem = styled(MenuItem)`
       }
     }
     &&&& .${Classes.MENU} {
-      background: ${props => props.theme.dropdown.dark.inActiveBG};
+      background: ${props => props.theme.dropdown[Skin.DARK].inActiveBG};
     }
   }
 `;
