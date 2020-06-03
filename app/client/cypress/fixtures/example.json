@@ -52,16 +52,32 @@
   "regex": "z{3}",
   "chartInput": [
     {
-      "x": "Day1",
+      "x": "Mon",
       "y": 10000
     },
     {
-      "x": "Day2",
+      "x": "Tue",
       "y": 12000
     },
     {
-      "x": "Day3",
+      "x": "Wed",
       "y": 32000
+    },
+    {
+      "x": "Thu",
+      "y": 36000
+    },
+    {
+      "x": "Fri",
+      "y": 30000
+    },
+    {
+      "x": "Sat",
+      "y": 31000
+    },
+    {
+      "x": "Sun",
+      "y": 42000
     }
   ],
   "series": "Weekly",
@@ -99,5 +115,42 @@
   "defaultdata":"TestData",
   "label":"one",
   "rgbValue":"rgb(255, 0, 0)",
-  "tabName":"Aditya"
+  "tabName":"Aditya",
+  "TableInput":[
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    },
+    {
+      "id": 6788734,
+      "email": "tobias.funke@reqres.in",
+      "userName": "Tobias Funke",
+      "productName": "Beef steak",
+      "orderAmount": 19.99
+    },
+    {
+      "id": 7434532,
+      "email": "byron.fields@reqres.in",
+      "userName": "Byron Fields",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 7434532,
+      "email": "ryan.holmes@reqres.in",
+      "userName": "Ryan Holmes",
+      "productName": "Avocado Panini",
+      "orderAmount": 7.99
+    }
+  ]
 }

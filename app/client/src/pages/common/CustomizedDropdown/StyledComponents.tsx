@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
-import { Intent } from "constants/DefaultTheme";
+import { Intent, Skin } from "constants/DefaultTheme";
 
-export const DropdownTrigger = styled.div<{ skin: string }>`
+export const DropdownTrigger = styled.div<{ skin: Skin }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -20,9 +20,9 @@ export const DropdownTrigger = styled.div<{ skin: string }>`
     span {
       font-weight: 400;
       color: ${props =>
-        props.skin === "dark"
+        props.skin === Skin.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.skin === "light"
+          : props.skin === Skin.LIGHT
           ? props.theme.colors.defaultText
           : "initial"};
     }
@@ -31,19 +31,19 @@ export const DropdownTrigger = styled.div<{ skin: string }>`
     }
   }
 `;
-export const DropdownContent = styled.div<{ skin: string }>`
+export const DropdownContent = styled.div<{ skin: Skin }>`
   &&& * {
     font-size: ${props => props.theme.fontSizes[3]}px;
   }
-  border: ${props => (props.skin === "dark" ? "1px solid" : "")};
+  border: ${props => (props.skin === Skin.DARK ? "1px solid" : "")};
   border-color: ${props =>
-    props.skin === "dark" ? props.theme.dropdown[props.skin].border : ""};
+    props.skin === Skin.DARK ? props.theme.dropdown[props.skin].border : ""};
   background: ${props => props.theme.dropdown[props.skin].inActiveBG};
 `;
 
 export const DropdownContentSection = styled.div<{
   stick: boolean;
-  skin: string;
+  skin: Skin;
 }>`
   position: ${props => (props.stick ? "sticky" : "relative")};
   background: white;
@@ -66,11 +66,11 @@ export const DropdownContentSection = styled.div<{
     right: 0;
     bottom: 0;
     height: 1px;
-    background: ${props => (props.skin === "dark" ? "#535B62" : "#ccc")};
+    background: ${props => (props.skin === Skin.DARK ? "#535B62" : "#ccc")};
   }
 `;
 
-export const highlightOption = css<{ intent?: Intent; skin: string }>`
+export const highlightOption = css<{ intent?: Intent; skin: Skin }>`
   text-decoration: none;
   color: ${props => props.theme.dropdown[props.skin].hoverText};
   background: ${props => props.theme.dropdown[props.skin].hoverBG};
@@ -83,7 +83,7 @@ export const Option = styled.div<{
   intent?: Intent;
   active?: boolean;
   disabled?: boolean;
-  skin: string;
+  skin: Skin;
 }>`
   padding: 8px 16px;
   min-width: 200px;
@@ -102,9 +102,9 @@ export const Option = styled.div<{
   &&& button {
     span {
       color: ${props =>
-        props.skin === "dark"
+        props.skin === Skin.DARK
           ? props.theme.colors.textOnDarkBG
-          : props.skin === "light"
+          : props.skin === Skin.LIGHT
           ? props.theme.colors.defaultText
           : "initial"};
     }

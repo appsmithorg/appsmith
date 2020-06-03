@@ -37,6 +37,11 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   warning: AlertIcons.WARNING,
 };
 
+export enum Skin {
+  LIGHT,
+  DARK,
+}
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
@@ -264,13 +269,13 @@ export type Theme = {
     hoverBGOpacity: number;
   };
   dropdown: {
-    light: {
+    [Skin.LIGHT]: {
       hoverBG: Color;
       hoverText: Color;
       inActiveBG: Color;
       inActiveText: Color;
     };
-    dark: {
+    [Skin.DARK]: {
       hoverBG: Color;
       hoverText: Color;
       inActiveBG: Color;
@@ -295,9 +300,42 @@ export type Theme = {
   pageContentWidth: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
-    iconSize: number;
-    dark: { color: Color };
-    light: { color: Color };
+    [Skin.DARK]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+    [Skin.LIGHT]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
   };
 };
 
@@ -367,6 +405,11 @@ export const theme: Theme = {
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
+    notification: Colors.JAFFA,
+    bindingTextDark: Colors.SOFT_ORANGE,
+    bindingText: Colors.PURE_ORANGE,
+    cmBacground: Colors.BLUE_CHARCOAL,
+    lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -425,13 +468,13 @@ export const theme: Theme = {
     hoverBGOpacity: 0.5,
   },
   dropdown: {
-    light: {
+    [Skin.LIGHT]: {
       hoverBG: Colors.GREEN,
       hoverText: Colors.WHITE,
       inActiveBG: Colors.WHITE,
       inActiveText: Colors.BLACK_PEARL,
     },
-    dark: {
+    [Skin.DARK]: {
       hoverBG: Colors.TROUT_DARK,
       hoverText: Colors.WHITE,
       inActiveBG: Colors.BLUE_CHARCOAL,
@@ -474,12 +517,41 @@ export const theme: Theme = {
     },
   },
   lightningMenu: {
-    iconSize: 14,
-    dark: {
-      color: Colors.WHITE,
+    [Skin.DARK]: {
+      default: {
+        color: Colors.ALABASTER,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.ALABASTER,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
     },
-    light: {
-      color: Colors.HIT_GRAY,
+    [Skin.LIGHT]: {
+      default: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.WHITE,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.WHITE,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
     },
   },
 };

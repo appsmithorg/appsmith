@@ -20,13 +20,14 @@ import {
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
 } from "constants/messages";
+import { Skin } from "constants/DefaultTheme";
 
 export const getApiOptions = (
-  skin: string,
+  skin: Skin,
   apis: RestAction[],
   pageId: string,
   dispatch: Function,
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -52,7 +53,7 @@ export const getApiOptions = (
       options: apis.map(api => ({
         content: api.name,
         onSelect: () => {
-          updatePropertyValue(`{{${api.name}.data}}`);
+          updateDynamicInputValue(`{{${api.name}.data}}`);
         },
       })),
     },
@@ -66,11 +67,11 @@ export const getApiOptions = (
 });
 
 export const getQueryOptions = (
-  skin: string,
+  skin: Skin,
   queries: RestAction[],
   pageId: string,
   dispatch: Function,
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -96,7 +97,7 @@ export const getQueryOptions = (
       options: queries.map(query => ({
         content: query.name,
         onSelect: () => {
-          updatePropertyValue(`{{${query.name}.data}}`);
+          updateDynamicInputValue(`{{${query.name}.data}}`);
         },
       })),
     },
@@ -110,9 +111,9 @@ export const getQueryOptions = (
 });
 
 export const getWidgetOptions = (
-  skin: string,
+  skin: Skin,
   widgets: WidgetProps[],
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => ({
   sections: [
     {
@@ -121,7 +122,7 @@ export const getWidgetOptions = (
         disabled: false,
         shouldCloseDropdown: true,
         onSelect: () => {
-          updatePropertyValue(`{{${widget.widgetName}.}}`);
+          updateDynamicInputValue(`{{${widget.widgetName}.}}`);
         },
       })),
     },
@@ -140,8 +141,8 @@ export const getLightningMenuOptions = (
   widgets: WidgetProps[],
   pageId: string,
   dispatch: Function,
-  skin: string,
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  skin: Skin,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
 ) => {
   const options: CustomizedDropdownOption[] = [
     {
@@ -149,13 +150,19 @@ export const getLightningMenuOptions = (
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {
-        updatePropertyValue("");
+        updateDynamicInputValue("");
       },
     },
     {
       content: (
         <CustomizedDropdown
-          {...getApiOptions(skin, apis, pageId, dispatch, updatePropertyValue)}
+          {...getApiOptions(
+            skin,
+            apis,
+            pageId,
+            dispatch,
+            updateDynamicInputValue,
+          )}
         />
       ),
       disabled: false,
@@ -169,7 +176,7 @@ export const getLightningMenuOptions = (
             queries,
             pageId,
             dispatch,
-            updatePropertyValue,
+            updateDynamicInputValue,
           )}
         />
       ),
@@ -181,7 +188,7 @@ export const getLightningMenuOptions = (
     options.push({
       content: (
         <CustomizedDropdown
-          {...getWidgetOptions(skin, widgets, updatePropertyValue)}
+          {...getWidgetOptions(skin, widgets, updateDynamicInputValue)}
         />
       ),
       disabled: false,
@@ -195,7 +202,7 @@ export const getLightningMenuOptions = (
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {
-        updatePropertyValue("{{}}");
+        updateDynamicInputValue("{{}}");
       },
     },
     {
@@ -203,7 +210,7 @@ export const getLightningMenuOptions = (
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {
-        updatePropertyValue("<p></p>", 3);
+        updateDynamicInputValue("<p></p>", 3);
       },
     },
   ];

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import FormRow from "./FormRow";
@@ -14,6 +14,7 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
+import FormActionButton from "./form/FormActionButton";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -91,6 +92,17 @@ const EMPTY_RESPONSE = {
   size: "",
 };
 
+const FailedMessageContainer = styled.div`
+  width: calc(100% - 29px);
+  position: absolute;
+  left: 29px;
+  z-index: 10;
+  bottom: 48%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const ApiResponseView = (props: Props) => {
   const {
     match: {
@@ -101,21 +113,40 @@ const ApiResponseView = (props: Props) => {
   } = props;
   let response: ActionResponse = EMPTY_RESPONSE;
   let isRunning = false;
+  let hasFailed = false;
   if (apiId && apiId in responses) {
     response = responses[apiId] || EMPTY_RESPONSE;
     isRunning = apiPane.isRunning[apiId];
+    hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
-        <CodeEditor
-          input={{
-            value: response.body ? JSON.stringify(response.body, null, 2) : "",
-          }}
-          height={700}
-        />
+        <>
+          <FailedMessageContainer>
+            {hasFailed && !isRunning && (
+              <FormActionButton
+                intent={"danger"}
+                text="Check Request body"
+                onClick={() => {
+                  setSelectedIndex(3);
+                }}
+              ></FormActionButton>
+            )}
+          </FailedMessageContainer>
+          <CodeEditor
+            input={{
+              value: response.body
+                ? JSON.stringify(response.body, null, 2)
+                : "",
+            }}
+            height={700}
+          />
+        </>
       ),
     },
     {
@@ -173,7 +204,12 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaInfo>
         </React.Fragment>
       </FormRow>
-      <BaseTabbedView overflow tabs={tabs} />
+      <BaseTabbedView
+        overflow
+        tabs={tabs}
+        selectedIndex={selectedIndex}
+        setSelectedIndex={setSelectedIndex}
+      />
     </ResponseWrapper>
   );
 };

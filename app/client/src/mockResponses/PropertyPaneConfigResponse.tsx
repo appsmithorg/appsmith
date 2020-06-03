@@ -154,10 +154,9 @@ const PropertyPaneConfigResponse = {
         children: [
           {
             id: "7.2.1",
-            helpText:
-              "Adds a button action for every row. Reference the Table.selectedRow property in the action",
+            helpText: "Adds a button action for every row in a column.",
             propertyName: "columnActions",
-            label: "Table Actions",
+            label: "Column Button",
             controlType: "COLUMN_ACTION_SELECTOR",
           },
           {

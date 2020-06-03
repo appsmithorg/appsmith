@@ -60,35 +60,35 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "placeholder")
       .should("contain", this.data.placeholder);
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Widget Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Widget Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("not.be.visible");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor).click({ force: true });
   });
   it("Input Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.inputWidget + " " + "input").should("be.visible");
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor).click({ force: true });
   });
 });
 afterEach(() => {

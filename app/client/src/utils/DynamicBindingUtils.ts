@@ -143,6 +143,13 @@ export const createDynamicValueString = (
     if (Array.isArray(value) || _.isObject(value)) {
       value = JSON.stringify(value);
     }
+    try {
+      if (JSON.parse(value)) {
+        value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
+      }
+    } catch (e) {
+      // do nothing
+    }
     finalValue = finalValue.replace(b, value);
   });
   return finalValue;

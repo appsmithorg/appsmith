@@ -29,6 +29,9 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination, { PaginationType } from "./Pagination";
+import { Icon } from "@blueprintjs/core";
+import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 
 const Form = styled.form`
   display: flex;
@@ -97,6 +100,18 @@ const DatasourceWrapper = styled.div`
 const TabbedViewContainer = styled.div`
   flex: 1;
   padding-top: 12px;
+`;
+
+export const BindingText = styled.span`
+  color: ${props => props.theme.colors.bindingTextDark};
+  font-weight: 700;
+`;
+
+const StyledOpenDocsIcon = styled(Icon)`
+  svg {
+    width: 12px;
+    height: 18px;
+  }
 `;
 
 interface APIFormProps {
@@ -230,6 +245,17 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                 title: "API Input",
                 panelComponent: (
                   <RequestParamsWrapper>
+                    <CollapsibleHelp>
+                      <span>{`Having trouble taking inputs from widget?`}</span>
+                      <a
+                        href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {" Learn How "}
+                        <StyledOpenDocsIcon icon="document-open"></StyledOpenDocsIcon>
+                      </a>
+                    </CollapsibleHelp>
                     <HeadersSection>
                       <KeyValueFieldArray
                         name="actionConfiguration.headers"

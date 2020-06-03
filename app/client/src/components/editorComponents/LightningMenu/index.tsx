@@ -7,25 +7,24 @@ import CustomizedDropdown, {
 import { Directions } from "utils/helpers";
 import { RestAction } from "api/ActionAPI";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ControlIcons } from "icons/ControlIcons";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
-
 import { getLightningMenuOptions } from "./helpers";
+import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
 import { withTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 
-const LightningIcon = ControlIcons.LIGHTNING_CONTROL;
 const lightningMenuOptions = (
-  skin: string,
+  skin: Skin,
   apis: RestAction[],
   queries: RestAction[],
   widgets: WidgetProps[],
   pageId: string,
   dispatch: Function,
-  updatePropertyValue: (value: string, cursor?: number) => void,
+  updateDynamicInputValue: (value: string, cursor?: number) => void,
   trigger: React.ReactNode,
+  onCloseLightningMenu?: () => void,
 ): CustomizedDropdownProps => {
   const options = getLightningMenuOptions(
     apis,
@@ -34,7 +33,7 @@ const lightningMenuOptions = (
     pageId,
     dispatch,
     skin,
-    updatePropertyValue,
+    updateDynamicInputValue,
   );
   return {
     sections: [
@@ -43,7 +42,6 @@ const lightningMenuOptions = (
       },
     ],
     openDirection: Directions.DOWN,
-    usePortal: true,
     trigger: {
       content: (
         <Tooltip hoverOpenDelay={1000} content={LIGHTNING_MENU_DATA_TOOLTIP}>
@@ -52,13 +50,22 @@ const lightningMenuOptions = (
       ),
     },
     skin,
+    onCloseDropDown: () => {
+      if (onCloseLightningMenu) {
+        onCloseLightningMenu();
+      }
+    },
   };
 };
 
 type LightningMenuProps = {
+  isFocused: boolean;
+  isOpened: boolean;
   onSelect?: (value: string) => void;
-  updatePropertyValue: (value: string, cursor?: number) => void;
-  skin: string;
+  onOpenLightningMenu: () => void;
+  onCloseLightningMenu?: () => void;
+  updateDynamicInputValue: (value: string, cursor?: number) => void;
+  skin: Skin;
   theme: Theme;
 };
 
@@ -67,13 +74,6 @@ export const LightningMenu = (props: LightningMenuProps) => {
   const { apis, queries } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
-  const lightningMenuTrigger = (
-    <LightningIcon
-      width={props.theme.lightningMenu.iconSize}
-      height={props.theme.lightningMenu.iconSize}
-      color={props.theme.lightningMenu[props.skin as "light" | "dark"].color}
-    />
-  );
 
   return (
     <CustomizedDropdown
@@ -84,8 +84,15 @@ export const LightningMenu = (props: LightningMenuProps) => {
         widgets,
         pageId,
         dispatch,
-        props.updatePropertyValue,
-        lightningMenuTrigger,
+        props.updateDynamicInputValue,
+        <LightningMenuTrigger
+          skin={props.skin}
+          theme={props.theme}
+          isFocused={props.isFocused}
+          isOpened={props.isOpened}
+          onOpenLightningMenu={props.onOpenLightningMenu}
+        />,
+        props.onCloseLightningMenu,
       )}
     />
   );

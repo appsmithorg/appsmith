@@ -131,11 +131,10 @@ export default function Pagination(props: PaginationProps) {
               marginBottom: "6px",
             }}
           >
-            Use Table pageNo and pageSize to configure the url.
+            Configure the Table pageNo in the API.
           </p>
           <ExampleApi>
-            http://api.example.com/users?pageNo={"{{Table.pageNo}}"}
-            &amp;pageSize={"{{Table.pageSize}}"}
+            http://api.example.com/users?pageNo={"{{Table1.pageNo}}"}
           </ExampleApi>
         </CalloutComponent>
       </PaginationTypeView>

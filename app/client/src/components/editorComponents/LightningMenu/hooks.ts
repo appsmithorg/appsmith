@@ -8,7 +8,7 @@ export const useWidgets = () => {
     const canvasWidgets = state.entities.canvasWidgets;
     const final = Object.values(canvasWidgets).filter(
       (widget: WidgetProps) =>
-        !widget.children || widget.children?.length === 0 || !widget.widgetName,
+        !widget.children || widget.children?.length === 0,
     );
     return final;
   });

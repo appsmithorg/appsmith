@@ -19,7 +19,8 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { parseDynamicString } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
@@ -171,7 +172,9 @@ const Wrapper = styled.div<{
   && {
     .binding-highlight {
       color: ${props =>
-        props.editorTheme === THEMES.DARK ? "#f7c75b" : "#ffb100"};
+        props.editorTheme === THEMES.DARK
+          ? props.theme.colors.bindingTextDark
+          : props.theme.colors.bindingText};
       font-weight: 700;
     }
     .CodeMirror {
@@ -246,29 +249,43 @@ const IconContainer = styled.div`
   }
 `;
 
-const DynamicAutocompleteInputWrapper = styled.div`
+type MenuState = "none" | "default" | "active" | "hover";
+
+const DynamicAutocompleteInputWrapper = styled.div<{
+  skin: Skin;
+  theme: Theme;
+  isActive: boolean;
+  isNotHover: boolean;
+}>`
   width: 100%;
   height: 100%;
   flex: 1;
   position: relative;
-  //TODO(abhinav): Fix these styles when we have the designs for the lightning icon in both themes
-  & > span:first-of-type {
-    position: absolute;
-    right: 4px;
-    top: 6px;
-    width: 20px;
-    height: 20px;
-    z-index: 10;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    & > span {
-      margin-top: 6px;
-    }
-    &:hover {
-      border: 2px solid #ccc;
+  border: ${props =>
+    props.isActive && props.skin === Skin.DARK
+      ? "1px solid " + Colors.ALABASTER
+      : "none"};
+  &:hover {
+    border: ${props =>
+      props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
+    .lightning-menu {
+      background: ${props =>
+        !props.isNotHover
+          ? props.skin === Skin.DARK
+            ? Colors.ALABASTER
+            : Colors.BLUE_CHARCOAL
+          : ""};
+      svg {
+        path,
+        circle {
+          fill: ${props =>
+            !props.isNotHover
+              ? props.skin === Skin.DARK
+                ? Colors.BLUE_CHARCOAL
+                : Colors.WHITE
+              : ""};
+        }
+      }
     }
   }
 `;
@@ -314,6 +331,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
+  isOpened: boolean;
   autoCompleteVisible: boolean;
 };
 
@@ -326,6 +344,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     super(props);
     this.state = {
       isFocused: false,
+      isOpened: false,
       autoCompleteVisible: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
@@ -334,7 +353,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   componentDidMount(): void {
     if (this.textArea.current) {
       const options: EditorConfiguration = {};
-      //use this for lightning menu theme
       if (this.props.theme === "DARK") options.theme = "monokai";
       if (!this.props.input.onChange || this.props.disabled) {
         options.readOnly = true;
@@ -578,12 +596,25 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         hasError && this.state.isFocused && !this.state.autoCompleteVisible;
     }
     return (
-      <DynamicAutocompleteInputWrapper>
-        {(showLightningMenu === undefined || showLightningMenu === true) && (
+      <DynamicAutocompleteInputWrapper
+        theme={this.props.theme}
+        skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isNotHover={this.state.isFocused || this.state.isOpened}
+      >
+        {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
-              skin={this.props.theme === "DARK" ? "dark" : "light"}
-              updatePropertyValue={this.updatePropertyValue}
+              skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+              updateDynamicInputValue={this.updatePropertyValue}
+              isFocused={this.state.isFocused}
+              isOpened={this.state.isOpened}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
             />
           </Suspense>
         )}

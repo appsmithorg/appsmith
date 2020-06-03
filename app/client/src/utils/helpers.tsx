@@ -32,6 +32,7 @@ export const Directions: { [id: string]: string } = {
   DOWN: "down",
   LEFT: "left",
   RIGHT: "right",
+  RIGHT_BOTTOM: "RIGHT_BOTTOM",
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];

@@ -10,7 +10,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import { providerBackgroundColors } from "constants/providerConstants";
-import { FeatureFlagEnum } from "utils/featureFlags";
+import FeatureFlag from "utils/featureFlags";
 
 export const createReducer = (
   initialState: any,
@@ -28,6 +28,8 @@ export const createReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
+  FeatureFlag.initialize(appsmithConfigs.featureFlag);
+
   if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
     Sentry.init(appsmithConfigs.sentry.config);
   }
@@ -38,8 +40,9 @@ export const appInitializer = () => {
   if (appsmithConfigs.segment.enabled) {
     AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
   }
+
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
-  setConfigFeatureFlags(appsmithConfigs.featureFlags);
+  // setConfigFeatureFlags(appsmithConfigs.featureFlags);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont
@@ -133,11 +136,11 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   return logLevel;
 };
 
-const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
-  flags.forEach(flag => {
-    localStorage.setItem(flag, "true");
-  });
-};
+// const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
+//   flags.forEach(flag => {
+//     localStorage.setItem(flag, "true");
+//   });
+// };
 
 export const getInitialsAndColorCode = (fullName: any): string[] => {
   let inits = "";
@@ -166,3 +169,24 @@ const getColorCode = (initials: string): string => {
   }
   return providerBackgroundColors[asciiSum % providerBackgroundColors.length];
 };
+
+export function hexToRgb(
+  hex: string,
+): {
+  r: number;
+  g: number;
+  b: number;
+} {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : {
+        r: -1,
+        g: -1,
+        b: -1,
+      };
+}
