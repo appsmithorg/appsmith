@@ -30,7 +30,9 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
   it("Text-Table Binding Functionality For Email", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     cy.isSelectRow(2);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.selectedRow.email}}");
@@ -50,19 +52,21 @@ describe("Text-Table Binding Functionality", function() {
     });
   });
   it("Text-Table Binding Functionality For Total Length", function() {
-    cy.get(publish.backToEditor).click();
-    cy.pageNo(1);
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
+    cy.pageNo();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
     cy.get(commonlocators.TableRow)
-      .find("tr")
+      .find(".tr")
       .then(listing => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).should("have.text", listingCount);
         cy.PublishtheApp();
-        cy.pageNo(1);
+        cy.pageNo();
         cy.get(publish.tableLength)
-          .find("tr")
+          .find(".tr")
           .then(listing => {
             const listingCountP = listing.length.toString();
             cy.get(commonlocators.TextInside).should(
@@ -73,7 +77,9 @@ describe("Text-Table Binding Functionality", function() {
       });
   });
   it("Text-Table Binding Functionality For Username", function() {
-    cy.get(publish.backToEditor).click();
+    cy.get(publish.backToEditor)
+      .first()
+      .click();
     /**
      * @param(Index)  Provide index value to select the row.
      */
