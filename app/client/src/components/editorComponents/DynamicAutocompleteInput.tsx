@@ -266,10 +266,12 @@ const DynamicAutocompleteInputWrapper = styled.div<{
   background: ${props => (props.skin === Skin.DARK ? "#272822" : "none")};
   flex: 1;
   position: relative;
-  border: ${props =>
+  border: 1px solid;
+  border-radius: 2px;
+  border-color: ${props =>
     props.isActive && props.skin === Skin.DARK
-      ? "1px solid " + Colors.ALABASTER
-      : "none"};
+      ? Colors.ALABASTER
+      : "transparent"};
   &:hover {
     border: ${props =>
       props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
