@@ -23,7 +23,7 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
     cy.SearchAPIandClick("SecondAPI");
     //invalid api end point check
-    cy.EditSourceDetail(testdata.baseUrl3, testdata.methods2);
+    cy.EditSourceDetail(testdata.baseUrl3, testdata.invalidPath);
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.DeleteAPI();
   });

@@ -1,7 +1,9 @@
 import React from "react";
-import Creatable from "react-select/creatable";
+import Select, { InputActionMeta } from "react-select";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+
 import { theme } from "constants/DefaultTheme";
+import { SelectComponents } from "react-select/src/components";
 
 type DropdownProps = {
   options: Array<{
@@ -12,9 +14,12 @@ type DropdownProps = {
   isLoading?: boolean;
   input: WrappedFieldInputProps;
   meta: WrappedFieldMetaProps;
+  components: SelectComponents<any>;
   onCreateOption: (inputValue: string) => void;
   formatCreateLabel?: (value: string) => React.ReactNode;
   noOptionsMessage?: (obj: { inputValue: string }) => string;
+  inputValue?: string;
+  onInputChange: (value: string, actionMeta: InputActionMeta) => void;
 };
 
 const selectStyles = {
@@ -22,7 +27,7 @@ const selectStyles = {
     ...provided,
     color: "#a3b3bf",
   }),
-  singleValue: (provided: any) => ({
+  multiValue: (provided: any) => ({
     ...provided,
     backgroundColor: "rgba(104,113,239,0.1)",
     border: "1px solid rgba(104, 113, 239, 0.5)",
@@ -34,9 +39,15 @@ const selectStyles = {
     display: "inline-block",
     transform: "none",
   }),
+  multiValueRemove: () => {
+    return {
+      display: "none",
+    };
+  },
   container: (styles: any) => ({
     ...styles,
     flex: 1,
+    zIndex: "5",
   }),
   control: (styles: any, state: any) => ({
     ...styles,
@@ -69,23 +80,34 @@ class CreatableDropdown extends React.Component<DropdownProps> {
       placeholder,
       options,
       isLoading,
-      onCreateOption,
       input,
-      formatCreateLabel,
       noOptionsMessage,
+      components,
+      inputValue,
+      onInputChange,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
-    if (formatCreateLabel) optionalProps.formatCreateLabel = formatCreateLabel;
     if (noOptionsMessage) optionalProps.noOptionsMessage = noOptionsMessage;
+    if (components) optionalProps.components = components;
+    if (inputValue) optionalProps.inputValue = inputValue;
+    if (onInputChange) optionalProps.onInputChange = onInputChange;
+
     return (
-      <Creatable
+      <Select
+        isMulti
         placeholder={placeholder}
         options={options}
         styles={selectStyles}
         isLoading={isLoading}
-        onCreateOption={onCreateOption}
         {...input}
-        onChange={value => input.onChange(value)}
+        onChange={value => {
+          const formattedValue = value;
+          if (formattedValue && formattedValue.length > 1) {
+            formattedValue.shift();
+          }
+
+          input.onChange(formattedValue);
+        }}
         onBlur={() => input.value}
         isClearable
         {...optionalProps}

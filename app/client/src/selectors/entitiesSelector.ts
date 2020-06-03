@@ -154,11 +154,9 @@ export const getQueryActions = (state: AppState): ActionDataState => {
 const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
-export const getDatasourcePlugins = (state: AppState) => {
-  return state.entities.plugins.list.filter(
-    plugin => plugin?.allowUserDatasources ?? true,
-  );
-};
+export const getDatasourcePlugins = createSelector(getPlugins, plugins => {
+  return plugins.filter(plugin => plugin?.allowUserDatasources ?? true);
+});
 
 export const getActionsForCurrentPage = createSelector(
   getCurrentPageId,
@@ -169,13 +167,12 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
-export const getActionResponses = (
-  state: AppState,
-): Record<string, ActionResponse | undefined> => {
+export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};
-  state.entities.actions.forEach(a => {
+
+  actions.forEach(a => {
     responses[a.config.id] = a.data;
   });
 
   return responses;
-};
+});

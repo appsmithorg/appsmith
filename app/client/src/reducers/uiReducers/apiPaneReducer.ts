@@ -18,6 +18,7 @@ const initialState: ApiPaneReduxState = {
   lastUsedEditorPage: "",
   lastSelectedPage: "",
   extraformData: {},
+  datasourceFieldText: {},
 };
 
 export interface ApiPaneReduxState {
@@ -29,6 +30,7 @@ export interface ApiPaneReduxState {
   isDeleting: Record<string, boolean>;
   currentCategory: string;
   lastUsedEditorPage: string;
+  datasourceFieldText: Record<string, string>;
   lastSelectedPage: string;
   extraformData: Record<string, any>;
 }
@@ -198,6 +200,19 @@ const apiPaneReducer = createReducer(initialState, {
       extraformData: {
         ...state.extraformData,
         [id]: values,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_FIELD_TEXT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ apiId: string; value: string }>,
+  ) => {
+    const { apiId } = action.payload;
+    return {
+      ...state,
+      datasourceFieldText: {
+        ...state.datasourceFieldText,
+        [apiId]: action.payload.value,
       },
     };
   },

@@ -202,7 +202,8 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
-  cy.get(apiwidget.path)
+  cy.get(apiwidget.editResourceUrl)
+    .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
 });
@@ -228,16 +229,17 @@ Cypress.Commands.add(
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
   cy.get(apiwidget.editResourceUrl)
     .first()
-    .clear()
     .click({ force: true })
-    .type(baseUrl);
+    .clear()
+    .type(`{backspace}${baseUrl}`);
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
   cy.get(ApiEditor.ApiRunBtn).scrollIntoView();
-  cy.get(apiwidget.path)
+  cy.get(apiwidget.editResourceUrl)
+    .first()
     .focus()
-    .type("{selectall}{backspace}api/users/2")
+    .type(v1method)
     .should("have.value", v1method);
   cy.SaveAPI();
 });
@@ -905,7 +907,7 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.contains(url).click({
     force: true,
   });
-  cy.get(".CodeMirror.CodeMirror-empty textarea")
+  cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
     .type(parameters, { force: true });
