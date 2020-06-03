@@ -137,8 +137,11 @@ class TernServer {
       .sort((a, b) => {
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
-    const otherCompletions = completions.filter(c => c.origin !== "dataTree");
-    return [...dataTreeCompletions, ...otherCompletions];
+    const docCompletetions = completions.filter(c => c.origin === "[doc]");
+    const otherCompletions = completions.filter(
+      c => c.origin !== "dataTree" && c.origin !== "[doc]",
+    );
+    return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
   }
 
   typeToIcon(type: string) {
