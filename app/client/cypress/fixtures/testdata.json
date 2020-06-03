@@ -17,6 +17,7 @@
   "responsetext2": "qui est esse",
   "baseUrl3": "https://reqres.in",
   "methods2": "api/users/2",
+  "invalidPath": "api/users/a",
   "responsetext3": "Josh M Krantz",
   "postUrl": "https://reqres.in",
   "deleteUrl": "",

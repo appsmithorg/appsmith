@@ -9,7 +9,6 @@ import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
-import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
@@ -53,7 +52,7 @@ const TableWrapper = styled.div`
 
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
-  apiPane: ApiPaneReduxState;
+  isRunning: Record<string, boolean>;
 }
 
 const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
@@ -109,14 +108,13 @@ const ApiResponseView = (props: Props) => {
       params: { apiId },
     },
     responses,
-    apiPane,
   } = props;
   let response: ActionResponse = EMPTY_RESPONSE;
   let isRunning = false;
   let hasFailed = false;
   if (apiId && apiId in responses) {
     response = responses[apiId] || EMPTY_RESPONSE;
-    isRunning = apiPane.isRunning[apiId];
+    isRunning = props.isRunning[apiId];
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
 
@@ -217,7 +215,7 @@ const ApiResponseView = (props: Props) => {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     responses: getActionResponses(state),
-    apiPane: state.ui.apiPane,
+    isRunning: state.ui.apiPane.isRunning,
   };
 };
 

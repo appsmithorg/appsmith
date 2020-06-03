@@ -37,7 +37,7 @@ import { initialize, autofill, change } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
 import { Property, RestAction } from "api/ActionAPI";
-import { changeApi } from "actions/apiPaneActions";
+import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
 import {
   API_PATH_START_WITH_SLASH_ERROR,
   FIELD_REQUIRED_ERROR,
@@ -153,6 +153,28 @@ function* syncApiParamsSaga(
         `${currentPath}${paramsString}`,
       ),
     );
+
+    if (
+      actionPayload.type === ReduxFormActionTypes.VALUE_CHANGE ||
+      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE
+    ) {
+      if (values.datasource && values.datasource.id) {
+        yield put(
+          setDatasourceFieldText(values.id, `${currentPath}${paramsString}`),
+        );
+      } else if (
+        values.datasource &&
+        values.datasource.datasourceConfiguration
+      ) {
+        yield put(
+          setDatasourceFieldText(
+            values.id,
+            values.datasource.datasourceConfiguration.url +
+              `${currentPath}${paramsString}`,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -195,13 +217,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     data = action;
   } else {
     data = draft;
-  }
-
-  if (data.actionConfiguration.path) {
-    if (data.actionConfiguration.path.charAt(0) === "/")
-      data.actionConfiguration.path = data.actionConfiguration.path.substring(
-        1,
-      );
   }
 
   if (
