@@ -31,15 +31,15 @@ export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
-export function parseDynamicString(dynamicString: string): string[] {
-  let parsedDynamicValues = [];
+export function getDynamicStringSegments(dynamicString: string): string[] {
+  let stringSegments = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
   if (indexOfDoubleParanStart === -1) {
     return [dynamicString];
   }
   //{{}}{{}}}
   const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-  firstString && parsedDynamicValues.push(firstString);
+  firstString && stringSegments.push(firstString);
   let rest = dynamicString.substring(
     indexOfDoubleParanStart,
     dynamicString.length,
@@ -55,11 +55,11 @@ export function parseDynamicString(dynamicString: string): string[] {
     } else if (char === "}") {
       sum--;
       if (prevChar === "}" && sum === 0) {
-        parsedDynamicValues.push(rest.substring(0, i + 1));
+        stringSegments.push(rest.substring(0, i + 1));
         rest = rest.substring(i + 1, rest.length);
         if (rest) {
-          parsedDynamicValues = parsedDynamicValues.concat(
-            parseDynamicString(rest),
+          stringSegments = stringSegments.concat(
+            getDynamicStringSegments(rest),
           );
           break;
         }
@@ -69,7 +69,7 @@ export function parseDynamicString(dynamicString: string): string[] {
   if (sum !== 0 && dynamicString !== "") {
     return [dynamicString];
   }
-  return parsedDynamicValues;
+  return stringSegments;
 }
 
 const getAllPaths = (
@@ -95,24 +95,24 @@ const getAllPaths = (
 
 export const getDynamicBindings = (
   dynamicString: string,
-): { mustaches: string[]; jsSnippets: string[] } => {
+): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
-    return { mustaches: [], jsSnippets: [] };
+    return { stringSegments: [], jsSnippets: [] };
   }
   const sanitisedString = dynamicString.trim();
   // Get the {{binding}} bound values
-  const bindings = parseDynamicString(sanitisedString);
+  const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = bindings.map(binding => {
-    const length = binding.length;
-    const matches = isDynamicValue(binding);
+  const paths = stringSegments.map(segment => {
+    const length = segment.length;
+    const matches = isDynamicValue(segment);
     if (matches) {
-      return binding.substring(2, length - 2);
+      return segment.substring(2, length - 2);
     }
     return "";
   });
-  return { mustaches: bindings, jsSnippets: paths };
+  return { stringSegments: stringSegments, jsSnippets: paths };
 };
 
 // Paths are expected to have "{name}.{path}" signature
@@ -162,8 +162,10 @@ export const getDynamicValue = (
   includeTriggers = false,
 ): JSExecutorResult => {
   // Get the {{binding}} bound values
-  const { mustaches, jsSnippets } = getDynamicBindings(dynamicBinding);
-  if (mustaches.length) {
+  const { stringSegments: stringSegments, jsSnippets } = getDynamicBindings(
+    dynamicBinding,
+  );
+  if (stringSegments.length) {
     // Get the Data Tree value of those "binding "paths
     const values = jsSnippets.map((jsSnippet, index) => {
       if (jsSnippet) {
@@ -174,16 +176,16 @@ export const getDynamicValue = (
           return { result: result.result };
         }
       } else {
-        return { result: mustaches[index], triggers: [] };
+        return { result: stringSegments[index], triggers: [] };
       }
     });
 
     // if it is just one binding, no need to create template string
-    if (mustaches.length === 1) return values[0];
+    if (stringSegments.length === 1) return values[0];
     // else return a string template with bindings
     const templateString = createDynamicValueString(
       dynamicBinding,
-      mustaches,
+      stringSegments,
       values.map(v => v.result),
     );
     return {
