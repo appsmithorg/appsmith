@@ -19,15 +19,13 @@ import { OrgRole } from "constants/orgConstants";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
-
 const StyledForm = styled.div`
   width: 100%;
   background: white;
   padding: ${props => props.theme.spaces[5]}px;
-
   &&& {
     .bp3-input {
-      box-shadow: none;
+      width: 250px;
     }
   }
   .manageUsers {
@@ -36,17 +34,19 @@ const StyledForm = styled.div`
   }
 `;
 const StyledInviteFieldGroup = styled.div`
-  && {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: none;
-    justify-content: space-between;
-    align-items: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .users {
+    width: 300px;
   }
 
-  .bp3-popover-target {
-    padding-right: 10px;
-    padding-top: 5px;
+  .wrapper {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    alignItem: "center",
+    justifyContent: "center",
   }
 `;
 
@@ -64,8 +64,8 @@ const UserList = styled.div`
 
 const StyledButton = styled(Button)`
   &&&.${Classes.BUTTON} {
-    width: 100px;
-    height: 32px;
+    width: 83px;
+    height: 40px;
   }
 `;
 
@@ -79,28 +79,24 @@ const InviteUsersForm = (props: any) => {
   return (
     <StyledForm>
       <StyledInviteFieldGroup>
-        <FormGroup fill>
-          <TagListField
-            name="users"
-            placeholder="Enter email address"
-            type="email"
-            label="Emails"
-            intent="success"
-          />
-        </FormGroup>
-        <FormGroup fill>
-          <SelectField
-            name="role"
-            placeholder="Select a role"
-            options={props.roles}
-            size="large"
-          />
-        </FormGroup>
+        <TagListField
+          name="users"
+          placeholder="Enter email address"
+          type="email"
+          label="Emails"
+          intent="success"
+        />
+        <SelectField
+          name="role"
+          placeholder="Select a role"
+          options={props.roles}
+          size="large"
+        />
         <StyledButton
           className="invite"
           text="Invite"
-          intent="primary"
           filled
+          intent="primary"
           onClick={handleSubmit((values: any, dispatch: any) => {
             inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
           })}
@@ -119,8 +115,8 @@ const InviteUsersForm = (props: any) => {
       <Button
         className="manageUsers"
         text="Manage Users"
-        intent="primary"
         filled
+        intent="primary"
         onClick={noop}
       />
     </StyledForm>

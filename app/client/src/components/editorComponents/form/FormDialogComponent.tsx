@@ -7,10 +7,6 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
   && {
     background: white;
-    & .bp3-dialog-header {
-      padding: ${props => props.theme.spaces[4]}px
-        ${props => props.theme.spaces[4]}px;
-    }
     & .bp3-dialog-footer-actions {
       display: block;
     }
