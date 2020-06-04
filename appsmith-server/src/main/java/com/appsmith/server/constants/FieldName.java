@@ -14,7 +14,7 @@ public class FieldName {
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
     public static String PLUGIN = "plugin";
-    public static String DEFAULT_PAGE_NAME = "Home";
+    public static String DEFAULT_PAGE_NAME = "Page1";
     public static String TYPE = "type";
     public static String WIDGET_NAME = "widgetName";
     public static String DYNAMIC_BINDINGS = "dynamicBindings";
@@ -25,4 +25,27 @@ public class FieldName {
     public static String CATEGORY = "category";
     public static String PAGE = "page";
     public static String SIZE = "size";
+    public static String DEFAULT_PAGE_LAYOUT = "{\n" +
+            "    \"dsl\": {\n" +
+            "        \"widgetName\": \"MainContainer\",\n" +
+            "        \"backgroundColor\": \"none\",\n" +
+            "        \"rightColumn\": 1224,\n" +
+            "        \"snapColumns\": 16,\n" +
+            "        \"detachFromLayout\": true,\n" +
+            "        \"widgetId\": \"0\",\n" +
+            "        \"topRow\": 0,\n" +
+            "        \"bottomRow\": 1254,\n" +
+            "        \"containerStyle\": \"none\",\n" +
+            "        \"snapRows\": 33,\n" +
+            "        \"parentRowSpace\": 1,\n" +
+            "        \"type\": \"CANVAS_WIDGET\",\n" +
+            "        \"canExtend\": true,\n" +
+            "        \"dynamicBindings\": {},\n" +
+            "        \"version\": 4,\n" +
+            "        \"minHeight\": 1292,\n" +
+            "        \"parentColumnSpace\": 1,\n" +
+            "        \"leftColumn\": 0,\n" +
+            "        \"children\": []\n" +
+            "    }\n" +
+            "}";
 }
