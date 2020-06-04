@@ -18,6 +18,7 @@ import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
 import { OrgRole } from "constants/orgConstants";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import { Classes } from "@blueprintjs/core";
+import { noop } from "lodash";
 
 const StyledForm = styled.div`
   width: 100%;
@@ -120,7 +121,7 @@ const InviteUsersForm = (props: any) => {
         text="Manage Users"
         intent="primary"
         filled
-        onClick={() => {}}
+        onClick={noop}
       />
     </StyledForm>
   );
