@@ -26,7 +26,6 @@ public class FieldName {
     public static String PAGE = "page";
     public static String SIZE = "size";
     public static String DEFAULT_PAGE_LAYOUT = "{\n" +
-            "    \"dsl\": {\n" +
             "        \"widgetName\": \"MainContainer\",\n" +
             "        \"backgroundColor\": \"none\",\n" +
             "        \"rightColumn\": 1224,\n" +
@@ -46,6 +45,5 @@ public class FieldName {
             "        \"parentColumnSpace\": 1,\n" +
             "        \"leftColumn\": 0,\n" +
             "        \"children\": []\n" +
-            "    }\n" +
             "}";
 }
