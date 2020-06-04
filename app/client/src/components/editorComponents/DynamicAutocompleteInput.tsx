@@ -135,8 +135,7 @@ const Wrapper = styled.div<{
   disabled?: boolean;
   setMaxHeight?: boolean;
 }>`
-  width: ${props =>
-    props.editorTheme === THEMES.DARK ? "calc(100% - 32px)" : "100%"};
+  width: 100%;
   ${props =>
     props.singleLine && props.isFocused
       ? `
@@ -261,9 +260,6 @@ const DynamicAutocompleteInputWrapper = styled.div<{
 }>`
   width: 100%;
   height: 100%;
-  border-radius: 4px;
-  box-sizing: border-box;
-  background: ${props => (props.skin === Skin.DARK ? "#272822" : "none")};
   flex: 1;
   position: relative;
   border: 1px solid;
