@@ -41,6 +41,7 @@ interface DatasourceDBEditorProps {
   isTesting: boolean;
   loadingFormConfigs: boolean;
   formConfig: [];
+  isNewDatasource: boolean;
 }
 
 interface DatasourceDBEditorState {
@@ -327,7 +328,7 @@ class DatasourceDBEditor extends React.Component<
           <Field
             name="name"
             component={FormTitle}
-            focusOnMount={this.isNewDatasource()}
+            focusOnMount={this.props.isNewDatasource}
           />
         </FormTitleContainer>
         {!_.isNil(sections)

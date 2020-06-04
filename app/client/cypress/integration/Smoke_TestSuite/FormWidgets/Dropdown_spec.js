@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/formdsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 
 describe("Dropdown Widget Functionality", function() {
   before(() => {
@@ -29,6 +29,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.dropdownSelectionType)
       .find(commonlocators.menuSelection)
       .should("have.text", "Multi Select");
+    cy.testJsontext("options", JSON.stringify(this.data.input));
     /**
      * @param{Show Alert} Css for InputChange
      */

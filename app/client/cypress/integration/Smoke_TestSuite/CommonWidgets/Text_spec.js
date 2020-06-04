@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/commondsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
+const dsl = require("../../../fixtures/displayWidgetDsl.json");
 
 describe("Text Widget Functionality", function() {
   before(() => {

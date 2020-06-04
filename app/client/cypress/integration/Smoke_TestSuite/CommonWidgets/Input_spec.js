@@ -1,5 +1,5 @@
 const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/commondsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
 
@@ -25,14 +25,14 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click({ force: true })
       .type(this.data.para);
-    cy.get(publish.inputWidget + " " + "input")
+    cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.para);
     cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.defaultInput)
       .type(this.data.command)
       .type(this.data.defaultdata);
-    cy.get(publish.inputWidget + " " + "input")
+    cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
     cy.get(widgetsPage.placeholder)

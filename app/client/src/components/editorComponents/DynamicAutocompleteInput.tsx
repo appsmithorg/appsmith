@@ -17,7 +17,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
-import { parseDynamicString } from "utils/DynamicBindingUtils";
+import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -324,6 +324,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       });
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
+      this.editor.on("change", this.handleAutocompleteVisibility);
       this.editor.on("keyup", this.handleAutocompleteHide);
       this.editor.on("focus", this.handleEditorFocus);
       this.editor.on("blur", this.handleEditorBlur);
@@ -409,7 +410,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         globalScope: this.props.dynamicData,
       });
     }
-    this.editor.on("cursorActivity", this.handleAutocompleteVisibility);
   }
 
   handleEditorFocus = () => {
@@ -447,20 +447,30 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       let cursorBetweenBinding = false;
       const cursor = this.editor.getCursor();
       const value = this.editor.getValue();
+      let cursorIndex = cursor.ch;
+      if (cursor.line > 0) {
+        for (let lineIndex = 0; lineIndex < cursor.line; lineIndex++) {
+          const line = this.editor.getLine(lineIndex);
+          // Add line length + 1 for new line character
+          cursorIndex = cursorIndex + line.length + 1;
+        }
+      }
+      const stringSegments = getDynamicStringSegments(value);
+      // count of chars processed
       let cumulativeCharCount = 0;
-      parseDynamicString(value).forEach(segment => {
+      stringSegments.forEach((segment: string) => {
         const start = cumulativeCharCount;
         const dynamicStart = segment.indexOf("{{");
         const dynamicDoesStart = dynamicStart > -1;
         const dynamicEnd = segment.indexOf("}}");
         const dynamicDoesEnd = dynamicEnd > -1;
-        const dynamicStartIndex = dynamicStart + start + 1;
-        const dynamicEndIndex = dynamicEnd + start + 1;
+        const dynamicStartIndex = dynamicStart + start + 2;
+        const dynamicEndIndex = dynamicEnd + start;
         if (
           dynamicDoesStart &&
-          cursor.ch > dynamicStartIndex &&
-          ((dynamicDoesEnd && cursor.ch < dynamicEndIndex) ||
-            (!dynamicDoesEnd && cursor.ch > dynamicStartIndex))
+          cursorIndex >= dynamicStartIndex &&
+          ((dynamicDoesEnd && cursorIndex <= dynamicEndIndex) ||
+            (!dynamicDoesEnd && cursorIndex >= dynamicStartIndex))
         ) {
           cursorBetweenBinding = true;
         }

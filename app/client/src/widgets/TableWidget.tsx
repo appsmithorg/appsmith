@@ -3,6 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import { forIn } from "lodash";
+import ReactTableComponent from "components/designSystems/appsmith/ReactTableComponent";
 
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
@@ -105,11 +106,70 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.tableData.length === 0 ? 2 : TABLE_HEADER_HEIGHT;
     const tableContentHeight =
       componentHeight - TABLE_FOOTER_HEIGHT - tableHeaderHeight - exportHeight;
-    const pageSize = Math.floor(tableContentHeight / ROW_HEIGHT);
+    // Use below code to calculate page size for old table component
+    //  const pageSize = Math.floor(tableContentHeight / ROW_HEIGHT);
+    const pageSize = Math.floor((componentHeight - 104) / 52);
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
     }
+
+    // /*
+    return (
+      <Suspense fallback={<Skeleton />}>
+        <ReactTableComponent
+          height={componentHeight}
+          width={componentWidth}
+          tableData={tableData}
+          widgetId={this.props.widgetId}
+          renderMode={this.props.renderMode}
+          hiddenColumns={hiddenColumns}
+          columnActions={this.props.columnActions}
+          columnNameMap={this.props.columnNameMap}
+          columnTypeMap={this.props.columnTypeMap}
+          columnOrder={this.props.columnOrder}
+          pageSize={pageSize}
+          onCommandClick={this.onCommandClick}
+          selectedRowIndex={
+            this.props.selectedRowIndex === undefined
+              ? -1
+              : this.props.selectedRowIndex
+          }
+          serverSidePaginationEnabled={serverSidePaginationEnabled}
+          onRowClick={this.handleRowClick}
+          pageNo={pageNo}
+          nextPageClick={this.handleNextPageClick}
+          prevPageClick={this.handlePrevPageClick}
+          updatePageNo={(pageNo: number) => {
+            super.updateWidgetMetaProperty("pageNo", pageNo);
+          }}
+          updateHiddenColumns={(hiddenColumns?: string[]) => {
+            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+          }}
+          updateColumnType={(columnTypeMap: {
+            [key: string]: { type: string; format: string };
+          }) => {
+            super.updateWidgetProperty("columnTypeMap", columnTypeMap);
+          }}
+          updateColumnName={(columnNameMap: { [key: string]: string }) => {
+            super.updateWidgetProperty("columnNameMap", columnNameMap);
+          }}
+          handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
+            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+          }}
+          handleReorderColumn={(columnOrder: string[]) => {
+            super.updateWidgetProperty("columnOrder", columnOrder);
+          }}
+          columnSizeMap={this.props.columnSizeMap}
+          resetSelectedRowIndex={this.resetSelectedRowIndex}
+          disableDrag={(disable: boolean) => {
+            this.disableDrag(disable);
+          }}
+        />
+      </Suspense>
+    );
+    // */
+    /*
     return (
       <Suspense fallback={<Skeleton />}>
         <TableComponent
@@ -144,10 +204,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         />
       </Suspense>
     );
+    */
   }
 
   updateHiddenColumns = (hiddenColumns?: string[]) => {
-    this.updateWidgetProperty("hiddenColumns", hiddenColumns);
+    super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
   onCommandClick = (action: string) => {
@@ -225,6 +286,10 @@ export interface TableWidgetProps extends WidgetProps {
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
   hiddenColumns?: string[];
+  columnOrder?: string[];
+  columnNameMap?: { [key: string]: string };
+  columnTypeMap?: { [key: string]: { type: string; format: string } };
+  columnSizeMap?: { [key: string]: number };
 }
 
 export default TableWidget;
