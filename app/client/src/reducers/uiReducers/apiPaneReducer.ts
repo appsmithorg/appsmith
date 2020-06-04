@@ -4,8 +4,8 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import { RestAction } from "api/ActionAPI";
 import _ from "lodash";
+import { RestAction } from "entities/Action";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",

@@ -14,18 +14,19 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import { RestAction, PaginationField } from "api/ActionAPI";
+import { PaginationField } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import Pagination, { PaginationType } from "./Pagination";
+import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
+import Pagination from "./Pagination";
+import { PaginationType, RestAction } from "entities/Action";
 import { Icon } from "@blueprintjs/core";
 import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
@@ -124,6 +125,7 @@ interface APIFormProps {
   httpMethodFromForm: string;
   actionConfigurationBody: object | string;
   actionConfigurationHeaders?: any;
+  actionName: string;
   apiId: string;
   location: {
     pathname: string;
@@ -147,10 +149,11 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     isSaving,
     actionConfigurationHeaders,
     actionConfigurationBody,
+    httpMethodFromForm,
+    actionName,
     location,
     dispatch,
     apiId,
-    httpMethodFromForm,
   } = props;
   useEffect(() => {
     dispatch({
@@ -237,7 +240,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         rel="noopener noreferrer"
                       >
                         {" Learn How "}
-                        <StyledOpenDocsIcon icon="document-open"></StyledOpenDocsIcon>
+                        <StyledOpenDocsIcon icon="document-open" />
                       </a>
                     </CollapsibleHelp>
                     <HeadersSection>
@@ -246,12 +249,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         label="Headers"
                         actionConfig={actionConfigurationHeaders}
                         placeholder="Value"
+                        dataTreePath={`${actionName}.config.actionConfiguration.headers`}
                         pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
+                      dataTreePath={`${actionName}.config.actionConfiguration.queryParameters`}
                       pushFields
                     />
                     {allowPostBody && (
@@ -259,6 +264,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
+                        dataTreePath={`${actionName}.config.actionConfiguration.body`}
                       />
                     )}
                   </RequestParamsWrapper>
@@ -289,6 +295,7 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 export default connect(state => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfigurationBody = selector(state, "actionConfiguration.body");
+  const actionName = selector(state, "name");
   const actionConfigurationHeaders = selector(
     state,
     "actionConfiguration.headers",
@@ -296,6 +303,7 @@ export default connect(state => {
   const apiId = selector(state, "id");
 
   return {
+    actionName,
     apiId,
     httpMethodFromForm,
     actionConfigurationBody,

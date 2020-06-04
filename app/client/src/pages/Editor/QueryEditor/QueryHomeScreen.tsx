@@ -14,7 +14,6 @@ import {
 } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "api/ActionAPI";
 import history from "utils/history";
 import { createActionRequest } from "actions/actionActions";
 import {
@@ -29,6 +28,7 @@ import {
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { QueryAction } from "entities/Action";
 
 const QueryHomePage = styled.div`
   font-size: 20px;
@@ -116,7 +116,7 @@ type QueryHomeScreenProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<RestAction>) => void;
+  createAction: (data: Partial<QueryAction>) => void;
   actions: ActionDataState;
   pluginIds: Array<string> | undefined;
   isCreating: boolean;
@@ -240,7 +240,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                         src={this.getImageSrc(dataSource)}
                         className="dataSourceImage"
                         alt="Datasource"
-                      ></img>
+                      />
 
                       <p
                         className="textBtn t--datasource-name"
@@ -268,7 +268,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<RestAction>) => {
+  createAction: (data: Partial<QueryAction>) => {
     dispatch(createActionRequest(data));
   },
 });

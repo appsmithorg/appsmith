@@ -1,6 +1,6 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import { AppState } from "reducers";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
 
 type GetFormData = (
   state: AppState,

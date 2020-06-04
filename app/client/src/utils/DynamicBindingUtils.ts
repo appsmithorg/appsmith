@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
@@ -12,7 +11,6 @@ import unescapeJS from "unescape-js";
 import toposort from "toposort";
 import {
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -215,6 +213,15 @@ export const getValidatedTree = (tree: any) => {
           tree,
         );
         parsedEntity[property] = parsed;
+        if (property !== "evaluatedValues") {
+          if (!("evaluatedValues" in parsedEntity)) {
+            _.set(parsedEntity, "evaluatedValues", {});
+          }
+          if (!(property in parsedEntity.evaluatedValues)) {
+            _.set(parsedEntity, `evaluatedValues.${property}`, value);
+          }
+        }
+
         if (!isValid) {
           _.set(parsedEntity, `invalidProps.${property}`, true);
           _.set(parsedEntity, `validationMessages.${property}`, message);
@@ -289,24 +296,39 @@ export const createDependencyTree = (
   const dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach(entityKey => {
-    const entity = dataTree[entityKey] as WidgetProps;
-    if (entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-      const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-        entity.type,
-      );
-      Object.keys(defaultProperties).forEach(property => {
-        dependencyMap[`${entityKey}.${property}`] = [
-          `${entityKey}.${defaultProperties[property]}`,
-        ];
-      });
-      if (entity.dynamicBindings) {
-        Object.keys(entity.dynamicBindings).forEach(prop => {
-          const { jsSnippets } = getDynamicBindings(entity[prop]);
-          const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
-          dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
-            jsSnippets.filter(jsSnippet => !!jsSnippet),
-          );
+    const entity = dataTree[entityKey];
+    if (entity && "ENTITY_TYPE" in entity) {
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+        // Set default property dependency
+        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+          entity.type,
+        );
+        Object.keys(defaultProperties).forEach(property => {
+          dependencyMap[`${entityKey}.${property}`] = [
+            `${entityKey}.${defaultProperties[property]}`,
+          ];
         });
+        if (entity.dynamicBindings) {
+          Object.keys(entity.dynamicBindings).forEach(prop => {
+            const { jsSnippets } = getDynamicBindings(_.get(entity, prop));
+            const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
+            dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
+              jsSnippets.filter(jsSnippet => !!jsSnippet),
+            );
+          });
+        }
+      }
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+        if (entity.dynamicBindingPathList.length) {
+          entity.dynamicBindingPathList.forEach(prop => {
+            const { jsSnippets } = getDynamicBindings(_.get(entity, prop.key));
+            const existingDeps =
+              dependencyMap[`${entityKey}.${prop.key}`] || [];
+            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
+              jsSnippets.filter(jsSnippet => !!jsSnippet),
+            );
+          });
+        }
       }
     }
   });
@@ -324,12 +346,18 @@ export const createDependencyTree = (
       dependencyTree.push([key, ""]);
     }
   });
-  // sort dependencies and remove empty dependencies
-  const sortedDependencies = toposort(dependencyTree)
-    .reverse()
-    .filter(d => !!d);
 
-  return { sortedDependencies, dependencyMap, dependencyTree };
+  try {
+    // sort dependencies and remove empty dependencies
+    const sortedDependencies = toposort(dependencyTree)
+      .reverse()
+      .filter(d => !!d);
+
+    return { sortedDependencies, dependencyMap, dependencyTree };
+  } catch (e) {
+    console.error(e);
+    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
+  }
 };
 
 const calculateSubDependencies = (
@@ -363,16 +391,32 @@ export const setTreeLoading = (
   dataTree: DataTree,
   dependencyMap: Array<[string, string]>,
 ) => {
-  Object.keys(dataTree)
-    .filter(e => {
-      const entity = dataTree[e] as DataTreeAction;
-      return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION && entity.isLoading;
-    })
+  const widgets: string[] = [];
+  const isLoadingActions: string[] = [];
+
+  // Fetch all actions that are in loading state
+  Object.keys(dataTree).forEach(e => {
+    const entity = dataTree[e];
+    if (entity && "ENTITY_TYPE" in entity) {
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+        widgets.push(e);
+      } else if (
+        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION &&
+        entity.isLoading
+      ) {
+        isLoadingActions.push(e);
+      }
+    }
+  });
+
+  // get all widget dependencies of those actions
+  isLoadingActions
     .reduce(
       (allEntities: string[], curr) =>
-        allEntities.concat(getEntityDependencies(dependencyMap, curr)),
+        allEntities.concat(getEntityDependencies(dependencyMap, curr, widgets)),
       [],
     )
+    // set loading to true for those widgets
     .forEach(w => {
       const entity = dataTree[w] as DataTreeWidget;
       entity.isLoading = true;
@@ -383,6 +427,7 @@ export const setTreeLoading = (
 export const getEntityDependencies = (
   dependencyMap: Array<[string, string]>,
   entity: string,
+  entities: string[],
 ): Array<string> => {
   const entityDeps: Record<string, string[]> = dependencyMap
     .map(d => [d[1].split(".")[0], d[0].split(".")[0]])
@@ -402,12 +447,14 @@ export const getEntityDependencies = (
       deps: Record<string, string[]>,
     ): Array<string> => {
       let allDeps: string[] = [];
-      keys.forEach(e => {
-        allDeps = allDeps.concat([e]);
-        if (e in deps) {
-          allDeps = allDeps.concat([...recFind(deps[e], deps)]);
-        }
-      });
+      keys
+        .filter(k => entities.includes(k))
+        .forEach(e => {
+          allDeps = allDeps.concat([e]);
+          if (e in deps) {
+            allDeps = allDeps.concat([...recFind(deps[e], deps)]);
+          }
+        });
       return allDeps;
     };
     return recFind(entityDeps[entity], entityDeps);
@@ -512,6 +559,7 @@ function validateAndParseWidgetProperty(
     widget,
     currentTree,
   );
+  _.set(widget, `evaluatedValues.${propertyName}`, evalPropertyValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
@@ -579,28 +627,31 @@ export function dependencySortedEvaluateDataTree(
         if (isWidget(entity)) {
           const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
           const propertyName = propertyPath.split(".")[1];
-          let parsedValue = validateAndParseWidgetProperty(
-            propertyPath,
-            widgetEntity,
-            currentTree,
-            evalPropertyValue,
-            currentDependencyValues,
-            cachedDependencyValues,
-          );
-          const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-            widgetEntity.type,
-          );
-          const hasDefaultProperty = propertyName in defaultPropertyMap;
-          if (hasDefaultProperty) {
-            const defaultProperty = defaultPropertyMap[propertyName];
-            parsedValue = overwriteDefaultDependentProps(
-              defaultProperty,
-              parsedValue,
+          if (propertyName) {
+            let parsedValue = validateAndParseWidgetProperty(
               propertyPath,
               widgetEntity,
+              currentTree,
+              evalPropertyValue,
+              currentDependencyValues,
+              cachedDependencyValues,
             );
+            const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+              widgetEntity.type,
+            );
+            const hasDefaultProperty = propertyName in defaultPropertyMap;
+            if (hasDefaultProperty) {
+              const defaultProperty = defaultPropertyMap[propertyName];
+              parsedValue = overwriteDefaultDependentProps(
+                defaultProperty,
+                parsedValue,
+                propertyPath,
+                widgetEntity,
+              );
+            }
+            return _.set(currentTree, propertyPath, parsedValue);
           }
-          return _.set(currentTree, propertyPath, parsedValue);
+          return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }

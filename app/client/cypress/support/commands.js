@@ -11,6 +11,7 @@ const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
+const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -893,6 +894,10 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .click();
 });
 
+Cypress.Commands.add("closePropertyPane", () => {
+  cy.get(commonlocators.editPropCrossButton).click();
+});
+
 Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
@@ -1052,4 +1057,14 @@ Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
+});
+
+Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
+  cy.get(dynamicInputLocators.evaluatedValue)
+    .should("be.visible")
+    .children("p")
+    .should("contain.text", "Expected type:")
+    .should("contain.text", "Current Value:")
+    .siblings("pre")
+    .should("have.text", expectedType);
 });
