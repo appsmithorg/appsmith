@@ -6,6 +6,8 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +76,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createValidPage() {
+    public void createValidPage() throws ParseException {
         Page testPage = new Page();
         testPage.setName("PageServiceTest TestApp");
 
@@ -85,13 +87,15 @@ public class PageServiceTest {
                 })
                 .flatMap(applicationPageService::createPage);
 
+        Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
                 .create(pageMono)
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat("PageServiceTest TestApp".equals(page.getName()));
-
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                 })
                 .verifyComplete();
     }
