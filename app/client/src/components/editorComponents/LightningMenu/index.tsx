@@ -55,6 +55,11 @@ const lightningMenuOptions = (
         onCloseLightningMenu();
       }
     },
+    modifiers: {
+      offset: {
+        offset: "0, 32px",
+      },
+    },
   };
 };
 

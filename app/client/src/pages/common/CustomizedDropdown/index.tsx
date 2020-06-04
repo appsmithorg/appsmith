@@ -7,6 +7,7 @@ import {
   Classes,
   PopoverInteractionKind,
   Icon,
+  IPopoverSharedProps,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { MenuIcons } from "icons/MenuIcons";
@@ -47,6 +48,7 @@ export type CustomizedDropdownProps = {
   openOnHover?: boolean;
   usePortal?: boolean;
   skin?: Skin;
+  modifiers?: IPopoverSharedProps["modifiers"];
 };
 
 const getIcon = (icon?: string, intent?: Intent) => {
@@ -147,6 +149,7 @@ export const CustomizedDropdown = (
           props.onCloseDropDown();
         }
       }}
+      modifiers={props.modifiers}
     >
       <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
       <DropdownContent skin={skin}>{content}</DropdownContent>

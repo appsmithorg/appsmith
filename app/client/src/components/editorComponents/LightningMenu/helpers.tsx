@@ -64,6 +64,11 @@ export const getApiOptions = (
   openDirection: Directions.RIGHT,
   openOnHover: false,
   skin: skin,
+  modifiers: {
+    offset: {
+      offset: "0, 16px",
+    },
+  },
 });
 
 export const getQueryOptions = (
@@ -108,6 +113,11 @@ export const getQueryOptions = (
   openDirection: Directions.RIGHT,
   openOnHover: false,
   skin: skin,
+  modifiers: {
+    offset: {
+      offset: "0, 16px",
+    },
+  },
 });
 
 export const getWidgetOptions = (
@@ -133,6 +143,11 @@ export const getWidgetOptions = (
   openDirection: Directions.RIGHT,
   openOnHover: false,
   skin: skin,
+  modifiers: {
+    offset: {
+      offset: "0, 16px",
+    },
+  },
 });
 
 export const getLightningMenuOptions = (
