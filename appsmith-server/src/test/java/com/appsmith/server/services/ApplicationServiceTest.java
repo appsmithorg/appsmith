@@ -55,6 +55,7 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
+                    assertThat(application.getPages()).isNotEmpty();
                 })
                 .verifyComplete();
     }
