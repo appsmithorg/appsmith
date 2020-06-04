@@ -196,7 +196,7 @@ const views = {
             }
           }}
           isValid={props.isValid}
-          validationMessage={props.validationMessage}
+          errorMessage={props.validationMessage}
         />
       </ControlWrapper>
     );

@@ -1,18 +1,19 @@
-import { RestAction, PaginationField, ActionResponse } from "api/ActionAPI";
+import { PaginationField, ActionResponse } from "api/ActionAPI";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { Action, RestAction } from "entities/Action";
 
-export const createActionRequest = (payload: Partial<RestAction>) => {
+export const createActionRequest = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
   };
 };
 
-export const createActionSuccess = (payload: RestAction) => {
+export const createActionSuccess = (payload: Action) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_SUCCESS,
     payload,

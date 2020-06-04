@@ -6,6 +6,8 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import CalloutComponent from "components/designSystems/blueprint/CalloutComponent";
+import { PaginationType } from "entities/Action";
+
 interface PaginationProps {
   onTestClick: Function;
   paginationType: PaginationType;
@@ -14,12 +16,6 @@ const PaginationFieldWrapper = styled.div`
   display: flex;
   margin-bottom: 5px;
 `;
-
-export enum PaginationType {
-  "NONE" = "NONE",
-  "PAGE_NO" = "PAGE_NO",
-  "URL" = "URL",
-}
 
 const ExampleApi = styled.p`
   color: #ef7b63;

@@ -70,18 +70,11 @@ type RenderComponentProps = {
   validationMessage: string;
   deleteOption: Function;
   updateOption: Function;
+  dataTreePath: string;
 };
 
 function DataControlComponent(props: RenderComponentProps) {
-  const {
-    deleteOption,
-    updateOption,
-    item,
-    index,
-    length,
-    isValid,
-    validationMessage,
-  } = props;
+  const { deleteOption, updateOption, item, index, length, isValid } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
@@ -117,8 +110,9 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
+          dataTreePath={`${props.dataTreePath}`}
           meta={{
-            error: isValid ? "" : validationMessage,
+            error: isValid ? "" : "There is an error",
             touched: true,
           }}
           theme={"DARK"}
@@ -190,6 +184,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
               updateOption={this.updateOption}
               isValid={validations[index].isValid}
               validationMessage={validations[index].validationMessage}
+              dataTreePath={`${this.props.dataTreePath}`}
             />
           );
         })}

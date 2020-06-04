@@ -1,0 +1,146 @@
+import { WidgetType } from "constants/WidgetConstants";
+
+const FIELD_VALUES: Record<
+  WidgetType | "API_ACTION",
+  Record<string, string>
+> = {
+  API_ACTION: {
+    body: "JSON",
+    params: "string",
+    headers: "string",
+    path: "string",
+  },
+  CANVAS_WIDGET: {},
+  ICON_WIDGET: {},
+  CONTAINER_WIDGET: {
+    backgroundColor: "string",
+    isVisible: "boolean",
+  },
+  DATE_PICKER_WIDGET: {
+    defaultDate: "Date",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+    onDateSelected: "undefined",
+  },
+  TABLE_WIDGET: {
+    tableData: "Array<Object>",
+    serverSidePaginationEnabled: "boolean",
+    isVisible: "boolean",
+    exportPDF: "boolean",
+    exportExcel: "boolean",
+    exportCsv: "boolean",
+    onRowSelected: "undefined",
+    onPageChange: "undefined",
+  },
+  IMAGE_WIDGET: {
+    image: "string",
+    defaultImage: "string",
+    isVisible: "boolean",
+  },
+  RADIO_GROUP_WIDGET: {
+    options: "Array<{ label: string, value: string }>",
+    defaultOptionValue: "string",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    onSelectionChange: "undefined",
+  },
+  TABS_WIDGET: {
+    tabs: "Array<{ label: string, id: string }>",
+    selectedTab: "string",
+    isVisible: "boolean",
+  },
+  CHART_WIDGET: {
+    chartName: "string",
+    chartType: "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART",
+    singleChartData: "Array<{ x: string, y: number }>",
+    xAxisName: "string",
+    yAxisName: "string",
+    isVisible: "boolean",
+  },
+  MODAL_WIDGET: {
+    canOutsideClickClose: "boolean",
+    size: "MODAL_LARGE | MODAL_SMALL",
+  },
+  INPUT_WIDGET: {
+    inputType: "string",
+    placeholderText: "string",
+    defaultText: "string",
+    regex: "string",
+    errorMessage: "string",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+    onTextChanged: "undefined",
+  },
+  DROP_DOWN_WIDGET: {
+    label: "string",
+    selectionType: "SINGLE_SELECT | MULTI_SELECT",
+    options: "Array<{ label: string, value: string }>",
+    defaultOptionValue: "string",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    onOptionChange: "boolean",
+  },
+  FORM_BUTTON_WIDGET: {
+    text: "string",
+    buttonStyle: "PRIMARY_BUTTON | SECONDARY_BUTTON | DANGER_BUTTON",
+    disabledWhenInvalid: "boolean",
+    resetFormOnClick: "boolean",
+    isVisible: "boolean",
+    onClick: "boolean",
+  },
+  MAP_WIDGET: {
+    defaultMarkers: "Array<{ lat: number, long: number }>",
+    enableSearch: "boolean",
+    enablePickLocation: "boolean",
+    enableCreateMarker: "boolean",
+    isVisible: "boolean",
+    onMarkerClick: "undefined",
+    onCreateMarker: "undefined",
+  },
+  BUTTON_WIDGET: {
+    text: "string",
+    buttonStyle: "PRIMARY_BUTTON | SECONDARY_BUTTON | DANGER_BUTTON",
+    isVisible: "boolean",
+    onClick: "boolean",
+  },
+  RICH_TEXT_EDITOR_WIDGET: {
+    defaultText: "string",
+    isVisible: "boolean",
+    isDisabled: "boolean",
+    onTextChange: "undefined",
+  },
+  FILE_PICKER_WIDGET: {
+    label: "string",
+    maxNumFiles: "number",
+    maxFileSize: "number",
+
+    allowedFileTypes: "Array<string>",
+    isRequired: "boolean",
+    isVisible: "boolean",
+    uploadedFileUrls: "string",
+    onFilesSelected: "undefined",
+  },
+  CHECKBOX_WIDGET: {
+    label: "string",
+    defaultCheckedState: "boolean",
+    isRequired: "boolean",
+    isDisabled: "boolean",
+    isVisible: "boolean",
+    onCheckChange: "undefined",
+  },
+  FORM_WIDGET: {
+    backgroundColor: "string",
+    isVisible: "boolean",
+  },
+  TEXT_WIDGET: {
+    text: "string",
+    textAlign: "LEFT | CENTER | RIGHT",
+    textStyle: "HEADING | LABEL | BODY",
+    shouldScroll: "boolean",
+    isVisible: "boolean",
+  },
+};
+
+export default FIELD_VALUES;

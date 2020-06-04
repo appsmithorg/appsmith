@@ -10,6 +10,7 @@ import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
 import { Tooltip, Position } from "@blueprintjs/core";
+import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -63,7 +64,7 @@ function UnderlinedLabel({
                 }
               : {}
           }
-        ></span>
+        />
       </div>
     </Tooltip>
   );
@@ -98,8 +99,16 @@ const PropertyControl = (props: Props) => {
   const { propertyName, label } = propertyConfig;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
-    const validation = getPropertyValidation(propertyName);
-    const config = { ...propertyConfig, ...validation, propertyValue };
+    const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    const { isValid, validationMessage } = getPropertyValidation(propertyName);
+    const config = {
+      ...propertyConfig,
+      isValid,
+      propertyValue,
+      validationMessage,
+      dataTreePath,
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
+    };
     const isDynamic: boolean = _.get(
       widgetProperties,
       ["dynamicProperties", propertyName],
@@ -122,10 +131,7 @@ const PropertyControl = (props: Props) => {
           }
         >
           <ControlPropertyLabelContainer>
-            <UnderlinedLabel
-              tooltip={propertyConfig.helpText}
-              label={label}
-            ></UnderlinedLabel>
+            <UnderlinedLabel tooltip={propertyConfig.helpText} label={label} />
 
             {isConvertible && (
               <JSToggleButton
