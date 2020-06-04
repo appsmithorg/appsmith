@@ -529,13 +529,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
                             )
+                            .map(applicationPagesDTO -> applicationPagesDTO.getPages())
+                            .flatMapMany(Flux::fromIterable)
                             .map(pageNameIdDTO -> {
                                 Action example = new Action();
                                 example.setPageId(pageNameIdDTO.getId());
                                 example.setOrganizationId(orgId);
                                 return example;
                             })
-                            .flatMap(example -> repository.findAll(Example.of(example), sort)))
+                            .flatMap(example -> repository.findAll(Example.of(example), sort))
+                    )
                     .flatMap(this::setTransientFieldsInAction);
         }
         return orgIdMono

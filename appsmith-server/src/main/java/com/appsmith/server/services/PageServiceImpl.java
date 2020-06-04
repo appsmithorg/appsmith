@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -122,19 +123,45 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
-        return applicationService
-                .findById(applicationId, AclPermission.READ_APPLICATIONS)
+    public Mono<ApplicationPagesDTO> findNamesByApplicationId(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMapMany(this::findNamesByApplication);
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(this::findNamesByApplication)
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
     }
 
     @Override
-    public Flux<PageNameIdDTO> findNamesByApplicationName(String applicationName) {
-        return applicationService
-                .findByName(applicationName, AclPermission.READ_PAGES)
+    public Mono<ApplicationPagesDTO> findNamesByApplicationName(String applicationName) {
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .flatMapMany(this::findNamesByApplication);
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(this::findNamesByApplication)
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application) {
