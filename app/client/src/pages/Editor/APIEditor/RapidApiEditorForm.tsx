@@ -11,12 +11,7 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import {
-  RestAction,
-  PaginationField,
-  BodyFormData,
-  Property,
-} from "api/ActionAPI";
+import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -26,7 +21,8 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
-import Pagination, { PaginationType } from "./Pagination";
+import Pagination from "./Pagination";
+import { PaginationType, RestAction } from "entities/Action";
 
 const Form = styled.form`
   display: flex;

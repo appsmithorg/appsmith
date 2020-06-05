@@ -486,10 +486,7 @@ class TernServer {
   }
 
   fadeOut(tooltip: HTMLElement) {
-    tooltip.style.opacity = "0";
-    setTimeout(() => {
-      this.remove(tooltip);
-    }, 1100);
+    this.remove(tooltip);
   }
 }
 

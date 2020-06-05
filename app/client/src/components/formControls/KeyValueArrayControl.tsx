@@ -33,7 +33,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
         props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
       }
     }
-  }, [props.fields]);
+  }, [props.fields, keyName, valueName]);
 
   useEffect(() => {
     if (typeof props.fields.getAll() === "string") {

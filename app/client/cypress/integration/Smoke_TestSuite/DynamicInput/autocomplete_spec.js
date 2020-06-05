@@ -1,6 +1,7 @@
 const dsl = require("../../../fixtures/commondsl.json");
 const pages = require("../../../locators/Pages.json");
 const dynamicInputLocators = require("../../../locators/DynamicInput.json");
+const apiwidget = require("../../../locators/apiWidgetslocator.json");
 
 describe("Dynamic input autocomplete", () => {
   beforeEach(() => {
@@ -51,5 +52,23 @@ describe("Dynamic input autocomplete", () => {
             );
           });
       });
+  });
+  it("opens current value popup", () => {
+    // Test on widgets pane
+    cy.get(pages.widgetsEditor).click();
+    cy.openPropertyPane("buttonwidget");
+    cy.get(dynamicInputLocators.input)
+      .first()
+      .focus();
+    cy.assertEvaluatedValuePopup("string");
+
+    // Test on api pane
+    cy.NavigateToAPI_Panel();
+    cy.get(apiwidget.createapi).click({ force: true });
+    cy.wait("@createNewApi");
+    cy.xpath(apiwidget.headerValue)
+      .first()
+      .focus();
+    cy.assertEvaluatedValuePopup("string");
   });
 });

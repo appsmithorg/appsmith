@@ -167,6 +167,8 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getActionDrafts = (state: AppState) => state.entities.actionDrafts;
+
 export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};
 

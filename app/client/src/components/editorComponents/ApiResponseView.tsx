@@ -13,6 +13,7 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
+import _ from "lodash";
 import FormActionButton from "./form/FormActionButton";
 
 const ResponseWrapper = styled.div`
@@ -133,7 +134,7 @@ const ApiResponseView = (props: Props) => {
                 onClick={() => {
                   setSelectedIndex(3);
                 }}
-              ></FormActionButton>
+              />
             )}
           </FailedMessageContainer>
           <CodeEditor
@@ -163,9 +164,9 @@ const ApiResponseView = (props: Props) => {
       panelComponent: (
         <CodeEditor
           input={{
-            value: response.requestBody
+            value: _.isObject(response.requestBody)
               ? JSON.stringify(response.requestBody, null, 2)
-              : "",
+              : response.requestBody || "",
           }}
           height={700}
         />
