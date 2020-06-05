@@ -303,6 +303,7 @@ export type DynamicAutocompleteInputProps = {
   baseMode?: string | object;
   setMaxHeight?: boolean;
   dataTreePath?: string;
+  evaluatedValue?: any;
   expected?: string;
 };
 
@@ -564,20 +565,23 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       dataTreePath,
       dynamicData,
       expected,
+      evaluatedValue,
     } = this.props;
     const hasError = !!(meta && meta.error);
-    let evaluatedValue: any = "undefined";
+    let evaluated = evaluatedValue;
     if (dataTreePath) {
-      evaluatedValue = _.get(dynamicData, dataTreePath);
+      evaluated = _.get(dynamicData, dataTreePath);
     }
     const showEvaluatedValue =
-      this.state.isFocused && "dataTreePath" in this.props;
+      this.state.isFocused &&
+      ("evaluatedValue" in this.props || "dataTreePath" in this.props);
+
     return (
       <Wrapper>
         <EvaluatedValuePopup
           theme={theme || THEMES.LIGHT}
           isOpen={showEvaluatedValue}
-          evaluatedValue={evaluatedValue}
+          evaluatedValue={evaluated}
           expected={expected}
           hasError={hasError}
         >
