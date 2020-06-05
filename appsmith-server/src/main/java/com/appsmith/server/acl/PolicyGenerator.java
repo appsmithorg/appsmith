@@ -17,8 +17,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
@@ -28,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
@@ -63,11 +66,10 @@ public class PolicyGenerator {
 
         createUserPolicyGraph();
         createOrganizationPolicyGraph();
+        createDatasourcePolicyGraph();
         createApplicationPolicyGraph();
         createPagePolicyGraph();
         createActionPolicyGraph();
-
-        log.debug("Successfully created the createGraph & lateralGraph");
     }
 
     /**
@@ -87,6 +89,15 @@ public class PolicyGenerator {
         lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_ORGANIZATIONS, ORGANIZATION_PUBLISH_APPLICATIONS);
+    }
+
+    private void createDatasourcePolicyGraph() {
+        hierarchyGraph.addEdge(ORGANIZATION_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
+        hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_DATASOURCES);
+
+        lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);
+        lateralGraph.addEdge(MANAGE_DATASOURCES, EXECUTE_DATASOURCES);
+        lateralGraph.addEdge(READ_DATASOURCES, EXECUTE_DATASOURCES);
     }
 
     private void createApplicationPolicyGraph() {
@@ -131,17 +142,21 @@ public class PolicyGenerator {
      * @param policy
      * @param aclPermission
      * @param user
+     * @param destinationEntity
      * @return
      */
-    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, User user) {
+    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, User user, Class destinationEntity) {
         // Check the hierarchy graph to derive child permissions that must be given to this
         // document
         Set<Policy> childPolicySet = new HashSet<>();
         Set<DefaultEdge> edges = hierarchyGraph.outgoingEdgesOf(aclPermission);
         for (DefaultEdge edge : edges) {
             AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
-            childPolicySet.add(Policy.builder().permission(childPermission.getValue())
-                    .users(policy.getUsers()).build());
+
+            if (childPermission.getEntity().equals(destinationEntity)) {
+                childPolicySet.add(Policy.builder().permission(childPermission.getValue())
+                        .users(policy.getUsers()).build());
+            }
 
             // Get the lateral permissions that must be applied given the child permission
             // This is applied at a user level and not from the parent object. Hence only the
@@ -152,13 +167,13 @@ public class PolicyGenerator {
         return childPolicySet;
     }
 
-    public Set<Policy> getAllChildPolicies(User user, Set<Policy> policySet, Class entity) {
+    public Set<Policy> getAllChildPolicies(User user, Set<Policy> policySet, Class inheritingEntity, Class destinationEntity) {
         return policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission
-                            .getPermissionByValue(policy.getPermission(), entity);
+                            .getPermissionByValue(policy.getPermission(), inheritingEntity);
                     // Get all the child policies for the given policy and aclPermission
-                    return getChildPolicies(policy, aclPermission, user);
+                    return getChildPolicies(policy, aclPermission, user, destinationEntity);
                 }).flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }

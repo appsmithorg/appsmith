@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class PostmanImporterService extends BaseApiImporter {
     @Override
-    public Mono<Action> importAction(Object input, String pageId, String name) {
+    public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
         Action action = new Action();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Datasource datasource = new Datasource();

@@ -11,8 +11,6 @@ public interface CustomOrganizationRepository extends AppsmithRepository<Organiz
 
     Mono<Organization> findByName(String name, AclPermission aclPermission);
 
-    Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId, AclPermission aclPermission);
-
     Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission);
 
 }

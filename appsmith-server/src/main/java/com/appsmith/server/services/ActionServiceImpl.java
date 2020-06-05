@@ -60,7 +60,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
@@ -132,7 +135,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return pageService
                 .findById(action.getPageId(), READ_PAGES)
                 .zipWith(userMono)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     Page page = tuple.getT1();
                     User user = tuple.getT2();
 
@@ -140,12 +143,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     generateAndSetActionPolicies(page, user, action);
 
                     Datasource datasource = action.getDatasource();
-                    if (datasource != null) {
-                        datasource.setOrganizationId(user.getCurrentOrganizationId());
-                        action.setDatasource(datasource);
+                    if (datasource.getOrganizationId() == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
                     }
-                    action.setOrganizationId(user.getCurrentOrganizationId());
-                    return action;
+                    action.setOrganizationId(datasource.getOrganizationId());
+
+                    return Mono.just(action);
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
     }
@@ -191,7 +194,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     .flatMap(datasourceService::validateDatasource);
         } else {
             //Data source already exists. Find the same.
-            datasourceMono = datasourceService.findById(action.getDatasource().getId())
+            datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
                     .switchIfEmpty(Mono.defer(() -> {
                         action.setIsValid(false);
                         invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -317,7 +320,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId())
+                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
                     }
                     //The data source in the action has not been persisted.
@@ -583,7 +586,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             if (datasource.getId() != null) {
                 // its a global datasource. Get the datasource from the collection
                 pluginIdUpdateMono = datasourceService
-                        .findById(datasource.getId())
+                        .findById(datasource.getId(), READ_DATASOURCES)
                         .map(datasource1 -> {
                             action.setPluginId(datasource1.getPluginId());
                             return action;
@@ -635,7 +638,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
                         || policy.getPermission().equals(READ_PAGES.getValue()))
                 .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Page.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
 }

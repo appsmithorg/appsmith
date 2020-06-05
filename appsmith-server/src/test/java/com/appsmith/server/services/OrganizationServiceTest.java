@@ -5,12 +5,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -25,15 +27,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,6 +66,12 @@ public class OrganizationServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    DatasourceService datasourceService;
+
+    @Autowired
+    DatasourceRepository datasourceRepository;
 
     Organization organization;
 
@@ -386,13 +398,13 @@ public class OrganizationServiceTest {
     }
 
     /**
-     * This test checks for application permissions if a user is invited to the organization as an Admin.
+     * This test checks for application and datasource permissions if a user is invited to the organization as an Admin.
      * The existing applications in the organization should now have the new user be included in both
      * manage:applications and read:applications policies.
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void addUserToOrganizationAsAdminAndCheckApplicationPermissions() {
+    public void addUserToOrganizationAsAdminAndCheckApplicationAndDatasourcePermissions() {
         Organization organization = new Organization();
         organization.setName("Member Management Admin Test Organization");
         organization.setDomain("example.com");
@@ -410,6 +422,15 @@ public class OrganizationServiceTest {
                     return applicationPageService.createApplication(application, org.getId());
                 });
 
+        // Create datasource for this organization
+        Mono<Datasource> datasourceMono = organizationMono
+                .flatMap(org -> {
+                    Datasource datasource = new Datasource();
+                    datasource.setName("test datasource");
+                    datasource.setOrganizationId(org.getId());
+                    return datasourceService.create(datasource);
+                });
+
         Mono<Organization> userAddedToOrgMono = organizationMono
                 .flatMap(organization1 -> {
                     // Add user to organization
@@ -417,6 +438,10 @@ public class OrganizationServiceTest {
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
                     return userOrganizationService.addUserRoleToOrganization(organization1.getId(), userRole);
+                })
+                .map(organization1 -> {
+                    log.debug("Organization policies after adding user is : {}", organization1.getPolicies());
+                    return organization1;
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
@@ -426,16 +451,23 @@ public class OrganizationServiceTest {
         Mono<Organization> readOrganizationByNameMono = organizationRepository.findByName("Member Management Admin Test Organization")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
 
-        Mono<Tuple2<Application, Organization>> testMono = organizationMono
-                .then(applicationMono)
+        Mono<Datasource> readDatasourceByNameMono = datasourceRepository.findByName("test datasource", READ_DATASOURCES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")));
+
+        Mono<Tuple3<Application, Organization, Datasource>> testMono = organizationMono
+                // create application and datasource
+                .then(Mono.zip(applicationMono, datasourceMono))
+                // Now add the user
                 .then(userAddedToOrgMono)
-                .then(Mono.zip(readApplicationByNameMono, readOrganizationByNameMono));
+                // Read application, organization and datasource now to confirm the policies.
+                .then(Mono.zip(readApplicationByNameMono, readOrganizationByNameMono, readDatasourceByNameMono));
 
         StepVerifier
                 .create(testMono)
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
                     Organization org = tuple.getT2();
+                    Datasource datasource = tuple.getT3();
                     assertThat(org).isNotNull();
                     assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
 
@@ -448,6 +480,23 @@ public class OrganizationServiceTest {
 
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    /*
+                     * Check for datasource permissions after the user addition
+                     */
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+
+                    assertThat(datasource.getPolicies()).isNotEmpty();
+                    assertThat(datasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
+                                                                            executeDatasourcePolicy));
 
                 })
                 .verifyComplete();
