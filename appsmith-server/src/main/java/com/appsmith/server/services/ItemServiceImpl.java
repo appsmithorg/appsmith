@@ -66,6 +66,10 @@ public class ItemServiceImpl implements ItemService {
             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
         }
 
+        if (addItemToPageDTO.getOrganizationId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
+
         ApiTemplate apiTemplate = addItemToPageDTO.getMarketplaceElement().getItem();
 
         Action action = new Action();
@@ -92,9 +96,6 @@ public class ItemServiceImpl implements ItemService {
                 .subscribeAndUpdateStatisticsOfProvider(apiTemplate.getProviderId())
 
                 // Assume that we are only adding rapid api templates right now. Set the package to rapid-api forcibly
-                /** TODO
-                 * Scraper should set the correct package name (rapidapi-plugin) instead of restapi-plugin
-                 */
                 .then(pluginService.findByPackageName(RAPID_API_PLUGIN))
                 .map(plugin -> {
                     //Set Datasource
@@ -102,6 +103,7 @@ public class ItemServiceImpl implements ItemService {
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
                     datasource.setPluginId(plugin.getId());
+                    datasource.setOrganizationId(addItemToPageDTO.getOrganizationId());
                     action.setDatasource(datasource);
                     action.setPluginType(plugin.getType());
                     return action;
