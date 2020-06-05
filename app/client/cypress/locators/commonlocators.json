@@ -33,7 +33,7 @@
     "editWidgetName": ".bp3-editable-text",
     "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
     "onDateSelectedField": ".t--property-control-ondateselected",
-    "TableRow": ".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable",
+    "TableRow": ".t--draggable-tablewidget .tbody",
     "Disablejs": ".t--property-control-disabled",
     "requiredjs": ".t--property-control-required",
     "horizontalScroll": ".t--property-control-allowhorizontalscroll input",
@@ -45,5 +45,8 @@
     "disabledBtn": " button[disabled='disabled']",
     "inputField": " .bp3-input",
     "csvSupport": ".t--property-control-csvexport input",
-    "backToEditor": ".bp3-icon.bp3-icon-chevron-left  + span.bp3-button-text"
+    "backToEditor": ".t--back-to-editor",
+    "enableSearchLocCheckbox": ".t--property-control-enablesearchlocation input",
+    "enablePickLocCheckbox": ".t--property-control-enablepicklocation input",
+    "enableCreateMarkerCheckbox": ".t--property-control-createnewmarker input"
 }

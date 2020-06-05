@@ -15,12 +15,12 @@ import {
   copyActionRequest,
 } from "actions/actionActions";
 import { deleteQuery } from "actions/queryPaneActions";
-import { RestAction } from "api/ActionAPI";
 import { changeQuery, initQueryPane } from "actions/queryPaneActions";
 import { getQueryActions } from "selectors/entitiesSelector";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { RestAction } from "entities/Action";
 
 const ActionItem = styled.div`
   flex: 1;

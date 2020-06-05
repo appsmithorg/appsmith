@@ -60,6 +60,12 @@
   force = true
   headers = { X-Forwarded-Host = "APP_HOST_PLACEHOLDER", X-Forwarded-Proto = "https" }
 
+[[redirects]]
+  from = "/f/*"
+  to = "https://cdn.optimizely.com/:splat"
+  status = 200
+  force = true
+
 # This must be the last redirect in the chain because it's a catch-all
 [[redirects]]
   from = "/*"

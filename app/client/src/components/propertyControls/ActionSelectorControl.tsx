@@ -15,7 +15,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       <ActionCreator
         value={propertyValue}
         isValid={this.props.isValid}
-        validationMessage={this.props.validationMessage}
+        validationMessage={this.props.errorMessage}
         onValueChange={this.handleValueUpdate}
       />
     );

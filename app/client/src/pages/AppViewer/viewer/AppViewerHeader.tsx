@@ -20,6 +20,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
     <HeaderWrapper>
       {props.url && (
         <Button
+          className="t--back-to-editor"
           href={props.url}
           intent="primary"
           icon="chevron-left"

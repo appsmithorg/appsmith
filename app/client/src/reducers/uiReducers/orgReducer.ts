@@ -13,6 +13,7 @@ const initialState: OrgReduxState = {
     isFetchAllUsers: false,
     isDeletingOrgUser: false,
   },
+  currentOrgId: "",
   orgUsers: [],
   orgRoles: [],
 };
@@ -39,6 +40,7 @@ const orgReducer = createReducer(initialState, {
       isFetchAllUsers: true,
     },
   }),
+
   [ReduxActionTypes.FETCH_ORG_ROLES_SUCCESS]: (
     state: OrgReduxState,
     action: ReduxAction<OrgRole[]>,
@@ -113,6 +115,13 @@ const orgReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_ORG_USER_ERROR]: (state: OrgReduxState) => {
     return { ...state, isDeletingOrgUser: false };
   },
+  [ReduxActionTypes.SET_CURRENT_ORG_ID]: (
+    state: OrgReduxState,
+    action: ReduxAction<{ orgId: string }>,
+  ) => ({
+    ...state,
+    currentOrgId: action.payload.orgId,
+  }),
 
   [ReduxActionTypes.FETCH_ORGS_SUCCESS]: (
     state: OrgReduxState,
@@ -134,6 +143,7 @@ export interface OrgReduxState {
   };
   orgUsers: OrgUser[];
   orgRoles: any;
+  currentOrgId: string;
 }
 
 export default orgReducer;

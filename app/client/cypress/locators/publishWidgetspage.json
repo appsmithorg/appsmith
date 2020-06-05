@@ -3,7 +3,7 @@
   "textWidget": ".t--widget-textwidget",
   "richTextEditorWidget": ".t--widget-richtexteditorwidget",
   "datepickerWidget": ".t--widget-datepickerwidget",
-  "backToEditor": ".bp3-icon.bp3-icon-chevron-left  + span.bp3-button-text",
+  "backToEditor": ".t--back-to-editor",
   "inputWidget": ".t--widget-inputwidget",
   "checkboxWidget": ".t--widget-checkboxwidget",
   "radioWidget": ".t--widget-radiogroupwidget",
@@ -12,7 +12,14 @@
   "dropdownWidget": ".t--widget-dropdownwidget",
   "tabWidget": ".t--widget-tabswidget",
   "chartWidget": ".t--widget-chartwidget",
-  "horizontalTab": ".t--widget-chartwidget g[class='raphael-group-104-axis-Line-group'] rect",
+  "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",
   "tableWidget": ".t--widget-tablewidget",
-  "tableLength": ".t--widget-tablewidget .e-gridcontent.e-lib.e-droppable"
+  "chartCanvasVal": ".t--widget-chartwidget g[class*='-canvas'] rect ",
+  "mapWidget": ".t--widget-mapwidget",
+  "tableLength": ".t--widget-tablewidget .tbody",
+  "mapSearch": ".t--widget-mapwidget input",
+  "pickMyLocation": ".t--widget-mapwidget div[title='Pick My Location']",
+  "rectChart":".t--widget-chartwidget g  rect",
+  "chartLab":".t--widget-chartwidget g:nth-child(5) text"
+
 }

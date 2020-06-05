@@ -25,12 +25,12 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "api/ActionAPI";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
+import { RestAction } from "entities/Action";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
