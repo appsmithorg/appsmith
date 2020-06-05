@@ -243,6 +243,10 @@ export type Theme = {
   lineHeights: Array<number>;
   fonts: Array<FontFamily>;
   borders: ThemeBorder[];
+  evaluatedValuePopup: {
+    width: number;
+    height: number;
+  };
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   sidebarWidth: string;
@@ -311,6 +315,10 @@ export const theme: Theme = {
     width: 270,
     height: 600,
     dividerColor: Colors.MAKO,
+  },
+  evaluatedValuePopup: {
+    width: 300,
+    height: 400,
   },
   drawerWidth: "80%",
   colors: {

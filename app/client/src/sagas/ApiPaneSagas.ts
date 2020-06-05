@@ -33,8 +33,8 @@ import {
 import { initialize, autofill, change } from "redux-form";
 import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
-import { Property, RestAction } from "api/ActionAPI";
-import { changeApi } from "actions/apiPaneActions";
+import { Property } from "api/ActionAPI";
+import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
 import {
   API_PATH_START_WITH_SLASH_ERROR,
   FIELD_REQUIRED_ERROR,
@@ -46,6 +46,8 @@ import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getActions } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest } from "actions/actionActions";
+import { RestAction } from "entities/Action";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const getApiDraft = (state: AppState, id: string) => {
   const drafts = state.ui.apiPane.drafts;
@@ -147,6 +149,28 @@ function* syncApiParamsSaga(
         `${currentPath}${paramsString}`,
       ),
     );
+
+    if (
+      actionPayload.type === ReduxFormActionTypes.VALUE_CHANGE ||
+      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE
+    ) {
+      if (values.datasource && values.datasource.id) {
+        yield put(
+          setDatasourceFieldText(values.id, `${currentPath}${paramsString}`),
+        );
+      } else if (
+        values.datasource &&
+        values.datasource.datasourceConfiguration
+      ) {
+        yield put(
+          setDatasourceFieldText(
+            values.id,
+            values.datasource.datasourceConfiguration.url +
+              `${currentPath}${paramsString}`,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -189,13 +213,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     data = action;
   } else {
     data = draft;
-  }
-
-  if (data.actionConfiguration.path) {
-    if (data.actionConfiguration.path.charAt(0) === "/")
-      data.actionConfiguration.path = data.actionConfiguration.path.substring(
-        1,
-      );
   }
 
   if (
@@ -286,29 +303,23 @@ function* validateInputSaga(
     payload,
     meta: { field },
   } = actionPayload;
+  if (field === "dynamicBindingPathList") return;
   const actions: RestAction[] = yield select(getActionConfigs);
-  const sameNames = actions.filter(
-    (action: RestAction) => action.name === payload && action.id,
-  );
   if (field === "name") {
+    const sameNames = actions.filter(
+      (action: RestAction) => action.name === payload && action.id,
+    );
     if (!_.trim(payload)) {
       _.set(errors, field, FIELD_REQUIRED_ERROR);
     } else if (payload.indexOf(" ") !== -1) {
       _.set(errors, field, VALID_FUNCTION_NAME_ERROR);
     } else if (sameNames.length > 0) {
-      // TODO Check this
       _.set(errors, field, UNIQUE_NAME_ERROR);
     } else {
       _.unset(errors, field);
     }
   }
-  if (field === "actionConfiguration.path") {
-    if (payload && payload.startsWith("/")) {
-      _.set(errors, field, API_PATH_START_WITH_SLASH_ERROR);
-    } else {
-      _.unset(errors, field);
-    }
-  }
+
   yield put({
     type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
     meta: {
@@ -391,12 +402,37 @@ function* updateFormFields(
   }
 }
 
+function* updateDynamicBindingsSaga(
+  actionPayload: ReduxActionWithMeta<string, { field: string }>,
+) {
+  const field = actionPayload.meta.field;
+  if (field === "dynamicBindingPathList") return;
+  const value = actionPayload.payload;
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  if (!values.id) return;
+
+  const isDynamic = isDynamicValue(value);
+  let dynamicBindings: Property[] = values.dynamicBindingPathList || [];
+  const fieldExists = _.some(dynamicBindings, { key: field });
+
+  if (!isDynamic && fieldExists) {
+    dynamicBindings = dynamicBindings.filter(d => d.key !== field);
+  }
+  if (isDynamic && !fieldExists) {
+    dynamicBindings.push({ key: field });
+  }
+  yield put(
+    change(API_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
+  );
+}
+
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   yield all([
+    call(updateDynamicBindingsSaga, actionPayload),
     call(validateInputSaga, actionPayload),
     call(updateDraftsSaga),
     call(syncApiParamsSaga, actionPayload),

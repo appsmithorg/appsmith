@@ -1,5 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
 
 export const createQueryRequest = (payload: Partial<RestAction>) => {
   return {
