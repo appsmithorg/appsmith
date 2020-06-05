@@ -24,6 +24,7 @@ export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
   message?: string;
+  transformed?: any;
 };
 
 export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];

@@ -26,7 +26,7 @@ describe("Text-Chart Binding Functionality", function() {
     cy.get(viewWidgetsPage.chartType)
       .find(commonlocators.menuSelection)
       .should("have.text", "Column Chart");
-    cy.testJsontext("chartdata", "{{Text1.text}}");
+    cy.testJsontext("chart-series-data-control", "{{Text1.text}}");
     cy.closePropertyPane();
     const labels = [
       this.data.Chartval[0],
