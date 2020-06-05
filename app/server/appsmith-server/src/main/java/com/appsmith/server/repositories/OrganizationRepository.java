@@ -13,5 +13,7 @@ public interface OrganizationRepository extends BaseRepository<Organization, Str
     @Query(value = "{slug: {$regex: ?0}}", count = true)
     Mono<Long> countSlugsByPrefix(String keyword);
 
+    Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId);
+
     Mono<Organization> findByName(String name);
 }

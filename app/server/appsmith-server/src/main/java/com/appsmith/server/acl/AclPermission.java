@@ -2,6 +2,7 @@ package com.appsmith.server.acl;
 
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
@@ -49,7 +50,11 @@ public enum AclPermission {
 
     MANAGE_ACTIONS("manage:actions", Action.class),
     READ_ACTIONS("read:actions", Action.class),
-    EXECUTE_ACTIONS("execute:actions", Action.class);
+    EXECUTE_ACTIONS("execute:actions", Action.class),
+
+    MANAGE_DATASOURCES("manage:datasources", Datasource.class),
+    READ_DATASOURCES("read:datasources", Datasource.class),
+    EXECUTE_DATASOURCES("execute:datasources", Datasource.class);
 
     private String value;
     private Class entity;

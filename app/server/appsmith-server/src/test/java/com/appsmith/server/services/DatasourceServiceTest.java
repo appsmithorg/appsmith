@@ -4,15 +4,19 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +35,9 @@ import reactor.util.function.Tuple2;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -45,10 +52,13 @@ public class DatasourceServiceTest {
     @Autowired
     PluginService pluginService;
 
+    @Autowired
+    OrganizationRepository organizationRepository;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    class TestPluginExecutor implements PluginExecutor {
+    static class TestPluginExecutor implements PluginExecutor {
 
         @Override
         public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
@@ -80,9 +90,13 @@ public class DatasourceServiceTest {
         }
     }
 
-    @Before
-    public void setup() {
+    String orgId =  "";
 
+    @Before
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testOrg.getId();
     }
 
     @Test
@@ -90,6 +104,7 @@ public class DatasourceServiceTest {
     public void createDatasourceWithNullPluginId() {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
+        datasource.setOrganizationId(orgId);
         Mono<Datasource> datasourceMono = Mono.just(datasource)
                 .flatMap(datasourceService::create);
         StepVerifier
@@ -108,6 +123,7 @@ public class DatasourceServiceTest {
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
+        datasource.setOrganizationId(orgId);
         Mono<Datasource> datasourceMono = Mono.just(datasource)
                 .flatMap(datasourceService::create);
         StepVerifier
@@ -125,6 +141,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-uninstalled-plugin");
+        datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -155,6 +172,7 @@ public class DatasourceServiceTest {
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("test datasource name");
+        datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -169,6 +187,18 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+
+                    assertThat(createdDatasource.getPolicies()).isNotEmpty();
+                    assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
                 })
                 .verifyComplete();
     }
@@ -180,6 +210,7 @@ public class DatasourceServiceTest {
 
         Datasource datasource = new Datasource();
         datasource.setName("test db datasource");
+        datasource.setOrganizationId(orgId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Connection connection = new Connection();
         connection.setMode(Connection.Mode.READ_ONLY);
@@ -192,7 +223,7 @@ public class DatasourceServiceTest {
         datasourceConfiguration.setConnection(connection);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        datasource.setOrganizationId("fixme-put-valid-org-id-here");
+        datasource.setOrganizationId(orgId);
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -233,10 +264,12 @@ public class DatasourceServiceTest {
 
         Datasource datasource1 = new Datasource();
         datasource1.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource1.setOrganizationId(orgId);
         datasource1.getDatasourceConfiguration().setUrl("http://test.com");
 
         Datasource datasource2 = new Datasource();
         datasource2.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource2.setOrganizationId(orgId);
         datasource2.getDatasourceConfiguration().setUrl("http://test.com");
 
         final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
@@ -259,6 +292,37 @@ public class DatasourceServiceTest {
                     assertThat(ds2.getId()).isNotEmpty();
                     assertThat(ds2.getPluginId()).isEqualTo(datasource1.getPluginId());
                     assertThat(ds2.getName()).isEqualTo("Untitled datasource 2");
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceValid() {
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for test");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+
+        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1));
+
+        StepVerifier
+                .create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
     }

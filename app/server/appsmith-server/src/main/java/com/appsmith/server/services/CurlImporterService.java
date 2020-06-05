@@ -47,7 +47,7 @@ public class CurlImporterService extends BaseApiImporter {
     }
 
     @Override
-    public Mono<Action> importAction(Object input, String pageId, String name) {
+    public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
         Action action = curlToAction((String) input, pageId, name);
 
         if (action == null) {
@@ -62,6 +62,7 @@ public class CurlImporterService extends BaseApiImporter {
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
+                    datasource.setOrganizationId(orgId);
                     return Mono.just(action);
                 })
                 .flatMap(actionService::create);

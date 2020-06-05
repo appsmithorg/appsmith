@@ -33,14 +33,6 @@ public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
-    public Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId, AclPermission aclPermission) {
-        Criteria idCriteria = where(fieldName(QOrganization.organization.id)).is(organizationId);
-        Criteria pluginIdCriteria = where(fieldName(QOrganization.organization.plugins.any().pluginId)).is(pluginId);
-
-        return queryOne(List.of(idCriteria, pluginIdCriteria), aclPermission);
-    }
-
-    @Override
     public Flux<Organization> findByIdsIn(Set<String> orgIds, AclPermission aclPermission) {
         Criteria orgIdsCriteria = where(fieldName(QOrganization.organization.id)).in(orgIds);
         return queryAll(List.of(orgIdsCriteria), aclPermission);
