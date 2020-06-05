@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -99,15 +98,6 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     public Mono<String> getNextUniqueSlug(String initialSlug) {
         return repository.countSlugsByPrefix(initialSlug)
                 .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
-    }
-
-    private Set<Policy> crudOrgPolicy(User user) {
-        Set<Policy> policySet = user.getPolicies().stream()
-                .filter(policy ->
-                        policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue())
-                ).collect(Collectors.toSet());
-
-        return policyGenerator.getAllChildPolicies(user, policySet, User.class);
     }
 
     /**
@@ -258,7 +248,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
 
     @Override
     public Mono<Organization> findByIdAndPluginsPluginId(String organizationId, String pluginId) {
-        return repository.findByIdAndPluginsPluginId(organizationId, pluginId, AclPermission.READ_ORGANIZATIONS);
+        return repository.findByIdAndPluginsPluginId(organizationId, pluginId);
     }
 
     @Override
