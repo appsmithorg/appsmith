@@ -48,6 +48,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest } from "actions/actionActions";
 import { RestAction } from "entities/Action";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getApiDraft = (state: AppState, id: string) => {
   const drafts = state.ui.apiPane.drafts;
@@ -495,6 +496,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
+  const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
@@ -513,6 +515,7 @@ function* handleCreateNewApiActionSaga(
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
           pluginId,
+          organizationId,
         },
         pageId,
       }),
