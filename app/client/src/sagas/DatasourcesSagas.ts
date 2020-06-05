@@ -43,6 +43,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -66,8 +67,12 @@ function* createDatasourceSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig>,
 ) {
   try {
+    const organizationId = yield select(getCurrentOrgId);
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      actionPayload.payload,
+      {
+        ...actionPayload.payload,
+        organizationId,
+      },
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -160,6 +165,7 @@ function* updateDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 }
 
 function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
+  const organizationId = yield select(getCurrentOrgId);
   const { initialValues, values } = yield select(
     getFormData,
     DATASOURCE_DB_FORM,
@@ -172,7 +178,10 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   try {
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.testDatasource(
-      payload,
+      {
+        ...payload,
+        organizationId,
+      },
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -207,6 +216,7 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     let formConfig;
+    const organizationId = yield select(getCurrentOrgId);
     const initialValues = {};
     const parseConfig = (section: any): any => {
       return _.map(section.children, (subSection: any) => {
@@ -251,7 +261,10 @@ function* createDatasourceFromFormSaga(
     };
 
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
-      payload,
+      {
+        ...payload,
+        organizationId,
+      },
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
