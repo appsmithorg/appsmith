@@ -16,9 +16,6 @@ const renderComponent = (
   return (
     <React.Fragment>
       <SelectComponent {...componentProps} />
-      <FormFieldError
-        error={componentProps.meta.touched && componentProps.meta.error}
-      />
     </React.Fragment>
   );
 };
