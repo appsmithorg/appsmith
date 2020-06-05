@@ -5,6 +5,8 @@ import { OrgRole, Org } from "constants/orgConstants";
 export const getRolesFromState = (state: AppState) => {
   return state.ui.orgs.roles;
 };
+
+export const getCurrentOrgId = (state: AppState) => state.ui.orgs.currentOrgId;
 export const getOrgs = (state: AppState) => state.ui.orgs.list;
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
