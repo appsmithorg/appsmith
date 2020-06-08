@@ -17,8 +17,10 @@ export interface DatasourceForm {
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
-  static fetchPlugins(): AxiosPromise<GenericApiResponse<Plugin[]>> {
-    return Api.get(PluginsApi.url);
+  static fetchPlugins(
+    orgId: string,
+  ): AxiosPromise<GenericApiResponse<Plugin[]>> {
+    return Api.get(PluginsApi.url + `?organizationId=${orgId}`);
   }
 
   static fetchFormConfig(
