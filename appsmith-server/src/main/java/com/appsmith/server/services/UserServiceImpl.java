@@ -461,7 +461,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * platform. This flow also ensures that a personal workspace name is created for the user. The new user is then
      * given admin permissions to the personal workspace.
      * <p>
-     * For new user invite flow, please {@link UserOrganizationService#inviteUserNew(InviteUserDTO, String)}
+     * For new user invite flow, please {@link UserService#inviteUser(InviteUserDTO, String)}
      *
      * @param user
      * @return

@@ -75,8 +75,6 @@ public class LayoutServiceImpl implements LayoutService {
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return pageService.findByIdAndLayoutsId(pageId, layoutId)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
-                .flatMap(applicationPageService::doesPageBelongToCurrentUserOrganization)
-                //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.
