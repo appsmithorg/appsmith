@@ -25,4 +25,5 @@ public class FieldName {
     public static String CATEGORY = "category";
     public static String PAGE = "page";
     public static String SIZE = "size";
+    public static String ROLE = "role";
 }
