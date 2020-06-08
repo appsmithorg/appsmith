@@ -28,6 +28,10 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
+import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
+import EntityNameComponent from "components/editorComponents/EntityNameComponent";
+import { editApiName, saveApiName } from "actions/actionActions";
+import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -210,12 +214,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourceWrapper className="t--dataSourceField">
-            <DatasourcesField
-              key={apiId}
-              name="datasource"
-              pluginId={pluginId}
-              datasourceFieldText={props.datasourceFieldText}
-              appName={props.appName}
+            <EmbeddedDatasourcePathField
+              name="actionConfiguration.path"
+              singleLine={true}
             />
           </DatasourceWrapper>
         </FormRow>
