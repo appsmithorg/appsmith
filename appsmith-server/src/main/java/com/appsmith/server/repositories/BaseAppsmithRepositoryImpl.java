@@ -14,6 +14,7 @@ import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -150,6 +151,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
+        return queryAll(criterias, aclPermission, null);
+    }
+
+    public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission, Sort sort) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .flatMapMany(auth -> {
@@ -161,6 +166,9 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                         query.addCriteria(new Criteria().andOperator(notDeleted()));
                     } else {
                         query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
+                    }
+                    if (sort != null) {
+                        query.with(sort);
                     }
 
                     return mongoOperations.query(this.genericDomain)

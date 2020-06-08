@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,6 +14,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -63,5 +65,29 @@ public class CustomActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Actio
                             Action.class, Action.class)
                             .map(action -> setUserPermissionsInObject(action, user));
                 });
+    }
+
+    @Override
+    public Flux<Action> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission,
+                                                       Sort sort) {
+        /**
+         * TODO : This function is called by get(params) to get all actions by params and hence
+         * only covers criteria of few fields like page id, name, etc. Make this generic to cover
+         * all possible fields
+         */
+
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (name != null) {
+            Criteria nameCriteria = where(fieldName(QAction.action.name)).is(name);
+            criteriaList.add(nameCriteria);
+        }
+
+        if (pageIds != null && !pageIds.isEmpty()) {
+            Criteria pageCriteria = where(fieldName(QAction.action.pageId)).in(pageIds);
+            criteriaList.add(pageCriteria);
+        }
+
+        return queryAll(criteriaList, aclPermission, sort);
     }
 }
