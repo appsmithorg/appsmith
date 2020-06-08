@@ -9,8 +9,6 @@ public interface ApplicationPageService {
 
     Mono<Application> addPageToApplication(Mono<Application> applicationMono, Page page, Boolean isDefault);
 
-    Mono<Page> doesPageBelongToCurrentUserOrganization(Page page);
-
     Mono<Page> getPage(String pageId, Boolean viewMode);
 
     Mono<Application> createApplication(Application application, String orgId);

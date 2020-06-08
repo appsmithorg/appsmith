@@ -243,12 +243,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return new HashSet<>();
     }
 
+
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
+        /**
+         * Note : Currently this API is ONLY used to fetch datasources for an organization.
+         */
+        if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
+            return repository.findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+        }
 
-        return sessionUserService
-                .getCurrentUser()
-                .flatMapMany(user -> repository.findAllByOrganizationId(user.getCurrentOrganizationId(), AclPermission.READ_DATASOURCES));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
     }
 
     @Override
