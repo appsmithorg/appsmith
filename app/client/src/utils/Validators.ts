@@ -283,6 +283,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
+        transformed: parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
       };
     }
@@ -319,10 +320,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: [],
+        transformed: parsed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed };
+    return { isValid, parsed, transformed: parsed };
   },
   [VALIDATION_TYPES.SINGLE_CHART_DATA]: (value, props, dataTree) => {
     const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TABLE_DATA](

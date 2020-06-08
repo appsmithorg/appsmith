@@ -314,32 +314,37 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       allowHorizontalScroll: false,
       singleChartData: [
         {
-          x: "Mon",
-          y: 10000,
-        },
-        {
-          x: "Tue",
-          y: 12000,
-        },
-        {
-          x: "Wed",
-          y: 32000,
-        },
-        {
-          x: "Thu",
-          y: 28000,
-        },
-        {
-          x: "Fri",
-          y: 14000,
-        },
-        {
-          x: "Sat",
-          y: 19000,
-        },
-        {
-          x: "Sun",
-          y: 36000,
+          seriesName: "Sales",
+          data: [
+            {
+              x: "Mon",
+              y: 10000,
+            },
+            {
+              x: "Tue",
+              y: 12000,
+            },
+            {
+              x: "Wed",
+              y: 32000,
+            },
+            {
+              x: "Thu",
+              y: 28000,
+            },
+            {
+              x: "Fri",
+              y: 14000,
+            },
+            {
+              x: "Sat",
+              y: 19000,
+            },
+            {
+              x: "Sun",
+              y: 36000,
+            },
+          ],
         },
       ],
       xAxisName: "Last Week",

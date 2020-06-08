@@ -100,6 +100,10 @@ const PropertyControl = (props: Props) => {
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
     const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    const evaluatedValue = _.get(
+      widgetProperties,
+      `evaluatedValues.${propertyName}`,
+    );
     const { isValid, validationMessage } = getPropertyValidation(propertyName);
     const config = {
       ...propertyConfig,
@@ -107,6 +111,7 @@ const PropertyControl = (props: Props) => {
       propertyValue,
       validationMessage,
       dataTreePath,
+      evaluatedValue,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
     };
     const isDynamic: boolean = _.get(

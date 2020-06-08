@@ -35,6 +35,7 @@ export interface ControlData {
   isValid: boolean;
   errorMessage?: string;
   expected: string;
+  evaluatedValue: any;
   validationMessage?: string;
   dataTreePath: string;
 }

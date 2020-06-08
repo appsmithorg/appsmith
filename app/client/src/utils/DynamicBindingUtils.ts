@@ -552,14 +552,22 @@ function validateAndParseWidgetProperty(
   cachedDependencyValues?: Array<string>,
 ): any {
   const propertyName = propertyPath.split(".")[1];
-  const { parsed, isValid, message } = ValidationFactory.validateWidgetProperty(
+  const {
+    parsed,
+    isValid,
+    message,
+    transformed,
+  } = ValidationFactory.validateWidgetProperty(
     widget.type,
     propertyName,
     evalPropertyValue,
     widget,
     currentTree,
   );
-  _.set(widget, `evaluatedValues.${propertyName}`, evalPropertyValue);
+  const evaluatedValue = _.isUndefined(transformed)
+    ? evalPropertyValue
+    : transformed;
+  _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
