@@ -117,21 +117,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(applicationService::save);
     }
 
-    public Mono<Page> doesPageBelongToCurrentUserOrganization(Page page) {
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        final String[] username = {null};
-
-        return userMono
-                .map(user -> {
-                    username[0] = user.getEmail();
-                    return user;
-                })
-                .flatMap(user -> applicationService.findByIdAndOrganizationId(page.getApplicationId(), user.getCurrentOrganizationId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION, page.getId(), username[0])))
-                //If mono transmits, then application id belongs to the current user's organization. Return page.
-                .then(Mono.just(page));
-    }
-
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
         return pageService.findById(pageId, READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
