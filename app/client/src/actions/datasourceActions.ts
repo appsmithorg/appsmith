@@ -77,6 +77,12 @@ export const initDatasourcePane = (
   };
 };
 
+export const storeAsDatasource = () => {
+  return {
+    type: ReduxActionTypes.STORE_AS_DATASOURCE_INIT,
+  };
+};
+
 export default {
   createDatasource,
   fetchDatasources,

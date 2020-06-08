@@ -1,4 +1,5 @@
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
+import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 
@@ -11,6 +12,7 @@ export const REST_PLUGIN_PACKAGE_NAME = "restapi-plugin";
 
 export const DEFAULT_API_ACTION: Partial<RestAction> = {
   actionConfiguration: {
+    timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
     httpMethod: HTTP_METHODS[0],
     headers: [
       { key: "", value: "" },

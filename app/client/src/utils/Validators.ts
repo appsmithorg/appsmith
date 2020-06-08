@@ -248,11 +248,19 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
       };
-    } else if (!_.every(parsed, datum => _.isObject(datum))) {
+    } else if (
+      !_.every(parsed, datum => {
+        return (
+          _.isObject(datum) &&
+          Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
+            .length === 0
+        );
+      })
+    ) {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }, { "key1" : "val3", "key2" : "val4" }]`,
       };
     }
     return { isValid, parsed };
@@ -275,6 +283,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed,
+        transformed: parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
       };
     }
@@ -311,49 +320,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: [],
+        transformed: parsed,
         message: validationMessage,
       };
     }
-    return { isValid, parsed };
-  },
-  [VALIDATION_TYPES.SINGLE_CHART_DATA]: (value, props, dataTree) => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TABLE_DATA](
-      value,
-      props,
-      dataTree,
-    );
-    if (!isValid) {
-      return {
-        isValid: false,
-        parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
-      };
-    }
-
-    const isValidChartData = _.every(
-      parsed,
-      (chartPoint: { x: string; y: any }) => {
-        return (
-          _.isObject(chartPoint) &&
-          _.isString(chartPoint.x) &&
-          !_.isUndefined(chartPoint.y)
-        );
-      },
-    );
-
-    if (!isValidChartData) {
-      return {
-        isValid: false,
-        parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
-      };
-    }
-
-    return {
-      isValid: true,
-      parsed,
-      message: "",
-    };
+    return { isValid, parsed, transformed: parsed };
   },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,

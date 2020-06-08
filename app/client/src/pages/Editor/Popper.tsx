@@ -1,47 +1,20 @@
 import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import { createPortal } from "react-dom";
-import PopperJS from "popper.js";
-import PaneWrapper from "pages/common/PaneWrapper";
-import { getColorWithOpacity } from "constants/DefaultTheme";
+import PopperJS, { Placement, PopperOptions } from "popper.js";
+
 type PopperProps = {
+  zIndex: number;
   isOpen: boolean;
   targetNode?: Element;
   children: JSX.Element;
+  placement: Placement;
+  modifiers?: Partial<PopperOptions["modifiers"]>;
 };
 
-const PopperWrapper = styled(PaneWrapper)`
+const PopperWrapper = styled.div<{ zIndex: number }>`
+  z-index: ${props => props.zIndex};
   position: absolute;
-  z-index: 3;
-  max-height: ${props => props.theme.propertyPane.height}px;
-  width: ${props => props.theme.propertyPane.width}px;
-  margin: ${props => props.theme.spaces[2]}px;
-  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
-  border: ${props => props.theme.spaces[5]}px solid
-    ${props => props.theme.colors.paneBG};
-  border-right: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
-  text-transform: none;
-
-  scrollbar-color: ${props => props.theme.colors.paneCard}
-    ${props => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.colors.paneCard};
-    outline: 1px solid ${props => props.theme.paneText};
-    border-radius: ${props => props.theme.radii[1]}px;
-  }
 `;
 
 /* eslint-disable react/display-name */
@@ -64,7 +37,7 @@ export default (props: PopperProps) => {
         props.targetNode,
         (contentRef.current as unknown) as Element,
         {
-          placement: "right-start",
+          placement: props.placement,
           modifiers: {
             flip: {
               behavior: ["right", "left", "bottom", "top"],
@@ -79,6 +52,7 @@ export default (props: PopperProps) => {
               enabled: true,
               boundariesElement: "viewport",
             },
+            ...props.modifiers,
           },
         },
       );
@@ -87,9 +61,11 @@ export default (props: PopperProps) => {
         _popper.destroy();
       };
     }
-  }, [props.targetNode, props.isOpen]);
+  }, [props.targetNode, props.isOpen, props.modifiers, props.placement]);
   return createPortal(
-    <PopperWrapper ref={contentRef}>{props.children}</PopperWrapper>,
+    <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
+      {props.children}
+    </PopperWrapper>,
     document.body,
   );
 };

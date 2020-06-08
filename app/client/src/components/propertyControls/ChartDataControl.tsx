@@ -63,13 +63,17 @@ type RenderComponentProps = {
   index: number;
   item: {
     seriesName: string;
-    data: Array<{ x: string; y: string }> | any;
+    data: Array<{ x: string; y: string }> | string;
   };
   length: number;
   isValid: boolean;
   validationMessage: string;
   deleteOption: Function;
   updateOption: Function;
+  evaluated: {
+    seriesName: string;
+    data: Array<{ x: string; y: string }> | any;
+  };
 };
 
 function DataControlComponent(props: RenderComponentProps) {
@@ -80,18 +84,29 @@ function DataControlComponent(props: RenderComponentProps) {
     index,
     length,
     isValid,
-    validationMessage,
+    evaluated,
   } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <StyledOptionControlInputGroup
-          type="text"
-          placeholder="Series Name"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            updateOption(index, "seriesName", event.target.value);
+        <DynamicAutocompleteInput
+          expected={"string"}
+          input={{
+            value: item.seriesName,
+            onChange: (
+              event: React.ChangeEvent<HTMLTextAreaElement> | string,
+            ) => {
+              let value = event;
+              if (typeof event !== "string") {
+                value = event.target.value;
+              }
+              updateOption(index, "seriesName", value);
+            },
           }}
-          defaultValue={item.seriesName}
+          evaluatedValue={evaluated.seriesName}
+          theme={"DARK"}
+          singleLine={false}
+          placeholder="Series Name"
         />
         {length > 1 && (
           <StyledDeleteIcon
@@ -103,8 +118,11 @@ function DataControlComponent(props: RenderComponentProps) {
           />
         )}
       </StyledOptionControlWrapper>
-      <StyledDynamicInput>
+      <StyledDynamicInput
+        className={"t--property-control-chart-series-data-control"}
+      >
         <DynamicAutocompleteInput
+          expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
             onChange: (
@@ -117,8 +135,9 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
+          evaluatedValue={evaluated.data}
           meta={{
-            error: isValid ? "" : validationMessage,
+            error: isValid ? "" : "There is an error",
             touched: true,
           }}
           theme={"DARK"}
@@ -162,11 +181,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
   render() {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{ x: string; y: string }> | any;
+      data: Array<{ x: string; y: string }> | string;
     }> =
       this.props.propertyValue && _.isString(this.props.propertyValue)
         ? JSON.parse(this.props.propertyValue)
         : this.props.propertyValue;
+
     const dataLength = chartData.length;
     const { validationMessage, isValid } = this.props;
     const validations: Array<{
@@ -190,6 +210,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
               updateOption={this.updateOption}
               isValid={validations[index].isValid}
               validationMessage={validations[index].validationMessage}
+              evaluated={this.props.evaluatedValue[index]}
             />
           );
         })}

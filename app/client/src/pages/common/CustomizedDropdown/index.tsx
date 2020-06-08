@@ -46,7 +46,7 @@ export type CustomizedDropdownProps = {
   openOnHover?: boolean;
 };
 
-const getIcon = (icon?: string, intent?: Intent) => {
+export const getIcon = (icon?: string, intent?: Intent) => {
   if (icon) {
     if (MenuIcons[icon]) {
       return MenuIcons[icon]({
@@ -68,7 +68,7 @@ const getIcon = (icon?: string, intent?: Intent) => {
   }
 };
 
-const getContentSection = (section: CustomizedDropdownOptionSection) => {
+export const getContentSection = (section: CustomizedDropdownOptionSection) => {
   return (
     <React.Fragment>
       {section.options &&

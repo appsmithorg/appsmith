@@ -4,13 +4,21 @@ import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocom
 import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
-    const { validationMessage, propertyValue, isValid } = this.props;
+    const {
+      errorMessage,
+      expected,
+      propertyValue,
+      isValid,
+      dataTreePath,
+    } = this.props;
     return (
       <DynamicAutocompleteInput
         theme={"DARK"}
         input={{ value: propertyValue, onChange: this.onChange }}
+        dataTreePath={dataTreePath}
+        expected={expected}
         meta={{
-          error: isValid ? "" : validationMessage,
+          error: isValid ? "" : errorMessage,
           touched: true,
         }}
         singleLine={false}

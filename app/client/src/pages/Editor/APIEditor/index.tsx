@@ -9,7 +9,7 @@ import {
   deleteAction,
   updateAction,
 } from "actions/actionActions";
-import { PaginationField, RapidApiAction, RestAction } from "api/ActionAPI";
+import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -17,7 +17,6 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -26,6 +25,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import styled from "styled-components";
+import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
 import FeatureFlag from "utils/featureFlags";
 import { FeatureFlagsEnum } from "configs/types";
 
@@ -39,15 +39,19 @@ const EmptyStateContainer = styled.div`
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  apiPane: ApiPaneReduxState;
-  formData: RestAction;
+  isRunning: Record<string, boolean>;
+  isSaving: Record<string, boolean>;
+  isDeleting: Record<string, boolean>;
+  allowSave: boolean;
+  apiName: string;
   currentApplication: UserApplication;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
   pluginId: any;
   apiAction: RestAction | ActionData | RapidApiAction | undefined;
-  data: RestAction | ActionData | RapidApiAction | undefined;
+  paginationType: PaginationType;
+  datasourceFieldText: string;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -67,35 +71,42 @@ type Props = ReduxActionProps &
 
 class ApiEditor extends React.Component<Props> {
   handleSubmit = (values: RestAction) => {
-    const { formData } = this.props;
-    this.props.updateAction(formData);
+    this.props.updateAction(values);
   };
 
   handleSaveClick = () => {
-    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    const pageName = getPageName(
+      this.props.pages,
+      this.props.match.params.pageId,
+    );
     AnalyticsUtil.logEvent("SAVE_API_CLICK", {
-      apiName: this.props.formData.name,
+      apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
       pageName: pageName,
     });
     this.props.submitForm(API_EDITOR_FORM_NAME);
   };
+
   handleDeleteClick = () => {
-    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    const pageName = getPageName(
+      this.props.pages,
+      this.props.match.params.pageId,
+    );
     AnalyticsUtil.logEvent("DELETE_API_CLICK", {
-      apiName: this.props.formData.name,
+      apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
       pageName: pageName,
     });
-    this.props.deleteAction(
-      this.props.match.params.apiId,
-      this.props.formData.name,
-    );
+    this.props.deleteAction(this.props.match.params.apiId, this.props.apiName);
   };
+
   handleRunClick = (paginationField?: PaginationField) => {
-    const pageName = getPageName(this.props.pages, this.props.formData.pageId);
+    const pageName = getPageName(
+      this.props.pages,
+      this.props.match.params.pageId,
+    );
     AnalyticsUtil.logEvent("RUN_API_CLICK", {
-      apiName: this.props.formData.name,
+      apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
       pageName: pageName,
     });
@@ -130,13 +141,16 @@ class ApiEditor extends React.Component<Props> {
 
   render() {
     const {
-      apiPane,
       match: {
         params: { apiId },
       },
       plugins,
       pluginId,
-      data,
+      isSaving,
+      isRunning,
+      isDeleting,
+      allowSave,
+      paginationType,
     } = this.props;
 
     let formUiComponent: string | undefined;
@@ -148,8 +162,6 @@ class ApiEditor extends React.Component<Props> {
       }
     }
 
-    const { isSaving, isRunning, isDeleting, drafts } = apiPane;
-    const paginationType = _.get(data, "actionConfiguration.paginationType");
     const apiHomeScreen = (
       <ApiHomeScreen
         applicationId={this.props.match.params.applicationId}
@@ -177,7 +189,7 @@ class ApiEditor extends React.Component<Props> {
             {formUiComponent === "ApiEditorForm" && (
               <ApiEditorForm
                 pluginId={pluginId}
-                allowSave={apiId in drafts}
+                allowSave={allowSave}
                 paginationType={paginationType}
                 isSaving={isSaving[apiId]}
                 isRunning={isRunning[apiId]}
@@ -186,6 +198,7 @@ class ApiEditor extends React.Component<Props> {
                 onSaveClick={this.handleSaveClick}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
+                datasourceFieldText={this.props.datasourceFieldText}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
@@ -197,7 +210,7 @@ class ApiEditor extends React.Component<Props> {
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
-                allowSave={apiId in drafts}
+                allowSave={allowSave}
                 paginationType={paginationType}
                 isSaving={isSaving[apiId]}
                 isRunning={isRunning[apiId]}
@@ -227,25 +240,34 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
 
-  const { drafts } = state.ui.apiPane;
+  const { drafts, isSaving, isDeleting, isRunning } = state.ui.apiPane;
   let data: RestAction | ActionData | RapidApiAction | undefined;
+  let allowSave;
   if (apiAction && apiAction.id in drafts) {
     data = drafts[apiAction.id];
+    allowSave = true;
   } else {
     data = apiAction;
+    allowSave = false;
   }
+  const datasourceFieldText =
+    state.ui.apiPane.datasourceFieldText[formData?.id ?? ""] || "";
 
   return {
+    datasourceFieldText,
     actions: state.entities.actions,
-    apiPane: state.ui.apiPane,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
     pages: state.entities.pageList.pages,
-    formData,
-    data,
+    apiName: formData?.name || "",
     plugins: state.entities.plugins.list,
     pluginId: _.get(data, "pluginId"),
+    paginationType: _.get(data, "actionConfiguration.paginationType"),
     apiAction,
+    isSaving,
+    isRunning,
+    isDeleting,
+    allowSave,
   };
 };
 

@@ -30,7 +30,6 @@ import { initialize } from "redux-form";
 import { getAction, getActionParams, getActionTimeout } from "./ActionSagas";
 import { AppState } from "reducers";
 import ActionAPI, {
-  RestAction,
   PaginationField,
   ExecuteActionRequest,
   ActionApiResponse,
@@ -45,6 +44,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GenericApiResponse } from "api/ApiResponses";
 import { validateResponse } from "./ErrorSagas";
 import { getQueryName } from "selectors/entitiesSelector";
+import { RestAction } from "entities/Action";
 
 const getQueryDraft = (state: AppState, id: string) => {
   const drafts = state.ui.apiPane.drafts;

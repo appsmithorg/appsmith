@@ -2,7 +2,8 @@ export type ContentType =
   | "application/json"
   | "application/x-www-form-urlencoded";
 
-export const REQUEST_TIMEOUT_MS = 10000;
+export const REQUEST_TIMEOUT_MS = 20000;
+export const DEFAULT_ACTION_TIMEOUT = 10000;
 export const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = 15000;
 export const DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS = 30000;
 

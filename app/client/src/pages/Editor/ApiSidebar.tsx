@@ -19,11 +19,11 @@ import {
   createNewApiAction,
   initApiPane,
 } from "actions/apiPaneActions";
-import { RestAction } from "api/ActionAPI";
 import EditorSidebar from "pages/Editor/EditorSidebar";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Page } from "constants/ReduxActionConstants";
+import { RestAction } from "entities/Action";
 import { FeatureFlagsEnum } from "configs/types";
 import FeatureFlag from "utils/featureFlags";
 

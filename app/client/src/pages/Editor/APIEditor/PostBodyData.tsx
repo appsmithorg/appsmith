@@ -15,6 +15,7 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import FIELD_VALUES from "constants/FieldExpectedValue";
 
 const DropDownContainer = styled.div`
   width: 300px;
@@ -46,6 +47,7 @@ interface PostDataProps {
   onDisplayFormatChange: Function;
   apiId: string;
   setDisplayFormat: Function;
+  dataTreePath: string;
 }
 
 type Props = PostDataProps;
@@ -57,6 +59,7 @@ const PostBodyData = (props: Props) => {
     displayFormat,
     setDisplayFormat,
     apiId,
+    dataTreePath,
   } = props;
   return (
     <PostbodyContainer>
@@ -106,13 +109,15 @@ const PostBodyData = (props: Props) => {
           <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
             <DynamicTextField
               name="actionConfiguration.body"
+              expected={FIELD_VALUES.API_ACTION.body}
               height={300}
               showLineNumbers
               allowTabIndent
               singleLine={false}
               placeholder={
-                'Please enter this request\'s JSON body.\n\n\nDid you know?\n\tIn Appsmith, we can use a widget\'s or API\'s property dynamically, using {{ }} templates.\n\n\tFor example: If we have an input widget named Input1 in which the user would provide their name \n\tand this body structure should be { "name": "<text from Input1>" } \n\tWe can access it in this body using { "name": "{{Input1.text}}" }'
+                '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
               }
+              dataTreePath={`${dataTreePath}`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
@@ -122,6 +127,7 @@ const PostBodyData = (props: Props) => {
         <React.Fragment>
           <KeyValueFieldArray
             name="actionConfiguration.bodyFormData"
+            dataTreePath={`${dataTreePath}`}
             label=""
           />
         </React.Fragment>
@@ -142,6 +148,7 @@ const PostBodyData = (props: Props) => {
               height={300}
               allowTabIndent
               singleLine={false}
+              dataTreePath={`${dataTreePath}[2]`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
