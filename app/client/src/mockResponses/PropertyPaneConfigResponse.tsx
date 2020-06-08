@@ -952,7 +952,7 @@ const PropertyPaneConfigResponse = {
           },
           {
             id: "11.1.7",
-            propertyName: "uploadedFileUrls",
+            propertyName: "uploadedFileUrlPaths",
             helpText:
               "Stores the url of the uploaded file so that it can be referenced in an action later",
             label: "Uploaded File URLs",

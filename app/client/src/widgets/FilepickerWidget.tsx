@@ -157,8 +157,8 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
       this.updateWidgetMetaProperty(
-        "uploadedFileData",
-        this.props.uploadedFileUrls,
+        "uploadedFileUrls",
+        this.props.uploadedFileUrlPaths,
       );
     }
   };
@@ -215,7 +215,7 @@ export interface FilePickerWidgetProps extends WidgetProps {
   allowedFileTypes: string[];
   onFilesSelected?: string;
   isRequired?: boolean;
-  uploadedFileUrls?: string;
+  uploadedFileUrlPaths?: string;
 }
 
 export default FilePickerWidget;

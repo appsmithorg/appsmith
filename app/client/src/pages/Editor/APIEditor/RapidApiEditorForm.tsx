@@ -261,7 +261,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                     />
                     {postbodyResponsePresent && (
                       <PostbodyContainer>
-                        <FormLabel>{"Post Body"}</FormLabel>
+                        <FormLabel>{"Body"}</FormLabel>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
                           <React.Fragment>
