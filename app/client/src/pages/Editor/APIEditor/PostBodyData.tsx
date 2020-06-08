@@ -117,7 +117,7 @@ const PostBodyData = (props: Props) => {
               placeholder={
                 '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
               }
-              dataTreePath={`${dataTreePath}`}
+              dataTreePath={`${dataTreePath}.body`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
@@ -127,7 +127,7 @@ const PostBodyData = (props: Props) => {
         <React.Fragment>
           <KeyValueFieldArray
             name="actionConfiguration.bodyFormData"
-            dataTreePath={`${dataTreePath}`}
+            dataTreePath={`${dataTreePath}.bodyFormData`}
             label=""
           />
         </React.Fragment>
@@ -148,7 +148,7 @@ const PostBodyData = (props: Props) => {
               height={300}
               allowTabIndent
               singleLine={false}
-              dataTreePath={`${dataTreePath}[2]`}
+              dataTreePath={`${dataTreePath}.body`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
