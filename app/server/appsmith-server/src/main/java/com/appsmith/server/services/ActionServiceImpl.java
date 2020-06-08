@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -54,6 +53,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
@@ -448,13 +449,13 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Mono<Action> findByNameAndPageId(String name, String pageId) {
-        return repository.findByNameAndPageId(name, pageId, AclPermission.READ_ACTIONS);
+        return repository.findByNameAndPageId(name, pageId, READ_ACTIONS);
     }
 
     @Override
     public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
         return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId,
-                httpMethod, AclPermission.READ_ACTIONS);
+                httpMethod, READ_ACTIONS);
     }
 
     /**
@@ -510,18 +511,20 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Flux<Action> get(MultiValueMap<String, String> params) {
-        Action actionExample = new Action();
+        String name = null;
+        List<String> pageIds = new ArrayList<>();
         Sort sort = Sort.by(FieldName.NAME);
 
         if (params.getFirst(FieldName.NAME) != null) {
-            actionExample.setName(params.getFirst(FieldName.NAME));
+            name = params.getFirst(FieldName.NAME);
         }
 
         if (params.getFirst(FieldName.PAGE_ID) != null) {
-            actionExample.setPageId(params.getFirst(FieldName.PAGE_ID));
+            pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
 
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
+            String finalName = name;
             return pageService
                         .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
                         .switchIfEmpty(Mono.error(new AppsmithException(
@@ -529,15 +532,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         )
                         .map(applicationPagesDTO -> applicationPagesDTO.getPages())
                         .flatMapMany(Flux::fromIterable)
-                        .map(pageNameIdDTO -> {
-                            Action example = new Action();
-                            example.setPageId(pageNameIdDTO.getId());
-                            return example;
+                        .map(pageNameIdDTO -> pageNameIdDTO.getId())
+                        .collectList()
+                        .flatMapMany(pages -> {
+                            pageIds.addAll(pages);
+                            return repository.findAllActionsByNameAndPageIds(finalName, pageIds, READ_ACTIONS, sort);
                         })
-                        .flatMap(example -> repository.findAll(Example.of(example), sort))
                     .flatMap(this::setTransientFieldsInAction);
         }
-        return repository.findAll(Example.of(actionExample), sort)
+        return repository.findAllActionsByNameAndPageIds(name, pageIds, READ_ACTIONS, sort)
                     .flatMap(this::setTransientFieldsInAction);
     }
 
