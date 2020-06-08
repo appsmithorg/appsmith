@@ -547,6 +547,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
+        if (inviteUserDTO.getRoleName() == null || inviteUserDTO.getRoleName().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
+        }
+
         // This variable will be used to decide if an email should be sent to get a user to sign up for appsmith or the
         // email would inform the user that the user has been invited to a new organization
         AtomicBoolean userExisted = new AtomicBoolean(true);
