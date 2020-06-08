@@ -47,7 +47,10 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 function* fetchDatasourcesSaga() {
   try {
-    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources();
+    const orgId = yield select(getCurrentOrgId);
+    const response: GenericApiResponse<Datasource[]> = yield DatasourcesApi.fetchDatasources(
+      orgId,
+    );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({

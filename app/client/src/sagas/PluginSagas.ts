@@ -1,4 +1,4 @@
-import { all, takeEvery, call, put } from "redux-saga/effects";
+import { all, takeEvery, call, put, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -6,10 +6,12 @@ import {
 } from "constants/ReduxActionConstants";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 function* fetchPluginsSaga() {
   try {
-    const pluginsResponse = yield call(PluginsApi.fetchPlugins);
+    const orgId = yield select(getCurrentOrgId);
+    const pluginsResponse = yield call(PluginsApi.fetchPlugins, orgId);
     const isValid = yield validateResponse(pluginsResponse);
     if (isValid) {
       yield put({
