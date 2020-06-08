@@ -521,35 +521,24 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             actionExample.setPageId(params.getFirst(FieldName.PAGE_ID));
         }
 
-        Mono<String> orgIdMono = sessionUserService
-                .getCurrentUser()
-                .map(user -> user.getCurrentOrganizationId());
-
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
-            return orgIdMono
-                    .flatMapMany(orgId -> pageService
-                            .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
-                            .switchIfEmpty(Mono.error(new AppsmithException(
-                                    AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
-                            )
-                            .map(applicationPagesDTO -> applicationPagesDTO.getPages())
-                            .flatMapMany(Flux::fromIterable)
-                            .map(pageNameIdDTO -> {
-                                Action example = new Action();
-                                example.setPageId(pageNameIdDTO.getId());
-                                example.setOrganizationId(orgId);
-                                return example;
-                            })
-                            .flatMap(example -> repository.findAll(Example.of(example), sort))
-                    )
+            return pageService
+                        .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
+                        )
+                        .map(applicationPagesDTO -> applicationPagesDTO.getPages())
+                        .flatMapMany(Flux::fromIterable)
+                        .map(pageNameIdDTO -> {
+                            Action example = new Action();
+                            example.setPageId(pageNameIdDTO.getId());
+                            return example;
+                        })
+                        .flatMap(example -> repository.findAll(Example.of(example), sort))
                     .flatMap(this::setTransientFieldsInAction);
         }
-        return orgIdMono
-                .flatMapMany(orgId -> {
-                    actionExample.setOrganizationId(orgId);
-                    return repository.findAll(Example.of(actionExample), sort);
-                })
-                .flatMap(this::setTransientFieldsInAction);
+        return repository.findAll(Example.of(actionExample), sort)
+                    .flatMap(this::setTransientFieldsInAction);
     }
 
     private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,

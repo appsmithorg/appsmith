@@ -5,7 +5,6 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PluginOrgDTO;
@@ -84,36 +83,40 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
 
-        return sessionUserService.getCurrentUser()
-                .flatMapMany(user -> {
-                    log.debug("Going to filter plugin params for user: {}", user.getEmail());
-                    return organizationService.findById(user.getCurrentOrganizationId())
-                            .flatMapMany(org -> {
-                                log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
-                                if (org.getPlugins() == null) {
-                                    log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
-                                    return Flux.fromIterable(new ArrayList<>());
-                                }
+        String organizationId = params.getFirst(FieldName.ORGANIZATION_ID);
+        if (organizationId == null) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
 
-                                List<String> pluginIds = org.getPlugins()
-                                        .stream()
-                                        .map(obj -> obj.getPluginId())
-                                        .collect(Collectors.toList());
-                                Query query = new Query();
-                                query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
+        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
+        Mono<Organization> organizationMono = organizationService.findById(organizationId);
 
-                                if (params.getFirst(FieldName.TYPE) != null) {
-                                    try {
-                                        PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
-                                        query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
-                                    } catch (IllegalArgumentException e) {
-                                        log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
-                                        List<Plugin> emptyPlugins = new ArrayList<>();
-                                        return Flux.fromIterable(emptyPlugins);
-                                    }
-                                }
-                                return mongoTemplate.find(query, Plugin.class);
-                            });
+        return organizationMono
+                .flatMapMany(org -> {
+                    log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
+                    if (org.getPlugins() == null) {
+                        log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
+                        return Flux.fromIterable(new ArrayList<>());
+                    }
+
+                    List<String> pluginIds = org.getPlugins()
+                            .stream()
+                            .map(obj -> obj.getPluginId())
+                            .collect(Collectors.toList());
+                    Query query = new Query();
+                    query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
+
+                    if (params.getFirst(FieldName.TYPE) != null) {
+                        try {
+                            PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
+                            query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
+                        } catch (IllegalArgumentException e) {
+                            log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
+                            List<Plugin> emptyPlugins = new ArrayList<>();
+                            return Flux.fromIterable(emptyPlugins);
+                        }
+                    }
+                    return mongoTemplate.find(query, Plugin.class);
                 });
     }
 
@@ -137,9 +140,11 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
+        if (pluginOrgDTO.getOrganizationId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
 
-        return Mono.just(pluginOrgDTO)
-                .flatMap(plugin -> storeOrganizationPlugin(plugin, pluginOrgDTO.getStatus()))
+        return storeOrganizationPlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
                 .switchIfEmpty(Mono.empty());
     }
 
@@ -148,47 +153,46 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
+        if (pluginDTO.getOrganizationId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+        }
 
         //Find the organization using id and plugin id -> This is to find if the organization has the plugin installed
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        Mono<Organization> organizationMono = userMono.flatMap(user ->
-                organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), pluginDTO.getPluginId()));
+        Mono<Organization> organizationMono = organizationService.findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(),
+                                                                                pluginDTO.getPluginId());
 
         return organizationMono
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED, pluginDTO.getPluginId())))
                 //In case the plugin is not found for the organization, the organizationMono would not emit and the rest of the flow would stop
                 //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
-                .map(organization -> {
+                .flatMap(organization -> {
                     List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                     organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
                     organization.setPlugins(organizationPluginList);
-                    return organization;
-                })
-                .flatMap(organizationService::save);
+                    return organizationService.save(organization);
+                });
     }
 
     private Mono<Organization> storeOrganizationPlugin(PluginOrgDTO pluginDTO, OrganizationPluginStatus status) {
 
-        //Find the organization using id and plugin id -> This is to find if the organization already has the plugin installed
-        Mono<User> userMono = sessionUserService.getCurrentUser();
-        Mono<Organization> pluginInOrganizationMono = userMono.flatMap(user ->
-                organizationService.findByIdAndPluginsPluginId(user.getCurrentOrganizationId(), pluginDTO.getPluginId()));
+        Mono<Organization> pluginInOrganizationMono = organizationService
+                .findByIdAndPluginsPluginId(pluginDTO.getOrganizationId(), pluginDTO.getPluginId());
 
 
         //If plugin is already present for the organization, just return the organization, else install and return organization
         return pluginInOrganizationMono
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug("Plugin {} not already installed. Running the switch if empty code block", pluginDTO.getPluginId());
+                    log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
                     //If the plugin is not found in the organization, its not installed already. Install now.
                     return repository
                             .findById(pluginDTO.getPluginId())
-                            .zipWith(userMono, (plugin, user) -> {
+                            .map(plugin -> {
 
                                 log.debug("Before publishing to the redis queue");
                                 //Publish the event to the pub/sub queue
                                 InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                                installPluginRedisDTO.setOrganizationId(user.getCurrentOrganizationId());
+                                installPluginRedisDTO.setOrganizationId(pluginDTO.getOrganizationId());
                                 installPluginRedisDTO.setPluginOrgDTO(pluginDTO);
                                 String jsonString;
                                 try {
@@ -202,13 +206,12 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                                         .subscribe();
                             })
                             //Now that the plugin jar has been successfully downloaded, go on and add the plugin to the organization
-                            .then(userMono)
-                            .flatMap(user -> organizationService.findById(user.getCurrentOrganizationId()))
-                            .map(organization -> {
+                            .then(organizationService.findById(pluginDTO.getOrganizationId()))
+                            .flatMap(organization -> {
 
                                 List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                                 if (organizationPluginList == null) {
-                                    organizationPluginList = new ArrayList<OrganizationPlugin>();
+                                    organizationPluginList = new ArrayList<>();
                                 }
 
                                 OrganizationPlugin organizationPlugin = new OrganizationPlugin();
@@ -219,9 +222,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
                                 log.debug("Going to save the organization with install plugin. This means that installation has been successful");
 
-                                return organization;
-                            })
-                            .flatMap(organizationService::save);
+                                return organizationService.save(organization);
+                            });
                 }));
     }
 
