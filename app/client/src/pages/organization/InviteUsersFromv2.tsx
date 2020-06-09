@@ -19,6 +19,12 @@ import { OrgRole } from "constants/orgConstants";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import {
+  INVITE_USERS_SUBMIT_SUCCESS,
+  INVITE_USERS_SUBMIT_ERROR,
+} from "constants/messages";
+import history from "utils/history";
 const StyledForm = styled.div`
   width: 100%;
   background: white;
@@ -70,7 +76,15 @@ const StyledButton = styled(Button)`
 `;
 
 const InviteUsersForm = (props: any) => {
-  const { handleSubmit, allUsers } = props;
+  const {
+    handleSubmit,
+    allUsers,
+    submitting,
+    anyTouched,
+    submitFailed,
+    submitSucceeded,
+    error,
+  } = props;
   useEffect(() => {
     props.fetchUser(props.orgId);
     props.fetchAllRoles(props.orgId);
@@ -78,6 +92,15 @@ const InviteUsersForm = (props: any) => {
 
   return (
     <StyledForm>
+      {submitSucceeded && (
+        <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
+      )}
+      {submitFailed && error && (
+        <FormMessage
+          intent="danger"
+          message={`${INVITE_USERS_SUBMIT_ERROR}: ${error}`}
+        />
+      )}
       <StyledInviteFieldGroup>
         <TagListField
           name="users"
@@ -97,9 +120,10 @@ const InviteUsersForm = (props: any) => {
           text="Invite"
           filled
           intent="primary"
-          onClick={handleSubmit((values: any, dispatch: any) => {
-            inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
-          })}
+          loading={submitting && !(submitFailed && !anyTouched)}
+          onClick={handleSubmit((values: any, dispatch: any) =>
+            inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch),
+          )}
         />
       </StyledInviteFieldGroup>
       <UserList style={{ justifyContent: "space-between" }}>
@@ -117,7 +141,9 @@ const InviteUsersForm = (props: any) => {
         text="Manage Users"
         filled
         intent="primary"
-        onClick={noop}
+        onClick={() => {
+          history.push(`/org/${props.orgId}/settings`);
+        }}
       />
     </StyledForm>
   );

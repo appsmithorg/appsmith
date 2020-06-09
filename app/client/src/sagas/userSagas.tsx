@@ -5,6 +5,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { reset } from "redux-form";
 import UserApi, {
   CreateUserRequest,
   CreateUserResponse,
@@ -38,6 +39,7 @@ import {
   invitedUserSignupSuccess,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -210,8 +212,8 @@ export function* inviteUsers(
       },
     });
     yield call(resolve);
+    yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
-    console.log(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,

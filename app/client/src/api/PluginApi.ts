@@ -20,7 +20,7 @@ class PluginsApi extends Api {
   static fetchPlugins(
     orgId: string,
   ): AxiosPromise<GenericApiResponse<Plugin[]>> {
-    return Api.get(PluginsApi.url + `?organizationId=${orgId}`);
+    return Api.get(PluginsApi.url, { organizationId: orgId });
   }
 
   static fetchFormConfig(
