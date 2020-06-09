@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
@@ -17,4 +18,6 @@ public interface AppsmithRepository<T> {
     Flux<T> queryAll(List<Criteria> criterias, AclPermission permission);
 
     Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
+
+    T setUserPermissionsInObject(T obj, User user);
 }
