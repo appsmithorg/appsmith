@@ -46,16 +46,6 @@ public class ActionConfiguration {
 
     // DB action fields
 
-    /*
-     * For SQL plugins, the query field would be of the following format :
-     * {
-     *     "cmd" : "select * from users;"
-     * }
-     * For noSQL plugins, the query json would be constructed according to
-     * the requirements of the plugin.
-     */
-    Map<String, Object> query;
-
     // JS action fields
 
     String jsFunction;
