@@ -393,12 +393,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .hour(0)
       .minute(0)
       .second(0)
-      .millisecond(0)
-      .toISOString(true);
+      .millisecond(0);
+
     if (value === undefined) {
       return {
         isValid: false,
-        parsed: today,
+        parsed: "",
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
       };
     }
