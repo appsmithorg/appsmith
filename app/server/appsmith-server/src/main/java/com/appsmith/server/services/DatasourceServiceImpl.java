@@ -10,6 +10,7 @@ import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -93,8 +94,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     });
         }
 
-
-
         return datasourceMono
                 .flatMap(datasource1 ->
                         sessionUserService.getCurrentUser()
@@ -130,6 +129,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
+
+        // Since policies are a server only concept, first set the empty set (set by constructor) to null
+        datasource.setPolicies(null);
+
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
 
@@ -184,9 +187,18 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(repository::save);
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> {
+                    Datasource savedDatasource = tuple.getT1();
+                    User user = tuple.getT2();
+                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(savedDatasource, user);
+                    return repository.save(userPermissionsInDatasource);
+                });
     }
 
     @Override

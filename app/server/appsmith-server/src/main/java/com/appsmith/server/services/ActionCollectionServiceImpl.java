@@ -87,6 +87,10 @@ public class ActionCollectionServiceImpl implements ActionCollectionService {
 
     @Override
     public Mono<Action> updateAction(String id, Action action) {
+
+        // Since the policies are server only concept, we should first set this to null.
+        action.setPolicies(null);
+
         //The change was not in CollectionId, just go ahead and update normally
         if (action.getCollectionId() == null) {
             return layoutActionService.updateAction(id, action);
