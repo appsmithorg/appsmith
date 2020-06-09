@@ -2,8 +2,9 @@ import React from "react";
 import _ from "lodash";
 import { WidgetProps } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ContainerWidget from "widgets/ContainerWidget";
+import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
+import shallowEqual from "shallowequal";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -17,6 +18,34 @@ class FormWidget extends ContainerWidget {
   handleResetInputs = () => {
     super.resetChildrenMetaProperty(this.props.widgetId);
   };
+
+  componentDidMount() {
+    super.componentDidMount();
+    this.updateFormData();
+  }
+
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
+    super.componentDidUpdate(prevProps);
+    this.updateFormData();
+  }
+
+  updateFormData() {
+    if (this.props.children) {
+      const formData = this.getFormData(this.props.children[0]);
+      if (!shallowEqual(formData, this.props.data)) {
+        this.updateWidgetMetaProperty("data", formData);
+      }
+    }
+  }
+
+  getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
+    const formData: any = {};
+    if (formWidget.children)
+      formWidget.children.map(widgetData => {
+        formData[widgetData.widgetName] = widgetData.value;
+      });
+    return formData;
+  }
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     if (childWidgetData.children) {
@@ -37,6 +66,7 @@ class FormWidget extends ContainerWidget {
 
 export interface FormWidgetProps extends ContainerComponentProps {
   name: string;
+  data: object;
 }
 
 export default FormWidget;

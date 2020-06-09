@@ -162,6 +162,7 @@ export const entityDefinitions = {
       "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
+    data: "object",
   },
   FORM_BUTTON_WIDGET: {
     "!doc":

@@ -4,7 +4,10 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import {
+  TriggerPropertiesMap,
+  DerivedPropertiesMap,
+} from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 
 const RichtextEditorComponent = lazy(() =>
@@ -42,6 +45,12 @@ class RichTextEditorWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       text: "defaultText",
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      value: `this.text`,
     };
   }
 

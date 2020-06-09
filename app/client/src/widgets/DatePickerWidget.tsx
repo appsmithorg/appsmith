@@ -34,6 +34,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
+      value: `{{ this.selectedDate }}`,
     };
   }
 
