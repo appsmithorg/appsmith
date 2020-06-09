@@ -106,7 +106,7 @@ class DatePickerComponent extends React.Component<
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
-            placeholder={this.props.dateFormat}
+            placeholder={"Select Date"}
             disabled={this.props.isDisabled}
             showActionsBar={true}
             timePrecision={TimePrecision.MINUTE}
@@ -137,16 +137,17 @@ class DatePickerComponent extends React.Component<
   }
 
   formatDate = (date: Date): string => {
-    const dateFormat = "DD/MM/YYYY HH:mm";
-    return moment(date).format(dateFormat);
+    return moment(date).format(this.props.dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr, "DD/MM/YYYY HH:mm").toDate();
+    return moment(dateStr).toDate();
   };
 
   onDateSelected = (selectedDate: Date) => {
-    const date = selectedDate ? moment(selectedDate).toISOString(true) : "";
+    const date = selectedDate
+      ? moment(selectedDate).format(this.props.dateFormat)
+      : "";
     this.setState({ selectedDate: date });
     this.props.onDateSelected(date);
   };

@@ -86,10 +86,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       label: "",
-      dateFormat: "DD/MM/YYYY",
+      dateFormat: "DD/MM/YYYY HH:mm",
       columns: 5,
       widgetName: "DatePicker",
-      defaultDate: moment().toISOString(true),
+      defaultDate: moment().format("DD/MM/YYYY HH:mm"),
     },
     TABLE_WIDGET: {
       rows: 7,

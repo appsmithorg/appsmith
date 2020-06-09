@@ -403,7 +403,11 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       };
     }
     const isValid = moment(value).isValid();
-    const parsed = isValid ? moment(value).toISOString(true) : today;
+    const parsed = isValid
+      ? props.dateFormat
+        ? moment(value).format(props.dateFormat)
+        : moment(value).toISOString(true)
+      : today;
     return {
       isValid,
       parsed,
