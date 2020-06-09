@@ -48,8 +48,8 @@ export const transformRestAction = (data: any): any => {
     let body: any = "";
 
     if (
-      contentType === POST_BODY_FORMAT_OPTIONS[0].value ||
-      contentType === POST_BODY_FORMAT_OPTIONS[3].value
+      contentType !== POST_BODY_FORMAT_OPTIONS[1].value &&
+      contentType !== POST_BODY_FORMAT_OPTIONS[2].value
     ) {
       action.actionConfiguration.bodyFormData = undefined;
       if (action.actionConfiguration.body)
