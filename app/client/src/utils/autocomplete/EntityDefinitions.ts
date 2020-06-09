@@ -157,13 +157,13 @@ export const entityDefinitions = {
     xAxisName: "string",
     yAxisName: "string",
   },
-  FORM_WIDGET: {
+  FORM_WIDGET: (widget: any) => ({
     "!doc":
       "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
-    data: "object",
-  },
+    data: generateTypeDef(widget.data),
+  }),
   FORM_BUTTON_WIDGET: {
     "!doc":
       "Form button is provided by default to every form. It is used for form submission and resetting form inputs",

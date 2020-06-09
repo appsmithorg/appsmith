@@ -42,7 +42,9 @@ class FormWidget extends ContainerWidget {
     const formData: any = {};
     if (formWidget.children)
       formWidget.children.map(widgetData => {
-        formData[widgetData.widgetName] = widgetData.value;
+        if (widgetData.value) {
+          formData[widgetData.widgetName] = widgetData.value;
+        }
       });
     return formData;
   }

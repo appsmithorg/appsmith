@@ -50,7 +50,7 @@ class RichTextEditorWidget extends BaseWidget<
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      value: `this.text`,
+      value: `{{this.text}}`,
     };
   }
 
