@@ -66,8 +66,7 @@ public class PostgresPlugin extends BasePlugin {
 
             Connection conn = (Connection) connection;
 
-            Map<String, Object> queryJson = actionConfiguration.getQuery();
-            String query = (String) queryJson.get("cmd");
+            String query = actionConfiguration.getBody();
 
             if (query == null) {
                 return pluginErrorMono("Missing required parameter: Query.");
@@ -166,8 +165,11 @@ public class PostgresPlugin extends BasePlugin {
                             .append(endpoint.getHost())
                             .append(':')
                             .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                            .append('/')
-                            .append(authentication.getDatabaseName());
+                            .append('/');
+
+                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                        urlBuilder.append(authentication.getDatabaseName());
+                    }
                 }
                 url = urlBuilder.toString();
 
