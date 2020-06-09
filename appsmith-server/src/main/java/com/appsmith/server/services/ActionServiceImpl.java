@@ -268,9 +268,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         // If the body is set, then use that field as the request body by default
         if (actionConfiguration.getBody() != null) {
             actionExecutionResult.setRequestBody(actionConfiguration.getBody());
-        } else if (actionConfiguration.getQuery() != null) {
-            actionExecutionResult.setRequestBody(actionConfiguration.getQuery());
         }
+
         log.debug("Got requestBody in actionExecutionResult as: {}", actionExecutionResult.getRequestBody());
         return actionExecutionResult;
     }

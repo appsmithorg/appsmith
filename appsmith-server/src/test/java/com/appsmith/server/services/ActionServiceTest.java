@@ -230,7 +230,7 @@ public class ActionServiceTest {
 
         Action action = new Action();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setQuery(Map.of("cmd", "select * from users"));
+        actionConfiguration.setBody("select * from users");
         action.setActionConfiguration(actionConfiguration);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -349,10 +349,7 @@ public class ActionServiceTest {
                         assertThat(result.getRequestHeaders().size()).isEqualTo(actionConfiguration.getHeaders().size());
                     }
 
-                    assertThat(result.getRequestBody() == actionConfiguration.getQuery() ||
-                            result.getRequestBody() == actionConfiguration.getBody())
-                            .isTrue();
-
+                    assertThat(result.getRequestBody() == actionConfiguration.getBody()).isTrue();
                     assertThat(result.getHeaders()).isEqualTo(mockResult.getHeaders());
                 })
                 .verifyComplete();
