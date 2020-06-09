@@ -5,18 +5,21 @@ import { getCanvasClassName } from "utils/generators";
 const Container = styled.div<{
   width: number;
   height: number;
+  top?: number;
+  left?: number;
+  zIndex?: number;
 }>`
   &&& {
     .${Classes.OVERLAY} {
       .${Classes.OVERLAY_BACKDROP} {
-        z-index: 1;
+        z-index: ${props => props.zIndex};
       }
       position: fixed;
       top: ${props => props.theme.headerHeight};
       right: 0;
       bottom: 0;
       height: 100vh;
-      z-index: 1;
+      z-index: ${props => props.zIndex};
       width: 100%;
       display: flex;
       justify-content: center;
@@ -27,6 +30,9 @@ const Container = styled.div<{
         min-height: ${props => props.height}px;
         background: white;
         border-radius: ${props => props.theme.radii[1]}px;
+        top: ${props => props.top}px;
+        left: ${props => props.left}px;
+        // z-index: ${props => props.zIndex};
       }
     }
   }
@@ -52,6 +58,10 @@ export type ModalComponentProps = {
   canEscapeKeyClose: boolean;
   scrollContents: boolean;
   height: number;
+  top?: number;
+  left?: number;
+  hasBackDrop?: boolean;
+  zIndex?: number;
 };
 
 /* eslint-disable react/display-name */
@@ -65,7 +75,13 @@ export const ModalComponent = (props: ModalComponentProps) => {
     }
   }, [props.scrollContents]);
   return (
-    <Container width={props.width} height={props.height}>
+    <Container
+      width={props.width}
+      height={props.height}
+      top={props.top}
+      left={props.left}
+      zIndex={props.zIndex !== undefined ? props.zIndex : 1}
+    >
       <Overlay
         isOpen={props.isOpen}
         onClose={props.onClose}
@@ -73,6 +89,9 @@ export const ModalComponent = (props: ModalComponentProps) => {
         canEscapeKeyClose={props.canEscapeKeyClose}
         usePortal={false}
         enforceFocus={false}
+        hasBackdrop={
+          props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
+        }
       >
         <div>
           <Content

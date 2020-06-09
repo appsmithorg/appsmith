@@ -9,10 +9,20 @@ export function InputText(props: {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   isValid: boolean;
-  validationMessage?: string;
+  errorMessage?: string;
+  expected?: string;
   placeholder?: string;
+  dataTreePath?: string;
 }) {
-  const { validationMessage, value, isValid, onChange, placeholder } = props;
+  const {
+    errorMessage,
+    expected,
+    value,
+    isValid,
+    onChange,
+    placeholder,
+    dataTreePath,
+  } = props;
   return (
     <StyledDynamicInput>
       <DynamicAutocompleteInput
@@ -20,8 +30,10 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        expected={expected}
+        dataTreePath={dataTreePath}
         meta={{
-          error: isValid ? "" : validationMessage,
+          error: isValid ? "" : errorMessage,
           touched: true,
         }}
         theme={"DARK"}
@@ -35,11 +47,13 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      validationMessage,
+      errorMessage,
+      expected,
       propertyValue,
       isValid,
       label,
       placeholderText,
+      dataTreePath,
     } = this.props;
     return (
       <InputText
@@ -47,8 +61,10 @@ class InputTextControl extends BaseControl<InputControlProps> {
         value={propertyValue}
         onChange={this.onTextChange}
         isValid={isValid}
-        validationMessage={validationMessage}
+        errorMessage={errorMessage}
+        expected={expected}
         placeholder={placeholderText}
+        dataTreePath={dataTreePath}
       />
     );
   }

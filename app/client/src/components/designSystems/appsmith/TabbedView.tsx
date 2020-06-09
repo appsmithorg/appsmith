@@ -43,13 +43,20 @@ type TabbedViewComponentType = {
     title: string;
     panelComponent: JSX.Element;
   }>;
+  selectedIndex?: number;
+  setSelectedIndex?: Function;
   overflow?: boolean;
 };
 
 export const BaseTabbedView = (props: TabbedViewComponentType) => {
   return (
     <TabsWrapper overflow={props.overflow}>
-      <Tabs>
+      <Tabs
+        selectedIndex={props.selectedIndex}
+        onSelect={(index: number) => {
+          props.setSelectedIndex && props.setSelectedIndex(index);
+        }}
+      >
         <TabList>
           {props.tabs.map(tab => (
             <Tab key={tab.key}>{tab.title}</Tab>

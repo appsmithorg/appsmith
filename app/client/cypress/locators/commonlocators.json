@@ -1,5 +1,6 @@
 {
     "editIcon": ".t--widget-propertypane-toggle",
+    "helpIcon": ".t--widget-help-control",
     "editPropCrossButton": ".t--property-pane-close-btn",
     "deleteWidgetIcon": ".t--widget-delete-control",
     "dropdownSelectButton": ".t--open-dropdown-Select-Action",
@@ -32,10 +33,20 @@
     "editWidgetName": ".bp3-editable-text",
     "dropDownIcon": ".t--property-control-textstyle span.bp3-icon-chevron-down",
     "onDateSelectedField": ".t--property-control-ondateselected",
-    "TableRow": ".t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable",
-    "dropDownBtn": ".bp3-icon-chevron-down",
+    "TableRow": ".t--draggable-tablewidget .tbody",
     "Disablejs": ".t--property-control-disabled",
     "requiredjs": ".t--property-control-required",
+    "horizontalScroll": ".t--property-control-allowhorizontalscroll input",
+    "tableInner": ".t--draggable-tablewidget pre",
+    "pdfSupport": ".t--property-control-pdfexport input",
+    "ExcelSupport": ".t--property-control-excelexport input",
+    "dropDownBtn": ".bp3-icon-chevron-down",
     "disabledField": " .bp3-disabled",
-    "disabledBtn": " button[disabled='disabled']"
-  }
+    "disabledBtn": " button[disabled='disabled']",
+    "inputField": " .bp3-input",
+    "csvSupport": ".t--property-control-csvexport input",
+    "backToEditor": ".t--back-to-editor",
+    "enableSearchLocCheckbox": ".t--property-control-enablesearchlocation input",
+    "enablePickLocCheckbox": ".t--property-control-enablepicklocation input",
+    "enableCreateMarkerCheckbox": ".t--property-control-createnewmarker input"
+}

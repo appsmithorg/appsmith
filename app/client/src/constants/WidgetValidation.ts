@@ -11,7 +11,9 @@ export const VALIDATION_TYPES = {
   ARRAY: "ARRAY",
   TABLE_DATA: "TABLE_DATA",
   OPTIONS_DATA: "OPTIONS_DATA",
+  SINGLE_CHART_DATA: "SINGLE_CHART_DATA",
   DATE: "DATE",
+  TABS_DATA: "TABS_DATA",
   CHART_DATA: "CHART_DATA",
   MARKERS: "MARKERS",
   ACTION_SELECTOR: "ACTION_SELECTOR",
@@ -22,6 +24,7 @@ export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
   message?: string;
+  transformed?: any;
 };
 
 export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];

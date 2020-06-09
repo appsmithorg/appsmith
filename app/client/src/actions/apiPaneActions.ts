@@ -48,6 +48,16 @@ export const createNewApiAction = (
   payload: { pageId },
 });
 
+export const setDatasourceFieldText = (
+  apiId: string,
+  value: string,
+): ReduxAction<{ apiId: string; value: string }> => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_FIELD_TEXT,
+    payload: { apiId, value },
+  };
+};
+
 export const setExtraFormData = (
   apiId: string,
   extraformData: {},

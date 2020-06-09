@@ -14,7 +14,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { Divider } from "@blueprintjs/core";
+import { Divider, Icon, Tooltip, Position } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { ControlProps } from "components/propertyControls/BaseControl";
@@ -22,12 +22,14 @@ import { generateClassName } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { CloseButton } from "components/designSystems/blueprint/CloseButton";
-import { theme } from "constants/DefaultTheme";
+import { getColorWithOpacity, theme } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControl from "pages/Editor/PropertyPane/PropertyControl";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
+import PaneWrapper from "pages/common/PaneWrapper";
+import { BindingText } from "pages/Editor/APIEditor/Form";
 
 const PropertySectionLabel = styled.div`
   text-transform: uppercase;
@@ -39,11 +41,45 @@ const PropertySectionLabel = styled.div`
   align-items: center;
 `;
 
-const PropertyPaneWrapper = styled.div`
+const PropertyPaneWrapper = styled(PaneWrapper)`
   position: relative;
   width: 100%;
+  max-height: ${props => props.theme.propertyPane.height}px;
+  width: ${props => props.theme.propertyPane.width}px;
+  margin: ${props => props.theme.spaces[2]}px;
+  box-shadow: 0px 0px 10px ${props => props.theme.colors.paneCard};
+  border: ${props => props.theme.spaces[5]}px solid
+    ${props => props.theme.colors.paneBG};
+  border-right: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 ${props => props.theme.spaces[5]}px 0 0;
+  text-transform: none;
+
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    outline: 1px solid ${props => props.theme.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
 `;
 
+const StyledToolTip = styled(Tooltip)`
+  position: absolute;
+  top: 0;
+  right: 35px;
+`;
 class PropertyPane extends Component<
   PropertyPaneProps & PropertyPaneFunctions
 > {
@@ -60,7 +96,12 @@ class PropertyPane extends Component<
         generateClassName(this.props.widgetId),
       )[0];
       return (
-        <Popper isOpen={true} targetNode={el}>
+        <Popper
+          isOpen={true}
+          targetNode={el}
+          zIndex={3}
+          placement="right-start"
+        >
           {content}
         </Popper>
       );
@@ -79,6 +120,27 @@ class PropertyPane extends Component<
           title={widgetProperties.widgetName}
           widgetId={this.props.widgetId}
         />
+        <StyledToolTip
+          content={
+            <div>
+              <span>You can connect data from your API by adding </span>
+              <BindingText>{`{{apiName.data}}`}</BindingText>
+              <span> to a widget property</span>
+            </div>
+          }
+          position={Position.TOP}
+          hoverOpenDelay={200}
+        >
+          <Icon
+            style={{
+              // position: "absolute",
+              // right: 35,
+              padding: 7,
+            }}
+            color={theme.colors.paneSectionLabel}
+            icon="help"
+          />
+        </StyledToolTip>
 
         <CloseButton
           onClick={(e: any) => {

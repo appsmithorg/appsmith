@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import { ControlIcons } from "icons/ControlIcons";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
-import { Tooltip } from "@blueprintjs/core";
+import { Tooltip, Icon } from "@blueprintjs/core";
 import {
   useShowPropertyPane,
   useWidgetSelection,
@@ -15,6 +15,13 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperations } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import { HelpMap } from "constants/HelpConstants";
+import {
+  setHelpDefaultRefinement,
+  setHelpModalVisibility,
+} from "actions/helpActions";
+import FeatureFlag from "utils/featureFlags";
+import { FeatureFlagsEnum } from "configs/types";
 
 const CONTROL_ICON_SIZE = 20;
 
@@ -38,6 +45,13 @@ const PositionStyle = styled.div<{ selected?: boolean }>`
   }
 `;
 
+const HelpControl = styled.div`
+  position: absolute;
+  right: ${props => props.theme.spaces[13] * 2 - 10}px;
+  top: -${props => props.theme.spaces[2]}px;
+  cursor: pointer;
+`;
+
 const DeleteControl = styled.div`
   position: absolute;
   right: ${props => props.theme.spaces[13]}px;
@@ -58,6 +72,26 @@ const deleteControlIcon = (
 );
 const EditIcon = ControlIcons.EDIT_CONTROL;
 
+const HelpIcon = styled(Icon)<{ width: number; height: number }>`
+  width: ${props => props.width}px;
+  height: ${props => props.width}px;
+  color: ${Colors.SHARK};
+  svg {
+    width: ${props => props.width}px;
+    height: ${props => props.width}px;
+  }
+`;
+
+// const HelpIcon = ControlIcons.HELP_CONTROL;
+
+const helpControlIcon = (
+  <HelpIcon
+    width={CONTROL_ICON_SIZE}
+    height={CONTROL_ICON_SIZE}
+    icon="help"
+  ></HelpIcon>
+);
+
 type WidgetNameComponentProps = {
   widgetName?: string;
   widgetId: string;
@@ -68,6 +102,7 @@ type WidgetNameComponentProps = {
 
 export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   const { updateWidget } = useContext(EditorContext);
+  const dispatch = useDispatch();
   const showPropertyPane = useShowPropertyPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -148,6 +183,20 @@ export const WidgetNameComponent = (props: WidgetNameComponentProps) => {
   return showWidgetName ? (
     <PositionStyle selected={selectedWidget === props.widgetId}>
       <pre>{props.widgetName}</pre>
+      {FeatureFlag.check(FeatureFlagsEnum.documentationV2) && (
+        <HelpControl
+          className="control t--widget-help-control"
+          onClick={() => {
+            dispatch(setHelpDefaultRefinement(HelpMap[props.type].searchKey));
+            dispatch(setHelpModalVisibility(true));
+            // window.open(`${HelpBaseURL}${HelpMap[props.type]}`, "_blank");
+          }}
+        >
+          <Tooltip content="Open Help" hoverOpenDelay={500}>
+            {helpControlIcon}
+          </Tooltip>
+        </HelpControl>
+      )}
       <DeleteControl
         className="control t--widget-delete-control"
         onClick={deleteWidget}

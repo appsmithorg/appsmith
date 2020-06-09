@@ -150,7 +150,7 @@
                   "allowHorizontalScroll": false,
                   "chartData": [
                     {
-                      "seriesName": "",
+                      "seriesName": "Sales",
                       "data": [
                         {
                           "x": "Mon",

@@ -1,5 +1,6 @@
 // Events
 import * as log from "loglevel";
+import FeatureFlag from "./featureFlags";
 
 export type EventName =
   | "LOGIN_CLICK"
@@ -191,6 +192,7 @@ class AnalyticsUtil {
   static identifyUser(userId: string, userData: User) {
     const windowDoc: any = window;
     AnalyticsUtil.user = userData;
+    FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       windowDoc.analytics.identify(userId, userData);
     }

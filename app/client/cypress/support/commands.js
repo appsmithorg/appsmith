@@ -11,6 +11,7 @@ const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
+const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -202,7 +203,8 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
-  cy.get(apiwidget.path)
+  cy.get(apiwidget.editResourceUrl)
+    .first()
     .click({ force: true })
     .type(path, { parseSpecialCharSequences: false });
 });
@@ -228,16 +230,17 @@ Cypress.Commands.add(
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
   cy.get(apiwidget.editResourceUrl)
     .first()
-    .clear()
     .click({ force: true })
-    .type(baseUrl);
+    .clear()
+    .type(`{backspace}${baseUrl}`);
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
   cy.get(ApiEditor.ApiRunBtn).scrollIntoView();
-  cy.get(apiwidget.path)
+  cy.get(apiwidget.editResourceUrl)
+    .first()
     .focus()
-    .type("{selectall}{backspace}api/users/2")
+    .type(v1method)
     .should("have.value", v1method);
   cy.SaveAPI();
 });
@@ -327,7 +330,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .should("have.value", apiname);
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
-    expect($x).contain("Action name must be unique");
+    expect($x).contain("Name must be unique");
   });
 });
 
@@ -407,7 +410,7 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Show Modal")
+    .contains("Open Popup")
     .click();
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -535,11 +538,11 @@ Cypress.Commands.add("testJsontext", (endp, js) => {
   cy.focused().then($cm => {
     if ($cm.contents != "") {
       cy.log("The field is empty");
-      cy.get(".CodeMirror textarea")
+      cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .clear({ force: true });
     }
-    cy.get(".CodeMirror textarea")
+    cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
       .type(js, {
         force: true,
@@ -549,7 +552,6 @@ Cypress.Commands.add("testJsontext", (endp, js) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.defaultDate).click();
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Today")
     .click();
@@ -557,7 +559,6 @@ Cypress.Commands.add("SetDateToToday", () => {
 });
 
 Cypress.Commands.add("ClearDate", () => {
-  cy.get(formWidgetsPage.defaultDate).click();
   cy.get(formWidgetsPage.datepickerFooter)
     .contains("Clear")
     .click();
@@ -683,9 +684,9 @@ Cypress.Commands.add("dropdownDynamic", text => {
 Cypress.Commands.add("getAlert", alertcss => {
   cy.get(commonlocators.dropdownSelectButton).click({ force: true });
   cy.get(widgetsPage.menubar)
-    .contains("Show Alert")
+    .contains("Show Message")
     .click({ force: true })
-    .should("have.text", "Show Alert");
+    .should("have.text", "Show Message");
 
   cy.get(alertcss)
     .click({ force: true })
@@ -893,6 +894,10 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .click();
 });
 
+Cypress.Commands.add("closePropertyPane", () => {
+  cy.get(commonlocators.editPropCrossButton).click();
+});
+
 Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
@@ -907,7 +912,7 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.contains(url).click({
     force: true,
   });
-  cy.get(".CodeMirror.CodeMirror-empty textarea")
+  cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
     .type(parameters, { force: true });
@@ -918,16 +923,13 @@ Cypress.Commands.add("createApi", (url, parameters) => {
 
 Cypress.Commands.add("isSelectRow", index => {
   cy.get(
-    '.e-gridcontent.e-lib.e-droppable td[index="' +
-      index +
-      '"][aria-colindex="' +
-      index +
-      '"]',
+    '.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]',
   ).click({ force: true });
 });
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
-  const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.t--draggable-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -948,10 +950,9 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
 });
 
 Cypress.Commands.add("pageNo", index => {
-  cy.get(".e-pagercontainer a")
-    .eq(index)
-    .click({ force: true })
-    .should("be.visible");
+  cy.get(".page-item")
+    .first()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("pageNoValidate", index => {
@@ -1041,4 +1042,29 @@ Cypress.Commands.add("alertValidate", text => {
   cy.get(commonlocators.success)
     .should("be.visible")
     .and("have.text", text);
+});
+
+Cypress.Commands.add("ExportVerify", (togglecss, name) => {
+  cy.togglebar(togglecss);
+  cy.get(".t--draggable-tablewidget button")
+    .invoke("attr", "aria-label")
+    .should("contain", name);
+  cy.togglebarDisable(togglecss);
+});
+
+Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
+  // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
+Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
+  cy.get(dynamicInputLocators.evaluatedValue)
+    .should("be.visible")
+    .children("p")
+    .should("contain.text", "Expected type:")
+    .should("contain.text", "Current Value:")
+    .siblings("pre")
+    .should("have.text", expectedType);
 });

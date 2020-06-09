@@ -18,7 +18,6 @@ import { AppState } from "reducers";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "api/ActionAPI";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import {
   getPluginIdsOfPackageNames,
@@ -27,6 +26,7 @@ import {
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
+import { RestAction } from "entities/Action";
 
 const EmptyStateContainer = styled.div`
   display: flex;

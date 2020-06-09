@@ -43,6 +43,16 @@ export class DroppableComponent extends React.Component<
     };
   }
 
+  componentDidUpdate(prevProps: DroppableComponentProps) {
+    if (this.props.items.length !== prevProps.items.length) {
+      this.setState({ items: this.props.items });
+    } else if (
+      JSON.stringify(this.props.items) !== JSON.stringify(prevProps.items)
+    ) {
+      this.setState({ items: this.props.items });
+    }
+  }
+
   onDragEnd = (result: any) => {
     const { destination, source } = result;
     if (!destination) {

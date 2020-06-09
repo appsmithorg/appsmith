@@ -14,6 +14,7 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import FIELD_VALUES from "constants/FieldExpectedValue";
 
 const DropDownContainer = styled.div`
   width: 300px;
@@ -45,6 +46,7 @@ interface PostDataProps {
   onDisplayFormatChange: Function;
   apiId: string;
   setDisplayFormat: Function;
+  dataTreePath: string;
 }
 
 type Props = PostDataProps;
@@ -56,6 +58,7 @@ const PostBodyData = (props: Props) => {
     displayFormat,
     setDisplayFormat,
     apiId,
+    dataTreePath,
   } = props;
   return (
     <PostbodyContainer>
@@ -110,11 +113,13 @@ const PostBodyData = (props: Props) => {
         <React.Fragment>
           <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
             <DynamicTextField
+              expected={FIELD_VALUES.API_ACTION.body}
               name="actionConfiguration.body[0]"
               height={300}
               showLineNumbers
               allowTabIndent
               singleLine={false}
+              dataTreePath={`${dataTreePath}[0]`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
@@ -122,7 +127,11 @@ const PostBodyData = (props: Props) => {
 
       {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[1].value && (
         <React.Fragment>
-          <KeyValueFieldArray name="actionConfiguration.body[1]" label="" />
+          <KeyValueFieldArray
+            name="actionConfiguration.body[1]"
+            dataTreePath={`${dataTreePath}[1]`}
+            label=""
+          />
         </React.Fragment>
       )}
 
@@ -134,6 +143,7 @@ const PostBodyData = (props: Props) => {
               height={300}
               allowTabIndent
               singleLine={false}
+              dataTreePath={`${dataTreePath}[2]`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>

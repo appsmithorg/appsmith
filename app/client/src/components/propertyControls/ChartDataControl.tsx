@@ -1,4 +1,5 @@
 import React from "react";
+import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   ControlWrapper,
@@ -62,25 +63,50 @@ type RenderComponentProps = {
   index: number;
   item: {
     seriesName: string;
-    data: Array<{ x: string; y: string }> | any;
+    data: Array<{ x: string; y: string }> | string;
   };
   length: number;
+  isValid: boolean;
+  validationMessage: string;
   deleteOption: Function;
   updateOption: Function;
+  evaluated: {
+    seriesName: string;
+    data: Array<{ x: string; y: string }> | any;
+  };
 };
 
 function DataControlComponent(props: RenderComponentProps) {
-  const { deleteOption, updateOption, item, index, length } = props;
+  const {
+    deleteOption,
+    updateOption,
+    item,
+    index,
+    length,
+    isValid,
+    evaluated,
+  } = props;
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <StyledOptionControlInputGroup
-          type="text"
-          placeholder="Series Name"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            updateOption(index, "seriesName", event.target.value);
+        <DynamicAutocompleteInput
+          expected={"string"}
+          input={{
+            value: item.seriesName,
+            onChange: (
+              event: React.ChangeEvent<HTMLTextAreaElement> | string,
+            ) => {
+              let value = event;
+              if (typeof event !== "string") {
+                value = event.target.value;
+              }
+              updateOption(index, "seriesName", value);
+            },
           }}
-          defaultValue={item.seriesName}
+          evaluatedValue={evaluated.seriesName}
+          theme={"DARK"}
+          singleLine={false}
+          placeholder="Series Name"
         />
         {length > 1 && (
           <StyledDeleteIcon
@@ -92,8 +118,11 @@ function DataControlComponent(props: RenderComponentProps) {
           />
         )}
       </StyledOptionControlWrapper>
-      <StyledDynamicInput>
+      <StyledDynamicInput
+        className={"t--property-control-chart-series-data-control"}
+      >
         <DynamicAutocompleteInput
+          expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
             onChange: (
@@ -106,8 +135,9 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
+          evaluatedValue={evaluated.data}
           meta={{
-            error: "",
+            error: isValid ? "" : "There is an error",
             touched: true,
           }}
           theme={"DARK"}
@@ -120,12 +150,53 @@ function DataControlComponent(props: RenderComponentProps) {
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
+  getValidations = (message: string, isValid: boolean, len: number) => {
+    const validations: Array<{
+      isValid: boolean;
+      validationMessage: string;
+    }> = [];
+    let index = -1;
+    let validationMessage = "";
+    if (message.indexOf("##") !== -1) {
+      const messages = message.split("##");
+      index = Number(messages[0]);
+      validationMessage = messages[1];
+    }
+    for (let i = 0; i < len; i++) {
+      if (i === index) {
+        validations.push({
+          isValid: false,
+          validationMessage: validationMessage,
+        });
+      } else {
+        validations.push({
+          isValid: true,
+          validationMessage: "",
+        });
+      }
+    }
+    return validations;
+  };
+
   render() {
     const chartData: Array<{
       seriesName: string;
-      data: Array<{ x: string; y: string }> | any;
-    }> = this.props.propertyValue || [];
+      data: Array<{ x: string; y: string }> | string;
+    }> =
+      this.props.propertyValue && _.isString(this.props.propertyValue)
+        ? JSON.parse(this.props.propertyValue)
+        : this.props.propertyValue;
+
     const dataLength = chartData.length;
+    const { validationMessage, isValid } = this.props;
+    const validations: Array<{
+      isValid: boolean;
+      validationMessage: string;
+    }> = this.getValidations(
+      validationMessage || "",
+      isValid,
+      chartData.length,
+    );
     return (
       <React.Fragment>
         {chartData.map((data, index) => {
@@ -137,6 +208,9 @@ class ChartDataControl extends BaseControl<ControlProps> {
               length={dataLength}
               deleteOption={this.deleteOption}
               updateOption={this.updateOption}
+              isValid={validations[index].isValid}
+              validationMessage={validations[index].validationMessage}
+              evaluated={this.props.evaluatedValue[index]}
             />
           );
         })}
@@ -152,9 +226,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
   }
 
   deleteOption = (index: number) => {
-    const chartData: object[] = this.props.propertyValue.slice();
+    const chartData: object[] =
+      this.props.propertyValue && _.isString(this.props.propertyValue)
+        ? JSON.parse(this.props.propertyValue)
+        : this.props.propertyValue;
     chartData.splice(index, 1);
-    this.updateProperty(this.props.propertyName, chartData);
+    this.updateProperty(this.props.propertyName, JSON.stringify(chartData));
   };
 
   updateOption = (
@@ -165,23 +242,27 @@ class ChartDataControl extends BaseControl<ControlProps> {
     const chartData: Array<{
       seriesName: string;
       data: Array<{ x: string; y: string }> | any;
-    }> = this.props.propertyValue;
-    this.updateProperty(
-      this.props.propertyName,
-      chartData.map((item, i) => {
-        if (index === i) {
-          if (propertyName === "seriesName") {
-            item.seriesName = updatedValue;
-          } else {
-            try {
-              item.data = JSON.parse(updatedValue);
-            } catch (err) {
-              item.data = updatedValue;
-            }
+    }> =
+      this.props.propertyValue && _.isString(this.props.propertyValue)
+        ? JSON.parse(this.props.propertyValue)
+        : this.props.propertyValue;
+    const updatedChartData = chartData.map((item, i) => {
+      if (index === i) {
+        if (propertyName === "seriesName") {
+          item.seriesName = updatedValue;
+        } else {
+          try {
+            item.data = JSON.parse(updatedValue);
+          } catch (err) {
+            item.data = updatedValue;
           }
         }
-        return item;
-      }),
+      }
+      return item;
+    });
+    this.updateProperty(
+      this.props.propertyName,
+      JSON.stringify(updatedChartData),
     );
   };
 
@@ -189,9 +270,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
     const chartData: Array<{
       seriesName: string;
       data: Array<{ x: string; y: string }> | any;
-    }> = this.props.propertyValue ? this.props.propertyValue.slice() : [];
+    }> =
+      this.props.propertyValue && _.isString(this.props.propertyValue)
+        ? JSON.parse(this.props.propertyValue)
+        : this.props.propertyValue;
     chartData.push({ seriesName: "", data: [{ x: "", y: "" }] });
-    this.updateProperty(this.props.propertyName, chartData);
+    this.updateProperty(this.props.propertyName, JSON.stringify(chartData));
   };
 
   static getControlType() {
