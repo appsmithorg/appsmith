@@ -141,7 +141,7 @@ class DatePickerComponent extends React.Component<
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr).toDate();
+    return moment(dateStr, this.props.dateFormat).toDate();
   };
 
   onDateSelected = (selectedDate: Date) => {
