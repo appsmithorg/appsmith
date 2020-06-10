@@ -21,6 +21,7 @@ describe("Moustache test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
+    cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck("janet.weaver@reqres.in");

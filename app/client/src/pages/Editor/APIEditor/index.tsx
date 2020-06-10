@@ -40,7 +40,6 @@ const EmptyStateContainer = styled.div`
 interface ReduxStateProps {
   actions: ActionDataState;
   isRunning: Record<string, boolean>;
-  isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   allowSave: boolean;
   apiName: string;
@@ -139,6 +138,15 @@ class ApiEditor extends React.Component<Props> {
     }
   };
 
+  onChangeHandler = _.debounce((changedValue: any) => {
+    if (this.props.allowSave) {
+      this.handleSubmit({
+        ...changedValue,
+        cacheResponse: undefined,
+      });
+    }
+  }, 2000);
+
   render() {
     const {
       match: {
@@ -146,10 +154,8 @@ class ApiEditor extends React.Component<Props> {
       },
       plugins,
       pluginId,
-      isSaving,
       isRunning,
       isDeleting,
-      allowSave,
       paginationType,
     } = this.props;
 
@@ -189,13 +195,10 @@ class ApiEditor extends React.Component<Props> {
             {formUiComponent === "ApiEditorForm" && (
               <ApiEditorForm
                 pluginId={pluginId}
-                allowSave={allowSave}
                 paginationType={paginationType}
-                isSaving={isSaving[apiId]}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
                 onSubmit={this.handleSubmit}
-                onSaveClick={this.handleSaveClick}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 datasourceFieldText={this.props.datasourceFieldText}
@@ -204,19 +207,17 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                onChange={this.onChangeHandler}
                 location={this.props.location}
               />
             )}
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
-                allowSave={allowSave}
                 paginationType={paginationType}
-                isSaving={isSaving[apiId]}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
                 onSubmit={this.handleSubmit}
-                onSaveClick={this.handleSaveClick}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -224,6 +225,7 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                onChange={this.onChangeHandler}
                 location={this.props.location}
               />
             )}
@@ -240,7 +242,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
 
-  const { drafts, isSaving, isDeleting, isRunning } = state.ui.apiPane;
+  const { drafts, isDeleting, isRunning } = state.ui.apiPane;
   let data: RestAction | ActionData | RapidApiAction | undefined;
   let allowSave;
   if (apiAction && apiAction.id in drafts) {
@@ -264,7 +266,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId: _.get(data, "pluginId"),
     paginationType: _.get(data, "actionConfiguration.paginationType"),
     apiAction,
-    isSaving,
     isRunning,
     isDeleting,
     allowSave,

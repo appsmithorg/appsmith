@@ -47,8 +47,17 @@ export const getIsFetchingPage = (state: AppState) =>
 export const getLoadingError = (state: AppState) =>
   state.ui.editor.loadingStates.loadingError;
 
-export const getIsPageSaving = (state: AppState) =>
-  state.ui.editor.loadingStates.saving;
+export const getIsPageSaving = (state: AppState) => {
+  let areApisSaving = false;
+
+  const savingApis = state.ui.apiPane.isSaving;
+
+  Object.keys(savingApis).forEach(apiId => {
+    areApisSaving = savingApis[apiId] || areApisSaving;
+  });
+
+  return state.ui.editor.loadingStates.saving || areApisSaving;
+};
 
 export const getIsPublishingApplication = (state: AppState) =>
   state.ui.editor.loadingStates.publishing;

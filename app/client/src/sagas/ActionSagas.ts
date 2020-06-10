@@ -41,7 +41,6 @@ import {
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
-  runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
@@ -483,10 +482,6 @@ export function* updateActionSaga(
           pageName,
         });
       }
-      AppToaster.show({
-        message: `${actionPayload.payload.data.name} Action updated`,
-        type: ToastType.SUCCESS,
-      });
 
       AnalyticsUtil.logEvent("SAVE_API", {
         apiId: response.data.id,
@@ -494,9 +489,9 @@ export function* updateActionSaga(
         pageName: pageName,
       });
       yield put(updateActionSuccess({ data: response.data }));
-      if (actionPayload.payload.data.pluginType !== "DB") {
-        yield put(runApiAction(data.id));
-      }
+      // if (actionPayload.payload.data.pluginType !== "DB") {
+      //   yield put(runApiAction(data.id));
+      // }
     }
   } catch (error) {
     yield put({

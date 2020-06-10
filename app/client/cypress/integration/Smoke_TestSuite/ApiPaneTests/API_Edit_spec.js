@@ -14,6 +14,7 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
+    cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.get(apiwidget.createApiOnSideBar)
       .first()
@@ -24,6 +25,7 @@ describe("API Panel Test Functionality", function() {
     cy.SearchAPIandClick("SecondAPI");
     //invalid api end point check
     cy.EditSourceDetail(testdata.baseUrl3, testdata.invalidPath);
+    cy.RunAPI();
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.DeleteAPI();
   });
