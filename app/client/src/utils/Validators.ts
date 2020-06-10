@@ -393,17 +393,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .hour(0)
       .minute(0)
       .second(0)
-      .millisecond(0)
-      .toISOString(true);
+      .millisecond(0);
+
     if (value === undefined) {
       return {
         isValid: false,
-        parsed: today,
+        parsed: "",
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
       };
     }
     const isValid = moment(value).isValid();
-    const parsed = isValid ? moment(value).toISOString(true) : today;
+    const parsed = isValid
+      ? props.dateFormat
+        ? moment(value).format(props.dateFormat)
+        : moment(value).toISOString(true)
+      : today;
     return {
       isValid,
       parsed,

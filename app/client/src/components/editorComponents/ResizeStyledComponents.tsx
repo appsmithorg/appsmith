@@ -3,7 +3,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
 
 const EDGE_RESIZE_HANDLE_WIDTH = 10;
-const CORNER_RESIZE_HANDLE_WIDTH = 40;
+const CORNER_RESIZE_HANDLE_WIDTH = 10;
 
 export const VisibilityContainer = styled.div<{
   visible: boolean;

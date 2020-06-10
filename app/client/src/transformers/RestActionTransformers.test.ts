@@ -1,5 +1,6 @@
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { PluginType, RestAction } from "entities/Action";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
 
@@ -85,7 +86,7 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [{ key: "content-type", value: "application/json" }],
-        body: ["{ name: 'test' }", null],
+        body: "{ name: 'test' }",
       },
     };
     const output = {
@@ -108,9 +109,9 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: "application/x-www-form-urlencoded" },
+          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
-        body: [{ name: "test" }, [{ key: "hey", value: "ho" }]],
+        bodyFormData: [{ key: "hey", value: "ho" }],
       },
     };
     const output = {
@@ -119,9 +120,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: "application/x-www-form-urlencoded" },
+          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
         ],
-        body: '[{"key":"hey","value":"ho"}]',
+        body: "",
+        bodyFormData: [{ key: "hey", value: "ho" }],
       },
     };
     const result = transformRestAction(input);
@@ -135,7 +137,7 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         headers: [{ key: "content-type", value: "text/html" }],
         httpMethod: "POST",
-        body: [{ name: "test" }, [{ key: "hey", value: "ho" }], "raw body"],
+        body: "raw body",
       },
     };
     const output = {

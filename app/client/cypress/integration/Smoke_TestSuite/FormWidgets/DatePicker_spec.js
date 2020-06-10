@@ -49,7 +49,7 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("Datepicker-Claer date validation", function() {
+  it("Datepicker-Clear date validation", function() {
     const today = Cypress.moment()
       .add(0, "days")
       .format("DD/MM/YYYY");
@@ -58,7 +58,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publishPage.datepickerWidget + " .bp3-input").should(
       "contain.value",
-      today + " 00:00",
+      "",
     );
   });
 
