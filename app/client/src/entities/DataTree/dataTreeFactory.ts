@@ -8,6 +8,8 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
+import { Property } from "entities/Action";
 
 export type ActionDescription<T> = {
   type: string;
@@ -32,6 +34,7 @@ export type RunActionPayload = {
 export interface DataTreeAction extends Omit<ActionData, "data"> {
   data: ActionResponse["body"];
   run: ActionDispatcher<RunActionPayload, [string, string]>;
+  dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
@@ -63,6 +66,7 @@ export type DataTree = {
 
 type DataTreeSeed = {
   actions: ActionDataState;
+  actionDrafts: ActionDraftsState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
@@ -72,6 +76,7 @@ type DataTreeSeed = {
 export class DataTreeFactory {
   static create({
     actions,
+    actionDrafts,
     widgets,
     widgetsMeta,
     pageList,
@@ -84,8 +89,23 @@ export class DataTreeFactory {
       "closeModal",
     ];
     actions.forEach(a => {
-      dataTree[a.config.name] = {
+      const config =
+        a.config.id in actionDrafts ? actionDrafts[a.config.id] : a.config;
+      let dynamicBindingPathList: Property[] = [];
+      // update paths
+      if (
+        config.dynamicBindingPathList &&
+        config.dynamicBindingPathList.length
+      ) {
+        dynamicBindingPathList = config.dynamicBindingPathList.map(d => ({
+          ...d,
+          key: `config.${d.key}`,
+        }));
+      }
+      dataTree[config.name] = {
         ...a,
+        config: config,
+        dynamicBindingPathList,
         data: a.data ? a.data.body : {},
         run: function(onSuccess: string, onError: string) {
           return {
@@ -99,7 +119,7 @@ export class DataTreeFactory {
         },
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
       };
-      dataTree.actionPaths && dataTree.actionPaths.push(`${a.config.name}.run`);
+      dataTree.actionPaths && dataTree.actionPaths.push(`${config.name}.run`);
     });
     Object.keys(widgets).forEach(w => {
       const widget = widgets[w];

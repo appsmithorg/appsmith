@@ -6,6 +6,7 @@ import { FormIcons } from "icons/FormIcons";
 import DynamicTextField from "./DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
+import FIELD_VALUES from "constants/FieldExpectedValue";
 
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
@@ -26,7 +27,6 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       }
     }
   }, [props.fields, props.pushFields]);
-
   return (
     <React.Fragment>
       {typeof props.fields.getAll() === "object" && (
@@ -43,6 +43,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 singleLine
                 setMaxHeight
                 showLightningMenu={false}
+                dataTreePath={`${props.dataTreePath}[${index}].key`}
+                expected={FIELD_VALUES.API_ACTION.params}
               />
               {!props.actionConfig && (
                 <DynamicTextField
@@ -51,6 +53,8 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   placeholder="Value"
                   singleLine
                   setMaxHeight
+                  dataTreePath={`${props.dataTreePath}[${index}].value`}
+                  expected={FIELD_VALUES.API_ACTION.params}
                 />
               )}
 
@@ -59,7 +63,9 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   <DynamicTextField
                     className={`t--${field}.value.${index}`}
                     name={`${field}.value`}
+                    dataTreePath={`${props.dataTreePath}[${index}].value`}
                     setMaxHeight
+                    expected={FIELD_VALUES.API_ACTION.params}
                     placeholder={
                       props.placeholder
                         ? props.placeholder
@@ -124,6 +130,7 @@ type Props = {
   type?: string;
   placeholder?: string;
   pushFields?: boolean;
+  dataTreePath?: string;
 };
 
 const KeyValueFieldArray = (props: Props) => {

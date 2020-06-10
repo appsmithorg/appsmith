@@ -1,5 +1,5 @@
 import React from "react";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
 import { Directions } from "utils/helpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import CustomizedDropdown, {

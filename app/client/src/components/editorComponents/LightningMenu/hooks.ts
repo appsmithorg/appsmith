@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { WidgetProps } from "widgets/BaseWidget";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
 
 export const useWidgets = () => {
   return useSelector((state: AppState) => {

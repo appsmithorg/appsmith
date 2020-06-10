@@ -1,9 +1,15 @@
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { RestAction } from "api/ActionAPI";
+import { PluginType, RestAction } from "entities/Action";
 
 // jest.mock("POST_");
 
 const BASE_ACTION: RestAction = {
+  dynamicBindingPathList: [],
+  cacheResponse: "",
+  executeOnLoad: false,
+  invalids: [],
+  isValid: false,
+  organizationId: "",
   pageId: "",
   pluginId: "",
   id: "testId",
@@ -11,7 +17,7 @@ const BASE_ACTION: RestAction = {
     id: "testDataSource",
   },
   name: "testName",
-  pluginType: "API",
+  pluginType: PluginType.API,
   actionConfiguration: {
     httpMethod: "GET",
     path: "users",

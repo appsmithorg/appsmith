@@ -24,7 +24,6 @@ import ActionAPI, {
   ExecuteActionRequest,
   PaginationField,
   Property,
-  RestAction,
 } from "api/ActionAPI";
 import { AppState } from "reducers";
 import _ from "lodash";
@@ -74,6 +73,7 @@ import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
+import { RestAction } from "entities/Action";
 
 export const getAction = (
   state: AppState,

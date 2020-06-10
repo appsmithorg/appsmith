@@ -11,6 +11,7 @@ const LayoutPage = require("../locators/Layout.json");
 const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
+const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -351,9 +352,7 @@ Cypress.Commands.add("MoveAPIToPage", () => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
-  cy.get(
-    ".single-select >div:contains('".concat(pageidcopy).concat("')"),
-  ).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -893,6 +892,10 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .click();
 });
 
+Cypress.Commands.add("closePropertyPane", () => {
+  cy.get(commonlocators.editPropCrossButton).click();
+});
+
 Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
@@ -918,16 +921,13 @@ Cypress.Commands.add("createApi", (url, parameters) => {
 
 Cypress.Commands.add("isSelectRow", index => {
   cy.get(
-    '.e-gridcontent.e-lib.e-droppable td[index="' +
-      index +
-      '"][aria-colindex="' +
-      index +
-      '"]',
+    '.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]',
   ).click({ force: true });
 });
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
-  const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.t--draggable-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -948,10 +948,9 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
 });
 
 Cypress.Commands.add("pageNo", index => {
-  cy.get(".e-pagercontainer a")
-    .eq(index)
-    .click({ force: true })
-    .should("be.visible");
+  cy.get(".page-item")
+    .first()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("pageNoValidate", index => {
@@ -1052,7 +1051,18 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
 });
 
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
-  const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
+});
+
+Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
+  cy.get(dynamicInputLocators.evaluatedValue)
+    .should("be.visible")
+    .children("p")
+    .should("contain.text", "Expected type:")
+    .should("contain.text", "Current Value:")
+    .siblings("pre")
+    .should("have.text", expectedType);
 });

@@ -4,6 +4,7 @@ import {
   InjectedFormProps,
   Field,
   FormSubmitHandler,
+  formValueSelector,
 } from "redux-form";
 import {
   GridComponent,
@@ -25,12 +26,14 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "api/ActionAPI";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
+import { RestAction } from "entities/Action";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -205,7 +208,7 @@ type QueryFormProps = {
   onDeleteClick: () => void;
   onSaveClick: () => void;
   onRunClick: () => void;
-  createTemplate: (template: any, name: string) => void;
+  createTemplate: (template: any) => void;
   onSubmit: FormSubmitHandler<RestAction>;
   isDeleting: boolean;
   allowSave: boolean;
@@ -223,7 +226,11 @@ type QueryFormProps = {
   };
 };
 
-export type StateAndRouteProps = QueryFormProps;
+type ReduxProps = {
+  actionName: string;
+};
+
+export type StateAndRouteProps = QueryFormProps & ReduxProps;
 
 type Props = StateAndRouteProps &
   InjectedFormProps<RestAction, StateAndRouteProps>;
@@ -400,18 +407,15 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         {isNewQuery && showTemplateMenu ? (
           <TemplateMenu
             createTemplate={templateString => {
-              const name = isSQL
-                ? "actionConfiguration.query.cmd"
-                : "actionConfiguration.query";
-
               setMenuVisibility(false);
-              createTemplate(templateString, name);
+              createTemplate(templateString);
             }}
             selectedPluginPackage={selectedPluginPackage}
           />
         ) : isSQL ? (
           <Field
-            name="actionConfiguration.query.cmd"
+            name="actionConfiguration.body"
+            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="sql-js"
@@ -419,17 +423,11 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           />
         ) : (
           <Field
-            name="actionConfiguration.query"
+            name="actionConfiguration.body"
+            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="js-js"
-            normalize={(value: any) => {
-              try {
-                return JSON.parse(value);
-              } catch (e) {
-                return value;
-              }
-            }}
           />
         )}
       </form>
@@ -437,7 +435,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       {dataSources.length === 0 && (
         <NoDataSourceContainer>
           <p className="font18">
-            Seems like you don’t have any Datasouces to create a query
+            Seems like you don’t have any Datasources to create a query
           </p>
           <Button
             onClick={() =>
@@ -492,7 +490,17 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default reduxForm<RestAction, StateAndRouteProps>({
-  form: QUERY_EDITOR_FORM_NAME,
-  enableReinitialize: true,
-})(QueryEditorForm);
+const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
+const mapStateToProps = (state: AppState) => {
+  const actionName = valueSelector(state, "name");
+  return {
+    actionName,
+  };
+};
+
+export default connect(mapStateToProps)(
+  reduxForm<RestAction, StateAndRouteProps>({
+    form: QUERY_EDITOR_FORM_NAME,
+    enableReinitialize: true,
+  })(QueryEditorForm),
+);

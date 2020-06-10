@@ -20,6 +20,11 @@ class FeatureFlag {
     if (featureFlagConfig.remoteConfig) {
       FeatureFlag.remote = optimizelySDK.createInstance({
         sdkKey: featureFlagConfig.remoteConfig.optimizely,
+        datafileOptions: {
+          autoUpdate: true,
+          updateInterval: 600000, // 10 minutes in milliseconds
+          urlTemplate: window.location.origin + "/f/datafiles/%s.json",
+        },
       });
       (FeatureFlag.remote as any).onReady().then(onInit);
     }

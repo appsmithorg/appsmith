@@ -9,7 +9,7 @@ import {
   deleteAction,
   updateAction,
 } from "actions/actionActions";
-import { PaginationField, RapidApiAction, RestAction } from "api/ActionAPI";
+import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -25,9 +25,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import styled from "styled-components";
+import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
 import FeatureFlag from "utils/featureFlags";
 import { FeatureFlagsEnum } from "configs/types";
-import { PaginationType } from "./Pagination";
 
 const EmptyStateContainer = styled.div`
   display: flex;

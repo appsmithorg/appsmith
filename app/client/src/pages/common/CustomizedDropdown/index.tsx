@@ -51,7 +51,7 @@ export type CustomizedDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
 };
 
-const getIcon = (icon?: string, intent?: Intent) => {
+export const getIcon = (icon?: string, intent?: Intent) => {
   if (icon) {
     if (MenuIcons[icon]) {
       return MenuIcons[icon]({

@@ -22,7 +22,6 @@ let appId;
 import "./commands";
 before(function() {
   console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
-  cy.viewport("macbook-15");
   cy.startServerAndRoutes();
   cy.LogintoApp(loginData.username, loginData.password);
   // cy.SearchApp(inputData.appname)

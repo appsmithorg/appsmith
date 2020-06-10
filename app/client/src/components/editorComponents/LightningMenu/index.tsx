@@ -5,7 +5,7 @@ import CustomizedDropdown, {
 } from "pages/common/CustomizedDropdown";
 
 import { Directions } from "utils/helpers";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
 import { WidgetProps } from "widgets/BaseWidget";
 import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { getLightningMenuOptions } from "./helpers";
