@@ -19,7 +19,7 @@ public enum AppsmithRole {
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
     ORGANIZATION_ADMIN("Administrator", "Can edit, view applications and invite other user to organization",  Set.of(MANAGE_ORGANIZATIONS)),
     ORGANIZATION_DEVELOPER("Developer", "Can edit and view applications",  Set.of(READ_ORGANIZATIONS, ORGANIZATION_MANAGE_APPLICATIONS)),
-    ORGANIZATION_VIEWER("App Viewer", "Can view applications",  Set.of(ORGANIZATION_READ_APPLICATIONS));
+    ORGANIZATION_VIEWER("App Viewer", "Can view applications",  Set.of(READ_ORGANIZATIONS, ORGANIZATION_READ_APPLICATIONS));
 
     private Set<AclPermission> permissions;
     private String name;

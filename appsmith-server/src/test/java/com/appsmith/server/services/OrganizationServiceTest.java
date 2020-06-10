@@ -38,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
@@ -344,7 +345,7 @@ public class OrganizationServiceTest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void addNewUserToOrganization() {
+    public void addNewUserToOrganizationAsAdmin() {
         Mono<Organization> seedOrganization = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
 
@@ -387,6 +388,69 @@ public class OrganizationServiceTest {
 
                     assertThat(org.getPolicies()).isNotEmpty();
                     assertThat(org.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
+
+                    assertThat(user).isNotNull();
+                    assertThat(user.getIsEnabled()).isFalse();
+                    Set<String> organizationIds = user.getOrganizationIds();
+                    assertThat(organizationIds).contains(org.getId());
+
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test tests for a new user being added to an organzation as viewer.
+     * The new user must be created at after invite flow and the new user must be disabled.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addNewUserToOrganizationAsViewer() {
+        Organization organization = new Organization();
+        organization.setName("Add Viewer to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
+        Mono<User> userAddedToOrgMono = organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail("newEmailWhichShouldntExistAsViewer@usertest.com");
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                })
+                .cache();
+
+        Mono<Organization> readOrgMono = organizationRepository.findByName("Add Viewer to Test Organization");
+
+        Mono<Organization> orgAfterUpdateMono = userAddedToOrgMono
+                .then(readOrgMono);
+
+        StepVerifier
+                .create(Mono.zip(userAddedToOrgMono, orgAfterUpdateMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    Organization org = tuple.getT2();
+
+                    assertThat(org).isNotNull();
+                    assertThat(org.getName()).isEqualTo("Add Viewer to Test Organization");
+                    assertThat(org.getUserRoles().get(1).getUsername()).isEqualTo("newEmailWhichShouldntExistAsViewer@usertest.com");
+
+                    Policy readOrgAppsPolicy = Policy.builder().permission(ORGANIZATION_READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .build();
+
+                    Policy readOrgPolicy = Policy.builder().permission(READ_ORGANIZATIONS.getValue())
+                            .users(Set.of("api_user", "newEmailWhichShouldntExistAsViewer@usertest.com"))
+                            .build();
+
+                    assertThat(org.getPolicies()).isNotEmpty();
+                    assertThat(org.getPolicies()).containsAll(Set.of(readOrgAppsPolicy, readOrgPolicy));
 
                     assertThat(user).isNotNull();
                     assertThat(user.getIsEnabled()).isFalse();
