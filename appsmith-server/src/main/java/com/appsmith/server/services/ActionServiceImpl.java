@@ -143,11 +143,15 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     // Inherit the action policies from the page.
                     generateAndSetActionPolicies(page, user, action);
 
-                    Datasource datasource = action.getDatasource();
-                    if (datasource.getOrganizationId() == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                    // If the datasource is embedded, check for organizationId and set it in action
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() == null) {
+                        Datasource datasource = action.getDatasource();
+                        if (datasource.getOrganizationId() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                        }
+                        action.setOrganizationId(datasource.getOrganizationId());
                     }
-                    action.setOrganizationId(datasource.getOrganizationId());
 
                     return Mono.just(action);
                 })
@@ -200,7 +204,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         action.setIsValid(false);
                         invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
                         return Mono.just(action.getDatasource());
-                    }));
+                    }))
+                    .map(datasource -> {
+                        // datasource is found. Update the action.
+                        action.setOrganizationId(datasource.getOrganizationId());
+                        return datasource;
+                    });
         }
 
         Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
@@ -415,31 +424,31 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 }))
                 .flatMap(obj -> obj)
                 .flatMap(res -> {
-                            ActionExecutionResult result = (ActionExecutionResult) res;
-                            Mono<ActionExecutionResult> resultMono = Mono.just(result);
-                            if (actionFromDto.getId() == null) {
-                                // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
-                                return resultMono;
-                            }
+                    ActionExecutionResult result = (ActionExecutionResult) res;
+                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                    if (actionFromDto.getId() == null) {
+                        // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
+                        return resultMono;
+                    }
 
-                            Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
-                                    //If the action is found in the db (i.e. it is not a dry run, save the cached response
-                                    .flatMap(action -> {
-                                        if (result.getIsExecutionSuccess()) {
-                                            // If the plugin execution result is successful, then cache response body in
-                                            // the action and save it.
-                                            action.setCacheResponse(result.getBody().toString());
-                                            return repository.save(action);
-                                        }
-                                        log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
-                                        return Mono.just(action);
-                                    });
-                            return actionFromDbMono.zipWith(resultMono)
-                                    .map(tuple -> {
-                                        ActionExecutionResult executionResult = tuple.getT2();
-                                        return executionResult;
-                                    });
-                        });
+                    Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
+                            //If the action is found in the db (i.e. it is not a dry run, save the cached response
+                            .flatMap(action -> {
+                                if (result.getIsExecutionSuccess()) {
+                                    // If the plugin execution result is successful, then cache response body in
+                                    // the action and save it.
+                                    action.setCacheResponse(result.getBody().toString());
+                                    return repository.save(action);
+                                }
+                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
+                                return Mono.just(action);
+                            });
+                    return actionFromDbMono.zipWith(resultMono)
+                            .map(tuple -> {
+                                ActionExecutionResult executionResult = tuple.getT2();
+                                return executionResult;
+                            });
+                });
     }
 
     @Override
@@ -526,22 +535,22 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             String finalName = name;
             return pageService
-                        .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
-                        .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
-                        )
-                        .map(applicationPagesDTO -> applicationPagesDTO.getPages())
-                        .flatMapMany(Flux::fromIterable)
-                        .map(pageNameIdDTO -> pageNameIdDTO.getId())
-                        .collectList()
-                        .flatMapMany(pages -> {
-                            pageIds.addAll(pages);
-                            return repository.findAllActionsByNameAndPageIds(finalName, pageIds, READ_ACTIONS, sort);
-                        })
+                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
+                    )
+                    .map(applicationPagesDTO -> applicationPagesDTO.getPages())
+                    .flatMapMany(Flux::fromIterable)
+                    .map(pageNameIdDTO -> pageNameIdDTO.getId())
+                    .collectList()
+                    .flatMapMany(pages -> {
+                        pageIds.addAll(pages);
+                        return repository.findAllActionsByNameAndPageIds(finalName, pageIds, READ_ACTIONS, sort);
+                    })
                     .flatMap(this::setTransientFieldsInAction);
         }
         return repository.findAllActionsByNameAndPageIds(name, pageIds, READ_ACTIONS, sort)
-                    .flatMap(this::setTransientFieldsInAction);
+                .flatMap(this::setTransientFieldsInAction);
     }
 
     private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
