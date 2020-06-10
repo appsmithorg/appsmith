@@ -6,7 +6,7 @@
     "node": "^10.16.3",
     "npm": "^6.9.0"
   },
-  "cracoConfig": "craco.common.config.js",
+  "cracoConfig": "craco.dev.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.18.1",
     "@blueprintjs/datetime": "^3.14.0",
@@ -158,6 +158,7 @@
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "babel-loader": "^8.0.6",
+    "babel-plugin-styled-components": "^1.10.7",
     "cypress": "^4.1.0",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-xpath": "^1.4.0",
