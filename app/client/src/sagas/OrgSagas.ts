@@ -25,6 +25,8 @@ import OrgApi, {
   ChangeUserRoleRequest,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { ToastType } from "react-toastify";
 
 export function* fetchRolesSaga() {
   try {
@@ -105,6 +107,9 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ALL_USERS_ERROR,
+      payload: {
+        error,
+      },
     });
   }
 }
@@ -140,6 +145,10 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
         payload: {
           username: action.payload.username,
         },
+      });
+      AppToaster.show({
+        message: `${response.data.username} has been removed successfully`,
+        type: ToastType.SUCCESS,
       });
     }
   } catch (error) {

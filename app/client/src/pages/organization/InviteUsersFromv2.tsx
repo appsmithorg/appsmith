@@ -31,12 +31,12 @@ const StyledForm = styled.div`
   padding: ${props => props.theme.spaces[5]}px;
   &&& {
     .bp3-input {
-      width: 250px;
+      width: 50vh;
     }
   }
   .manageUsers {
     float: right;
-    margin-top: 12px;
+    margin-top: 20px;
   }
 `;
 const StyledInviteFieldGroup = styled.div`
@@ -57,7 +57,8 @@ const StyledInviteFieldGroup = styled.div`
 `;
 
 const UserList = styled.div`
-  max-height: 100px;
+  max-height: 200px;
+  margin-top: 20px;
   overflow-y: scroll;
   .user {
     display: flex;

@@ -86,9 +86,14 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string; roleName: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      if (user.username === action.payload.username) {
-        user.roleName = action.payload.roleName;
+      const existingUser = user;
+      if (existingUser.username === action.payload.username) {
+        existingUser.roleName = action.payload.roleName;
+
+        return existingUser;
       }
+
+      return existingUser;
     });
     return {
       ...state,

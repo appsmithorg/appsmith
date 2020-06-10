@@ -94,7 +94,7 @@ type ApplicationProps = {
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
   getAllApplication: () => void;
-  userApplicationsOrgs: any;
+  userOrgs: any;
   currentUser?: User;
 };
 class Applications extends Component<ApplicationProps> {
@@ -128,9 +128,9 @@ class Applications extends Component<ApplicationProps> {
           }}
         />
         <PageSectionDivider />
-        {this.props.userApplicationsOrgs &&
-          this.props.userApplicationsOrgs.length != 0 &&
-          this.props.userApplicationsOrgs.map((organizationObject: any) => {
+        {this.props.userOrgs &&
+          this.props.userOrgs.length != 0 &&
+          this.props.userOrgs.map((organizationObject: any) => {
             const { organization, applications } = organizationObject;
 
             return (
@@ -149,7 +149,7 @@ class Applications extends Component<ApplicationProps> {
                     trigger={<Button text="Share" intent={"primary"} filled />}
                     Form={InviteUsersFormv2}
                     orgId={organization.id}
-                    title={"Invite Users"}
+                    title={`Invite Users to ${organization.name}`}
                     setMaxWidth
                   />
                 </OrgDropDown>
@@ -197,7 +197,7 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  userApplicationsOrgs: getUserApplicationsOrgsList(state),
+  userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
 });
 

@@ -37,8 +37,9 @@ const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
-export const getUserApplicationsOrgs = (state: AppState) =>
-  state.ui.applications.userApplicationsOrgs;
+export const getUserApplicationsOrgs = (state: AppState) => {
+  return state.ui.applications.userOrgs;
+};
 
 export const getImportedCollections = (state: AppState) =>
   state.ui.importedCollections.importedCollections;

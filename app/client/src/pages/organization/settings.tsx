@@ -13,6 +13,7 @@ import {
   getCurrentOrg,
   getAllUsers,
   getAllRoles,
+  getOrgs,
 } from "selectors/organizationSelectors";
 import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionDivider from "pages/common/PageSectionDivider";
@@ -20,7 +21,7 @@ import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import Button from "components/editorComponents/Button";
-import { Org, OrgUser } from "constants/orgConstants";
+import { Org, OrgUser, Organization } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
@@ -29,8 +30,9 @@ import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 type OrgProps = {
-  org?: Org;
+  allOrgs: Organization[];
   changeOrgName: (value: string) => void;
+  getAllApplication: () => void;
   fetchUser: (orgId: string) => void;
   fetchAllRoles: (orgId: string) => void;
   deleteOrgUser: (orgId: string, username: string) => void;
@@ -92,16 +94,20 @@ export const OrgSettings = (props: PageProps) => {
     },
     deleteOrgUser,
     changeOrgUserRole,
+    allOrgs,
   } = props;
 
   const userTableData = props.allUsers.map(user => ({
     ...user,
     roles: props.allRole,
   }));
+  const currentOrg = allOrgs.find(org => org.organization.id === orgId);
+  const currentOrgName = currentOrg?.organization.name ?? "";
 
   useEffect(() => {
     props.fetchUser(orgId);
     props.fetchAllRoles(orgId);
+    props.getAllApplication();
   }, [orgId]);
 
   const Dropdown = (props: DropdownProps) => {
@@ -134,7 +140,7 @@ export const OrgSettings = (props: PageProps) => {
   return (
     <React.Fragment>
       <PageSectionHeader>
-        {props.org && <h2>{props.org.name}</h2>}
+        <h2>{currentOrgName}</h2>
       </PageSectionHeader>
       <PageSectionDivider />
       <PageSectionHeader>
@@ -151,7 +157,7 @@ export const OrgSettings = (props: PageProps) => {
           }
           Form={InviteUsersFormv2}
           orgId={orgId}
-          title={"Invite Users"}
+          title={`Invite Users to ${currentOrgName}`}
           setMaxWidth
         />
       </PageSectionHeader>
@@ -217,14 +223,16 @@ export const OrgSettings = (props: PageProps) => {
 };
 
 const mapStateToProps = (state: AppState) => ({
-  org: getCurrentOrg(state),
   allUsers: getAllUsers(state),
   allRole: getAllRoles(state),
   isFetchAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
   isFetchAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
+  allOrgs: getOrgs(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
+  getAllApplication: () =>
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
   changeOrgName: (name: string) =>
     dispatch({
       type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,

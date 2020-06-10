@@ -21,7 +21,11 @@ const StyledPageHeader = styled(StyledHeader)`
 
 const StyledDropDownContainer = styled.div``;
 
-const LogoContainer = styled.div``;
+const LogoContainer = styled.div`
+  .logoimg {
+    width: 15%;
+  }
+`;
 
 type PageHeaderProps = {
   orgs?: Org[];
@@ -35,7 +39,7 @@ export const PageHeader = (props: PageHeaderProps) => {
     <StyledPageHeader>
       <LogoContainer>
         <a href="/applications">
-          <img src={Logo} />
+          <img className="logoimg" src={Logo} />
         </a>
       </LogoContainer>
       <StyledDropDownContainer>
