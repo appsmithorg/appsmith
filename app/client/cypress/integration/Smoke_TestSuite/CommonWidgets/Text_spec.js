@@ -20,7 +20,7 @@ describe("Text Widget Functionality", function() {
     cy.widgetText(
       this.data.TextName,
       widgetsPage.textWidget,
-      widgetsPage.textWidget + " pre",
+      widgetsPage.textWidget + " " + commonlocators.widgetNameTag,
     );
 
     cy.ChangeTextStyle(
