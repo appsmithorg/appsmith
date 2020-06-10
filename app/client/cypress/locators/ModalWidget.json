@@ -3,7 +3,7 @@
     "createModalButton": ".t--create-modal-btn",
     "controlModalType": ".t--property-control-modaltype",
     "modalWidget": ".t--modal-widget",
-    "modalName": ".t--modal-widget >div>pre",
+    "modalName": ".t--modal-widget span.t--widget-name",
     "modelTextField": ".t--modal-widget  .t--widget-textwidget"
 
 }

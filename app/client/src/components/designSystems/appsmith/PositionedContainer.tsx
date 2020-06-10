@@ -2,6 +2,13 @@ import React, { ReactNode } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
+import styled from "styled-components";
+
+const PositionedWidget = styled.div`
+  &:hover {
+    z-index: 1;
+  }
+`;
 type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
@@ -14,7 +21,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
   const y = props.style.yPosition + (props.style.yPositionUnit || "px");
   const padding = WIDGET_PADDING;
   return (
-    <div
+    <PositionedWidget
       style={{
         position: "absolute",
         left: x,
@@ -34,7 +41,7 @@ export const PositionedContainer = (props: PositionedContainerProps) => {
       }
     >
       {props.children}
-    </div>
+    </PositionedWidget>
   );
 };
 

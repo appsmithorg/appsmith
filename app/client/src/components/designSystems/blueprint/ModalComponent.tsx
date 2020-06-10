@@ -80,7 +80,7 @@ export const ModalComponent = (props: ModalComponentProps) => {
       height={props.height}
       top={props.top}
       left={props.left}
-      zIndex={props.zIndex !== undefined ? props.zIndex : 1}
+      zIndex={props.zIndex !== undefined ? props.zIndex : 3}
     >
       <Overlay
         isOpen={props.isOpen}

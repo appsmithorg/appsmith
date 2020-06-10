@@ -21,7 +21,7 @@ describe("Button Widget Functionality", function() {
     cy.widgetText(
       this.data.ButtonName,
       widgetsPage.buttonWidget,
-      widgetsPage.buttonWidget + " pre",
+      widgetsPage.buttonWidget + " " + commonlocators.widgetNameTag,
     );
 
     //Changing the text on the Button
