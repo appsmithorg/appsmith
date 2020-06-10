@@ -167,5 +167,7 @@
       "y": 1000
     }
   ],
-  "Chartval":["Test1", "Test2", "Test3"]
+  "Chartval":["Test1", "Test2", "Test3"],
+  "paginationUrl":"https://pokeapi.co/api/v2/",
+  "paginationParam":"pokemon?offset={{(Table1.pageNo - 1) * Table1.pageSize }}"
 }
