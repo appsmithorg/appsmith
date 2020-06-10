@@ -264,7 +264,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
-                        dataTreePath={`${actionName}.config.actionConfiguration.body`}
+                        dataTreePath={`${actionName}.config.actionConfiguration`}
                       />
                     )}
                   </RequestParamsWrapper>

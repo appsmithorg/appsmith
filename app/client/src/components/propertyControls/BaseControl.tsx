@@ -37,7 +37,7 @@ export interface ControlData {
   expected: string;
   evaluatedValue: any;
   validationMessage?: string;
-  dataTreePath: string;
+  dataTreePath?: string;
 }
 
 export interface ControlFunctions {

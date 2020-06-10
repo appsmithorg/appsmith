@@ -69,8 +69,8 @@ class DatePickerComponent extends React.Component<
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
-        moment(prevProps.selectedDate),
+      !moment(this.props.selectedDate, this.props.dateFormat).isSame(
+        moment(prevProps.selectedDate, this.props.dateFormat),
         "seconds",
       )
     ) {
@@ -106,7 +106,7 @@ class DatePickerComponent extends React.Component<
             className={this.props.isLoading ? "bp3-skeleton" : ""}
             formatDate={this.formatDate}
             parseDate={this.parseDate}
-            placeholder={this.props.dateFormat}
+            placeholder={"Select Date"}
             disabled={this.props.isDisabled}
             showActionsBar={true}
             timePrecision={TimePrecision.MINUTE}
@@ -114,7 +114,7 @@ class DatePickerComponent extends React.Component<
             onChange={this.onDateSelected}
             value={
               this.state.selectedDate
-                ? moment(this.state.selectedDate).toDate()
+                ? this.parseDate(this.state.selectedDate)
                 : null
             }
             maxDate={maxDate.toDate()}
@@ -137,16 +137,15 @@ class DatePickerComponent extends React.Component<
   }
 
   formatDate = (date: Date): string => {
-    const dateFormat = "DD/MM/YYYY HH:mm";
-    return moment(date).format(dateFormat);
+    return moment(date).format(this.props.dateFormat);
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr, "DD/MM/YYYY HH:mm").toDate();
+    return moment(dateStr, this.props.dateFormat).toDate();
   };
 
   onDateSelected = (selectedDate: Date) => {
-    const date = selectedDate ? moment(selectedDate).toISOString(true) : "";
+    const date = selectedDate ? this.formatDate(selectedDate) : "";
     this.setState({ selectedDate: date });
     this.props.onDateSelected(date);
   };
@@ -156,7 +155,7 @@ interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   enableTimePicker?: boolean;
-  selectedDate: string;
+  selectedDate?: string;
   minDate?: Date;
   maxDate?: Date;
   timezone?: string;
@@ -167,7 +166,7 @@ interface DatePickerComponentProps extends ComponentProps {
 }
 
 interface DatePickerComponentState {
-  selectedDate: string;
+  selectedDate?: string;
 }
 
 export default DatePickerComponent;

@@ -2,6 +2,7 @@ import {
   CONTENT_TYPE,
   HTTP_METHODS,
   POST_BODY_FORMATS,
+  POST_BODY_FORMAT_OPTIONS,
 } from "constants/ApiEditorConstants";
 import _ from "lodash";
 
@@ -44,15 +45,17 @@ export const transformRestAction = (data: any): any => {
         contentType = contentTypeHeader.value;
       }
     }
-    let formatIndex = 2;
-    if (POST_BODY_FORMATS.includes(contentType)) {
-      formatIndex = POST_BODY_FORMATS.indexOf(contentType);
-    }
-    let body = "";
+    let body: any = "";
 
-    if (action.actionConfiguration.body) {
-      body = action.actionConfiguration.body[formatIndex] || undefined;
+    if (
+      contentType !== POST_BODY_FORMAT_OPTIONS[1].value &&
+      contentType !== POST_BODY_FORMAT_OPTIONS[2].value
+    ) {
+      action.actionConfiguration.bodyFormData = undefined;
+      if (action.actionConfiguration.body)
+        body = action.actionConfiguration.body || undefined;
     }
+
     if (!_.isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
