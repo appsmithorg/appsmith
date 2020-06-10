@@ -527,7 +527,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     /**
-     * TODO :
      * 1. User doesn't exist :
      *      a. Create a new user.
      *      b. Set isEnabled to false
@@ -537,8 +536,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      *      a. Add user to the organization
      *      b. Add organization to the user
      *
-     *  Imp : In case of new user : Confirm token function should change to verify and then set isEnabled to true. Don't
-     *  allow login of non enabled users.
      */
     @Override
     public Mono<User> inviteUser(InviteUserDTO inviteUserDTO, String originHeader) {

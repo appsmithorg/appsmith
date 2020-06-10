@@ -126,6 +126,14 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             userRoles = new ArrayList<>();
         }
 
+        // Do not add the user if the user already exists in the organization
+        for (UserRole role : userRoles) {
+            if (role.getUsername().equals(userRole.getUsername())) {
+                return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_ORGANIZATION, role.getUsername(), role.getRoleName()));
+            }
+        }
+        // User was not found in the organization. Continue with adding it
+
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(userRole.getRoleName());
         userRole.setUserId(user.getId());
         userRole.setRole(role);
@@ -133,7 +141,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         // Add the user and its role to the organization
         userRoles.add(userRole);
 
-        // Generate all the policies for Organization, Application, Page and Actions
+        // Generate all the policies for Organization, Application, Page and Actions for the current user
         Set<AclPermission> rolePermissions = role.getPermissions();
         Map<String, Policy> orgPolicyMap = policyUtils.generatePolicyFromPermission(rolePermissions, user);
         Map<String, Policy> applicationPolicyMap = policyUtils.generateChildrenPoliciesFromOrganizationPolicies(orgPolicyMap, user, Application.class);
