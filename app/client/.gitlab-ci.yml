@@ -113,7 +113,11 @@ cypress-test:
     - cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
     - cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
     - nginx
-    - yarn test:ci
+    # This command configures the cypress suite to point to our custom installation of sorry-cypress that will help us parallelize our tests
+    - |
+      DEBUG=cypress:* $(npm bin)/cypress version
+      sed -i -e 's|api_url:.*$|api_url: "https://appsmith-cypress.herokuapp.com/"|g' /builds/theappsmith/internal-tools-client/cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
+    - BUILD_ID=$CI_COMMIT_SHORT_SHA yarn test:ci
   artifacts:
     when: always
     expire_in: 1 week
