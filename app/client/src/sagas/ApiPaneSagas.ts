@@ -36,7 +36,6 @@ import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
 import {
-  API_PATH_START_WITH_SLASH_ERROR,
   FIELD_REQUIRED_ERROR,
   UNIQUE_NAME_ERROR,
   VALID_FUNCTION_NAME_ERROR,

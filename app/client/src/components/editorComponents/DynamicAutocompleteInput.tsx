@@ -574,7 +574,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     const showEvaluatedValue =
       this.state.isFocused &&
-      ("evaluatedValue" in this.props || "dataTreePath" in this.props);
+      ("evaluatedValue" in this.props ||
+        ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
     return (
       <Wrapper>

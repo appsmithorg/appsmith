@@ -195,6 +195,7 @@ const views = {
               props.set(event);
             }
           }}
+          dataTreePath={""}
           isValid={props.isValid}
           errorMessage={props.validationMessage}
         />
