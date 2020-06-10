@@ -4,6 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.2.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
     <groupId>com.external.plugins</groupId>
     <artifactId>rapidApiPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -23,23 +30,19 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.5.0</version>
+            <version>0.6.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.appsmith</groupId>
             <artifactId>interfaces</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -55,8 +58,20 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
+    <!--
+    This doesn't use the maven-shade-plugin because it inherits from spring-boot-starter-parent
+    for it's dependency on webclient. This is a normal compile.
+    -->
     <build>
         <plugins>
             <plugin>
