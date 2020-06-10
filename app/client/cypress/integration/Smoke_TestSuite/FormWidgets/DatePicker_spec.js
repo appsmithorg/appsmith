@@ -1,6 +1,6 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/formdsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("DatePicker Widget Functionality", function() {
