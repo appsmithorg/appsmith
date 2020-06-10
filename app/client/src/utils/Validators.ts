@@ -8,14 +8,14 @@ import {
 import moment from "moment";
 import {
   WIDGET_TYPE_VALIDATION_ERROR,
-  NAVIGATE_TO_VALIDATION_ERROR,
+  // NAVIGATE_TO_VALIDATION_ERROR,
 } from "constants/messages";
-import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
+// import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { PageListPayload } from "constants/ReduxActionConstants";
-import { isDynamicValue } from "./DynamicBindingUtils";
-const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+// import { PageListPayload } from "constants/ReduxActionConstants";
+// import { isDynamicValue } from "./DynamicBindingUtils";
+// const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (
@@ -415,6 +415,14 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
+    if (Array.isArray(value) && value.length) {
+      return {
+        isValid: true,
+        parsed: undefined,
+        transformed: "Function Call",
+      };
+    }
+    /*
     if (_.isString(value)) {
       if (value.indexOf("navigateTo") !== -1) {
         const pageNameOrUrl = modalGetter(value);
@@ -440,9 +448,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
       }
     }
+    */
     return {
-      isValid: true,
-      parsed: value,
+      isValid: false,
+      parsed: undefined,
+      transformed: "undefined",
+      message: "Not a function call",
     };
   },
   [VALIDATION_TYPES.ARRAY_ACTION_SELECTOR]: (
