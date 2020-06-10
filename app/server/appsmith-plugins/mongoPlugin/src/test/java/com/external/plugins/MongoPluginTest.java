@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for Mongo Plugin
+ * Unit tests for MongoPlugin
  */
 public class MongoPluginTest {
 
