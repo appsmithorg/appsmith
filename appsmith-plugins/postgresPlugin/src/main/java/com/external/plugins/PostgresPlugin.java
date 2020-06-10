@@ -50,9 +50,6 @@ public class PostgresPlugin extends BasePlugin {
 
     /**
      * Postgres plugin receives the query as json of the following format :
-     * {
-     * "cmd" : "select * from users;"
-     * }
      */
 
     @Slf4j
