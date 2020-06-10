@@ -1,3 +1,5 @@
+import { ApplicationPayload } from "./ReduxActionConstants";
+
 export type OrgRole = {
   id: string;
   name: string;
@@ -15,4 +17,9 @@ export type OrgUser = {
   username: string;
   name: string;
   roleName: string;
+};
+
+export type Organization = {
+  applications: ApplicationPayload[];
+  organization: Org;
 };

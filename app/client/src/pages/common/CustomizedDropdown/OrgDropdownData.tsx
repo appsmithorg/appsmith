@@ -6,7 +6,10 @@ import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
 import DropdownComponent, { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import _ from "lodash";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { Button } from "@blueprintjs/core";
 
 const switchdropdown = (
   orgs: Org[],
@@ -42,44 +45,55 @@ export const options = (
   user: User,
   orgName: string,
   orgId: string,
-): CustomizedDropdownProps => ({
-  sections: [
-    {
-      options: [
-        {
-          content: (
-            <Badge text={orgName} imageURL="https://via.placeholder.com/32" />
-          ),
-          disabled: true,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "Organization Settings",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings`,
-            }),
-        },
-        {
-          content: "Share",
-          onSelect: () => _.noop("Share option selected"),
-        },
-        {
-          content: "Members",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: `/org/${orgId}/settings`,
-            }),
-        },
-      ],
+): CustomizedDropdownProps => {
+  return {
+    sections: [
+      {
+        options: [
+          {
+            content: (
+              <Badge text={orgName} imageURL="https://via.placeholder.com/32" />
+            ),
+            disabled: true,
+            shouldCloseDropdown: false,
+          },
+          {
+            content: "Organization Settings",
+            onSelect: () =>
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: `/org/${orgId}/settings`,
+              }),
+          },
+          {
+            content: (
+              <FormDialogComponent
+                trigger="Share"
+                Form={InviteUsersFormv2}
+                orgId={orgId}
+                title={`Invite Users to ${orgName}`}
+                setMaxWidth
+              />
+            ),
+            onSelect: () => _.noop("Share option selected"),
+            shouldCloseDropdown: false,
+          },
+          {
+            content: "Members",
+            onSelect: () =>
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: `/org/${orgId}/settings`,
+              }),
+          },
+        ],
+      },
+    ],
+    trigger: {
+      icon: "ORG_ICON",
+      text: orgName,
+      outline: false,
     },
-  ],
-  trigger: {
-    icon: "ORG_ICON",
-    text: orgName,
-    outline: false,
-  },
-  openDirection: Directions.DOWN,
-});
+    openDirection: Directions.DOWN,
+  };
+};
 
 export default options;

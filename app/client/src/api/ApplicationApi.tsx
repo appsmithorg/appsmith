@@ -1,7 +1,7 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
-import { getCurrentUserOrgId } from "selectors/organizationSelectors";
+import { getUserCurrentOrgId } from "selectors/organizationSelectors";
 
 export interface PublishApplicationRequest {
   applicationId: string;

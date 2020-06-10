@@ -1,25 +1,30 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
-import { OrgRole, Org } from "constants/orgConstants";
+import { OrgRole, Org, Organization } from "constants/orgConstants";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.orgs.roles;
 };
 
 export const getCurrentOrgId = (state: AppState) => state.ui.orgs.currentOrgId;
-export const getOrgs = (state: AppState) => state.ui.orgs.list;
+export const getOrgs = (state: AppState) => {
+  return state.ui.applications.userOrgs;
+};
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
 
-export const getCurrentUserOrgId = (state: AppState) =>
-  state.ui.users.currentUser?.currentOrganizationId;
+export const getUserCurrentOrgId = (state: AppState) => {
+  return state.ui.users.currentUser?.currentOrganizationId;
+};
 
 export const getCurrentOrg = createSelector(
   getOrgs,
-  getCurrentUserOrgId,
-  (orgs?: Org[], id?: string) => {
+  getCurrentOrgId,
+  (orgs?: Organization[], id?: string) => {
     if (id) {
-      return orgs?.find(org => org.id === id);
+      const org = orgs?.find(org => org.organization.id === id);
+
+      return org;
     }
   },
 );

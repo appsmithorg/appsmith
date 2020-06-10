@@ -5,14 +5,16 @@ import {
   ReduxActionErrorTypes,
   ApplicationPayload,
 } from "constants/ReduxActionConstants";
+import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
+import { getApplicationPayload } from "mockComponentProps/ApplicationPayloads";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
   applicationList: [],
   creatingApplication: false,
   deletingApplication: false,
-  userApplicationsOrgs: [],
+  userOrgs: [],
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -23,14 +25,30 @@ const applicationsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<{ applicationId: string }>,
+    action: ReduxAction<ApplicationPayload>,
   ) => {
-    const _apps = state.applicationList.filter(
-      application => application.id !== action.payload.applicationId,
-    );
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.organizationId) {
+        let applications = org.applications;
+
+        applications = applications.filter(
+          (application: ApplicationPayload) => {
+            return application.id !== action.payload.id;
+          },
+        );
+
+        return {
+          ...org,
+          applications,
+        };
+      }
+
+      return org;
+    });
+
     return {
       ...state,
-      applicationList: _apps,
+      userOrgs: _organizations,
       deletingApplication: false,
     };
   },
@@ -55,7 +73,7 @@ const applicationsReducer = createReducer(initialState, {
     action: ReduxAction<{ applicationList: any }>,
   ) => ({
     ...state,
-    userApplicationsOrgs: action.payload,
+    userOrgs: action.payload,
   }),
 
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
@@ -114,7 +132,7 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   currentApplication?: ApplicationPayload;
-  userApplicationsOrgs: any;
+  userOrgs: any;
 }
 
 export default applicationsReducer;

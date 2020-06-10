@@ -62,23 +62,21 @@ export function* getAllApplicationSaga() {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
-        (userApplicationsOrgs: OrganizationApplicationObject) => ({
-          organization: userApplicationsOrgs.organization,
-          applications: !userApplicationsOrgs.applications
+        (userOrgs: OrganizationApplicationObject) => ({
+          organization: userOrgs.organization,
+          applications: !userOrgs.applications
             ? []
-            : userApplicationsOrgs.applications.map(
-                (application: ApplicationObject) => {
-                  return {
-                    name: application.name,
-                    organizationId: application.organizationId,
-                    id: application.id,
-                    pages: application.pages,
-                    userPermissions: application.userPermissions,
-                    pageCount: application.pages ? application.pages.length : 0,
-                    defaultPageId: getDefaultPageId(application.pages),
-                  };
-                },
-              ),
+            : userOrgs.applications.map((application: ApplicationObject) => {
+                return {
+                  name: application.name,
+                  organizationId: application.organizationId,
+                  id: application.id,
+                  pages: application.pages,
+                  userPermissions: application.userPermissions,
+                  pageCount: application.pages ? application.pages.length : 0,
+                  defaultPageId: getDefaultPageId(application.pages),
+                };
+              }),
         }),
       );
 
@@ -208,9 +206,7 @@ export function* deleteApplicationSaga(
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
-        payload: {
-          applicationId: action.payload.applicationId,
-        },
+        payload: response.data,
       });
     }
   } catch (error) {
