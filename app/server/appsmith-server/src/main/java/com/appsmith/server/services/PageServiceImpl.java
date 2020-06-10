@@ -64,8 +64,8 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId) {
-        return repository.findByIdAndLayoutsId(pageId, layoutId, AclPermission.READ_PAGES);
+    public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission) {
+        return repository.findByIdAndLayoutsId(pageId, layoutId, aclPermission);
     }
 
     @Override

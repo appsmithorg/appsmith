@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
@@ -73,7 +74,7 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return pageService.findByIdAndLayoutsId(pageId, layoutId)
+        return pageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
