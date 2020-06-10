@@ -123,14 +123,19 @@ public class PolicyGenerator {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    public Set<Policy> getLateralPoliciesForUser(AclPermission permission, User user) {
+    public Set<Policy> getLateralPoliciesForUser(AclPermission permission, User user, Class destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
-                .map(lateralEdge -> {
-                    AclPermission lateralPermission = lateralGraph.getEdgeTarget(lateralEdge);
-                    return Policy.builder().permission(lateralPermission.getValue())
-                            .users(Set.of(user.getUsername())).build();
+                .map(edge -> lateralGraph.getEdgeTarget(edge))
+                .filter(lateralPermission -> {
+                    if (destinationEntity == null ||
+                            lateralPermission.getEntity().equals(destinationEntity)) {
+                        return true;
+                    }
+                    return false;
                 })
+                .map(lateralPermission -> Policy.builder().permission(lateralPermission.getValue())
+                        .users(Set.of(user.getUsername())).build())
                 .collect(Collectors.toSet());
     }
 
@@ -161,7 +166,7 @@ public class PolicyGenerator {
             // Get the lateral permissions that must be applied given the child permission
             // This is applied at a user level and not from the parent object. Hence only the
             // current user gets these permissions
-            childPolicySet.addAll(getLateralPoliciesForUser(childPermission, user));
+            childPolicySet.addAll(getLateralPoliciesForUser(childPermission, user, destinationEntity));
         }
 
         return childPolicySet;
