@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 import static java.util.stream.Collectors.toSet;
@@ -114,7 +115,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
                 .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(onLoadActionsList, dynamicBindingNames, pageId));
 
-        return pageService.findByIdAndLayoutsId(pageId, layoutId)
+        return pageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
@@ -244,7 +245,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .update(action.getId(), action)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
                 .flatMap(savedAction -> pageService
-                        .findById(oldPageId, AclPermission.MANAGE_PAGES)
+                        .findById(oldPageId, MANAGE_PAGES)
                         .map(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -260,7 +261,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                     .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
                                     .collect(toSet());
                         })
-                        .then(pageService.findById(actionMoveDTO.getDestinationPageId(), AclPermission.MANAGE_PAGES))
+                        .then(pageService.findById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES))
                         .map(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
@@ -331,7 +332,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Mono<Page> updatePageMono = pageService
-                .findById(pageId, AclPermission.MANAGE_PAGES)
+                .findById(pageId, MANAGE_PAGES)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -474,7 +475,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
          * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
          */
         Mono<Set<String>> widgetNamesMono = pageService
-                .findById(pageId, AclPermission.MANAGE_PAGES)
+                .findById(pageId, MANAGE_PAGES)
                 .flatMap(page -> {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
@@ -548,21 +549,17 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     String pageId = savedAction.getPageId();
                     Mono<Object> updateLayoutsMono = null;
                     if (pageId != null) {
-                        updateLayoutsMono = pageService.findById(pageId, AclPermission.MANAGE_PAGES)
+                        updateLayoutsMono = pageService.findById(pageId, MANAGE_PAGES)
                                 .map(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
                                     }
 
-                                    return page.getLayouts()
-                                            .stream()
-                                            /*
-                                             * subscribe() is being used here because within a stream, the master subscriber provided
-                                             * by spring framework does not get attached here leading to the updateLayout mono not
-                                             * emitting. The same is true for the updateLayout call for the new page.
-                                             */
-                                            .map(layout -> this.updateLayout(page.getId(), layout.getId(), layout).subscribe())
-                                            .collect(toSet());
+                                    return Mono.just(page.getLayouts())
+                                            .flatMapMany(Flux::fromIterable)
+                                            .map(layout -> this.updateLayout(page.getId(), layout.getId(), layout))
+                                            .collect(toSet())
+                                            .then(Mono.just(savedAction));
                                 });
                     }
                     if (updateLayoutsMono != null) {

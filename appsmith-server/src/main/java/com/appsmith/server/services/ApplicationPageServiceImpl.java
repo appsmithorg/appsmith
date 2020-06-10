@@ -189,19 +189,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    private Set<Policy> adminApplicationPolicy(Organization org, User user) {
-        Set<Policy> orgPolicies = org.getPolicies();
-        // If a user can create an application on org, they can read, update & delete all applications
-        return null;
-    }
-
-    private Set<Policy> adminPagePolicyForApplication(User user) {
-        return null;
-    }
-
     public Mono<Application> createApplication(Application application, String orgId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        }
+
+        if (orgId == null || orgId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();

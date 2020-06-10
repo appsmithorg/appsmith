@@ -25,6 +25,7 @@ public enum AppsmithError {
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR(400, 4017, "The new name {1} already exists in the current page. Choose another name."),
     PAGE_DOESNT_BELONG_TO_APPLICATION(400, 4018, "Page {0} does not belong to the application {1}"),
     NO_DSL_FOUND_IN_PAGE(400, 4020, "The page {0} doesn't have a DSL. This is an unexpected state"),
+    USER_ALREADY_EXISTS_IN_ORGANIZATION(400, 4021, "The user {0} has already been added to the organization with role {1}"),
     UNAUTHORIZED_DOMAIN(401, 4019, "Invalid email domain provided. Please sign in with a valid work email ID"),
     USER_NOT_SIGNED_IN(401, 4020, "User is not logged in. Please sign in with the registered email ID or sign up" ),
     INVALID_PASSWORD_RESET(400, 4020, "Unable to reset the password. Please initiate a request via 'forgot password' link to reset your password"),

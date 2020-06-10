@@ -109,7 +109,7 @@ public class PolicyUtils<T extends BaseDomain> {
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
                             .users(Set.of(user.getUsername())).build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, user);
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, user, null);
                     policiesForUser.add(policyWithCurrentPermission);
                     return policiesForUser;
                 })
