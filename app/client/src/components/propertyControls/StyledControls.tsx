@@ -25,9 +25,9 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   justify-content: space-between;
   align-items: center;
   flex-direction: ${props =>
-    props.orientation === "VERTICAL" ? "column" : "row"}
+    props.orientation === "VERTICAL" ? "column" : "row"};
   padding: ${props => props.theme.spaces[3]}px 0;
-  padding-left: ${props => (props.level ? 18 * props.level : 0)}px;    
+  padding-left: ${props => (props.level ? 18 * props.level : 0)}px;
   & > label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
@@ -38,7 +38,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   }
   &&& > label {
     display: inline-block;
-  }  
+  }
 `;
 
 export const ControlPropertyLabelContainer = styled.div`
@@ -314,23 +314,31 @@ export const TreeStructureHorizontalWrapper = styled.div<{
   label: string;
 }>`
   position: absolute;
-  width: calc(100% - ${props => (props.level - 1) * 18 + 9}px);
+  width: ${props => (props.level - 1) * 2 + 9}px;
   height: 2px;
   background: #a2a6a8;
   top: ${props => (props.label ? "65%" : "50%")};
   left: ${props => (props.level - 1) * 18 + 9}px;
-  z-index: -1;
+  z-index: 1;
 `;
 
 export const TreeStructureVerticalWrapper = styled.div<{
   level: number;
   label: string;
+  start: boolean;
 }>`
   position: absolute;
-  height: 100%;
+  height: ${props => (props.start ? "77%" : "100%")};
   width: 2px;
   background: #a2a6a8;
-  top: ${props => (props.label ? "-35%" : "-50%")};
+  top: ${props =>
+    props.start
+      ? props.label
+        ? "-12%"
+        : "-16%"
+      : props.label
+      ? "-35%"
+      : "-50%"};
   left: ${props => (props.level - 1) * 18 + 9}px;
-  z-index: -1;
+  z-index: 1;
 `;

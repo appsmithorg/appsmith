@@ -155,6 +155,7 @@ type SelectorViewProps = ViewProps & {
   getDefaults?: Function;
   level: number;
   levelSeparator?: string;
+  start: boolean;
   displayValue?: string;
   selectedLabelModifier?: (
     option: TreeDropdownOption,
@@ -167,11 +168,13 @@ type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
   level: number;
+  start: boolean;
   levelSeparator?: string;
 };
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
+    console.log(props.value, props.label, props.level, props.start);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
@@ -208,6 +211,7 @@ const views = {
                     key={index}
                     label={props.label}
                     level={index + 1}
+                    start={index === props.level - 1 ? props.start : false}
                   />
                 );
               });
@@ -217,6 +221,7 @@ const views = {
               <TreeStructureVerticalWrapper
                 label={props.label}
                 level={props.level}
+                start={props.start}
               />
             );
           } else {
@@ -238,6 +243,7 @@ const views = {
     );
   },
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
+    console.log(props.value, props.label, props.level, props.start);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
@@ -276,6 +282,7 @@ const views = {
                     key={index}
                     label={props.label}
                     level={index + 1}
+                    start={index === props.level - 1 ? props.start : false}
                   />
                 );
               });
@@ -285,6 +292,7 @@ const views = {
               <TreeStructureVerticalWrapper
                 label={props.label}
                 level={props.level}
+                start={props.start}
               />
             );
           } else {
@@ -475,6 +483,7 @@ function getOptionsWithChildren(
 function getFieldFromValue(
   value: string | undefined,
   level: number,
+  start: boolean,
   levelSeparator?: string,
   getParentValue?: Function,
 ): any[] {
@@ -484,6 +493,7 @@ function getFieldFromValue(
       getParentValue,
       value,
       level,
+      start,
       levelSeparator,
     },
   ];
@@ -504,6 +514,7 @@ function getFieldFromValue(
       const successFields = getFieldFromValue(
         `{{${sucesssValue}}}`,
         level + 1,
+        start,
         "odd",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
@@ -522,6 +533,7 @@ function getFieldFromValue(
       );
       successFields[0].label = "onSuccess";
       successFields[0].level = level + 1;
+      successFields[0].start = true;
       fields.push(successFields);
 
       let errorValue;
@@ -531,6 +543,7 @@ function getFieldFromValue(
       const errorFields = getFieldFromValue(
         `{{${errorValue}}}`,
         level + 1,
+        start,
         "even",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
@@ -548,6 +561,7 @@ function getFieldFromValue(
       );
       errorFields[0].label = "onError";
       errorFields[0].level = level + 1;
+      errorFields[0].start = false;
       fields.push(errorFields);
     }
     return fields;
@@ -558,6 +572,7 @@ function getFieldFromValue(
       field: FieldType.URL_FIELD,
       level: level + 1,
       levelSeparator,
+      start: true,
     });
   }
 
@@ -566,6 +581,7 @@ function getFieldFromValue(
       field: FieldType.SHOW_MODAL_FIELD,
       level: level + 1,
       levelSeparator,
+      start: true,
     });
   }
   if (value.indexOf("closeModal") !== -1) {
@@ -573,6 +589,7 @@ function getFieldFromValue(
       field: FieldType.CLOSE_MODAL_FIELD,
       level: level + 1,
       levelSeparator,
+      start: true,
     });
   }
   if (value.indexOf("showAlert") !== -1) {
@@ -581,11 +598,13 @@ function getFieldFromValue(
         field: FieldType.ALERT_TEXT_FIELD,
         level: level + 1,
         levelSeparator,
+        start: true,
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
         level: level + 1,
         levelSeparator,
+        start: false,
       },
     );
   }
@@ -727,6 +746,7 @@ function Fields(props: {
           selectedLabelModifier: selectedLabelModifier,
           displayValue: displayValue ? displayValue : "",
           level: field.level,
+          start: field.start,
           levelSeparator: field.levelSeparator,
         });
         break;
@@ -742,6 +762,7 @@ function Fields(props: {
           value: props.value,
           defaultText: "Select Action",
           level: field.level,
+          start: field.start,
           levelSeparator: field.levelSeparator,
         });
         break;
@@ -758,6 +779,7 @@ function Fields(props: {
           isValid: props.isValid,
           validationMessage: props.validationMessage,
           level: field.level,
+          start: field.start,
           levelSeparator: field.levelSeparator,
         });
         break;
@@ -877,7 +899,7 @@ export function ActionCreator(props: ActionCreatorProps) {
   const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  const fields = getFieldFromValue(props.value, 0);
+  const fields = getFieldFromValue(props.value, 0, false);
   return (
     <Fields
       value={props.value}
