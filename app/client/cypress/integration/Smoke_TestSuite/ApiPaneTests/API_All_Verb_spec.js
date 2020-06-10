@@ -31,7 +31,8 @@ describe("API Panel Test Functionality", function() {
         .focus()
         .type(json, { force: true });
     });
-    cy.SaveAPI();
+    cy.WaitAutoSave();
+    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck("updatedAt");
@@ -55,7 +56,8 @@ describe("API Panel Test Functionality", function() {
         .focus()
         .type(json, { force: true });
     });
-    cy.SaveAPI();
+    cy.WaitAutoSave();
+    cy.RunAPI();
     cy.ResponseStatusCheck("201 CREATED");
     cy.log("Response code check successful");
     cy.ResponseCheck("createdAt");
@@ -79,7 +81,8 @@ describe("API Panel Test Functionality", function() {
         .focus()
         .type(json, { force: true });
     });
-    cy.SaveAPI();
+    cy.WaitAutoSave();
+    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck("updatedAt");
@@ -96,6 +99,7 @@ describe("API Panel Test Functionality", function() {
       testdata.headerKey,
       testdata.headerValue,
     );
+    cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext);
@@ -127,6 +131,7 @@ describe("API Panel Test Functionality", function() {
       testdata.queryKey,
       testdata.queryValue,
     );
+    cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.log("Response code check successful");
     cy.ResponseCheck(testdata.responsetext3);
@@ -144,6 +149,7 @@ describe("API Panel Test Functionality", function() {
       testdata.queryKey,
       testdata.queryValue,
     );
+    cy.RunAPI();
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
     cy.ResponseCheck("Invalid value for Content-Type");
