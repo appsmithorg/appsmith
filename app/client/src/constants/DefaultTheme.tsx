@@ -37,6 +37,11 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   warning: AlertIcons.WARNING,
 };
 
+export enum SKINS {
+  LIGHT = "LIGHT",
+  DARK = "DARK",
+}
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {

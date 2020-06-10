@@ -1,7 +1,8 @@
 import React from "react";
 import Entity from "./Entity";
+import EntityProperty from "./EntityProperty";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
 import {
   getWidgetIcon,
   pageIcon,
@@ -12,6 +13,9 @@ import {
 import { PluginType, Action } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { noop } from "lodash";
+import history from "utils/history";
+import { EXPLORER_URL } from "constants/routes";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 type GroupConfig = {
   groupName: string;
@@ -45,20 +49,54 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
   }
 });
 
+const getEntityProperties = (entity: any) => {
+  let config: any;
+  let name: string;
+  if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+    config =
+      entityDefinitions[
+        entity.type as Exclude<
+          Partial<WidgetType>,
+          "CANVAS_WIDGET" | "ICON_WIDGET"
+        >
+      ];
+    name = entity.widgetName;
+  } else if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+    config = entityDefinitions.ACTION(entity);
+    name = entity.config.name;
+  }
+
+  return Object.keys(config)
+    .filter(k => k.indexOf("!") === -1)
+    .map((entityProperty: string) => {
+      return (
+        <EntityProperty
+          key={entityProperty}
+          propertyName={entityProperty}
+          entityName={name}
+          value={entity[entityProperty]}
+        />
+      );
+    });
+};
+
+const getEntityChildren = (entity: any, step: number) => {
+  const childEntities =
+    entity.children &&
+    entity.children.length > 0 &&
+    entity.children.map((child: any) =>
+      getEntityListItem({ ...child, ENTITY_TYPE: ENTITY_TYPE.WIDGET }, step),
+    );
+  if (childEntities) return childEntities;
+  console.log({ entity });
+  return getEntityProperties(entity);
+};
+
 const getEntityListItem = (entity: any, step: number, icon?: JSX.Element) => {
   switch (entity.ENTITY_TYPE) {
     case ENTITY_TYPE.WIDGET:
       if (entity.type === WidgetTypes.CANVAS_WIDGET) {
-        return (
-          entity.children &&
-          entity.children.length > 0 &&
-          entity.children.map((child: any) =>
-            getEntityListItem(
-              { ...child, ENTITY_TYPE: ENTITY_TYPE.WIDGET },
-              step,
-            ),
-          )
-        );
+        return getEntityChildren(entity, step);
       }
       // TODO(abhinav): Let it pass when the Icon widget is available.
       if (entity.type === WidgetTypes.ICON_WIDGET) {
@@ -72,25 +110,20 @@ const getEntityListItem = (entity: any, step: number, icon?: JSX.Element) => {
           step={step}
           action={noop}
         >
-          {entity.children &&
-            entity.children.length > 0 &&
-            entity.children.map((child: any) =>
-              getEntityListItem(
-                { ...child, ENTITY_TYPE: ENTITY_TYPE.WIDGET },
-                step,
-              ),
-            )}
+          {getEntityChildren(entity, step)}
         </Entity>
       );
     case ENTITY_TYPE.ACTION:
       return (
         <Entity
-          key={entity.id}
+          key={entity.config.id}
           icon={icon}
-          name={entity.name}
+          name={entity.config.name}
           step={step}
           action={noop}
-        />
+        >
+          {getEntityChildren(entity, step)}
+        </Entity>
       );
   }
 };
@@ -99,6 +132,7 @@ export const getPageEntityGroups = (
   page: { name: string; id: string },
   entityGroups: Array<{ type: ENTITY_TYPE; entries: any }>,
   isCurrentPage: boolean,
+  applicationId?: string,
 ) => {
   const groups = entityGroups.map(group => {
     switch (group.type) {
@@ -114,11 +148,11 @@ export const getPageEntityGroups = (
               icon={config?.icon}
               step={1}
               name={config?.groupName || "Actions"}
-              disabled={!!entries.length}
+              disabled={!entries.length}
               action={noop}
             >
               {entries.map((action: { config: Action }) =>
-                getEntityListItem(action.config, 2, config?.icon),
+                getEntityListItem(action, 2, config?.icon),
               )}
             </Entity>
           );
@@ -147,7 +181,10 @@ export const getPageEntityGroups = (
       name={page.name}
       step={0}
       disabled={!isCurrentPage}
-      action={noop}
+      action={() =>
+        applicationId && history.push(EXPLORER_URL(applicationId, page.id))
+      }
+      active={isCurrentPage}
     >
       {groups}
     </Entity>

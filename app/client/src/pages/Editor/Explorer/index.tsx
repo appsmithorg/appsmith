@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 import { useEntities } from "./hooks";
 import { getPageEntityGroups } from "./helpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -9,6 +10,7 @@ const Wrapper = styled.div`
 `;
 
 const EntityExplorer = () => {
+  const { applicationId } = useParams();
   const { pages, widgetTree, actions, currentPageId } = useEntities();
   return (
     <Wrapper>
@@ -28,6 +30,7 @@ const EntityExplorer = () => {
             },
           ],
           page.pageId === currentPageId,
+          applicationId,
         ),
       )}
     </Wrapper>
