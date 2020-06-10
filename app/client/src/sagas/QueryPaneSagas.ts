@@ -26,13 +26,14 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { initialize } from "redux-form";
+import { change, initialize } from "redux-form";
 import { getAction, getActionParams, getActionTimeout } from "./ActionSagas";
 import { AppState } from "reducers";
 import ActionAPI, {
   PaginationField,
   ExecuteActionRequest,
   ActionApiResponse,
+  Property,
 } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { changeQuery, deleteQuerySuccess } from "actions/queryPaneActions";
@@ -128,12 +129,40 @@ function* updateDraftsSaga() {
   }
 }
 
+function* updateDynamicBindingsSaga(
+  actionPayload: ReduxActionWithMeta<string, { field: string }>,
+) {
+  const field = actionPayload.meta.field;
+  if (field === "dynamicBindingPathList") return;
+  const value = actionPayload.payload;
+  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+  if (!values.id) return;
+
+  const isDynamic = isDynamicValue(value);
+  let dynamicBindings: Property[] = values.dynamicBindingPathList || [];
+  console.log({ field, value, isDynamic, dynamicBindings });
+  const fieldExists = _.some(dynamicBindings, { key: field });
+
+  if (!isDynamic && fieldExists) {
+    dynamicBindings = dynamicBindings.filter(d => d.key !== field);
+  }
+  if (isDynamic && !fieldExists) {
+    dynamicBindings.push({ key: field });
+  }
+  yield put(
+    change(QUERY_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
+  );
+}
+
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form } = actionPayload.meta;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
-  yield all([call(updateDraftsSaga)]);
+  yield all([
+    call(updateDynamicBindingsSaga, actionPayload),
+    call(updateDraftsSaga),
+  ]);
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {

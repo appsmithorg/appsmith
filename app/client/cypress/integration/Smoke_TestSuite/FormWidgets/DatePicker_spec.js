@@ -75,7 +75,7 @@ describe("DatePicker Widget Functionality", function() {
   //     "From Date",
   //   );
   // });
-
+  //
   // it("DatePicker-uncheck Required field validation", function() {
   //   // Uncheck the required checkbox
   //   cy.UncheckWidgetProperties(commonlocators.requiredCheckbox);
