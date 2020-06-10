@@ -38,6 +38,11 @@ Cypress.Commands.add("DeleteApp", appName => {
     "response.body.responseMeta.status",
     200,
   );
+  cy.wait("@organizations").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).type(appName, { force: true });
   cy.get(homePage.appMoreIcon)
@@ -352,9 +357,7 @@ Cypress.Commands.add("MoveAPIToPage", () => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
-  cy.get(
-    ".single-select >div:contains('".concat(pageidcopy).concat("')"),
-  ).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -915,7 +918,7 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
-    .type(parameters, { force: true });
+    .type(parameters, { parseSpecialCharSequences: false }, { force: true });
   cy.SaveAPI();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
@@ -1067,4 +1070,90 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
     .should("contain.text", "Current Value:")
     .siblings("pre")
     .should("have.text", expectedType);
+});
+
+Cypress.Commands.add("validateToastMessage", value => {
+  cy.get(commonlocators.toastMsg).should("have.text", value);
+});
+
+Cypress.Commands.add("NavigateToPaginationTab", () => {
+  cy.get(ApiEditor.apiTab)
+    .contains("Pagination")
+    .click();
+  cy.get(ApiEditor.apiPaginationTab).click();
+  cy.get(ApiEditor.apiPaginationTab + " input")
+    .first()
+    .type("Paginate with Response Url", { force: true })
+    .type("{enter}");
+});
+
+Cypress.Commands.add("ValidateTableData", () => {
+  cy.isSelectRow(0);
+  cy.readTabledata("0", "1").then(tabData => {
+    const tableData = tabData;
+    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+  });
+});
+
+Cypress.Commands.add("ValidatePublishTableData", () => {
+  cy.isSelectRow(0);
+  cy.readTabledataPublish("0", "1").then(tabData => {
+    const tableData = tabData;
+    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+  });
+});
+
+Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
+  cy.NavigateToApiEditor();
+  cy.get("div[tabindex='0'] >div>span")
+    .contains("Api2")
+    .first()
+    .click();
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  cy.get(runTestCss).click();
+  cy.wait("@postExecute");
+  cy.get(ApiEditor.formActionButtons).should("be.visible");
+  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+  cy.get(ApiEditor.responseBody)
+    .contains("url")
+    .siblings("span")
+    .invoke("text")
+    .then(tabData => {
+      const respBody = tabData;
+      localStorage.setItem("respBody", respBody);
+      cy.log(respBody);
+      cy.get(pages.pagesIcon).click({ force: true });
+      cy.openPropertyPane("tablewidget");
+      cy.testJsontext("tabledata", "{{Api2.data.results}}");
+      cy.isSelectRow(0);
+      cy.get(commonlocators.labelTextStyle)
+        .invoke("text")
+        .then(inputdata => {
+          expect(respBody).to.eq(`\"${inputdata}\"`);
+        });
+    });
+});
+
+Cypress.Commands.add("ValidatePaginationInputData", () => {
+  cy.isSelectRow(0);
+  cy.get(commonlocators.labelTextStyle)
+    .invoke("text")
+    .then(inputdata => {
+      expect(localStorage.getItem("respBody")).to.eq(`\"${inputdata}\"`);
+    });
+});
+
+Cypress.Commands.add("callApi", apiname => {
+  cy.get(commonlocators.callApi)
+    .first()
+    .click();
+  cy.get(commonlocators.singleSelectMenuItem)
+    .contains("Call API")
+    .click();
+  cy.get(commonlocators.selectMenuItem)
+    .contains(apiname)
+    .click();
 });

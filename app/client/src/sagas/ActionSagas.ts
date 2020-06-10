@@ -369,8 +369,11 @@ export function* executeActionTriggers(
 export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug("Evaluating data tree to get action trigger");
+  log.debug({ dynamicString });
   const tree = yield select(evaluateDataTree);
+  log.debug({ tree });
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
+  log.debug({ triggers });
   if (triggers && triggers.length) {
     yield all(
       triggers.map(trigger => call(executeActionTriggers, trigger, event)),

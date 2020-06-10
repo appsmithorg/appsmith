@@ -36,7 +36,6 @@ import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
 import {
-  API_PATH_START_WITH_SLASH_ERROR,
   FIELD_REQUIRED_ERROR,
   UNIQUE_NAME_ERROR,
   VALID_FUNCTION_NAME_ERROR,
@@ -227,37 +226,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
         (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
       );
     }
-
-    const actionConfigurationBody = data.actionConfiguration.body;
-
-    data.actionConfiguration.body = [];
-    if (contentType) {
-      if (
-        contentType.value === POST_BODY_FORMAT_OPTIONS[0].value &&
-        data.actionConfiguration.body
-      ) {
-        data.actionConfiguration.body[0] = actionConfigurationBody;
-      } else if (
-        contentType.value === POST_BODY_FORMAT_OPTIONS[1].value &&
-        data.actionConfiguration.body
-      ) {
-        if (typeof actionConfigurationBody !== "object") {
-          try {
-            data.actionConfiguration.body[1] = JSON.parse(
-              actionConfigurationBody,
-            );
-          } catch (e) {
-            data.actionConfiguration.body[2] = actionConfigurationBody;
-          }
-        } else {
-          data.actionConfiguration.body[1] = actionConfigurationBody;
-        }
-      } else {
-        data.actionConfiguration.body[2] = actionConfigurationBody;
-      }
-    } else if (!contentType && data.actionConfiguration.body) {
-      data.actionConfiguration.body[2] = actionConfigurationBody;
-    }
   }
 
   yield put(initialize(API_EDITOR_FORM_NAME, data));
@@ -383,10 +351,7 @@ function* updateFormFields(
           value: contentType.value,
         };
       } else {
-        displayFormat = {
-          label: POST_BODY_FORMATS[2],
-          value: POST_BODY_FORMATS[2],
-        };
+        displayFormat = POST_BODY_FORMAT_OPTIONS[3];
       }
     }
 
