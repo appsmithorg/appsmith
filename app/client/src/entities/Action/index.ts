@@ -48,7 +48,7 @@ export interface ApiActionConfig extends ActionConfig {
 }
 
 export interface QueryActionConfig extends ActionConfig {
-  queryString: string;
+  body: string;
 }
 
 export interface Action {
