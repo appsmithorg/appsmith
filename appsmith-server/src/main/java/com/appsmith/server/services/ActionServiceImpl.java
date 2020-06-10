@@ -456,11 +456,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                             Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
                                     //If the action is found in the db (i.e. it is not a dry run, save the cached response
                                     .flatMap(action -> {
+                                        // If the plugin execution result is successful, then cache response body in
+                                        // the action and save it.
                                         if (result.getIsExecutionSuccess()) {
-                                            // If the plugin execution result is successful, then cache response body in
-                                            // the action and save it.
-                                            action.setCacheResponse(result.getBody().toString());
-                                            return repository.save(action);
+                                            // Save the result only if body exists in the body. e.g. Even though 204
+                                            // is an execution success, there would be no body expected.
+                                            if (result.getBody() != null) {
+                                                action.setCacheResponse(result.getBody().toString());
+                                                return repository.save(action);
+                                            }
+                                            // No result body exists. Return the action as is.
+                                            return Mono.just(action);
                                         }
                                         log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
                                         return Mono.just(action);
