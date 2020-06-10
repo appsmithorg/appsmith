@@ -38,6 +38,11 @@ Cypress.Commands.add("DeleteApp", appName => {
     "response.body.responseMeta.status",
     200,
   );
+  cy.wait("@organizations").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   cy.get('button span[icon="chevron-down"]').should("be.visible");
   cy.get(homePage.searchInput).type(appName, { force: true });
   cy.get(homePage.appMoreIcon)
@@ -352,9 +357,7 @@ Cypress.Commands.add("MoveAPIToPage", () => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
-  cy.get(
-    ".single-select >div:contains('".concat(pageidcopy).concat("')"),
-  ).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",

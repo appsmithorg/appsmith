@@ -60,7 +60,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     return (
       <DatePickerComponent
         label={`${this.props.label}`}
-        dateFormat={"DD/MM/YYYY HH:mm"}
+        dateFormat={this.props.dateFormat}
         widgetId={this.props.widgetId}
         isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
