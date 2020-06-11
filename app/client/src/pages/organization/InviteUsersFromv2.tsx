@@ -25,13 +25,15 @@ import {
   INVITE_USERS_SUBMIT_ERROR,
 } from "constants/messages";
 import history from "utils/history";
+import { Colors } from "constants/Colors";
 const StyledForm = styled.div`
   width: 100%;
   background: white;
   padding: ${props => props.theme.spaces[5]}px;
   &&& {
     .bp3-input {
-      width: 50vh;
+      width: calc(100vh - 285px);
+      box-shadow: none;
     }
   }
   .manageUsers {
@@ -43,16 +45,17 @@ const StyledInviteFieldGroup = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  .users {
-    width: 300px;
-  }
 
   .wrapper {
     display: flex;
     width: 100%;
     flex-direction: row;
-    alignItem: "center",
-    justifyContent: "center",
+    justify-content: space-between;
+    padding-right: 5px;
+    border-width: 1px;
+    border-right: 0px;
+    border-style: solid;
+    border-color: ${Colors.ATHENS_GRAY};
   }
 `;
 
@@ -72,7 +75,8 @@ const UserList = styled.div`
 const StyledButton = styled(Button)`
   &&&.${Classes.BUTTON} {
     width: 83px;
-    height: 40px;
+    height: 41px;
+    border-radius: 0px;
   }
 `;
 
@@ -103,19 +107,22 @@ const InviteUsersForm = (props: any) => {
         />
       )}
       <StyledInviteFieldGroup>
-        <TagListField
-          name="users"
-          placeholder="Enter email address"
-          type="email"
-          label="Emails"
-          intent="success"
-        />
-        <SelectField
-          name="role"
-          placeholder="Select a role"
-          options={props.roles}
-          size="large"
-        />
+        <div className="wrapper">
+          <TagListField
+            name="users"
+            placeholder="Enter email address"
+            type="email"
+            label="Emails"
+            intent="success"
+          />
+          <SelectField
+            name="role"
+            placeholder="Select a role"
+            options={props.roles}
+            size="large"
+            outline={false}
+          />
+        </div>
         <StyledButton
           className="invite"
           text="Invite"

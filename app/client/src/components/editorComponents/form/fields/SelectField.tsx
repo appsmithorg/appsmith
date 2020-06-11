@@ -25,6 +25,7 @@ type SelectFieldProps = {
   placeholder?: string;
   options?: Array<{ id: string; name: string; value?: string }>;
   size?: "large" | "small";
+  outline?: boolean;
 };
 
 export const SelectField = (props: SelectFieldProps) => {
@@ -35,6 +36,7 @@ export const SelectField = (props: SelectFieldProps) => {
       component={renderComponent}
       options={props.options}
       size={props.size}
+      outline={props.outline}
     />
   );
 };
