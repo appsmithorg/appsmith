@@ -1125,8 +1125,8 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
       cy.get(pages.pagesIcon).click({ force: true });
-      cy.openPropertyPane("tablewidget");
-      cy.testJsontext("tabledata", "{{Api2.data.results}}");
+      // cy.openPropertyPane("tablewidget");
+      // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);
       cy.get(commonlocators.labelTextStyle)
         .invoke("text")
