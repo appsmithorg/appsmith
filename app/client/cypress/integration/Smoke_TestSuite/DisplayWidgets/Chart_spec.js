@@ -1,7 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../locators/ViewWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/viewdsl.json");
+const dsl = require("../../../fixtures/displayWidgetDsl.json");
 
 describe("Chart Widget Functionality", function() {
   before(() => {
@@ -38,6 +38,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.chartType)
       .find(commonlocators.menuSelection)
       .should("have.text", "Column Chart");
+    cy.testJsontext("chartdata", JSON.stringify(this.data.chartInput));
     cy.get(viewWidgetsPage.chartWidget)
       .should("be.visible")
       .and(chart => {

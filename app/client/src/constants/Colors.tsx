@@ -48,6 +48,7 @@ export const Colors: Record<string, string> = {
   SOLID_MERCURY: "#E5E5E5",
   TROUT_DARK: "#535B62",
   ALABASTER: "#F9F8F8",
+  WATUSI: "#FFE0D2",
   GRAY: "#828282",
   ATHENS_GRAY_DARKER: "#F8F9FA",
 };

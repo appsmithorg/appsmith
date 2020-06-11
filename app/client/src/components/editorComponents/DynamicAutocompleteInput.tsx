@@ -147,12 +147,6 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   }
 `;
 
-const Wrapper = styled.div`
-  position: relative;
-  flex: 1;
-  height: 100%;
-`;
-
 const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;

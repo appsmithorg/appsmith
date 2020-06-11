@@ -9,12 +9,13 @@ import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-m
 import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.svg";
 import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.svg";
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
-import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
+import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
+
 /* eslint-disable react/display-name */
 
 export const ControlIcons: {
@@ -80,9 +81,9 @@ export const ControlIcons: {
       <PickMyLocationSelectedIcon />
     </IconWrapper>
   ),
-  LIGHTNING_CONTROL: (props: IconProps) => (
+  SETTINGS_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
-      <LightningIcon />
+      <SettingsIcon />
     </IconWrapper>
   ),
   HELP_CONTROL: (props: IconProps) => (

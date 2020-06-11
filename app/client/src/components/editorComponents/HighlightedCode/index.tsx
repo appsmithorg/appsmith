@@ -3,15 +3,15 @@ import styled from "styled-components";
 import Prism from "prismjs";
 import themes from "./themes";
 
-const StyledCode = styled.div<{ skin: SKINS }>`
-  ${props => (props.skin === SKINS.DARK ? themes.DARK : themes.LIGHT)}
-`;
-
 // TODO(abhinav): See if this can be re-used in other places.
 export enum SKINS {
   LIGHT = "LIGHT",
   DARK = "DARK",
 }
+
+const StyledCode = styled.div<{ skin: SKINS }>`
+  ${props => (props.skin === SKINS.DARK ? themes.DARK : themes.LIGHT)}
+`;
 
 /* When adding an entry please make sure to include it in the craco.common.config.js as well */
 export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {

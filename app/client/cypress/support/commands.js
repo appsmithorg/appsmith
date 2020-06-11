@@ -137,7 +137,7 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", apiname => {
@@ -149,7 +149,7 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("EditApiName", apiname => {
@@ -158,13 +158,11 @@ Cypress.Commands.add("EditApiName", apiname => {
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
-Cypress.Commands.add("SaveAPI", () => {
-  cy.get(apiwidget.saveButton).click({ force: true });
+Cypress.Commands.add("WaitAutoSave", () => {
   cy.wait("@saveQuery");
-  cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
@@ -174,7 +172,7 @@ Cypress.Commands.add("RunAPI", () => {
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {
-  cy.SaveAPI();
+  cy.WaitAutoSave();
   cy.RunAPI();
 });
 
@@ -228,7 +226,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .type(hValue, { force: true })
       .should("have.value", hValue);
-    cy.SaveAPI();
+    cy.WaitAutoSave();
   },
 );
 
@@ -247,7 +245,7 @@ Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
     .focus()
     .type(v1method)
     .should("have.value", v1method);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("switchToPaginationTab", () => {
@@ -308,7 +306,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .type(qValue, { force: true })
       .should("have.value", qValue);
-    cy.SaveAPI();
+    cy.WaitAutoSave();
   },
 );
 
@@ -332,7 +330,8 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .focus();
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
     expect($x).contain("Name must be unique");
@@ -919,7 +918,7 @@ Cypress.Commands.add("createApi", (url, parameters) => {
     .first()
     .click({ force: true })
     .type(parameters, { parseSpecialCharSequences: false }, { force: true });
-  cy.SaveAPI();
+  cy.WaitAutoSave();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
 });
