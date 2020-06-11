@@ -4,13 +4,10 @@ import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.QAction;
-import com.appsmith.server.domains.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,10 +38,10 @@ public class CustomActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Actio
     }
 
     @Override
-    public Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                                              String pageId,
-                                                                                              String httpMethod,
-                                                                                              AclPermission aclPermission) {
+    public Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
+                                                                                      String pageId,
+                                                                                      String httpMethod,
+                                                                                      AclPermission aclPermission) {
         Criteria namesCriteria = where(fieldName(QAction.action.name)).in(names);
         Criteria pageCriteria = where(fieldName(QAction.action.pageId)).is(pageId);
         String httpMethodQueryKey = fieldName(QAction.action.actionConfiguration)
@@ -52,19 +49,8 @@ public class CustomActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Actio
                 + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
         List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria);
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .flatMapMany(auth -> {
-                    User user = (User) auth.getPrincipal();
-                    Query query = new Query();
-                    criterias.stream()
-                            .forEach(criteria -> query.addCriteria(criteria));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission)));
 
-                    return mongoOperations.findDistinct(query, fieldName(QAction.action.name),
-                            Action.class, Action.class)
-                            .map(action -> setUserPermissionsInObject(action, user));
-                });
+        return queryAll(criterias, aclPermission);
     }
 
     @Override
