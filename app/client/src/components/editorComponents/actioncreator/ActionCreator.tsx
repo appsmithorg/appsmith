@@ -13,8 +13,6 @@ import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
 import {
   FieldWrapper,
   ControlWrapper,
-  TreeStructureHorizontalWrapper,
-  TreeStructureVerticalWrapper,
 } from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
@@ -22,6 +20,7 @@ import { createModalAction } from "actions/widgetActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
+import TreeStructure from "components/utils/TreeStructure";
 import {
   createNewApiAction,
   createNewQueryAction,
@@ -174,7 +173,6 @@ type TextViewProps = ViewProps & {
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
-    console.log(props.value, props.label, props.level, props.start);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
@@ -191,43 +189,12 @@ const views = {
             displayValue={props.displayValue}
           />
         </ControlWrapper>
-        {props.level ? (
-          <TreeStructureHorizontalWrapper
-            label={props.label}
-            level={props.level}
-          />
-        ) : null}
-        {(() => {
-          if (
-            props.level &&
-            props.levelSeparator &&
-            props.levelSeparator === "odd"
-          ) {
-            const treeStructureVerticalWrappers = new Array(props.level)
-              .fill("")
-              .map((i, index) => {
-                return (
-                  <TreeStructureVerticalWrapper
-                    key={index}
-                    label={props.label}
-                    level={index + 1}
-                    start={index === props.level - 1 ? props.start : false}
-                  />
-                );
-              });
-            return treeStructureVerticalWrappers;
-          } else if (props.level) {
-            return (
-              <TreeStructureVerticalWrapper
-                label={props.label}
-                level={props.level}
-                start={props.start}
-              />
-            );
-          } else {
-            return [];
-          }
-        })()}
+        <TreeStructure
+          level={props.level}
+          label={props.label}
+          start={props.start}
+          levelSeparator={props.levelSeparator}
+        />
       </FieldWrapper>
     );
   },
@@ -263,43 +230,12 @@ const views = {
             errorMessage={props.validationMessage}
           />
         </ControlWrapper>
-        {props.level ? (
-          <TreeStructureHorizontalWrapper
-            label={props.label}
-            level={props.level}
-          />
-        ) : null}
-        {(() => {
-          if (
-            props.level &&
-            props.levelSeparator &&
-            props.levelSeparator === "odd"
-          ) {
-            const treeStructureVerticalWrappers = new Array(props.level)
-              .fill("")
-              .map((i, index) => {
-                return (
-                  <TreeStructureVerticalWrapper
-                    key={index}
-                    label={props.label}
-                    level={index + 1}
-                    start={index === props.level - 1 ? props.start : false}
-                  />
-                );
-              });
-            return treeStructureVerticalWrappers;
-          } else if (props.level) {
-            return (
-              <TreeStructureVerticalWrapper
-                label={props.label}
-                level={props.level}
-                start={props.start}
-              />
-            );
-          } else {
-            return [];
-          }
-        })()}
+        <TreeStructure
+          level={props.level}
+          label={props.label}
+          start={props.start}
+          levelSeparator={props.levelSeparator}
+        />
       </FieldWrapper>
     );
   },

@@ -308,37 +308,3 @@ export const FieldWrapper = styled.div`
   position: relative;
   width: 100%;
 `;
-
-export const TreeStructureHorizontalWrapper = styled.div<{
-  level: number;
-  label: string;
-}>`
-  position: absolute;
-  width: ${props => (props.level - 1) * 2 + 9}px;
-  height: 2px;
-  background: #a2a6a8;
-  top: ${props => (props.label ? "65%" : "50%")};
-  left: ${props => (props.level - 1) * 18 + 9}px;
-  z-index: 1;
-`;
-
-export const TreeStructureVerticalWrapper = styled.div<{
-  level: number;
-  label: string;
-  start: boolean;
-}>`
-  position: absolute;
-  height: ${props => (props.start ? "77%" : "100%")};
-  width: 2px;
-  background: #a2a6a8;
-  top: ${props =>
-    props.start
-      ? props.label
-        ? "-12%"
-        : "-16%"
-      : props.label
-      ? "-35%"
-      : "-50%"};
-  left: ${props => (props.level - 1) * 18 + 9}px;
-  z-index: 1;
-`;
