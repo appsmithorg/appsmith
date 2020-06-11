@@ -15,10 +15,10 @@ public interface CustomActionRepository extends AppsmithRepository<Action> {
 
     Flux<Action> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<Action> findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
-                                                                                       String pageId,
-                                                                                       String httpMethod,
-                                                                                       AclPermission aclPermission);
+    Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(Set<String> names,
+                                                                               String pageId,
+                                                                               String httpMethod,
+                                                                               AclPermission aclPermission);
 
     Flux<Action> findAllActionsByNameAndPageIds(String name, List<String> pageIds, AclPermission aclPermission, Sort sort);
 }
