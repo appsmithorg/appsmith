@@ -251,25 +251,29 @@ export function* executeQuerySaga(
       },
       timeout,
     );
+    const isValidResponse = yield validateResponse(response);
+    const isExecutionSuccess = response.data.isExecutionSuccess;
 
-    if (response.responseMeta && response.responseMeta.error) {
-      throw response.responseMeta.error;
+    if (!isExecutionSuccess) {
+      throw Error(response.data.body.toString());
     }
 
-    yield put({
-      type: ReduxActionTypes.RUN_QUERY_SUCCESS,
-      payload: {
-        data: response.data,
-        actionId: actionPayload.payload.actionId,
-      },
-    });
-    AppToaster.show({
-      message: "Query ran successfully",
-      type: ToastType.SUCCESS,
-    });
-    AnalyticsUtil.logEvent("RUN_QUERY", {
-      queryName: actionPayload.payload.action.name,
-    });
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.RUN_QUERY_SUCCESS,
+        payload: {
+          data: response.data,
+          actionId: actionPayload.payload.actionId,
+        },
+      });
+      AppToaster.show({
+        message: "Query ran successfully",
+        type: ToastType.SUCCESS,
+      });
+      AnalyticsUtil.logEvent("RUN_QUERY", {
+        queryName: actionPayload.payload.action.name,
+      });
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.RUN_QUERY_ERROR,

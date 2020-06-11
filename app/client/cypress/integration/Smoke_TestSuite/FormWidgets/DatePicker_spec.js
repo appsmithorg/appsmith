@@ -1,6 +1,6 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
-const dsl = require("../../../fixtures/formdsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
 
 describe("DatePicker Widget Functionality", function() {
@@ -21,7 +21,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.widgetText(
       this.data.Datepickername,
       formWidgetsPage.datepickerWidget,
-      formWidgetsPage.datepickerWidget + " pre",
+      formWidgetsPage.datepickerWidget + " " + commonlocators.widgetNameTag,
     );
 
     // change the date to next day

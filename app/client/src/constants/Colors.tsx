@@ -45,6 +45,7 @@ export const Colors: Record<string, string> = {
   BLUE_CHARCOAL: "#23292E",
   TROUT: "#4C565E",
   JAFFA_DARK: "#EF7541",
+  WATUSI: "#FFE0D2",
   GRAY: "#828282",
   ATHENS_GRAY_DARKER: "#F8F9FA",
 };

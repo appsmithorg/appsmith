@@ -11,6 +11,7 @@ import {
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
+import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Icon } from "@blueprintjs/core";
 import { components, MenuListComponentProps } from "react-select";
@@ -93,7 +94,7 @@ const ResponseContainer = styled.div`
 
 const ResponseContent = styled.div`
   height: calc(
-    100vh - (100vh / 3) - 150px - ${props => props.theme.headerHeight}
+    100vh - (100vh / 3) - 175px - ${props => props.theme.headerHeight}
   );
   overflow: auto;
 `;
@@ -175,7 +176,7 @@ const StyledGridComponent = styled(GridComponent)`
     }
     .e-gridcontent {
       max-height: calc(
-        100vh - (100vh / 3) - 150px - 49px -
+        100vh - (100vh / 3) - 175px - 49px -
           ${props => props.theme.headerHeight}
       );
       overflow: auto;
@@ -203,6 +204,12 @@ const CreateDatasource = styled.div`
   }
 `;
 
+const StyledCheckbox = styled(CheckboxField)`
+  &&& {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+`;
 type QueryFormProps = {
   isCreating: boolean;
   onDeleteClick: () => void;
@@ -430,6 +437,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             mode="js-js"
           />
         )}
+        <StyledCheckbox
+          intent="primary"
+          name="executeOnLoad"
+          align="left"
+          label="Run on Page Load"
+        />
       </form>
 
       {dataSources.length === 0 && (

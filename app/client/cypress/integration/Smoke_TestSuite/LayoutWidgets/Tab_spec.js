@@ -30,6 +30,14 @@ describe("Tab widget test", function() {
       .contains("test")
       .click({ force: true })
       .should("be.visible");
+    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.tabVerify(2, "Day");
+    cy.get(Layoutpage.tabDelete)
+      .eq(2)
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Day")
+      .should("not.to.be.visible");
     /**
      * @param{toggleButton Css} Assert to be checked
      */

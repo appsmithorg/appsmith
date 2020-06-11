@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/commondsl.json");
+const dsl = require("../../../fixtures/tableWidgetDsl.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {

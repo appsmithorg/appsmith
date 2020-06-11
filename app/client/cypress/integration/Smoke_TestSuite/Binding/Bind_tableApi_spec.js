@@ -14,6 +14,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.NavigateToApiEditor();
     cy.testCreateApiButton();
     cy.createApi(this.data.userApi, "users");
+    cy.RunAPI();
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
