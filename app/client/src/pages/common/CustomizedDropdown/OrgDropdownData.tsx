@@ -65,17 +65,8 @@ export const options = (
               }),
           },
           {
-            content: (
-              <FormDialogComponent
-                trigger="Share"
-                Form={InviteUsersFormv2}
-                orgId={orgId}
-                title={`Invite Users to ${orgName}`}
-                setMaxWidth
-              />
-            ),
+            content: "Share",
             onSelect: () => _.noop("Share option selected"),
-            shouldCloseDropdown: false,
           },
           {
             content: "Members",
