@@ -8,7 +8,7 @@ const LightningIconWrapper = styled.span<{ background: string; skin: Skin }>`
   background: ${props => props.background};
   position: absolute;
   right: ${props => (props.skin === Skin.LIGHT ? 2 : 0)}px;
-  top: ${props => (props.skin === Skin.LIGHT ? 1 : 0)}px;
+  bottom: ${props => (props.skin === Skin.LIGHT ? 1 : 0)}px;
   display: flex;
   justify-content: center;
   align-items: center;

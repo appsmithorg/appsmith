@@ -87,6 +87,12 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         ? false
                         : true
                     }
+                    showLightningMenu={
+                      props.actionConfig[index].editable ||
+                      props.actionConfig[index].editable === undefined
+                        ? true
+                        : false
+                    }
                   />
                 </React.Fragment>
               )}

@@ -210,7 +210,6 @@ const views = {
     );
   },
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
-    console.log(props.value, props.label, props.level, props.start);
     return (
       <FieldWrapper>
         <ControlWrapper key={props.label} level={props.level}>
