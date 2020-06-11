@@ -165,7 +165,7 @@ const EditorWrapper = styled.div<{
   left: 0;
   top: 0;  
   `
-      : `z-index: 0; position: relative`}
+      : `z-index: 0; position: relative;`}
   background-color: ${props =>
     props.editorTheme === THEMES.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
@@ -177,7 +177,7 @@ const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   min-height: 32px;
-  overflow: hidden;
+  
   height: auto;
   ${props =>
     props.setMaxHeight &&
@@ -726,10 +726,14 @@ class DynamicAutocompleteInput extends Component<Props, State> {
               </React.Fragment>
             )}
             {this.props.rightIcon && (
-              <HelperTooltip
-                description={this.props.description}
-                rightIcon={this.props.rightIcon}
-              />
+              <div
+                style={{ zIndex: 100, position: "absolute", right: "-36px" }}
+              >
+                <HelperTooltip
+                  description={this.props.description}
+                  rightIcon={this.props.rightIcon}
+                />
+              </div>
             )}
           </EditorWrapper>
         </EvaluatedValuePopup>
