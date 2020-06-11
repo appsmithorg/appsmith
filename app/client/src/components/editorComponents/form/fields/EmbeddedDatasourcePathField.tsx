@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import {
   Field,
   BaseFieldProps,
@@ -11,14 +11,53 @@ import DynamicAutocompleteInput, {
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
+import { Datasource } from "api/DatasourcesApi";
+import _ from "lodash";
 
 type Props = DynamicAutocompleteInputProps & {
   input: Partial<WrappedFieldInputProps>;
+  datasource: Datasource;
 };
 
+const regExp = /(https?:\/{2}\S+)(\/\S*?)$/;
+
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
+  handleOnChange = (value: ChangeEvent<string> | string) => {
+    if (typeof value === "string") {
+      if (this.props.input.onChange) {
+        const isValid = regExp.test(value);
+        if (isValid) {
+          const matches = value.match(regExp);
+          if (matches && matches.length) {
+            const datasource = `${matches[1]}`;
+            const path = matches[2];
+            this.props.input.onChange(path);
+          }
+        }
+      }
+    }
+  };
+
   render() {
-    return <DynamicAutocompleteInput {...this.props} />;
+    const {
+      datasource,
+      input: { value },
+    } = this.props;
+    const datasourceUrl = _.get(datasource, "datasourceConfiguration.url", "");
+    const displayValue = `${datasourceUrl}${value}`;
+
+    const input = {
+      ...this.props.input,
+      value: displayValue,
+      onChange: this.handleOnChange,
+    };
+
+    const props = {
+      ...this.props,
+      input,
+    };
+
+    return <DynamicAutocompleteInput {...props} />;
   }
 }
 
