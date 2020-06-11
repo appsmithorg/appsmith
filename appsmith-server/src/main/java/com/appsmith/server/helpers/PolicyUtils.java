@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -54,24 +55,30 @@ public class PolicyUtils<T extends BaseDomain> {
     }
 
     public T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
+        // Making a deep copy here so we don't modify the `policyMap` object.
+        // TODO: Investigate a solution without using deep-copy.
+        final Map<String, Policy> policyMap1 = new HashMap<>();
+        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
+            policyMap1.put(entry.getKey(), entry.getValue());
+        }
 
         // Append the user to the existing permission policy if it already exists.
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
-            if (policyMap.containsKey(permission)) {
-                policy.getUsers().addAll(policyMap.get(permission).getUsers());
+            if (policyMap1.containsKey(permission)) {
+                policy.getUsers().addAll(policyMap1.get(permission).getUsers());
                 if (policy.getGroups() == null) {
                     policy.setGroups(new HashSet<>());
                 }
-                if (policyMap.get(permission).getGroups() != null) {
-                    policy.getGroups().addAll(policyMap.get(permission).getGroups());
+                if (policyMap1.get(permission).getGroups() != null) {
+                    policy.getGroups().addAll(policyMap1.get(permission).getGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
-                policyMap.remove(permission);
+                policyMap1.remove(permission);
             }
         }
 
-        obj.getPolicies().addAll(policyMap.values());
+        obj.getPolicies().addAll(policyMap1.values());
         return obj;
     }
 

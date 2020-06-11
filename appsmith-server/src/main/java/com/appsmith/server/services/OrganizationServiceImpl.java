@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,6 +31,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -282,7 +284,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository
                 .findById(orgId, MANAGE_ORGANIZATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
-                .map(organization -> organization.getUserRoles());
+                .map(organization -> {
+                    final List<UserRole> userRoles = organization.getUserRoles();
+                    return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
+                });
     }
 }
 
