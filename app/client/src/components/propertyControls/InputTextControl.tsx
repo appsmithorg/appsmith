@@ -10,6 +10,7 @@ export function InputText(props: {
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   isValid: boolean;
   errorMessage?: string;
+  evaluatedValue?: any;
   expected?: string;
   placeholder?: string;
   dataTreePath?: string;
@@ -22,6 +23,7 @@ export function InputText(props: {
     onChange,
     placeholder,
     dataTreePath,
+    evaluatedValue,
   } = props;
   return (
     <StyledDynamicInput>
@@ -30,6 +32,7 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        evaluatedValue={evaluatedValue}
         expected={expected}
         dataTreePath={dataTreePath}
         meta={{
