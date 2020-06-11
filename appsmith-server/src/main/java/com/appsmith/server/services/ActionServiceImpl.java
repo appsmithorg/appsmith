@@ -463,7 +463,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
-        return repository.findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId,
+        return repository.findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId,
                 httpMethod, READ_ACTIONS);
     }
 
