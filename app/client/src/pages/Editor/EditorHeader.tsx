@@ -147,7 +147,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
       <InviteButton>
-        <Button text="Share" intent="primary" filled size="small" />
+        {/* <Button text="Share" intent="primary" filled size="small" /> */}
       </InviteButton>
       <LoadingContainer>{saveStatusMessage}</LoadingContainer>
       <PreviewPublishSection>
