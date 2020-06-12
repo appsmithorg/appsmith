@@ -145,7 +145,7 @@ class ApiEditor extends React.Component<Props> {
         cacheResponse: undefined,
       });
     }
-  }, 2000);
+  }, 500);
 
   render() {
     const {
