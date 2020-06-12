@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Query;
 import com.appsmith.server.domains.Role;
+import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -31,15 +32,19 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Slf4j
 @ChangeLog(order = "001")
@@ -262,7 +267,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "006", id = "hide-rapidapi-plugin", author = "")
     public void hideRapidApiPluginFromCreateDatasource(MongoTemplate mongoTemplate) {
         final Plugin rapidApiPlugin = mongoTemplate.findOne(
-                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("packageName").is("rapidapi-plugin")),
+                query(where("packageName").is("rapidapi-plugin")),
                 Plugin.class
         );
 
@@ -340,7 +345,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "011", id = "install-default-plugins-to-all-organizations", author = "")
     public void installDefaultPluginsToAllOrganizations(MongoTemplate mongoTemplate) {
         final List<Plugin> defaultPlugins = mongoTemplate.find(
-                org.springframework.data.mongodb.core.query.Query.query(Criteria.where("defaultInstall").is(true)),
+                query(where("defaultInstall").is(true)),
                 Plugin.class
         );
 
@@ -363,6 +368,54 @@ public class DatabaseChangelog {
 
             mongoTemplate.save(organization);
         }
+    }
+
+    @ChangeSet(order = "012", id = "ensure-datasource-created-and-updated-at-fields", author = "")
+    public void ensureDatasourceCreatedAndUpdatedAt(MongoTemplate mongoTemplate) {
+        final List<Datasource> missingCreatedAt = mongoTemplate.find(
+                query(where("createdAt").exists(false)),
+                Datasource.class
+        );
+
+        for (Datasource datasource : missingCreatedAt) {
+            datasource.setCreatedAt(Instant.now());
+            mongoTemplate.save(datasource);
+        }
+
+        final List<Datasource> missingUpdatedAt = mongoTemplate.find(
+                query(where("updatedAt").exists(false)),
+                Datasource.class
+        );
+
+        for (Datasource datasource : missingUpdatedAt) {
+            datasource.setUpdatedAt(Instant.now());
+            mongoTemplate.save(datasource);
+        }
+    }
+
+    @ChangeSet(order = "013", id = "add-index-for-sequence-name", author = "")
+    public void addIndexForSequenceName(MongoTemplate mongoTemplate) {
+        ensureIndexes(mongoTemplate, Sequence.class,
+                makeIndex(FieldName.NAME).unique()
+        );
+    }
+
+    @ChangeSet(order = "014", id = "set-initial-sequence-for-datasource", author = "")
+    public void setInitialSequenceForDatasource(MongoTemplate mongoTemplate) {
+        final Long maxUntitledDatasourceNumber = mongoTemplate.find(
+                query(where(FieldName.NAME).regex("^" + Datasource.DEFAULT_NAME_PREFIX + " \\d+$")),
+                Datasource.class
+        )
+                .stream()
+                .map(datasource -> Long.parseLong(datasource.getName().split(" ")[2]))
+                .max(Long::compareTo)
+                .orElse(0L);
+
+        mongoTemplate.upsert(
+                query(where(FieldName.NAME).is(mongoTemplate.getCollectionName(Datasource.class))),
+                update("nextNumber", maxUntitledDatasourceNumber + 1),
+                Sequence.class
+        );
     }
 
 }

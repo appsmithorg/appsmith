@@ -84,6 +84,12 @@ public class CurlImporterService extends BaseApiImporter {
         //    E.g., `-X` into `--request`.
         // 3. parse: Parse the arguments in this list of tokens into an `Action` object.
 
+        // Strip a trailing semicolon, if present.
+        command = command.strip();
+        if (command.endsWith(";")) {
+            command = command.substring(0, command.length() - 1).stripTrailing();
+        }
+
         return parse(normalize(lex(command)));
     }
 
@@ -335,6 +341,11 @@ public class CurlImporterService extends BaseApiImporter {
     }
 
     private void trySaveURL(Action action, String token) throws MalformedURLException, URISyntaxException {
+        // If the URL appears to not have a protocol set, prepend the `https` protocol.
+        if (!token.matches("\\w+://.*")) {
+            token = "http://" + token;
+        }
+
         // If the string doesn't throw an exception when being converted to a URI, its a valid URL.
         URL url = new URL(token);
 

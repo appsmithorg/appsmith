@@ -15,6 +15,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -76,7 +79,13 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
-        layout.setId(new ObjectId().toString());
+        String id = new ObjectId().toString();
+        layout.setId(id);
+        try {
+            layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
+        } catch (ParseException e) {
+            log.error("Unable to set the default page layout for id: {}", id);
+        }
         return layout;
     }
 

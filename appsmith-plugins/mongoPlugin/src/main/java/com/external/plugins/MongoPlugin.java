@@ -94,7 +94,7 @@ public class MongoPlugin extends BasePlugin {
 
             MongoDatabase database = mongoClient.getDatabase(databaseName);
 
-            Bson command = new Document(actionConfiguration.getQuery());
+            Bson command = Document.parse(actionConfiguration.getBody());
 
             try {
                 Document mongoOutput = database.runCommand(command);
@@ -106,19 +106,20 @@ public class MongoPlugin extends BasePlugin {
                 JSONArray headerArray = new JSONArray();
 
                 if (BigInteger.ONE.equals(status)) {
+                    result.setIsExecutionSuccess(true);
 
                     //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
                     //there are no results for find, this key is not present in the result json.
                     if (outputJson.has("cursor")) {
                         JSONArray outputResult = outputJson.getJSONObject("cursor").getJSONArray("firstBatch");
                         result.setBody(objectMapper.readTree(outputResult.toString()));
-                        result.setIsExecutionSuccess(true);
                     }
 
                     //The json contains key "n" when insert/update command is issued. "n" for update signifies the no of
                     //documents selected for update. "n" in case of insert signifies the number of documents inserted.
                     if (outputJson.has("n")) {
                         JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
+                        result.setBody(body);
                         headerArray.put(body);
                     }
 
@@ -126,6 +127,7 @@ public class MongoPlugin extends BasePlugin {
                     //documents updated.
                     if (outputJson.has(N_MODIFIED)) {
                         JSONObject body = new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
+                        result.setBody(body);
                         headerArray.put(body);
                     }
 

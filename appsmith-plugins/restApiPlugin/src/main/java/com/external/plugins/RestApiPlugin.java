@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
@@ -62,10 +63,9 @@ public class RestApiPlugin extends BasePlugin {
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
-            String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
-            boolean isContentTypeJsonInRequest = false;
+            String reqContentType = "";
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
             if (httpMethod == null) {
@@ -75,19 +75,26 @@ public class RestApiPlugin extends BasePlugin {
             WebClient.Builder webClientBuilder = WebClient.builder();
 
             if (datasourceConfiguration.getHeaders() != null) {
-                isContentTypeJsonInRequest = addHeadersToRequestAndAscertainContentType(
-                        webClientBuilder, datasourceConfiguration.getHeaders(), isContentTypeJsonInRequest);
+                reqContentType = addHeadersToRequestAndGetContentType(
+                        webClientBuilder, datasourceConfiguration.getHeaders());
             }
 
             if (actionConfiguration.getHeaders() != null) {
-                isContentTypeJsonInRequest = addHeadersToRequestAndAscertainContentType(
-                        webClientBuilder, actionConfiguration.getHeaders(), isContentTypeJsonInRequest);
+                reqContentType = addHeadersToRequestAndGetContentType(
+                        webClientBuilder, actionConfiguration.getHeaders());
             }
 
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR, "Invalid value for Content-Type."));
+            }
+
+            String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
 
             URI uri;
@@ -100,7 +107,7 @@ public class RestApiPlugin extends BasePlugin {
             log.debug("Final URL is: " + uri.toString());
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
-            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, isContentTypeJsonInRequest)
+            return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
@@ -111,11 +118,7 @@ public class RestApiPlugin extends BasePlugin {
 
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setStatusCode(statusCode.toString());
-                        // If the HTTP response is 200, only then cache the response.
-                        // We shouldn't cache the response even for other 2xx statuses like 201, 204 etc.
-                        if (statusCode.equals(HttpStatus.OK)) {
-                            result.setIsExecutionSuccess(true);
-                        }
+                        result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
 
                         // Convert the headers into json tree to store in the results
                         String headerInJsonString;
@@ -162,6 +165,17 @@ public class RestApiPlugin extends BasePlugin {
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
         }
 
+        private String convertPropertyListToReqBody(List<Property> bodyFormData) {
+            if (bodyFormData == null || bodyFormData.isEmpty()) {
+                return "";
+            }
+
+            String reqBody = bodyFormData.stream()
+                    .map(property -> property.getKey() + "=" + property.getValue())
+                    .collect(Collectors.joining("&"));
+            return reqBody;
+        }
+
         /**
          * If the headers list of properties contains a `Content-Type` header, verify if the value of that header is a
          * valid media type.
@@ -188,7 +202,7 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, String requestBodyAsString,
-                                              int iteration, boolean isJsonContentType) {
+                                              int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -197,7 +211,8 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             Object requestBodyAsObject = null;
-            if (isJsonContentType) {
+
+            if (MediaType.APPLICATION_JSON_VALUE.equals(contentType)) {
                 try {
                     requestBodyAsObject = objectFromJson(requestBodyAsString);
                 } catch (JsonSyntaxException e) {
@@ -235,7 +250,7 @@ public class RestApiPlugin extends BasePlugin {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, requestBodyAsString, iteration + 1,
-                                    isJsonContentType);
+                                    contentType);
                         }
                         return Mono.just(response);
                     });
@@ -304,21 +319,22 @@ public class RestApiPlugin extends BasePlugin {
             return Mono.just(new DatasourceTestResult());
         }
 
-        private boolean addHeadersToRequestAndAscertainContentType(WebClient.Builder webClientBuilder,
-                                                                   List<Property> headers,
-                                                                   boolean isContentTypeJson) {
+        private String addHeadersToRequestAndGetContentType(WebClient.Builder webClientBuilder,
+                                                            List<Property> headers) {
+            String contentType = "";
+
             for (Property header : headers) {
                 String key = header.getKey();
                 if (StringUtils.isNotEmpty(key)) {
                     String value = header.getValue();
                     webClientBuilder.defaultHeader(key, value);
 
-                    if (key.toLowerCase().equals(HttpHeaders.CONTENT_TYPE.toLowerCase()) && value.equals(MediaType.APPLICATION_JSON_VALUE)) {
-                        isContentTypeJson = true;
+                    if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
+                        contentType = value;
                     }
                 }
             }
-            return isContentTypeJson;
+            return contentType;
         }
 
         private URI createFinalUriWithQueryParams(String url, List<Property> queryParams) throws URISyntaxException {

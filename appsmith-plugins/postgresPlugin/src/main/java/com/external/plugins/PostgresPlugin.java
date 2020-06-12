@@ -50,9 +50,6 @@ public class PostgresPlugin extends BasePlugin {
 
     /**
      * Postgres plugin receives the query as json of the following format :
-     * {
-     * "cmd" : "select * from users;"
-     * }
      */
 
     @Slf4j
@@ -66,8 +63,7 @@ public class PostgresPlugin extends BasePlugin {
 
             Connection conn = (Connection) connection;
 
-            Map<String, Object> queryJson = actionConfiguration.getQuery();
-            String query = (String) queryJson.get("cmd");
+            String query = actionConfiguration.getBody();
 
             if (query == null) {
                 return pluginErrorMono("Missing required parameter: Query.");
@@ -79,15 +75,23 @@ public class PostgresPlugin extends BasePlugin {
             ResultSet resultSet = null;
             try {
                 statement = conn.createStatement();
-                resultSet = statement.executeQuery(query);
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int colCount = metaData.getColumnCount();
-                while (resultSet.next()) {
-                    Map<String, Object> row = new HashMap<>(colCount);
-                    for (int i = 1; i <= colCount; i++) {
-                        row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                boolean isResultSet = statement.execute(query);
+
+                if (isResultSet) {
+                    resultSet = statement.getResultSet();
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int colCount = metaData.getColumnCount();
+                    while (resultSet.next()) {
+                        Map<String, Object> row = new HashMap<>(colCount);
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                        }
+                        rowsList.add(row);
                     }
-                    rowsList.add(row);
+
+                } else {
+                    rowsList.add(Map.of("affectedRows", statement.getUpdateCount()));
+
                 }
 
             } catch (SQLException e) {
@@ -158,8 +162,11 @@ public class PostgresPlugin extends BasePlugin {
                             .append(endpoint.getHost())
                             .append(':')
                             .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                            .append('/')
-                            .append(authentication.getDatabaseName());
+                            .append('/');
+
+                    if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+                        urlBuilder.append(authentication.getDatabaseName());
+                    }
                 }
                 url = urlBuilder.toString();
 
