@@ -49,6 +49,7 @@ class FilePickerWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
+      value: `{{this.files}}`,
     };
   }
 
