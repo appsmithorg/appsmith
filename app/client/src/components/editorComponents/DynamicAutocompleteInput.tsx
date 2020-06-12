@@ -138,8 +138,11 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     max-height: 150px;
     width: 250px;
     padding: 12px !important;
-    border: 1px solid #DEDEDE !important;
+    border: 1px solid !important;
+    border-color: ${props =>
+      props.editorTheme === "DARK" ? "#23292e" : "#DEDEDE"} !important;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
+    overflow: scroll;
   }
 `;
 
