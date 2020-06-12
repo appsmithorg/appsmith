@@ -88,7 +88,6 @@ const getEntityChildren = (entity: any, step: number) => {
       getEntityListItem({ ...child, ENTITY_TYPE: ENTITY_TYPE.WIDGET }, step),
     );
   if (childEntities) return childEntities;
-  console.log({ entity });
   return getEntityProperties(entity);
 };
 
