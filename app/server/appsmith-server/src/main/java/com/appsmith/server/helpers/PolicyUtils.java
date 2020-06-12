@@ -222,6 +222,12 @@ public class PolicyUtils<T extends BaseDomain> {
                         return (Action) removePoliciesFromExistingObject(newActionPoliciesMap, (T) action);
                     }
                 })
+                .map(action -> {
+                    if (action.getDatasource() == null) {
+                        action.setDatasource(new Datasource());
+                    }
+                    return action;
+                })
                 .collectList()
                 .flatMapMany(updatedActions -> actionRepository.saveAll(updatedActions));
     }
