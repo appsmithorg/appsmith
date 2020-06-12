@@ -1,7 +1,6 @@
 import {
   CONTENT_TYPE,
   HTTP_METHODS,
-  POST_BODY_FORMATS,
   POST_BODY_FORMAT_OPTIONS,
 } from "constants/ApiEditorConstants";
 import _ from "lodash";
