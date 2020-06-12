@@ -305,8 +305,8 @@ async function inviteUsers(ax, organizationEmailPairs) {
 
 		const membersResponse = (await ax.get(`organizations/${organizationId}/members`)).data;
 		if (membersResponse.responseMeta.success
-				&& membersResponse.data.filter(({username, roleName}) => username === email && roleName === "Administrator").length > 0) {
-			console.log("User already has admin role for this organization. Not inviting.");
+				&& membersResponse.data.filter(({ username }) => username === email).length > 0) {
+			console.log("User already has access to this organization. Not inviting.");
 			continue;
 		}
 
