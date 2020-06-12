@@ -188,6 +188,7 @@ class ApiEditor extends React.Component<Props> {
       <div
         style={{
           position: "relative",
+          height: "100%",
         }}
       >
         {apiId ? (

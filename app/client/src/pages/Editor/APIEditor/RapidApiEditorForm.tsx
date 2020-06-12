@@ -55,7 +55,7 @@ const MainConfiguration = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: 100%;
+  height: calc(100% - 120px);
   border-top: 1px solid #d0d7dd;
   margin-top: 10px;
 `;
@@ -163,7 +163,12 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   // }
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form
+      onSubmit={handleSubmit}
+      style={{
+        height: "100%",
+      }}
+    >
       <MainConfiguration>
         <FormRow>
           <DynamicTextField

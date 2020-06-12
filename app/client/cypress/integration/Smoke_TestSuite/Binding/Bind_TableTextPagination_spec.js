@@ -14,6 +14,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.testCreateApiButton();
     /**Create an Api1 of Paginate with Table Page No */
     cy.createApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.RunAPI();
   });
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function() {
@@ -59,6 +60,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.testCreateApiButton();
     /** Create Api2 of Paginate with Response URL*/
     cy.createApi(this.data.paginationUrl, "pokemon");
+    cy.RunAPI();
     cy.NavigateToPaginationTab();
     cy.get(apiPage.apiPaginationNextText).type("{{Api2.data.next}}", {
       parseSpecialCharSequences: false,
@@ -66,7 +68,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(apiPage.apiPaginationPrevText).type("{{Api2.data.previous}}", {
       parseSpecialCharSequences: false,
     });
-    cy.SaveAPI();
+    cy.WaitAutoSave();
 
     cy.get(pages.pagesIcon).click({ force: true });
     cy.openPropertyPane("textwidget");
@@ -74,6 +76,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.openPropertyPane("tablewidget");
+    cy.testJsontext("tabledata", "{{Api2.data.results}}");
     cy.callApi("Api2");
   });
 

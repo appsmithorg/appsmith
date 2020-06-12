@@ -81,7 +81,7 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated.seriesName}
+          evaluatedValue={evaluated?.seriesName}
           theme={"DARK"}
           singleLine={false}
           placeholder="Series Name"
@@ -113,7 +113,7 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated.data}
+          evaluatedValue={evaluated?.data}
           meta={{
             error: isValid ? "" : "There is an error",
             touched: true,

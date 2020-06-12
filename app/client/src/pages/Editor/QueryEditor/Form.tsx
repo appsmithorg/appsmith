@@ -11,9 +11,16 @@ import {
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
+import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Icon } from "@blueprintjs/core";
-import { components, MenuListComponentProps } from "react-select";
+import {
+  components,
+  MenuListComponentProps,
+  SingleValueProps,
+  OptionTypeBase,
+  OptionProps,
+} from "react-select";
 import history from "utils/history";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
@@ -93,7 +100,7 @@ const ResponseContainer = styled.div`
 
 const ResponseContent = styled.div`
   height: calc(
-    100vh - (100vh / 3) - 150px - ${props => props.theme.headerHeight}
+    100vh - (100vh / 3) - 175px - ${props => props.theme.headerHeight}
   );
   overflow: auto;
 `;
@@ -175,7 +182,7 @@ const StyledGridComponent = styled(GridComponent)`
     }
     .e-gridcontent {
       max-height: calc(
-        100vh - (100vh / 3) - 150px - 49px -
+        100vh - (100vh / 3) - 175px - 49px -
           ${props => props.theme.headerHeight}
       );
       overflow: auto;
@@ -200,6 +207,31 @@ const CreateDatasource = styled.div`
 
   .createIcon {
     margin-right: 6px;
+  }
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .plugin-image {
+    height: 20px;
+    width: auto;
+  }
+
+  .selected-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: no-wrap;
+    margin-left: 6px;
+  }
+`;
+
+const StyledCheckbox = styled(CheckboxField)`
+  &&& {
+    font-size: 14px;
+    margin-top: 10px;
   }
 `;
 
@@ -299,6 +331,40 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  const SingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+    return (
+      <>
+        <components.SingleValue {...props}>
+          <Container>
+            <img
+              className="plugin-image"
+              src={props.data.image}
+              alt="Datasource"
+            />
+            <div className="selected-value">{props.children}</div>
+          </Container>
+        </components.SingleValue>
+      </>
+    );
+  };
+
+  const CustomOption = (props: OptionProps<OptionTypeBase>) => {
+    return (
+      <>
+        <components.Option {...props}>
+          <Container>
+            <img
+              className="plugin-image"
+              src={props.data.image}
+              alt="Datasource"
+            />
+            <div style={{ marginLeft: "6px" }}>{props.children}</div>
+          </Container>
+        </components.Option>
+      </>
+    );
+  };
+
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
@@ -314,9 +380,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               placeholder="Datasource"
               name="datasource.id"
               options={DATASOURCES_OPTIONS}
-              width={200}
+              width={232}
               maxMenuHeight={200}
-              components={{ MenuList }}
+              components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
           <ActionButtons>
@@ -430,6 +496,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             mode="js-js"
           />
         )}
+        <StyledCheckbox
+          intent="primary"
+          name="executeOnLoad"
+          align="left"
+          label="Run on Page Load"
+        />
       </form>
 
       {dataSources.length === 0 && (

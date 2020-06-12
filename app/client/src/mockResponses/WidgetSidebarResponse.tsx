@@ -6,11 +6,11 @@ const WidgetSidebarResponse: {
   [id: string]: WidgetCardProps[];
 } = {
   ["Form Widgets"]: [
-    // {
-    //   type: "FORM_WIDGET",
-    //   widgetCardName: "Form",
-    //   key: generateReactKey(),
-    // },
+    {
+      type: "FORM_WIDGET",
+      widgetCardName: "Form",
+      key: generateReactKey(),
+    },
     {
       type: "INPUT_WIDGET",
       widgetCardName: "Input",

@@ -827,6 +827,8 @@ Cypress.Commands.add("testSaveDatasource", () => {
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["host"]).type(datasourceFormData["mongo-host"]);
   cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+
+  cy.get(datasourceEditor.sectionAuthentication).click();
   cy.get(datasourceEditor["databaseName"])
     .clear()
     .type(datasourceFormData["mongo-databaseName"]);
@@ -837,6 +839,7 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
     datasourceFormData["mongo-password"],
   );
 
+  cy.get(datasourceEditor.sectionSSL).click();
   cy.get(datasourceEditor["authenticationAuthtype"]).click();
   cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
     force: true,
@@ -854,6 +857,8 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   cy.get(datasourceEditor.databaseName)
     .clear()
     .type(datasourceFormData["postgres-databaseName"]);
+
+  cy.get(datasourceEditor.sectionAuthentication).click();
   cy.get(datasourceEditor.username).type(
     datasourceFormData["postgres-username"],
   );
@@ -1125,8 +1130,8 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
       cy.get(pages.pagesIcon).click({ force: true });
-      cy.openPropertyPane("tablewidget");
-      cy.testJsontext("tabledata", "{{Api2.data.results}}");
+      // cy.openPropertyPane("tablewidget");
+      // cy.testJsontext("tabledata", "{{Api2.data.results}}");
       cy.isSelectRow(0);
       cy.get(commonlocators.labelTextStyle)
         .invoke("text")

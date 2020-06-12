@@ -27,6 +27,7 @@ interface ComponentState {
 interface ComponentProps {
   children: any;
   title: string;
+  defaultIsOpen: boolean;
 }
 
 type Props = ComponentProps;
@@ -36,7 +37,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
     super(props);
 
     this.state = {
-      isOpen: true,
+      isOpen: props.defaultIsOpen || false,
     };
   }
 
@@ -54,6 +55,7 @@ class Collapsible extends React.Component<Props, ComponentState> {
           }}
         />
         <SectionContainer
+          data-cy={`section-${title}`}
           onClick={() => this.setState({ isOpen: !this.state.isOpen })}
         >
           <SectionLabel>{title}</SectionLabel>

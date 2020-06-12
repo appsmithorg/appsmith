@@ -9,18 +9,24 @@ import EditorSidebar from "pages/Editor/EditorSidebar";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { QueryEditorRouteParams } from "constants/routes";
 import { Datasource } from "api/DatasourcesApi";
+import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
+import { Plugin } from "api/PluginApi";
 import {
   createActionRequest,
   moveActionRequest,
   copyActionRequest,
 } from "actions/actionActions";
-import { deleteQuery } from "actions/queryPaneActions";
-import { changeQuery, initQueryPane } from "actions/queryPaneActions";
-import { getQueryActions } from "selectors/entitiesSelector";
+import {
+  deleteQuery,
+  changeQuery,
+  initQueryPane,
+} from "actions/queryPaneActions";
+import { getQueryActions, getPlugins } from "selectors/entitiesSelector";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { RestAction } from "entities/Action";
+import { Colors } from "constants/Colors";
 
 const ActionItem = styled.div`
   flex: 1;
@@ -34,9 +40,23 @@ const ActionName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-left: 10px;
+  max-width: 125px;
+`;
+
+const StyledImage = styled.img`
+  height: 20px;
+  width: 20px;
+
+  svg {
+    path {
+      fill: ${Colors.WHITE};
+    }
+  }
 `;
 
 interface ReduxStateProps {
+  plugins: Plugin[];
   queries: ActionDataState;
   apiPane: ApiPaneReduxState;
   actions: ActionDataState;
@@ -148,6 +168,11 @@ class QuerySidebar extends React.Component<Props> {
   renderItem = (query: RestAction) => {
     return (
       <ActionItem>
+        <StyledImage
+          src={getPluginImage(this.props.plugins, query.pluginId)}
+          className="pluginImage"
+          alt="Plugin Image"
+        />
         <ActionName>{query.name}</ActionName>
       </ActionItem>
     );
@@ -191,6 +216,7 @@ class QuerySidebar extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
+  plugins: getPlugins(state),
   queries: getQueryActions(state),
   apiPane: state.ui.apiPane,
   actions: state.entities.actions,
