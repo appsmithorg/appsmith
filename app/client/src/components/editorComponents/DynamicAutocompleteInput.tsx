@@ -367,6 +367,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       let inputValue = this.props.input.value || "";
       if (typeof inputValue === "object") {
         inputValue = JSON.stringify(inputValue, null, 2);
+      } else if (
+        typeof inputValue === "number" ||
+        typeof inputValue === "string"
+      ) {
+        inputValue += "";
       }
       this.editor.setValue(inputValue);
       this.startAutocomplete();
@@ -383,6 +388,11 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         if (typeof inputValue === "object") {
           inputValue = JSON.stringify(inputValue, null, 2);
+        } else if (
+          typeof inputValue === "number" ||
+          typeof inputValue === "string"
+        ) {
+          inputValue += "";
         }
         if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
           this.editor.setValue(inputValue);
@@ -574,7 +584,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     const showEvaluatedValue =
       this.state.isFocused &&
-      ("evaluatedValue" in this.props || "dataTreePath" in this.props);
+      ("evaluatedValue" in this.props ||
+        ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
     return (
       <Wrapper>

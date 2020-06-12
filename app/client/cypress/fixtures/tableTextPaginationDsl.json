@@ -1,0 +1,65 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 1224,
+      "snapColumns": 16,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 1254,
+      "containerStyle": "none",
+      "snapRows": 33,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "dynamicBindings": {},
+      "version": 4,
+      "minHeight": 1292,
+      "parentColumnSpace": 1,
+      "leftColumn": 0,
+      "children": [
+        {
+          "isVisible": true,
+          "label": "Data",
+          "widgetName": "Table1",
+          "tableData": "",
+          "type": "TABLE_WIDGET",
+          "isLoading": false,
+          "parentColumnSpace": 74.125,
+          "parentRowSpace": 38,
+          "leftColumn": 0,
+          "rightColumn": 8,
+          "topRow": 0,
+          "bottomRow": 17,
+          "parentId": "0",
+          "widgetId": "o3i9y2ya2i",
+          "dynamicBindings": {
+            "selectedRow": true
+          },
+          "serverSidePaginationEnabled": true,
+          "dynamicTriggers": {
+            "onPageChange": true
+          },
+          "onPageChange": "{{Api1.run(() => showAlert('done'), () => {})}}"
+        },
+        {
+          "isVisible": true,
+          "text": "Label",
+          "textStyle": "LABEL",
+          "textAlign": "LEFT",
+          "widgetName": "Text1",
+          "type": "TEXT_WIDGET",
+          "isLoading": false,
+          "parentColumnSpace": 74.125,
+          "parentRowSpace": 38,
+          "leftColumn": 9,
+          "rightColumn": 13,
+          "topRow": 1,
+          "bottomRow": 2,
+          "parentId": "0",
+          "widgetId": "lxzga6xxip"
+        }
+      ]
+    }
+  }

@@ -2,7 +2,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/formdsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 
 describe("Checkbox Widget Functionality", function() {
   before(() => {

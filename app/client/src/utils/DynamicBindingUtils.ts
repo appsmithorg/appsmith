@@ -160,9 +160,7 @@ export const getDynamicValue = (
   includeTriggers = false,
 ): JSExecutorResult => {
   // Get the {{binding}} bound values
-  const { stringSegments: stringSegments, jsSnippets } = getDynamicBindings(
-    dynamicBinding,
-  );
+  const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
   if (stringSegments.length) {
     // Get the Data Tree value of those "binding "paths
     const values = jsSnippets.map((jsSnippet, index) => {
@@ -199,32 +197,55 @@ export const getValidatedTree = (tree: any) => {
     if (entity && entity.type) {
       const parsedEntity = { ...entity };
       Object.keys(entity).forEach((property: string) => {
-        const value = entity[property];
-        // Pass it through parse
-        const {
-          parsed,
-          isValid,
-          message,
-        } = ValidationFactory.validateWidgetProperty(
-          entity.type,
-          property,
-          value,
-          entity,
-          tree,
+        const hasEvaluatedValue = _.has(
+          parsedEntity,
+          `evaluatedValues.${property}`,
         );
-        parsedEntity[property] = parsed;
-        if (property !== "evaluatedValues") {
-          if (!("evaluatedValues" in parsedEntity)) {
-            _.set(parsedEntity, "evaluatedValues", {});
-          }
-          if (!(property in parsedEntity.evaluatedValues)) {
-            _.set(parsedEntity, `evaluatedValues.${property}`, value);
-          }
-        }
+        const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
+        const isSpecialField = [
+          "dynamicBindings",
+          "dynamicTriggers",
+          "dynamicProperties",
+          "evaluatedValues",
+          "invalidProps",
+          "validationMessages",
+        ].includes(property);
+        const isDynamicField =
+          _.has(parsedEntity, `dynamicBindings.${property}`) ||
+          _.has(parsedEntity, `dynamicTriggers.${property}`);
 
-        if (!isValid) {
-          _.set(parsedEntity, `invalidProps.${property}`, true);
-          _.set(parsedEntity, `validationMessages.${property}`, message);
+        if (
+          !isSpecialField &&
+          !isDynamicField &&
+          (!hasValidation || !hasEvaluatedValue)
+        ) {
+          const value = entity[property];
+          // Pass it through parse
+          const {
+            parsed,
+            isValid,
+            message,
+            transformed,
+          } = ValidationFactory.validateWidgetProperty(
+            entity.type,
+            property,
+            value,
+            entity,
+            tree,
+          );
+          parsedEntity[property] = parsed;
+          if (!hasEvaluatedValue) {
+            const evaluatedValue = _.isUndefined(transformed)
+              ? value
+              : transformed;
+            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
+          }
+
+          const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
+          if (!hasValidation && !isValid) {
+            _.set(parsedEntity, `invalidProps.${property}`, true);
+            _.set(parsedEntity, `validationMessages.${property}`, message);
+          }
         }
       });
       return { ...tree, [entityKey]: parsedEntity };
@@ -315,6 +336,11 @@ export const createDependencyTree = (
             dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
               jsSnippets.filter(jsSnippet => !!jsSnippet),
             );
+          });
+        }
+        if (entity.dynamicTriggers) {
+          Object.keys(entity.dynamicTriggers).forEach(prop => {
+            dependencyMap[`${entityKey}.${prop}`] = [];
           });
         }
       }
@@ -548,10 +574,21 @@ function validateAndParseWidgetProperty(
   widget: DataTreeWidget,
   currentTree: DataTree,
   evalPropertyValue: any,
+  unEvalPropertyValue: string,
   currentDependencyValues: Array<string>,
   cachedDependencyValues?: Array<string>,
 ): any {
   const propertyName = propertyPath.split(".")[1];
+  let valueToValidate = evalPropertyValue;
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    const { triggers } = getDynamicValue(
+      unEvalPropertyValue,
+      currentTree,
+      undefined,
+      true,
+    );
+    valueToValidate = triggers;
+  }
   const {
     parsed,
     isValid,
@@ -560,7 +597,7 @@ function validateAndParseWidgetProperty(
   } = ValidationFactory.validateWidgetProperty(
     widget.type,
     propertyName,
-    evalPropertyValue,
+    valueToValidate,
     widget,
     currentTree,
   );
@@ -572,18 +609,22 @@ function validateAndParseWidgetProperty(
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
   }
-  const parsedCache = getParsedValueCache(propertyPath);
-  if (
-    !equal(parsedCache.value, parsed) ||
-    (cachedDependencyValues !== undefined &&
-      !equal(currentDependencyValues, cachedDependencyValues))
-  ) {
-    parsedValueCache.set(propertyPath, {
-      value: parsed,
-      version: Date.now(),
-    });
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    return unEvalPropertyValue;
+  } else {
+    const parsedCache = getParsedValueCache(propertyPath);
+    if (
+      !equal(parsedCache.value, parsed) ||
+      (cachedDependencyValues !== undefined &&
+        !equal(currentDependencyValues, cachedDependencyValues))
+    ) {
+      parsedValueCache.set(propertyPath, {
+        value: parsed,
+        version: Date.now(),
+      });
+    }
+    return parsed;
   }
-  return parsed;
 }
 
 function isWidget(entity: DataTreeEntity): boolean {
@@ -641,6 +682,7 @@ export function dependencySortedEvaluateDataTree(
               widgetEntity,
               currentTree,
               evalPropertyValue,
+              unEvalPropertyValue,
               currentDependencyValues,
               cachedDependencyValues,
             );

@@ -41,7 +41,6 @@ import {
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
-  runApiAction,
   updateActionSuccess,
 } from "actions/actionActions";
 import {
@@ -369,8 +368,11 @@ export function* executeActionTriggers(
 export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug("Evaluating data tree to get action trigger");
+  log.debug({ dynamicString });
   const tree = yield select(evaluateDataTree);
+  log.debug({ tree });
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
+  log.debug({ triggers });
   if (triggers && triggers.length) {
     yield all(
       triggers.map(trigger => call(executeActionTriggers, trigger, event)),
@@ -480,10 +482,6 @@ export function* updateActionSaga(
           pageName,
         });
       }
-      AppToaster.show({
-        message: `${actionPayload.payload.data.name} Action updated`,
-        type: ToastType.SUCCESS,
-      });
 
       AnalyticsUtil.logEvent("SAVE_API", {
         apiId: response.data.id,
@@ -491,9 +489,9 @@ export function* updateActionSaga(
         pageName: pageName,
       });
       yield put(updateActionSuccess({ data: response.data }));
-      if (actionPayload.payload.data.pluginType !== "DB") {
-        yield put(runApiAction(data.id));
-      }
+      // if (actionPayload.payload.data.pluginType !== "DB") {
+      //   yield put(runApiAction(data.id));
+      // }
     }
   } catch (error) {
     yield put({

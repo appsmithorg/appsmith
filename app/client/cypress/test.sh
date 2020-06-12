@@ -26,7 +26,11 @@ echo "Got the target: $target"
 if [ "$target" == "ci" ]; then
     # On the CI server run the tests in parallel
     # This requires the projectId and the record_key to be configured in your environment variables. By default this is defined on the CI server
-    $(npm bin)/cypress run --headless --browser chrome --record --parallel --group "Electrons on Gitlab CI" --spec "cypress/integration/Smoke_TestSuite/*/*"
+    echo "Got the Build ID: $BUILD_ID"
+    CYPRESS_PROJECT_ID=appsmith-project $(npm bin)/cypress run --headless --browser chrome \
+    --record --key "random-key" --ci-build-id $BUILD_ID \
+    --parallel --group "Electrons on Gitlab CI" \
+    --spec "cypress/integration/Smoke_TestSuite/*/*"
 else
     $(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"
 fi

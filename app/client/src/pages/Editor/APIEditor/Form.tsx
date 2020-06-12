@@ -20,7 +20,6 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
@@ -75,7 +74,7 @@ const DatasourceWrapper = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: 100%;
+  height: calc(100% - 120px);
   border-top: 1px solid #d0d7dd;
   margin-top: 15px;
 `;
@@ -112,12 +111,9 @@ const HeadersSection = styled.div`
 
 interface APIFormProps {
   pluginId: string;
-  allowSave: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
-  onSaveClick: () => void;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
-  isSaving: boolean;
   isRunning: boolean;
   isDeleting: boolean;
   paginationType: PaginationType;
@@ -139,14 +135,11 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
     pluginId,
-    allowSave,
-    onSaveClick,
     onDeleteClick,
     onRunClick,
     handleSubmit,
     isDeleting,
     isRunning,
-    isSaving,
     actionConfigurationHeaders,
     actionConfigurationBody,
     httpMethodFromForm,
@@ -168,7 +161,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 
   return (
     <Form onSubmit={handleSubmit}>
-      {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
       <MainConfiguration>
         <FormRow>
           <TextField
@@ -187,21 +179,13 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <ActionButton
               text="Run"
-              accent="secondary"
+              accent="primary"
+              filled
               onClick={() => {
                 onRunClick();
               }}
               loading={isRunning}
               className="t--apiFormRunBtn"
-            />
-            <ActionButton
-              text="Save"
-              accent="primary"
-              filled
-              onClick={onSaveClick}
-              loading={isSaving}
-              className="t--apiFormSaveBtn"
-              disabled={!allowSave}
             />
           </ActionButtons>
         </FormRow>
@@ -264,7 +248,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
-                        dataTreePath={`${actionName}.config.actionConfiguration.body`}
+                        dataTreePath={`${actionName}.config.actionConfiguration`}
                       />
                     )}
                   </RequestParamsWrapper>

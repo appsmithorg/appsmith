@@ -25,7 +25,6 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
   &&&& {
     span.bp3-control-indicator {
       outline: none;
-      background: white;
       box-shadow: none;
       border-radius: ${props => props.theme.radii[1]}px;
       border: ${props => getBorderCSSShorthand(props.theme.borders[3])};

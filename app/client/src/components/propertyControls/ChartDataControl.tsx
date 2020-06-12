@@ -1,11 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  ControlWrapper,
-  StyledInputGroup,
-  StyledPropertyPaneButton,
-} from "./StyledControls";
+import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -16,24 +12,6 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   justify-content: flex-start;
   padding: 0;
   width: 100%;
-`;
-
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  width: 100%;
-  margin-bottom: 0;
-  &&& {
-    input {
-      border: none;
-      color: ${props => props.theme.colors.textOnDarkBG};
-      background: ${props => props.theme.colors.paneInputBG};
-      &:focus {
-        border: none;
-        color: ${props => props.theme.colors.textOnDarkBG};
-        background: ${props => props.theme.colors.paneInputBG};
-      }
-    }
-  }
 `;
 
 const StyledDynamicInput = styled.div`
@@ -103,7 +81,7 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated.seriesName}
+          evaluatedValue={evaluated?.seriesName}
           theme={"DARK"}
           singleLine={false}
           placeholder="Series Name"
@@ -135,7 +113,7 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated.data}
+          evaluatedValue={evaluated?.data}
           meta={{
             error: isValid ? "" : "There is an error",
             touched: true,

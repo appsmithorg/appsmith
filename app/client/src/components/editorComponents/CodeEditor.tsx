@@ -6,9 +6,13 @@ import "codemirror/theme/monokai.css";
 
 require("codemirror/mode/javascript/javascript");
 
-const Wrapper = styled.div<{ height: number }>`
-  height: ${props => props.height}px;
+const Wrapper = styled.div<{ height: number | string }>`
+  height: ${props =>
+    typeof props.height === "number" ? props.height + "px" : props.height};
   color: white;
+  .CodeMirror {
+    height: 100%;
+  }
 `;
 
 interface Props {
@@ -16,7 +20,7 @@ interface Props {
     value: string;
     onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   };
-  height: number;
+  height: number | string;
 }
 
 class CodeEditor extends React.Component<Props> {
@@ -35,7 +39,6 @@ class CodeEditor extends React.Component<Props> {
         lineNumbers: true,
         lineWrapping: true,
       });
-      this.editor.setSize(null, this.props.height);
     }
   }
 

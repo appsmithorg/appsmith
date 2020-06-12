@@ -127,11 +127,29 @@ export default function Pagination(props: PaginationProps) {
               marginBottom: "6px",
             }}
           >
-            Configure the Table pageNo in the API.
+            1. Configure the Table pageNo in the API.
           </p>
           <ExampleApi>
             http://api.example.com/users?pageNo={"{{Table1.pageNo}}"}
           </ExampleApi>
+        </CalloutComponent>
+        <CalloutComponent>
+          <p
+            style={{
+              marginBottom: "6px",
+            }}
+          >
+            2. Enable server side pagination in Table1
+          </p>
+        </CalloutComponent>
+        <CalloutComponent>
+          <p
+            style={{
+              marginBottom: "6px",
+            }}
+          >
+            3. Call this API onPageChange in Table1.
+          </p>
         </CalloutComponent>
       </PaginationTypeView>
     </React.Fragment>

@@ -9,7 +9,8 @@ const TabsWrapper = styled.div<{ overflow?: boolean }>`
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: 100%;
+    height: calc(100% - 46px);
+    overflow: scroll;
   }
   .react-tabs__tab-list {
     border-bottom-color: #d0d7dd;

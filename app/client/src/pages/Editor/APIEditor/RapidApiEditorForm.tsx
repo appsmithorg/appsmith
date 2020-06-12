@@ -17,7 +17,6 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
@@ -56,7 +55,7 @@ const MainConfiguration = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: 100%;
+  height: calc(100% - 120px);
   border-top: 1px solid #d0d7dd;
   margin-top: 10px;
 `;
@@ -97,12 +96,9 @@ const TabbedViewContainer = styled.div`
 `;
 
 interface APIFormProps {
-  allowSave: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
-  onSaveClick: () => void;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
-  isSaving: boolean;
   isRunning: boolean;
   isDeleting: boolean;
   paginationType: PaginationType;
@@ -125,14 +121,11 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 
 const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
-    allowSave,
-    onSaveClick,
     onDeleteClick,
     onRunClick,
     handleSubmit,
     isDeleting,
     isRunning,
-    isSaving,
     templateId,
     actionConfiguration,
     actionConfigurationHeaders,
@@ -170,8 +163,12 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   // }
 
   return (
-    <Form onSubmit={handleSubmit}>
-      {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
+    <Form
+      onSubmit={handleSubmit}
+      style={{
+        height: "100%",
+      }}
+    >
       <MainConfiguration>
         <FormRow>
           <DynamicTextField
@@ -190,19 +187,12 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <ActionButton
               text="Run"
-              accent="secondary"
+              filled
+              accent="primary"
               onClick={() => {
                 onRunClick();
               }}
               loading={isRunning}
-            />
-            <ActionButton
-              text="Save"
-              accent="primary"
-              filled
-              onClick={onSaveClick}
-              loading={isSaving}
-              disabled={!allowSave}
             />
           </ActionButtons>
         </FormRow>
@@ -257,7 +247,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                     />
                     {postbodyResponsePresent && (
                       <PostbodyContainer>
-                        <FormLabel>{"Post Body"}</FormLabel>
+                        <FormLabel>{"Body"}</FormLabel>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
                           <React.Fragment>

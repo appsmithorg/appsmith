@@ -1,8 +1,7 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../locators/FormWidgets.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/formdsl.json");
-
+const dsl = require("../../../fixtures/newFormDsl.json");
 describe("Radio Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -26,26 +25,21 @@ describe("Radio Widget Functionality", function() {
      */
     cy.radioInput(0, this.data.radio1);
     cy.get(formWidgetsPage.labelradio)
-      .eq(1)
+      .eq(0)
       .should("have.text", "test1");
     cy.radioInput(1, "1");
     cy.radioInput(2, this.data.radio2);
     cy.get(formWidgetsPage.labelradio)
-      .eq(2)
+      .eq(1)
       .should("have.text", "test2");
     cy.radioInput(3, "2");
-    cy.radioInput(4, this.data.radio3);
-    cy.get(formWidgetsPage.labelradio)
-      .eq(3)
-      .should("have.text", "test3");
-    cy.radioInput(5, "3");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
-    cy.radioInput(6, this.data.radio4);
+    cy.radioInput(4, this.data.radio4);
     cy.get(formWidgetsPage.labelradio)
-      .eq(4)
+      .eq(2)
       .should("have.text", "test4");
     cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(3)
+      .eq(2)
       .click({ force: true });
     cy.get(formWidgetsPage.labelradio).should("not.have.value", "test4");
     /**
@@ -76,8 +70,8 @@ describe("Radio Widget Functionality", function() {
   });
   it("Radio Functionality To Button Text", function() {
     cy.get(publish.radioWidget + " " + "label")
-      .eq(3)
-      .should("have.text", "test3");
+      .eq(1)
+      .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
 });

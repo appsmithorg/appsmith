@@ -7,6 +7,7 @@ import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 const LINE_HEIGHTS: { [key in TextStyle]: number } = {
   // The following values are arrived at by multiplying line-height with font-size
@@ -46,6 +47,12 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         // lines={lines}
       />
     );
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      value: `{{ this.text }}`,
+    };
   }
 
   getWidgetType(): WidgetType {
