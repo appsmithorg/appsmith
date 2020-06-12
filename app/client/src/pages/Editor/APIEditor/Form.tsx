@@ -74,7 +74,7 @@ const DatasourceWrapper = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: 100%;
+  height: calc(100% - 120px);
   border-top: 1px solid #d0d7dd;
   margin-top: 15px;
 `;

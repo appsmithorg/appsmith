@@ -29,6 +29,10 @@ const PostbodyContainer = styled.div`
 
 const JSONEditorFieldWrapper = styled.div`
   margin: 5px;
+  .CodeMirror {
+    height: auto;
+    min-height: 300px;
+  }
 `;
 export interface RapidApiAction {
   editable: boolean;
@@ -110,7 +114,6 @@ const PostBodyData = (props: Props) => {
             <DynamicTextField
               name="actionConfiguration.body"
               expected={FIELD_VALUES.API_ACTION.body}
-              height={300}
               showLineNumbers
               allowTabIndent
               singleLine={false}
