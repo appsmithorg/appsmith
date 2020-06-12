@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { Card, Icon } from "@blueprintjs/core";
+import { Card, Icon, Dialog, Classes } from "@blueprintjs/core";
 import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
@@ -32,11 +32,18 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 import { User } from "constants/userConstants";
-import CustomizedDropdown from "pages/common/CustomizedDropdown";
-import DropdownProps from "pages/common/CustomizedDropdown/OrgDropdownData";
+import CustomizedDropdown, {
+  CustomizedDropdownProps,
+} from "pages/common/CustomizedDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import Badge from "pages/common/CustomizedDropdown/Badge";
+import {
+  getOnSelectAction,
+  DropdownOnSelectActions,
+} from "pages/common/CustomizedDropdown/dropdownHelpers";
+import { Directions } from "utils/helpers";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -83,6 +90,20 @@ const ApplicationAddCardWrapper = styled(Card)`
   }
 `;
 
+const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
+  && {
+    background: white;
+    & .bp3-dialog-header {
+      padding: ${props => props.theme.spaces[4]}px
+        ${props => props.theme.spaces[4]}px;
+    }
+    & .bp3-dialog-footer-actions {
+      display: block;
+    }
+    ${props => props.setMaxWidth && `width: 100vh;`}
+  }
+`;
+
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
   fetchApplications: () => void;
@@ -97,14 +118,79 @@ type ApplicationProps = {
   userOrgs: any;
   currentUser?: User;
 };
-class Applications extends Component<ApplicationProps> {
+class Applications extends Component<
+  ApplicationProps,
+  { selectedOrgId: string }
+> {
+  constructor(props: ApplicationProps) {
+    super(props);
+
+    this.state = {
+      selectedOrgId: "",
+    };
+  }
+
   componentDidMount() {
     this.props.getAllApplication();
   }
+
   public render() {
     const applicationList = this.props.isFetchingApplications
       ? getApplicationPayloads(8)
       : this.props.applicationList;
+    const Form: any = InviteUsersFormv2;
+    const DropdownProps = (
+      user: User,
+      orgName: string,
+      orgId: string,
+    ): CustomizedDropdownProps => {
+      return {
+        sections: [
+          {
+            options: [
+              {
+                content: (
+                  <Badge
+                    text={orgName}
+                    imageURL="https://via.placeholder.com/32"
+                  />
+                ),
+                disabled: true,
+                shouldCloseDropdown: false,
+              },
+              {
+                content: "Organization Settings",
+                onSelect: () =>
+                  getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                    path: `/org/${orgId}/settings`,
+                  }),
+              },
+              {
+                content: "Share",
+                onSelect: () =>
+                  this.setState({
+                    selectedOrgId: orgId,
+                  }),
+              },
+              {
+                content: "Members",
+                onSelect: () =>
+                  getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                    path: `/org/${orgId}/settings`,
+                  }),
+              },
+            ],
+          },
+        ],
+        trigger: {
+          icon: "ORG_ICON",
+          text: orgName,
+          outline: false,
+        },
+        openDirection: Directions.DOWN,
+      };
+    };
+
     return (
       <PageWrapper displayName="Applications">
         {this.props.deletingApplication
@@ -145,6 +231,23 @@ class Applications extends Component<ApplicationProps> {
                       )}
                     />
                   )}
+
+                  <StyledDialog
+                    canOutsideClickClose={false}
+                    canEscapeKeyClose={false}
+                    title={`Invite Users to ${organization.name}`}
+                    onClose={() =>
+                      this.setState({
+                        selectedOrgId: "",
+                      })
+                    }
+                    isOpen={this.state.selectedOrgId === organization.id}
+                    setMaxWidth
+                  >
+                    <div className={Classes.DIALOG_BODY}>
+                      <Form orgId={organization.id} />
+                    </div>
+                  </StyledDialog>
                   <FormDialogComponent
                     trigger={<Button text="Share" intent={"primary"} filled />}
                     Form={InviteUsersFormv2}
