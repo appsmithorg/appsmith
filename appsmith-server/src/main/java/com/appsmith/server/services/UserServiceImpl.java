@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
@@ -178,7 +177,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         log.debug("Password reset Token: {} for email: {}", token, email);
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        Mono<User> userMono = repository.findByEmail(email, RESET_PASSWORD_USERS)
+        Mono<User> userMono = repository.findByEmail(email)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
 
         // Generate the password reset link for the user
@@ -238,7 +237,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
 
                     return repository
-                            .findByEmail(email, RESET_PASSWORD_USERS)
+                            .findByEmail(email)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", email)))
                             .map(user -> {
                                 user.setPasswordResetInitiated(true);
@@ -262,7 +261,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user) {
 
         return repository
-                .findByEmail(user.getEmail(), RESET_PASSWORD_USERS)
+                .findByEmail(user.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "user", user.getEmail())))
                 .flatMap(userFromDb -> {
                     if (!userFromDb.getPasswordResetInitiated()) {
