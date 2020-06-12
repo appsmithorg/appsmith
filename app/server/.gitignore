@@ -7,3 +7,8 @@ target/**
 **/dist
 *.iml
 node_modules
+.settings/**
+**/.settings
+**/.classpath
+**/.project
+**/.factorypath

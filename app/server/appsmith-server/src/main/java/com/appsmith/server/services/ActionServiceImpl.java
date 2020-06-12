@@ -7,7 +7,10 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
+import com.appsmith.external.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -39,10 +42,13 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import retrofit.http.HEAD;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -54,8 +60,10 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -281,6 +289,31 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
 
+    private ActionExecutionResult populateRequestFields(ActionConfiguration actionConfiguration,
+                                                        ActionExecutionResult actionExecutionResult) {
+
+        if (actionExecutionResult == null) {
+            return null;
+        }
+
+        if (actionConfiguration.getHeaders() != null) {
+            MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+
+            actionConfiguration.getHeaders().stream()
+                    .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+            actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqMultiMap));
+            log.debug("Got request headers in actionExecutionResult as: {}", actionExecutionResult.getRequestHeaders());
+        }
+
+        // If the body is set, then use that field as the request body by default
+        if (actionConfiguration.getBody() != null) {
+            actionExecutionResult.setRequestBody(actionConfiguration.getBody());
+        }
+
+        log.debug("Got requestBody in actionExecutionResult as: {}", actionExecutionResult.getRequestBody());
+        return actionExecutionResult;
+    }
+
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         Action actionFromDto = executeActionDTO.getAction();
@@ -313,13 +346,18 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         // This is separately done instead of fetching from the repository using id and isValid. This is
                         // because we want to error out with two different statuses -> Wrong action id OR Invalid action
                         if (Boolean.FALSE.equals(action.getIsValid())) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION, action.getName(), action.getId()));
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.INVALID_ACTION,
+                                    action.getName(),
+                                    action.getId(),
+                                    ArrayUtils.toString(action.getInvalids().toArray())
+                            ));
                         }
                         return Mono.just(action);
                     })
                     .cache();
         } else {
-            actionMono = Mono.just(actionFromDto);
+            actionMono = Mono.just(actionFromDto).cache();
         }
 
         // 3. Instantiate the implementation class based on the query type
@@ -343,15 +381,18 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> {
+                    // For embedded datasources/dry runs, validate the datasource for each execution
                     if (datasource.getId() == null) {
                         return datasourceService.validateDatasource(datasource);
-                    } else {
-                        return Mono.just(datasource);
                     }
+
+                    return Mono.just(datasource);
                 })
                 .flatMap(datasource -> {
                     Set<String> invalids = datasource.getInvalids();
                     if (!CollectionUtils.isEmpty(invalids)) {
+                        log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
+                                actionFromDto.getId(), ArrayUtils.toString(invalids));
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
@@ -361,7 +402,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
-        return actionMono
+        Mono<ActionExecutionResult> actionExecutionResultMono = actionMono
                 .flatMap(action -> datasourceMono.zipWith(pluginExecutorMono, (datasource, pluginExecutor) -> {
                     DatasourceConfiguration datasourceConfigurationTemp;
                     ActionConfiguration actionConfigurationTemp;
@@ -385,11 +426,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
                         datasourceConfigurationTemp = (DatasourceConfiguration) variableSubstitution(datasource.getDatasourceConfiguration(), replaceParamsMap);
                         actionConfigurationTemp = (ActionConfiguration) variableSubstitution(action.getActionConfiguration(), replaceParamsMap);
-
                     } else {
                         datasourceConfigurationTemp = datasource.getDatasourceConfiguration();
                         actionConfigurationTemp = action.getActionConfiguration();
-
                     }
 
                     DatasourceConfiguration datasourceConfiguration;
@@ -407,6 +446,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         actionConfiguration = actionConfigurationTemp;
                     }
 
+                    // Filter out any empty headers
+                    if (actionConfiguration.getHeaders() != null && !actionConfiguration.getHeaders().isEmpty()) {
+                        List<Property> headerList = actionConfiguration.getHeaders().stream()
+                                .filter(header -> !StringUtils.isEmpty(header.getKey()))
+                                .collect(Collectors.toList());
+                        actionConfiguration.setHeaders(headerList);
+                    }
+
                     Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
 
                     log.debug("Execute Action called in Page {}, for action id : {}  action name : {}, {}, {}",
@@ -420,35 +467,56 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     resourceContext.getConnection(),
                                     datasourceConfiguration,
                                     actionConfiguration))
-                            .timeout(Duration.ofMillis(timeoutDuration));
-                }))
-                .flatMap(obj -> obj)
-                .flatMap(res -> {
-                    ActionExecutionResult result = (ActionExecutionResult) res;
-                    Mono<ActionExecutionResult> resultMono = Mono.just(result);
-                    if (actionFromDto.getId() == null) {
-                        // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
-                        return resultMono;
-                    }
-
-                    Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
-                            //If the action is found in the db (i.e. it is not a dry run, save the cached response
-                            .flatMap(action -> {
-                                if (result.getIsExecutionSuccess()) {
-                                    // If the plugin execution result is successful, then cache response body in
-                                    // the action and save it.
-                                    action.setCacheResponse(result.getBody().toString());
-                                    return repository.save(action);
+                            .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorResume(e -> {
+                                log.debug("In the action execution error mode. Cause: {}", e.getMessage());
+                                ActionExecutionResult result = new ActionExecutionResult();
+                                result.setBody(e.getMessage());
+                                result.setIsExecutionSuccess(false);
+                                // Set the status code for Appsmith plugin errors
+                                if (e instanceof AppsmithPluginException) {
+                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                                } else {
+                                    result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                                 }
-                                log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
-                                return Mono.just(action);
-                            });
-                    return actionFromDbMono.zipWith(resultMono)
-                            .map(tuple -> {
-                                ActionExecutionResult executionResult = tuple.getT2();
-                                return executionResult;
-                            });
-                });
+                                return Mono.just(result);
+                            })
+                            .map(obj -> populateRequestFields(actionConfiguration, (ActionExecutionResult) obj));
+                }))
+                .flatMap(obj -> obj);
+
+                // Populate the actionExecution result further by setting the cached response and saving it to the DB
+                return actionExecutionResultMono.flatMap(result -> {
+                            Mono<ActionExecutionResult> resultMono = Mono.just(result);
+                            if (actionFromDto.getId() == null) {
+                                // This is a dry-run. We shouldn't query the db because it'll throw NPE on null IDs
+                                return resultMono;
+                            }
+
+                            Mono<Action> actionFromDbMono = repository.findById(actionFromDto.getId())
+                                    //If the action is found in the db (i.e. it is not a dry run, save the cached response
+                                    .flatMap(action -> {
+                                        // If the plugin execution result is successful, then cache response body in
+                                        // the action and save it.
+                                        if (result.getIsExecutionSuccess()) {
+                                            // Save the result only if body exists in the body. e.g. Even though 204
+                                            // is an execution success, there would be no body expected.
+                                            if (result.getBody() != null) {
+                                                action.setCacheResponse(result.getBody().toString());
+                                                return repository.save(action);
+                                            }
+                                            // No result body exists. Return the action as is.
+                                            return Mono.just(action);
+                                        }
+                                        log.debug("Action execution resulted in failure beyond the proxy with the result of {}", result);
+                                        return Mono.just(action);
+                                    });
+                            return actionFromDbMono.zipWith(resultMono)
+                                    .map(tuple -> {
+                                        ActionExecutionResult executionResult = tuple.getT2();
+                                        return executionResult;
+                                    });
+                        });
     }
 
     @Override
@@ -461,10 +529,22 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return repository.findByNameAndPageId(name, pageId, READ_ACTIONS);
     }
 
-    @Override
-    public Flux<Action> findDistinctRestApiActionsByNameInAndPageIdAndHttpMethod(Set<String> names, String pageId, String httpMethod) {
-        return repository.findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId,
-                httpMethod, READ_ACTIONS);
+    /**
+     * Given a list of names of actions and pageId, find all the actions matching this criteria of name, pageId, http
+     * method 'GET' (for API actions only) or have isExecuteOnLoad be true.
+     *
+     * @param names Set of Action names. The returned list of actions will be a subset of the actioned named in this set.
+     * @param pageId Id of the Page within which to look for Actions.
+     * @return A Flux of Actions that are identified to be executed on page-load.
+     */
+    public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
+        final Flux<Action> getApiActions = repository
+                .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
+
+        final Flux<Action> explicitOnLoadActions = repository
+                .findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(names, pageId);
+
+        return getApiActions.concatWith(explicitOnLoadActions);
     }
 
     /**

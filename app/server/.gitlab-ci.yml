@@ -11,11 +11,13 @@ cache:
     - ./.m2/repository
 
 variables:
-  DOCKER_DRIVER: overlay
+  DOCKER_DRIVER: overlay2
   SPRING_PROFILES_ACTIVE: test
   MAVEN_OPTS: "-Djava.awt.headless=true -Dmaven.repo.local=./.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+  # Instruct Testcontainers to use the daemon of DinD.
+  DOCKER_HOST: "tcp://docker:2375"
 
 stages:
   - build
@@ -27,6 +29,7 @@ maven-build:
   stage: build
   services:
     - redis
+    - docker:dind
   script:
     - mvn package -B -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE
   artifacts:
