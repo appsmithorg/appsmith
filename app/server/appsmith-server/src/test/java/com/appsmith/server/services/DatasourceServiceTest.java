@@ -1,13 +1,11 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
@@ -15,6 +13,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -57,38 +55,6 @@ public class DatasourceServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    static class TestPluginExecutor implements PluginExecutor {
-
-        @Override
-        public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-            System.out.println("In the execute");
-            return null;
-        }
-
-        @Override
-        public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("In the datasourceCreate");
-            return Mono.empty();
-        }
-
-        @Override
-        public void datasourceDestroy(Object connection) {
-            System.out.println("In the datasourceDestroy");
-
-        }
-
-        @Override
-        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("In the datasourceValidate");
-            return new HashSet<>();
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(new DatasourceTestResult());
-        }
-    }
 
     String orgId =  "";
 
@@ -136,7 +102,7 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createDatasourceNotInstalledPlugin() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Not Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -167,7 +133,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void createDatasourceValid() {
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -206,7 +172,7 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createAndUpdateDatasourceValidDB() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Datasource datasource = new Datasource();
         datasource.setName("test db datasource");
@@ -258,7 +224,7 @@ public class DatasourceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createNamelessDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
 
@@ -314,7 +280,7 @@ public class DatasourceServiceTest {
             return datasource;
         }).flatMap(datasourceService::create);
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1));
 

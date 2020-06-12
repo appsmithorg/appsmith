@@ -19,6 +19,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -131,7 +132,7 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionAndCheckPermissions() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new DatasourceServiceTest.TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
                 .users(Set.of("api_user"))
@@ -164,7 +165,7 @@ public class ActionServiceTest {
         @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionWithJustName() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new DatasourceServiceTest.TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Action action = new Action();
         action.setName("randomActionName");
@@ -188,7 +189,7 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionNullActionConfiguration() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new DatasourceServiceTest.TestPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Action action = new Action();
         action.setName("randomActionName2");

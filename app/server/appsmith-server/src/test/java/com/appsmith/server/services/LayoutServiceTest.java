@@ -1,23 +1,31 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -62,9 +70,21 @@ public class LayoutServiceTest {
     @Autowired
     ActionService actionService;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    PluginExecutor pluginExecutor;
+
     Mono<Layout> layoutMono;
 
     String orgId;
+
+    Datasource datasource;
+
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -72,6 +92,12 @@ public class LayoutServiceTest {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
+
+        datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
     }
 
     private void purgeAllPages() {
@@ -235,6 +261,8 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoad() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         Mono<Layout> testMono = pageService
                 .findByName("validPageName")
                 .flatMap(page1 -> {
@@ -245,6 +273,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -252,6 +281,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -263,6 +293,7 @@ public class LayoutServiceTest {
                     action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -270,6 +301,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -278,6 +310,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -285,6 +318,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     return Mono.zip(monos, objects -> page1);
