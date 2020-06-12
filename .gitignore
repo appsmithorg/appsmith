@@ -1,3 +1,4 @@
+.DS_Store
 dist/**
 target/**
 .idea/**
@@ -5,3 +6,4 @@ target/**
 **/target
 **/dist
 *.iml
+node_modules

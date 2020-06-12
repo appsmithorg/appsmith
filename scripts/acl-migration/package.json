@@ -1,0 +1,18 @@
+{
+	"name": "acl-migration",
+	"version": "1.0.0",
+	"description": "",
+	"private": true,
+	"main": "main.js",
+	"scripts": {
+		"run": "node main.js"
+	},
+	"keywords": [],
+	"author": "Appsmith",
+	"devDependencies": {
+		"axios": "^0.19.2",
+		"axios-cookiejar-support": "^1.0.0",
+		"mongodb": "^3.5.8",
+		"tough-cookie": "^4.0.0"
+	}
+}
