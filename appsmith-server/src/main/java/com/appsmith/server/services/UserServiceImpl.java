@@ -636,7 +636,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                 updatedUser.getEmail(), updatedOrg.getName());
                         try {
-                            String inviteUrl = String.format("", originHeader);
+                            String inviteUrl = originHeader;
                             params.put("inviteUrl", inviteUrl);
                             String emailBody = emailSender.replaceEmailTemplate(USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
                             emailSender.sendMail(updatedUser.getEmail(), "Appsmith: You have been added to a new organization", emailBody);
