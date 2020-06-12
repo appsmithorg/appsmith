@@ -180,6 +180,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             <ActionButton
               text="Run"
               accent="primary"
+              filled
               onClick={() => {
                 onRunClick();
               }}

@@ -187,6 +187,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <ActionButton
               text="Run"
+              filled
               accent="primary"
               onClick={() => {
                 onRunClick();
