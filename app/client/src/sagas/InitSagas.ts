@@ -10,6 +10,7 @@ import { fetchPage, fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
+import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
@@ -64,6 +65,7 @@ export function* initializeAppViewerSaga(
   yield all([
     put(fetchActions(applicationId)),
     put(fetchPageList(applicationId)),
+    put(fetchApplication(applicationId)),
   ]);
 
   yield all([
