@@ -103,6 +103,10 @@ const FailedMessageContainer = styled.div`
   align-items: center;
 `;
 
+const TabbedViewWrapper = styled.div`
+  height: calc(100% - 30px);
+`;
+
 const ApiResponseView = (props: Props) => {
   const {
     match: {
@@ -143,7 +147,7 @@ const ApiResponseView = (props: Props) => {
                 ? JSON.stringify(response.body, null, 2)
                 : "",
             }}
-            height={700}
+            height={"100%"}
           />
         </>
       ),
@@ -163,12 +167,12 @@ const ApiResponseView = (props: Props) => {
       title: "Request Body",
       panelComponent: (
         <CodeEditor
+          height={"100%"}
           input={{
             value: _.isObject(response.requestBody)
               ? JSON.stringify(response.requestBody, null, 2)
               : response.requestBody || "",
           }}
-          height={700}
         />
       ),
     },
@@ -203,12 +207,14 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaInfo>
         </React.Fragment>
       </FormRow>
-      <BaseTabbedView
-        overflow
-        tabs={tabs}
-        selectedIndex={selectedIndex}
-        setSelectedIndex={setSelectedIndex}
-      />
+      <TabbedViewWrapper>
+        <BaseTabbedView
+          overflow
+          tabs={tabs}
+          selectedIndex={selectedIndex}
+          setSelectedIndex={setSelectedIndex}
+        />
+      </TabbedViewWrapper>
     </ResponseWrapper>
   );
 };
