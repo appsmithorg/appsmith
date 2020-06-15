@@ -705,8 +705,14 @@ function Fields(props: {
         break;
       case FieldType.ALERT_TEXT_FIELD:
       case FieldType.URL_FIELD:
+        let fieldLabel = "";
+        if (fieldType === FieldType.ALERT_TEXT_FIELD) {
+          fieldLabel = "Message";
+        } else if (fieldType === FieldType.URL_FIELD) {
+          fieldLabel = "Page Name";
+        }
         viewElement = (view as (props: TextViewProps) => JSX.Element)({
-          label: "",
+          label: fieldLabel,
           get: fieldConfig.getter,
           set: (value: string | DropdownOption) => {
             const finalValueToSet = fieldConfig.setter(value, props.value);
