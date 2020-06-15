@@ -12,10 +12,6 @@ const autoConfig = (baseUrl: string): AppsmithUIConfigs => ({
     //   optimizely: "PVDSYRhBhvUVY3tN6mkV1s",
     // },
     default: {
-      documentationv2: true,
-      apipanev2: true,
-      datasourcepane: true,
-      querypane: true,
       lightningmenu: false,
     },
   },
