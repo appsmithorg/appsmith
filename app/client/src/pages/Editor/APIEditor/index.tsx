@@ -24,18 +24,7 @@ import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import styled from "styled-components";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
-import FeatureFlag from "utils/featureFlags";
-import { FeatureFlagsEnum } from "configs/types";
-
-const EmptyStateContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 20px;
-`;
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -177,13 +166,7 @@ class ApiEditor extends React.Component<Props> {
         match={this.props.match}
       />
     );
-    const defaultHomeScreen = (
-      <EmptyStateContainer>
-        {"Create / Select an API from the list"}
-      </EmptyStateContainer>
-    );
-    const v2Flag = FeatureFlag.check(FeatureFlagsEnum.ApiPaneV2);
-    const homeScreen = v2Flag ? apiHomeScreen : defaultHomeScreen;
+
     return (
       <div
         style={{
@@ -232,7 +215,7 @@ class ApiEditor extends React.Component<Props> {
             )}
           </>
         ) : (
-          homeScreen
+          apiHomeScreen
         )}
       </div>
     );
