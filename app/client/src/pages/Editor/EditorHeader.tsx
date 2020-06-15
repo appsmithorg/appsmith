@@ -20,6 +20,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
 
 const LoadingContainer = styled.div`
@@ -80,7 +81,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               <Button
                 text="Manage Pages"
                 icon="page-layout"
-                iconAlignment="left"
+                iconAlignment={Directions.LEFT}
+                skin={Skin.LIGHT}
               />
             ),
             onSelect: () =>

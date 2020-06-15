@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, lazy, Suspense } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import styled, { createGlobalStyle } from "styled-components";
@@ -19,10 +19,14 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
+const LightningMenu = lazy(() =>
+  import("components/editorComponents/LightningMenu"),
+);
 require("codemirror/mode/javascript/javascript");
 require("codemirror/mode/sql/sql");
 require("codemirror/addon/hint/sql-hint");
@@ -146,12 +150,6 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   }
 `;
 
-const Wrapper = styled.div`
-  position: relative;
-  flex: 1;
-  height: 100%;
-`;
-
 const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;
@@ -160,6 +158,7 @@ const EditorWrapper = styled.div<{
   disabled?: boolean;
   setMaxHeight?: boolean;
 }>`
+  width: 100%;
   ${props =>
     props.singleLine && props.isFocused
       ? `
@@ -167,9 +166,9 @@ const EditorWrapper = styled.div<{
   position: absolute;
   right: 0;
   left: 0;
-  top: 0;
+  top: 0;  
   `
-      : `z-index: 0; position: relative`}
+      : `z-index: 0; position: relative;`}
   background-color: ${props =>
     props.editorTheme === THEMES.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
@@ -181,7 +180,7 @@ const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   min-height: 32px;
-  overflow: hidden;
+  
   height: auto;
   ${props =>
     props.setMaxHeight &&
@@ -274,6 +273,54 @@ const IconContainer = styled.div`
   }
 `;
 
+type MenuState = "none" | "default" | "active" | "hover";
+
+const DynamicAutocompleteInputWrapper = styled.div<{
+  skin: Skin;
+  theme: Theme;
+  isActive: boolean;
+  isNotHover: boolean;
+}>`
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  position: relative;
+  border: ${props => (props.skin === Skin.DARK ? "1px solid" : "none")};
+  border-radius: 2px;
+  border-color: ${props =>
+    props.isActive && props.skin === Skin.DARK
+      ? Colors.ALABASTER
+      : "transparent"};
+  .bp3-popover-wrapper:first-of-type {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  &:hover {
+    border: ${props =>
+      props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
+    .lightning-menu {
+      background: ${props =>
+        !props.isNotHover
+          ? props.skin === Skin.DARK
+            ? Colors.ALABASTER
+            : Colors.BLUE_CHARCOAL
+          : ""};
+      svg {
+        path,
+        circle {
+          fill: ${props =>
+            !props.isNotHover
+              ? props.skin === Skin.DARK
+                ? Colors.BLUE_CHARCOAL
+                : Colors.WHITE
+              : ""};
+        }
+      }
+    }
+  }
+`;
+
 const THEMES: Record<string, EditorTheme> = {
   LIGHT: "LIGHT",
   DARK: "DARK",
@@ -305,6 +352,7 @@ export type DynamicAutocompleteInputProps = {
   link?: string;
   baseMode?: string | object;
   setMaxHeight?: boolean;
+  showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
@@ -317,6 +365,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
+  isOpened: boolean;
   autoCompleteVisible: boolean;
 };
 
@@ -329,8 +378,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     super(props);
     this.state = {
       isFocused: false,
+      isOpened: false,
       autoCompleteVisible: false,
     };
+    this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 
   componentDidMount(): void {
@@ -566,6 +617,27 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
+  updatePropertyValue(value: string, cursor?: number) {
+    if (value) {
+      this.editor.setValue(value);
+    }
+    this.editor.focus();
+    if (cursor === undefined) {
+      if (value) {
+        cursor = value.length - 2;
+      } else {
+        cursor = 1;
+      }
+    }
+    this.editor.setCursor({
+      line: 0,
+      ch: cursor,
+    });
+    this.setState({ isFocused: true }, () => {
+      this.handleAutocompleteVisibility(this.editor);
+    });
+  }
+
   render() {
     const {
       input,
@@ -575,6 +647,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       disabled,
       className,
       setMaxHeight,
+      showLightningMenu,
       dataTreePath,
       dynamicData,
       expected,
@@ -591,7 +664,28 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
     return (
-      <Wrapper>
+      <DynamicAutocompleteInputWrapper
+        theme={this.props.theme}
+        skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isNotHover={this.state.isFocused || this.state.isOpened}
+      >
+        {showLightningMenu !== false && (
+          <Suspense fallback={<div />}>
+            <LightningMenu
+              skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+              updateDynamicInputValue={this.updatePropertyValue}
+              isFocused={this.state.isFocused}
+              isOpened={this.state.isOpened}
+              onOpenLightningMenu={() => {
+                this.setState({ isOpened: true });
+              }}
+              onCloseLightningMenu={() => {
+                this.setState({ isOpened: false });
+              }}
+            />
+          </Suspense>
+        )}
         <EvaluatedValuePopup
           theme={theme || THEMES.LIGHT}
           isOpen={showEvaluatedValue}
@@ -640,14 +734,18 @@ class DynamicAutocompleteInput extends Component<Props, State> {
               </React.Fragment>
             )}
             {this.props.rightIcon && (
-              <HelperTooltip
-                description={this.props.description}
-                rightIcon={this.props.rightIcon}
-              />
+              <div
+                style={{ zIndex: 100, position: "absolute", right: "-36px" }}
+              >
+                <HelperTooltip
+                  description={this.props.description}
+                  rightIcon={this.props.rightIcon}
+                />
+              </div>
             )}
           </EditorWrapper>
         </EvaluatedValuePopup>
-      </Wrapper>
+      </DynamicAutocompleteInputWrapper>
     );
   }
 }

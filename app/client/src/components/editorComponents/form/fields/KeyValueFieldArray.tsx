@@ -42,6 +42,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 placeholder="Key"
                 singleLine
                 setMaxHeight
+                showLightningMenu={false}
                 dataTreePath={`${props.dataTreePath}[${index}].key`}
                 expected={FIELD_VALUES.API_ACTION.params}
               />
@@ -85,6 +86,12 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       props.actionConfig[index].editable === undefined
                         ? false
                         : true
+                    }
+                    showLightningMenu={
+                      props.actionConfig[index].editable ||
+                      props.actionConfig[index].editable === undefined
+                        ? true
+                        : false
                     }
                   />
                 </React.Fragment>

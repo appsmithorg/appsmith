@@ -1,5 +1,9 @@
 import React from "react";
-import { Intent, BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
+import {
+  Intent,
+  BlueprintButtonIntentsCSS,
+  Skin,
+} from "constants/DefaultTheme";
 import styled, { css } from "styled-components";
 import {
   AnchorButton as BlueprintAnchorButton,
@@ -21,6 +25,8 @@ const buttonStyles = css<{
   intent?: Intent;
   filled?: string;
   fluid?: boolean;
+  skin?: Skin;
+  iconAlignment?: Direction;
 }>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
@@ -34,13 +40,33 @@ const buttonStyles = css<{
 
     width: ${props => (props.fluid ? "100%" : "auto")};
   }
-
+  &&&&&& {
+    &.bp3-button span {
+      font-weight: ${props => (props.skin !== undefined ? 400 : 700)};
+    }
+    .bp3-icon svg {
+      width: ${props => (props.skin !== undefined ? 14 : 16)}px;
+      height: ${props => (props.skin !== undefined ? 14 : 16)}px;
+    }
+    &.bp3-button {
+      display: flex;
+      width: 100%;
+      justify-content: ${props =>
+        props.skin === undefined
+          ? "center"
+          : props.iconAlignment === Directions.RIGHT
+          ? "space-between"
+          : "flex-start"};
+    }
+  }
   ${props => (props.outline ? outline : "")}
 `;
 const StyledButton = styled(BlueprintButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
+  skin?: Skin;
+  iconAlignment?: Direction;
 }>`
   ${buttonStyles}
 `;
@@ -48,6 +74,8 @@ const StyledAnchorButton = styled(BlueprintAnchorButton)<{
   outline?: string;
   intent?: Intent;
   filled?: string;
+  skin?: Skin;
+  iconAlignment?: Direction;
 }>`
   ${buttonStyles}
 `;
@@ -67,6 +95,7 @@ export type ButtonProps = {
   type?: "button" | "submit" | "reset";
   className?: string;
   fluid?: boolean;
+  skin?: Skin;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -94,6 +123,8 @@ export const Button = (props: ButtonProps) => {
     type: props.type,
     className: props.className,
     fluid: props.fluid ? props.fluid.toString() : undefined,
+    skin: props.skin,
+    iconAlignment: props.iconAlignment ? props.iconAlignment : undefined,
   };
   if (props.href) {
     return (

@@ -48,7 +48,7 @@ function updateOptionValue<T>(
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0px 5px;
   position: absolute;
-  right: -2px;
+  right: 8px;
   cursor: pointer;
 `;
 
@@ -60,6 +60,7 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
   justify-content: flex-start;
   padding-right: 16px;
+  width: calc(100% - 10px);
 `;
 
 type KeyValueComponentProps = {

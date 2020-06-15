@@ -43,7 +43,7 @@ describe("Table Widget Functionality", function() {
       .get(commonlocators.dropdownSelectButton)
       .first()
       .find("> .bp3-button-text")
-      .should("have.text", "Navigate To");
+      .should("have.text", "{{navigateTo()}}");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });

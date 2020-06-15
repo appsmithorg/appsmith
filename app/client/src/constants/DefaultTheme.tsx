@@ -37,6 +37,11 @@ export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   warning: AlertIcons.WARNING,
 };
 
+export enum Skin {
+  LIGHT,
+  DARK,
+}
+
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL} {
@@ -267,6 +272,21 @@ export type Theme = {
     hoverBG: Color;
     hoverBGOpacity: number;
   };
+  dropdown: {
+    [Skin.LIGHT]: {
+      hoverBG: Color;
+      hoverText: Color;
+      inActiveBG: Color;
+      inActiveText: Color;
+    };
+    [Skin.DARK]: {
+      hoverBG: Color;
+      hoverText: Color;
+      inActiveBG: Color;
+      inActiveText: Color;
+      border: Color;
+    };
+  };
   authCard: {
     width: number;
     borderRadius: number;
@@ -283,6 +303,44 @@ export type Theme = {
   };
   pageContentWidth: number;
   alert: Record<string, { color: Color }>;
+  lightningMenu: {
+    [Skin.DARK]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+    [Skin.LIGHT]: {
+      default: {
+        color: Color;
+        background: Color;
+      };
+      active: {
+        color: Color;
+        background: Color;
+      };
+      hover: {
+        color: Color;
+        background: Color;
+      };
+      none: {
+        color: string;
+        background: string;
+      };
+    };
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -358,6 +416,8 @@ export const theme: Theme = {
     notification: Colors.JAFFA,
     bindingTextDark: Colors.SOFT_ORANGE,
     bindingText: Colors.PURE_ORANGE,
+    cmBacground: Colors.BLUE_CHARCOAL,
+    lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: [
@@ -415,6 +475,21 @@ export const theme: Theme = {
     hoverBG: Colors.BLACK,
     hoverBGOpacity: 0.5,
   },
+  dropdown: {
+    [Skin.LIGHT]: {
+      hoverBG: Colors.GREEN,
+      hoverText: Colors.WHITE,
+      inActiveBG: Colors.WHITE,
+      inActiveText: Colors.BLACK_PEARL,
+    },
+    [Skin.DARK]: {
+      hoverBG: Colors.TROUT_DARK,
+      hoverText: Colors.WHITE,
+      inActiveBG: Colors.BLUE_CHARCOAL,
+      inActiveText: Colors.WHITE,
+      border: Colors.TROUT_DARK,
+    },
+  },
   authCard: {
     width: 612,
     borderRadius: 16,
@@ -447,6 +522,44 @@ export const theme: Theme = {
     },
     warning: {
       color: Colors.BUTTER_CUP,
+    },
+  },
+  lightningMenu: {
+    [Skin.DARK]: {
+      default: {
+        color: Colors.ALABASTER,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.ALABASTER,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
+    },
+    [Skin.LIGHT]: {
+      default: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.WHITE,
+      },
+      active: {
+        color: Colors.BLUE_CHARCOAL,
+        background: Colors.JAFFA_DARK,
+      },
+      hover: {
+        color: Colors.WHITE,
+        background: Colors.BLUE_CHARCOAL,
+      },
+      none: {
+        color: "transparent",
+        background: "transparent",
+      },
     },
   },
 };

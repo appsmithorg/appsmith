@@ -9,7 +9,6 @@ import { ReactComponent as OverflowMenuIcon } from "assets/icons/menu/overflow-m
 import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.svg";
 import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.svg";
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
-
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
