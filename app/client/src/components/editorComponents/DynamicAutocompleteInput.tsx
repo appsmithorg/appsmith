@@ -480,6 +480,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
     if (this.ternServer) {
       this.editor.setOption("extraKeys", {
+        ...this.editor.options.extraKeys,
         [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
           cm: CodeMirror.Editor,
         ) => {
@@ -495,6 +496,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     } else {
       // start normal autocomplete
       this.editor.setOption("extraKeys", {
+        ...this.editor.options.extraKeys,
         [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: "autocomplete",
       });
       this.editor.setOption("showHint", true);
