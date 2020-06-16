@@ -5,6 +5,7 @@ import {
   InjectedFormProps,
   FormSubmitHandler,
   formValueSelector,
+  Field,
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -16,7 +17,6 @@ import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -29,6 +29,12 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
+import _ from "lodash";
+import EntityNameComponent from "components/editorComponents/EntityNameComponent";
+import { editApiName, saveApiName } from "actions/actionActions";
+import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
+import { AppState } from "reducers";
+import { getApiName } from "selectors/formSelectors";
 
 const Form = styled.form`
   display: flex;
@@ -128,9 +134,22 @@ interface APIFormProps {
   };
   dispatch: any;
   datasourceFieldText: string;
+  apiName: string;
+  apiNameValidation: ApiNameValidation;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
+
+export const NameWrapper = styled.div`
+  width: 49%;
+  display: flex;
+  justify-content: space-between;
+  input {
+    margin: 0;
+    box-sizing: border-box;
+    // border: 0;
+  }
+`;
 
 const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
@@ -163,12 +182,29 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     <Form onSubmit={handleSubmit}>
       <MainConfiguration>
         <FormRow>
-          <TextField
-            name="name"
-            placeholder="nameOfApi (camel case)"
-            showError
-            className="t--nameOfApi"
-          />
+          <NameWrapper className="t--nameOfApi">
+            <EntityNameComponent
+              value={props.apiName}
+              onBlur={() => {
+                dispatch(
+                  saveApiName({
+                    id: apiId,
+                  }),
+                );
+              }}
+              onChange={(e: any) => {
+                dispatch(
+                  editApiName({
+                    id: apiId,
+                    value: e.target.value,
+                  }),
+                );
+              }}
+              isValid={props.apiNameValidation.isValid}
+              validationMessage={props.apiNameValidation.validationMessage}
+              placeholder="nameOfApi (camel case)"
+            ></EntityNameComponent>
+          </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <ActionButton
               text="Delete"
@@ -276,15 +312,15 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect(state => {
+export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfigurationBody = selector(state, "actionConfiguration.body");
-  const actionName = selector(state, "name");
   const actionConfigurationHeaders = selector(
     state,
     "actionConfiguration.headers",
   );
   const apiId = selector(state, "id");
+  const actionName = getApiName(state, apiId) || "";
 
   return {
     actionName,

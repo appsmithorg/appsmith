@@ -230,7 +230,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     data = draft;
   }
 
-  yield put(initialize(API_EDITOR_FORM_NAME, data));
+  yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
 
   yield call(initializeExtraFormDataSaga);
@@ -425,7 +425,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const data = { ...action };
 
   if (pluginType === "API") {
-    yield put(initialize(API_EDITOR_FORM_NAME, data));
+    yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
@@ -464,7 +464,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
       API_EDITOR_FORM_NAME,
     );
     if (values.id === id) {
-      yield put(initialize(API_EDITOR_FORM_NAME, action));
+      yield put(initialize(API_EDITOR_FORM_NAME, _.omit(action, "name")));
     } else {
       yield put(changeApi(id));
     }

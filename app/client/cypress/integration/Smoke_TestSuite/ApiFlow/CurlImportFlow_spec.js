@@ -18,7 +18,7 @@ describe("Test curl import flow", function() {
         response.response.body.data.name,
       );
     });
-    cy.WaitAutoSave();
+    // cy.WaitAutoSave();
     cy.RunAPI();
 
     cy.get(ApiEditor.formActionButtons).should("be.visible");

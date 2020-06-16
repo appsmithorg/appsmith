@@ -30,6 +30,8 @@ import _ from "lodash";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
+import PageApi from "api/PageApi";
+import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
@@ -42,6 +44,8 @@ import {
   moveActionError,
   moveActionSuccess,
   updateActionSuccess,
+  updateApiNameDraft,
+  fetchActionsForPage,
 } from "actions/actionActions";
 import {
   getDynamicBindings,
@@ -62,6 +66,7 @@ import {
 import {
   getCurrentApplicationId,
   getPageList,
+  getCurrentPageId,
 } from "selectors/editorSelectors";
 import history from "utils/history";
 import {
@@ -73,6 +78,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
+import { validateEntityName } from "components/editorComponents/EntityNameComponent";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
+import { getActions } from "selectors/entitiesSelector";
 
 export const getAction = (
   state: AppState,
@@ -466,6 +474,10 @@ export function* updateActionSaga(
     if (isApi) {
       action = transformRestAction(data);
     }
+
+    action.name = (yield select(getActions)).find(
+      (act: any) => act.config.id === action.id,
+    )?.config.name;
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
     );
@@ -742,6 +754,97 @@ function* copyActionSaga(
   }
 }
 
+function* editApiNameSaga(action: ReduxAction<{ id: string; value: string }>) {
+  const actionNames = yield select(state =>
+    state.entities.actions.map((action: ActionData) => action.config.name),
+  );
+  const draftActionNames = yield select(state =>
+    Object.values(state.ui.apiPane.apiName.drafts),
+  );
+  //TODO: If an api is in saving state, then it should not use that name as well.
+  const validation = validateEntityName(action.payload.value, [
+    ...actionNames,
+    ...draftActionNames,
+  ]);
+
+  yield put(
+    updateApiNameDraft({
+      id: action.payload.id,
+      draft: {
+        value: action.payload.value,
+        validation: validation,
+      },
+    }),
+  );
+}
+
+export function* refactorActionName(
+  id: string,
+  pageId: string,
+  oldName: string,
+  newName: string,
+) {
+  // fetch page of the action
+  const pageResponse = yield call(PageApi.fetchPage, {
+    pageId: pageId,
+  });
+  // check if page request is successful
+  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  if (isPageRequestSuccessful) {
+    // get the layoutId from the page response
+    const layoutId = pageResponse.data.layouts[0].id;
+    // call to refactor action
+    const refactorResponse = yield ActionAPI.updateActionName({
+      layoutId,
+      pageId: pageId,
+      oldName: oldName,
+      newName: newName,
+    });
+
+    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+
+    const currentPageId = yield select(getCurrentPageId);
+    if (isRefactorSuccessful) {
+      if (currentPageId === pageId) {
+        yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+      } else {
+        yield put(fetchActionsForPage(pageId));
+      }
+    }
+  }
+}
+
+function* saveApiNameSaga(action: ReduxAction<{ id: string }>) {
+  // Takes from drafts, checks if the name isValid, saves
+  const apiNameDraftState = yield select(state => state.ui.apiPane.apiName);
+  const apiId = action.payload.id;
+  const apiNameDraft = apiNameDraftState.drafts[apiId];
+  if (apiNameDraft) {
+    const validation = apiNameDraft.validation;
+    if (!validation.isValid) {
+      // If its invalid, then don't save and just remove draft and validation.
+      yield put(
+        updateApiNameDraft({
+          id: action.payload.id,
+        }),
+      );
+    } else {
+      const api = yield select(state =>
+        state.entities.actions.find(
+          (action: ActionData) => action.config.id === apiId,
+        ),
+      );
+
+      yield refactorActionName(
+        api.config.id,
+        api.config.pageId,
+        api.config.name,
+        apiNameDraft.value,
+      );
+    }
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
@@ -750,6 +853,8 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.EDIT_API_NAME, editApiNameSaga),
+    takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

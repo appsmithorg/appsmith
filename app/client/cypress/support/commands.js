@@ -136,8 +136,12 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
+    .blur()
     .should("have.value", apiname);
   cy.WaitAutoSave();
+  // Added because api name edit takes some time to
+  // reflect in api sidebar after the call passes.
+  cy.wait(4000);
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", apiname => {
@@ -145,6 +149,7 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  // cy.get(ApiEditor.nameOfApi)
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -325,7 +330,8 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.apiTxt)
     .clear()

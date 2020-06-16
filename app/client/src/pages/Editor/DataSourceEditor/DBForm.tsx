@@ -74,7 +74,7 @@ const PluginImage = styled.img`
   width: auto;
 `;
 
-const FormTitleContainer = styled.div`
+export const FormTitleContainer = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
