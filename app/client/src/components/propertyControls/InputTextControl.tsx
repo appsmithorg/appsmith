@@ -50,13 +50,13 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      errorMessage,
       expected,
       propertyValue,
       isValid,
       label,
       placeholderText,
       dataTreePath,
+      validationMessage,
     } = this.props;
     return (
       <InputText
@@ -64,7 +64,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         value={propertyValue}
         onChange={this.onTextChange}
         isValid={isValid}
-        errorMessage={errorMessage}
+        errorMessage={validationMessage}
         expected={expected}
         placeholder={placeholderText}
         dataTreePath={dataTreePath}
@@ -101,6 +101,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 export interface InputControlProps extends ControlProps {
   placeholderText: string;
   inputType: InputType;
+  validationMessage?: string;
   isDisabled?: boolean;
 }
 
