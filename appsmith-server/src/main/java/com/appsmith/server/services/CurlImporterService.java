@@ -190,7 +190,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (token.startsWith("-d")) {
                 // `-dstuff` -> `--data stuff`
                 normalizedTokens.add(ARG_DATA);
-                normalizedTokens.add(token.substring(2));
+                if (token.length() > 2) {
+                    normalizedTokens.add(token.substring(2));
+                }
 
             } else if ("-H".equals(token)) {
                 normalizedTokens.add(ARG_HEADER);
@@ -198,7 +200,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (token.startsWith("-H")) {
                 // `-HContent-Type:application/json` -> `--header Content-Type:application/json`
                 normalizedTokens.add(ARG_HEADER);
-                normalizedTokens.add(token.substring(2));
+                if (token.length() > 2) {
+                    normalizedTokens.add(token.substring(2));
+                }
 
             } else if ("-X".equals(token)) {
                 normalizedTokens.add(ARG_REQUEST);
@@ -206,7 +210,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if (token.startsWith("-X")) {
                 // `-XGET` -> `--request GET`
                 normalizedTokens.add(ARG_REQUEST);
-                normalizedTokens.add(token.substring(2).toUpperCase());
+                if (token.length() > 2) {
+                    normalizedTokens.add(token.substring(2).toUpperCase());
+                }
 
             } else if ("-b".equals(token)) {
                 normalizedTokens.add(ARG_COOKIE);
@@ -217,7 +223,9 @@ public class CurlImporterService extends BaseApiImporter {
             } else if ("-A".equals(token)) {
                 normalizedTokens.add(ARG_USER_AGENT);
 
-            } else {
+            } else if (!"--url".equals(token)) {
+                // We skip the `--url` argument since it's superfluous and URLs are directly sniffed out of the argument
+                // list. The `--url` argument holds no special significance in cURL.
                 normalizedTokens.add(token);
 
             }

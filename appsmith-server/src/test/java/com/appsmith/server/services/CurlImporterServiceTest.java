@@ -519,6 +519,26 @@ public class CurlImporterServiceTest {
     }
 
     @Test
+    public void parseWithDashedUrlArgument() {
+        Action action = curlImporterService.curlToAction("curl --url http://api.sloths.com");
+        assertMethod(action, HttpMethod.GET);
+        assertUrl(action, "http://api.sloths.com");
+        assertEmptyPath(action);
+        assertEmptyHeaders(action);
+        assertEmptyBody(action);
+    }
+
+    @Test
+    public void parseWithDashedUrlArgument2() {
+        Action action = curlImporterService.curlToAction("curl -X POST -d '{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}' --url http://dummy.restapiexample.com/api/v1/create");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://dummy.restapiexample.com");
+        assertPath(action, "/api/v1/create");
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
+        assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
+    }
+
+    @Test
     @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
