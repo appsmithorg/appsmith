@@ -437,6 +437,7 @@ function getFieldFromValue(
   if (!value) {
     return fields;
   }
+  const childrens: any = [];
   if (value.indexOf("run") !== -1) {
     const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
     if (matches.length) {
@@ -471,7 +472,7 @@ function getFieldFromValue(
       successFields[0].label = "onSuccess";
       successFields[0].level = level + 1;
       successFields[0].start = true;
-      fields.push(successFields);
+      childrens.push(successFields);
 
       let errorValue;
       if (errorArg && errorArg.length > 0) {
@@ -499,13 +500,14 @@ function getFieldFromValue(
       errorFields[0].label = "onError";
       errorFields[0].level = level + 1;
       errorFields[0].start = false;
-      fields.push(errorFields);
+      childrens.push(errorFields);
+      fields[0].childrens = childrens;
     }
     return fields;
   }
 
   if (value.indexOf("navigateTo") !== -1) {
-    fields.push({
+    childrens.push({
       field: FieldType.URL_FIELD,
       level: level + 1,
       levelSeparator,
@@ -514,7 +516,7 @@ function getFieldFromValue(
   }
 
   if (value.indexOf("showModal") !== -1) {
-    fields.push({
+    childrens.push({
       field: FieldType.SHOW_MODAL_FIELD,
       level: level + 1,
       levelSeparator,
@@ -522,7 +524,7 @@ function getFieldFromValue(
     });
   }
   if (value.indexOf("closeModal") !== -1) {
-    fields.push({
+    childrens.push({
       field: FieldType.CLOSE_MODAL_FIELD,
       level: level + 1,
       levelSeparator,
@@ -530,21 +532,21 @@ function getFieldFromValue(
     });
   }
   if (value.indexOf("showAlert") !== -1) {
-    fields.push(
-      {
-        field: FieldType.ALERT_TEXT_FIELD,
-        level: level + 1,
-        levelSeparator,
-        start: true,
-      },
-      {
-        field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
-        level: level + 1,
-        levelSeparator,
-        start: false,
-      },
-    );
+    childrens.push({
+      field: FieldType.ALERT_TEXT_FIELD,
+      level: level + 1,
+      levelSeparator,
+      start: true,
+    });
+    childrens.push({
+      field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
+      level: level + 1,
+      levelSeparator,
+      start: false,
+    });
   }
+  fields[0].childrens = childrens.length ? childrens : undefined;
+  // fields[].push(childrens);
   return fields;
 }
 
@@ -560,6 +562,7 @@ function Fields(props: {
   onValueChange: Function;
   value: string;
   fields: any;
+  childrens?: any;
   label?: string;
   isValid: boolean;
   validationMessage?: string;
@@ -570,7 +573,12 @@ function Fields(props: {
   depth: number;
   maxDepth: number;
 }) {
+  console.log("props.fields", props.fields);
+  if (!props.fields) {
+    return null;
+  }
   const ui = props.fields.map((field: any) => {
+    console.log("field", field);
     if (Array.isArray(field)) {
       if (props.depth > props.maxDepth) {
         return null;
@@ -730,7 +738,43 @@ function Fields(props: {
         break;
     }
 
-    return <div key={fieldType}>{viewElement}</div>;
+    return (
+      <div key={fieldType} data-key={fieldType}>
+        {viewElement}
+        {field.childrens && (
+          <div className="childrens">
+            {field.childrens.map((childField: any, index: number) => {
+              const firstChild = Array.isArray(childField)
+                ? childField[0]
+                : childField;
+              return (
+                <Fields
+                  key={index}
+                  value={firstChild.value}
+                  fields={Array.isArray(childField) ? childField : [childField]}
+                  label={firstChild.label}
+                  isValid={props.isValid}
+                  validationMessage={props.validationMessage}
+                  apiOptionTree={props.apiOptionTree}
+                  queryOptionTree={props.queryOptionTree}
+                  modalDropdownList={props.modalDropdownList}
+                  pageDropdownOptions={props.pageDropdownOptions}
+                  depth={props.depth + 1}
+                  maxDepth={props.maxDepth}
+                  onValueChange={(value: any) => {
+                    props.onValueChange(
+                      firstChild.getParentValue(
+                        value.substring(2, value.length - 2),
+                      ),
+                    );
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
   });
 
   return <>{ui}</>;
@@ -843,6 +887,11 @@ export function ActionCreator(props: ActionCreatorProps) {
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
   const fields = getFieldFromValue(props.value, 0, false);
+  if (fields.length > 1) {
+    fields[0].childrens = fields.splice(1, fields.length - 1);
+    console.log(fields);
+  }
+  console.log("fields", fields);
   return (
     <Fields
       value={props.value}
