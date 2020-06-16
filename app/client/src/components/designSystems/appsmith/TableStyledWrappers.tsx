@@ -11,10 +11,10 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
   justify-content: space-between;
   flex-direction: column;
   .tableWrap {
+    height: 100%;
     display: block;
     overflow-x: auto;
     overflow-y: hidden;
-    border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   }
   .table {
     border-spacing: 0;
@@ -29,16 +29,11 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
       height: ${props => props.height - 5 - 102}px;
     }
     .tr {
-      :last-child {
-        .td {
-          border-bottom: 0;
-        }
-      }
       :nth-child(even) {
         background: ${Colors.ATHENS_GRAY_DARKER};
       }
       &.selected-row {
-        background: ${Colors.ATHENS_GRAY};
+        background: ${Colors.POLAR};
       }
       &:hover {
         background: ${Colors.ATHENS_GRAY};
@@ -237,7 +232,7 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: normal;
+  white-space: nowrap;
   opacity: ${props => (props.isHidden ? "0.6" : "1")};
   .image-cell {
     width: 40px;
@@ -250,5 +245,12 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   }
   video {
     border-radius: 4px;
+  }
+  &.video-cell {
+    height: 100%;
+    iframe {
+      border: none;
+      border-radius: 4px;
+    }
   }
 `;
