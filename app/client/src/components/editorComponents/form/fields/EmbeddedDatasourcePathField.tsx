@@ -15,6 +15,7 @@ import { connect } from "react-redux";
 import { Datasource } from "api/DatasourcesApi";
 import _ from "lodash";
 import { DEFAULT_DATASOURCE, EmbeddedDatasource } from "entities/Datasource";
+import CodeMirror from "codemirror";
 
 type ReduxStateProps = {
   datasource: Datasource | EmbeddedDatasource;
@@ -107,6 +108,42 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };
 
+  handleDatasourceHighlight = (editorInstance: CodeMirror.Doc) => {
+    const { datasource } = this.props;
+    if (
+      editorInstance.lineCount() === 1 &&
+      datasource &&
+      "id" in datasource &&
+      datasource.id
+    ) {
+      const value = editorInstance.getValue();
+      const isFullPath = fullPathRegexExp.test(value);
+      let end = 0;
+      if (isFullPath) {
+        const matches = value.match(fullPathRegexExp);
+        if (matches && matches.length) {
+          end = matches[1].length;
+        }
+      }
+      return {
+        from: { ch: 0, line: 0 },
+        to: { ch: end, line: 0 },
+        options: {
+          css:
+            "background-color: rgba(104,113,239,0.1); border: 1px solid rgba(104, 113, 239, 0.5); padding: 2px; border-radius: 2px; margin-right: 2px",
+          atomic: true,
+          inclusiveRight: false,
+        },
+      };
+    } else {
+      return {
+        from: { ch: 0, line: 0 },
+        to: { ch: 0, line: 0 },
+        options: {},
+      };
+    }
+  };
+
   render() {
     const {
       datasource,
@@ -124,6 +161,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const props = {
       ...this.props,
       input,
+      highlightText: this.handleDatasourceHighlight,
     };
 
     return (

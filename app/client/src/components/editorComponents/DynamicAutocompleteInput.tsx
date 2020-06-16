@@ -359,6 +359,13 @@ export type DynamicAutocompleteInputProps = {
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
+  highlightText?: (
+    editorInstance: CodeMirror.Doc,
+  ) => {
+    from: CodeMirror.Position;
+    to: CodeMirror.Position;
+    options: CodeMirror.TextMarkerOptions;
+  };
 };
 
 type Props = ReduxStateProps &
@@ -419,7 +426,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       } else {
         this.editor.setSize(0, "auto");
       }
-      this.editor.eachLine(this.highlightBindings);
+      this.updateHighlights();
+
       // Set value of the editor
       let inputValue = this.props.input.value || "";
       if (typeof inputValue === "object") {
@@ -431,6 +439,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         inputValue += "";
       }
       this.editor.setValue(inputValue);
+
       this.startAutocomplete();
     }
   }
@@ -537,7 +546,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     if (this.props.input.onChange && value !== inputValue) {
       this.props.input.onChange(value);
     }
-    this.editor.eachLine(this.highlightBindings);
+    this.updateHighlights();
   };
 
   handleAutocompleteVisibility = (cm: any) => {
@@ -606,20 +615,30 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     }
   };
 
-  highlightBindings = (line: LineHandle) => {
-    const lineNo = this.editor.getLineNumber(line);
-    let match;
-    while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {
-      const start = match.index;
-      const end = AUTOCOMPLETE_MATCH_REGEX.lastIndex;
-      this.editor.markText(
-        { ch: start, line: lineNo },
-        { ch: end, line: lineNo },
-        {
-          className: "binding-highlight",
-        },
-      );
+  updateHighlights = () => {
+    this.highlightBindings();
+    if (this.props.highlightText) {
+      const { from, to, options } = this.props.highlightText(this.editor);
+      this.editor.markText(from, to, options);
     }
+  };
+
+  highlightBindings = () => {
+    this.editor.eachLine((line: LineHandle) => {
+      const lineNo = this.editor.getLineNumber(line);
+      let match;
+      while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {
+        const start = match.index;
+        const end = AUTOCOMPLETE_MATCH_REGEX.lastIndex;
+        this.editor.markText(
+          { ch: start, line: lineNo },
+          { ch: end, line: lineNo },
+          {
+            className: "binding-highlight",
+          },
+        );
+      }
+    });
   };
 
   updatePropertyValue(value: string, cursor?: number) {
