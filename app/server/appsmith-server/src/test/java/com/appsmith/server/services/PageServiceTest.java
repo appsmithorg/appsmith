@@ -96,6 +96,7 @@ public class PageServiceTest {
                     assertThat("PageServiceTest TestApp".equals(page.getName()));
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
+                    assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
                 })
                 .verifyComplete();
     }
