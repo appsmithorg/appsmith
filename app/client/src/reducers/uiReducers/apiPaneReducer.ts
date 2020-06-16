@@ -19,8 +19,15 @@ const initialState: ApiPaneReduxState = {
   lastSelectedPage: "",
   extraformData: {},
   datasourceFieldText: {},
+  apiName: {
+    drafts: {},
+    isSaving: {},
+  },
 };
-
+export interface ApiNameValidation {
+  isValid: boolean;
+  validationMessage: string;
+}
 export interface ApiPaneReduxState {
   lastUsed: string;
   isFetching: boolean;
@@ -33,6 +40,16 @@ export interface ApiPaneReduxState {
   datasourceFieldText: Record<string, string>;
   lastSelectedPage: string;
   extraformData: Record<string, any>;
+  apiName: {
+    drafts: Record<
+      string,
+      {
+        value: string;
+        validation: ApiNameValidation;
+      }
+    >;
+    isSaving: Record<string, boolean>;
+  };
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -213,6 +230,35 @@ const apiPaneReducer = createReducer(initialState, {
       datasourceFieldText: {
         ...state.datasourceFieldText,
         [apiId]: action.payload.value,
+      },
+    };
+  },
+
+  [ReduxActionTypes.UPDATE_API_NAME_DRAFT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{
+      id: string;
+      draft?: {
+        value: string;
+        validation: {
+          isValid: boolean;
+          validationMessage: string;
+        };
+      };
+    }>,
+  ) => {
+    const { id, draft } = action.payload;
+    let nameDrafts = {
+      ...state.apiName.drafts,
+      [id]: draft,
+    };
+    if (!draft) {
+      nameDrafts = _.omit(nameDrafts, id);
+    }
+    return {
+      ...state,
+      apiName: {
+        drafts: nameDrafts,
       },
     };
   },

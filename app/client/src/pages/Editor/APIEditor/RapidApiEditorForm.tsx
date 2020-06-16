@@ -22,7 +22,10 @@ import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-
+import EntityNameComponent from "components/editorComponents/EntityNameComponent";
+import { editApiName, saveApiName } from "actions/actionActions";
+import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
+import { NameWrapper } from "./Form";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -114,6 +117,9 @@ interface APIFormProps {
   location: {
     pathname: string;
   };
+  apiName: string;
+  apiId: string;
+  apiNameValidation: ApiNameValidation;
   dispatch: any;
 }
 
@@ -171,13 +177,41 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
     >
       <MainConfiguration>
         <FormRow>
-          <DynamicTextField
-            placeholder="Api name"
-            name="name"
-            singleLine
-            setMaxHeight
-            link={providerURL && `http://${providerURL}`}
-          />
+          <NameWrapper>
+            <EntityNameComponent
+              value={props.apiName}
+              onBlur={() => {
+                dispatch(
+                  saveApiName({
+                    id: props.apiId,
+                  }),
+                );
+              }}
+              onChange={(e: any) => {
+                dispatch(
+                  editApiName({
+                    id: props.apiId,
+                    value: e.target.value,
+                  }),
+                );
+              }}
+              isValid={props.apiNameValidation.isValid}
+              validationMessage={props.apiNameValidation.validationMessage}
+              placeholder="nameOfApi (camel case)"
+            ></EntityNameComponent>
+            <a
+              style={{
+                paddingTop: "7px",
+              }}
+              className="t--apiDocumentationLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={providerURL && `http://${providerURL}`}
+            >
+              API documentation
+            </a>
+          </NameWrapper>
+
           <ActionButtons>
             <ActionButton
               text="Delete"

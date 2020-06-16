@@ -220,6 +220,9 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_PROVIDERS_LENGTH: "SET_PROVIDERS_LENGTH",
   SET_DEFAULT_REFINEMENT: "SET_DEFAULT_REFINEMENT",
   SET_HELP_MODAL_OPEN: "SET_HELP_MODAL_OPEN",
+  EDIT_API_NAME: "EDIT_API_NAME",
+  SAVE_API_NAME: "SAVE_API_NAME",
+  UPDATE_API_NAME_DRAFT: "UPDATE_API_NAME_DRAFT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

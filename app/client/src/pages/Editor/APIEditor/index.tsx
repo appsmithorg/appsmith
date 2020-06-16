@@ -25,6 +25,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
+import { getApiName } from "selectors/formSelectors";
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -32,6 +33,10 @@ interface ReduxStateProps {
   isDeleting: Record<string, boolean>;
   allowSave: boolean;
   apiName: string;
+  apiNameValidation: {
+    isValid: boolean;
+    validationMessage: string;
+  };
   currentApplication: UserApplication;
   currentPageName: string | undefined;
   pages: any;
@@ -191,6 +196,8 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                apiName={this.props.apiName}
+                apiNameValidation={this.props.apiNameValidation}
                 onChange={this.onChangeHandler}
                 location={this.props.location}
               />
@@ -198,6 +205,9 @@ class ApiEditor extends React.Component<Props> {
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
+                apiName={this.props.apiName}
+                apiNameValidation={this.props.apiNameValidation}
+                apiId={this.props.match.params.apiId}
                 paginationType={paginationType}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
@@ -225,6 +235,17 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
+  const apiName = getApiName(state, props.match.params.apiId);
+  const apiNameDraft =
+    state.ui.apiPane.apiName.drafts[props.match.params.apiId];
+  let apiNameValidation = {
+    isValid: true,
+    validationMessage: "",
+  };
+
+  if (apiNameDraft && apiNameDraft.validation) {
+    apiNameValidation = apiNameDraft.validation;
+  }
 
   const { drafts, isDeleting, isRunning } = state.ui.apiPane;
   let data: RestAction | ActionData | RapidApiAction | undefined;
@@ -245,7 +266,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
     pages: state.entities.pageList.pages,
-    apiName: formData?.name || "",
+    apiName: apiName || "",
+    apiNameValidation: apiNameValidation,
     plugins: state.entities.plugins.list,
     pluginId: _.get(data, "pluginId"),
     paginationType: _.get(data, "actionConfiguration.paginationType"),
