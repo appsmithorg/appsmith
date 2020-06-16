@@ -11,23 +11,21 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
-import {
-  RestAction,
-  PaginationField,
-  BodyFormData,
-  Property,
-} from "api/ActionAPI";
+import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
-import Pagination, { PaginationType } from "./Pagination";
-
+import Pagination from "./Pagination";
+import { PaginationType, RestAction } from "entities/Action";
+import EntityNameComponent from "components/editorComponents/EntityNameComponent";
+import { editApiName, saveApiName } from "actions/actionActions";
+import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
+import { NameWrapper } from "./Form";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -60,7 +58,7 @@ const MainConfiguration = styled.div`
 
 const SecondaryWrapper = styled.div`
   display: flex;
-  height: 100%;
+  height: calc(100% - 120px);
   border-top: 1px solid #d0d7dd;
   margin-top: 10px;
 `;
@@ -101,12 +99,9 @@ const TabbedViewContainer = styled.div`
 `;
 
 interface APIFormProps {
-  allowSave: boolean;
   onSubmit: FormSubmitHandler<RestAction>;
-  onSaveClick: () => void;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
-  isSaving: boolean;
   isRunning: boolean;
   isDeleting: boolean;
   paginationType: PaginationType;
@@ -122,6 +117,9 @@ interface APIFormProps {
   location: {
     pathname: string;
   };
+  apiName: string;
+  apiId: string;
+  apiNameValidation: ApiNameValidation;
   dispatch: any;
 }
 
@@ -129,14 +127,11 @@ type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;
 
 const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   const {
-    allowSave,
-    onSaveClick,
     onDeleteClick,
     onRunClick,
     handleSubmit,
     isDeleting,
     isRunning,
-    isSaving,
     templateId,
     actionConfiguration,
     actionConfigurationHeaders,
@@ -174,17 +169,49 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   // }
 
   return (
-    <Form onSubmit={handleSubmit}>
-      {isSaving && <LoadingOverlayScreen>Saving...</LoadingOverlayScreen>}
+    <Form
+      onSubmit={handleSubmit}
+      style={{
+        height: "100%",
+      }}
+    >
       <MainConfiguration>
         <FormRow>
-          <DynamicTextField
-            placeholder="Api name"
-            name="name"
-            singleLine
-            setMaxHeight
-            link={providerURL && `http://${providerURL}`}
-          />
+          <NameWrapper>
+            <EntityNameComponent
+              value={props.apiName}
+              onBlur={() => {
+                dispatch(
+                  saveApiName({
+                    id: props.apiId,
+                  }),
+                );
+              }}
+              onChange={(e: any) => {
+                dispatch(
+                  editApiName({
+                    id: props.apiId,
+                    value: e.target.value,
+                  }),
+                );
+              }}
+              isValid={props.apiNameValidation.isValid}
+              validationMessage={props.apiNameValidation.validationMessage}
+              placeholder="nameOfApi (camel case)"
+            ></EntityNameComponent>
+            <a
+              style={{
+                paddingTop: "7px",
+              }}
+              className="t--apiDocumentationLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={providerURL && `http://${providerURL}`}
+            >
+              API documentation
+            </a>
+          </NameWrapper>
+
           <ActionButtons>
             <ActionButton
               text="Delete"
@@ -194,19 +221,12 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <ActionButton
               text="Run"
-              accent="secondary"
+              filled
+              accent="primary"
               onClick={() => {
                 onRunClick();
               }}
               loading={isRunning}
-            />
-            <ActionButton
-              text="Save"
-              accent="primary"
-              filled
-              onClick={onSaveClick}
-              loading={isSaving}
-              disabled={!allowSave}
             />
           </ActionButtons>
         </FormRow>
@@ -217,6 +237,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             singleLine
             leftImage={providerImage}
             disabled={true}
+            showLightningMenu={false}
           />
           <DynamicTextField
             placeholder="v1/method"
@@ -224,6 +245,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             leftIcon={FormIcons.SLASH_ICON}
             singleLine
             disabled={true}
+            showLightningMenu={false}
           />
         </FormRow>
         {/* Display How to get Credentials info if it is present */}
@@ -261,7 +283,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                     />
                     {postbodyResponsePresent && (
                       <PostbodyContainer>
-                        <FormLabel>{"Post Body"}</FormLabel>
+                        <FormLabel>{"Body"}</FormLabel>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
                           <React.Fragment>

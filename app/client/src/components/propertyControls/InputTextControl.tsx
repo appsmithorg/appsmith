@@ -9,10 +9,22 @@ export function InputText(props: {
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   isValid: boolean;
-  validationMessage?: string;
+  errorMessage?: string;
+  evaluatedValue?: any;
+  expected?: string;
   placeholder?: string;
+  dataTreePath?: string;
 }) {
-  const { validationMessage, value, isValid, onChange, placeholder } = props;
+  const {
+    errorMessage,
+    expected,
+    value,
+    isValid,
+    onChange,
+    placeholder,
+    dataTreePath,
+    evaluatedValue,
+  } = props;
   return (
     <StyledDynamicInput>
       <DynamicAutocompleteInput
@@ -20,8 +32,11 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
+        dataTreePath={dataTreePath}
         meta={{
-          error: isValid ? "" : validationMessage,
+          error: isValid ? "" : errorMessage,
           touched: true,
         }}
         theme={"DARK"}
@@ -35,11 +50,13 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      validationMessage,
+      expected,
       propertyValue,
       isValid,
       label,
       placeholderText,
+      dataTreePath,
+      validationMessage,
     } = this.props;
     return (
       <InputText
@@ -47,8 +64,10 @@ class InputTextControl extends BaseControl<InputControlProps> {
         value={propertyValue}
         onChange={this.onTextChange}
         isValid={isValid}
-        validationMessage={validationMessage}
+        errorMessage={validationMessage}
+        expected={expected}
         placeholder={placeholderText}
+        dataTreePath={dataTreePath}
       />
     );
   }
@@ -82,6 +101,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 export interface InputControlProps extends ControlProps {
   placeholderText: string;
   inputType: InputType;
+  validationMessage?: string;
   isDisabled?: boolean;
 }
 

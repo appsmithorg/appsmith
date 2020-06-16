@@ -1,6 +1,7 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
 import { AppState } from "reducers";
-import { RestAction } from "api/ActionAPI";
+import { RestAction } from "entities/Action";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 type GetFormData = (
   state: AppState,
@@ -14,4 +15,17 @@ export const getFormData: GetFormData = (state, formName) => {
   const dirty = values.id in drafts;
   const valid = isValid(formName)(state);
   return { initialValues, values, dirty, valid };
+};
+
+export const getApiName = (state: AppState, id: string) => {
+  const apiNameDraft = state.ui.apiPane.apiName.drafts[id]?.value;
+
+  if (apiNameDraft === undefined) {
+    return state.entities.actions.find(
+      (action: ActionData) => action.config.id === id,
+    )?.config.name;
+  } else {
+    // If there is something in drafts, return draft value.
+    return apiNameDraft;
+  }
 };

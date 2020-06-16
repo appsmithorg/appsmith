@@ -7,6 +7,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { PropertyConfig } from "reducers/entityReducers/propertyPaneConfigReducer";
 import { generateReactKey } from "utils/generators";
 import ConfigsApi, { PropertyPaneConfigsResponse } from "api/ConfigsApi";
+import LOCAL_CONFIG from "mockResponses/PropertyPaneConfigResponse";
 
 import { validateResponse } from "./ErrorSagas";
 
@@ -25,6 +26,28 @@ const generateConfigWithIds = (config: PropertyConfig) => {
   });
   return config;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function* getLocalPropertyPaneConfigSaga() {
+  // FOR DEV WORK ONLY
+  try {
+    const localConfig = LOCAL_CONFIG;
+    const config = generateConfigWithIds(localConfig.config);
+    yield put({
+      type: ReduxActionTypes.FETCH_PROPERTY_PANE_CONFIGS_SUCCESS,
+      payload: {
+        config,
+      },
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PROPERTY_PANE_CONFIGS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 
 export function* fetchPropertyPaneConfigsSaga() {
   try {
@@ -54,7 +77,10 @@ export function* fetchPropertyPaneConfigsSaga() {
 export function* configsSaga() {
   try {
     const sagasToCall = [];
+    // Uncomment bellow to use local config instead
+    // sagasToCall.push(call(getLocalPropertyPaneConfigSaga));
     sagasToCall.push(call(fetchPropertyPaneConfigsSaga));
+
     // sagasToCall.push(call(fetchWidgetCardsConfigsSaga, widgetCardsPaneId));
     // sagasToCall.push(call(fetchWidgetConfigsSaga, widgetConfigsId));
     yield all(sagasToCall);

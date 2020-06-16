@@ -86,10 +86,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       datePickerType: "DATE_PICKER",
       rows: 1,
       label: "",
-      dateFormat: "DD/MM/YYYY",
+      dateFormat: "DD/MM/YYYY HH:mm",
       columns: 5,
       widgetName: "DatePicker",
-      defaultDate: moment().toISOString(true),
+      defaultDate: moment().format("DD/MM/YYYY HH:mm"),
     },
     TABLE_WIDGET: {
       rows: 7,
@@ -131,6 +131,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Vegan", value: "VEGAN" },
       ],
       widgetName: "Dropdown",
+      defaultOptionValue: "VEG",
     },
     CHECKBOX_WIDGET: {
       rows: 1,
@@ -147,7 +148,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { id: "1", label: "Male", value: "M" },
         { id: "2", label: "Female", value: "F" },
       ],
-      defaultOptionValue: "1",
+      defaultOptionValue: "M",
       widgetName: "RadioGroup",
     },
     ALERT_WIDGET: {
@@ -164,6 +165,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       files: [],
       label: "Select Files",
       columns: 4,
+      maxNumFiles: 1,
+      maxFileSize: 5,
       widgetName: "FilePicker",
       isDefaultClickDisabled: true,
     },
@@ -233,8 +236,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                 view: [
                   {
                     type: "ICON_WIDGET",
-                    position: { left: 15, top: 0 },
-                    size: { rows: 1, cols: 1 },
+                    position: { left: 14, top: 0 },
+                    size: { rows: 1, cols: 2 },
                     props: {
                       iconName: "cross",
                       iconSize: 24,
@@ -244,7 +247,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "TEXT_WIDGET",
                     position: { left: 0, top: 0 },
-                    size: { rows: 1, cols: 15 },
+                    size: { rows: 1, cols: 10 },
                     props: {
                       text: "Modal Title",
                       textStyle: "HEADING",
@@ -312,34 +315,39 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
-      singleChartData: [
+      chartData: [
         {
-          x: "Mon",
-          y: 10000,
-        },
-        {
-          x: "Tue",
-          y: 12000,
-        },
-        {
-          x: "Wed",
-          y: 32000,
-        },
-        {
-          x: "Thu",
-          y: 28000,
-        },
-        {
-          x: "Fri",
-          y: 14000,
-        },
-        {
-          x: "Sat",
-          y: 19000,
-        },
-        {
-          x: "Sun",
-          y: 36000,
+          seriesName: "Sales",
+          data: [
+            {
+              x: "Mon",
+              y: 10000,
+            },
+            {
+              x: "Tue",
+              y: 12000,
+            },
+            {
+              x: "Wed",
+              y: 32000,
+            },
+            {
+              x: "Thu",
+              y: 28000,
+            },
+            {
+              x: "Fri",
+              y: 14000,
+            },
+            {
+              x: "Sat",
+              y: 19000,
+            },
+            {
+              x: "Sun",
+              y: 36000,
+            },
+          ],
         },
       ],
       xAxisName: "Last Week",

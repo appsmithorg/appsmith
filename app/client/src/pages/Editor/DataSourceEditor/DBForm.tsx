@@ -41,6 +41,7 @@ interface DatasourceDBEditorProps {
   isTesting: boolean;
   loadingFormConfigs: boolean;
   formConfig: [];
+  isNewDatasource: boolean;
 }
 
 interface DatasourceDBEditorState {
@@ -73,7 +74,7 @@ const PluginImage = styled.img`
   width: auto;
 `;
 
-const FormTitleContainer = styled.div`
+export const FormTitleContainer = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
@@ -327,13 +328,11 @@ class DatasourceDBEditor extends React.Component<
           <Field
             name="name"
             component={FormTitle}
-            focusOnMount={this.isNewDatasource()}
+            focusOnMount={this.props.isNewDatasource}
           />
         </FormTitleContainer>
         {!_.isNil(sections)
-          ? _.map(sections, section => {
-              return this.renderMainSection(section);
-            })
+          ? _.map(sections, this.renderMainSection)
           : undefined}
         <SaveButtonContainer>
           <ActionButton
@@ -366,9 +365,9 @@ class DatasourceDBEditor extends React.Component<
     );
   };
 
-  renderMainSection = (section: any) => {
+  renderMainSection = (section: any, index: number) => {
     return (
-      <Collapsible title={section.sectionName}>
+      <Collapsible title={section.sectionName} defaultIsOpen={index === 0}>
         {this.renderEachConfig(section)}
       </Collapsible>
     );
@@ -412,7 +411,7 @@ class DatasourceDBEditor extends React.Component<
                 }
 
                 return (
-                  <div style={{ marginTop: "16px" }}>
+                  <div key={configProperty} style={{ marginTop: "16px" }}>
                     {controlType !== "KEYVALUE_ARRAY" &&
                       controlType !== "SWITCH" && (
                         <FormLabel>

@@ -9,7 +9,8 @@ import { ControlIcons } from "icons/ControlIcons";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import { WidgetProps } from "widgets/BaseWidget";
 import { PropertyControlPropsType } from "components/propertyControls";
-import { Tooltip, Position } from "@blueprintjs/core";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import FIELD_EXPECTED_VALUE from "constants/FieldExpectedValue";
 
 type Props = {
   widgetProperties: WidgetProps;
@@ -17,57 +18,6 @@ type Props = {
   toggleDynamicProperty: (propertyName: string, isDynamic: boolean) => void;
   onPropertyChange: (propertyName: string, propertyValue: any) => void;
 };
-
-function UnderlinedLabel({
-  tooltip,
-  label,
-}: {
-  tooltip?: string;
-  label: string;
-}) {
-  const toolTipDefined = tooltip !== undefined;
-  return (
-    <Tooltip
-      disabled={!toolTipDefined}
-      content={tooltip}
-      position={Position.TOP}
-      hoverOpenDelay={200}
-    >
-      <div
-        style={{
-          height: "22px",
-        }}
-      >
-        <label
-          style={
-            toolTipDefined
-              ? {
-                  cursor: "help",
-                }
-              : {}
-          }
-          className={`t--property-control-label`}
-        >
-          {label}
-        </label>
-        <span
-          className={"underline"}
-          style={
-            toolTipDefined
-              ? {
-                  borderBottom: "1px dashed",
-                  width: "100%",
-                  display: "inline-block",
-                  position: "relative",
-                  top: "-15px",
-                }
-              : {}
-          }
-        ></span>
-      </div>
-    </Tooltip>
-  );
-}
 
 const PropertyControl = (props: Props) => {
   const {
@@ -98,8 +48,21 @@ const PropertyControl = (props: Props) => {
   const { propertyName, label } = propertyConfig;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
-    const validation = getPropertyValidation(propertyName);
-    const config = { ...propertyConfig, ...validation, propertyValue };
+    const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
+    const evaluatedValue = _.get(
+      widgetProperties,
+      `evaluatedValues.${propertyName}`,
+    );
+    const { isValid, validationMessage } = getPropertyValidation(propertyName);
+    const config = {
+      ...propertyConfig,
+      isValid,
+      propertyValue,
+      validationMessage,
+      dataTreePath,
+      evaluatedValue,
+      expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
+    };
     const isDynamic: boolean = _.get(
       widgetProperties,
       ["dynamicProperties", propertyName],
@@ -122,11 +85,10 @@ const PropertyControl = (props: Props) => {
           }
         >
           <ControlPropertyLabelContainer>
-            <UnderlinedLabel
+            <PropertyHelpLabel
               tooltip={propertyConfig.helpText}
               label={label}
-            ></UnderlinedLabel>
-
+            />
             {isConvertible && (
               <JSToggleButton
                 active={isDynamic}

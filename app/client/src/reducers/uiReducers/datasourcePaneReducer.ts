@@ -8,12 +8,21 @@ const initialState: DatasourcePaneReduxState = {
   selectedPlugin: "",
   datasourceRefs: {},
   drafts: {},
+  actionRouteInfo: {},
+  newDatasource: "",
 };
 
 export interface DatasourcePaneReduxState {
   selectedPlugin: string;
   datasourceRefs: {};
   drafts: Record<string, Datasource>;
+  actionRouteInfo: Partial<{
+    apiId: string;
+    datasourceId: string;
+    pageId: string;
+    applicationId: string;
+  }>;
+  newDatasource: string;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -64,6 +73,43 @@ const datasourcePaneReducer = createReducer(initialState, {
     ...state,
     drafts: _.omit(state.drafts, action.payload.id),
   }),
+  [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<{
+      apiId: string;
+      datasourceId: string;
+      pageId: string;
+      applicationId: string;
+    }>,
+  ) => {
+    return {
+      ...state,
+      actionRouteInfo: action.payload,
+    };
+  },
+  [ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE]: (
+    state: DatasourcePaneReduxState,
+  ) => ({
+    ...state,
+    actionRouteInfo: {},
+  }),
+  [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (
+    state: DatasourcePaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    return {
+      ...state,
+      newDatasource: action.payload.id,
+    };
+  },
+  [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
+    state: DatasourcePaneReduxState,
+  ) => {
+    return {
+      ...state,
+      newDatasource: "",
+    };
+  },
 });
 
 export default datasourcePaneReducer;

@@ -9,11 +9,11 @@ import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
-import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
+import _ from "lodash";
 import FormActionButton from "./form/FormActionButton";
 
 const ResponseWrapper = styled.div`
@@ -53,7 +53,7 @@ const TableWrapper = styled.div`
 
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
-  apiPane: ApiPaneReduxState;
+  isRunning: Record<string, boolean>;
 }
 
 const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
@@ -103,20 +103,23 @@ const FailedMessageContainer = styled.div`
   align-items: center;
 `;
 
+const TabbedViewWrapper = styled.div`
+  height: calc(100% - 30px);
+`;
+
 const ApiResponseView = (props: Props) => {
   const {
     match: {
       params: { apiId },
     },
     responses,
-    apiPane,
   } = props;
   let response: ActionResponse = EMPTY_RESPONSE;
   let isRunning = false;
   let hasFailed = false;
   if (apiId && apiId in responses) {
     response = responses[apiId] || EMPTY_RESPONSE;
-    isRunning = apiPane.isRunning[apiId];
+    isRunning = props.isRunning[apiId];
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
 
@@ -135,7 +138,7 @@ const ApiResponseView = (props: Props) => {
                 onClick={() => {
                   setSelectedIndex(3);
                 }}
-              ></FormActionButton>
+              />
             )}
           </FailedMessageContainer>
           <CodeEditor
@@ -144,7 +147,7 @@ const ApiResponseView = (props: Props) => {
                 ? JSON.stringify(response.body, null, 2)
                 : "",
             }}
-            height={700}
+            height={"100%"}
           />
         </>
       ),
@@ -164,12 +167,12 @@ const ApiResponseView = (props: Props) => {
       title: "Request Body",
       panelComponent: (
         <CodeEditor
+          height={"100%"}
           input={{
-            value: response.requestBody
+            value: _.isObject(response.requestBody)
               ? JSON.stringify(response.requestBody, null, 2)
-              : "",
+              : response.requestBody || "",
           }}
-          height={700}
         />
       ),
     },
@@ -204,12 +207,14 @@ const ApiResponseView = (props: Props) => {
           </ResponseMetaInfo>
         </React.Fragment>
       </FormRow>
-      <BaseTabbedView
-        overflow
-        tabs={tabs}
-        selectedIndex={selectedIndex}
-        setSelectedIndex={setSelectedIndex}
-      />
+      <TabbedViewWrapper>
+        <BaseTabbedView
+          overflow
+          tabs={tabs}
+          selectedIndex={selectedIndex}
+          setSelectedIndex={setSelectedIndex}
+        />
+      </TabbedViewWrapper>
     </ResponseWrapper>
   );
 };
@@ -217,7 +222,7 @@ const ApiResponseView = (props: Props) => {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     responses: getActionResponses(state),
-    apiPane: state.ui.apiPane,
+    isRunning: state.ui.apiPane.isRunning,
   };
 };
 

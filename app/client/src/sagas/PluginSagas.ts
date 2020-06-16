@@ -19,7 +19,7 @@ function* fetchPluginsSaga() {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PLUGINS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
       payload: { error },
     });
   }

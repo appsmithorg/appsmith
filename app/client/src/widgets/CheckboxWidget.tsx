@@ -8,7 +8,10 @@ import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import {
+  TriggerPropertiesMap,
+  DerivedPropertiesMap,
+} from "utils/WidgetFactory";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -29,6 +32,12 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       isChecked: "defaultCheckedState",
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      value: `{{this.isChecked}}`,
     };
   }
 

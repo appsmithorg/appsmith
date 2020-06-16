@@ -1,18 +1,19 @@
-import { RestAction, PaginationField, ActionResponse } from "api/ActionAPI";
+import { PaginationField, ActionResponse } from "api/ActionAPI";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { Action, RestAction } from "entities/Action";
 
-export const createActionRequest = (payload: Partial<RestAction>) => {
+export const createActionRequest = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
   };
 };
 
-export const createActionSuccess = (payload: RestAction) => {
+export const createActionSuccess = (payload: Action) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_SUCCESS,
     payload,
@@ -154,6 +155,30 @@ export const executeApiActionSuccess = (payload: {
   response: ActionResponse;
 }) => ({
   type: ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
+  payload: payload,
+});
+
+export const editApiName = (payload: { id: string; value: string }) => ({
+  type: ReduxActionTypes.EDIT_API_NAME,
+  payload: payload,
+});
+
+export const saveApiName = (payload: { id: string }) => ({
+  type: ReduxActionTypes.SAVE_API_NAME,
+  payload: payload,
+});
+
+export const updateApiNameDraft = (payload: {
+  id: string;
+  draft?: {
+    value: string;
+    validation: {
+      isValid: boolean;
+      validationMessage: string;
+    };
+  };
+}) => ({
+  type: ReduxActionTypes.UPDATE_API_NAME_DRAFT,
   payload: payload,
 });
 

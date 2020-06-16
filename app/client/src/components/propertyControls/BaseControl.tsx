@@ -33,7 +33,11 @@ export interface ControlData {
   controlType: ControlType;
   propertyValue?: any;
   isValid: boolean;
+  errorMessage?: string;
+  expected: string;
+  evaluatedValue: any;
   validationMessage?: string;
+  dataTreePath?: string;
 }
 
 export interface ControlFunctions {

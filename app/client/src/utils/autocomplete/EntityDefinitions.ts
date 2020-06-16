@@ -1,24 +1,40 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
-const isLoading = {
-  "!type": "bool",
-  "!doc": "Boolean value indicating if the entity is in loading state",
-};
+// const isLoading = {
+//   "!type": "bool",
+//   "!doc": "Boolean value indicating if the entity is in loading state",
+// };
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
 export const entityDefinitions = {
-  ACTION: (entity: DataTreeAction) => ({
-    "!doc":
-      "Actions allow you to connect your widgets to your backend data in a secure manner.",
-    "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
-    isLoading: "bool",
-    data: generateTypeDef(entity.data),
-    run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
-  }),
+  ACTION: (entity: DataTreeAction) => {
+    const dataDef = generateTypeDef(entity.data);
+    let data: Record<string, any> = {
+      "!doc": "The response of the action",
+    };
+    if (_.isString(dataDef)) {
+      data["!type"] = dataDef;
+    } else {
+      data = { ...data, ...dataDef };
+    }
+    return {
+      "!doc":
+        "Actions allow you to connect your widgets to your backend data in a secure manner.",
+      "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
+      isLoading: "bool",
+      data,
+      config: {
+        "!type": "?",
+        "!doc": "The action config object",
+      },
+      run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+    };
+  },
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -141,12 +157,13 @@ export const entityDefinitions = {
     xAxisName: "string",
     yAxisName: "string",
   },
-  FORM_WIDGET: {
+  FORM_WIDGET: (widget: any) => ({
     "!doc":
       "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
-  },
+    data: generateTypeDef(widget.data),
+  }),
   FORM_BUTTON_WIDGET: {
     "!doc":
       "Form button is provided by default to every form. It is used for form submission and resetting form inputs",

@@ -4,9 +4,10 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { ActionResponse, RapidApiAction, RestAction } from "api/ActionAPI";
+import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
+import { RapidApiAction, RestAction } from "entities/Action";
 export interface ActionData {
   isLoading: boolean;
   config: RestAction | RapidApiAction;

@@ -3,10 +3,11 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import tern, { Server } from "tern";
 import ecma from "tern/defs/ecmascript.json";
+import lodash from "constants/defs/lodash.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 
-const DEFS = [ecma];
+const DEFS = [ecma, lodash];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -137,8 +138,11 @@ class TernServer {
       .sort((a, b) => {
         return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
       });
-    const otherCompletions = completions.filter(c => c.origin !== "dataTree");
-    return [...dataTreeCompletions, ...otherCompletions];
+    const docCompletetions = completions.filter(c => c.origin === "[doc]");
+    const otherCompletions = completions.filter(
+      c => c.origin !== "dataTree" && c.origin !== "[doc]",
+    );
+    return [...docCompletetions, ...dataTreeCompletions, ...otherCompletions];
   }
 
   typeToIcon(type: string) {
@@ -483,10 +487,7 @@ class TernServer {
   }
 
   fadeOut(tooltip: HTMLElement) {
-    tooltip.style.opacity = "0";
-    setTimeout(() => {
-      this.remove(tooltip);
-    }, 1100);
+    this.remove(tooltip);
   }
 }
 

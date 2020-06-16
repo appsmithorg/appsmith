@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import Button from "components/editorComponents/Button";
 
 import { useSelector } from "store";
 import { useDispatch } from "react-redux";
@@ -13,8 +12,7 @@ import {
   setHelpModalVisibility,
 } from "actions/helpActions";
 import styled from "styled-components";
-import { IntentColors, theme } from "constants/DefaultTheme";
-import { Position } from "@blueprintjs/core";
+import { theme } from "constants/DefaultTheme";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { LayersContext } from "constants/Layers";
 import { HelpIcons } from "icons/HelpIcons";
@@ -87,7 +85,7 @@ export function HelpModal() {
           dispatch(setHelpModalVisibility(!helpModalOpen));
         }}
       >
-        <HelpIcon></HelpIcon>
+        <HelpIcon />
       </HelpButton>
     </>
   );

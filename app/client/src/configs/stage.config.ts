@@ -18,10 +18,6 @@ const stageConfig = (baseUrl: string): AppsmithUIConfigs => ({
       optimizely: "2qP3XSwgM9pHYTEYbtbAQx",
     },
     default: {
-      documentationv2: true,
-      apipanev2: true,
-      datasourcepane: true,
-      querypane: true,
       lightningmenu: true,
     },
   },

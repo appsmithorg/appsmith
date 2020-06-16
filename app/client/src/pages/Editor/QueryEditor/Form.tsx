@@ -4,15 +4,23 @@ import {
   InjectedFormProps,
   Field,
   FormSubmitHandler,
+  formValueSelector,
 } from "redux-form";
 import {
   GridComponent,
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
+import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Icon } from "@blueprintjs/core";
-import { components, MenuListComponentProps } from "react-select";
+import {
+  components,
+  MenuListComponentProps,
+  SingleValueProps,
+  OptionTypeBase,
+  OptionProps,
+} from "react-select";
 import history from "utils/history";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
@@ -25,12 +33,14 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "api/ActionAPI";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
+import { RestAction } from "entities/Action";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -90,7 +100,7 @@ const ResponseContainer = styled.div`
 
 const ResponseContent = styled.div`
   height: calc(
-    100vh - (100vh / 3) - 150px - ${props => props.theme.headerHeight}
+    100vh - (100vh / 3) - 175px - ${props => props.theme.headerHeight}
   );
   overflow: auto;
 `;
@@ -172,7 +182,7 @@ const StyledGridComponent = styled(GridComponent)`
     }
     .e-gridcontent {
       max-height: calc(
-        100vh - (100vh / 3) - 150px - 49px -
+        100vh - (100vh / 3) - 175px - 49px -
           ${props => props.theme.headerHeight}
       );
       overflow: auto;
@@ -200,12 +210,37 @@ const CreateDatasource = styled.div`
   }
 `;
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .plugin-image {
+    height: 20px;
+    width: auto;
+  }
+
+  .selected-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: no-wrap;
+    margin-left: 6px;
+  }
+`;
+
+const StyledCheckbox = styled(CheckboxField)`
+  &&& {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+`;
+
 type QueryFormProps = {
   isCreating: boolean;
   onDeleteClick: () => void;
   onSaveClick: () => void;
   onRunClick: () => void;
-  createTemplate: (template: any, name: string) => void;
+  createTemplate: (template: any) => void;
   onSubmit: FormSubmitHandler<RestAction>;
   isDeleting: boolean;
   allowSave: boolean;
@@ -223,7 +258,11 @@ type QueryFormProps = {
   };
 };
 
-export type StateAndRouteProps = QueryFormProps;
+type ReduxProps = {
+  actionName: string;
+};
+
+export type StateAndRouteProps = QueryFormProps & ReduxProps;
 
 type Props = StateAndRouteProps &
   InjectedFormProps<RestAction, StateAndRouteProps>;
@@ -292,6 +331,40 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     );
   };
 
+  const SingleValue = (props: SingleValueProps<OptionTypeBase>) => {
+    return (
+      <>
+        <components.SingleValue {...props}>
+          <Container>
+            <img
+              className="plugin-image"
+              src={props.data.image}
+              alt="Datasource"
+            />
+            <div className="selected-value">{props.children}</div>
+          </Container>
+        </components.SingleValue>
+      </>
+    );
+  };
+
+  const CustomOption = (props: OptionProps<OptionTypeBase>) => {
+    return (
+      <>
+        <components.Option {...props}>
+          <Container>
+            <img
+              className="plugin-image"
+              src={props.data.image}
+              alt="Datasource"
+            />
+            <div style={{ marginLeft: "6px" }}>{props.children}</div>
+          </Container>
+        </components.Option>
+      </>
+    );
+  };
+
   return (
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
@@ -307,9 +380,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               placeholder="Datasource"
               name="datasource.id"
               options={DATASOURCES_OPTIONS}
-              width={200}
+              width={232}
               maxMenuHeight={200}
-              components={{ MenuList }}
+              components={{ MenuList, Option: CustomOption, SingleValue }}
             />
           </DropdownSelect>
           <ActionButtons>
@@ -400,18 +473,15 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         {isNewQuery && showTemplateMenu ? (
           <TemplateMenu
             createTemplate={templateString => {
-              const name = isSQL
-                ? "actionConfiguration.query.cmd"
-                : "actionConfiguration.query";
-
               setMenuVisibility(false);
-              createTemplate(templateString, name);
+              createTemplate(templateString);
             }}
             selectedPluginPackage={selectedPluginPackage}
           />
         ) : isSQL ? (
           <Field
-            name="actionConfiguration.query.cmd"
+            name="actionConfiguration.body"
+            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="sql-js"
@@ -419,25 +489,25 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
           />
         ) : (
           <Field
-            name="actionConfiguration.query"
+            name="actionConfiguration.body"
+            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="js-js"
-            normalize={(value: any) => {
-              try {
-                return JSON.parse(value);
-              } catch (e) {
-                return value;
-              }
-            }}
           />
         )}
+        <StyledCheckbox
+          intent="primary"
+          name="executeOnLoad"
+          align="left"
+          label="Run on Page Load"
+        />
       </form>
 
       {dataSources.length === 0 && (
         <NoDataSourceContainer>
           <p className="font18">
-            Seems like you don’t have any Datasouces to create a query
+            Seems like you don’t have any Datasources to create a query
           </p>
           <Button
             onClick={() =>
@@ -492,7 +562,17 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   );
 };
 
-export default reduxForm<RestAction, StateAndRouteProps>({
-  form: QUERY_EDITOR_FORM_NAME,
-  enableReinitialize: true,
-})(QueryEditorForm);
+const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
+const mapStateToProps = (state: AppState) => {
+  const actionName = valueSelector(state, "name");
+  return {
+    actionName,
+  };
+};
+
+export default connect(mapStateToProps)(
+  reduxForm<RestAction, StateAndRouteProps>({
+    form: QUERY_EDITOR_FORM_NAME,
+    enableReinitialize: true,
+  })(QueryEditorForm),
+);

@@ -1,12 +1,11 @@
-import API, { HttpMethod } from "./Api";
+import API from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import {
   APIRequest,
   DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
 } from "constants/ApiConstants";
 import { AxiosPromise } from "axios";
-import { Datasource } from "./DatasourcesApi";
-import { PaginationType } from "pages/Editor/APIEditor/Pagination";
+import { RestAction } from "entities/Action";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -19,21 +18,9 @@ export interface UpdateActionRequest<T> extends CreateActionRequest<T> {
   actionId: string;
 }
 
-export interface APIConfig {
-  datasourceId: string;
-  pageId: string;
-  name: string;
-  requestHeaders: Record<string, string>;
-  httpMethod: HttpMethod;
-  path: string;
-  body: JSON;
-  queryParams: Record<string, string>;
-  actionId: string;
-}
-
 export interface Property {
   key: string;
-  value: string;
+  value?: string;
 }
 
 export interface BodyFormData {
@@ -45,17 +32,6 @@ export interface BodyFormData {
   type: string;
 }
 
-export interface APIConfigRequest {
-  headers: Property[];
-  httpMethod: string;
-  path: string;
-  body: JSON | string | Record<string, any> | null;
-  queryParameters: Property[];
-  paginationType: PaginationType;
-  bodyFormData: BodyFormData[];
-  timeoutInMillisecond: number;
-}
-
 export interface QueryConfig {
   queryString: string;
 }
@@ -63,45 +39,6 @@ export interface QueryConfig {
 export interface ActionCreateUpdateResponse extends ApiResponse {
   id: string;
   jsonPathKeys: Record<string, string>;
-}
-
-export interface RestAction {
-  id: string;
-  name: string;
-  datasource:
-    | Pick<Datasource, "id">
-    | Omit<Datasource, "id">
-    | Partial<Datasource>;
-  pluginType?: string;
-  pageId: string;
-  actionConfiguration: Partial<APIConfigRequest>;
-  jsonPathKeys: string[];
-  cacheResponse?: string;
-  pluginId: string;
-}
-
-export interface RapidApiAction {
-  id: string;
-  name: string;
-  datasource: Pick<Datasource, "id"> | Omit<Datasource, "id">;
-  pluginType: string;
-  pageId: string;
-  actionConfiguration: Partial<APIConfigRequest>;
-  jsonPathKeys: string[];
-  cacheResponse?: string;
-  templateId: string;
-  proverId: string;
-  provider: ProviderInfo;
-  pluginId: string;
-  documentation: { text: string };
-}
-
-export interface ProviderInfo {
-  name: string;
-  imageUrl: string;
-  url: string;
-  description: string;
-  credentialSteps: string;
 }
 
 export type PaginationField = "PREV" | "NEXT";
@@ -157,6 +94,13 @@ export interface CopyActionRequest {
   pageId: string;
 }
 
+export interface UpdateActionNameRequest {
+  pageId: string;
+  layoutId: string;
+  newName: string;
+  oldName: string;
+}
+
 class ActionAPI extends API {
   static url = "v1/actions";
 
@@ -186,6 +130,10 @@ class ActionAPI extends API {
     apiConfig: Partial<RestAction>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.put(`${ActionAPI.url}/${apiConfig.id}`, apiConfig);
+  }
+
+  static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
+    return API.put(ActionAPI.url + "/refactor", updateActionNameRequest);
   }
 
   static deleteAction(id: string) {

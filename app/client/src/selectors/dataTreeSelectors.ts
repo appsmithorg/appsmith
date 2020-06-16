@@ -1,8 +1,7 @@
 import { createSelector } from "reselect";
-import { getActionsForCurrentPage } from "./entitiesSelector";
+import { getActionDrafts, getActionsForCurrentPage } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
-import { extraLibraries } from "jsExecution/JSExecutionManagerSingleton";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
@@ -40,13 +39,15 @@ import { getPageList } from "./appViewSelectors";
 //
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
+  getActionDrafts,
   getWidgets,
   getWidgetsMeta,
   getPageList,
-  (actions, widgets, widgetsMeta, pageListPayload) => {
+  (actions, actionDrafts, widgets, widgetsMeta, pageListPayload) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
       actions,
+      actionDrafts,
       widgets,
       widgetsMeta,
       pageList,
@@ -82,8 +83,6 @@ export const getDataTreeForAutocomplete = createSelector(
         }
       });
     }
-    const libs: Record<string, any> = {};
-    extraLibraries.forEach(config => (libs[config.accessor] = config.lib));
-    return { ...tree, ...cachedResponses, ...libs };
+    return tree;
   },
 );

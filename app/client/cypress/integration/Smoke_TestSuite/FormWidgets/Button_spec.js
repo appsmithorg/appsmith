@@ -1,6 +1,6 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
-const dsl = require("../../../fixtures/commondsl.json");
+const dsl = require("../../../fixtures/newFormDsl.json");
 const homePage = require("../../../locators/HomePage.json");
 const pages = require("../../../locators/Pages.json");
 const publishPage = require("../../../locators/publishWidgetspage.json");
@@ -21,7 +21,7 @@ describe("Button Widget Functionality", function() {
     cy.widgetText(
       this.data.ButtonName,
       widgetsPage.buttonWidget,
-      widgetsPage.buttonWidget + " pre",
+      widgetsPage.buttonWidget + " " + commonlocators.widgetNameTag,
     );
 
     //Changing the text on the Button

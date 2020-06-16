@@ -7,6 +7,7 @@ import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMATS,
   CONTENT_TYPE,
+  POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -14,6 +15,7 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import FIELD_VALUES from "constants/FieldExpectedValue";
 
 const DropDownContainer = styled.div`
   width: 300px;
@@ -27,6 +29,10 @@ const PostbodyContainer = styled.div`
 
 const JSONEditorFieldWrapper = styled.div`
   margin: 5px;
+  .CodeMirror {
+    height: auto;
+    min-height: 300px;
+  }
 `;
 export interface RapidApiAction {
   editable: boolean;
@@ -45,6 +51,7 @@ interface PostDataProps {
   onDisplayFormatChange: Function;
   apiId: string;
   setDisplayFormat: Function;
+  dataTreePath: string;
 }
 
 type Props = PostDataProps;
@@ -56,10 +63,11 @@ const PostBodyData = (props: Props) => {
     displayFormat,
     setDisplayFormat,
     apiId,
+    dataTreePath,
   } = props;
   return (
     <PostbodyContainer>
-      <FormLabel>{"Post Body"}</FormLabel>
+      <FormLabel>{"Body"}</FormLabel>
       <DropDownContainer>
         <Select
           className={"t--apiFormPostBodyType"}
@@ -69,19 +77,15 @@ const PostBodyData = (props: Props) => {
           onChange={(displayFormatObject: any) => {
             if (
               displayFormatObject &&
-              displayFormatObject.value === POST_BODY_FORMATS[2]
+              displayFormatObject.value === POST_BODY_FORMATS[3]
             ) {
-              setDisplayFormat(apiId, {
-                label: POST_BODY_FORMATS[2],
-                value: POST_BODY_FORMATS[2],
-              });
-
+              setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
               return;
             }
 
             const elementsIndex = actionConfigurationHeaders.findIndex(
               (element: { key: string; value: string }) =>
-                element.key.toLowerCase() === CONTENT_TYPE,
+                element.key.trim().toLowerCase() === CONTENT_TYPE,
             );
 
             if (elementsIndex >= 0 && displayFormatObject) {
@@ -89,20 +93,18 @@ const PostBodyData = (props: Props) => {
 
               updatedHeaders[elementsIndex] = {
                 ...updatedHeaders[elementsIndex],
+                key: CONTENT_TYPE,
                 value: displayFormatObject.value,
               };
 
               onDisplayFormatChange(updatedHeaders);
             } else {
-              setDisplayFormat(apiId, {
-                label: POST_BODY_FORMATS[2],
-                value: POST_BODY_FORMATS[2],
-              });
+              setDisplayFormat(apiId, POST_BODY_FORMAT_OPTIONS[3]);
             }
           }}
           value={displayFormat}
           width={300}
-          options={POST_BODY_FORMAT_OPTIONS}
+          options={POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART}
         />
       </DropDownContainer>
 
@@ -110,14 +112,15 @@ const PostBodyData = (props: Props) => {
         <React.Fragment>
           <JSONEditorFieldWrapper className={"t--apiFormPostBody"}>
             <DynamicTextField
-              name="actionConfiguration.body[0]"
-              height={300}
+              name="actionConfiguration.body"
+              expected={FIELD_VALUES.API_ACTION.body}
               showLineNumbers
               allowTabIndent
               singleLine={false}
               placeholder={
-                'Please enter this POST request\'s JSON body.\n\n\nDid you know?\n\tIn Appsmith, we can use a widget\'s or API\'s property dynamically, using {{ }} templates.\n\n\tFor example: If we have an input widget named Input1 in which the user would provide their name \n\tand this post body structure should be { "name": "<text from Input1>" } \n\tWe can access it in this post body using { "name": "{{Input1.text}}" }'
+                '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
               }
+              dataTreePath={`${dataTreePath}.body`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
@@ -125,18 +128,30 @@ const PostBodyData = (props: Props) => {
 
       {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[1].value && (
         <React.Fragment>
-          <KeyValueFieldArray name="actionConfiguration.body[1]" label="" />
+          <KeyValueFieldArray
+            name="actionConfiguration.bodyFormData"
+            dataTreePath={`${dataTreePath}.bodyFormData`}
+            label=""
+          />
         </React.Fragment>
       )}
 
+      {/* Commenting this till we figure the code to create a multipart request
       {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[2].value && (
+        <React.Fragment>
+          <KeyValueFieldArray name="actionConfiguration.bodyFormData" label="" />
+        </React.Fragment>
+      )} */}
+
+      {displayFormat?.value === POST_BODY_FORMAT_OPTIONS[3].value && (
         <React.Fragment>
           <JSONEditorFieldWrapper>
             <DynamicTextField
-              name="actionConfiguration.body[2]"
+              name="actionConfiguration.body"
               height={300}
               allowTabIndent
               singleLine={false}
+              dataTreePath={`${dataTreePath}.body`}
             />
           </JSONEditorFieldWrapper>
         </React.Fragment>
@@ -178,7 +193,7 @@ export default connect((state: AppState) => {
 
   return {
     displayFormat:
-      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[2],
+      extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3],
     contentType,
     apiId,
   };

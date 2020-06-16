@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
@@ -12,7 +11,6 @@ import unescapeJS from "unescape-js";
 import toposort from "toposort";
 import {
   DataTree,
-  DataTreeAction,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -31,15 +29,15 @@ export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
 
 //{{}}{{}}}
-export function parseDynamicString(dynamicString: string): string[] {
-  let parsedDynamicValues = [];
+export function getDynamicStringSegments(dynamicString: string): string[] {
+  let stringSegments = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
   if (indexOfDoubleParanStart === -1) {
     return [dynamicString];
   }
   //{{}}{{}}}
   const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-  firstString && parsedDynamicValues.push(firstString);
+  firstString && stringSegments.push(firstString);
   let rest = dynamicString.substring(
     indexOfDoubleParanStart,
     dynamicString.length,
@@ -55,11 +53,11 @@ export function parseDynamicString(dynamicString: string): string[] {
     } else if (char === "}") {
       sum--;
       if (prevChar === "}" && sum === 0) {
-        parsedDynamicValues.push(rest.substring(0, i + 1));
+        stringSegments.push(rest.substring(0, i + 1));
         rest = rest.substring(i + 1, rest.length);
         if (rest) {
-          parsedDynamicValues = parsedDynamicValues.concat(
-            parseDynamicString(rest),
+          stringSegments = stringSegments.concat(
+            getDynamicStringSegments(rest),
           );
           break;
         }
@@ -69,7 +67,7 @@ export function parseDynamicString(dynamicString: string): string[] {
   if (sum !== 0 && dynamicString !== "") {
     return [dynamicString];
   }
-  return parsedDynamicValues;
+  return stringSegments;
 }
 
 const getAllPaths = (
@@ -95,24 +93,24 @@ const getAllPaths = (
 
 export const getDynamicBindings = (
   dynamicString: string,
-): { mustaches: string[]; jsSnippets: string[] } => {
+): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
-    return { mustaches: [], jsSnippets: [] };
+    return { stringSegments: [], jsSnippets: [] };
   }
   const sanitisedString = dynamicString.trim();
   // Get the {{binding}} bound values
-  const bindings = parseDynamicString(sanitisedString);
+  const stringSegments = getDynamicStringSegments(sanitisedString);
   // Get the "binding" path values
-  const paths = bindings.map(binding => {
-    const length = binding.length;
-    const matches = isDynamicValue(binding);
+  const paths = stringSegments.map(segment => {
+    const length = segment.length;
+    const matches = isDynamicValue(segment);
     if (matches) {
-      return binding.substring(2, length - 2);
+      return segment.substring(2, length - 2);
     }
     return "";
   });
-  return { mustaches: bindings, jsSnippets: paths };
+  return { stringSegments: stringSegments, jsSnippets: paths };
 };
 
 // Paths are expected to have "{name}.{path}" signature
@@ -162,8 +160,8 @@ export const getDynamicValue = (
   includeTriggers = false,
 ): JSExecutorResult => {
   // Get the {{binding}} bound values
-  const { mustaches, jsSnippets } = getDynamicBindings(dynamicBinding);
-  if (mustaches.length) {
+  const { stringSegments, jsSnippets } = getDynamicBindings(dynamicBinding);
+  if (stringSegments.length) {
     // Get the Data Tree value of those "binding "paths
     const values = jsSnippets.map((jsSnippet, index) => {
       if (jsSnippet) {
@@ -174,16 +172,16 @@ export const getDynamicValue = (
           return { result: result.result };
         }
       } else {
-        return { result: mustaches[index], triggers: [] };
+        return { result: stringSegments[index], triggers: [] };
       }
     });
 
     // if it is just one binding, no need to create template string
-    if (mustaches.length === 1) return values[0];
+    if (stringSegments.length === 1) return values[0];
     // else return a string template with bindings
     const templateString = createDynamicValueString(
       dynamicBinding,
-      mustaches,
+      stringSegments,
       values.map(v => v.result),
     );
     return {
@@ -199,23 +197,55 @@ export const getValidatedTree = (tree: any) => {
     if (entity && entity.type) {
       const parsedEntity = { ...entity };
       Object.keys(entity).forEach((property: string) => {
-        const value = entity[property];
-        // Pass it through parse
-        const {
-          parsed,
-          isValid,
-          message,
-        } = ValidationFactory.validateWidgetProperty(
-          entity.type,
-          property,
-          value,
-          entity,
-          tree,
+        const hasEvaluatedValue = _.has(
+          parsedEntity,
+          `evaluatedValues.${property}`,
         );
-        parsedEntity[property] = parsed;
-        if (!isValid) {
-          _.set(parsedEntity, `invalidProps.${property}`, true);
-          _.set(parsedEntity, `validationMessages.${property}`, message);
+        const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
+        const isSpecialField = [
+          "dynamicBindings",
+          "dynamicTriggers",
+          "dynamicProperties",
+          "evaluatedValues",
+          "invalidProps",
+          "validationMessages",
+        ].includes(property);
+        const isDynamicField =
+          _.has(parsedEntity, `dynamicBindings.${property}`) ||
+          _.has(parsedEntity, `dynamicTriggers.${property}`);
+
+        if (
+          !isSpecialField &&
+          !isDynamicField &&
+          (!hasValidation || !hasEvaluatedValue)
+        ) {
+          const value = entity[property];
+          // Pass it through parse
+          const {
+            parsed,
+            isValid,
+            message,
+            transformed,
+          } = ValidationFactory.validateWidgetProperty(
+            entity.type,
+            property,
+            value,
+            entity,
+            tree,
+          );
+          parsedEntity[property] = parsed;
+          if (!hasEvaluatedValue) {
+            const evaluatedValue = _.isUndefined(transformed)
+              ? value
+              : transformed;
+            _.set(parsedEntity, `evaluatedValues.${property}`, evaluatedValue);
+          }
+
+          const hasValidation = _.has(parsedEntity, `invalidProps.${property}`);
+          if (!hasValidation && !isValid) {
+            _.set(parsedEntity, `invalidProps.${property}`, true);
+            _.set(parsedEntity, `validationMessages.${property}`, message);
+          }
         }
       });
       return { ...tree, [entityKey]: parsedEntity };
@@ -287,24 +317,44 @@ export const createDependencyTree = (
   const dependencyMap: DynamicDependencyMap = {};
   const allKeys = getAllPaths(dataTree);
   Object.keys(dataTree).forEach(entityKey => {
-    const entity = dataTree[entityKey] as WidgetProps;
-    if (entity && entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-      const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-        entity.type,
-      );
-      Object.keys(defaultProperties).forEach(property => {
-        dependencyMap[`${entityKey}.${property}`] = [
-          `${entityKey}.${defaultProperties[property]}`,
-        ];
-      });
-      if (entity.dynamicBindings) {
-        Object.keys(entity.dynamicBindings).forEach(prop => {
-          const { jsSnippets } = getDynamicBindings(entity[prop]);
-          const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
-          dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
-            jsSnippets.filter(jsSnippet => !!jsSnippet),
-          );
+    const entity = dataTree[entityKey];
+    if (entity && "ENTITY_TYPE" in entity) {
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+        // Set default property dependency
+        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+          entity.type,
+        );
+        Object.keys(defaultProperties).forEach(property => {
+          dependencyMap[`${entityKey}.${property}`] = [
+            `${entityKey}.${defaultProperties[property]}`,
+          ];
         });
+        if (entity.dynamicBindings) {
+          Object.keys(entity.dynamicBindings).forEach(prop => {
+            const { jsSnippets } = getDynamicBindings(_.get(entity, prop));
+            const existingDeps = dependencyMap[`${entityKey}.${prop}`] || [];
+            dependencyMap[`${entityKey}.${prop}`] = existingDeps.concat(
+              jsSnippets.filter(jsSnippet => !!jsSnippet),
+            );
+          });
+        }
+        if (entity.dynamicTriggers) {
+          Object.keys(entity.dynamicTriggers).forEach(prop => {
+            dependencyMap[`${entityKey}.${prop}`] = [];
+          });
+        }
+      }
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+        if (entity.dynamicBindingPathList.length) {
+          entity.dynamicBindingPathList.forEach(prop => {
+            const { jsSnippets } = getDynamicBindings(_.get(entity, prop.key));
+            const existingDeps =
+              dependencyMap[`${entityKey}.${prop.key}`] || [];
+            dependencyMap[`${entityKey}.${prop.key}`] = existingDeps.concat(
+              jsSnippets.filter(jsSnippet => !!jsSnippet),
+            );
+          });
+        }
       }
     }
   });
@@ -322,12 +372,18 @@ export const createDependencyTree = (
       dependencyTree.push([key, ""]);
     }
   });
-  // sort dependencies and remove empty dependencies
-  const sortedDependencies = toposort(dependencyTree)
-    .reverse()
-    .filter(d => !!d);
 
-  return { sortedDependencies, dependencyMap, dependencyTree };
+  try {
+    // sort dependencies and remove empty dependencies
+    const sortedDependencies = toposort(dependencyTree)
+      .reverse()
+      .filter(d => !!d);
+
+    return { sortedDependencies, dependencyMap, dependencyTree };
+  } catch (e) {
+    console.error(e);
+    return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
+  }
 };
 
 const calculateSubDependencies = (
@@ -361,16 +417,32 @@ export const setTreeLoading = (
   dataTree: DataTree,
   dependencyMap: Array<[string, string]>,
 ) => {
-  Object.keys(dataTree)
-    .filter(e => {
-      const entity = dataTree[e] as DataTreeAction;
-      return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION && entity.isLoading;
-    })
+  const widgets: string[] = [];
+  const isLoadingActions: string[] = [];
+
+  // Fetch all actions that are in loading state
+  Object.keys(dataTree).forEach(e => {
+    const entity = dataTree[e];
+    if (entity && "ENTITY_TYPE" in entity) {
+      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+        widgets.push(e);
+      } else if (
+        entity.ENTITY_TYPE === ENTITY_TYPE.ACTION &&
+        entity.isLoading
+      ) {
+        isLoadingActions.push(e);
+      }
+    }
+  });
+
+  // get all widget dependencies of those actions
+  isLoadingActions
     .reduce(
       (allEntities: string[], curr) =>
-        allEntities.concat(getEntityDependencies(dependencyMap, curr)),
+        allEntities.concat(getEntityDependencies(dependencyMap, curr, widgets)),
       [],
     )
+    // set loading to true for those widgets
     .forEach(w => {
       const entity = dataTree[w] as DataTreeWidget;
       entity.isLoading = true;
@@ -381,6 +453,7 @@ export const setTreeLoading = (
 export const getEntityDependencies = (
   dependencyMap: Array<[string, string]>,
   entity: string,
+  entities: string[],
 ): Array<string> => {
   const entityDeps: Record<string, string[]> = dependencyMap
     .map(d => [d[1].split(".")[0], d[0].split(".")[0]])
@@ -400,12 +473,14 @@ export const getEntityDependencies = (
       deps: Record<string, string[]>,
     ): Array<string> => {
       let allDeps: string[] = [];
-      keys.forEach(e => {
-        allDeps = allDeps.concat([e]);
-        if (e in deps) {
-          allDeps = allDeps.concat([...recFind(deps[e], deps)]);
-        }
-      });
+      keys
+        .filter(k => entities.includes(k))
+        .forEach(e => {
+          allDeps = allDeps.concat([e]);
+          if (e in deps) {
+            allDeps = allDeps.concat([...recFind(deps[e], deps)]);
+          }
+        });
       return allDeps;
     };
     return recFind(entityDeps[entity], entityDeps);
@@ -499,33 +574,57 @@ function validateAndParseWidgetProperty(
   widget: DataTreeWidget,
   currentTree: DataTree,
   evalPropertyValue: any,
+  unEvalPropertyValue: string,
   currentDependencyValues: Array<string>,
   cachedDependencyValues?: Array<string>,
 ): any {
   const propertyName = propertyPath.split(".")[1];
-  const { parsed, isValid, message } = ValidationFactory.validateWidgetProperty(
+  let valueToValidate = evalPropertyValue;
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    const { triggers } = getDynamicValue(
+      unEvalPropertyValue,
+      currentTree,
+      undefined,
+      true,
+    );
+    valueToValidate = triggers;
+  }
+  const {
+    parsed,
+    isValid,
+    message,
+    transformed,
+  } = ValidationFactory.validateWidgetProperty(
     widget.type,
     propertyName,
-    evalPropertyValue,
+    valueToValidate,
     widget,
     currentTree,
   );
+  const evaluatedValue = _.isUndefined(transformed)
+    ? evalPropertyValue
+    : transformed;
+  _.set(widget, `evaluatedValues.${propertyName}`, evaluatedValue);
   if (!isValid) {
     _.set(widget, `invalidProps.${propertyName}`, true);
     _.set(widget, `validationMessages.${propertyName}`, message);
   }
-  const parsedCache = getParsedValueCache(propertyPath);
-  if (
-    !equal(parsedCache.value, parsed) ||
-    (cachedDependencyValues !== undefined &&
-      !equal(currentDependencyValues, cachedDependencyValues))
-  ) {
-    parsedValueCache.set(propertyPath, {
-      value: parsed,
-      version: Date.now(),
-    });
+  if (widget.dynamicTriggers && propertyName in widget.dynamicTriggers) {
+    return unEvalPropertyValue;
+  } else {
+    const parsedCache = getParsedValueCache(propertyPath);
+    if (
+      !equal(parsedCache.value, parsed) ||
+      (cachedDependencyValues !== undefined &&
+        !equal(currentDependencyValues, cachedDependencyValues))
+    ) {
+      parsedValueCache.set(propertyPath, {
+        value: parsed,
+        version: Date.now(),
+      });
+    }
+    return parsed;
   }
-  return parsed;
 }
 
 function isWidget(entity: DataTreeEntity): boolean {
@@ -577,28 +676,32 @@ export function dependencySortedEvaluateDataTree(
         if (isWidget(entity)) {
           const widgetEntity: DataTreeWidget = entity as DataTreeWidget;
           const propertyName = propertyPath.split(".")[1];
-          let parsedValue = validateAndParseWidgetProperty(
-            propertyPath,
-            widgetEntity,
-            currentTree,
-            evalPropertyValue,
-            currentDependencyValues,
-            cachedDependencyValues,
-          );
-          const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
-            widgetEntity.type,
-          );
-          const hasDefaultProperty = propertyName in defaultPropertyMap;
-          if (hasDefaultProperty) {
-            const defaultProperty = defaultPropertyMap[propertyName];
-            parsedValue = overwriteDefaultDependentProps(
-              defaultProperty,
-              parsedValue,
+          if (propertyName) {
+            let parsedValue = validateAndParseWidgetProperty(
               propertyPath,
               widgetEntity,
+              currentTree,
+              evalPropertyValue,
+              unEvalPropertyValue,
+              currentDependencyValues,
+              cachedDependencyValues,
             );
+            const defaultPropertyMap = WidgetFactory.getWidgetDefaultPropertiesMap(
+              widgetEntity.type,
+            );
+            const hasDefaultProperty = propertyName in defaultPropertyMap;
+            if (hasDefaultProperty) {
+              const defaultProperty = defaultPropertyMap[propertyName];
+              parsedValue = overwriteDefaultDependentProps(
+                defaultProperty,
+                parsedValue,
+                propertyPath,
+                widgetEntity,
+              );
+            }
+            return _.set(currentTree, propertyPath, parsedValue);
           }
-          return _.set(currentTree, propertyPath, parsedValue);
+          return _.set(currentTree, propertyPath, evalPropertyValue);
         } else {
           return _.set(currentTree, propertyPath, evalPropertyValue);
         }
