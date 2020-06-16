@@ -9,8 +9,6 @@ import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
 } from "actions/helpActions";
-import FeatureFlag from "utils/featureFlags";
-import { FeatureFlagsEnum } from "configs/types";
 import { WidgetType } from "constants/WidgetConstants";
 
 const HelpIcon = ControlIcons.HELP_CONTROL;
@@ -42,7 +40,7 @@ const StyledHelpIcon = styled.div`
 
 export const HelpControl = (props: { type: WidgetType; show: boolean }) => {
   const dispatch = useDispatch();
-  return FeatureFlag.check(FeatureFlagsEnum.documentationV2) && props.show ? (
+  return props.show ? (
     <StyledHelpIcon
       className="control t--widget-help-control"
       onClick={() => {

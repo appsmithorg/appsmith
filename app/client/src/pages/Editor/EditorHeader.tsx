@@ -20,9 +20,8 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
-import FeatureFlag from "utils/featureFlags";
-import { FeatureFlagsEnum } from "configs/types";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -88,7 +87,8 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               <Button
                 text="Manage Pages"
                 icon="page-layout"
-                iconAlignment="left"
+                iconAlignment={Directions.LEFT}
+                skin={Skin.LIGHT}
               />
             ),
             onSelect: () =>
@@ -161,9 +161,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
           className="t--application-publish-btn"
         />
       </PreviewPublishSection>
-      {FeatureFlag.check(FeatureFlagsEnum.documentationV2) && (
-        <HelpModal></HelpModal>
-      )}
+      <HelpModal></HelpModal>
     </StyledHeader>
   );
 };

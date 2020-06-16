@@ -156,7 +156,7 @@ const ItemContainer = styled.div<{
   background-color: ${props =>
     props.isSelected || props.isBeingDragged
       ? props.theme.colors.paneCard
-      : props.theme.colors.paneBG}
+      : props.theme.colors.paneBG};
   :hover {
     background-color: ${props =>
       props.isDraggingOver

@@ -17,9 +17,14 @@ export interface ColumnAction {
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 5px 0px;
   position: absolute;
-  right: 8px;
+  right: 0px;
   cursor: pointer;
   top: 0px;
+`;
+
+const InputTextWrapper = styled.div`
+  margin-bottom: 8px;
+  width: calc(100% - 30px);
 `;
 
 const Wrapper = styled.div`
@@ -41,7 +46,7 @@ class ColumnActionSelectorControl extends BaseControl<
                   position: "relative",
                 }}
               >
-                <Wrapper>
+                <InputTextWrapper>
                   <InputText
                     label={columnAction.label}
                     value={columnAction.label}
@@ -51,7 +56,7 @@ class ColumnActionSelectorControl extends BaseControl<
                     )}
                     isValid={true}
                   />
-                </Wrapper>
+                </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
                     value={columnAction.dynamicTrigger}

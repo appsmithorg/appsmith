@@ -29,10 +29,6 @@ export const prodConfig = (baseUrl: string): AppsmithUIConfigs => ({
       optimizely: "Jq3K2kVdvuvxecHyHbVYcj",
     },
     default: {
-      documentationv2: true,
-      apipanev2: true,
-      datasourcepane: true,
-      querypane: true,
       lightningmenu: false,
     },
   },

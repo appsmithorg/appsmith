@@ -33,12 +33,15 @@ import {
   API_EDITOR_ID_URL,
   API_EDITOR_URL,
   getProviderTemplatesURL,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsEditorInitialized,
   getLastSelectedPage,
+  getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { getAction } from "./ActionSagas";
@@ -50,11 +53,14 @@ import {
   UNIQUE_NAME_ERROR,
   VALID_FUNCTION_NAME_ERROR,
 } from "constants/messages";
-import { createNewApiName } from "utils/AppsmithUtils";
+import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getActions } from "selectors/entitiesSelector";
+import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest } from "actions/actionActions";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
+import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -496,6 +502,47 @@ function* handleCreateNewApiActionSaga(
   }
 }
 
+function* handleCreateNewQueryActionSaga(
+  action: ReduxAction<{ pageId: string }>,
+) {
+  const { pageId } = action.payload;
+  const applicationId = yield select(getCurrentApplicationId);
+  const actions = yield select(getActions);
+  const dataSources = yield select(getDataSources);
+  const plugins = yield select(getPlugins);
+  const pluginIds = plugins
+    .filter((plugin: Plugin) => PLUGIN_PACKAGE_DBS.includes(plugin.packageName))
+    .map((plugin: Plugin) => plugin.id);
+  const validDataSources: Array<Datasource> = [];
+  dataSources.forEach((dataSource: Datasource) => {
+    if (pluginIds?.includes(dataSource.pluginId)) {
+      validDataSources.push(dataSource);
+    }
+  });
+  if (validDataSources.length) {
+    const pageApiNames = actions
+      .filter((a: ActionData) => a.config.pageId === pageId)
+      .map((a: ActionData) => a.config.name);
+    const newQueryName = getNextEntityName("Query", pageApiNames);
+    const dataSourceId = validDataSources[0].id;
+    yield put(
+      createActionRequest({
+        name: newQueryName,
+        pageId,
+        datasource: {
+          id: dataSourceId,
+        },
+        actionConfiguration: {},
+      }),
+    );
+    history.push(
+      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
+    );
+  } else {
+    history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -508,6 +555,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.CREATE_NEW_API_ACTION,
       handleCreateNewApiActionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
+      handleCreateNewQueryActionSaga,
     ),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),

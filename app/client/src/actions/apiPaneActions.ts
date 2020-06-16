@@ -48,6 +48,11 @@ export const createNewApiAction = (
   payload: { pageId },
 });
 
+export const createNewQueryAction = (pageId: string): ReduxAction<{}> => ({
+  type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
+  payload: { pageId },
+});
+
 export const setDatasourceFieldText = (
   apiId: string,
   value: string,

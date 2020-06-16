@@ -203,6 +203,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             singleLine
             leftImage={providerImage}
             disabled={true}
+            showLightningMenu={false}
           />
           <DynamicTextField
             placeholder="v1/method"
@@ -210,6 +211,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             leftIcon={FormIcons.SLASH_ICON}
             singleLine
             disabled={true}
+            showLightningMenu={false}
           />
         </FormRow>
         {/* Display How to get Credentials info if it is present */}
