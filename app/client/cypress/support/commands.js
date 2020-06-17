@@ -1161,7 +1161,7 @@ Cypress.Commands.add("callApi", apiname => {
     .first()
     .click();
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Call API")
+    .contains("Call An API")
     .click();
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
