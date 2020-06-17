@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import reactor.core.publisher.Flux;
@@ -27,6 +28,6 @@ public interface ActionService extends CrudService<Action, String> {
 
     Mono<Action> findById(String id);
 
-    Flux<Action> findByPageId(String pageId);
+    Flux<Action> findByPageId(String pageId, AclPermission permission);
 
 }

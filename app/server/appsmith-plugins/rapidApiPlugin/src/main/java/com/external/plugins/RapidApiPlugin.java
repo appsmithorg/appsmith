@@ -112,9 +112,9 @@ public class RapidApiPlugin extends BasePlugin {
                 List<Property> bodyFormData = actionConfiguration.getBodyFormData();
                 String jsonString = null;
                 JSONObject bodyJson;
-                for (Property property: bodyFormData) {
+                for (Property property : bodyFormData) {
 
-                    if(property.getValue()!=null) {
+                    if (property.getValue() != null) {
                         if (!property.getType().equals(JSON_TYPE)) {
                             keyValueMap.put(property.getKey(), property.getValue());
                         } else {

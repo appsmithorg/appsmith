@@ -2,8 +2,8 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
-import com.appsmith.server.dtos.UserProfileDTO;
 import reactor.core.publisher.Mono;
 
 public interface UserService extends CrudService<User, String> {
@@ -18,13 +18,15 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
-    Mono<User> inviteUser(User user, String originHeader);
+    Mono<User> inviteUserToApplication(InviteUser inviteUser, String originHeader, String applicationId);
 
     Mono<Boolean> verifyInviteToken(String email, String token);
 
-    Mono<Boolean> confirmInviteUser(InviteUser inviteUser, String originHeader);
+    Mono<Boolean> confirmInviteUser(User inviteUser, String originHeader);
 
-    Mono<UserProfileDTO> getUserProfile();
+    Mono<User> createUserAndSendEmail(User user, String originHeader);
 
-    Mono<User> createUser(User user, String originHeader);
+    Mono<User> userCreate(User user);
+
+    Mono<User> inviteUser(InviteUserDTO inviteUserDTO, String originHeader);
 }

@@ -9,5 +9,7 @@ public class PluginOrgDTO {
 
     String pluginId;
 
+    String organizationId;
+
     OrganizationPluginStatus status;
 }

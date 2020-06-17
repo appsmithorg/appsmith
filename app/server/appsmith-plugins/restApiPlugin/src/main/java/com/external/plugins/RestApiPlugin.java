@@ -328,7 +328,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (StringUtils.isNotEmpty(key)) {
                     String value = header.getValue();
                     webClientBuilder.defaultHeader(key, value);
-                    
+
                     if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(key)) {
                         contentType = value;
                     }

@@ -1,22 +1,31 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -28,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,24 +50,58 @@ public class LayoutServiceTest {
     LayoutService layoutService;
 
     @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
     PageService pageService;
 
     @Autowired
     LayoutActionService layoutActionService;
 
     @Autowired
+    ApplicationPageService applicationPageService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
+    @Autowired
     ActionService actionService;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+
+    @MockBean
+    PluginExecutor pluginExecutor;
 
     Mono<Layout> layoutMono;
 
-    Mono<Application> applicationMono;
+    String orgId;
+
+    Datasource datasource;
+
 
     @Before
+    @WithUserDetails(value = "api_user")
     public void setup() {
-        applicationMono = applicationService.findByName("LayoutServiceTest TestApplications");
+        purgeAllPages();
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+
+        datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+    }
+
+    private void purgeAllPages() {
+        pageService.deleteAll();
     }
 
     @Test
@@ -90,22 +132,27 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidLayout() {
+        Page testPage = new Page();
+        testPage.setName("createLayoutPageName");
+
+        Application application = new Application();
+        application.setName("createValidLayout-Test-Application");
+        Mono<Application> applicationMono = applicationPageService.createApplication(application, orgId);
+
+        Mono<Page> pageMono = applicationMono
+                .switchIfEmpty(Mono.error(new Exception("No application found")))
+                .map(app -> {
+                    testPage.setApplicationId(app.getId());
+                    return testPage;
+                })
+                .flatMap(applicationPageService::createPage);
+
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
         obj.put("key1", "value1");
         testLayout.setDsl(obj);
 
-        Page testPage = new Page();
-        testPage.setName("LayoutServiceTest createValidLayout Page");
-        Mono<Page> pageMono = pageService
-                .findByName(testPage.getName())
-                .switchIfEmpty(applicationMono
-                        .map(application -> {
-                            testPage.setApplicationId(application.getId());
-                            return testPage;
-                        })
-                        .flatMap(pageService::save));
-        layoutMono = pageMono
+        Mono<Layout> layoutMono = pageMono
                 .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
 
         StepVerifier
@@ -118,6 +165,24 @@ public class LayoutServiceTest {
                 .verifyComplete();
     }
 
+    private Mono<Page> createPage(Application app, Page page) {
+        Mono<Page> pageMono = pageService
+                .findByName(page.getName())
+                .switchIfEmpty(applicationPageService.createApplication(app, orgId)
+                        .map(application -> {
+                            log.debug("*** Created a new app: {} for page: {}", application, page);
+                            log.debug("** Got applicationId: {}", application.getId());
+                            page.setApplicationId(application.getId());
+                            return page;
+                        })
+                        .flatMap(applicationPageService::createPage))
+                .map(pg -> {
+                    log.debug("Found the page: {}", pg);
+                    return pg;
+                });
+        return pageMono;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLayoutInvalidPageId() {
@@ -125,31 +190,26 @@ public class LayoutServiceTest {
         JSONObject obj = new JSONObject();
         obj.put("key", "value");
         testLayout.setDsl(obj);
-        AtomicReference<String> pageId = new AtomicReference<>();
 
         Page testPage = new Page();
-        testPage.setName("LayoutServiceTest updateLayoutInvalidPage");
-        Mono<Page> pageMono = pageService
-                .findByName(testPage.getName())
-                .switchIfEmpty(applicationMono
-                        .map(application -> {
-                            testPage.setApplicationId(application.getId());
-                            return testPage;
-                        })
-                        .flatMap(pageService::save));
-
-        Layout startLayout = pageMono
-                .flatMap(page -> {
-                    pageId.set(page.getId());
-                    return layoutService.createLayout(page.getId(), testLayout);
-                }).block();
+        testPage.setName("LayoutServiceTest updateLayoutInvalidPageId");
 
         Layout updateLayout = new Layout();
         obj = new JSONObject();
         obj.put("key", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutInvalidPageId-Test");
+        Mono<Page> pageMono = createPage(app, testPage);
+
+        Mono<Layout> startLayoutMono = pageMono
+                .switchIfEmpty(Mono.error(new Exception("No page found")))
+                .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
+
+        Mono<Layout> updatedLayoutMono = startLayoutMono.flatMap(startLayout ->
+                layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout)
+        );
 
         StepVerifier
                 .create(updatedLayoutMono)
@@ -166,20 +226,27 @@ public class LayoutServiceTest {
         obj.put("key", "value");
         testLayout.setDsl(obj);
 
-        Page testPage = new Page();
-        testPage.setName("validPageName");
-        Page page = pageService
-                .findByName(testPage.getName())
-                .block();
-
-        Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
-
         Layout updateLayout = new Layout();
         JSONObject obj1 = new JSONObject();
         obj1.put("key1", "value-updated");
         updateLayout.setDsl(obj);
 
-        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+        Page testPage = new Page();
+        testPage.setName("LayoutServiceTest updateLayoutValidPageId");
+
+        Application app = new Application();
+        app.setName("newApplication-updateLayoutValidPageId-Test");
+
+        Mono<Page> pageMono = createPage(app, testPage).cache();
+
+        Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
+
+        Mono<Layout> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono)
+                .flatMap(tuple -> {
+                    Page page = tuple.getT1();
+                    Layout startLayout = tuple.getT2();
+                    return layoutActionService.updateLayout(page.getId(), startLayout.getId(), updateLayout);
+                });
 
         StepVerifier
                 .create(updatedLayoutMono)
@@ -194,6 +261,8 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getActionsExecuteOnLoad() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         Mono<Layout> testMono = pageService
                 .findByName("validPageName")
                 .flatMap(page1 -> {
@@ -204,6 +273,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -211,6 +281,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -222,6 +293,7 @@ public class LayoutServiceTest {
                     action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -229,6 +301,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -237,6 +310,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     action = new Action();
@@ -244,6 +318,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
                     monos.add(actionService.create(action));
 
                     return Mono.zip(monos, objects -> page1);

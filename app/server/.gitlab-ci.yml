@@ -40,6 +40,7 @@ maven-build:
     - release
     - master
     - merge_requests
+    - feature/acl-spring-object
 
 docker-package:
   image: docker:dind
@@ -66,6 +67,18 @@ docker-package-master:
     - docker push appsmith/appsmith-server
   only:
     - master
+
+docker-package-acl:
+  image: docker:dind
+  services:
+    - docker:19.03.5-dind #change this back to docker-dind
+  stage: package
+  script:
+    - docker build -t appsmith/appsmith-server:acl .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-server:acl
+  only:
+    - feature/acl-spring-object
 
 heroku-deploy:
   stage: deploy

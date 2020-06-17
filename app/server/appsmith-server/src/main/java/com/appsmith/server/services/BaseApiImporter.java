@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public abstract class BaseApiImporter implements ApiImporter {
 
-    public abstract Mono<Action> importAction(Object input, String pageId, String name);
+    public abstract Mono<Action> importAction(Object input, String pageId, String name, String orgId);
 
 }

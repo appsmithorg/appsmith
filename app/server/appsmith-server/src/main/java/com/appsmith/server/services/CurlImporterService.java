@@ -47,7 +47,7 @@ public class CurlImporterService extends BaseApiImporter {
     }
 
     @Override
-    public Mono<Action> importAction(Object input, String pageId, String name) {
+    public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
         Action action = curlToAction((String) input, pageId, name);
 
         if (action == null) {
@@ -62,6 +62,7 @@ public class CurlImporterService extends BaseApiImporter {
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
+                    datasource.setOrganizationId(orgId);
                     return Mono.just(action);
                 })
                 .flatMap(actionService::create);
@@ -94,6 +95,7 @@ public class CurlImporterService extends BaseApiImporter {
 
     /**
      * Splits the given string into tokens using quoting semantics close to a typical POSIX shell.
+     *
      * @param text String Text to tokenize.
      * @return List of String tokens. The tokens don't include quote characters that were use to delineate the tokens.
      */
@@ -175,6 +177,7 @@ public class CurlImporterService extends BaseApiImporter {
     /**
      * Normalizes curl command arguments. For example, inputs like `-XGET`, `-X GET`, `--request GET` are all converted
      * to look like `--request GET`.
+     *
      * @param tokens List of command-line arguments, possibly non-normalized.
      * @return A new list of strings with normalized arguments.
      */

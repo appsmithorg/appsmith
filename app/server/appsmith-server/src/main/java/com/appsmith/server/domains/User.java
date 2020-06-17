@@ -6,15 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 @Getter
@@ -55,17 +54,17 @@ public class User extends BaseDomain implements UserDetails {
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     private Set<String> permissions = new HashSet<>();
 
+    // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
+    // token flow.
+    @JsonIgnore
+    private String inviteToken;
+
+    @Transient
+    Boolean isAnonymous = false;
+
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        if (roles == null || roles.isEmpty()) //No existing roles found.
-            return null;
-
-        Collection<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.toString()))
-                .collect(Collectors.toList());
-
-        return authorities;
+    public Collection<GrantedAuthority> getAuthorities() {
+        return null;
     }
 
     @Override

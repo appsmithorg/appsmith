@@ -2,18 +2,31 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -32,7 +45,10 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -43,6 +59,24 @@ public class ActionServiceTest {
     @Autowired
     ActionService actionService;
 
+    @Autowired
+    ApplicationPageService applicationPageService;
+
+    @Autowired
+    PageService pageService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
+    @Autowired
+    OrganizationRepository organizationRepository;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -52,15 +86,94 @@ public class ActionServiceTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    Application testApp = null;
+
+    Page testPage = null;
+
+    int i = 0;
+
+    Datasource datasource;
+
+    @Before
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
+        Organization organization = organizationService.findById(orgId).block();
+
+        if (testApp == null && testPage == null) {
+            //Create application and page which will be used by the tests to create actions for.
+            Application application = new Application();
+            application.setName("ActionServiceTest-App-" + String.valueOf(i));
+            i++;
+            testApp = applicationPageService.createApplication(application, organization.getId()).block();
+            testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
+        }
+
+        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        orgId = testOrg.getId();
+        datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setOrganizationId(orgId);
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+    }
+
+    @After
+    @WithUserDetails(value = "api_user")
+    public void cleanup() {
+        applicationPageService.deleteApplication(testApp.getId()).block();
+        testApp = null;
+        testPage = null;
+
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
-    public void createValidActionWithJustName() {
+    public void createValidActionAndCheckPermissions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Action action = new Action();
-        action.setName("randomActionName");
-        action.setPageId("randomPageId");
+        action.setName("validAction");
+        action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<Action> actionMono = actionService.create(action);
+
+        StepVerifier
+                .create(actionMono)
+                .assertNext(createdAction -> {
+                    assertThat(createdAction.getId()).isNotEmpty();
+                    assertThat(createdAction.getName()).isEqualTo(action.getName());
+                    assertThat(createdAction.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+                })
+                .verifyComplete();
+    }
+
+
+        @Test
+    @WithUserDetails(value = "api_user")
+    public void createValidActionWithJustName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Action action = new Action();
+        action.setName("randomActionName");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
                 .flatMap(actionService::create);
         StepVerifier
@@ -68,8 +181,7 @@ public class ActionServiceTest {
                 .assertNext(createdAction -> {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
-                    assertThat(createdAction.getIsValid()).isFalse();
-                    assertThat(createdAction.getInvalids().size()).isEqualTo(1);
+                    assertThat(createdAction.getIsValid()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -77,9 +189,12 @@ public class ActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionNullActionConfiguration() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         Action action = new Action();
         action.setName("randomActionName2");
-        action.setPageId("randomPageId");
+        action.setPageId(testPage.getId());
+        action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
                 .flatMap(actionService::create);
         StepVerifier
@@ -97,10 +212,11 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void invalidCreateActionNullName() {
         Action action = new Action();
-        action.setPageId("randomPageId");
+        action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
         Mono<Action> actionMono = Mono.just(action)
                 .flatMap(actionService::create);
         StepVerifier

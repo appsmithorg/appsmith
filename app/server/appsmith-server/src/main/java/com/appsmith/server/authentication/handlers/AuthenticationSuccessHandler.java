@@ -1,6 +1,6 @@
 package com.appsmith.server.authentication.handlers;
 
-import com.appsmith.server.constants.AclConstants;
+import com.appsmith.server.acl.AclConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
@@ -48,6 +48,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
                                               Authentication authentication) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+
         if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2AuthenticationToken oauthAuthentication = (OAuth2AuthenticationToken) authentication;
             return checkAndCreateUser(oauthAuthentication)

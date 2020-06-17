@@ -17,7 +17,7 @@ public interface MarketplaceService {
     Mono<List<String>> getCategories();
 
     Mono<Boolean> subscribeAndUpdateStatisticsOfProvider(String providerId);
-    
+
     Mono<Provider> getProviderById(String id);
 
     Mono<List<Provider>> searchProviderByName(String id);

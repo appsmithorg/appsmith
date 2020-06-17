@@ -56,12 +56,15 @@ public class AnalyticsService<T extends BaseDomain> {
                 .defaultIfEmpty(createAnonymousUser());
         return userMono
                 .map(user -> {
+
+                    // In case the user is anonymous, return as is without raising the event.
+                    if (user.getIsAnonymous()) {
+                        return (T) object;
+                    }
+
                     HashMap<String, String> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", ((BaseDomain) object).getId());
                     analyticsProperties.put("object", object.toString());
-                    if (user.getCurrentOrganizationId() != null) {
-                        analyticsProperties.put("organizationId", user.getCurrentOrganizationId());
-                    }
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
