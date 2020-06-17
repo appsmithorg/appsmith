@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {

@@ -2,7 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 
 export function InputText(props: {
   label: string;

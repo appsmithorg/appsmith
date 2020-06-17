@@ -8,7 +8,7 @@ import {
 } from "redux-form";
 import DynamicAutocompleteInput, {
   DynamicAutocompleteInputProps,
-} from "components/editorComponents/DynamicAutocompleteInput";
+} from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
@@ -161,6 +161,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const props = {
       ...this.props,
       input,
+      hints: ["a", "b", "c"],
       highlightText: this.handleDatasourceHighlight,
     };
 

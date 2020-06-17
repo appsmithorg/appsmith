@@ -3,7 +3,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import { EditorTheme } from "components/editorComponents/DynamicAutocompleteInput";
+import { EditorTheme } from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 

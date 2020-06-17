@@ -2,7 +2,7 @@ import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 import DynamicAutocompleteInput, {
   DynamicAutocompleteInputProps,
-} from "components/editorComponents/DynamicAutocompleteInput";
+} from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps & DynamicAutocompleteInputProps

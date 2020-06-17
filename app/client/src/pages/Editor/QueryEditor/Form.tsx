@@ -17,7 +17,7 @@ import {
   OptionProps,
 } from "react-select";
 import history from "utils/history";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
 import Button from "components/editorComponents/Button";

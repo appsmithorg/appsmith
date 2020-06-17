@@ -14,7 +14,7 @@ import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
-import EvaluatedValuePopup from "components/editorComponents/EvaluatedValuePopup";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
@@ -366,6 +366,7 @@ export type DynamicAutocompleteInputProps = {
     to: CodeMirror.Position;
     options: CodeMirror.TextMarkerOptions;
   };
+  hints?: Array<string>;
 };
 
 type Props = ReduxStateProps &
@@ -608,6 +609,16 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       }
     }
   };
+
+  handleHintsAutocomplete(cm: CodeMirror.Doc) {
+    const cursor = cm.getCursor();
+    const { hints } = this.props;
+    return {
+      from: cursor,
+      to: cursor,
+      list: hints,
+    };
+  }
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
     if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {

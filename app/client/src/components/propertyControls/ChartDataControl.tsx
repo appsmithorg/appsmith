@@ -5,7 +5,7 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
