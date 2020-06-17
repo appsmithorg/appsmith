@@ -1,17 +1,10 @@
 const queryLocators = require("../../../locators/QueryEditor.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Create a query with a postgres datasource, run, save and then delete the query", function() {
   it("Create a query with a postgres datasource, run, save and then delete the query", function() {
     cy.NavigateToDatasourceEditor();
-    cy.get("@getPlugins").then(httpResponse => {
-      const pluginName = httpResponse.response.body.data.find(
-        plugin => plugin.packageName === "postgres-plugin",
-      ).name;
-
-      cy.get(".t--plugin-name")
-        .contains(pluginName)
-        .click();
-    });
+    cy.get(datasource.PostgreSQL).click();
 
     cy.getPluginFormsAndCreateDatasource();
 

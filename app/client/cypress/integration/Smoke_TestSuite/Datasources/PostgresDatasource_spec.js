@@ -1,20 +1,11 @@
+const datasource = require("../../../locators/DatasourcesEditor.json");
+
 describe("Create, test, save then delete a postgres datasource", function() {
   it("Create, test, save then delete a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
-    cy.get("@getPlugins").then(httpResponse => {
-      const pluginName = httpResponse.response.body.data.find(
-        plugin => plugin.packageName === "postgres-plugin",
-      ).name;
-
-      cy.get(".t--plugin-name")
-        .contains(pluginName)
-        .click();
-    });
-
+    cy.get(datasource.PostgreSQL).click();
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
-
     cy.testSaveDeleteDatasource();
   });
 });

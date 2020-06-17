@@ -15,20 +15,16 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
-  // cy.get(homePage.CreateApp)
-  cy.contains("Create New").click({ force: true });
-  // .click({ force: true });
-  cy.get("form input").type(appname);
+  cy.get(homePage.createNew)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.inputAppName).type(appname);
   cy.get(homePage.CreateApp)
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
   cy.wait("@getPropertyPane");
   cy.get("@getPropertyPane").should("have.property", "status", 200);
-  cy.wait("@getDataSources");
-  cy.get("@getDataSources").should("have.property", "status", 200);
-  cy.wait("@getUser");
-  cy.get("@getUser").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
@@ -66,10 +62,62 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     200,
   );
 });
+
+Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+  cy.request({
+    method: "POST",
+    url: "api/v1/login",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    followRedirect: false,
+    form: true,
+    body: {
+      username: uname,
+      password: pword,
+    },
+  }).then(response => {
+    expect(response.status).equal(302);
+    cy.log(response.body);
+  });
+});
+
+Cypress.Commands.add("DeleteApp", appName => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.get(homePage.searchInput).type(appName);
+  cy.wait(2000);
+  cy.get(homePage.appMoreIcon)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.deleteButton).click({ force: true });
+});
+
+Cypress.Commands.add("Deletepage", Pagename => {
+  cy.get(pages.pagesIcon).click({ force: true });
+  cy.get(".t--page-sidebar-" + Pagename + "");
+  cy.get(
+    ".t--page-sidebar-" +
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+  ).click({ force: true });
+  cy.get(pages.Menuaction).click({ force: true });
+  cy.get(pages.Delete).click({ force: true });
+  cy.wait(2000);
+});
+
 Cypress.Commands.add("LogOut", () => {
   cy.request("POST", "/api/v1/logout").then(response => {
     expect(response.status).equal(200);
   });
+});
+
+Cypress.Commands.add("NavigateToHome", () => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("NavigateToWidgets", pageName => {
@@ -131,7 +179,8 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  //cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.apiTxt)
     .clear()
@@ -158,7 +207,7 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 });
 
 Cypress.Commands.add("EditApiName", apiname => {
-  cy.wait("@getUser");
+  //cy.wait("@getUser");
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -167,7 +216,8 @@ Cypress.Commands.add("EditApiName", apiname => {
 });
 
 Cypress.Commands.add("WaitAutoSave", () => {
-  cy.wait("@saveQuery");
+  //cy.wait("@saveQuery");
+  // cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
@@ -208,9 +258,11 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .first()
     .click({ force: true })
     .type(datasource);
+  /*  
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
+    */
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -483,7 +535,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(commonlocators.editWidgetName)
     .dblclick({ force: true })
-    .type(text)
+    .type(text, { force: true })
     .type("{enter}");
   cy.get(inputcss)
     .first()
@@ -1067,7 +1119,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 
 Cypress.Commands.add("startServerAndRoutes", () => {
   cy.server();
-  cy.route("GET", "/api/v1/applications").as("applications");
+  cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
