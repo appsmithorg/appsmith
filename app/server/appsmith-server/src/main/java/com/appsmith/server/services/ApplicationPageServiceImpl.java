@@ -118,7 +118,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
-        return pageService.findById(pageId, READ_PAGES)
+        AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
+        return pageService.findById(pageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
