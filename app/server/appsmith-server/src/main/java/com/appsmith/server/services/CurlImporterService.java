@@ -268,7 +268,7 @@ public class CurlImporterService extends BaseApiImporter {
 
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.
-                final String[] parts = token.split(":\\s+", 2);
+                final String[] parts = token.split(":\\s*", 2);
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     isContentTypeSet = true;
                 }
