@@ -6,10 +6,8 @@ import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
 import DropdownComponent, { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
-import _ from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { Button } from "@blueprintjs/core";
+import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
 
 const switchdropdown = (
   orgs: Org[],
@@ -18,6 +16,18 @@ const switchdropdown = (
   sections: [
     {
       isSticky: true,
+      options: [
+        {
+          content: (
+            <FormDialogComponent
+              trigger="Create Organization"
+              Form={CreateOrganizationForm}
+              title="Create Organization"
+            />
+          ),
+          shouldCloseDropdown: false,
+        },
+      ],
     },
     {
       options: orgs
@@ -43,48 +53,26 @@ const switchdropdown = (
 
 export const options = (
   user: User,
-  orgName: string,
-  orgId: string,
-): CustomizedDropdownProps => {
-  return {
-    sections: [
-      {
-        options: [
-          {
-            content: (
-              <Badge text={orgName} imageURL="https://via.placeholder.com/32" />
-            ),
-            disabled: true,
-            shouldCloseDropdown: false,
-          },
-          {
-            content: "Organization Settings",
-            onSelect: () =>
-              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: `/org/${orgId}/settings`,
-              }),
-          },
-          {
-            content: "Share",
-            onSelect: () => _.noop("Share option selected"),
-          },
-          {
-            content: "Members",
-            onSelect: () =>
-              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: `/org/${orgId}/settings`,
-              }),
-          },
-        ],
-      },
-    ],
-    trigger: {
-      icon: "ORG_ICON",
-      text: orgName,
-      outline: false,
+  dropdownMainMenuName: string,
+): CustomizedDropdownProps => ({
+  sections: [
+    {
+      options: [
+        {
+          content: "Sign Out",
+          onSelect: () =>
+            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+              type: ReduxActionTypes.LOGOUT_USER_INIT,
+            }),
+        },
+      ],
     },
-    openDirection: Directions.DOWN,
-  };
-};
+  ],
+  trigger: {
+    text: dropdownMainMenuName,
+    outline: false,
+  },
+  openDirection: Directions.DOWN,
+});
 
 export default options;

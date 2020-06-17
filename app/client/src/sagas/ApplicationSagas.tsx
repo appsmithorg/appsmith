@@ -14,6 +14,10 @@ import ApplicationApi, {
   ApplicationPagePayload,
   SetDefaultPageRequest,
   DeleteApplicationRequest,
+  GetAllApplicationResponse,
+  FetchUsersApplicationsOrgsResponse,
+  OrganizationApplicationObject,
+  ApplicationObject,
 } from "api/ApplicationApi";
 import { getDefaultPageId } from "./SagaUtils";
 import { call, put, takeLatest, all, select } from "redux-saga/effects";
@@ -44,6 +48,50 @@ export function* publishApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.PUBLISH_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+export function* getAllApplicationSaga() {
+  try {
+    const response: FetchUsersApplicationsOrgsResponse = yield call(
+      ApplicationApi.getAllApplication,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
+        (userOrgs: OrganizationApplicationObject) => ({
+          organization: userOrgs.organization,
+          applications: !userOrgs.applications
+            ? []
+            : userOrgs.applications.map((application: ApplicationObject) => {
+                return {
+                  name: application.name,
+                  organizationId: application.organizationId,
+                  id: application.id,
+                  pages: application.pages,
+                  userPermissions: application.userPermissions,
+                  pageCount: application.pages ? application.pages.length : 0,
+                  defaultPageId: getDefaultPageId(application.pages),
+                };
+              }),
+        }),
+      );
+
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
+        payload: organizationApplication,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: response.data.user,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_ORGS_ERROR,
       payload: {
         error,
       },
@@ -158,9 +206,7 @@ export function* deleteApplicationSaga(
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
-        payload: {
-          applicationId: action.payload.applicationId,
-        },
+        payload: response.data,
       });
     }
   } catch (error) {
@@ -176,11 +222,12 @@ export function* deleteApplicationSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
+    orgId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, resolve, reject } = action.payload;
+  const { applicationName, orgId, resolve, reject } = action.payload;
   try {
     const applicationList: ApplicationPayload[] = yield select(
       getApplicationList,
@@ -201,7 +248,10 @@ export function* createApplicationSaga(
         },
       });
     } else {
-      const request: CreateApplicationRequest = { name: applicationName };
+      const request: CreateApplicationRequest = {
+        name: applicationName,
+        orgId,
+      };
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,
         request,
@@ -253,6 +303,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
       fetchApplicationListSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      getAllApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),

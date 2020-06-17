@@ -4,6 +4,7 @@ export type User = {
   currentOrganizationId: string;
   organizationIds: string[];
   applications: UserApplication[];
+  username: string;
 };
 
 export interface UserApplication {

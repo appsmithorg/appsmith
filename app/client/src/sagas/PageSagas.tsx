@@ -76,7 +76,8 @@ export function* fetchPageListSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const pages: PageListPayload = response.data.map(page => ({
+      const orgId = response.data.organizationId;
+      const pages: PageListPayload = response.data.pages.map(page => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
@@ -88,6 +89,13 @@ export function* fetchPageListSaga(
           applicationId,
         },
       });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        payload: {
+          orgId,
+        },
+      });
+
       return;
     }
   } catch (error) {

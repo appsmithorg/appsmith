@@ -315,7 +315,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
       allowHorizontalScroll: false,
-      chartData: [
+      singleChartData: [
         {
           seriesName: "Sales",
           data: [

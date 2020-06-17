@@ -12,13 +12,18 @@ import {
   theme,
   getBorderCSSShorthand,
   getColorWithOpacity,
+  Theme,
 } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
 } from "components/editorComponents/ContextDropdown";
 import { Colors } from "constants/Colors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
-const Wrapper = styled(Card)`
+const Wrapper = styled(Card)<{ hasReadPermission?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,9 +40,12 @@ const Wrapper = styled(Card)`
     top: 0;
     height: calc(100% - ${props => props.theme.card.titleHeight}px);
     width: 100%;
+    ${props => !props.hasReadPermission && `pointer-events: none;`}
   }
   a:hover {
-    text-decoration: none;
+    ${props =>
+      props.hasReadPermission &&
+      `text-decoration: none;
     &:after {
       left: 0;
       top: 0;
@@ -49,13 +57,15 @@ const Wrapper = styled(Card)`
     & .control {
       display: block;
       z-index: 1;
-    }
+    }`}
     & div.image-container {
       background: ${props =>
-        getColorWithOpacity(
-          props.theme.card.hoverBG,
-          props.theme.card.hoverBGOpacity,
-        )};
+        props.hasReadPermission
+          ? getColorWithOpacity(
+              props.theme.card.hoverBG,
+              props.theme.card.hoverBGOpacity,
+            )
+          : null};
     }
   }
 `;
@@ -91,9 +101,14 @@ const ApplicationTitle = styled.div`
       top: ${props => props.theme.spaces[4]}px;
       cursor: pointer;
     }
+    .apptitle {
+      white-space: nowrap;
+      width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 `;
-
 const ApplicationImage = styled.div`
   && {
     height: 100%;
@@ -125,13 +140,20 @@ const APPLICATION_CONTROL_FONTSIZE_INDEX = 6;
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
-  loading: boolean;
   duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
 };
 
 export const ApplicationCard = (props: ApplicationCardProps) => {
+  const hasEditPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.MANAGE_APPLICATION,
+  );
+  const hasReadPermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.READ_APPLICATION,
+  );
   const duplicateApp = () => {
     props.duplicate && props.duplicate(props.application.id);
   };
@@ -173,19 +195,20 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
     props.application.id,
     props.application.defaultPageId,
   );
+
   return (
-    <Wrapper key={props.application.id}>
-      <ApplicationTitle
-        className={props.loading ? Classes.SKELETON : undefined}
-      >
-        <span>{props.application.name}</span>
-        <Link to={editApplicationURL} className="t--application-edit-link">
-          <Control className="control">
-            <Tooltip content="Edit" hoverOpenDelay={500}>
-              {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
-            </Tooltip>
-          </Control>
-        </Link>
+    <Wrapper key={props.application.id} hasReadPermission={hasReadPermission}>
+      <ApplicationTitle>
+        <div className="apptitle">{props.application.name}</div>
+        {hasEditPermission && (
+          <Link to={editApplicationURL} className="t--application-edit-link">
+            <Control className="control">
+              <Tooltip content="Edit" hoverOpenDelay={500}>
+                {<Icon icon={"edit"} iconSize={14} color={Colors.HIT_GRAY} />}
+              </Tooltip>
+            </Control>
+          </Link>
+        )}
         <ContextDropdown
           options={moreActionItems}
           toggle={{
