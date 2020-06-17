@@ -15,9 +15,9 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
-  cy.get(homePage.CreateApp)
-    .contains("Create Application")
-    .click({ force: true });
+  // cy.get(homePage.CreateApp)
+  cy.contains("Create New").click({ force: true });
+  // .click({ force: true });
   cy.get("form input").type(appname);
   cy.get(homePage.CreateApp)
     .contains("Submit")
@@ -538,21 +538,24 @@ Cypress.Commands.add("testCodeMirror", value => {
     });
 });
 
-Cypress.Commands.add("testJsontext", (endp, js) => {
+Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
+    .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then($cm => {
     if ($cm.contents != "") {
       cy.log("The field is empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
-        .clear({ force: true });
+        .clear({
+          force: true,
+        });
     }
     cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
-      .type(js, {
+      .type(value, {
         force: true,
         parseSpecialCharSequences: false,
       });
@@ -656,6 +659,77 @@ Cypress.Commands.add("DeleteAppByApi", () => {
       });
     }
   });
+});
+Cypress.Commands.add("togglebar", value => {
+  cy.get(value)
+    .check({ force: true })
+    .should("be.checked");
+});
+Cypress.Commands.add("radiovalue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("optionValue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("dropdownDynamic", text => {
+  cy.wait(2000);
+  cy.get("ul[class='bp3-menu']")
+    .first()
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
+Cypress.Commands.add("getAlert", alertcss => {
+  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
+  cy.get(widgetsPage.menubar)
+    .contains("Show Alert")
+    .click({ force: true })
+    .should("have.text", "Show Alert");
+
+  cy.get(alertcss)
+    .click({ force: true })
+    .type("{command}{A}{del}")
+    .type("hello")
+    .should("not.to.be.empty");
+  cy.get(".t--open-dropdown-Select-type").click({ force: true });
+  cy.get(".bp3-popover-content .bp3-menu li")
+    .contains("Success")
+    .click({ force: true });
+});
+Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
+  cy.get(commonlocators.editWidgetName)
+    .dblclick({ force: true })
+    .type(text)
+    .type("{enter}");
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.get(innercss).should("have.text", text);
+});
+Cypress.Commands.add("radioInput", (index, text) => {
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .click()
+    .clear()
+    .type(text);
+});
+Cypress.Commands.add("tabVerify", (index, text) => {
+  cy.get(".t--property-control-tabs input")
+    .eq(index)
+    .click({ force: true })
+    .clear()
+    .type(text);
+  cy.get(LayoutPage.tabWidget)
+    .contains(text)
+    .click({ force: true })
+    .should("be.visible");
 });
 
 Cypress.Commands.add("togglebar", value => {

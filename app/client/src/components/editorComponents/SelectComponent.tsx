@@ -11,6 +11,7 @@ type SelectComponentProps = {
   options?: Array<{ id: string; name: string }>;
   placeholder?: string;
   size?: "large" | "small";
+  outline?: boolean;
 };
 
 export const SelectComponent = (props: SelectComponentProps) => {
@@ -35,7 +36,7 @@ export const SelectComponent = (props: SelectComponentProps) => {
           props.options.filter(option => props.input.value === option.id)[0]
             .name
         : props.placeholder,
-      outline: true,
+      outline: props?.outline ?? true,
       size: props.size,
     },
     openDirection: "down",

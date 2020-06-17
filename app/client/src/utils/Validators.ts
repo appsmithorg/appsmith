@@ -328,6 +328,45 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     }
     return { isValid, parsed, transformed: parsed };
   },
+  [VALIDATION_TYPES.SINGLE_CHART_DATA]: (value, props, dataTree) => {
+    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.TABLE_DATA](
+      value,
+      props,
+      dataTree,
+    );
+    if (!isValid) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
+      };
+    }
+
+    const isValidChartData = _.every(
+      parsed,
+      (chartPoint: { x: string; y: any }) => {
+        return (
+          _.isObject(chartPoint) &&
+          _.isString(chartPoint.x) &&
+          !_.isUndefined(chartPoint.y)
+        );
+      },
+    );
+
+    if (!isValidChartData) {
+      return {
+        isValid: false,
+        parsed: [],
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Chart Data`,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed,
+      message: "",
+    };
+  },
   [VALIDATION_TYPES.MARKERS]: (
     value: any,
     props: WidgetProps,
