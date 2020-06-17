@@ -29,6 +29,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -83,6 +84,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
         layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
+            layout.setWidgetNames(Set.of(FieldName.DEFAULT_WIDGET_NAME));
         } catch (ParseException e) {
             log.error("Unable to set the default page layout for id: {}", id);
         }
