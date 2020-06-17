@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +8,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 
 @Slf4j
 @Service
@@ -43,7 +44,7 @@ public class SessionUserServiceImpl implements SessionUserService {
                         DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) principal;
                         email = defaultOAuth2User.getName();
                     }
-                    return repository.findByEmail(email, AclPermission.READ_USERS);
+                    return repository.findByEmail(email, READ_USERS);
                 });
     }
 }
