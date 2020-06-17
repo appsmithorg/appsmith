@@ -573,12 +573,10 @@ function Fields(props: {
   depth: number;
   maxDepth: number;
 }) {
-  console.log("props.fields", props.fields);
   if (!props.fields) {
     return null;
   }
   const ui = props.fields.map((field: any) => {
-    console.log("field", field);
     if (Array.isArray(field)) {
       if (props.depth > props.maxDepth) {
         return null;
@@ -598,6 +596,7 @@ function Fields(props: {
           depth={props.depth + 1}
           maxDepth={props.maxDepth}
           onValueChange={(value: any) => {
+            console.log("value changed 1", value);
             props.onValueChange(
               selectorField.getParentValue(
                 value.substring(2, value.length - 2),
@@ -737,44 +736,79 @@ function Fields(props: {
       default:
         break;
     }
-
-    return (
-      <div key={fieldType} data-key={fieldType}>
-        {viewElement}
-        {field.childrens && (
-          <div className="childrens">
-            {field.childrens.map((childField: any, index: number) => {
-              const firstChild = Array.isArray(childField)
-                ? childField[0]
-                : childField;
-              return (
-                <Fields
-                  key={index}
-                  value={firstChild.value}
-                  fields={Array.isArray(childField) ? childField : [childField]}
-                  label={firstChild.label}
-                  isValid={props.isValid}
-                  validationMessage={props.validationMessage}
-                  apiOptionTree={props.apiOptionTree}
-                  queryOptionTree={props.queryOptionTree}
-                  modalDropdownList={props.modalDropdownList}
-                  pageDropdownOptions={props.pageDropdownOptions}
-                  depth={props.depth + 1}
-                  maxDepth={props.maxDepth}
-                  onValueChange={(value: any) => {
-                    props.onValueChange(
-                      firstChild.getParentValue(
-                        value.substring(2, value.length - 2),
-                      ),
-                    );
-                  }}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
+    if (
+      field.childrens &&
+      field.childrens.length &&
+      Array.isArray(field.childrens[0])
+    ) {
+      return (
+        <div key={fieldType} data-key={fieldType}>
+          {viewElement}
+          {field.childrens && (
+            <div className="childrens">
+              {field.childrens.map((childField: any, index: number) => {
+                const firstChild = childField[0];
+                console.log("firstChild", firstChild);
+                return (
+                  <Fields
+                    key={index}
+                    value={firstChild.value}
+                    fields={childField}
+                    label={firstChild.label}
+                    isValid={props.isValid}
+                    validationMessage={props.validationMessage}
+                    apiOptionTree={props.apiOptionTree}
+                    queryOptionTree={props.queryOptionTree}
+                    modalDropdownList={props.modalDropdownList}
+                    pageDropdownOptions={props.pageDropdownOptions}
+                    depth={props.depth + 1}
+                    maxDepth={props.maxDepth}
+                    onValueChange={(value: any) => {
+                      console.log("value changed 2", value);
+                      props.onValueChange(
+                        firstChild.getParentValue(
+                          value.substring(2, value.length - 2),
+                        ),
+                      );
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      console.log("props", props, field);
+      return (
+        <div key={fieldType} data-key={fieldType}>
+          {viewElement}
+          {field.childrens && (
+            <div className="childrens">
+              <Fields
+                value={field.value}
+                fields={field.childrens}
+                label={field.label}
+                isValid={props.isValid}
+                validationMessage={props.validationMessage}
+                apiOptionTree={props.apiOptionTree}
+                queryOptionTree={props.queryOptionTree}
+                modalDropdownList={props.modalDropdownList}
+                pageDropdownOptions={props.pageDropdownOptions}
+                depth={props.depth + 1}
+                maxDepth={props.maxDepth}
+                onValueChange={(value: any) => {
+                  console.log("value changed 3", value);
+                  props.onValueChange(
+                    field.getParentValue(value.substring(2, value.length - 2)),
+                  );
+                }}
+              />
+            </div>
+          )}
+        </div>
+      );
+    }
   });
 
   return <>{ui}</>;
@@ -888,7 +922,7 @@ export function ActionCreator(props: ActionCreatorProps) {
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
   const fields = getFieldFromValue(props.value, 0, false);
   if (fields.length > 1) {
-    fields[0].childrens = fields.splice(1, fields.length - 1);
+    // fields[0].childrens = fields.splice(1, fields.length - 1);
     console.log(fields);
   }
   console.log("fields", fields);
