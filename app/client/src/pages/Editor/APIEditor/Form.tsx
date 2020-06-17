@@ -5,7 +5,6 @@ import {
   InjectedFormProps,
   FormSubmitHandler,
   formValueSelector,
-  Field,
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -29,7 +28,6 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import _ from "lodash";
 import EntityNameComponent from "components/editorComponents/EntityNameComponent";
 import { editApiName, saveApiName } from "actions/actionActions";
 import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";

@@ -12,8 +12,6 @@ import UserApi, {
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
-  FetchUserRequest,
-  FetchUserResponse,
   SwitchUserOrgRequest,
   AddUserToOrgRequest,
 } from "api/UserApi";
@@ -25,11 +23,6 @@ import {
   getResponseErrorMessage,
   callAPI,
 } from "./ErrorSagas";
-import * as Sentry from "@sentry/browser";
-
-import { fetchOrgsSaga } from "./OrgSagas";
-
-import { resetAuthExpiration } from "utils/storage";
 import {
   logoutUserSuccess,
   logoutUserError,

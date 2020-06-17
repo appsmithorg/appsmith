@@ -24,7 +24,7 @@ type Props = InjectedFormProps<
 // TODO(abhinav): abstract onCancel out.
 
 export const CreateApplicationForm = (props: Props) => {
-  const { error, handleSubmit, pristine, submitting, orgId } = props;
+  const { error, handleSubmit, pristine, submitting } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}

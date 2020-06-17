@@ -5,14 +5,13 @@ import {
   getApplicationViewerPageURL,
   BUILDER_PAGE_URL,
 } from "constants/routes";
-import { Card, Tooltip, Classes, Icon } from "@blueprintjs/core";
+import { Card, Tooltip, Icon } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
 import Button from "components/editorComponents/Button";
 import {
   theme,
   getBorderCSSShorthand,
   getColorWithOpacity,
-  Theme,
 } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,
