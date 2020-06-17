@@ -8,5 +8,8 @@
     "appMoreIcon":".bp3-popover-wrapper.more .bp3-popover-target",
     "deleteButton":".bp3-menu-item.bp3-popover-dismiss",
     "selectAction":"#Base",
-    "deleteApp":".bp3-menu-item"
+    "deleteApp":".bp3-menu-item",
+    "homeIcon": ".bp3-icon-home",
+    "inputAppName": "input[name=applicationName]",
+    "createNew": ".createnew"
 }
