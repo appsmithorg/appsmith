@@ -4,12 +4,14 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -27,10 +29,12 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static com.appsmith.server.constants.Url.USER_URL;
 
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -52,7 +56,7 @@ public class SecurityConfig {
     private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -102,10 +106,13 @@ public class SecurityConfig {
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()
                 .csrf().disable()
+                .anonymous().principal(createAnonymousUser())
+                .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-                .and().authorizeExchange()
+                .and()
+                .authorizeExchange()
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
                 // This is because the flow enters AclFilter as well and needs to be whitelisted there
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
@@ -118,7 +125,7 @@ public class SecurityConfig {
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
-                .authenticated()
+                .permitAll()
                 .and().formLogin()
                 .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -136,4 +143,13 @@ public class SecurityConfig {
                 .and().build();
     }
 
+    private User createAnonymousUser() {
+        User user = new User();
+        user.setName("anonymousUser");
+        user.setEmail("anonymousUser");
+        user.setCurrentOrganizationId("");
+        user.setOrganizationIds(new HashSet<>());
+        user.setIsAnonymous(true);
+        return user;
+    }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 @Document
 public class Provider extends BaseDomain {
 
-    @Indexed(unique=true)
+    @Indexed(unique = true)
     String name; //Provider name here
 
     String description; //Provider company's description here

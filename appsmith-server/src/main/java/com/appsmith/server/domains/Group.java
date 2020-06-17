@@ -24,7 +24,7 @@ public class Group extends BaseDomain {
     @NotNull
     private String organizationId;
 
-    /*
+    /**
      * This is a list of name of permissions. We will query with permission collection by name
      * This is because permissions are global in nature. They are not specific to a particular org/team.
      */

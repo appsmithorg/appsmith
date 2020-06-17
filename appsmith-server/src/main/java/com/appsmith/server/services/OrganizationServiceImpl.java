@@ -1,14 +1,20 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.OrganizationSetting;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,9 +30,16 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
@@ -37,6 +51,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
+    private final PolicyGenerator policyGenerator;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -49,7 +65,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    GroupService groupService,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
-                                   UserOrganizationService userOrganizationService) {
+                                   UserOrganizationService userOrganizationService,
+                                   PolicyGenerator policyGenerator, PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
@@ -57,6 +74,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
+        this.policyGenerator = policyGenerator;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -80,7 +99,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<String> getNextUniqueSlug(String initialSlug) {
         return repository.countSlugsByPrefix(initialSlug)
-            .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
+                .map(max -> initialSlug + (max == 0 ? "" : (max + 1)));
     }
 
     /**
@@ -96,9 +115,18 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
      * @return
      */
     public Mono<Organization> create(Organization organization, User user) {
-        log.debug("Going to create org: {}", organization);
         if (organization == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION));
+        }
+
+        // Does the user have permissions to create an organization?
+        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(USER_MANAGE_ORGANIZATIONS.getValue()))
+                .findFirst()
+                .isPresent();
+
+        if (!isManageOrgPolicyPresent) {
+            return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
         }
 
         Mono<Organization> setSlugMono;
@@ -130,6 +158,16 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                         }))
                 //Call the BaseService function to save the updated organization
                 .flatMap(super::create)
+                // Set the current user as admin for the organization
+                .flatMap(createdOrg -> {
+                    UserRole userRole = new UserRole();
+                    userRole.setUsername(user.getUsername());
+                    userRole.setUserId(user.getId());
+                    userRole.setName(user.getName());
+                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    return userOrganizationService.addUserToOrganizationGivenUserObject(createdOrg, user, userRole);
+                })
+                // TODO : Remove the following code
                 .flatMap(savedOrganization -> userOrganizationService
                         .addUserToOrganization(savedOrganization.getId(), user)
                         .thenReturn(savedOrganization));
@@ -190,8 +228,19 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     }
 
     @Override
+    public Mono<Organization> update(String id, Organization resource) {
+        return repository.updateById(id, resource, MANAGE_ORGANIZATIONS)
+                .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));
+    }
+
+    @Override
     public Mono<Organization> findById(String id) {
-        return repository.findById(id);
+        return findById(id, AclPermission.READ_ORGANIZATIONS);
+    }
+
+    @Override
+    public Mono<Organization> findById(String id, AclPermission permission) {
+        return repository.findById(id, permission);
     }
 
     @Override
@@ -204,5 +253,41 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findByIdAndPluginsPluginId(organizationId, pluginId);
     }
 
+    @Override
+    public Flux<Organization> findByIdsIn(Set<String> ids, AclPermission permission) {
+        return repository.findByIdsIn(ids, permission);
+    }
+
+    @Override
+    public Mono<Map<String, String>> getUserRolesForOrganization() {
+        // Get all the roles for Organization entity from the enum AppsmithRole
+        Map<String, String> appsmithRoles = Arrays.asList(AppsmithRole.values())
+                .stream()
+                .filter(role -> {
+                    Set<AclPermission> permissions = role.getPermissions();
+                    if (permissions != null && !permissions.isEmpty()) {
+                        for (AclPermission permission : permissions) {
+                            if (permission.getEntity().equals(Organization.class)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                })
+                .collect(toMap(role -> role.getName(), AppsmithRole::getDescription));
+
+        return Mono.just(appsmithRoles);
+    }
+
+    @Override
+    public Mono<List<UserRole>> getOrganizationMembers(String orgId) {
+        return repository
+                .findById(orgId, MANAGE_ORGANIZATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)))
+                .map(organization -> {
+                    final List<UserRole> userRoles = organization.getUserRoles();
+                    return CollectionUtils.isEmpty(userRoles) ? Collections.emptyList() : userRoles;
+                });
+    }
 }
 

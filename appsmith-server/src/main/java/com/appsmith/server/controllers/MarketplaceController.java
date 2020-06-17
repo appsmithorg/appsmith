@@ -24,12 +24,10 @@ import java.util.List;
 @RequestMapping(Url.MARKETPLACE_URL)
 @Slf4j
 public class MarketplaceController {
-    private final ObjectMapper objectMapper;
     private final MarketplaceService marketplaceService;
 
     public MarketplaceController(ObjectMapper objectMapper,
                                  MarketplaceService marketplaceService) {
-        this.objectMapper = objectMapper;
         this.marketplaceService = marketplaceService;
     }
 

@@ -20,8 +20,8 @@ import static com.appsmith.server.helpers.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings(
-      // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for tests.
-      "ArraysAsListWithZeroOrOneArgument"
+        // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for tests.
+        "ArraysAsListWithZeroOrOneArgument"
 )
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -314,7 +314,7 @@ public class MustacheHelperTest {
                 Set.of("2 + 4 ? trueVal : falseVal")
         );
     }
-    
+
     @Test
     public void jsonInMustache() {
         check(

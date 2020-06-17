@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
@@ -50,7 +52,7 @@ public class LayoutServiceImpl implements LayoutService {
         }
 
         Mono<Page> pageMono = pageService
-                .findById(pageId)
+                .findById(pageId, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)));
 
         return pageMono
@@ -72,10 +74,8 @@ public class LayoutServiceImpl implements LayoutService {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
-        return pageService.findByIdAndLayoutsId(pageId, layoutId)
+        return pageService.findByIdAndLayoutsId(pageId, layoutId, READ_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
-                .flatMap(applicationPageService::doesPageBelongToCurrentUserOrganization)
-                //The pageId given is correct and belongs to the current user's organization.
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     //Because the findByIdAndLayoutsId call returned non-empty result, we are guaranteed to find the layoutId here.

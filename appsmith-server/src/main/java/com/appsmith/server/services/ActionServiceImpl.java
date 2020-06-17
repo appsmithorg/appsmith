@@ -6,18 +6,23 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -32,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -44,6 +48,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import retrofit.http.HEAD;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -54,6 +59,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +68,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
@@ -77,6 +89,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     private final PluginExecutorHelper pluginExecutorHelper;
     private final SessionUserService sessionUserService;
     private final MarketplaceService marketplaceService;
+    private final PolicyGenerator policyGenerator;
 
     @Autowired
     public ActionServiceImpl(Scheduler scheduler,
@@ -92,7 +105,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                              DatasourceContextService datasourceContextService,
                              PluginExecutorHelper pluginExecutorHelper,
                              SessionUserService sessionUserService,
-                             MarketplaceService marketplaceService) {
+                             MarketplaceService marketplaceService,
+                             PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -103,6 +117,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.sessionUserService = sessionUserService;
         this.marketplaceService = marketplaceService;
+        this.policyGenerator = policyGenerator;
     }
 
     private Boolean validateActionName(String name) {
@@ -117,16 +132,36 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
-        return sessionUserService.getCurrentUser()
-                .map(user -> user.getCurrentOrganizationId())
-                .map(orgId -> {
-                    Datasource datasource = action.getDatasource();
-                    if (datasource != null) {
-                        datasource.setOrganizationId(orgId);
-                        action.setDatasource(datasource);
+
+        if (action.getPageId() == null || action.getPageId().isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        Mono<User> userMono = sessionUserService
+                .getCurrentUser()
+                .cache();
+
+        return pageService
+                .findById(action.getPageId(), READ_PAGES)
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Page page = tuple.getT1();
+                    User user = tuple.getT2();
+
+                    // Inherit the action policies from the page.
+                    generateAndSetActionPolicies(page, user, action);
+
+                    // If the datasource is embedded, check for organizationId and set it in action
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() == null) {
+                        Datasource datasource = action.getDatasource();
+                        if (datasource.getOrganizationId() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                        }
+                        action.setOrganizationId(datasource.getOrganizationId());
                     }
-                    action.setOrganizationId(orgId);
-                    return action;
+
+                    return Mono.just(action);
                 })
                 .flatMap(this::validateAndSaveActionToRepository);
     }
@@ -172,12 +207,17 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     .flatMap(datasourceService::validateDatasource);
         } else {
             //Data source already exists. Find the same.
-            datasourceMono = datasourceService.findById(action.getDatasource().getId())
+            datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
                     .switchIfEmpty(Mono.defer(() -> {
                         action.setIsValid(false);
                         invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
                         return Mono.just(action.getDatasource());
-                    }));
+                    }))
+                    .map(datasource -> {
+                        // datasource is found. Update the action.
+                        action.setOrganizationId(datasource.getOrganizationId());
+                        return datasource;
+                    });
         }
 
         Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
@@ -328,7 +368,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId())
+                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
                     }
                     //The data source in the action has not been persisted.
@@ -486,7 +526,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Mono<Action> findByNameAndPageId(String name, String pageId) {
-        return repository.findByNameAndPageId(name, pageId);
+        return repository.findByNameAndPageId(name, pageId, READ_ACTIONS);
     }
 
     /**
@@ -497,7 +537,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
-    @Override
     public Flux<Action> findOnLoadActionsInPage(Set<String> names, String pageId) {
         final Flux<Action> getApiActions = repository
                 .findDistinctActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(names, pageId, "GET");
@@ -531,8 +570,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Flux<Action> findByPageId(String pageId) {
-        return repository.findByPageId(pageId);
+    public Flux<Action> findByPageId(String pageId, AclPermission permission) {
+        return repository.findByPageId(pageId, permission);
     }
 
     /**
@@ -561,42 +600,36 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
     @Override
     public Flux<Action> get(MultiValueMap<String, String> params) {
-        Action actionExample = new Action();
+        String name = null;
+        List<String> pageIds = new ArrayList<>();
         Sort sort = Sort.by(FieldName.NAME);
 
         if (params.getFirst(FieldName.NAME) != null) {
-            actionExample.setName(params.getFirst(FieldName.NAME));
+            name = params.getFirst(FieldName.NAME);
         }
 
         if (params.getFirst(FieldName.PAGE_ID) != null) {
-            actionExample.setPageId(params.getFirst(FieldName.PAGE_ID));
+            pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-
-        Mono<String> orgIdMono = sessionUserService
-                .getCurrentUser()
-                .map(user -> user.getCurrentOrganizationId());
 
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
-            return orgIdMono
-                    .flatMapMany(orgId -> pageService
-                            .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
-                            .switchIfEmpty(Mono.error(new AppsmithException(
-                                    AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
-                            )
-                            .map(pageNameIdDTO -> {
-                                Action example = new Action();
-                                example.setPageId(pageNameIdDTO.getId());
-                                example.setOrganizationId(orgId);
-                                return example;
-                            })
-                            .flatMap(example -> repository.findAll(Example.of(example), sort)))
+            String finalName = name;
+            return pageService
+                    .findNamesByApplicationId(params.getFirst(FieldName.APPLICATION_ID))
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.NO_RESOURCE_FOUND, "pages for application", params.getFirst(FieldName.APPLICATION_ID)))
+                    )
+                    .map(applicationPagesDTO -> applicationPagesDTO.getPages())
+                    .flatMapMany(Flux::fromIterable)
+                    .map(pageNameIdDTO -> pageNameIdDTO.getId())
+                    .collectList()
+                    .flatMapMany(pages -> {
+                        pageIds.addAll(pages);
+                        return repository.findAllActionsByNameAndPageIds(finalName, pageIds, READ_ACTIONS, sort);
+                    })
                     .flatMap(this::setTransientFieldsInAction);
         }
-        return orgIdMono
-                .flatMapMany(orgId -> {
-                    actionExample.setOrganizationId(orgId);
-                    return repository.findAll(Example.of(actionExample), sort);
-                })
+        return repository.findAllActionsByNameAndPageIds(name, pageIds, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInAction);
     }
 
@@ -634,7 +667,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             if (datasource.getId() != null) {
                 // its a global datasource. Get the datasource from the collection
                 pluginIdUpdateMono = datasourceService
-                        .findById(datasource.getId())
+                        .findById(datasource.getId(), READ_DATASOURCES)
                         .map(datasource1 -> {
                             action.setPluginId(datasource1.getPluginId());
                             return action;
@@ -679,5 +712,14 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     providerUpdatedAction.setPluginId(pluginIdUpdatedAction.getPluginId());
                     return providerUpdatedAction;
                 });
+    }
+
+    private void generateAndSetActionPolicies(Page page, User user, Action action) {
+        Set<Policy> policySet = page.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
+                        || policy.getPermission().equals(READ_PAGES.getValue()))
+                .collect(Collectors.toSet());
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Page.class, Action.class);
+        action.setPolicies(documentPolicies);
     }
 }

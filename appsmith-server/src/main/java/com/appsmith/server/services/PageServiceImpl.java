@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -7,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -51,13 +53,13 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findById(String pageId) {
-        return repository.findById(pageId);
+    public Mono<Page> findById(String pageId, AclPermission aclPermission) {
+        return repository.findById(pageId, aclPermission);
     }
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId) {
-        return repository.findByApplicationId(applicationId);
+        return repository.findByApplicationId(applicationId, AclPermission.READ_PAGES);
     }
 
     @Override
@@ -66,13 +68,13 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId) {
-        return repository.findByIdAndLayoutsId(pageId, layoutId);
+    public Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission) {
+        return repository.findByIdAndLayoutsId(pageId, layoutId, aclPermission);
     }
 
     @Override
     public Mono<Page> findByName(String name) {
-        return repository.findByName(name);
+        return repository.findByName(name, AclPermission.READ_PAGES);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
                                 return applicationService.save(application);
                             });
                     Mono<Page> archivedPageMono = repository.archive(page);
-                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId())
+                    Mono<List<Action>> archivedActionsMono = actionRepository.findByPageId(page.getId(), AclPermission.MANAGE_ACTIONS)
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return actionRepository.archive(action);
@@ -132,24 +134,50 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Flux<PageNameIdDTO> findNamesByApplicationId(String applicationId) {
-        return applicationService
-                .findById(applicationId)
+    public Mono<ApplicationPagesDTO> findNamesByApplicationId(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
-                .flatMapMany(this::findNamesByApplication);
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(this::findNamesByApplication)
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
     }
 
     @Override
-    public Flux<PageNameIdDTO> findNamesByApplicationName(String applicationName) {
-        return applicationService
-                .findByName(applicationName)
+    public Mono<ApplicationPagesDTO> findNamesByApplicationName(String applicationName) {
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .flatMapMany(this::findNamesByApplication);
+                .cache();
+
+        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
+                .flatMapMany(this::findNamesByApplication)
+                .collectList();
+
+        return Mono.zip(applicationMono, pagesListMono)
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
+                    ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
+                    applicationPagesDTO.setOrganizationId(application.getOrganizationId());
+                    applicationPagesDTO.setPages(nameIdDTOList);
+                    return applicationPagesDTO;
+                });
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application) {
         List<ApplicationPage> pages = application.getPages();
-        return repository.findByApplicationId(application.getId())
+        return repository.findByApplicationId(application.getId(), AclPermission.READ_PAGES)
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
                     pageNameIdDTO.setId(page.getId());
@@ -164,7 +192,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> findByNameAndApplicationId(String name, String applicationId) {
-        return repository.findByNameAndApplicationId(name, applicationId);
+    public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission permission) {
+        return repository.findByNameAndApplicationId(name, applicationId, permission);
     }
 }

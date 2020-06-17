@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -20,10 +23,19 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-public abstract class BaseService<R extends BaseRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
+public abstract class BaseService<R extends BaseRepository & AppsmithRepository, T extends BaseDomain, ID> implements CrudService<T, ID> {
 
     final Scheduler scheduler;
 
@@ -69,6 +81,22 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                 .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), (T) updatedObj));
     }
 
+    protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
+        List<Criteria> criterias = new ArrayList<>();
+
+        if (params != null && !params.isEmpty()) {
+            criterias = params.entrySet().stream()
+                    .map(entry -> {
+                        String key = entry.getKey();
+                        List<String> values = entry.getValue();
+                        Criteria criteria = Criteria.where(key).in(values);
+                        return criteria;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return repository.queryAll(criterias, aclPermission);
+    }
+
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
         // In the base service we aren't handling the query parameters. In order to filter records using the query params,
@@ -94,7 +122,7 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                 .flatMap(savedObj -> analyticsService.sendEvent(AnalyticsEvents.CREATE + "_" + savedObj.getClass().getSimpleName().toUpperCase(), (T) savedObj));
     }
 
-    private DBObject getDbObject(Object o) {
+    protected DBObject getDbObject(Object o) {
         BasicDBObject basicDBObject = new BasicDBObject();
         mongoConverter.write(o, basicDBObject);
         return basicDBObject;
@@ -121,5 +149,101 @@ public abstract class BaseService<R extends BaseRepository, T extends BaseDomain
                     }
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, constraint.stream().findFirst().get().getPropertyPath()));
                 });
+    }
+
+
+    /**
+     * This function appends new policies to an object.
+     * This should be used in updating organization/application permissions to cascade the same permissions across all
+     * the objects lying below in the hierarchy
+     * @param id : Object Id
+     * @param policies : Policies that have to be appended to the object
+     * @return Object which has been updated with the new policies.
+     */
+    @Override
+    public Mono<T> addPolicies(ID id, Set<Policy> policies) {
+        Map<String, Set<Policy>> policyMap = getAllPoliciesAsMap(policies);
+
+        return getById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "object", id)))
+                .flatMap(obj -> {
+                    // Append the user to the existing permission policy if it already exists.
+                    for (Policy policy : obj.getPolicies()) {
+                        String permission = policy.getPermission();
+                        if (policyMap.containsKey(permission)) {
+                            for (Policy newPolicy : policyMap.get(permission)) {
+                                policy.getUsers().addAll(newPolicy.getUsers());
+
+                                if (newPolicy.getGroups() != null) {
+                                    if (policy.getGroups() == null) {
+                                        policy.setGroups(new HashSet<>());
+                                    }
+                                    policy.getGroups().addAll(newPolicy.getGroups());
+                                }
+                            }
+                            // Remove this permission from the policyMap as this has been accounted for in the above code
+                            policyMap.remove(permission);
+                        }
+                    }
+
+                    // For all the remaining policies which exist in the policyMap but didnt exist in the object
+                    // earlier, just add them to the set
+                    Iterator<String> iterator = policyMap.keySet().iterator();
+                    while(iterator.hasNext()) {
+                        String permission = iterator.next();
+                        Set<Policy> policySet = policyMap.get(permission);
+                        obj.getPolicies().addAll(policySet);
+                    }
+
+                    return repository.save(obj);
+                });
+    }
+
+    /**
+     * This function removes existing policies from an object.
+     * This should be used in updating organization/application permissions to cascade the same permissions across all
+     * the objects lying below in the hierarchy
+     * @param id : Object Id
+     * @param policies : Policies that have to be removed from the object
+     * @return Object which has been updated with the removal of policies.
+     */
+    @Override
+    public Mono<T> removePolicies(ID id, Set<Policy> policies) {
+        Map<String, Set<Policy>> policyMap = getAllPoliciesAsMap(policies);
+
+        return getById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "object", id)))
+                .flatMap(obj -> {
+                    // Remove the user from the existing permission policy if it exists.
+                    for (Policy policy : obj.getPolicies()) {
+                        String permission = policy.getPermission();
+                        if (policyMap.containsKey(permission)) {
+                            for (Policy newPolicy : policyMap.get(permission)) {
+                                Set<String> usersInObjectPolicy = policy.getUsers();
+                                usersInObjectPolicy.removeAll(newPolicy.getUsers());
+                                policy.setUsers(usersInObjectPolicy);
+
+                                if (newPolicy.getGroups() != null && policy.getGroups() != null) {
+                                    Set<String> groupsInObjectPolicy = policy.getGroups();
+                                    groupsInObjectPolicy.removeAll(newPolicy.getGroups());
+                                }
+                            }
+                            // Remove this permission from the policyMap as this has been accounted for in the above code
+                            policyMap.remove(permission);
+                        }
+                    }
+
+                    // For all the remaining policies which exist in the policyMap but didnt exist in the object
+                    // earlier, we dont need to remove it. Save and return.
+
+                    return repository.save(obj);
+                });
+    }
+
+    private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
+        return policies
+                .stream()
+                .collect(Collectors.groupingBy(Policy::getPermission,
+                        Collectors.mapping(Function.identity(), toSet())));
     }
 }

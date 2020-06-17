@@ -2,7 +2,6 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.CrudService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

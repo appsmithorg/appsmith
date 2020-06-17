@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+
 @Service
 @Slf4j
 public class DatasourceContextServiceImpl implements DatasourceContextService {
@@ -56,8 +58,8 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
         Mono<Datasource> datasourceMono;
 
-        if (datasourceId != null) {
-            datasourceMono = datasourceService.findById(datasourceId);
+        if (datasource.getId() != null) {
+            datasourceMono = datasourceService.findById(datasourceId, EXECUTE_DATASOURCES);
         } else {
             datasourceMono = Mono.just(datasource);
         }
@@ -117,7 +119,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
             return Mono.empty();
         }
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId);
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, EXECUTE_DATASOURCES);
 
         Mono<Plugin> pluginMono = datasourceMono
                 .flatMap(datasource -> pluginService.findById(datasource.getPluginId()));

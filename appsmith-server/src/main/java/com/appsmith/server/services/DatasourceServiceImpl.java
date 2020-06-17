@@ -2,11 +2,15 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -18,17 +22,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import retrofit.http.HEAD;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
@@ -42,6 +51,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final ObjectMapper objectMapper;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
 
     @Autowired
@@ -56,6 +66,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  ObjectMapper objectMapper,
                                  PluginService pluginService,
                                  PluginExecutorHelper pluginExecutorHelper,
+                                 PolicyGenerator policyGenerator,
                                  SequenceService sequenceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -64,6 +75,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.objectMapper = objectMapper;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
+        this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
     }
 
@@ -71,6 +83,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     public Mono<Datasource> create(@NotNull Datasource datasource) {
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        if (datasource.getOrganizationId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
@@ -85,6 +100,26 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         return datasourceMono
+                .flatMap(datasource1 ->
+                        sessionUserService.getCurrentUser()
+                        .flatMap(user -> {
+                            // Create policies for this datasource -> This datasource should inherit its permissions and policies from
+                            // the organization and this datasource should also allow the current user to crud this datasource.
+                            return organizationService.findById(datasource1.getOrganizationId(), AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+                                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, datasource1.getOrganizationId())))
+                                    .map(org -> {
+                                        Set<Policy> policySet = org.getPolicies().stream()
+                                                .filter(policy ->
+                                                        policy.getPermission().equals(ORGANIZATION_MANAGE_APPLICATIONS.getValue()) ||
+                                                                policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
+                                                ).collect(Collectors.toSet());
+
+                                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Organization.class, Datasource.class);
+                                        datasource1.setPolicies(documentPolicies);
+                                        return datasource1;
+                                    });
+                        })
+                )
                 .flatMap(this::validateAndSaveDatasourceToRepository);
     }
 
@@ -93,6 +128,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
+
+        // Since policies are a server only concept, first set the empty set (set by constructor) to null
+        datasource.setPolicies(null);
+
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
 
@@ -112,38 +151,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        Mono<String> currentOrganizationMono = sessionUserService
-                .getCurrentUser()
-                .map(user -> user.getCurrentOrganizationId())
-                .cache();
-
         if (datasource.getPluginId() == null) {
             invalids.add(AppsmithError.PLUGIN_ID_NOT_GIVEN.getMessage());
             datasource.setInvalids(invalids);
-            return currentOrganizationMono
-                    .map(currentOrgId -> {
-                        datasource.setOrganizationId(currentOrgId);
-                        return datasource;
-                    });
+            return Mono.just(datasource);
         }
 
-        Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = currentOrganizationMono
-                .flatMap(currentOrgId -> organizationService.findByIdAndPluginsPluginId(
-                        currentOrgId, datasource.getPluginId()))
+        Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = organizationService
+                .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
                     datasource.setInvalids(invalids);
                     return Mono.just(new Organization());
                 }));
-
-        //Add organization id to the datasource.
-        Mono<Datasource> updatedDatasourceMono = checkPluginInstallationAndThenReturnOrganizationMono
-                .map(organization -> {
-                    if (organization.getId() != null) {
-                        datasource.setOrganizationId(organization.getId());
-                    }
-                    return datasource;
-                });
 
         if (datasource.getDatasourceConfiguration() == null) {
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
@@ -152,29 +172,56 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
-        return Mono.zip(updatedDatasourceMono, pluginExecutorMono)
-                .flatMap(tuple -> {
-                    Datasource datasource1 = tuple.getT1();
-                    PluginExecutor pluginExecutor = tuple.getT2();
-
-                    DatasourceConfiguration datasourceConfiguration = datasource1.getDatasourceConfiguration();
+        return checkPluginInstallationAndThenReturnOrganizationMono
+                .then(pluginExecutorMono)
+                .flatMap(pluginExecutor -> {
+                    DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
                         invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
                     }
 
-                    datasource1.setInvalids(invalids);
-                    return Mono.just(datasource1);
+                    datasource.setInvalids(invalids);
+                    return Mono.just(datasource);
                 });
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(repository::save);
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> {
+                    Datasource savedDatasource = tuple.getT1();
+                    User user = tuple.getT2();
+                    Datasource userPermissionsInDatasource = repository.setUserPermissionsInObject(savedDatasource, user);
+                    return repository.save(userPermissionsInDatasource);
+                });
     }
 
     @Override
     public Mono<DatasourceTestResult> testDatasource(Datasource datasource) {
+        Mono<Datasource> datasourceMono;
+
+        if (datasource.getId() != null) {
+            datasourceMono = getById(datasource.getId());
+        } else {
+            datasourceMono = Mono.just(datasource);
+        }
+
+        return datasourceMono
+                .flatMap(this::validateDatasource)
+                .flatMap(datasource1 -> {
+                    if (CollectionUtils.isEmpty(datasource1.getInvalids())) {
+                        return testDatasourceViaPlugin(datasource1);
+                    } else {
+                        return Mono.just(new DatasourceTestResult(datasource1.getInvalids()));
+                    }
+                });
+    }
+
+    private Mono<DatasourceTestResult> testDatasourceViaPlugin(Datasource datasource) {
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
@@ -184,12 +231,12 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> findByName(String name) {
-        return repository.findByName(name);
+        return repository.findByName(name, AclPermission.READ_DATASOURCES);
     }
 
     @Override
-    public Mono<Datasource> findById(String id) {
-        return repository.findById(id);
+    public Mono<Datasource> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
     }
 
     @Override
@@ -207,24 +254,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return new HashSet<>();
     }
 
+
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
-
-        return sessionUserService
-                .getCurrentUser()
-                .flatMapMany(user -> repository.findAllByOrganizationId(user.getCurrentOrganizationId()));
-    }
-
-    @Override
-    public Mono<Datasource> getById(String id) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        /**
+         * Note : Currently this API is ONLY used to fetch datasources for an organization.
+         */
+        if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
+            return repository.findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> repository.findByIdAndOrganizationId(id, user.getCurrentOrganizationId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
     }
 
     @Override
@@ -234,10 +274,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return datasourceMono
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(deletedObj ->
-                    analyticsService.sendEvent(
-                            AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
-                            deletedObj
-                    )
+                        analyticsService.sendEvent(
+                                AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
+                                deletedObj
+                        )
                 );
     }
 

@@ -1,10 +1,17 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.OrganizationApplicationsDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +19,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+import java.util.Set;
+
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -29,12 +46,30 @@ public class ApplicationServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    PageService pageService;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    OrganizationService organizationService;
+
+    String orgId;
+
+    @Before
+    @WithUserDetails(value = "api_user")
+    public void setup() {
+        User apiUser = userService.findByEmail("api_user").block();
+        orgId = apiUser.getOrganizationIds().iterator().next();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(applicationPageService::createApplication);
+                .flatMap(app -> applicationPageService.createApplication(app, orgId));
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -47,7 +82,14 @@ public class ApplicationServiceTest {
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication);
+        Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId);
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
 
         StepVerifier
                 .create(applicationMono)
@@ -55,7 +97,37 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
-                    assertThat(application.getPages()).isNotEmpty();
+                    assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getOrganizationId().equals(orgId));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void defaultPageCreateOnCreateApplicationTest() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
+        Flux<Page> pagesFlux = applicationPageService
+                .createApplication(testApplication, orgId)
+                .flatMapMany(application -> pageService.findByApplicationId(application.getId()));
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        StepVerifier
+                .create(pagesFlux)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getName()).isEqualTo(FieldName.DEFAULT_PAGE_NAME);
+                    assertThat(page.getLayouts()).isNotEmpty();
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies().containsAll(Set.of(managePagePolicy, readPagePolicy)));
                 })
                 .verifyComplete();
     }
@@ -84,11 +156,31 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void validGetApplicationByName() {
+    public void validGetApplicationById() {
+        Application application = new Application();
+        application.setName("validGetApplicationById-Test");
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+        Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
+        StepVerifier.create(getApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getName()).isEqualTo("validGetApplicationById-Test");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplicationsByName() {
         Application application = new Application();
         application.setName("validGetApplicationByName-Test");
-        Mono<Application> createApplication = applicationPageService.createApplication(application);
-        Mono<Application> getApplication = createApplication.flatMap(t -> applicationService.getById(t.getId()));
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.set(FieldName.NAME, application.getName());
+
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+
+        Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -96,6 +188,29 @@ public class ApplicationServiceTest {
                     assertThat(t.getName()).isEqualTo("validGetApplicationByName-Test");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validGetApplications() {
+        Application application = new Application();
+        application.setName("validGetApplications-Test");
+
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+        List<Application> applicationList = createApplication
+                .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
+                .collectList()
+                .block();
+
+        assertThat(applicationList.size() > 0);
+        applicationList.forEach(t -> {
+            assertThat(t.getId()).isNotNull();
+            assertThat(t.getPolicies()).isNotEmpty();
+            assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
+        });
     }
 
     /* Tests for Update Application Flow */
@@ -107,7 +222,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> createApplication =
                 applicationPageService
-                        .createApplication(application);
+                        .createApplication(application, orgId);
         Mono<Application> updateApplication = createApplication
                 .map(t -> {
                     t.setName("NewValidUpdateApplication-Test");
@@ -120,6 +235,7 @@ public class ApplicationServiceTest {
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
                     assertThat(t.getId()).isNotNull();
+                    assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
                 })
                 .verifyComplete();
@@ -135,12 +251,12 @@ public class ApplicationServiceTest {
         secondApp.setName("Ghost app");
 
         Mono<Application> firstAppDeletion = applicationPageService
-                .createApplication(firstApp)
+                .createApplication(firstApp, orgId)
                 .flatMap(app -> applicationService.archive(app))
                 .cache();
 
         Mono<Application> secondAppCreation = firstAppDeletion.then(
-                applicationPageService.createApplication(secondApp));
+                applicationPageService.createApplication(secondApp, orgId));
 
         StepVerifier
                 .create(Mono.zip(firstAppDeletion, secondAppCreation))
@@ -152,6 +268,58 @@ public class ApplicationServiceTest {
                     assertThat(second.isDeleted()).isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getAllApplicationsForHome() {
+        Mono<UserHomepageDTO> allApplications = applicationService.getAllApplications();
+
+        StepVerifier
+                .create(allApplications)
+                .assertNext(userHomepageDTO -> {
+                    assertThat(userHomepageDTO).isNotNull();
+                    //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
+
+                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+
+                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
+
+                    Application application = orgAppDto.getApplications().get(0);
+                    assertThat(application.getUserPermissions()).contains("read:applications");
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void getAllApplicationsForHomeWhenNoApplicationPresent() {
+        // Create an organization for this user first.
+        Organization organization = new Organization();
+        organization.setName("usertest's organization");
+        Mono<Organization> organizationMono = organizationService.create(organization);
+
+        Mono<UserHomepageDTO> allApplications = organizationMono
+                .then(applicationService.getAllApplications());
+
+        StepVerifier
+                .create(allApplications)
+                .assertNext(userHomepageDTO -> {
+                    assertThat(userHomepageDTO).isNotNull();
+                    //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
+                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
+
+                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+
+                    // There should be atleast one organization present in the output.
+                    OrganizationApplicationsDTO orgAppDto = organizationApplications.get(0);
+                    assertThat(orgAppDto.getOrganization().getUserPermissions().contains("read:organizations"));
+                })
+                .verifyComplete();
+
     }
 
 }

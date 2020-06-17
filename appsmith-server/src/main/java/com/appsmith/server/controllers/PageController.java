@@ -2,9 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.PageService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping(Url.PAGE_URL)
@@ -47,16 +45,14 @@ public class PageController extends BaseController<PageService, Page, String> {
 
     @Deprecated
     @GetMapping("/application/{applicationId}")
-    public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationId(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
         return service.findNamesByApplicationId(applicationId)
-                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/application/name/{applicationName}")
-    public Mono<ResponseDTO<List<PageNameIdDTO>>> getPageNamesByApplicationName(@PathVariable String applicationName) {
+    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationName(@PathVariable String applicationName) {
         return service.findNamesByApplicationName(applicationName)
-                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

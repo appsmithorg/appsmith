@@ -1,4 +1,4 @@
-package com.appsmith.server.constants;
+package com.appsmith.server.acl;
 
 import java.util.Set;
 
@@ -18,3 +18,4 @@ public interface AclConstants {
             "read:users"
     );
 }
+
