@@ -211,6 +211,12 @@ export function* inviteUsers(
         inviteCount: sagasToCall.length,
       },
     });
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+      payload: {
+        orgId: data.orgId,
+      },
+    });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {

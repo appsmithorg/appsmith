@@ -25,7 +25,8 @@ import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
-import { PERMISSION_TYPE } from "./permissionHelpers";
+import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
+import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -44,6 +45,7 @@ import {
   DropdownOnSelectActions,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import { Directions } from "utils/helpers";
+import { IntentColors } from "constants/DefaultTheme";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -61,9 +63,13 @@ const ApplicationCardsWrapper = styled.div`
 `;
 
 const OrgName = styled.div`
-  font-size: ${props => props.theme.fontSizes[6]}px;
-  padding-top: ${props => props.theme.spaces[2]}px;
-  padding-left: ${props => props.theme.spaces[5]}px;
+  display: flex;
+  font-size: ${props => props.theme.fontSizes[3]}px;
+  padding-top: ${props => props.theme.spaces[4]}px;
+  padding-left: ${props => props.theme.spaces[6]}px;
+  & > div {
+    margin-right: 20px;
+  }
 `;
 
 const ApplicationAddCardWrapper = styled(Card)`
@@ -221,41 +227,57 @@ class Applications extends Component<
 
             return (
               <>
-                <OrgDropDown>
-                  {this.props.currentUser && (
-                    <CustomizedDropdown
-                      {...DropdownProps(
-                        this.props.currentUser,
-                        organization.name,
-                        organization.id,
-                      )}
-                    />
-                  )}
+                {!isPermitted(
+                  organization.userPermissions,
+                  PERMISSION_TYPE.CREATE_APPLICATION,
+                ) ? (
+                  <OrgName>
+                    {MenuIcons.ORG_ICON({
+                      color: IntentColors["secondary"],
+                      width: 16,
+                      height: 16,
+                    })}
+                    {organization.name}
+                  </OrgName>
+                ) : (
+                  <OrgDropDown>
+                    {this.props.currentUser && (
+                      <CustomizedDropdown
+                        {...DropdownProps(
+                          this.props.currentUser,
+                          organization.name,
+                          organization.id,
+                        )}
+                      />
+                    )}
 
-                  <StyledDialog
-                    canOutsideClickClose={false}
-                    canEscapeKeyClose={false}
-                    title={`Invite Users to ${organization.name}`}
-                    onClose={() =>
-                      this.setState({
-                        selectedOrgId: "",
-                      })
-                    }
-                    isOpen={this.state.selectedOrgId === organization.id}
-                    setMaxWidth
-                  >
-                    <div className={Classes.DIALOG_BODY}>
-                      <Form orgId={organization.id} />
-                    </div>
-                  </StyledDialog>
-                  <FormDialogComponent
-                    trigger={<Button text="Share" intent={"primary"} filled />}
-                    Form={InviteUsersFormv2}
-                    orgId={organization.id}
-                    title={`Invite Users to ${organization.name}`}
-                    setMaxWidth
-                  />
-                </OrgDropDown>
+                    <StyledDialog
+                      canOutsideClickClose={false}
+                      canEscapeKeyClose={false}
+                      title={`Invite Users to ${organization.name}`}
+                      onClose={() =>
+                        this.setState({
+                          selectedOrgId: "",
+                        })
+                      }
+                      isOpen={this.state.selectedOrgId === organization.id}
+                      setMaxWidth
+                    >
+                      <div className={Classes.DIALOG_BODY}>
+                        <Form orgId={organization.id} />
+                      </div>
+                    </StyledDialog>
+                    <FormDialogComponent
+                      trigger={
+                        <Button text="Share" intent={"primary"} filled />
+                      }
+                      Form={InviteUsersFormv2}
+                      orgId={organization.id}
+                      title={`Invite Users to ${organization.name}`}
+                      setMaxWidth
+                    />
+                  </OrgDropDown>
+                )}
                 <ApplicationCardsWrapper key={organization.id}>
                   <FormDialogComponent
                     permissions={organization.userPermissions}
