@@ -136,6 +136,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
         AppsmithRole role = AppsmithRole.generateAppsmithRoleFromName(userRole.getRoleName());
         userRole.setUserId(user.getId());
+        userRole.setName(user.getName());
         userRole.setRole(role);
 
         // Add the user and its role to the organization
