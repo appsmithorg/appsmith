@@ -33,7 +33,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           xAxisName={this.props.xAxisName}
           yAxisName={this.props.yAxisName}
           chartName={this.props.chartName}
-          chartData={this.props.chartData}
+          chartData={this.props.chartData || []}
           widgetId={this.props.widgetId}
           allowHorizontalScroll={this.props.allowHorizontalScroll}
         />
