@@ -36,9 +36,7 @@ import {
 } from "actions/metaActions";
 import AppRoute from "pages/common/AppRoute";
 import { editorInitializer } from "utils/EditorUtils";
-import { getCurrentOrg } from "selectors/organizationSelectors";
 import { PERMISSION_TYPE } from "pages/Applications/permissionHelpers";
-import { Organization } from "constants/orgConstants";
 
 const AppViewWrapper = styled.div`
   margin-top: ${props => props.theme.headerHeight};

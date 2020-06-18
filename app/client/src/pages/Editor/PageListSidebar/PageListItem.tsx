@@ -6,8 +6,11 @@ import ContextDropdown, {
 } from "components/editorComponents/ContextDropdown";
 import { MenuIcons } from "icons/MenuIcons";
 import { Theme } from "constants/DefaultTheme";
-import EditableText from "components/editorComponents/EditableText";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Tooltip } from "@blueprintjs/core";
 
 /** Page List Item */
 export const PageListItemCSS = css`
@@ -89,13 +92,16 @@ const PageListItem = withTheme((props: PageListItemProps) => {
     >
       <div>
         {pageIcon}
-        <EditableText
-          type="text"
-          placeholder="Enter page name"
-          defaultValue={props.name}
-          isEditing={false}
-          onTextChanged={onEditPageName}
-        />
+        <Tooltip content="Double click to edit">
+          <EditableText
+            type="text"
+            placeholder="Enter page name"
+            defaultValue={props.name}
+            editInteractionKind={EditInteractionKind.DOUBLE}
+            onTextChanged={onEditPageName}
+            hideEditIcon
+          />
+        </Tooltip>
       </div>
       <ContextDropdown
         options={props.contextActions}

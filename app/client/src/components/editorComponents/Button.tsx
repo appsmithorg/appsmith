@@ -50,7 +50,6 @@ const buttonStyles = css<{
     }
     &.bp3-button {
       display: flex;
-      width: 100%;
       justify-content: ${props =>
         props.skin === undefined
           ? "center"

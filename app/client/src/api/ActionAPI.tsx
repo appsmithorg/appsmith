@@ -94,6 +94,13 @@ export interface CopyActionRequest {
   pageId: string;
 }
 
+export interface UpdateActionNameRequest {
+  pageId: string;
+  layoutId: string;
+  newName: string;
+  oldName: string;
+}
+
 class ActionAPI extends API {
   static url = "v1/actions";
 
@@ -123,6 +130,10 @@ class ActionAPI extends API {
     apiConfig: Partial<RestAction>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.put(`${ActionAPI.url}/${apiConfig.id}`, apiConfig);
+  }
+
+  static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
+    return API.put(ActionAPI.url + "/refactor", updateActionNameRequest);
   }
 
   static deleteAction(id: string) {
