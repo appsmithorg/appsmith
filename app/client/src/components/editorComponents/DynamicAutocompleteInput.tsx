@@ -24,6 +24,7 @@ import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -166,7 +167,7 @@ const EditorWrapper = styled.div<{
   position: absolute;
   right: 0;
   left: 0;
-  top: 0;  
+  top: 0;
   `
       : `z-index: 0; position: relative;`}
   background-color: ${props =>
@@ -180,7 +181,7 @@ const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   min-height: 32px;
-  
+
   height: auto;
   ${props =>
     props.setMaxHeight &&
@@ -459,8 +460,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         // Update the dynamic bindings for autocomplete
         if (prevProps.dynamicData !== this.props.dynamicData) {
           if (this.ternServer) {
-            // const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
-            // this.ternServer.updateDef("dataTree", dataTreeDef);
+            const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
+            this.ternServer.updateDef("dataTree", dataTreeDef);
           } else {
             this.editor.setOption("hintOptions", {
               completeSingle: false,
