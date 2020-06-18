@@ -4,13 +4,11 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import _ from "lodash";
 import { RestAction } from "entities/Action";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
   isFetching: false,
-  drafts: {},
   isRunning: {},
   isSaving: {},
   isDeleting: {},
@@ -19,19 +17,11 @@ const initialState: ApiPaneReduxState = {
   lastSelectedPage: "",
   extraformData: {},
   datasourceFieldText: {},
-  apiName: {
-    drafts: {},
-    isSaving: {},
-  },
 };
-export interface ApiNameValidation {
-  isValid: boolean;
-  validationMessage: string;
-}
+
 export interface ApiPaneReduxState {
   lastUsed: string;
   isFetching: boolean;
-  drafts: Record<string, RestAction>;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
@@ -40,16 +30,6 @@ export interface ApiPaneReduxState {
   datasourceFieldText: Record<string, string>;
   lastSelectedPage: string;
   extraformData: Record<string, any>;
-  apiName: {
-    drafts: Record<
-      string,
-      {
-        value: string;
-        validation: ApiNameValidation;
-      }
-    >;
-    isSaving: Record<string, boolean>;
-  };
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -158,23 +138,6 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
-  [ReduxActionTypes.UPDATE_API_DRAFT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string; draft: Partial<RestAction> }>,
-  ) => ({
-    ...state,
-    drafts: {
-      ...state.drafts,
-      [action.payload.id]: action.payload.draft,
-    },
-  }),
-  [ReduxActionTypes.DELETE_API_DRAFT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    drafts: _.omit(state.drafts, action.payload.id),
-  }),
   [ReduxActionTypes.API_PANE_CHANGE_API]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
@@ -230,35 +193,6 @@ const apiPaneReducer = createReducer(initialState, {
       datasourceFieldText: {
         ...state.datasourceFieldText,
         [apiId]: action.payload.value,
-      },
-    };
-  },
-
-  [ReduxActionTypes.UPDATE_API_NAME_DRAFT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{
-      id: string;
-      draft?: {
-        value: string;
-        validation: {
-          isValid: boolean;
-          validationMessage: string;
-        };
-      };
-    }>,
-  ) => {
-    const { id, draft } = action.payload;
-    let nameDrafts = {
-      ...state.apiName.drafts,
-      [id]: draft,
-    };
-    if (!draft) {
-      nameDrafts = _.omit(nameDrafts, id);
-    }
-    return {
-      ...state,
-      apiName: {
-        drafts: nameDrafts,
       },
     };
   },
