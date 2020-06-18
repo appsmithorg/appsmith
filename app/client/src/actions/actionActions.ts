@@ -163,7 +163,7 @@ export const editApiName = (payload: { id: string; value: string }) => ({
   payload: payload,
 });
 
-export const saveApiName = (payload: { id: string }) => ({
+export const saveApiName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_API_NAME,
   payload: payload,
 });

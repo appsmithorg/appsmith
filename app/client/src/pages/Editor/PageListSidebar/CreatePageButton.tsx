@@ -1,6 +1,8 @@
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
-import EditableText from "components/editorComponents/EditableText";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 import { PageListItemCSS } from "./PageListItem";
 import Button from "components/editorComponents/Button";
 
@@ -34,9 +36,10 @@ const CreatePageButton = (props: CreatePageProps) => {
         className="t--page-name-input"
         type="text"
         placeholder="Enter page name"
-        isEditing
+        isEditingDefault
         defaultValue={props.defaultValue}
         onTextChanged={onChange}
+        editInteractionKind={EditInteractionKind.SINGLE}
       />
     );
   } else {
