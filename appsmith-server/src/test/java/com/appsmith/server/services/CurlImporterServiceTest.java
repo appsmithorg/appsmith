@@ -568,6 +568,26 @@ public class CurlImporterServiceTest {
     }
 
     @Test
+    public void parseWithSpacedHeader() {
+        Action action = curlImporterService.curlToAction("curl -H \"Accept:application/json\" http://httpbin.org/get");
+        assertMethod(action, HttpMethod.GET);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/get");
+        assertHeaders(action, new Property("Accept", "application/json"));
+        assertEmptyBody(action);
+    }
+
+    @Test
+    public void parseCurlCommand1() {
+        Action action = curlImporterService.curlToAction("curl -i -H \"Accept: application/json\" -H \"Content-Type: application/json\" -X POST -d '{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}' --url http://dummy.restapiexample.com/api/v1/create");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://dummy.restapiexample.com");
+        assertPath(action, "/api/v1/create");
+        assertHeaders(action, new Property("Accept", "application/json"), new Property("Content-Type", "application/json"));
+        assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
+    }
+
+    @Test
     @WithUserDetails(value = "api_user")
     public void importInvalidCurlCommand() {
         String command = "invalid curl command here";
