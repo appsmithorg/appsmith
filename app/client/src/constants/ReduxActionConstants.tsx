@@ -222,6 +222,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SET_HELP_MODAL_OPEN: "SET_HELP_MODAL_OPEN",
   EDIT_API_NAME: "EDIT_API_NAME",
   SAVE_API_NAME: "SAVE_API_NAME",
+  SAVE_API_NAME_SUCCESS: "SAVE_API_NAME_SUCCESS",
   UPDATE_API_NAME_DRAFT: "UPDATE_API_NAME_DRAFT",
 };
 
@@ -303,6 +304,7 @@ export const ReduxActionErrorTypes: { [key: string]: string } = {
   CREATE_MODAL_ERROR: "CREATE_MODAL_ERROR",
   FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_ERROR:
     "FETCH_PROVIDER_DETAILS_BY_PROVIDER_ID_ERROR",
+  SAVE_API_NAME_ERROR: "SAVE_API_NAME_ERROR",
 };
 
 export const ReduxFormActionTypes: { [key: string]: string } = {
