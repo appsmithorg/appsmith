@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.Action;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
@@ -15,4 +16,5 @@ public interface ActionRepository extends BaseRepository<Action, String>, Custom
     Flux<Action> findDistinctActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId);
 
+    Mono<Long> countByDatasourceId(String datasourceId);
 }
