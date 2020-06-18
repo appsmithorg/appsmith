@@ -5,7 +5,6 @@ import {
   InjectedFormProps,
   FormSubmitHandler,
   formValueSelector,
-  Field,
 } from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
@@ -29,12 +28,10 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import _ from "lodash";
-import EntityNameComponent from "components/editorComponents/EntityNameComponent";
-import { editApiName, saveApiName } from "actions/actionActions";
 import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
+import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 
 const Form = styled.form`
   display: flex;
@@ -183,27 +180,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
       <MainConfiguration>
         <FormRow>
           <NameWrapper className="t--nameOfApi">
-            <EntityNameComponent
-              value={props.apiName}
-              onBlur={() => {
-                dispatch(
-                  saveApiName({
-                    id: apiId,
-                  }),
-                );
-              }}
-              onChange={(e: any) => {
-                dispatch(
-                  editApiName({
-                    id: apiId,
-                    value: e.target.value,
-                  }),
-                );
-              }}
-              isValid={props.apiNameValidation.isValid}
-              validationMessage={props.apiNameValidation.validationMessage}
-              placeholder="nameOfApi (camel case)"
-            ></EntityNameComponent>
+            <ActionNameEditor />
           </NameWrapper>
           <ActionButtons className="t--formActionButtons">
             <ActionButton

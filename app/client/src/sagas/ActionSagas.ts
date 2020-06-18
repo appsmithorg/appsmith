@@ -805,6 +805,12 @@ export function* refactorActionName(
 
     const currentPageId = yield select(getCurrentPageId);
     if (isRefactorSuccessful) {
+      yield put({
+        type: ReduxActionTypes.SAVE_API_NAME_SUCCESS,
+        payload: {
+          actionId: id,
+        },
+      });
       if (currentPageId === pageId) {
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
       } else {
@@ -814,34 +820,34 @@ export function* refactorActionName(
   }
 }
 
-function* saveApiNameSaga(action: ReduxAction<{ id: string }>) {
+function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from drafts, checks if the name isValid, saves
-  const apiNameDraftState = yield select(state => state.ui.apiPane.apiName);
-  const apiId = action.payload.id;
-  const apiNameDraft = apiNameDraftState.drafts[apiId];
-  if (apiNameDraft) {
-    const validation = apiNameDraft.validation;
-    if (!validation.isValid) {
-      // If its invalid, then don't save and just remove draft and validation.
-      yield put(
-        updateApiNameDraft({
-          id: action.payload.id,
-        }),
-      );
-    } else {
-      const api = yield select(state =>
-        state.entities.actions.find(
-          (action: ActionData) => action.config.id === apiId,
-        ),
-      );
+  try {
+    const apiId = action.payload.id;
+    const api = yield select(state =>
+      state.entities.actions.find(
+        (action: ActionData) => action.config.id === apiId,
+      ),
+    );
 
-      yield refactorActionName(
-        api.config.id,
-        api.config.pageId,
-        api.config.name,
-        apiNameDraft.value,
-      );
-    }
+    yield refactorActionName(
+      api.config.id,
+      api.config.pageId,
+      api.config.name,
+      action.payload.name,
+    );
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      payload: {
+        actionId: action.payload.id,
+      },
+    });
+    AppToaster.show({
+      message: `Unable to update API name`,
+      type: ToastType.ERROR,
+    });
+    console.error(e);
   }
 }
 

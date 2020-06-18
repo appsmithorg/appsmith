@@ -74,3 +74,17 @@ export const scrollElementIntoParentCanvasView = (
     }
   }
 };
+
+export const convertToCamelCase = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
+  return value
+    .split(separatorRegex)
+    .map((token, index) => {
+      if (index > 0) {
+        return token.charAt(0).toLocaleUpperCase() + token.slice(1);
+      }
+      return token;
+    })
+    .join("_")
+    .slice(0, limit || 30);
+};
