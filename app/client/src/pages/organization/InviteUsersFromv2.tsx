@@ -1,24 +1,20 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
-import FormGroup from "components/editorComponents/form/FormGroup";
 import { reduxForm } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import Button from "components/editorComponents/Button";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import {
-  getRoles,
   getDefaultRole,
   getRolesForField,
   getAllUsers,
 } from "selectors/organizationSelectors";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { InviteUsersToOrgFormValues, inviteUsersToOrg } from "./helpers";
-import { OrgRole } from "constants/orgConstants";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 import { Classes } from "@blueprintjs/core";
-import { noop } from "lodash";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import {
   INVITE_USERS_SUBMIT_SUCCESS,
@@ -89,11 +85,13 @@ const InviteUsersForm = (props: any) => {
     submitFailed,
     submitSucceeded,
     error,
+    fetchUser,
+    fetchAllRoles,
   } = props;
   useEffect(() => {
-    props.fetchUser(props.orgId);
-    props.fetchAllRoles(props.orgId);
-  }, [props.orgId]);
+    fetchUser(props.orgId);
+    fetchAllRoles(props.orgId);
+  }, [props.orgId, fetchUser, fetchAllRoles]);
 
   return (
     <StyledForm>

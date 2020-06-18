@@ -39,7 +39,7 @@ export const PageHeader = (props: PageHeaderProps) => {
     <StyledPageHeader>
       <LogoContainer>
         <a href="/applications">
-          <img className="logoimg" src={Logo} />
+          <img className="logoimg" src={Logo} alt="Appsmith Logo" />
         </a>
       </LogoContainer>
       <StyledDropDownContainer>

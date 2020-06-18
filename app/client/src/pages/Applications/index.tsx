@@ -10,7 +10,6 @@ import {
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
-  getUserApplicationsOrgs,
   getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
@@ -20,17 +19,13 @@ import {
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
-import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
-import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { PERMISSION_TYPE } from "./permissionHelpers";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
   CustomizedDropdownProps,
@@ -58,12 +53,6 @@ const ApplicationCardsWrapper = styled.div`
   justify-content: flex-start;
   align-items: space-evenly;
   font-size: ${props => props.theme.fontSizes[4]}px;
-`;
-
-const OrgName = styled.div`
-  font-size: ${props => props.theme.fontSizes[6]}px;
-  padding-top: ${props => props.theme.spaces[2]}px;
-  padding-left: ${props => props.theme.spaces[5]}px;
 `;
 
 const ApplicationAddCardWrapper = styled(Card)`
@@ -135,9 +124,6 @@ class Applications extends Component<
   }
 
   public render() {
-    const applicationList = this.props.isFetchingApplications
-      ? getApplicationPayloads(8)
-      : this.props.applicationList;
     const Form: any = InviteUsersFormv2;
     const DropdownProps = (
       user: User,
@@ -215,7 +201,7 @@ class Applications extends Component<
         />
         <PageSectionDivider />
         {this.props.userOrgs &&
-          this.props.userOrgs.length != 0 &&
+          this.props.userOrgs.length !== 0 &&
           this.props.userOrgs.map((organizationObject: any) => {
             const { organization, applications } = organizationObject;
 

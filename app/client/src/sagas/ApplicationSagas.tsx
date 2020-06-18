@@ -14,7 +14,6 @@ import ApplicationApi, {
   ApplicationPagePayload,
   SetDefaultPageRequest,
   DeleteApplicationRequest,
-  GetAllApplicationResponse,
   FetchUsersApplicationsOrgsResponse,
   OrganizationApplicationObject,
   ApplicationObject,

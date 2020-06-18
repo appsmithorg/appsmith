@@ -19,7 +19,6 @@ import OrgApi, {
   CreateOrgRequest,
   FetchAllUsersResponse,
   FetchAllUsersRequest,
-  FetchAllRolesRequest,
   FetchAllRolesResponse,
   DeleteOrgUserRequest,
   ChangeUserRoleRequest,
