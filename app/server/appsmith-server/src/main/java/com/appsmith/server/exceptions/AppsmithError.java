@@ -45,6 +45,7 @@ public enum AppsmithError {
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint"),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "Unable to load datasource form configuration. Details: {0}."),
     MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later"),
+    DATASOURCE_HAS_ACTIONS(409, 4030, "Cannot delete datasource since it has {0} action(s) using it."),
     ;
 
 

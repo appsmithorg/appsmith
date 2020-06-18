@@ -14,6 +14,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +29,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import retrofit.http.HEAD;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
@@ -53,6 +54,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
+    private final ActionRepository actionRepository;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -67,7 +69,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginService pluginService,
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
-                                 SequenceService sequenceService) {
+                                 SequenceService sequenceService,
+                                 ActionRepository actionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -77,6 +80,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
+        this.actionRepository = actionRepository;
     }
 
     @Override
@@ -254,7 +258,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         return new HashSet<>();
     }
 
-
     @Override
     public Flux<Datasource> get(MultiValueMap<String, String> params) {
         /**
@@ -269,15 +272,23 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> delete(String id) {
-        Mono<Datasource> datasourceMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource", id)));
-        return datasourceMono
+        return repository
+                .findById(id, MANAGE_DATASOURCES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
+                .zipWhen(datasource -> actionRepository.countByDatasourceId(datasource.getId()))
+                .flatMap(objects -> {
+                    final Long actionsCount = objects.getT2();
+                    if (actionsCount > 0) {
+                        return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_HAS_ACTIONS, actionsCount));
+                    }
+                    return Mono.just(objects.getT1());
+                })
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(deletedObj ->
-                        analyticsService.sendEvent(
-                                AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
-                                deletedObj
-                        )
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.DELETE + "_" + deletedObj.getClass().getSimpleName().toUpperCase(),
+                            deletedObj
+                    )
                 );
     }
 
