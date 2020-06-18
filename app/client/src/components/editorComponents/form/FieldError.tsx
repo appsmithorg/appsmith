@@ -17,11 +17,17 @@ const StyledError = styled.span<{ show: boolean }>`
 
 type FormFieldErrorProps = {
   error?: string;
+  className?: string;
 };
 
 export const FormFieldError = (props: FormFieldErrorProps) => {
   return (
-    <StyledError show={!!props.error}>{props.error || "&nbsp;"}</StyledError>
+    <StyledError
+      className={props.className ? props.className : undefined}
+      show={!!props.error}
+    >
+      {props.error || "&nbsp;"}
+    </StyledError>
   );
 };
 
