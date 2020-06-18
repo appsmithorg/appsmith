@@ -48,7 +48,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import retrofit.http.HEAD;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -143,6 +142,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         return pageService
                 .findById(action.getPageId(), READ_PAGES)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page", action.getPageId())))
                 .zipWith(userMono)
                 .flatMap(tuple -> {
                     Page page = tuple.getT1();
