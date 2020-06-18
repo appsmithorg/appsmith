@@ -230,6 +230,7 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
   align-items: center;
   justify-content: flex-start;
   width: 100%;
+  height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

@@ -291,13 +291,14 @@ export const renderCell = (
           </CellWrapper>
         );
       }
+      const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       return (
         <CellWrapper isHidden={isHidden}>
           {value
             .toString()
             .split(",")
             .map((item: string, index: number) => {
-              if (item.match(/\.(jpeg|jpg|gif|png)$/)) {
+              if (imageRegex.test(item)) {
                 return (
                   <div
                     key={index}
