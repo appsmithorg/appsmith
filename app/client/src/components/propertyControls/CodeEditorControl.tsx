@@ -2,6 +2,13 @@ import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
 import { EventOrValueHandler } from "redux-form";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
@@ -15,7 +22,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
 
     return (
       <DynamicAutocompleteInput
-        theme={"DARK"}
+        theme={EditorTheme.DARK}
         input={{ value: propertyValue, onChange: this.onChange }}
         dataTreePath={dataTreePath}
         expected={expected}
@@ -24,7 +31,9 @@ class CodeEditorControl extends BaseControl<ControlProps> {
           error: isValid ? "" : validationMessage,
           touched: true,
         }}
-        singleLine={false}
+        size={EditorSize.EXTENDED}
+        mode={EditorModes.TEXT_WITH_BINDING}
+        tabBehaviour={TabBehaviour.INDENT}
       />
     );
   }

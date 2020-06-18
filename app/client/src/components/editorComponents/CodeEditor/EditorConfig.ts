@@ -1,20 +1,24 @@
-enum EditorModes {
-  TEXT,
-  SQL,
+export enum EditorModes {
+  TEXT = "text/plain",
+  SQL = "sql",
+  TEXT_WITH_BINDING = "text-js",
+  JSON = "application/json",
+  JSON_WITH_BINDING = "json-js",
+  SQL_WITH_BINDING = "sql-js",
 }
 
 export enum EditorTheme {
-  LIGHT,
-  DARK,
+  LIGHT = "LIGHT",
+  DARK = "DARK",
 }
 export enum TabBehaviour {
-  INPUT,
-  INDENT,
+  INPUT = "INPUT",
+  INDENT = "INDENT",
 }
 
 export enum EditorSize {
-  COMPACT,
-  EXTENDED,
+  COMPACT = "COMPACT",
+  EXTENDED = "EXTENDED",
 }
 
 export type EditorConfig = {
@@ -25,30 +29,6 @@ export type EditorConfig = {
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
-  [EditorTheme.LIGHT]: "default",
+  [EditorTheme.LIGHT]: "base16-light",
   [EditorTheme.DARK]: "monokai",
 };
-
-export const EditorMode: Record<EditorModes, string> = {
-  [EditorModes.TEXT]: "text/plain",
-  [EditorModes.SQL]: "sql",
-};
-
-/*
-CodeMirror.defineMode("sql-js", function(config) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  return CodeMirror.multiplexingMode(
-    CodeMirror.getMode(config, "text/x-sql"),
-    {
-      open: "{{",
-      close: "}}",
-      mode: CodeMirror.getMode(config, {
-        name: "javascript",
-        globalVars: true,
-      }),
-    },
-    // .. more multiplexed styles can follow here
-  );
-});
- */

@@ -16,6 +16,10 @@ import { Datasource } from "api/DatasourcesApi";
 import _ from "lodash";
 import { DEFAULT_DATASOURCE, EmbeddedDatasource } from "entities/Datasource";
 import CodeMirror from "codemirror";
+import {
+  EditorModes,
+  EditorTheme,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 type ReduxStateProps = {
   datasource: Datasource | EmbeddedDatasource;
@@ -163,6 +167,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       input,
       hints: ["a", "b", "c"],
       highlightText: this.handleDatasourceHighlight,
+      mode: EditorModes.TEXT_WITH_BINDING,
+      theme: EditorTheme.LIGHT,
     };
 
     return (
@@ -198,7 +204,7 @@ const EmbeddedDatasourcePathConnectedComponent = connect(
 )(EmbeddedDatasourcePathComponent);
 
 const EmbeddedDatasourcePathField = (
-  props: DynamicAutocompleteInputProps & BaseFieldProps & { pluginId: string },
+  props: BaseFieldProps & { pluginId: string },
 ) => {
   return (
     <Field component={EmbeddedDatasourcePathConnectedComponent} {...props} />

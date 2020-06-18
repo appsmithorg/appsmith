@@ -24,6 +24,7 @@ import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
+import "components/editorComponents/CodeEditor/modes";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
   EditorConfig,
@@ -297,7 +298,7 @@ interface ReduxStateProps {
   dynamicData: DataTree;
 }
 
-export type DynamicAutocompleteInputProps = {
+export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: Function;
   rightIcon?: Function;
@@ -322,6 +323,8 @@ export type DynamicAutocompleteInputProps = {
   };
   hints?: Array<string>;
 };
+
+export type DynamicAutocompleteInputProps = EditorStyleProps & EditorConfig;
 
 type Props = ReduxStateProps &
   EditorConfig &
@@ -374,6 +377,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         options.extraKeys["Tab"] = false;
       }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
+      console.log(this.editor);
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);

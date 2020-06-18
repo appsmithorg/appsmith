@@ -3,6 +3,12 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
 import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 export function InputText(props: {
   label: string;
@@ -39,8 +45,10 @@ export function InputText(props: {
           error: isValid ? "" : errorMessage,
           touched: true,
         }}
-        theme={"DARK"}
-        singleLine={false}
+        theme={EditorTheme.DARK}
+        mode={EditorModes.TEXT_WITH_BINDING}
+        tabBehaviour={TabBehaviour.INDENT}
+        size={EditorSize.EXTENDED}
         placeholder={placeholder}
       />
     </StyledDynamicInput>

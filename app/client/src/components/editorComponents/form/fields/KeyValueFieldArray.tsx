@@ -40,19 +40,14 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                 className={`t--${field}.key.${index}`}
                 name={`${field}.key`}
                 placeholder="Key"
-                singleLine
-                setMaxHeight
                 showLightningMenu={false}
                 dataTreePath={`${props.dataTreePath}[${index}].key`}
-                expected={FIELD_VALUES.API_ACTION.params}
               />
               {!props.actionConfig && (
                 <DynamicTextField
                   className={`t--${field}.value.${index}`}
                   name={`${field}.value`}
                   placeholder="Value"
-                  singleLine
-                  setMaxHeight
                   dataTreePath={`${props.dataTreePath}[${index}].value`}
                   expected={FIELD_VALUES.API_ACTION.params}
                 />
@@ -64,7 +59,6 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     className={`t--${field}.value.${index}`}
                     name={`${field}.value`}
                     dataTreePath={`${props.dataTreePath}[${index}].value`}
-                    setMaxHeight
                     expected={FIELD_VALUES.API_ACTION.params}
                     placeholder={
                       props.placeholder
@@ -76,22 +70,21 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                         ? `${props.actionConfig[index].type} (Optional)`
                         : `(Optional)`
                     }
-                    singleLine
                     rightIcon={
                       props.actionConfig[index].description && props.rightIcon
                     }
                     description={props.actionConfig[index].description}
                     disabled={
-                      props.actionConfig[index].editable ||
-                      props.actionConfig[index].editable === undefined
-                        ? false
-                        : true
+                      !(
+                        props.actionConfig[index].editable ||
+                        props.actionConfig[index].editable === undefined
+                      )
                     }
                     showLightningMenu={
-                      props.actionConfig[index].editable ||
-                      props.actionConfig[index].editable === undefined
-                        ? true
-                        : false
+                      !!(
+                        props.actionConfig[index].editable ||
+                        props.actionConfig[index].editable === undefined
+                      )
                     }
                   />
                 </React.Fragment>

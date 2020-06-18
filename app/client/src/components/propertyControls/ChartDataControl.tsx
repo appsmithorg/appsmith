@@ -6,6 +6,12 @@ import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
 import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -82,8 +88,10 @@ function DataControlComponent(props: RenderComponentProps) {
             },
           }}
           evaluatedValue={evaluated?.seriesName}
-          theme={"DARK"}
-          singleLine={false}
+          theme={EditorTheme.DARK}
+          size={EditorSize.EXTENDED}
+          mode={EditorModes.TEXT_WITH_BINDING}
+          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
         />
         {length > 1 && (
@@ -118,8 +126,10 @@ function DataControlComponent(props: RenderComponentProps) {
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={"DARK"}
-          singleLine={false}
+          theme={EditorTheme.DARK}
+          size={EditorSize.EXTENDED}
+          mode={EditorModes.JSON_WITH_BINDING}
+          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
         />
       </StyledDynamicInput>

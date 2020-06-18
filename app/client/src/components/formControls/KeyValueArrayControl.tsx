@@ -112,7 +112,6 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                       ? `Value (Type: ${props.actionConfig[index].type})`
                       : `Value (optional)`
                   }
-                  singleLine
                   rightIcon={
                     props.actionConfig[index].description && props.rightIcon
                   }

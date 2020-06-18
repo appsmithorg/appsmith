@@ -216,7 +216,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
           <DatasourceWrapper className="t--dataSourceField">
             <EmbeddedDatasourcePathField
               name="actionConfiguration.path"
-              singleLine={true}
               pluginId={pluginId}
             />
           </DatasourceWrapper>
