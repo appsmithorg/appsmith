@@ -263,7 +263,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = applicationService.findById(id)
+        Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
