@@ -33,6 +33,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryAction, RestAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
+import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ type QueryPageProps = {
   queryPane: QueryPaneReduxState;
   formData: RestAction;
   isCreating: boolean;
-  apiPane: ApiPaneReduxState;
+  actionDrafts: ActionDraftsState;
   initialValues: RestAction;
   pluginIds: Array<string> | undefined;
   submitForm: (name: string) => void;
@@ -97,7 +98,7 @@ class QueryEditor extends React.Component<Props> {
       pluginIds,
       executedQueryData,
       selectedPluginPackage,
-      apiPane,
+      actionDrafts,
       isCreating,
       runErrorMessage,
     } = this.props;
@@ -108,7 +109,6 @@ class QueryEditor extends React.Component<Props> {
         <EmptyStateContainer>{"Plugin is not installed"}</EmptyStateContainer>
       );
     }
-    const { drafts } = apiPane;
     const { isSaving, isRunning, isDeleting } = queryPane;
 
     const validDataSources: Array<Datasource> = [];
@@ -132,7 +132,7 @@ class QueryEditor extends React.Component<Props> {
             location={this.props.location}
             applicationId={applicationId}
             pageId={pageId}
-            allowSave={queryId in drafts}
+            allowSave={queryId in actionDrafts}
             isSaving={isSaving[queryId]}
             isRunning={isRunning[queryId]}
             isDeleting={isDeleting[queryId]}
@@ -177,7 +177,7 @@ const mapStateToProps = (state: AppState): any => {
   return {
     plugins: getPlugins(state),
     runErrorMessage,
-    apiPane: state.ui.apiPane,
+    actionDrafts: state.entities.actionDrafts,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDataSources(state),
     executedQueryData: state.ui.queryPane.runQuerySuccessData,

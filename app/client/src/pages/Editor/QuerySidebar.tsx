@@ -27,6 +27,7 @@ import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { RestAction } from "entities/Action";
 import { Colors } from "constants/Colors";
+import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 
 const ActionItem = styled.div`
   flex: 1;
@@ -59,6 +60,7 @@ interface ReduxStateProps {
   plugins: Plugin[];
   queries: ActionDataState;
   apiPane: ApiPaneReduxState;
+  actionDrafts: ActionDraftsState;
   actions: ActionDataState;
   dataSources: Datasource[];
 }
@@ -88,8 +90,8 @@ class QuerySidebar extends React.Component<Props> {
 
   shouldComponentUpdate(nextProps: Readonly<Props>): boolean {
     if (
-      Object.keys(nextProps.apiPane.drafts) !==
-      Object.keys(this.props.apiPane.drafts)
+      Object.keys(nextProps.actionDrafts) !==
+      Object.keys(this.props.actionDrafts)
     ) {
       return true;
     }
@@ -180,29 +182,21 @@ class QuerySidebar extends React.Component<Props> {
 
   render() {
     const {
-      apiPane: { drafts },
+      actionDrafts,
       apiPane: { isFetching },
       match: {
         params: { queryId },
       },
       queries,
-      dataSources,
     } = this.props;
     const data = queries.map(a => a.config);
-
-    const validDataSources: Array<Datasource> = [];
-    dataSources.forEach(dataSource => {
-      if (dataSource.isValid) {
-        validDataSources.push(dataSource);
-      }
-    });
 
     return (
       <EditorSidebar
         isLoading={isFetching}
         list={data}
         selectedItemId={queryId}
-        draftIds={Object.keys(drafts)}
+        draftIds={Object.keys(actionDrafts)}
         itemRender={this.renderItem}
         onItemCreateClick={this.handleCreateNewQueryClick}
         onItemSelected={this.handleQueryChange}
@@ -218,6 +212,7 @@ class QuerySidebar extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   plugins: getPlugins(state),
   queries: getQueryActions(state),
+  actionDrafts: state.entities.actionDrafts,
   apiPane: state.ui.apiPane,
   actions: state.entities.actions,
   dataSources: getDataSources(state),

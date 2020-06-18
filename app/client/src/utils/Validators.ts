@@ -387,7 +387,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
-    value: any,
+    value: string,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
@@ -401,15 +401,14 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
       };
     }
-    const isValid = moment(value).isValid();
-    const parsed = isValid
-      ? props.dateFormat
-        ? moment(value).format(props.dateFormat)
-        : moment(value).toISOString(true)
-      : today;
+    const isValid = moment(value, props.dateFormat).isValid();
+    const parsed = isValid ? value : today;
     return {
       isValid,
       parsed,

@@ -15,6 +15,7 @@ import {
 import { getFormSyncErrors } from "redux-form";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
@@ -66,7 +67,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getApiDraft = (state: AppState, id: string) => {
-  const drafts = state.ui.apiPane.drafts;
+  const drafts = state.entities.actionDrafts;
   if (id in drafts) return drafts[id];
   return {};
 };
@@ -231,7 +232,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     data = draft;
   }
 
-  yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
+  yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
 
   yield call(initializeExtraFormDataSaga);
@@ -249,6 +250,8 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 function* updateDraftsSaga() {
+  // debounce
+  // TODO check for save
   const result = yield race({
     change: take(ReduxFormActionTypes.VALUE_CHANGE),
     timeout: delay(300),
@@ -543,6 +546,16 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
+function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleApiNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -552,6 +565,11 @@ export default function* root() {
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      handleApiNameChangeFailureSaga,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_NEW_API_ACTION,
       handleCreateNewApiActionSaga,
