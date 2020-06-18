@@ -12,7 +12,7 @@ const Container = styled.div<{
   &&& {
     .${Classes.OVERLAY} {
       .${Classes.OVERLAY_BACKDROP} {
-        z-index: ${props => props.zIndex};
+        z-index: ${props => props.zIndex || 2 - 1};
       }
       position: fixed;
       top: ${props => props.theme.headerHeight};
