@@ -3,7 +3,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import { EditorTheme } from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 
@@ -23,13 +23,13 @@ type ThemeConfig = {
 type PopupTheme = Record<EditorTheme, ThemeConfig>;
 
 const THEMES: PopupTheme = {
-  LIGHT: {
+  [EditorTheme.LIGHT]: {
     backgroundColor: "#fff",
     textColor: "#1E242B",
     editorBackground: "#F4F4F4",
     editorColor: "#1E242B",
   },
-  DARK: {
+  [EditorTheme.DARK]: {
     backgroundColor: "#23292e",
     textColor: "#F4F4F4",
     editorBackground: "#090a0f",
@@ -123,7 +123,7 @@ const CurrentValueViewer = (props: {
       Array.isArray(props.evaluatedValue)
     ) {
       const reactJsonProps = {
-        theme: props.theme === "DARK" ? "monokai" : "rjv-default",
+        theme: props.theme === EditorTheme.DARK ? "monokai" : "rjv-default",
         name: null,
         enableClipboard: false,
         displayObjectSize: false,

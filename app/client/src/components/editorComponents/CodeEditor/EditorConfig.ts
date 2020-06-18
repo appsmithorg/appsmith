@@ -1,23 +1,54 @@
-import CodeMirror from "codemirror";
-
 enum EditorModes {
   TEXT,
   SQL,
 }
 
-enum EditorTheme {
+export enum EditorTheme {
   LIGHT,
   DARK,
 }
+export enum TabBehaviour {
+  INPUT,
+  INDENT,
+}
 
-type EditorConfigType = {
-  mode: EditorModes;
-  placeholder?: string;
-  height?: number;
+export enum EditorSize {
+  COMPACT,
+  EXTENDED,
+}
+
+export type EditorConfig = {
   theme: EditorTheme;
-  lineNumbers?: boolean;
+  mode: EditorModes;
+  tabBehaviour: TabBehaviour;
+  size: EditorSize;
 };
 
-export const createEditorConfig = (config: EditorConfigType) => {
-  // do something here
+export const EditorThemes: Record<EditorTheme, string> = {
+  [EditorTheme.LIGHT]: "default",
+  [EditorTheme.DARK]: "monokai",
 };
+
+export const EditorMode: Record<EditorModes, string> = {
+  [EditorModes.TEXT]: "text/plain",
+  [EditorModes.SQL]: "sql",
+};
+
+/*
+CodeMirror.defineMode("sql-js", function(config) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
+  return CodeMirror.multiplexingMode(
+    CodeMirror.getMode(config, "text/x-sql"),
+    {
+      open: "{{",
+      close: "}}",
+      mode: CodeMirror.getMode(config, {
+        name: "javascript",
+        globalVars: true,
+      }),
+    },
+    // .. more multiplexed styles can follow here
+  );
+});
+ */

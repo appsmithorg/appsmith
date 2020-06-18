@@ -19,12 +19,20 @@ import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { Theme, Skin } from "constants/DefaultTheme";
+import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import {
+  EditorConfig,
+  EditorSize,
+  EditorTheme,
+  EditorThemes,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -32,51 +40,17 @@ require("codemirror/mode/javascript/javascript");
 require("codemirror/mode/sql/sql");
 require("codemirror/addon/hint/sql-hint");
 
-CodeMirror.defineMode("sql-js", function(config) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  return CodeMirror.multiplexingMode(
-    CodeMirror.getMode(config, "text/x-sql"),
-    {
-      open: "{{",
-      close: "}}",
-      mode: CodeMirror.getMode(config, {
-        name: "javascript",
-        globalVars: true,
-      }),
-    },
-    // .. more multiplexed styles can follow here
-  );
-});
-
-CodeMirror.defineMode("js-js", function(config) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-  // @ts-ignore
-  return CodeMirror.multiplexingMode(
-    CodeMirror.getMode(config, { name: "javascript", json: true }),
-    {
-      open: "{{",
-      close: "}}",
-      mode: CodeMirror.getMode(config, {
-        name: "javascript",
-        globalVars: true,
-      }),
-    },
-    // .. more multiplexed styles can follow here
-  );
-});
-
 const getBorderStyle = (
   props: { theme: Theme } & {
     editorTheme?: EditorTheme;
     hasError: boolean;
-    singleLine: boolean;
+    size: EditorSize;
     isFocused: boolean;
     disabled?: boolean;
   },
 ) => {
   if (props.hasError) return props.theme.colors.error;
-  if (props.editorTheme !== THEMES.DARK) {
+  if (props.editorTheme !== EditorTheme.DARK) {
     if (props.isFocused) return props.theme.colors.inputActiveBorder;
     return props.theme.colors.border;
   }
@@ -101,10 +75,10 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     }
     -ms-overflow-style: none;
     background: ${props =>
-      props.editorTheme === "DARK" ? "#090A0F" : "#ffffff"};
+      props.editorTheme === EditorTheme.DARK ? "#090A0F" : "#ffffff"};
     border: 1px solid;
     border-color: ${props =>
-      props.editorTheme === "DARK" ? "#535B62" : "#EBEFF2"}
+      props.editorTheme === EditorTheme.DARK ? "#535B62" : "#EBEFF2"}
     box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
     border-radius: 4px;
   }
@@ -114,7 +88,8 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     padding: 3px;
     margin: 0;
     white-space: pre;
-    color: ${props => (props.editorTheme === "DARK" ? "#F4F4F4" : "#1E242B")};
+    color: ${props =>
+      props.editorTheme === EditorTheme.DARK ? "#F4F4F4" : "#1E242B"};
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -123,7 +98,7 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
 
   li.CodeMirror-hint-active {
     background: ${props =>
-      props.editorTheme === "DARK"
+      props.editorTheme === EditorTheme.DARK
         ? "rgba(244,244,244,0.1)"
         : "rgba(128,136,141,0.1)"};
     border-radius: 4px;
@@ -141,15 +116,19 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
   }
   .CodeMirror-Tern-hint-doc {
     background-color: ${props =>
-      props.editorTheme === "DARK" ? "#23292e" : "#fff"} !important;
+      props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
     color: ${props =>
-      props.editorTheme === "DARK" ? "#F4F4F4" : "#1E242B"} !important;
+      props.editorTheme === EditorTheme.DARK
+        ? "#F4F4F4"
+        : "#1E242B"} !important;
     max-height: 150px;
     width: 250px;
     padding: 12px !important;
     border: 1px solid !important;
     border-color: ${props =>
-      props.editorTheme === "DARK" ? "#23292e" : "#DEDEDE"} !important;
+      props.editorTheme === EditorTheme.DARK
+        ? "#23292e"
+        : "#DEDEDE"} !important;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
     overflow: scroll;
     ::-webkit-scrollbar {
@@ -162,14 +141,13 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
 const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;
-  singleLine: boolean;
   isFocused: boolean;
   disabled?: boolean;
-  setMaxHeight?: boolean;
+  size: EditorSize;
 }>`
   width: 100%;
   ${props =>
-    props.singleLine && props.isFocused
+    props.size === EditorSize.COMPACT && props.isFocused
       ? `
   z-index: 5;
   position: absolute;
@@ -179,7 +157,7 @@ const EditorWrapper = styled.div<{
   `
       : `z-index: 0; position: relative;`}
   background-color: ${props =>
-    props.editorTheme === THEMES.DARK ? "#272822" : "#fff"};
+    props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
   border: 1px solid;
   border-color: ${getBorderStyle};
@@ -191,21 +169,10 @@ const EditorWrapper = styled.div<{
   min-height: 32px;
 
   height: auto;
-  ${props =>
-    props.setMaxHeight &&
-    props.isFocused &&
-    `
-  z-index: 5;
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  `}
-  ${props => props.setMaxHeight && !props.isFocused && `max-height: 30px;`}
   && {
     .binding-highlight {
       color: ${props =>
-        props.editorTheme === THEMES.DARK
+        props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark
           : props.theme.colors.bindingText};
       font-weight: 700;
@@ -228,7 +195,7 @@ const EditorWrapper = styled.div<{
       color: #a3b3bf;
     }
     ${props =>
-      props.singleLine &&
+      props.size === EditorSize.COMPACT &&
       `
       .CodeMirror-hscrollbar {
       -ms-overflow-style: none;
@@ -324,13 +291,6 @@ const DynamicAutocompleteInputWrapper = styled.div<{
   }
 `;
 
-const THEMES: Record<string, EditorTheme> = {
-  LIGHT: "LIGHT",
-  DARK: "DARK",
-};
-
-export type EditorTheme = "LIGHT" | "DARK";
-
 const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
 
 interface ReduxStateProps {
@@ -343,24 +303,18 @@ export type DynamicAutocompleteInputProps = {
   rightIcon?: Function;
   description?: string;
   height?: number;
-  theme?: EditorTheme;
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
-  allowTabIndent?: boolean;
-  singleLine: boolean;
-  mode?: string | object;
   className?: string;
   leftImage?: string;
   disabled?: boolean;
   link?: string;
-  baseMode?: string | object;
-  setMaxHeight?: boolean;
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
   highlightText?: (
-    editorInstance: CodeMirror.Doc,
+    editorInstance: CodeMirror.Editor,
   ) => {
     from: CodeMirror.Position;
     to: CodeMirror.Position;
@@ -370,6 +324,7 @@ export type DynamicAutocompleteInputProps = {
 };
 
 type Props = ReduxStateProps &
+  EditorConfig &
   DynamicAutocompleteInputProps & {
     input: Partial<WrappedFieldInputProps>;
   };
@@ -382,7 +337,7 @@ type State = {
 
 class DynamicAutocompleteInput extends Component<Props, State> {
   textArea = React.createRef<HTMLTextAreaElement>();
-  editor: any;
+  editor: CodeMirror.EditorFromTextArea | undefined;
   ternServer?: TernServer = undefined;
 
   constructor(props: Props) {
@@ -397,25 +352,28 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 
   componentDidMount(): void {
     if (this.textArea.current) {
-      const options: EditorConfiguration = {};
-      if (this.props.theme === "DARK") options.theme = "monokai";
+      const options: EditorConfiguration = {
+        mode: this.props.mode,
+        theme: EditorThemes[this.props.theme],
+        viewportMargin: 10,
+        tabSize: 2,
+        autoCloseBrackets: true,
+        indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
+        lineWrapping: this.props.size !== EditorSize.COMPACT,
+        lineNumbers: this.props.showLineNumbers,
+        addModeClass: true,
+      };
+
       if (!this.props.input.onChange || this.props.disabled) {
         options.readOnly = true;
         options.scrollbarStyle = "null";
       }
-      if (this.props.showLineNumbers) options.lineNumbers = true;
-      const extraKeys: Record<string, any> = {};
-      if (!this.props.allowTabIndent) extraKeys["Tab"] = false;
-      this.editor = CodeMirror.fromTextArea(this.textArea.current, {
-        mode: this.props.mode || { name: "javascript", globalVars: true },
-        viewportMargin: 10,
-        tabSize: 2,
-        indentWithTabs: !!this.props.allowTabIndent,
-        lineWrapping: !this.props.singleLine,
-        extraKeys,
-        autoCloseBrackets: true,
-        ...options,
-      });
+
+      options.extraKeys = {};
+      if (this.props.tabBehaviour === TabBehaviour.INDENT) {
+        options.extraKeys["Tab"] = false;
+      }
+      this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
 
       this.editor.on("change", _.debounce(this.handleChange, 300));
       this.editor.on("change", this.handleAutocompleteVisibility);
@@ -474,11 +432,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           if (this.ternServer) {
             const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
             this.ternServer.updateDef("dataTree", dataTreeDef);
-          } else {
-            this.editor.setOption("hintOptions", {
-              completeSingle: false,
-              globalScope: this.props.dynamicData,
-            });
           }
         }
       }
@@ -491,74 +444,73 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     } catch (e) {
       console.error(e);
     }
-    if (this.ternServer) {
-      this.editor.setOption("extraKeys", {
-        ...this.editor.options.extraKeys,
-        [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
-          cm: CodeMirror.Editor,
-        ) => {
-          if (this.ternServer) this.ternServer.complete(cm);
-        },
-        [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: any) => {
-          if (this.ternServer) this.ternServer.showType(cm);
-        },
-        [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: any) => {
-          if (this.ternServer) this.ternServer.showDocs(cm);
-        },
-      });
-    } else {
-      // start normal autocomplete
-      this.editor.setOption("extraKeys", {
-        ...this.editor.options.extraKeys,
-        [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: "autocomplete",
-      });
-      this.editor.setOption("showHint", true);
-      this.editor.setOption("hintOptions", {
-        completeSingle: false,
-        globalScope: this.props.dynamicData,
-      });
+    if (this.editor) {
+      if (this.ternServer) {
+        this.editor.setOption("extraKeys", {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+          // @ts-ignore
+          ...this.editor.options.extraKeys,
+          [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (
+            cm: CodeMirror.Editor,
+          ) => {
+            if (this.ternServer) this.ternServer.complete(cm);
+          },
+          [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: any) => {
+            if (this.ternServer) this.ternServer.showType(cm);
+          },
+          [KeyboardShortcuts.CodeEditor.OpenDocsLink]: (cm: any) => {
+            if (this.ternServer) this.ternServer.showDocs(cm);
+          },
+        });
+      }
     }
   }
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    this.editor.refresh();
-    if (this.props.singleLine) {
-      this.editor.setOption("lineWrapping", true);
+    if (this.editor) {
+      this.editor.refresh();
+      if (this.props.size === EditorSize.COMPACT) {
+        this.editor.setOption("lineWrapping", true);
+      }
     }
   };
 
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    if (this.props.singleLine) {
-      this.editor.setOption("lineWrapping", false);
+    if (this.editor) {
+      if (this.props.size === EditorSize.COMPACT) {
+        this.editor.setOption("lineWrapping", false);
+      }
     }
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue();
-    if (changeObj && changeObj.origin === "complete") {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
-        searchString: changeObj.text[0],
-      });
+    if (this.editor) {
+      const value = this.editor.getValue();
+      if (changeObj && changeObj.origin === "complete") {
+        AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
+          searchString: changeObj.text[0],
+        });
+      }
+      const inputValue = this.props.input.value;
+      if (this.props.input.onChange && value !== inputValue) {
+        this.props.input.onChange(value);
+      }
+      this.updateHighlights();
     }
-    const inputValue = this.props.input.value;
-    if (this.props.input.onChange && value !== inputValue) {
-      this.props.input.onChange(value);
-    }
-    this.updateHighlights();
   };
 
-  handleAutocompleteVisibility = (cm: any) => {
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
       let cursorBetweenBinding = false;
-      const cursor = this.editor.getCursor();
-      const value = this.editor.getValue();
+      const cursor = cm.getCursor();
+      const value = cm.getValue();
       let cursorIndex = cursor.ch;
       if (cursor.line > 0) {
         for (let lineIndex = 0; lineIndex < cursor.line; lineIndex++) {
-          const line = this.editor.getLine(lineIndex);
+          const line = cm.getLine(lineIndex);
           // Add line length + 1 for new line character
           cursorIndex = cursorIndex + line.length + 1;
         }
@@ -587,10 +539,10 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 
       const shouldShow = cursorBetweenBinding;
 
-      if (this.props.baseMode) {
-        // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
-        cm.doc.modeOption = this.props.baseMode;
-      }
+      // if (this.props.baseMode) {
+      //   // https://github.com/codemirror/CodeMirror/issues/5249#issue-295565980
+      //   cm.doc.modeOption = this.props.baseMode;
+      // }
       if (shouldShow) {
         AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         this.setState({
@@ -598,27 +550,17 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         });
         if (this.ternServer) {
           this.ternServer.complete(cm);
-        } else {
-          cm.showHint(cm);
         }
       } else {
         this.setState({
           autoCompleteVisible: false,
         });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
         cm.closeHint();
       }
     }
   };
-
-  handleHintsAutocomplete(cm: CodeMirror.Doc) {
-    const cursor = cm.getCursor();
-    const { hints } = this.props;
-    return {
-      from: cursor,
-      to: cursor,
-      list: hints,
-    };
-  }
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
     if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
@@ -628,49 +570,57 @@ class DynamicAutocompleteInput extends Component<Props, State> {
 
   updateHighlights = () => {
     this.highlightBindings();
-    if (this.props.highlightText) {
+    if (this.props.highlightText && this.editor) {
       const { from, to, options } = this.props.highlightText(this.editor);
       this.editor.markText(from, to, options);
     }
   };
 
   highlightBindings = () => {
-    this.editor.eachLine((line: LineHandle) => {
-      const lineNo = this.editor.getLineNumber(line);
-      let match;
-      while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {
-        const start = match.index;
-        const end = AUTOCOMPLETE_MATCH_REGEX.lastIndex;
-        this.editor.markText(
-          { ch: start, line: lineNo },
-          { ch: end, line: lineNo },
-          {
-            className: "binding-highlight",
-          },
-        );
-      }
-    });
+    if (this.editor) {
+      this.editor.eachLine((line: LineHandle) => {
+        if (this.editor) {
+          const lineNo = this.editor.getLineNumber(line) || 0;
+          let match;
+          while ((match = AUTOCOMPLETE_MATCH_REGEX.exec(line.text)) != null) {
+            const start = match.index;
+            const end = AUTOCOMPLETE_MATCH_REGEX.lastIndex;
+            this.editor.markText(
+              { ch: start, line: lineNo },
+              { ch: end, line: lineNo },
+              {
+                className: "binding-highlight",
+              },
+            );
+          }
+        }
+      });
+    }
   };
 
   updatePropertyValue(value: string, cursor?: number) {
-    if (value) {
-      this.editor.setValue(value);
-    }
-    this.editor.focus();
-    if (cursor === undefined) {
+    if (this.editor) {
       if (value) {
-        cursor = value.length - 2;
-      } else {
-        cursor = 1;
+        this.editor.setValue(value);
       }
+      this.editor.focus();
+      if (cursor === undefined) {
+        if (value) {
+          cursor = value.length - 2;
+        } else {
+          cursor = 1;
+        }
+      }
+      this.editor.setCursor({
+        line: 0,
+        ch: cursor,
+      });
+      this.setState({ isFocused: true }, () => {
+        if (this.editor) {
+          this.handleAutocompleteVisibility(this.editor);
+        }
+      });
     }
-    this.editor.setCursor({
-      line: 0,
-      ch: cursor,
-    });
-    this.setState({ isFocused: true }, () => {
-      this.handleAutocompleteVisibility(this.editor);
-    });
   }
 
   render() {
@@ -678,14 +628,13 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       input,
       meta,
       theme,
-      singleLine,
       disabled,
       className,
-      setMaxHeight,
       showLightningMenu,
       dataTreePath,
       dynamicData,
       expected,
+      size,
       evaluatedValue,
     } = this.props;
     const hasError = !!(meta && meta.error);
@@ -701,14 +650,16 @@ class DynamicAutocompleteInput extends Component<Props, State> {
     return (
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
-        skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
         isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
         isNotHover={this.state.isFocused || this.state.isOpened}
       >
         {showLightningMenu !== false && (
           <Suspense fallback={<div />}>
             <LightningMenu
-              skin={this.props.theme === "DARK" ? Skin.DARK : Skin.LIGHT}
+              skin={
+                this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
+              }
               updateDynamicInputValue={this.updatePropertyValue}
               isFocused={this.state.isFocused}
               isOpened={this.state.isOpened}
@@ -722,7 +673,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           </Suspense>
         )}
         <EvaluatedValuePopup
-          theme={theme || THEMES.LIGHT}
+          theme={theme || EditorTheme.LIGHT}
           isOpen={showEvaluatedValue}
           evaluatedValue={evaluated}
           expected={expected}
@@ -731,13 +682,12 @@ class DynamicAutocompleteInput extends Component<Props, State> {
           <EditorWrapper
             editorTheme={theme}
             hasError={hasError}
-            singleLine={singleLine}
+            size={size}
             isFocused={this.state.isFocused}
             disabled={disabled}
             className={className}
-            setMaxHeight={setMaxHeight}
           >
-            <HintStyles editorTheme={theme || THEMES.LIGHT} />
+            <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             <IconContainer>
               {this.props.leftIcon && <this.props.leftIcon />}
             </IconContainer>
