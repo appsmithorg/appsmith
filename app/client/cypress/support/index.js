@@ -20,11 +20,26 @@ let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
+
+Cypress.on("uncaught:exception", (err, runnable) => {
+  // returning false here prevents Cypress from
+  // failing the test
+  return false;
+});
+
 before(function() {
   console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
   cy.startServerAndRoutes();
   cy.LogintoApp(loginData.username, loginData.password);
-  // cy.SearchApp(inputData.appname)
+  /*
+  cy.LoginFromAPI(loginData.username, loginData.password);
+  cy.visit("/applications");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  */
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);

@@ -1,27 +1,23 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
-import _ from "lodash";
 import {
   GridComponent,
   ColumnsDirective,
   ColumnDirective,
 } from "@syncfusion/ej2-react-grids";
-import { useHistory } from "react-router-dom";
 import { AppState } from "reducers";
 import {
-  getCurrentOrg,
   getAllUsers,
   getAllRoles,
   getOrgs,
 } from "selectors/organizationSelectors";
-import { ORG_INVITE_USERS_PAGE_URL } from "constants/routes";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import Button from "components/editorComponents/Button";
-import { Org, OrgUser, Organization } from "constants/orgConstants";
+import { OrgUser, Organization } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
@@ -87,7 +83,6 @@ const StyledMenu = styled(Menu)`
 `;
 
 export const OrgSettings = (props: PageProps) => {
-  const history = useHistory();
   const {
     match: {
       params: { orgId },
@@ -95,6 +90,9 @@ export const OrgSettings = (props: PageProps) => {
     deleteOrgUser,
     changeOrgUserRole,
     allOrgs,
+    fetchUser,
+    fetchAllRoles,
+    getAllApplication,
   } = props;
 
   const userTableData = props.allUsers.map(user => ({
@@ -105,10 +103,10 @@ export const OrgSettings = (props: PageProps) => {
   const currentOrgName = currentOrg?.organization.name ?? "";
 
   useEffect(() => {
-    props.fetchUser(orgId);
-    props.fetchAllRoles(orgId);
-    props.getAllApplication();
-  }, [orgId]);
+    fetchUser(orgId);
+    fetchAllRoles(orgId);
+    getAllApplication();
+  }, [orgId, fetchUser, fetchAllRoles, getAllApplication]);
 
   const Dropdown = (props: DropdownProps) => {
     return (

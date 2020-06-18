@@ -7,6 +7,7 @@ export const FIELD_REQUIRED_ERROR = "This field is required";
 export const VALID_FUNCTION_NAME_ERROR =
   "Must be a valid variable name (camelCase)";
 export const UNIQUE_NAME_ERROR = "Name must be unique";
+export const NAME_SPACE_ERROR = "Name must not have spaces";
 
 export const FORM_VALIDATION_EMPTY_EMAIL = "Please enter an email";
 export const FORM_VALIDATION_INVALID_EMAIL =

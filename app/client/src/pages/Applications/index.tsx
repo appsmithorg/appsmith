@@ -10,7 +10,6 @@ import {
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
-  getUserApplicationsOrgs,
   getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
@@ -20,11 +19,9 @@ import {
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
-import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
-import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
 import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
@@ -141,9 +138,6 @@ class Applications extends Component<
   }
 
   public render() {
-    const applicationList = this.props.isFetchingApplications
-      ? getApplicationPayloads(8)
-      : this.props.applicationList;
     const Form: any = InviteUsersFormv2;
     const DropdownProps = (
       user: User,
@@ -221,7 +215,7 @@ class Applications extends Component<
         />
         <PageSectionDivider />
         {this.props.userOrgs &&
-          this.props.userOrgs.length != 0 &&
+          this.props.userOrgs.length !== 0 &&
           this.props.userOrgs.map((organizationObject: any) => {
             const { organization, applications } = organizationObject;
 

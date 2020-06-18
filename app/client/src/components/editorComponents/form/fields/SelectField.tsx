@@ -4,7 +4,6 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import FormFieldError from "components/editorComponents/form/FieldError";
 import SelectComponent from "components/editorComponents/SelectComponent";
 
 const renderComponent = (

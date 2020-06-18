@@ -12,6 +12,10 @@ const HeaderWrapper = styled(StyledHeader)`
   display: flex;
   justify-content: flex-end;
 `;
+
+const StyledButton = styled(Button)`
+  max-width: 200px;
+`;
 type AppViewerHeaderProps = {
   url?: string;
   permissionRequired: string;
@@ -27,7 +31,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   return (
     <HeaderWrapper>
       {props.url && hasPermission && (
-        <Button
+        <StyledButton
           className="t--back-to-editor"
           href={props.url}
           intent="primary"

@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
-import { OrgRole, Org, Organization } from "constants/orgConstants";
+import { OrgRole, Organization } from "constants/orgConstants";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.orgs.roles;

@@ -18,13 +18,10 @@ describe("Test curl import flow", function() {
         response.response.body.data.name,
       );
     });
-    cy.WaitAutoSave();
+    // cy.WaitAutoSave();
     cy.RunAPI();
 
     cy.get(ApiEditor.formActionButtons).should("be.visible");
-    cy.get("@postExecute").then(httpResponse => {
-      cy.expect(httpResponse.response.body.responseMeta.success).to.eq(true);
-    });
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.get(ApiEditor.ApiDeleteBtn).should("be.disabled");
     cy.testDeleteApi();
