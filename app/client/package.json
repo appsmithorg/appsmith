@@ -160,6 +160,7 @@
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "babel-loader": "^8.0.6",
+    "craco-babel-loader": "^0.1.4",
     "babel-plugin-styled-components": "^1.10.7",
     "cypress": "^4.1.0",
     "cypress-multi-reporters": "^1.2.4",

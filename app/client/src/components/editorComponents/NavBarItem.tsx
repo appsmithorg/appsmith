@@ -49,37 +49,37 @@ const IconContainer = styled.div<{
 const ItemContainer = styled.div`
   && {
     a {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding:${props => props.theme.spaces[5]}px 0;
-    color: ${props => props.theme.colors.textOnDarkBG}
-    font-size: ${props => props.theme.fontSizes[1]}px;
-    cursor: pointer;
-    background-color: ${props => props.theme.colors.navBG};
-    &:hover {
-      background-color: ${props => props.theme.colors.paneBG};
-      text-decoration: none;
-    }
-    color: ${props => props.theme.colors.menuButtonBGInactive};
-    &.active {
-      background-color: ${props => props.theme.colors.paneBG}
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: ${props => props.theme.spaces[5]}px 0;
       color: ${props => props.theme.colors.textOnDarkBG};
-      ${IconContainer} {
-        background-color: ${props => props.theme.colors.primary};
-        svg path {
-          fill: ${props => props.theme.colors.textOnDarkBG};
+      font-size: ${props => props.theme.fontSizes[1]}px;
+      cursor: pointer;
+      background-color: ${props => props.theme.colors.navBG};
+      &:hover {
+        background-color: ${props => props.theme.colors.paneBG};
+        text-decoration: none;
+      }
+      color: ${props => props.theme.colors.menuButtonBGInactive};
+      &.active {
+        background-color: ${props => props.theme.colors.paneBG};
+        color: ${props => props.theme.colors.textOnDarkBG};
+        ${IconContainer} {
+          background-color: ${props => props.theme.colors.primary};
+          svg path {
+            fill: ${props => props.theme.colors.textOnDarkBG};
+          }
         }
       }
     }
+    span {
+      width: 100%;
+      display: inline-block;
+      text-align: center;
+    }
   }
-  span {
-    width: 100%;
-    display: inline-block;
-    text-align: center;
-  }
-}
 `;
 
 const Anchor = styled.a`

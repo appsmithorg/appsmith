@@ -21,12 +21,17 @@ import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 
-class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
+class FilePickerWidget extends BaseWidget<
+  FilePickerWidgetProps,
+  FilePickerWidgetState
+> {
   uppy: any;
 
   constructor(props: FilePickerWidgetProps) {
     super(props);
-    this.refreshUppy(props);
+    this.state = {
+      version: 0,
+    };
   }
 
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -44,6 +49,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
+      value: `{{this.files}}`,
     };
   }
 
@@ -134,6 +140,7 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
     this.uppy.on("upload", () => {
       this.onFilesSelected();
     });
+    this.setState({ version: this.state.version + 1 });
   };
 
   static getTriggerPropertyMap(): TriggerPropertiesMap {
@@ -157,8 +164,8 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   handleFileUploaded = (result: ExecutionResult) => {
     if (result.success) {
       this.updateWidgetMetaProperty(
-        "uploadedFileData",
-        this.props.uploadedFileUrls,
+        "uploadedFileUrls",
+        this.props.uploadedFileUrlPaths,
       );
     }
   };
@@ -207,6 +214,10 @@ class FilePickerWidget extends BaseWidget<FilePickerWidgetProps, WidgetState> {
   }
 }
 
+export interface FilePickerWidgetState extends WidgetState {
+  version: number;
+}
+
 export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
@@ -215,7 +226,7 @@ export interface FilePickerWidgetProps extends WidgetProps {
   allowedFileTypes: string[];
   onFilesSelected?: string;
   isRequired?: boolean;
-  uploadedFileUrls?: string;
+  uploadedFileUrlPaths?: string;
 }
 
 export default FilePickerWidget;

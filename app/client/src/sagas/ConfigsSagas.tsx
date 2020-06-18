@@ -27,6 +27,7 @@ const generateConfigWithIds = (config: PropertyConfig) => {
   return config;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function* getLocalPropertyPaneConfigSaga() {
   // FOR DEV WORK ONLY
   try {

@@ -70,7 +70,7 @@ class DatePickerControl extends BaseControl<
   }
 
   onDateSelected = (date: Date): void => {
-    const selectedDate = date ? moment(date).toISOString(true) : "";
+    const selectedDate = date ? moment(date).toISOString(true) : undefined;
     this.setState({ selectedDate: selectedDate });
     this.updateProperty(this.props.propertyName, selectedDate);
   };
@@ -94,7 +94,7 @@ export interface DatePickerControlProps extends ControlProps {
 }
 
 interface DatePickerControlState {
-  selectedDate: string;
+  selectedDate?: string;
 }
 
 export default DatePickerControl;

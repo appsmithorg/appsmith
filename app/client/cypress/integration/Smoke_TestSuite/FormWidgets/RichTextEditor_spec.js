@@ -17,7 +17,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.widgetText(
       this.data.RichTextEditorName,
       formWidgetsPage.richTextEditorWidget,
-      formWidgetsPage.richTextEditorWidget + " pre",
+      formWidgetsPage.richTextEditorWidget + " " + commonlocators.widgetNameTag,
     );
 
     //Edit the text area with Html

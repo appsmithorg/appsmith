@@ -6,8 +6,10 @@ import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
 import DropdownComponent, { CustomizedDropdownProps } from "./index";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import _ from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
+import { Button } from "@blueprintjs/core";
 
 const switchdropdown = (
   orgs: Org[],
@@ -16,18 +18,6 @@ const switchdropdown = (
   sections: [
     {
       isSticky: true,
-      options: [
-        {
-          content: (
-            <FormDialogComponent
-              trigger="Create Organization"
-              Form={CreateOrganizationForm}
-              title="Create Organization"
-            />
-          ),
-          shouldCloseDropdown: false,
-        },
-      ],
     },
     {
       options: orgs
@@ -52,79 +42,49 @@ const switchdropdown = (
 });
 
 export const options = (
-  orgs: Org[],
-  currentOrg: Org,
   user: User,
-): CustomizedDropdownProps => ({
-  sections: [
-    {
-      options: [
-        {
-          content: (
-            <Badge
-              text={currentOrg.name}
-              imageURL="https://via.placeholder.com/32"
-            />
-          ),
-          disabled: true,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "Organization Settings",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/org/settings",
-            }),
-        },
-        {
-          content: "Applications",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/applications",
-            }),
-        },
-        {
-          content: "Members",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: "/users",
-            }),
-        },
-        {
-          content: <DropdownComponent {...switchdropdown(orgs, currentOrg)} />,
-          shouldCloseDropdown: false,
-        },
-      ],
+  orgName: string,
+  orgId: string,
+): CustomizedDropdownProps => {
+  return {
+    sections: [
+      {
+        options: [
+          {
+            content: (
+              <Badge text={orgName} imageURL="https://via.placeholder.com/32" />
+            ),
+            disabled: true,
+            shouldCloseDropdown: false,
+          },
+          {
+            content: "Organization Settings",
+            onSelect: () =>
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: `/org/${orgId}/settings`,
+              }),
+          },
+          {
+            content: "Share",
+            onSelect: () => _.noop("Share option selected"),
+          },
+          {
+            content: "Members",
+            onSelect: () =>
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: `/org/${orgId}/settings`,
+              }),
+          },
+        ],
+      },
+    ],
+    trigger: {
+      icon: "ORG_ICON",
+      text: orgName,
+      outline: false,
     },
-    {
-      options: [
-        {
-          content: (
-            <Badge
-              text={user.email}
-              subtext={user.email}
-              imageURL="https://via.placeholder.com/32"
-            />
-          ),
-          disabled: true,
-          shouldCloseDropdown: false,
-        },
-        {
-          content: "Sign Out",
-          onSelect: () =>
-            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-              type: ReduxActionTypes.LOGOUT_USER_INIT,
-            }),
-        },
-      ],
-    },
-  ],
-  trigger: {
-    icon: "ORG_ICON",
-    text: currentOrg.name,
-    outline: false,
-  },
-  openDirection: Directions.DOWN,
-});
+    openDirection: Directions.DOWN,
+  };
+};
 
 export default options;

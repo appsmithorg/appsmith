@@ -5,13 +5,26 @@ import { getOrgs, getCurrentOrg } from "selectors/organizationSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown from "./CustomizedDropdown";
-import DropdownProps from "./CustomizedDropdown/OrgDropdownData";
+import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
 import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
+import Logo from "assets/images/appsmith_logo.png";
 
 const StyledPageHeader = styled(StyledHeader)`
+  width: 100%;
+  display: flex;
   justify-content: space-between;
+  padding: ${props => props.theme.spaces[4]}px
+    ${props => props.theme.spaces[4]}px;
+`;
+
+const StyledDropDownContainer = styled.div``;
+
+const LogoContainer = styled.div`
+  .logoimg {
+    width: 15%;
+  }
 `;
 
 type PageHeaderProps = {
@@ -21,12 +34,17 @@ type PageHeaderProps = {
 };
 
 export const PageHeader = (props: PageHeaderProps) => {
-  const { orgs, currentOrg, user } = props;
+  const { user } = props;
   return (
     <StyledPageHeader>
-      {orgs && user && currentOrg && (
-        <CustomizedDropdown {...DropdownProps(orgs, currentOrg, user)} />
-      )}
+      <LogoContainer>
+        <a href="/applications">
+          <img className="logoimg" src={Logo} alt="Appsmith Logo" />
+        </a>
+      </LogoContainer>
+      <StyledDropDownContainer>
+        {user && <CustomizedDropdown {...DropdownProps(user, user.username)} />}
+      </StyledDropDownContainer>
     </StyledPageHeader>
   );
 };

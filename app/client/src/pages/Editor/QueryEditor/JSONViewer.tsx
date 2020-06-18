@@ -32,6 +32,7 @@ class JSONOutput extends React.Component<Props> {
       style: {
         fontSize: "14px",
       },
+      collapsed: 1,
     };
 
     if (!src.length) {

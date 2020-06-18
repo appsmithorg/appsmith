@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const publish = require("../../../locators/publishWidgetspage.json");
-const dsl = require("../../../fixtures/commondsl.json");
+const dsl = require("../../../fixtures/tableWidgetDsl.json");
 
 describe("Table Widget Functionality", function() {
   before(() => {
@@ -43,7 +43,7 @@ describe("Table Widget Functionality", function() {
       .get(commonlocators.dropdownSelectButton)
       .first()
       .find("> .bp3-button-text")
-      .should("have.text", "Navigate To");
+      .should("have.text", "{{navigateTo()}}");
     cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });

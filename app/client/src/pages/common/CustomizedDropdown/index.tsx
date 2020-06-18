@@ -7,13 +7,14 @@ import {
   Classes,
   PopoverInteractionKind,
   Icon,
+  IPopoverSharedProps,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { MenuIcons } from "icons/MenuIcons";
 import { Intent, IntentColors } from "constants/DefaultTheme";
 import { Direction, Directions } from "utils/helpers";
 import { getDirectionBased } from "./dropdownHelpers";
-import { Theme } from "constants/DefaultTheme";
+import { Theme, Skin } from "constants/DefaultTheme";
 import {
   Option,
   DropdownContentSection,
@@ -42,8 +43,12 @@ export type CustomizedDropdownProps = {
     content?: ReactNode;
     size?: "large" | "small";
   };
+  onCloseDropDown?: () => void;
   openDirection: Direction;
   openOnHover?: boolean;
+  usePortal?: boolean;
+  skin?: Skin;
+  modifiers?: IPopoverSharedProps["modifiers"];
 };
 
 export const getIcon = (icon?: string, intent?: Intent) => {
@@ -68,7 +73,10 @@ export const getIcon = (icon?: string, intent?: Intent) => {
   }
 };
 
-export const getContentSection = (section: CustomizedDropdownOptionSection) => {
+const getContentSection = (
+  section: CustomizedDropdownOptionSection,
+  skin: Skin,
+) => {
   return (
     <React.Fragment>
       {section.options &&
@@ -83,6 +91,7 @@ export const getContentSection = (section: CustomizedDropdownOptionSection) => {
               onClick={option.onSelect}
               active={!!option.active}
               disabled={!!option.disabled}
+              skin={skin}
             >
               {option.content}
             </Option>
@@ -95,6 +104,7 @@ export const getContentSection = (section: CustomizedDropdownOptionSection) => {
 export const CustomizedDropdown = (
   props: CustomizedDropdownProps & { theme: Theme },
 ) => {
+  const skin = props.skin ? props.skin : Skin.LIGHT;
   const icon = getIcon(props.trigger.icon, props.trigger.intent);
   const trigger = (
     <React.Fragment>
@@ -108,13 +118,16 @@ export const CustomizedDropdown = (
           iconAlignment={Directions.RIGHT}
           text={props.trigger.text}
           intent={props.trigger.intent}
+          skin={skin}
+          type="button"
         />
       )}
     </React.Fragment>
   );
+
   const content = props.sections.map((section, index) => (
-    <DropdownContentSection key={index} stick={!!section.isSticky}>
-      {getContentSection(section)}
+    <DropdownContentSection key={index} stick={!!section.isSticky} skin={skin}>
+      {getContentSection(section, skin)}
     </DropdownContentSection>
   ));
   return (
@@ -131,9 +144,15 @@ export const CustomizedDropdown = (
       }
       minimal
       enforceFocus={false}
+      onClose={() => {
+        if (props.onCloseDropDown) {
+          props.onCloseDropDown();
+        }
+      }}
+      modifiers={props.modifiers}
     >
-      <DropdownTrigger>{trigger}</DropdownTrigger>
-      <DropdownContent>{content}</DropdownContent>
+      <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
+      <DropdownContent skin={skin}>{content}</DropdownContent>
     </Popover>
   );
 };

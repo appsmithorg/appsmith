@@ -2,7 +2,7 @@ import React, { useRef, useEffect, MutableRefObject } from "react";
 import styled from "styled-components";
 import Prism from "prismjs";
 import themes from "./themes";
-import { SKINS } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 // TODO(abhinav): This is rudimentary. Enhance it.
 Prism.languages["appsmith-binding"] = {
   punctuation: /^{{|\.|}}$/,
@@ -11,8 +11,9 @@ Prism.languages["appsmith-binding"] = {
     lookbehind: false,
   },
 };
-const StyledCode = styled.div<{ skin: SKINS }>`
-  ${props => (props.skin === SKINS.DARK ? themes.DARK : themes.LIGHT)}
+
+const StyledCode = styled.div<{ skin: Skin }>`
+  ${props => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)}
 `;
 
 /* When adding an entry please make sure to include it in the craco.common.config.js as well */
@@ -24,7 +25,7 @@ export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {
 type HighlightedCodeProps = {
   codeText: string;
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
-  skin?: SKINS;
+  skin?: Skin;
 };
 
 export const HighlightedCode = (props: HighlightedCodeProps) => {
@@ -46,7 +47,7 @@ export const HighlightedCode = (props: HighlightedCodeProps) => {
     props.language || SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.JAVASCRIPT;
 
   return (
-    <StyledCode skin={props.skin || SKINS.DARK}>
+    <StyledCode skin={props.skin || Skin.DARK}>
       <code ref={codeBlockRef} className={language}>
         {props.codeText}
       </code>

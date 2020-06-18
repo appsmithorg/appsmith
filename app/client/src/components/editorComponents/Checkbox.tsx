@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   Checkbox as BlueprintCheckbox,
@@ -25,7 +25,6 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
   &&&& {
     span.bp3-control-indicator {
       outline: none;
-      background: white;
       box-shadow: none;
       border-radius: ${props => props.theme.radii[1]}px;
       border: ${props => getBorderCSSShorthand(props.theme.borders[3])};

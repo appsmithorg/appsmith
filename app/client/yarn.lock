@@ -1367,6 +1367,15 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@craco/craco@^5.0.0":
+  version "5.6.4"
+  resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.6.4.tgz#de7a707c727864f39e6afc192fb6732c3ca45f90"
+  integrity sha512-/Qi6yPMOBC7SEZJEDI5vYaPiGFs7HzO4AAZkGB0W3MX2OCw4u4FZC+ZO6TBptGzM3QLrF7WFt5AyQnXhNBcn3A==
+  dependencies:
+    cross-spawn "^7.0.0"
+    lodash "^4.17.15"
+    webpack-merge "^4.2.2"
+
 "@craco/craco@^5.6.1":
   version "5.6.3"
   resolved "https://registry.yarnpkg.com/@craco/craco/-/craco-5.6.3.tgz#e76d5d8099b1d31574c0af006703ca6e3d8c1f4a"
@@ -5342,6 +5351,13 @@ cosmiconfig@^6.0.0:
     parse-json "^5.0.0"
     path-type "^4.0.0"
     yaml "^1.7.2"
+
+craco-babel-loader@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/craco-babel-loader/-/craco-babel-loader-0.1.4.tgz#4b84ada5c1b223d0032e8b937d50459a57ad8586"
+  integrity sha512-2wl5yEdPYI0dsWlHoEbl602lFCdsopPs/aPqHDp3QjRKkKZFg82+ybkfhY3oGXjAOVxTvkyJLc3g/pxpN5RwEA==
+  dependencies:
+    "@craco/craco" "^5.0.0"
 
 create-ecdh@^4.0.0:
   version "4.0.3"

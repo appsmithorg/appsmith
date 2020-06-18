@@ -10,13 +10,21 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { useSelector, useDispatch } from "react-redux";
 import TreeDropdown, { TreeDropdownOption } from "./TreeDropdown";
-import { ControlWrapper } from "components/propertyControls/StyledControls";
+import {
+  FieldWrapper,
+  ControlWrapper,
+} from "components/propertyControls/StyledControls";
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { createModalAction } from "actions/widgetActions";
-import { createNewApiName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { createNewApiAction } from "actions/apiPaneActions";
+import HightlightedCode from "components/editorComponents/HighlightedCode";
+import TreeStructure from "components/utils/TreeStructure";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
@@ -119,6 +127,7 @@ type ActionCreatorProps = {
 const ActionType = {
   none: "none",
   api: "api",
+  query: "query",
   showModal: "showModal",
   closeModal: "closeModal",
   navigateTo: "navigateTo",
@@ -143,31 +152,50 @@ type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
   getDefaults?: Function;
-  selectedLabelModifier?: (option: TreeDropdownOption) => string;
+  level: number;
+  levelSeparator?: string;
+  start: boolean;
+  displayValue?: string;
+  selectedLabelModifier?: (
+    option: TreeDropdownOption,
+    displayValue?: string,
+  ) => React.ReactNode;
 };
 
 type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
+  level: number;
+  start: boolean;
+  levelSeparator?: string;
 };
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
     return (
-      <ControlWrapper key={props.label}>
-        <label>{props.label}</label>
-        <TreeDropdown
-          optionTree={props.options}
-          selectedValue={props.get(props.value, false) as string}
-          defaultText={props.defaultText}
-          onSelect={(value, defaultValue?: string) => {
-            props.set(value, defaultValue);
-          }}
-          getDefaults={props.getDefaults}
-          selectedLabelModifier={props.selectedLabelModifier}
+      <FieldWrapper>
+        <ControlWrapper key={props.label} level={props.level}>
+          {props.label && <label>{props.label}</label>}
+          <TreeDropdown
+            optionTree={props.options}
+            selectedValue={props.get(props.value, false) as string}
+            defaultText={props.defaultText}
+            onSelect={(value, defaultValue?: string) => {
+              props.set(value, defaultValue);
+            }}
+            getDefaults={props.getDefaults}
+            selectedLabelModifier={props.selectedLabelModifier}
+            displayValue={props.displayValue}
+          />
+        </ControlWrapper>
+        <TreeStructure
+          level={props.level}
+          label={props.label}
+          start={props.start}
+          levelSeparator={props.levelSeparator}
         />
-      </ControlWrapper>
+      </FieldWrapper>
     );
   },
   [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
@@ -183,22 +211,32 @@ const views = {
   },
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
     return (
-      <ControlWrapper key={props.label}>
-        <label>{props.label}</label>
-        <InputText
+      <FieldWrapper>
+        <ControlWrapper key={props.label} level={props.level}>
+          {props.label && <label>{props.label}</label>}
+          <InputText
+            label={props.label}
+            value={props.get(props.value, false) as string}
+            onChange={(event: any) => {
+              if (event.target) {
+                props.set(event.target.value);
+              } else {
+                props.set(event);
+              }
+            }}
+            expected={"string"}
+            evaluatedValue={props.get(props.value, false) as string}
+            isValid={props.isValid}
+            errorMessage={props.validationMessage}
+          />
+        </ControlWrapper>
+        <TreeStructure
+          level={props.level}
           label={props.label}
-          value={props.get(props.value, false) as string}
-          onChange={(event: any) => {
-            if (event.target) {
-              props.set(event.target.value);
-            } else {
-              props.set(event);
-            }
-          }}
-          isValid={props.isValid}
-          errorMessage={props.validationMessage}
+          start={props.start}
+          levelSeparator={props.levelSeparator}
         />
-      </ControlWrapper>
+      </FieldWrapper>
     );
   },
 };
@@ -253,6 +291,7 @@ const fieldConfigs: FieldConfigs = {
       let value = option.value;
       switch (type) {
         case ActionType.api:
+        case ActionType.query:
           value = `${value}.run`;
           break;
         default:
@@ -333,9 +372,14 @@ const baseOptions: any = [
     value: ActionType.none,
   },
   {
-    label: "Call API",
+    label: "Call An API",
     value: ActionType.api,
   },
+  {
+    label: "Execute a DB Query",
+    value: ActionType.query,
+  },
+
   {
     label: "Navigate To",
     value: ActionType.navigateTo,
@@ -375,13 +419,19 @@ function getOptionsWithChildren(
 
 function getFieldFromValue(
   value: string | undefined,
+  level: number,
+  start: boolean,
+  levelSeparator?: string,
   getParentValue?: Function,
 ): any[] {
   const fields: any[] = [
     {
       field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue: getParentValue,
-      value: value,
+      getParentValue,
+      value,
+      level,
+      start,
+      levelSeparator,
     },
   ];
   if (!value) {
@@ -400,6 +450,9 @@ function getFieldFromValue(
       }
       const successFields = getFieldFromValue(
         `{{${sucesssValue}}}`,
+        level + 1,
+        start,
+        "odd",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -416,6 +469,8 @@ function getFieldFromValue(
         },
       );
       successFields[0].label = "onSuccess";
+      successFields[0].level = level + 1;
+      successFields[0].start = true;
       fields.push(successFields);
 
       let errorValue;
@@ -424,6 +479,9 @@ function getFieldFromValue(
       }
       const errorFields = getFieldFromValue(
         `{{${errorValue}}}`,
+        level + 1,
+        start,
+        "even",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -439,6 +497,8 @@ function getFieldFromValue(
         },
       );
       errorFields[0].label = "onError";
+      errorFields[0].level = level + 1;
+      errorFields[0].start = false;
       fields.push(errorFields);
     }
     return fields;
@@ -447,26 +507,41 @@ function getFieldFromValue(
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
+      level: level + 1,
+      levelSeparator,
+      start: true,
     });
   }
 
   if (value.indexOf("showModal") !== -1) {
     fields.push({
       field: FieldType.SHOW_MODAL_FIELD,
+      level: level + 1,
+      levelSeparator,
+      start: true,
     });
   }
   if (value.indexOf("closeModal") !== -1) {
     fields.push({
       field: FieldType.CLOSE_MODAL_FIELD,
+      level: level + 1,
+      levelSeparator,
+      start: true,
     });
   }
   if (value.indexOf("showAlert") !== -1) {
     fields.push(
       {
         field: FieldType.ALERT_TEXT_FIELD,
+        level: level + 1,
+        levelSeparator,
+        start: true,
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
+        level: level + 1,
+        levelSeparator,
+        start: false,
       },
     );
   }
@@ -489,6 +564,7 @@ function Fields(props: {
   isValid: boolean;
   validationMessage?: string;
   apiOptionTree: TreeDropdownOption[];
+  queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;
@@ -508,6 +584,7 @@ function Fields(props: {
           isValid={props.isValid}
           validationMessage={props.validationMessage}
           apiOptionTree={props.apiOptionTree}
+          queryOptionTree={props.queryOptionTree}
           modalDropdownList={props.modalDropdownList}
           pageDropdownOptions={props.pageDropdownOptions}
           depth={props.depth + 1}
@@ -539,14 +616,30 @@ function Fields(props: {
         let defaultText = "Select Action";
         let options = props.apiOptionTree;
         let selectedLabelModifier = undefined;
+        let displayValue = undefined;
         let getDefaults = undefined;
         if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
           label = props.label || "";
-          selectedLabelModifier = (option: TreeDropdownOption) => {
-            if (option.type === ActionType.api) {
-              return `Call ${option.label}`;
+          displayValue =
+            field.value !== "{{undefined}}" && field.value !== "{{()}}"
+              ? field.value
+              : undefined;
+          // eslint-disable-next-line react/display-name
+          selectedLabelModifier = (
+            option: TreeDropdownOption,
+            displayValue?: string,
+          ) => {
+            if (
+              option.type === ActionType.api ||
+              option.type === ActionType.query
+            ) {
+              return (
+                <HightlightedCode codeText={`{{${option.label}.run()}}`} />
+              );
+            } else if (displayValue) {
+              return <HightlightedCode codeText={displayValue} />;
             }
-            return option.label;
+            return <span>{option.label}</span>;
           };
           getDefaults = (value: string) => {
             return {
@@ -588,6 +681,10 @@ function Fields(props: {
           defaultText: defaultText,
           getDefaults: getDefaults,
           selectedLabelModifier: selectedLabelModifier,
+          displayValue: displayValue ? displayValue : "",
+          level: field.level,
+          start: field.start,
+          levelSeparator: field.levelSeparator,
         });
         break;
       case FieldType.KEY_VALUE_FIELD:
@@ -601,6 +698,9 @@ function Fields(props: {
           },
           value: props.value,
           defaultText: "Select Action",
+          level: field.level,
+          start: field.start,
+          levelSeparator: field.levelSeparator,
         });
         break;
       case FieldType.ALERT_TEXT_FIELD:
@@ -615,6 +715,9 @@ function Fields(props: {
           value: props.value,
           isValid: props.isValid,
           validationMessage: props.validationMessage,
+          level: field.level,
+          start: field.start,
+          levelSeparator: field.levelSeparator,
         });
         break;
       default:
@@ -660,7 +763,9 @@ function useApiOptionTree() {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) || "";
 
-  const actions = useSelector(getActionsForCurrentPage);
+  const actions = useSelector(getActionsForCurrentPage).filter(
+    action => action.config.pluginType === "API",
+  );
   const apiOptionTree = getOptionsWithChildren(baseOptions, actions, {
     label: "Create API",
     value: "api",
@@ -680,12 +785,58 @@ function useApiOptionTree() {
   return apiOptionTree;
 }
 
+function getQueryOptionsWithChildren(
+  options: TreeDropdownOption[],
+  queries: ActionDataState,
+  createQueryOption: TreeDropdownOption,
+) {
+  const option = options.find(option => option.value === ActionType.query);
+  if (option) {
+    option.children = [createQueryOption];
+    queries.forEach(query => {
+      (option.children as TreeDropdownOption[]).push({
+        label: query.config.name,
+        id: query.config.id,
+        value: query.config.name,
+        type: option.value,
+      } as TreeDropdownOption);
+    });
+  }
+  return options;
+}
+
+function useQueryOptionTree() {
+  const dispatch = useDispatch();
+  const pageId = useSelector(getCurrentPageId) || "";
+
+  const queries = useSelector(getActionsForCurrentPage).filter(
+    action => action.config.pluginType === "DB",
+  );
+  const queryOptionTree = getQueryOptionsWithChildren(baseOptions, queries, {
+    label: "Create Query",
+    value: "query",
+    id: "create",
+    className: "t--create-query-btn",
+    onSelect: (option: TreeDropdownOption, setter?: Function) => {
+      const queryName = createNewQueryName(queries, pageId);
+      if (setter) {
+        setter({
+          value: `${queryName}`,
+          type: ActionType.query,
+        });
+        dispatch(createNewQueryAction(pageId));
+      }
+    },
+  });
+  return queryOptionTree;
+}
+
 export function ActionCreator(props: ActionCreatorProps) {
   const apiOptionTree = useApiOptionTree();
+  const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  const fields = getFieldFromValue(props.value);
-
+  const fields = getFieldFromValue(props.value, 0, false);
   return (
     <Fields
       value={props.value}
@@ -693,6 +844,7 @@ export function ActionCreator(props: ActionCreatorProps) {
       isValid={props.isValid}
       validationMessage={props.validationMessage}
       apiOptionTree={apiOptionTree}
+      queryOptionTree={queryOptionTree}
       modalDropdownList={modalDropdownList}
       pageDropdownOptions={pageDropdownOptions}
       onValueChange={props.onValueChange}

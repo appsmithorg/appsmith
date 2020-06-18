@@ -5,20 +5,23 @@ import { EventOrValueHandler } from "redux-form";
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
-      errorMessage,
+      validationMessage,
       expected,
       propertyValue,
       isValid,
       dataTreePath,
+      evaluatedValue,
     } = this.props;
+
     return (
       <DynamicAutocompleteInput
         theme={"DARK"}
         input={{ value: propertyValue, onChange: this.onChange }}
         dataTreePath={dataTreePath}
         expected={expected}
+        evaluatedValue={evaluatedValue}
         meta={{
-          error: isValid ? "" : errorMessage,
+          error: isValid ? "" : validationMessage,
           touched: true,
         }}
         singleLine={false}

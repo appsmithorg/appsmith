@@ -114,7 +114,11 @@ class PropertyPane extends Component<
     const { widgetProperties } = this.props;
     if (!widgetProperties) return <PropertyPaneWrapper />;
     return (
-      <PropertyPaneWrapper>
+      <PropertyPaneWrapper
+        onClick={(e: any) => {
+          e.stopPropagation();
+        }}
+      >
         <PropertyPaneTitle
           key={this.props.widgetId}
           title={widgetProperties.widgetName}

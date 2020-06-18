@@ -24,8 +24,6 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Page } from "constants/ReduxActionConstants";
 import { RestAction } from "entities/Action";
-import { FeatureFlagsEnum } from "configs/types";
-import FeatureFlag from "utils/featureFlags";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -184,20 +182,15 @@ class ApiSidebar extends React.Component<Props> {
   };
 
   handleCreateNewApiClick = (selectedPageId: string) => {
-    const { history, createNewApiAction } = this.props;
+    const { history } = this.props;
     const { pageId, applicationId } = this.props.match.params;
-    const v2Flag = FeatureFlag.check(FeatureFlagsEnum.ApiPaneV2);
-    if (v2Flag) {
-      history.push(
-        API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-          applicationId,
-          pageId,
-          selectedPageId,
-        ),
-      );
-    } else {
-      createNewApiAction(selectedPageId);
-    }
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        applicationId,
+        pageId,
+        selectedPageId,
+      ),
+    );
   };
 
   render() {

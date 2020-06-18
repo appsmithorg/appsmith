@@ -8,6 +8,7 @@ import {
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "./ReactTableComponent";
+import { isString } from "lodash";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -272,8 +273,10 @@ export const getMenuOptions = (props: MenuOptionProps) => {
 
 export const renderCell = (
   value: any,
+  rowIndex: number,
   columnType: string,
   isHidden: boolean,
+  widgetId: string,
   format?: string,
 ) => {
   if (!value) {
@@ -281,6 +284,13 @@ export const renderCell = (
   }
   switch (columnType) {
     case "image":
+      if (!isString(value)) {
+        return (
+          <CellWrapper isHidden={isHidden}>
+            <div>Invalid Image </div>
+          </CellWrapper>
+        );
+      }
       return (
         <CellWrapper isHidden={isHidden}>
           {value
@@ -302,13 +312,25 @@ export const renderCell = (
         </CellWrapper>
       );
     case "video":
-      return (
-        <CellWrapper isHidden={isHidden}>
-          <video width="56" height="32" autoPlay={false}>
-            <source src={`${value}`} type="video/mp4" />
-          </video>
-        </CellWrapper>
+      const youtubeRegex = new RegExp(
+        "^(https?://)?(www.)?(youtube.com|youtu.?be)/embed/.+$",
       );
+      if (isString(value) && youtubeRegex.test(value)) {
+        return (
+          <CellWrapper isHidden={isHidden} className="video-cell">
+            <iframe
+              title={`video-${widgetId}-${rowIndex}`}
+              width="56"
+              height="32"
+              src={`${value}`}
+            ></iframe>
+          </CellWrapper>
+        );
+      } else {
+        return (
+          <CellWrapper isHidden={isHidden}>Invalid Video Link</CellWrapper>
+        );
+      }
     case "currency":
       if (!isNaN(value)) {
         return (
@@ -352,9 +374,11 @@ export const renderCell = (
         return <CellWrapper isHidden={isHidden}>Invalid Time</CellWrapper>;
       }
     case "text":
-      return <CellWrapper isHidden={isHidden}>{value}</CellWrapper>;
+      const text = isString(value) ? value : JSON.stringify(value);
+      return <CellWrapper isHidden={isHidden}>{text}</CellWrapper>;
     default:
-      return <CellWrapper isHidden={isHidden}>{value}</CellWrapper>;
+      const data = isString(value) ? value : JSON.stringify(value);
+      return <CellWrapper isHidden={isHidden}>{data}</CellWrapper>;
   }
 };
 

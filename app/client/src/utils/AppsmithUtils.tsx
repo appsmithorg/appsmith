@@ -136,12 +136,6 @@ const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   return logLevel;
 };
 
-// const setConfigFeatureFlags = (flags: Array<FeatureFlagEnum>) => {
-//   flags.forEach(flag => {
-//     localStorage.setItem(flag, "true");
-//   });
-// };
-
 export const getInitialsAndColorCode = (fullName: any): string[] => {
   let inits = "";
   // if name contains space. eg: "Full Name"

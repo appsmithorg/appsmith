@@ -10,6 +10,7 @@ export function InputText(props: {
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   isValid: boolean;
   errorMessage?: string;
+  evaluatedValue?: any;
   expected?: string;
   placeholder?: string;
   dataTreePath?: string;
@@ -22,6 +23,7 @@ export function InputText(props: {
     onChange,
     placeholder,
     dataTreePath,
+    evaluatedValue,
   } = props;
   return (
     <StyledDynamicInput>
@@ -30,6 +32,7 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        evaluatedValue={evaluatedValue}
         expected={expected}
         dataTreePath={dataTreePath}
         meta={{
@@ -47,13 +50,13 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      errorMessage,
       expected,
       propertyValue,
       isValid,
       label,
       placeholderText,
       dataTreePath,
+      validationMessage,
     } = this.props;
     return (
       <InputText
@@ -61,7 +64,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         value={propertyValue}
         onChange={this.onTextChange}
         isValid={isValid}
-        errorMessage={errorMessage}
+        errorMessage={validationMessage}
         expected={expected}
         placeholder={placeholderText}
         dataTreePath={dataTreePath}
@@ -98,6 +101,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 export interface InputControlProps extends ControlProps {
   placeholderText: string;
   inputType: InputType;
+  validationMessage?: string;
   isDisabled?: boolean;
 }
 

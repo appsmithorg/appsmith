@@ -59,6 +59,7 @@ react-build-release:
       - build/
   only:
     - release
+    - feature/acl
 
 react-build-automation:
   image: tarampampam/node:10.16-alpine
@@ -77,7 +78,7 @@ react-build-automation:
   only:
     - release
     - merge_requests
-
+  
 unit_test:
   image: tarampampam/node:10.16-alpine
   stage: test
@@ -89,6 +90,9 @@ unit_test:
   only:
     - release
     - merge_requests
+  except:
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 # all jobs that actually run tests can use the same definition
 cypress-test:
@@ -113,7 +117,11 @@ cypress-test:
     - cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
     - cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
     - nginx
-    - yarn test:ci
+    # This command configures the cypress suite to point to our custom installation of sorry-cypress that will help us parallelize our tests
+    - |
+      DEBUG=cypress:* $(npm bin)/cypress version
+      sed -i -e 's|api_url:.*$|api_url: "https://appsmith-cypress.herokuapp.com/"|g' /builds/theappsmith/internal-tools-client/cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
+    - BUILD_ID=$CI_COMMIT_SHORT_SHA yarn test:ci
   artifacts:
     when: always
     expire_in: 1 week
@@ -124,6 +132,9 @@ cypress-test:
     # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
     - release
     - merge_requests
+  except:
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
 
 docker-package-release:
   image: docker:dind
@@ -167,3 +178,16 @@ docker-package-prod:
     - docker push appsmith/appsmith-editor
   only:
     - master
+
+docker-package-acl:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - *set_env_variables
+    - docker build -t appsmith/appsmith-editor:acl .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:acl
+  only:
+    - feature/acl

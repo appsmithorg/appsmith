@@ -15,25 +15,26 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
-  cy.get(homePage.CreateApp)
-    .contains("Create Application")
+  cy.get(homePage.createNew)
+    .first()
     .click({ force: true });
-  cy.get("form input").type(appname);
+  cy.get(homePage.inputAppName).type(appname);
   cy.get(homePage.CreateApp)
     .contains("Submit")
     .click({ force: true });
   cy.get("#loading").should("not.exist");
   cy.wait("@getPropertyPane");
   cy.get("@getPropertyPane").should("have.property", "status", 200);
-  cy.wait("@getDataSources");
-  cy.get("@getDataSources").should("have.property", "status", 200);
-  cy.wait("@getUser");
-  cy.get("@getUser").should("have.property", "status", 200);
 });
 
 Cypress.Commands.add("DeleteApp", appName => {
   cy.get(commonlocators.homeIcon).click({ force: true });
   cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait("@organizations").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -61,10 +62,62 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
     200,
   );
 });
+
+Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+  cy.request({
+    method: "POST",
+    url: "api/v1/login",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    followRedirect: false,
+    form: true,
+    body: {
+      username: uname,
+      password: pword,
+    },
+  }).then(response => {
+    expect(response.status).equal(302);
+    cy.log(response.body);
+  });
+});
+
+Cypress.Commands.add("DeleteApp", appName => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.get(homePage.searchInput).type(appName);
+  cy.wait(2000);
+  cy.get(homePage.appMoreIcon)
+    .first()
+    .click({ force: true });
+  cy.get(homePage.deleteButton).click({ force: true });
+});
+
+Cypress.Commands.add("Deletepage", Pagename => {
+  cy.get(pages.pagesIcon).click({ force: true });
+  cy.get(".t--page-sidebar-" + Pagename + "");
+  cy.get(
+    ".t--page-sidebar-" +
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+  ).click({ force: true });
+  cy.get(pages.Menuaction).click({ force: true });
+  cy.get(pages.Delete).click({ force: true });
+  cy.wait(2000);
+});
+
 Cypress.Commands.add("LogOut", () => {
   cy.request("POST", "/api/v1/logout").then(response => {
     expect(response.status).equal(200);
   });
+});
+
+Cypress.Commands.add("NavigateToHome", () => {
+  cy.get(commonlocators.homeIcon).click({ force: true });
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("NavigateToWidgets", pageName => {
@@ -126,13 +179,18 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  //cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
+    .blur()
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
+  // Added because api name edit takes some time to
+  // reflect in api sidebar after the call passes.
+  cy.wait(4000);
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", apiname => {
@@ -140,26 +198,26 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  // cy.get(ApiEditor.nameOfApi)
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("EditApiName", apiname => {
-  cy.wait("@getUser");
+  //cy.wait("@getUser");
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
-Cypress.Commands.add("SaveAPI", () => {
-  cy.get(apiwidget.saveButton).click({ force: true });
-  cy.wait("@saveQuery");
-  cy.wait("@postExecute");
+Cypress.Commands.add("WaitAutoSave", () => {
+  //cy.wait("@saveQuery");
+  // cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
@@ -169,7 +227,7 @@ Cypress.Commands.add("RunAPI", () => {
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {
-  cy.SaveAPI();
+  cy.WaitAutoSave();
   cy.RunAPI();
 });
 
@@ -200,9 +258,11 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .first()
     .click({ force: true })
     .type(datasource);
+  /*  
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
+    */
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -223,7 +283,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .type(hValue, { force: true })
       .should("have.value", hValue);
-    cy.SaveAPI();
+    cy.WaitAutoSave();
   },
 );
 
@@ -242,7 +302,7 @@ Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
     .focus()
     .type(v1method)
     .should("have.value", v1method);
-  cy.SaveAPI();
+  cy.WaitAutoSave();
 });
 
 Cypress.Commands.add("switchToPaginationTab", () => {
@@ -303,7 +363,7 @@ Cypress.Commands.add(
       .click({ force: true })
       .type(qValue, { force: true })
       .should("have.value", qValue);
-    cy.SaveAPI();
+    cy.WaitAutoSave();
   },
 );
 
@@ -322,12 +382,14 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .focus();
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
     expect($x).contain("Name must be unique");
@@ -352,9 +414,7 @@ Cypress.Commands.add("MoveAPIToPage", () => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.moveTo).click({ force: true });
-  cy.get(
-    ".single-select >div:contains('".concat(pageidcopy).concat("')"),
-  ).click({ force: true });
+  cy.get(apiwidget.home).click({ force: true });
   cy.wait("@createNewApi").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -475,7 +535,7 @@ Cypress.Commands.add(
 Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(commonlocators.editWidgetName)
     .dblclick({ force: true })
-    .type(text)
+    .type(text, { force: true })
     .type("{enter}");
   cy.get(inputcss)
     .first()
@@ -530,21 +590,24 @@ Cypress.Commands.add("testCodeMirror", value => {
     });
 });
 
-Cypress.Commands.add("testJsontext", (endp, js) => {
+Cypress.Commands.add("testJsontext", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
+    .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then($cm => {
     if ($cm.contents != "") {
       cy.log("The field is empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
-        .clear({ force: true });
+        .clear({
+          force: true,
+        });
     }
     cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
       .first()
-      .type(js, {
+      .type(value, {
         force: true,
         parseSpecialCharSequences: false,
       });
@@ -648,6 +711,77 @@ Cypress.Commands.add("DeleteAppByApi", () => {
       });
     }
   });
+});
+Cypress.Commands.add("togglebar", value => {
+  cy.get(value)
+    .check({ force: true })
+    .should("be.checked");
+});
+Cypress.Commands.add("radiovalue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("optionValue", (value, value2) => {
+  cy.get(value)
+    .click()
+    .clear()
+    .type(value2);
+});
+Cypress.Commands.add("dropdownDynamic", text => {
+  cy.wait(2000);
+  cy.get("ul[class='bp3-menu']")
+    .first()
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
+Cypress.Commands.add("getAlert", alertcss => {
+  cy.get(commonlocators.dropdownSelectButton).click({ force: true });
+  cy.get(widgetsPage.menubar)
+    .contains("Show Alert")
+    .click({ force: true })
+    .should("have.text", "Show Alert");
+
+  cy.get(alertcss)
+    .click({ force: true })
+    .type("{command}{A}{del}")
+    .type("hello")
+    .should("not.to.be.empty");
+  cy.get(".t--open-dropdown-Select-type").click({ force: true });
+  cy.get(".bp3-popover-content .bp3-menu li")
+    .contains("Success")
+    .click({ force: true });
+});
+Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
+  cy.get(commonlocators.editWidgetName)
+    .dblclick({ force: true })
+    .type(text)
+    .type("{enter}");
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.get(innercss).should("have.text", text);
+});
+Cypress.Commands.add("radioInput", (index, text) => {
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .click()
+    .clear()
+    .type(text);
+});
+Cypress.Commands.add("tabVerify", (index, text) => {
+  cy.get(".t--property-control-tabs input")
+    .eq(index)
+    .click({ force: true })
+    .clear()
+    .type(text);
+  cy.get(LayoutPage.tabWidget)
+    .contains(text)
+    .click({ force: true })
+    .should("be.visible");
 });
 
 Cypress.Commands.add("togglebar", value => {
@@ -825,6 +959,8 @@ Cypress.Commands.add("testSaveDatasource", () => {
 Cypress.Commands.add("fillMongoDatasourceForm", () => {
   cy.get(datasourceEditor["host"]).type(datasourceFormData["mongo-host"]);
   cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+
+  cy.get(datasourceEditor.sectionAuthentication).click();
   cy.get(datasourceEditor["databaseName"])
     .clear()
     .type(datasourceFormData["mongo-databaseName"]);
@@ -835,6 +971,7 @@ Cypress.Commands.add("fillMongoDatasourceForm", () => {
     datasourceFormData["mongo-password"],
   );
 
+  cy.get(datasourceEditor.sectionSSL).click();
   cy.get(datasourceEditor["authenticationAuthtype"]).click();
   cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
     force: true,
@@ -852,6 +989,8 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   cy.get(datasourceEditor.databaseName)
     .clear()
     .type(datasourceFormData["postgres-databaseName"]);
+
+  cy.get(datasourceEditor.sectionAuthentication).click();
   cy.get(datasourceEditor.username).type(
     datasourceFormData["postgres-username"],
   );
@@ -915,8 +1054,8 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
-    .type(parameters, { force: true });
-  cy.SaveAPI();
+    .type(parameters, { parseSpecialCharSequences: false }, { force: true });
+  cy.WaitAutoSave();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
 });
@@ -980,7 +1119,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 
 Cypress.Commands.add("startServerAndRoutes", () => {
   cy.server();
-  cy.route("GET", "/api/v1/applications").as("applications");
+  cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
@@ -1067,4 +1206,90 @@ Cypress.Commands.add("assertEvaluatedValuePopup", expectedType => {
     .should("contain.text", "Current Value:")
     .siblings("pre")
     .should("have.text", expectedType);
+});
+
+Cypress.Commands.add("validateToastMessage", value => {
+  cy.get(commonlocators.toastMsg).should("have.text", value);
+});
+
+Cypress.Commands.add("NavigateToPaginationTab", () => {
+  cy.get(ApiEditor.apiTab)
+    .contains("Pagination")
+    .click();
+  cy.get(ApiEditor.apiPaginationTab).click();
+  cy.get(ApiEditor.apiPaginationTab + " input")
+    .first()
+    .type("Paginate with Response Url", { force: true })
+    .type("{enter}");
+});
+
+Cypress.Commands.add("ValidateTableData", () => {
+  cy.isSelectRow(0);
+  cy.readTabledata("0", "1").then(tabData => {
+    const tableData = tabData;
+    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+  });
+});
+
+Cypress.Commands.add("ValidatePublishTableData", () => {
+  cy.isSelectRow(0);
+  cy.readTabledataPublish("0", "1").then(tabData => {
+    const tableData = tabData;
+    cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+  });
+});
+
+Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
+  cy.NavigateToApiEditor();
+  cy.get("div[tabindex='0'] >div>span")
+    .contains("Api2")
+    .first()
+    .click();
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  cy.get(runTestCss).click();
+  cy.wait("@postExecute");
+  cy.get(ApiEditor.formActionButtons).should("be.visible");
+  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+  cy.get(ApiEditor.responseBody)
+    .contains("url")
+    .siblings("span")
+    .invoke("text")
+    .then(tabData => {
+      const respBody = tabData;
+      localStorage.setItem("respBody", respBody);
+      cy.log(respBody);
+      cy.get(pages.pagesIcon).click({ force: true });
+      // cy.openPropertyPane("tablewidget");
+      // cy.testJsontext("tabledata", "{{Api2.data.results}}");
+      cy.isSelectRow(0);
+      cy.get(commonlocators.labelTextStyle)
+        .invoke("text")
+        .then(inputdata => {
+          expect(respBody).to.eq(`\"${inputdata}\"`);
+        });
+    });
+});
+
+Cypress.Commands.add("ValidatePaginationInputData", () => {
+  cy.isSelectRow(0);
+  cy.get(commonlocators.labelTextStyle)
+    .invoke("text")
+    .then(inputdata => {
+      expect(localStorage.getItem("respBody")).to.eq(`\"${inputdata}\"`);
+    });
+});
+
+Cypress.Commands.add("callApi", apiname => {
+  cy.get(commonlocators.callApi)
+    .first()
+    .click();
+  cy.get(commonlocators.singleSelectMenuItem)
+    .contains("Call An API")
+    .click();
+  cy.get(commonlocators.selectMenuItem)
+    .contains(apiname)
+    .click();
 });

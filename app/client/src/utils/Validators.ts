@@ -8,14 +8,14 @@ import {
 import moment from "moment";
 import {
   WIDGET_TYPE_VALIDATION_ERROR,
-  NAVIGATE_TO_VALIDATION_ERROR,
+  // NAVIGATE_TO_VALIDATION_ERROR,
 } from "constants/messages";
-import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
+// import { modalGetter } from "components/editorComponents/actioncreator/ActionCreator";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { PageListPayload } from "constants/ReduxActionConstants";
-import { isDynamicValue } from "./DynamicBindingUtils";
-const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+// import { PageListPayload } from "constants/ReduxActionConstants";
+// import { isDynamicValue } from "./DynamicBindingUtils";
+// const URL_REGEX = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
 
 export const VALIDATORS: Record<ValidationType, Validator> = {
   [VALIDATION_TYPES.TEXT]: (
@@ -245,22 +245,24 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!isValid) {
       return {
         isValid,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
+        parsed: [],
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
-    } else if (
-      !_.every(parsed, datum => {
-        return (
-          _.isObject(datum) &&
-          Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
-            .length === 0
-        );
-      })
-    ) {
+    }
+    const isValidTableData = _.every(parsed, datum => {
+      return (
+        _.isObject(datum) &&
+        Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
+          .length === 0
+      );
+    });
+    if (!isValidTableData) {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }, { "key1" : "val3", "key2" : "val4" }]`,
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
     return { isValid, parsed };
@@ -393,17 +395,21 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .hour(0)
       .minute(0)
       .second(0)
-      .millisecond(0)
-      .toISOString(true);
+      .millisecond(0);
+
     if (value === undefined) {
       return {
         isValid: false,
-        parsed: today,
+        parsed: "",
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
       };
     }
     const isValid = moment(value).isValid();
-    const parsed = isValid ? moment(value).toISOString(true) : today;
+    const parsed = isValid
+      ? props.dateFormat
+        ? moment(value).format(props.dateFormat)
+        : moment(value).toISOString(true)
+      : today;
     return {
       isValid,
       parsed,
@@ -415,6 +421,14 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
+    if (Array.isArray(value) && value.length) {
+      return {
+        isValid: true,
+        parsed: undefined,
+        transformed: "Function Call",
+      };
+    }
+    /*
     if (_.isString(value)) {
       if (value.indexOf("navigateTo") !== -1) {
         const pageNameOrUrl = modalGetter(value);
@@ -440,9 +454,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         }
       }
     }
+    */
     return {
-      isValid: true,
-      parsed: value,
+      isValid: false,
+      parsed: undefined,
+      transformed: "undefined",
+      message: "Not a function call",
     };
   },
   [VALIDATION_TYPES.ARRAY_ACTION_SELECTOR]: (

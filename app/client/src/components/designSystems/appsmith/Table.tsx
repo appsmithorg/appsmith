@@ -59,6 +59,7 @@ export const Table = (props: TableProps) => {
     }),
     [],
   );
+
   const pageCount = Math.ceil(data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
@@ -171,6 +172,8 @@ export const Table = (props: TableProps) => {
                 })}
               </div>
             ))}
+            {headerGroups.length === 0 &&
+              renderEmptyRows(1, props.columns, props.width)}
           </div>
           <div {...getTableBodyProps()} className="tbody">
             {subPage.map((row, index) => {
@@ -204,6 +207,12 @@ export const Table = (props: TableProps) => {
                 </div>
               );
             })}
+            {props.pageSize > subPage.length &&
+              renderEmptyRows(
+                props.pageSize - subPage.length,
+                props.columns,
+                props.width,
+              )}
           </div>
         </div>
       </div>
@@ -272,3 +281,44 @@ export const Table = (props: TableProps) => {
 };
 
 export default Table;
+
+const renderEmptyRows = (
+  rowCount: number,
+  columns: any,
+  tableWidth: number,
+) => {
+  const rows: string[] = new Array(rowCount).fill("");
+  const tableColumns = columns.length
+    ? columns
+    : new Array(3).fill({ width: tableWidth / 3 });
+  return (
+    <React.Fragment>
+      {rows.map((row: string, index: number) => {
+        return (
+          <div
+            className="tr"
+            key={index}
+            style={{
+              display: "flex",
+              flex: "1 0 auto",
+            }}
+          >
+            {tableColumns.map((column: any, colIndex: number) => {
+              return (
+                <div
+                  key={colIndex}
+                  className="td"
+                  style={{
+                    width: column.width + "px",
+                    boxSizing: "border-box",
+                    flex: `${column.width} 0 auto`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+    </React.Fragment>
+  );
+};

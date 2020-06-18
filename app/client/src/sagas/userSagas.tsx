@@ -5,31 +5,26 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { reset } from "redux-form";
 import UserApi, {
   CreateUserRequest,
   CreateUserResponse,
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
-  FetchUserRequest,
-  FetchUserResponse,
   SwitchUserOrgRequest,
   AddUserToOrgRequest,
 } from "api/UserApi";
+import { AUTH_LOGIN_URL } from "constants/routes";
+import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
   validateResponse,
   getResponseErrorMessage,
   callAPI,
 } from "./ErrorSagas";
-import * as Sentry from "@sentry/browser";
-
-import { fetchOrgsSaga } from "./OrgSagas";
-
-import { resetAuthExpiration } from "utils/storage";
 import {
   logoutUserSuccess,
-  fetchCurrentUser,
   logoutUserError,
   verifyInviteSuccess,
   verifyInviteError,
@@ -37,6 +32,7 @@ import {
   invitedUserSignupSuccess,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -169,7 +165,10 @@ type InviteUserPayload = {
   groupIds: string[];
 };
 
-export function* inviteUser(payload: InviteUserPayload, reject: any) {
+export function* inviteUser(
+  payload: { email: string; orgId: string; roleName: string },
+  reject: any,
+) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse = yield validateResponse(response);
   if (!isValidResponse) {
@@ -182,29 +181,22 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: Array<{ roleId: string; emails: string[] }>;
+    data: { emails: string[]; orgId: string; roleName: string };
   }>,
 ) {
   const { data, resolve, reject } = action.payload;
   try {
-    const sagasToCall = [];
-    const emailSet: Record<string, string[]> = {};
-    data.forEach((groupSet: { roleId: string; emails: string[] }) => {
-      const { emails, roleId } = groupSet;
-      emails.forEach((email: string) => {
-        if (emailSet.hasOwnProperty(email)) {
-          emailSet[email].push(roleId);
-        } else {
-          emailSet[email] = [roleId];
-        }
-      });
-    });
+    const sagasToCall: any[] = [];
 
-    for (const email in emailSet) {
+    data.emails.forEach((email: string) => {
       sagasToCall.push(
-        call(inviteUser, { email, groupIds: emailSet[email] }, reject),
+        call(
+          inviteUser,
+          { email, orgId: data.orgId, roleName: data.roleName },
+          reject,
+        ),
       );
-    }
+    });
     yield all(sagasToCall);
     yield put({
       type: ReduxActionTypes.INVITE_USERS_TO_ORG_SUCCESS,
@@ -213,8 +205,8 @@ export function* inviteUsers(
       },
     });
     yield call(resolve);
+    yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
-    console.log(error);
     yield call(reject, { _error: error.message });
     yield put({
       type: ReduxActionErrorTypes.INVITE_USERS_TO_ORG_ERROR,
@@ -259,51 +251,6 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   } catch (error) {
     console.log(error);
     yield put(verifyInviteError(error));
-  }
-}
-
-export function* fetchUserSaga(action: ReduxAction<FetchUserRequest>) {
-  try {
-    const request: FetchUserRequest = action.payload;
-    const response: FetchUserResponse = yield call(UserApi.fetchUser, request);
-    const isValidResponse = yield validateResponse(response);
-
-    if (isValidResponse) {
-      const { user, applications, currentOrganization } = response.data;
-      const finalData = {
-        ...user,
-        applications,
-        currentOrganization,
-      };
-      AnalyticsUtil.identifyUser(finalData.id, finalData);
-      Sentry.configureScope(function(scope) {
-        scope.setUser({ email: finalData.email, id: finalData.id });
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_SUCCESS,
-        payload: finalData,
-      });
-      return yield finalData;
-    }
-    return yield false;
-  } catch (error) {
-    console.log(error);
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_ERROR,
-      payload: error,
-    });
-  }
-}
-
-export function* setCurrentUserSaga(action: ReduxAction<FetchUserRequest>) {
-  const me = yield call(fetchUserSaga, action);
-  if (me) {
-    resetAuthExpiration();
-    yield put({
-      type: ReduxActionTypes.SET_CURRENT_USER_SUCCESS,
-      payload: me,
-    });
-    yield call(fetchOrgsSaga);
   }
 }
 
@@ -362,7 +309,7 @@ export function* logoutSaga() {
     if (isValidResponse) {
       AnalyticsUtil.reset();
       yield put(logoutUserSuccess());
-      yield put(fetchCurrentUser());
+      history.push(AUTH_LOGIN_URL);
     }
   } catch (error) {
     console.log(error);
@@ -380,8 +327,6 @@ export default function* userSagas() {
       verifyResetPasswordTokenSaga,
     ),
     takeLatest(ReduxActionTypes.INVITE_USERS_TO_ORG_INIT, inviteUsers),
-    takeLatest(ReduxActionTypes.FETCH_USER_INIT, fetchUserSaga),
-    takeLatest(ReduxActionTypes.SET_CURRENT_USER_INIT, setCurrentUserSaga),
     takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
     takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
     takeLatest(
