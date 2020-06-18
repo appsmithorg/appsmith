@@ -2,12 +2,15 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import { Card, Icon, Dialog, Classes } from "@blueprintjs/core";
+import Button from "components/editorComponents/Button";
 import {
   getApplicationList,
   getIsFetchingApplications,
   getIsCreatingApplication,
   getCreateApplicationError,
   getIsDeletingApplication,
+  getUserApplicationsOrgsList,
 } from "selectors/applicationSelectors";
 import {
   ReduxActionTypes,
@@ -16,19 +19,78 @@ import {
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import PageSectionDivider from "pages/common/PageSectionDivider";
-import { getApplicationPayloads } from "mockComponentProps/ApplicationPayloads";
 import ApplicationCard from "./ApplicationCard";
 import CreateApplicationForm from "./CreateApplicationForm";
-import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
+import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
+import { PERMISSION_TYPE } from "./permissionHelpers";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { User } from "constants/userConstants";
+import CustomizedDropdown, {
+  CustomizedDropdownProps,
+} from "pages/common/CustomizedDropdown";
+import { getCurrentUser } from "selectors/usersSelectors";
+import CreateOrganizationForm from "pages/organization/CreateOrganizationForm";
+import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import Badge from "pages/common/CustomizedDropdown/Badge";
+import {
+  getOnSelectAction,
+  DropdownOnSelectActions,
+} from "pages/common/CustomizedDropdown/dropdownHelpers";
+import { Directions } from "utils/helpers";
+
+const OrgDropDown = styled.div`
+  display: flex;
+  padding: 0px 30px;
+  font-size: ${props => props.theme.fontSizes[1]}px;
+  justify-content: space-between;
+`;
 
 const ApplicationCardsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
   align-items: space-evenly;
+  font-size: ${props => props.theme.fontSizes[4]}px;
+`;
+
+const ApplicationAddCardWrapper = styled(Card)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: ${props => props.theme.card.minWidth}px;
+  height: ${props => props.theme.card.minHeight}px;
+  position: relative;
+  border-radius: ${props => props.theme.radii[1]}px;
+  margin: ${props => props.theme.spaces[5]}px
+    ${props => props.theme.spaces[5]}px;
+  a {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: calc(100% - ${props => props.theme.card.titleHeight}px);
+    width: 100%;
+  }
+  :hover {
+    cursor: pointer;
+  }
+`;
+
+const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
+  && {
+    background: white;
+    & .bp3-dialog-header {
+      padding: ${props => props.theme.spaces[4]}px
+        ${props => props.theme.spaces[4]}px;
+    }
+    & .bp3-dialog-footer-actions {
+      display: block;
+    }
+    ${props => props.setMaxWidth && `width: 100vh;`}
+  }
 `;
 
 type ApplicationProps = {
@@ -41,16 +103,80 @@ type ApplicationProps = {
   searchApplications: (keyword: string) => void;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
+  getAllApplication: () => void;
+  userOrgs: any;
+  currentUser?: User;
 };
+class Applications extends Component<
+  ApplicationProps,
+  { selectedOrgId: string }
+> {
+  constructor(props: ApplicationProps) {
+    super(props);
 
-class Applications extends Component<ApplicationProps> {
-  componentDidMount() {
-    this.props.fetchApplications();
+    this.state = {
+      selectedOrgId: "",
+    };
   }
+
+  componentDidMount() {
+    this.props.getAllApplication();
+  }
+
   public render() {
-    const applicationList = this.props.isFetchingApplications
-      ? getApplicationPayloads(8)
-      : this.props.applicationList;
+    const Form: any = InviteUsersFormv2;
+    const DropdownProps = (
+      user: User,
+      orgName: string,
+      orgId: string,
+    ): CustomizedDropdownProps => {
+      return {
+        sections: [
+          {
+            options: [
+              {
+                content: (
+                  <Badge
+                    text={orgName}
+                    imageURL="https://via.placeholder.com/32"
+                  />
+                ),
+                disabled: true,
+                shouldCloseDropdown: false,
+              },
+              {
+                content: "Organization Settings",
+                onSelect: () =>
+                  getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                    path: `/org/${orgId}/settings`,
+                  }),
+              },
+              {
+                content: "Share",
+                onSelect: () =>
+                  this.setState({
+                    selectedOrgId: orgId,
+                  }),
+              },
+              {
+                content: "Members",
+                onSelect: () =>
+                  getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                    path: `/org/${orgId}/settings`,
+                  }),
+              },
+            ],
+          },
+        ],
+        trigger: {
+          icon: "ORG_ICON",
+          text: orgName,
+          outline: false,
+        },
+        openDirection: Directions.DOWN,
+      };
+    };
+
     return (
       <PageWrapper displayName="Applications">
         {this.props.deletingApplication
@@ -58,15 +184,14 @@ class Applications extends Component<ApplicationProps> {
           : AppToaster.clear()}
         <SubHeader
           add={{
-            form: CreateApplicationForm,
-            title: "Create Application",
-            formName: CREATE_APPLICATION_FORM_NAME,
+            form: CreateOrganizationForm,
+            title: "Create Organization",
+            formName: CREATE_ORGANIZATION_FORM_NAME,
             formSubmitIntent: "primary",
-            isAdding: this.props.isCreatingApplication,
-            errorAdding: this.props.createApplicationError,
+            isAdding: false,
             formSubmitText: "Create",
             onClick: () => {
-              AnalyticsUtil.logEvent("CREATE_APP_CLICK", {});
+              return null;
             },
           }}
           search={{
@@ -75,36 +200,101 @@ class Applications extends Component<ApplicationProps> {
           }}
         />
         <PageSectionDivider />
-        <ApplicationCardsWrapper>
-          {applicationList.map((application: ApplicationPayload) => {
+        {this.props.userOrgs &&
+          this.props.userOrgs.length !== 0 &&
+          this.props.userOrgs.map((organizationObject: any) => {
+            const { organization, applications } = organizationObject;
+
             return (
-              application.pageCount > 0 && (
-                <ApplicationCard
-                  key={application.id}
-                  loading={this.props.isFetchingApplications}
-                  application={application}
-                  delete={this.props.deleteApplication}
-                />
-              )
+              <>
+                <OrgDropDown>
+                  {this.props.currentUser && (
+                    <CustomizedDropdown
+                      {...DropdownProps(
+                        this.props.currentUser,
+                        organization.name,
+                        organization.id,
+                      )}
+                    />
+                  )}
+
+                  <StyledDialog
+                    canOutsideClickClose={false}
+                    canEscapeKeyClose={false}
+                    title={`Invite Users to ${organization.name}`}
+                    onClose={() =>
+                      this.setState({
+                        selectedOrgId: "",
+                      })
+                    }
+                    isOpen={this.state.selectedOrgId === organization.id}
+                    setMaxWidth
+                  >
+                    <div className={Classes.DIALOG_BODY}>
+                      <Form orgId={organization.id} />
+                    </div>
+                  </StyledDialog>
+                  <FormDialogComponent
+                    trigger={<Button text="Share" intent={"primary"} filled />}
+                    Form={InviteUsersFormv2}
+                    orgId={organization.id}
+                    title={`Invite Users to ${organization.name}`}
+                    setMaxWidth
+                  />
+                </OrgDropDown>
+                <ApplicationCardsWrapper key={organization.id}>
+                  <FormDialogComponent
+                    permissions={organization.userPermissions}
+                    permissionRequired={PERMISSION_TYPE.CREATE_APPLICATION}
+                    trigger={
+                      <ApplicationAddCardWrapper>
+                        <Icon
+                          icon="plus"
+                          iconSize={70}
+                          className="createIcon"
+                        />
+                        <div className="createnew">Create New</div>
+                      </ApplicationAddCardWrapper>
+                    }
+                    Form={CreateApplicationForm}
+                    orgId={organization.id}
+                    title={"Create Application"}
+                  />
+                  {applications.map((application: any) => {
+                    return (
+                      application.pages?.length > 0 && (
+                        <ApplicationCard
+                          key={application.id}
+                          application={application}
+                          delete={this.props.deleteApplication}
+                        />
+                      )
+                    );
+                  })}
+                  <PageSectionDivider />
+                </ApplicationCardsWrapper>
+              </>
             );
           })}
-        </ApplicationCardsWrapper>
       </PageWrapper>
     );
   }
 }
-
 const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
+  userOrgs: getUserApplicationsOrgsList(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   fetchApplications: () =>
     dispatch({ type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT }),
+  getAllApplication: () =>
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
   createApplication: (appName: string) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,

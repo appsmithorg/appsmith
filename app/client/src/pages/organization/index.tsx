@@ -13,7 +13,7 @@ export const Organization = () => {
       <Switch location={location}>
         <AppRoute
           exact
-          path={`${path}/settings`}
+          path={`${path}/:orgId/settings`}
           component={Settings}
           name={"Settings"}
         />

@@ -10,6 +10,7 @@ import { fetchPage, fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
 import { fetchActions } from "actions/actionActions";
+import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 
@@ -19,20 +20,25 @@ function* initializeEditorSaga(
   const { applicationId, pageId } = initializeEditorAction.payload;
   // Step 1: Start getting all the data needed by the
   yield all([
-    put(fetchPlugins()),
     put(fetchPageList(applicationId)),
     put(fetchEditorConfigs()),
     put(fetchActions(applicationId)),
-    put(fetchDatasources()),
     put(fetchPage(pageId)),
   ]);
   // Step 2: Wait for all data to be in the state
   yield all([
-    take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_SUCCESS),
     take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID),
     take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+  ]);
+
+  // Step 3: Call all the APIs which needs Organization Id from PageList API response.
+  yield all([put(fetchPlugins()), put(fetchDatasources())]);
+
+  // Step 4: Wait for all data to be in the state
+  yield all([
+    take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
     take(ReduxActionTypes.FETCH_DATASOURCES_SUCCESS),
   ]);
 
@@ -59,6 +65,7 @@ export function* initializeAppViewerSaga(
   yield all([
     put(fetchActions(applicationId)),
     put(fetchPageList(applicationId)),
+    put(fetchApplication(applicationId)),
   ]);
 
   yield all([

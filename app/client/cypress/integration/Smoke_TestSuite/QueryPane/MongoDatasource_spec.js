@@ -1,18 +1,11 @@
 const queryLocators = require("../../../locators/QueryEditor.json");
 const plugins = require("../../../fixtures/plugins.json");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
   it("Create a query with a mongo datasource, run, save and then delete the query", function() {
     cy.NavigateToDatasourceEditor();
-    cy.get("@getPlugins").then(httpResponse => {
-      const pluginName = httpResponse.response.body.data.find(
-        plugin => plugin.packageName === plugins.mongoPackageName,
-      ).name;
-
-      cy.get(".t--plugin-name")
-        .contains(pluginName)
-        .click();
-    });
+    cy.get(datasource.MongoDB).click();
 
     cy.getPluginFormsAndCreateDatasource();
 

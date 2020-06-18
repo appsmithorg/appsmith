@@ -63,12 +63,15 @@ export interface CreatePageResponse extends ApiResponse {
 }
 
 export interface FetchPageListResponse extends ApiResponse {
-  data: Array<{
-    id: string;
-    name: string;
-    isDefault: boolean;
-    layouts: Array<PageLayout>;
-  }>;
+  data: {
+    pages: Array<{
+      id: string;
+      name: string;
+      isDefault: boolean;
+      layouts: Array<PageLayout>;
+    }>;
+    organizationId: string;
+  };
 }
 
 export interface DeletePageRequest {

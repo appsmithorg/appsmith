@@ -182,7 +182,7 @@ class ApiSidebar extends React.Component<Props> {
   };
 
   handleCreateNewApiClick = (selectedPageId: string) => {
-    const { history, createNewApiAction } = this.props;
+    const { history } = this.props;
     const { pageId, applicationId } = this.props.match.params;
     history.push(
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(

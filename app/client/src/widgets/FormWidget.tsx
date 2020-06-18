@@ -41,7 +41,7 @@ class FormWidget extends ContainerWidget {
   getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
     const formData: any = {};
     if (formWidget.children)
-      formWidget.children.map(widgetData => {
+      formWidget.children.forEach(widgetData => {
         if (widgetData.value) {
           formData[widgetData.widgetName] = widgetData.value;
         }

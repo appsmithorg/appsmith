@@ -40,8 +40,10 @@ export interface CreateDatasourceConfig {
 class DatasourcesApi extends API {
   static url = "v1/datasources";
 
-  static fetchDatasources(): AxiosPromise<GenericApiResponse<Datasource[]>> {
-    return API.get(DatasourcesApi.url);
+  static fetchDatasources(
+    orgId: string,
+  ): AxiosPromise<GenericApiResponse<Datasource[]>> {
+    return API.get(DatasourcesApi.url + `?organizationId=${orgId}`);
   }
 
   static createDatasource(datasourceConfig: Partial<Datasource>): Promise<{}> {
