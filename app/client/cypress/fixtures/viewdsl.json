@@ -148,7 +148,7 @@
                   "chartType": "BAR_CHART",
                   "chartName": "App Sign Up",
                   "allowHorizontalScroll": false,
-                  "singleChartData": [
+                  "chartData": [
                     {
                       "seriesName": "Sales",
                       "data": [
