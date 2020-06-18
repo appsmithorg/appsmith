@@ -245,6 +245,25 @@ public class ActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void invalidCreateActionInvalidPageId() {
+        Action action = new Action();
+        action.setName("randomActionName3");
+        action.setPageId("invalid page id here");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        Mono<Action> actionMono = Mono.just(action)
+                .flatMap(actionService::create);
+        StepVerifier
+                .create(actionMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(
+                                AppsmithError.NO_RESOURCE_FOUND.getMessage("page", "invalid page id here")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testVariableSubstitution() {
         String json = "{\n" +
                 "  \n" +
