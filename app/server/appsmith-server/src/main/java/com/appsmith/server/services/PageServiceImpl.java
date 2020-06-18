@@ -104,7 +104,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
      */
     @Override
     public Mono<Page> delete(String id) {
-        Mono<Page> pageMono = repository.findById(id)
+        Mono<Page> pageMono = repository.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
