@@ -272,7 +272,6 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    console.log({ value });
     if (_.isString(value)) {
       value = value.replace(/\s/g, "");
       value = `${value}`;
