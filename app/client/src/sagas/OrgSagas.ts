@@ -17,8 +17,15 @@ import OrgApi, {
   FetchOrgRequest,
   FetchOrgResponse,
   CreateOrgRequest,
+  FetchAllUsersResponse,
+  FetchAllUsersRequest,
+  FetchAllRolesResponse,
+  DeleteOrgUserRequest,
+  ChangeUserRoleRequest,
 } from "api/OrgApi";
 import { ApiResponse } from "api/ApiResponses";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { ToastType } from "react-toastify";
 
 export function* fetchRolesSaga() {
   try {
@@ -82,6 +89,94 @@ export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   }
 }
 
+export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
+  try {
+    const request: FetchAllUsersRequest = action.payload;
+    const response: FetchAllUsersResponse = yield call(
+      OrgApi.fetchAllUsers,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_USERS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* changeOrgUserRoleSaga(
+  action: ReduxAction<ChangeUserRoleRequest>,
+) {
+  try {
+    const request: ChangeUserRoleRequest = action.payload;
+    const response: ApiResponse = yield call(OrgApi.changeOrgUserRole, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CHANGE_ORG_USER_ROLE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CHANGE_ORG_USER_ROLE_ERROR,
+    });
+  }
+}
+
+export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
+  try {
+    const request: DeleteOrgUserRequest = action.payload;
+    const response: ApiResponse = yield call(OrgApi.deleteOrgUser, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
+        payload: {
+          username: action.payload.username,
+        },
+      });
+      AppToaster.show({
+        message: `${response.data.username} has been removed successfully`,
+        type: ToastType.SUCCESS,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_ORG_USER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchAllRolesSaga(action: ReduxAction<DeleteOrgUserRequest>) {
+  try {
+    const response: FetchAllRolesResponse = yield call(OrgApi.fetchAllRoles);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_ROLES_ERROR,
+    });
+  }
+}
+
 export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
     const request: SaveOrgRequest = action.payload;
@@ -141,9 +236,14 @@ export function* createOrgSaga(
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ORG_ROLES_INIT, fetchRolesSaga),
-    takeLatest(ReduxActionTypes.FETCH_ORG_INIT, fetchOrgSaga),
-    takeLatest(ReduxActionTypes.FETCH_ORGS_INIT, fetchOrgsSaga),
     takeLatest(ReduxActionTypes.SAVE_ORG_INIT, saveOrgSaga),
     takeLatest(ReduxActionTypes.CREATE_ORGANIZATION_INIT, createOrgSaga),
+    takeLatest(ReduxActionTypes.FETCH_ALL_USERS_INIT, fetchAllUsersSaga),
+    takeLatest(ReduxActionTypes.FETCH_ALL_ROLES_INIT, fetchAllRolesSaga),
+    takeLatest(ReduxActionTypes.DELETE_ORG_USER_INIT, deleteOrgUserSaga),
+    takeLatest(
+      ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
+      changeOrgUserRoleSaga,
+    ),
   ]);
 }

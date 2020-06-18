@@ -24,18 +24,8 @@ import { UserApplication } from "constants/userConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import styled from "styled-components";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
-import FeatureFlag from "utils/featureFlags";
-import { FeatureFlagsEnum } from "configs/types";
-
-const EmptyStateContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 20px;
-`;
+import { getApiName } from "selectors/formSelectors";
 
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -145,7 +135,7 @@ class ApiEditor extends React.Component<Props> {
         cacheResponse: undefined,
       });
     }
-  }, 2000);
+  }, 500);
 
   render() {
     const {
@@ -177,13 +167,7 @@ class ApiEditor extends React.Component<Props> {
         match={this.props.match}
       />
     );
-    const defaultHomeScreen = (
-      <EmptyStateContainer>
-        {"Create / Select an API from the list"}
-      </EmptyStateContainer>
-    );
-    const v2Flag = FeatureFlag.check(FeatureFlagsEnum.ApiPaneV2);
-    const homeScreen = v2Flag ? apiHomeScreen : defaultHomeScreen;
+
     return (
       <div
         style={{
@@ -208,6 +192,7 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
+                apiName={this.props.apiName}
                 onChange={this.onChangeHandler}
                 location={this.props.location}
               />
@@ -215,6 +200,8 @@ class ApiEditor extends React.Component<Props> {
 
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
+                apiName={this.props.apiName}
+                apiId={this.props.match.params.apiId}
                 paginationType={paginationType}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
@@ -232,7 +219,7 @@ class ApiEditor extends React.Component<Props> {
             )}
           </>
         ) : (
-          homeScreen
+          apiHomeScreen
         )}
       </div>
     );
@@ -242,17 +229,11 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
+  const apiName = getApiName(state, props.match.params.apiId);
 
-  const { drafts, isDeleting, isRunning } = state.ui.apiPane;
-  let data: RestAction | ActionData | RapidApiAction | undefined;
-  let allowSave;
-  if (apiAction && apiAction.id in drafts) {
-    data = drafts[apiAction.id];
-    allowSave = true;
-  } else {
-    data = apiAction;
-    allowSave = false;
-  }
+  const { isDeleting, isRunning } = state.ui.apiPane;
+  const actionDrafts = state.entities.actionDrafts;
+  const allowSave = !!(apiAction && apiAction.id in actionDrafts);
   const datasourceFieldText =
     state.ui.apiPane.datasourceFieldText[formData?.id ?? ""] || "";
 
@@ -262,10 +243,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
     pages: state.entities.pageList.pages,
-    apiName: formData?.name || "",
+    apiName: apiName || "",
     plugins: state.entities.plugins.list,
-    pluginId: _.get(data, "pluginId"),
-    paginationType: _.get(data, "actionConfiguration.paginationType"),
+    pluginId: _.get(apiAction, "pluginId"),
+    paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
     isRunning,
     isDeleting,

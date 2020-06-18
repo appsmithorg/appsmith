@@ -1,12 +1,15 @@
 import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import {
+  ApplicationPayload,
+  OrganizationDetails,
+} from "constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import { UserApplication } from "constants/userConstants";
 
 const fuzzySearchOptions = {
-  keys: ["name"],
+  keys: ["applications.name"],
   shouldSort: true,
   threshold: 0.5,
   location: 0,
@@ -34,6 +37,9 @@ const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
+export const getUserApplicationsOrgs = (state: AppState) => {
+  return state.ui.applications.userOrgs;
+};
 
 export const getImportedCollections = (state: AppState) =>
   state.ui.importedCollections.importedCollections;
@@ -66,6 +72,42 @@ export const getApplicationList = createSelector(
       (keyword === undefined || keyword.trim().length === 0)
     ) {
       return applications;
+    }
+    return [];
+  },
+);
+
+export const getUserApplicationsOrgsList = createSelector(
+  getUserApplicationsOrgs,
+  getApplicationSearchKeyword,
+  (applicationsOrgs?: [], keyword?: string): OrganizationDetails[] => {
+    if (
+      applicationsOrgs &&
+      applicationsOrgs.length > 0 &&
+      keyword &&
+      keyword.trim().length > 0
+    ) {
+      const fuzzy = new Fuse(applicationsOrgs, fuzzySearchOptions);
+      let organizationList = fuzzy.search(keyword) as OrganizationDetails[];
+      organizationList = organizationList.map(org => {
+        const applicationFuzzy = new Fuse(org.applications, {
+          ...fuzzySearchOptions,
+          keys: ["name"],
+        });
+        const applications = applicationFuzzy.search(keyword) as [];
+
+        return {
+          ...org,
+          applications,
+        };
+      });
+
+      return organizationList;
+    } else if (
+      applicationsOrgs &&
+      (keyword === undefined || keyword.trim().length === 0)
+    ) {
+      return applicationsOrgs;
     }
     return [];
   },

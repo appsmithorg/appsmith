@@ -158,6 +158,25 @@ export const executeApiActionSuccess = (payload: {
   payload: payload,
 });
 
+export const saveApiName = (payload: { id: string; name: string }) => ({
+  type: ReduxActionTypes.SAVE_API_NAME,
+  payload: payload,
+});
+
+export const updateApiNameDraft = (payload: {
+  id: string;
+  draft?: {
+    value: string;
+    validation: {
+      isValid: boolean;
+      validationMessage: string;
+    };
+  };
+}) => ({
+  type: ReduxActionTypes.UPDATE_API_NAME_DRAFT,
+  payload: payload,
+});
+
 export default {
   createAction: createActionRequest,
   fetchActions,

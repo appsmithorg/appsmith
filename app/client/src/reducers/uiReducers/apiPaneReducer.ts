@@ -4,13 +4,11 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "constants/ReduxActionConstants";
-import _ from "lodash";
 import { RestAction } from "entities/Action";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
   isFetching: false,
-  drafts: {},
   isRunning: {},
   isSaving: {},
   isDeleting: {},
@@ -24,7 +22,6 @@ const initialState: ApiPaneReduxState = {
 export interface ApiPaneReduxState {
   lastUsed: string;
   isFetching: boolean;
-  drafts: Record<string, RestAction>;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
@@ -140,23 +137,6 @@ const apiPaneReducer = createReducer(initialState, {
       ...state.isDeleting,
       [action.payload.id]: false,
     },
-  }),
-  [ReduxActionTypes.UPDATE_API_DRAFT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string; draft: Partial<RestAction> }>,
-  ) => ({
-    ...state,
-    drafts: {
-      ...state.drafts,
-      [action.payload.id]: action.payload.draft,
-    },
-  }),
-  [ReduxActionTypes.DELETE_API_DRAFT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    drafts: _.omit(state.drafts, action.payload.id),
   }),
   [ReduxActionTypes.API_PANE_CHANGE_API]: (
     state: ApiPaneReduxState,

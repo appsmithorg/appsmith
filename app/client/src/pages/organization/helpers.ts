@@ -52,3 +52,23 @@ export const inviteUsersToOrgSubmitHandler = (
     throw new SubmissionError(error);
   });
 };
+
+export const inviteUsersToOrg = (values: any, dispatch: any): Promise<any> => {
+  const data = {
+    roleName: values.role,
+    emails: values.users ? values.users.split(",") : [],
+    orgId: values.orgId,
+  };
+  return new Promise((resolve, reject) => {
+    dispatch({
+      type: ReduxActionTypes.INVITE_USERS_TO_ORG_INIT,
+      payload: {
+        resolve,
+        reject,
+        data,
+      },
+    });
+  }).catch(error => {
+    throw new SubmissionError(error);
+  });
+};

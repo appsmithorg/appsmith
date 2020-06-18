@@ -245,22 +245,24 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     if (!isValid) {
       return {
         isValid,
-        parsed,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Table Data`,
+        parsed: [],
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
-    } else if (
-      !_.every(parsed, datum => {
-        return (
-          _.isObject(datum) &&
-          Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
-            .length === 0
-        );
-      })
-    ) {
+    }
+    const isValidTableData = _.every(parsed, datum => {
+      return (
+        _.isObject(datum) &&
+        Object.keys(datum).filter(key => _.isString(key) && key.length === 0)
+          .length === 0
+      );
+    });
+    if (!isValidTableData) {
       return {
         isValid: false,
         parsed: [],
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "key1" : "val1", "key2" : "val2" }, { "key1" : "val3", "key2" : "val4" }]`,
+        transformed: parsed,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
     return { isValid, parsed };
@@ -385,7 +387,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
-    value: any,
+    value: string,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
@@ -399,15 +401,14 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: "",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Date`,
+        message:
+          `${WIDGET_TYPE_VALIDATION_ERROR}: Date ` + props.dateFormat
+            ? props.dateFormat
+            : "",
       };
     }
-    const isValid = moment(value).isValid();
-    const parsed = isValid
-      ? props.dateFormat
-        ? moment(value).format(props.dateFormat)
-        : moment(value).toISOString(true)
-      : today;
+    const isValid = moment(value, props.dateFormat).isValid();
+    const parsed = isValid ? value : today;
     return {
       isValid,
       parsed,

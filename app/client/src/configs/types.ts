@@ -13,10 +13,6 @@ export type HotjarConfig = {
 type Milliseconds = number;
 
 export enum FeatureFlagsEnum {
-  ApiPaneV2 = "apipanev2",
-  DatasourcePane = "datasourcepane",
-  QueryPane = "querypane",
-  documentationV2 = "documentationv2",
   LightningMenu = "lightningmenu",
 }
 

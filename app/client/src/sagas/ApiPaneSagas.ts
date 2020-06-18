@@ -2,9 +2,20 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import _ from "lodash";
-import { all, select, put, takeEvery, take, call } from "redux-saga/effects";
+import {
+  all,
+  select,
+  put,
+  takeEvery,
+  take,
+  call,
+  race,
+  delay,
+} from "redux-saga/effects";
+import { getFormSyncErrors } from "redux-form";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
@@ -53,9 +64,10 @@ import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getApiDraft = (state: AppState, id: string) => {
-  const drafts = state.ui.apiPane.drafts;
+  const drafts = state.entities.actionDrafts;
   if (id in drafts) return drafts[id];
   return {};
 };
@@ -220,20 +232,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     data = draft;
   }
 
-  if (
-    data.actionConfiguration.httpMethod !== "GET" &&
-    !data.providerId &&
-    !Array.isArray(data.actionConfiguration.body)
-  ) {
-    let contentType;
-    const headers = data.actionConfiguration.headers;
-    if (headers) {
-      contentType = headers.find(
-        (header: any) => header.key.toLowerCase() === CONTENT_TYPE,
-      );
-    }
-  }
-
   yield put(initialize(API_EDITOR_FORM_NAME, data));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
 
@@ -252,57 +250,69 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 function* updateDraftsSaga() {
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  if (!values.id) return;
-  const action = yield select(getAction, values.id);
+  // debounce
+  // TODO check for save
+  const result = yield race({
+    change: take(ReduxFormActionTypes.VALUE_CHANGE),
+    timeout: delay(300),
+  });
+  if (result.timeout) {
+    const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+    if (!values.id) return;
+    const action = yield select(getAction, values.id);
 
-  if (_.isEqual(values, action)) {
-    yield put({
-      type: ReduxActionTypes.DELETE_API_DRAFT,
-      payload: { id: values.id },
-    });
-  } else {
-    yield put({
-      type: ReduxActionTypes.UPDATE_API_DRAFT,
-      payload: { id: values.id, draft: values },
-    });
+    if (_.isEqual(values, action)) {
+      yield put({
+        type: ReduxActionTypes.DELETE_API_DRAFT,
+        payload: { id: values.id },
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_API_DRAFT,
+        payload: { id: values.id, draft: values },
+      });
+    }
   }
 }
 
-function* validateInputSaga(
-  actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
-) {
+function* validateInputSaga() {
   const errors = {};
-  const {
-    payload,
-    meta: { field },
-  } = actionPayload;
-  if (field === "dynamicBindingPathList") return;
+  const existingErrors = yield select(getFormSyncErrors);
   const actions: RestAction[] = yield select(getActionConfigs);
-  if (field === "name") {
-    const sameNames = actions.filter(
-      (action: RestAction) => action.name === payload && action.id,
-    );
-    if (!_.trim(payload)) {
-      _.set(errors, field, FIELD_REQUIRED_ERROR);
-    } else if (payload.indexOf(" ") !== -1) {
-      _.set(errors, field, VALID_FUNCTION_NAME_ERROR);
-    } else if (sameNames.length > 0) {
-      _.set(errors, field, UNIQUE_NAME_ERROR);
-    } else {
-      _.unset(errors, field);
-    }
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+
+  // Name field validation
+  let hasSameName = false;
+  const sameNames = actions.filter(
+    (action: RestAction) => action.name === values.name && action.id,
+  );
+  if (
+    sameNames.length > 1 ||
+    (sameNames.length === 1 && sameNames[0].id !== values.id)
+  ) {
+    hasSameName = true;
+  }
+  if (!_.trim(values.name)) {
+    _.set(errors, "name", FIELD_REQUIRED_ERROR);
+  } else if (values.name.indexOf(" ") !== -1) {
+    _.set(errors, "name", VALID_FUNCTION_NAME_ERROR);
+  } else if (hasSameName) {
+    _.set(errors, "name", UNIQUE_NAME_ERROR);
+  } else {
+    _.unset(errors, "name");
   }
 
-  yield put({
-    type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
-    meta: {
-      form: API_EDITOR_FORM_NAME,
-    },
-    payload: {
-      syncErrors: errors,
-    },
-  });
+  if (existingErrors !== errors) {
+    yield put({
+      type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
+      meta: {
+        form: API_EDITOR_FORM_NAME,
+      },
+      payload: {
+        syncErrors: errors,
+      },
+    });
+  }
 }
 
 function* updateFormFields(
@@ -377,7 +387,6 @@ function* updateDynamicBindingsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
   const field = actionPayload.meta.field;
-  if (field === "dynamicBindingPathList") return;
   const value = actionPayload.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
@@ -392,19 +401,22 @@ function* updateDynamicBindingsSaga(
   if (isDynamic && !fieldExists) {
     dynamicBindings.push({ key: field });
   }
-  yield put(
-    change(API_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
-  );
+  if (dynamicBindings !== values.dynamicBindingPathList) {
+    yield put(
+      change(API_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
+    );
+  }
 }
 
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form } = actionPayload.meta;
+  const { form, field } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
+  if (field === "dynamicBindingPathList") return;
   yield all([
     call(updateDynamicBindingsSaga, actionPayload),
-    call(validateInputSaga, actionPayload),
+    call(validateInputSaga),
     call(updateDraftsSaga),
     call(syncApiParamsSaga, actionPayload),
     call(updateFormFields, actionPayload),
@@ -417,7 +429,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   const data = { ...action };
 
   if (pluginType === "API") {
-    yield put(initialize(API_EDITOR_FORM_NAME, data));
+    yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
@@ -456,7 +468,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
       API_EDITOR_FORM_NAME,
     );
     if (values.id === id) {
-      yield put(initialize(API_EDITOR_FORM_NAME, action));
+      yield put(initialize(API_EDITOR_FORM_NAME, _.omit(action, "name")));
     } else {
       yield put(changeApi(id));
     }
@@ -466,6 +478,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
+  const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
@@ -484,6 +497,7 @@ function* handleCreateNewApiActionSaga(
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
           pluginId,
+          organizationId,
         },
         pageId,
       }),
@@ -532,6 +546,16 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
+function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleApiNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -541,6 +565,11 @@ export default function* root() {
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      handleApiNameChangeFailureSaga,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_NEW_API_ACTION,
       handleCreateNewApiActionSaga,

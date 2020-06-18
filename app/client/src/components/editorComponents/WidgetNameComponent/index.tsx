@@ -12,7 +12,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperations } from "widgets/BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import HelpControl from "./HelpControl";
 
 const PositionStyle = styled.div`

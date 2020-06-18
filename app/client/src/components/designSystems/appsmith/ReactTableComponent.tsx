@@ -216,8 +216,10 @@ export class ReactTableComponent extends React.Component<
           Cell: (props: any) => {
             return renderCell(
               props.cell.value,
+              props.cell.row.index,
               columnType.type,
               isHidden,
+              this.props.widgetId,
               columnType.format,
             );
           },
@@ -232,7 +234,10 @@ export class ReactTableComponent extends React.Component<
       columns = this.reorderColumns(columns);
       if (this.props.columnActions?.length) {
         columns.push({
-          Header: "Actions",
+          Header:
+            this.props.columnNameMap && this.props.columnNameMap["actions"]
+              ? this.props.columnNameMap["actions"]
+              : "Actions",
           accessor: "actions",
           width: 150,
           minWidth: 60,

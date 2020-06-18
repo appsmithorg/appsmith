@@ -12,7 +12,7 @@ const Container = styled.div<{
   &&& {
     .${Classes.OVERLAY} {
       .${Classes.OVERLAY_BACKDROP} {
-        z-index: ${props => props.zIndex};
+        z-index: ${props => props.zIndex || 2 - 1};
       }
       position: fixed;
       top: ${props => props.theme.headerHeight};
@@ -32,7 +32,6 @@ const Container = styled.div<{
         border-radius: ${props => props.theme.radii[1]}px;
         top: ${props => props.top}px;
         left: ${props => props.left}px;
-        // z-index: ${props => props.zIndex};
       }
     }
   }
@@ -80,7 +79,7 @@ export const ModalComponent = (props: ModalComponentProps) => {
       height={props.height}
       top={props.top}
       left={props.left}
-      zIndex={props.zIndex !== undefined ? props.zIndex : 3}
+      zIndex={props.zIndex !== undefined ? props.zIndex : 2}
     >
       <Overlay
         isOpen={props.isOpen}

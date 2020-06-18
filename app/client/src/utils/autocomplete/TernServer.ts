@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import tern, { Server } from "tern";
+import tern, { Server, Def } from "tern";
 import ecma from "tern/defs/ecmascript.json";
+import lodash from "constants/defs/lodash.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 
-const DEFS = [ecma];
+const DEFS = [ecma, lodash];
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
@@ -61,6 +62,12 @@ class TernServer {
         window.open(data.url, "_blank");
       }
     });
+  }
+
+  updateDef(name: string, def: Def) {
+    this.server.deleteDefs(name);
+    // @ts-ignore
+    this.server.addDefs(def, true);
   }
 
   getHint(cm: CodeMirror.Editor) {

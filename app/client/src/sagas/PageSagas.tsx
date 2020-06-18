@@ -29,6 +29,7 @@ import PageApi, {
   DeletePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
+  PageLayout,
 } from "api/PageApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
@@ -75,7 +76,8 @@ export function* fetchPageListSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const pages: PageListPayload = response.data.map(page => ({
+      const orgId = response.data.organizationId;
+      const pages: PageListPayload = response.data.pages.map(page => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
@@ -87,6 +89,13 @@ export function* fetchPageListSaga(
           applicationId,
         },
       });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_ORG_ID,
+        payload: {
+          orgId,
+        },
+      });
+
       return;
     }
   } catch (error) {
@@ -361,23 +370,7 @@ export function* updateWidgetNameSaga(
       );
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
-          response.data.dsl,
-        );
-        const currentPageName = yield select(getCurrentPageName);
-        const applicationId = yield select(getCurrentApplicationId);
-        const canvasWidgetsPayload: UpdateCanvasPayload = {
-          pageWidgetId: normalizedWidgets.result,
-          currentPageName,
-          currentPageId: pageId,
-          currentLayoutId: layoutId,
-          currentApplicationId: applicationId,
-          pageActions: response.data.layoutOnLoadActions,
-          widgets: normalizedWidgets.entities.canvasWidgets,
-        };
-
-        yield put(updateCanvas(canvasWidgetsPayload));
-        yield put(fetchActionsForPage(pageId));
+        yield updateCanvasWithDSL(response.data, pageId, layoutId);
 
         yield put(updateWidgetNameSuccess());
       }
@@ -399,6 +392,27 @@ export function* updateWidgetNameSaga(
       },
     });
   }
+}
+
+export function* updateCanvasWithDSL(
+  data: PageLayout,
+  pageId: string,
+  layoutId: string,
+) {
+  const normalizedWidgets = CanvasWidgetsNormalizer.normalize(data.dsl);
+  const currentPageName = yield select(getCurrentPageName);
+  const applicationId = yield select(getCurrentApplicationId);
+  const canvasWidgetsPayload: UpdateCanvasPayload = {
+    pageWidgetId: normalizedWidgets.result,
+    currentPageName,
+    currentPageId: pageId,
+    currentLayoutId: layoutId,
+    currentApplicationId: applicationId,
+    pageActions: data.layoutOnLoadActions,
+    widgets: normalizedWidgets.entities.canvasWidgets,
+  };
+  yield put(updateCanvas(canvasWidgetsPayload));
+  yield put(fetchActionsForPage(pageId));
 }
 
 export default function* pageSagas() {

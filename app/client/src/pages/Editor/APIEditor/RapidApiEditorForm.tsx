@@ -22,7 +22,8 @@ import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-
+import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import { NameWrapper } from "./Form";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -114,6 +115,8 @@ interface APIFormProps {
   location: {
     pathname: string;
   };
+  apiName: string;
+  apiId: string;
   dispatch: any;
 }
 
@@ -171,13 +174,21 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
     >
       <MainConfiguration>
         <FormRow>
-          <DynamicTextField
-            placeholder="Api name"
-            name="name"
-            singleLine
-            setMaxHeight
-            link={providerURL && `http://${providerURL}`}
-          />
+          <NameWrapper>
+            <ActionNameEditor />
+            <a
+              style={{
+                paddingTop: "7px",
+              }}
+              className="t--apiDocumentationLink"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={providerURL && `http://${providerURL}`}
+            >
+              API documentation
+            </a>
+          </NameWrapper>
+
           <ActionButtons>
             <ActionButton
               text="Delete"
@@ -187,6 +198,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             />
             <ActionButton
               text="Run"
+              filled
               accent="primary"
               onClick={() => {
                 onRunClick();
