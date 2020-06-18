@@ -88,9 +88,7 @@ const ApplicationAddCardWrapper = styled(Card)`
     height: calc(100% - ${props => props.theme.card.titleHeight}px);
     width: 100%;
   }
-  :hover {
-    cursor: pointer;
-  }
+  cursor: pointer;
 `;
 
 const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
