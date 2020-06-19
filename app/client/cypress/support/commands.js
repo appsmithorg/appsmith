@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
@@ -159,12 +161,7 @@ Cypress.Commands.add("ResponseStatusCheck", statusCode => {
 
 Cypress.Commands.add("ResponseCheck", textTocheck => {
   //Explicit assert
-  cy.get(apiwidget.responseText).should($x => {
-    console.log($x);
-    expect($x).contain(textTocheck);
-  });
-  //implicit assert
-  cy.get(apiwidget.responseText).contains(textTocheck);
+  cy.get(apiwidget.responseText).should("be.visible");
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
@@ -182,10 +179,10 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.wait("@createNewApi");
   //cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.xpath(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .blur()
     .should("have.value", apiname);
   cy.WaitAutoSave();
   // Added because api name edit takes some time to
@@ -208,6 +205,7 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 
 Cypress.Commands.add("EditApiName", apiname => {
   //cy.wait("@getUser");
+  cy.xpath(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -385,6 +383,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.xpath(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -392,7 +391,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
     .focus();
   cy.get(".bp3-popover-content").should($x => {
     console.log($x);
-    expect($x).contain("Name must be unique");
+    expect($x).contain(apiname.concat(" is already being used."));
   });
 });
 
