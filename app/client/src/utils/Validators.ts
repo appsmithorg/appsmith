@@ -184,6 +184,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: [],
+          transformed: undefined,
           message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
         };
       }
@@ -194,15 +195,17 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
         return {
           isValid: false,
           parsed: [],
+          transformed: parsed,
           message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
         };
       }
-      return { isValid: true, parsed };
+      return { isValid: true, parsed, transformed: parsed };
     } catch (e) {
       console.error(e);
       return {
         isValid: false,
         parsed: [],
+        transformed: parsed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: Array/List`,
       };
     }
@@ -237,7 +240,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    const { isValid, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
+    const { isValid, transformed, parsed } = VALIDATORS[VALIDATION_TYPES.ARRAY](
       value,
       props,
       dataTree,
@@ -246,7 +249,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid,
         parsed: [],
-        transformed: parsed,
+        transformed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
@@ -261,7 +264,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       return {
         isValid: false,
         parsed: [],
-        transformed: parsed,
+        transformed,
         message: `${WIDGET_TYPE_VALIDATION_ERROR}: [{ "Col1" : "val1", "Col2" : "val2" }]`,
       };
     }
