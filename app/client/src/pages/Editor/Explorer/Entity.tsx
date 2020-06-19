@@ -2,8 +2,10 @@ import React, { ReactNode, useState } from "react";
 import { Icon, Collapse, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-
-const EntityItem = styled.div<{ active: boolean; disabled: boolean }>`
+const Wrapper = styled.div<{ active: boolean }>`
+  background: ${props => (props.active ? Colors.SHARK : "none")};
+`;
+const EntityItem = styled.div<{ disabled: boolean }>`
   height: 30px;
   font-size: ${props => props.theme.fontSizes[3]}px;
   line-height: ${props => props.theme.lineHeights[2]}px;
@@ -11,9 +13,9 @@ const EntityItem = styled.div<{ active: boolean; disabled: boolean }>`
   justify-content: flex-start;
   align-items: center;
   padding: ${props => props.theme.spaces[3]}px;
-  border-radius: 2px;
-  background: ${props => (props.active ? Colors.MAKO : "none")};
+  border-radius: none;
   color: ${props => (props.disabled ? Colors.SLATE_GRAY : Colors.WHITE)};
+
   &:hover {
     background: ${Colors.MAKO};
     .${Classes.ICON} {
@@ -35,12 +37,18 @@ const EntityItem = styled.div<{ active: boolean; disabled: boolean }>`
     }
   }
 `;
-const StyledCollapse = styled(Collapse)<{ step: number }>`
+const StyledCollapse = styled(Collapse)`
   & {
-    .${Classes.COLLAPSE_BODY} {
-      margin-left: ${props => props.theme.spaces[4] * props.step}px;
+    .${Classes.COLLAPSE_BODY} > div {
+      padding-left: 16px;
     }
   }
+`;
+
+const EntityName = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export type EntityProps = {
@@ -51,35 +59,35 @@ export type EntityProps = {
   disabled?: boolean;
   action: () => void;
   active?: boolean;
+  isDefaultExpanded?: boolean;
 };
 
 export const Entity = (props: EntityProps) => {
-  const [isOpen, open] = useState(false);
+  const [isOpen, open] = useState(!!props.isDefaultExpanded);
   const handleClick = () => {
     (props.disabled === undefined || !props.disabled) && open(!isOpen);
   };
   const collapseIcon = isOpen ? (
-    <Icon icon="chevron-down" />
+    <Icon icon="caret-down" />
   ) : (
-    <Icon icon="chevron-right" />
+    <Icon icon="caret-right" />
   );
   return (
-    <React.Fragment>
+    <Wrapper active={!!props.active}>
       <EntityItem
         onClick={handleClick}
         onDoubleClick={props.action}
-        active={!!props.active}
         disabled={!!props.disabled}
       >
         {props.children && collapseIcon}
-        {props.icon} {props.name}
+        {props.icon} <EntityName>{props.name}</EntityName>
       </EntityItem>
       {props.children && (
-        <StyledCollapse step={props.step + 1} isOpen={isOpen}>
-          {props.children}
+        <StyledCollapse isOpen={isOpen}>
+          <div>{props.children}</div>
         </StyledCollapse>
       )}
-    </React.Fragment>
+    </Wrapper>
   );
 };
 

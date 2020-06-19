@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
+import { noop } from "lodash";
 import { useEntities } from "./hooks";
 import { getPageEntityGroups } from "./helpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ExplorerTitle } from "./ExplorerTitle";
 
 const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
@@ -14,6 +16,7 @@ const EntityExplorer = () => {
   const { pages, widgetTree, actions, currentPageId } = useEntities();
   return (
     <Wrapper>
+      <ExplorerTitle isCollapsed onCollapseToggle={noop} />
       {pages.map(page =>
         getPageEntityGroups(
           { id: page.pageId, name: page.pageName },
