@@ -69,13 +69,36 @@ public class RestApiPlugin extends BasePlugin {
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
+            ActionExecutionResult errorResult = new ActionExecutionResult();
+            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+            errorResult.setIsExecutionSuccess(false);
+
+
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
             String url = datasourceConfiguration.getUrl() + path;
             String reqContentType = "";
 
             HttpMethod httpMethod = actionConfiguration.getHttpMethod();
+            URI uri;
+            try {
+                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
+            } catch (URISyntaxException e) {
+                ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, null);
+                actionExecutionRequest.setUrl(url);
+                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
+
+            log.debug("Final URL is: " + uri.toString());
+
+            ActionExecutionRequest actionExecutionRequest = populateRequestFields(actionConfiguration, uri);
+            log.debug("request is : {}", actionExecutionRequest);
+
             if (httpMethod == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "HTTPMethod must be set."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("HTTPMethod must be set."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
             }
 
             WebClient.Builder webClientBuilder = WebClient.builder();
@@ -92,8 +115,9 @@ public class RestApiPlugin extends BasePlugin {
 
             final String contentTypeError = verifyContentType(actionConfiguration.getHeaders());
             if (contentTypeError != null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR, "Invalid value for Content-Type."));
+                errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage("Invalid value for Content-Type."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
             }
 
             String requestBodyAsString = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
@@ -103,14 +127,7 @@ public class RestApiPlugin extends BasePlugin {
                 requestBodyAsString = convertPropertyListToReqBody(actionConfiguration.getBodyFormData());
             }
 
-            URI uri;
-            try {
-                uri = createFinalUriWithQueryParams(url, actionConfiguration.getQueryParameters());
-            } catch (URISyntaxException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
-            }
 
-            log.debug("Final URL is: " + uri.toString());
             WebClient client = webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
 
             return httpCall(client, httpMethod, uri, requestBodyAsString, 0, reqContentType)
@@ -125,7 +142,7 @@ public class RestApiPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
 
                         // Set the request fields
-                        result.setRequest(populateRequestFields(actionConfiguration, uri));
+                        result.setRequest(actionExecutionRequest);
 
                         result.setStatusCode(statusCode.toString());
                         result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
@@ -173,7 +190,11 @@ public class RestApiPlugin extends BasePlugin {
 
                         return result;
                     })
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)));
+                    .onErrorResume(e -> {
+                        errorResult.setBody(AppsmithPluginError.PLUGIN_ERROR.getMessage(e));
+                        errorResult.setRequest(actionExecutionRequest);
+                        return Mono.just(errorResult);
+                    });
         }
 
         private String convertPropertyListToReqBody(List<Property> bodyFormData) {
@@ -356,7 +377,8 @@ public class RestApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     String key = queryParam.getKey();
                     if (StringUtils.isNotEmpty(key)) {
-                        uriBuilder.queryParam(key, URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8));
+                        uriBuilder.queryParam(URLEncoder.encode(key, StandardCharsets.UTF_8),
+                                URLEncoder.encode(queryParam.getValue(), StandardCharsets.UTF_8));
                     }
                 }
             }
