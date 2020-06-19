@@ -152,9 +152,6 @@ type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
   getDefaults?: Function;
-  level: number;
-  levelSeparator?: string;
-  start: boolean;
   displayValue?: string;
   selectedLabelModifier?: (
     option: TreeDropdownOption,
@@ -166,16 +163,13 @@ type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
   isValid: boolean;
   validationMessage?: string;
-  level: number;
-  start: boolean;
-  levelSeparator?: string;
 };
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: function SelectorView(props: SelectorViewProps) {
     return (
       <FieldWrapper>
-        <ControlWrapper key={props.label} level={props.level}>
+        <ControlWrapper key={props.label} isAction={true}>
           {props.label && <label>{props.label}</label>}
           <TreeDropdown
             optionTree={props.options}
@@ -189,18 +183,12 @@ const views = {
             displayValue={props.displayValue}
           />
         </ControlWrapper>
-        <TreeStructure
-          level={props.level}
-          label={props.label}
-          start={props.start}
-          levelSeparator={props.levelSeparator}
-        />
       </FieldWrapper>
     );
   },
   [ViewTypes.KEY_VALUE_VIEW]: function KeyValueView(props: KeyValueViewProps) {
     return (
-      <ControlWrapper key={props.label}>
+      <ControlWrapper key={props.label} isAction={true}>
         <KeyValueComponent
           pairs={props.get(props.value, false) as DropdownOption[]}
           addLabel={"QueryParam"}
@@ -212,7 +200,7 @@ const views = {
   [ViewTypes.TEXT_VIEW]: function TextView(props: TextViewProps) {
     return (
       <FieldWrapper>
-        <ControlWrapper key={props.label} level={props.level}>
+        <ControlWrapper key={props.label} isAction={true}>
           {props.label && <label>{props.label}</label>}
           <InputText
             label={props.label}
@@ -230,12 +218,6 @@ const views = {
             errorMessage={props.validationMessage}
           />
         </ControlWrapper>
-        <TreeStructure
-          level={props.level}
-          label={props.label}
-          start={props.start}
-          levelSeparator={props.levelSeparator}
-        />
       </FieldWrapper>
     );
   },
@@ -419,9 +401,6 @@ function getOptionsWithChildren(
 
 function getFieldFromValue(
   value: string | undefined,
-  level: number,
-  start: boolean,
-  levelSeparator?: string,
   getParentValue?: Function,
 ): any[] {
   const fields: any[] = [
@@ -429,9 +408,6 @@ function getFieldFromValue(
       field: FieldType.ACTION_SELECTOR_FIELD,
       getParentValue,
       value,
-      level,
-      start,
-      levelSeparator,
     },
   ];
   if (!value) {
@@ -450,9 +426,6 @@ function getFieldFromValue(
       }
       const successFields = getFieldFromValue(
         `{{${sucesssValue}}}`,
-        level + 1,
-        start,
-        "odd",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -469,8 +442,6 @@ function getFieldFromValue(
         },
       );
       successFields[0].label = "onSuccess";
-      successFields[0].level = level + 1;
-      successFields[0].start = true;
       fields.push(successFields);
 
       let errorValue;
@@ -479,9 +450,6 @@ function getFieldFromValue(
       }
       const errorFields = getFieldFromValue(
         `{{${errorValue}}}`,
-        level + 1,
-        start,
-        "even",
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -497,51 +465,33 @@ function getFieldFromValue(
         },
       );
       errorFields[0].label = "onError";
-      errorFields[0].level = level + 1;
-      errorFields[0].start = false;
       fields.push(errorFields);
     }
     return fields;
   }
-
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
-      level: level + 1,
-      levelSeparator,
-      start: true,
     });
   }
 
   if (value.indexOf("showModal") !== -1) {
     fields.push({
       field: FieldType.SHOW_MODAL_FIELD,
-      level: level + 1,
-      levelSeparator,
-      start: true,
     });
   }
   if (value.indexOf("closeModal") !== -1) {
     fields.push({
       field: FieldType.CLOSE_MODAL_FIELD,
-      level: level + 1,
-      levelSeparator,
-      start: true,
     });
   }
   if (value.indexOf("showAlert") !== -1) {
     fields.push(
       {
         field: FieldType.ALERT_TEXT_FIELD,
-        level: level + 1,
-        levelSeparator,
-        start: true,
       },
       {
         field: FieldType.ALERT_TYPE_SELECTOR_FIELD,
-        level: level + 1,
-        levelSeparator,
-        start: false,
       },
     );
   }
@@ -554,6 +504,144 @@ function getPageDropdownOptions(state: AppState) {
     id: page.pageId,
     value: `'${page.pageName}'`,
   }));
+}
+
+function renderField(props: {
+  onValueChange: Function;
+  value: string;
+  field: any;
+  label?: string;
+  isValid: boolean;
+  validationMessage?: string;
+  apiOptionTree: TreeDropdownOption[];
+  queryOptionTree: TreeDropdownOption[];
+  modalDropdownList: TreeDropdownOption[];
+  pageDropdownOptions: TreeDropdownOption[];
+  depth: number;
+  maxDepth: number;
+}) {
+  const { field } = props;
+  const fieldType = field.field;
+  const fieldConfig = fieldConfigs[fieldType];
+  const view = views[fieldConfig.view];
+  let viewElement: JSX.Element | null = null;
+
+  switch (fieldType) {
+    case FieldType.ACTION_SELECTOR_FIELD:
+    case FieldType.ON_SUCCESS_FIELD:
+    case FieldType.ON_ERROR_FIELD:
+    case FieldType.SHOW_MODAL_FIELD:
+    case FieldType.CLOSE_MODAL_FIELD:
+    case FieldType.PAGE_SELECTOR_FIELD:
+    case FieldType.ALERT_TYPE_SELECTOR_FIELD:
+      let label = "";
+      let defaultText = "Select Action";
+      let options = props.apiOptionTree;
+      let selectedLabelModifier = undefined;
+      let displayValue = undefined;
+      let getDefaults = undefined;
+      if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
+        label = props.label || "";
+        displayValue =
+          field.value !== "{{undefined}}" && field.value !== "{{()}}"
+            ? field.value
+            : undefined;
+        // eslint-disable-next-line react/display-name
+        selectedLabelModifier = (
+          option: TreeDropdownOption,
+          displayValue?: string,
+        ) => {
+          if (
+            option.type === ActionType.api ||
+            option.type === ActionType.query
+          ) {
+            return <HightlightedCode codeText={`{{${option.label}.run()}}`} />;
+          } else if (displayValue) {
+            return <HightlightedCode codeText={displayValue} />;
+          }
+          return <span>{option.label}</span>;
+        };
+        getDefaults = (value: string) => {
+          return {
+            [ActionType.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
+          }[value];
+        };
+      }
+      if (
+        fieldType === FieldType.SHOW_MODAL_FIELD ||
+        fieldType === FieldType.CLOSE_MODAL_FIELD
+      ) {
+        label = "Modal Name";
+        options = props.modalDropdownList;
+        defaultText = "Select Modal";
+      }
+      if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
+        label = "Page Name";
+        options = props.pageDropdownOptions;
+        defaultText = "Select Page";
+      }
+      if (fieldType === FieldType.ALERT_TYPE_SELECTOR_FIELD) {
+        label = "type";
+        options = ALERT_STYLE_OPTIONS;
+        defaultText = "Select type";
+      }
+      viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
+        options: options,
+        label: label,
+        get: fieldConfig.getter,
+        set: (value: string | DropdownOption, defaultValue?: string) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            defaultValue,
+          );
+          props.onValueChange(finalValueToSet);
+        },
+        value: props.value,
+        defaultText: defaultText,
+        getDefaults: getDefaults,
+        selectedLabelModifier: selectedLabelModifier,
+        displayValue: displayValue ? displayValue : "",
+      });
+      break;
+    case FieldType.KEY_VALUE_FIELD:
+      viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
+        options: props.apiOptionTree,
+        label: "",
+        get: fieldConfig.getter,
+        set: (value: string | DropdownOption) => {
+          const finalValueToSet = fieldConfig.setter(value, props.value);
+          props.onValueChange(finalValueToSet);
+        },
+        value: props.value,
+        defaultText: "Select Action",
+      });
+      break;
+    case FieldType.ALERT_TEXT_FIELD:
+    case FieldType.URL_FIELD:
+      let fieldLabel = "";
+      if (fieldType === FieldType.ALERT_TEXT_FIELD) {
+        fieldLabel = "Message";
+      } else if (fieldType === FieldType.URL_FIELD) {
+        fieldLabel = "Page Name";
+      }
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        label: fieldLabel,
+        get: fieldConfig.getter,
+        set: (value: string | DropdownOption) => {
+          const finalValueToSet = fieldConfig.setter(value, props.value);
+          props.onValueChange(finalValueToSet);
+        },
+        value: props.value,
+        isValid: props.isValid,
+        validationMessage: props.validationMessage,
+      });
+      break;
+    default:
+      break;
+  }
+
+  return <div key={fieldType}>{viewElement}</div>;
 }
 
 function Fields(props: {
@@ -570,171 +658,99 @@ function Fields(props: {
   depth: number;
   maxDepth: number;
 }) {
-  const ui = props.fields.map((field: any, index: number) => {
-    if (Array.isArray(field)) {
-      if (props.depth > props.maxDepth) {
-        return null;
-      }
-      const selectorField = field[0];
-      console.log("selectorField", field[0], index);
-      return (
-        <Fields
-          value={selectorField.value}
-          fields={field}
-          label={selectorField.label}
-          isValid={props.isValid}
-          validationMessage={props.validationMessage}
-          apiOptionTree={props.apiOptionTree}
-          queryOptionTree={props.queryOptionTree}
-          modalDropdownList={props.modalDropdownList}
-          pageDropdownOptions={props.pageDropdownOptions}
-          depth={props.depth + 1}
-          maxDepth={props.maxDepth}
-          onValueChange={(value: any) => {
-            props.onValueChange(
-              selectorField.getParentValue(
-                value.substring(2, value.length - 2),
-              ),
-            );
-          }}
-        />
-      );
-    }
-    const fieldType = field.field;
-    const fieldConfig = fieldConfigs[fieldType];
-    const view = views[fieldConfig.view];
-    let viewElement: JSX.Element | null = null;
-
-    switch (fieldType) {
-      case FieldType.ACTION_SELECTOR_FIELD:
-      case FieldType.ON_SUCCESS_FIELD:
-      case FieldType.ON_ERROR_FIELD:
-      case FieldType.SHOW_MODAL_FIELD:
-      case FieldType.CLOSE_MODAL_FIELD:
-      case FieldType.PAGE_SELECTOR_FIELD:
-      case FieldType.ALERT_TYPE_SELECTOR_FIELD:
-        let label = "";
-        let defaultText = "Select Action";
-        let options = props.apiOptionTree;
-        let selectedLabelModifier = undefined;
-        let displayValue = undefined;
-        let getDefaults = undefined;
-        if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
-          label = props.label || "";
-          displayValue =
-            field.value !== "{{undefined}}" && field.value !== "{{()}}"
-              ? field.value
-              : undefined;
-          // eslint-disable-next-line react/display-name
-          selectedLabelModifier = (
-            option: TreeDropdownOption,
-            displayValue?: string,
-          ) => {
-            if (
-              option.type === ActionType.api ||
-              option.type === ActionType.query
-            ) {
+  const { fields, ...otherProps } = props;
+  if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
+    const remainingFields = fields.slice(1);
+    return (
+      <React.Fragment>
+        {renderField({
+          field: fields[0],
+          ...otherProps,
+        })}
+        <ul className={props.depth === 1 ? "tree" : ""}>
+          {remainingFields.map((field: any, index: number) => {
+            if (Array.isArray(field)) {
+              if (props.depth > props.maxDepth) {
+                return null;
+              }
+              const selectorField = field[0];
               return (
-                <HightlightedCode codeText={`{{${option.label}.run()}}`} />
+                <li key={index}>
+                  <Fields
+                    value={selectorField.value}
+                    fields={field}
+                    label={selectorField.label}
+                    isValid={props.isValid}
+                    validationMessage={props.validationMessage}
+                    apiOptionTree={props.apiOptionTree}
+                    queryOptionTree={props.queryOptionTree}
+                    modalDropdownList={props.modalDropdownList}
+                    pageDropdownOptions={props.pageDropdownOptions}
+                    depth={props.depth + 1}
+                    maxDepth={props.maxDepth}
+                    onValueChange={(value: any) => {
+                      props.onValueChange(
+                        selectorField.getParentValue(
+                          value.substring(2, value.length - 2),
+                        ),
+                      );
+                    }}
+                  />
+                </li>
               );
-            } else if (displayValue) {
-              return <HightlightedCode codeText={displayValue} />;
+            } else {
+              return (
+                <li>
+                  {renderField({
+                    field: field,
+                    ...otherProps,
+                  })}
+                </li>
+              );
             }
-            return <span>{option.label}</span>;
-          };
-          getDefaults = (value: string) => {
-            return {
-              [ActionType.navigateTo]: `'${props.pageDropdownOptions[0].label}'`,
-            }[value];
-          };
+          })}
+        </ul>
+      </React.Fragment>
+    );
+  } else {
+    const ui = fields.map((field: any, index: number) => {
+      if (Array.isArray(field)) {
+        if (props.depth > props.maxDepth) {
+          return null;
         }
-        if (
-          fieldType === FieldType.SHOW_MODAL_FIELD ||
-          fieldType === FieldType.CLOSE_MODAL_FIELD
-        ) {
-          label = "Modal Name";
-          options = props.modalDropdownList;
-          defaultText = "Select Modal";
-        }
-        if (fieldType === FieldType.PAGE_SELECTOR_FIELD) {
-          label = "Page Name";
-          options = props.pageDropdownOptions;
-          defaultText = "Select Page";
-        }
-        if (fieldType === FieldType.ALERT_TYPE_SELECTOR_FIELD) {
-          label = "type";
-          options = ALERT_STYLE_OPTIONS;
-          defaultText = "Select type";
-        }
-        viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-          options: options,
-          label: label,
-          get: fieldConfig.getter,
-          set: (value: string | DropdownOption, defaultValue?: string) => {
-            const finalValueToSet = fieldConfig.setter(
-              value,
-              props.value,
-              defaultValue,
-            );
-            props.onValueChange(finalValueToSet);
-          },
-          value: props.value,
-          defaultText: defaultText,
-          getDefaults: getDefaults,
-          selectedLabelModifier: selectedLabelModifier,
-          displayValue: displayValue ? displayValue : "",
-          level: field.level,
-          start: field.start,
-          levelSeparator: field.levelSeparator,
+        const selectorField = field[0];
+        return (
+          <Fields
+            key={index}
+            value={selectorField.value}
+            fields={field}
+            label={selectorField.label}
+            isValid={props.isValid}
+            validationMessage={props.validationMessage}
+            apiOptionTree={props.apiOptionTree}
+            queryOptionTree={props.queryOptionTree}
+            modalDropdownList={props.modalDropdownList}
+            pageDropdownOptions={props.pageDropdownOptions}
+            depth={props.depth + 1}
+            maxDepth={props.maxDepth}
+            onValueChange={(value: any) => {
+              props.onValueChange(
+                selectorField.getParentValue(
+                  value.substring(2, value.length - 2),
+                ),
+              );
+            }}
+          />
+        );
+      } else {
+        return renderField({
+          field: field,
+          ...otherProps,
         });
-        break;
-      case FieldType.KEY_VALUE_FIELD:
-        viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-          options: props.apiOptionTree,
-          label: "",
-          get: fieldConfig.getter,
-          set: (value: string | DropdownOption) => {
-            const finalValueToSet = fieldConfig.setter(value, props.value);
-            props.onValueChange(finalValueToSet);
-          },
-          value: props.value,
-          defaultText: "Select Action",
-          level: field.level,
-          start: field.start,
-          levelSeparator: field.levelSeparator,
-        });
-        break;
-      case FieldType.ALERT_TEXT_FIELD:
-      case FieldType.URL_FIELD:
-        let fieldLabel = "";
-        if (fieldType === FieldType.ALERT_TEXT_FIELD) {
-          fieldLabel = "Message";
-        } else if (fieldType === FieldType.URL_FIELD) {
-          fieldLabel = "Page Name";
-        }
-        viewElement = (view as (props: TextViewProps) => JSX.Element)({
-          label: fieldLabel,
-          get: fieldConfig.getter,
-          set: (value: string | DropdownOption) => {
-            const finalValueToSet = fieldConfig.setter(value, props.value);
-            props.onValueChange(finalValueToSet);
-          },
-          value: props.value,
-          isValid: props.isValid,
-          validationMessage: props.validationMessage,
-          level: field.level,
-          start: field.start,
-          levelSeparator: field.levelSeparator,
-        });
-        break;
-      default:
-        break;
-    }
-
-    return <div key={fieldType}>{viewElement}</div>;
-  });
-
-  return <>{ui}</>;
+      }
+    });
+    return <>{ui}</>;
+  }
 }
 
 function useModalDropdownList() {
@@ -843,21 +859,22 @@ export function ActionCreator(props: ActionCreatorProps) {
   const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  const fields = getFieldFromValue(props.value, 0, false);
-  console.log("fields", fields);
+  const fields = getFieldFromValue(props.value);
   return (
-    <Fields
-      value={props.value}
-      fields={fields}
-      isValid={props.isValid}
-      validationMessage={props.validationMessage}
-      apiOptionTree={apiOptionTree}
-      queryOptionTree={queryOptionTree}
-      modalDropdownList={modalDropdownList}
-      pageDropdownOptions={pageDropdownOptions}
-      onValueChange={props.onValueChange}
-      depth={1}
-      maxDepth={1}
-    />
+    <TreeStructure>
+      <Fields
+        value={props.value}
+        fields={fields}
+        isValid={props.isValid}
+        validationMessage={props.validationMessage}
+        apiOptionTree={apiOptionTree}
+        queryOptionTree={queryOptionTree}
+        modalDropdownList={modalDropdownList}
+        pageDropdownOptions={pageDropdownOptions}
+        onValueChange={props.onValueChange}
+        depth={1}
+        maxDepth={1}
+      />
+    </TreeStructure>
   );
 }
