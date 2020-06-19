@@ -82,13 +82,17 @@ const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
 
 type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
 
-const EMPTY_RESPONSE = {
+const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
   duration: "",
   body: {},
   headers: {},
-  requestBody: null,
-  requestHeaders: {},
+  request: {
+    headers: {},
+    body: {},
+    httpMethod: "",
+    url: "",
+  },
   size: "",
 };
 
@@ -160,7 +164,7 @@ const ApiResponseView = (props: Props) => {
     {
       key: "requestHeaders",
       title: "Request Headers",
-      panelComponent: <ResponseHeadersView data={response.requestHeaders} />,
+      panelComponent: <ResponseHeadersView data={response.request.headers} />,
     },
     {
       key: "requestBody",
@@ -169,9 +173,9 @@ const ApiResponseView = (props: Props) => {
         <CodeEditor
           height={"100%"}
           input={{
-            value: _.isObject(response.requestBody)
-              ? JSON.stringify(response.requestBody, null, 2)
-              : response.requestBody || "",
+            value: _.isObject(response.request.body)
+              ? JSON.stringify(response.request.body, null, 2)
+              : response.request.body || "",
           }}
         />
       ),

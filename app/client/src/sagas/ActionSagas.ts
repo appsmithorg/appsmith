@@ -146,8 +146,12 @@ const createActionErrorResponse = (
     ? response.responseMeta.error.code.toString()
     : "Error",
   headers: {},
-  requestHeaders: {},
-  requestBody: null,
+  request: {
+    headers: {},
+    body: {},
+    httpMethod: "",
+    url: "",
+  },
   duration: "0",
   size: "0",
 });
