@@ -111,6 +111,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                     <FormIcons.DELETE_ICON
                       height={20}
                       width={20}
+                      color={"#A3B3BF"}
                       onClick={() => props.fields.remove(index)}
                       style={{ alignSelf: "center" }}
                     />
