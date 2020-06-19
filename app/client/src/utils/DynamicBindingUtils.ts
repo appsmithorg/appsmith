@@ -18,6 +18,8 @@ import {
 import * as log from "loglevel";
 import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
+import { AppToaster } from "components/editorComponents/ToastComponent";
+import { ToastType } from "react-toastify";
 
 export const removeBindingsFromObject = (obj: object) => {
   const string = JSON.stringify(obj);
@@ -382,6 +384,10 @@ export const createDependencyTree = (
     return { sortedDependencies, dependencyMap, dependencyTree };
   } catch (e) {
     console.error(e);
+    AppToaster.show({
+      message: e.message,
+      type: ToastType.ERROR,
+    });
     return { sortedDependencies: [], dependencyMap: {}, dependencyTree: [] };
   }
 };

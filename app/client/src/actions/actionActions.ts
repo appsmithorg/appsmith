@@ -158,11 +158,6 @@ export const executeApiActionSuccess = (payload: {
   payload: payload,
 });
 
-export const editApiName = (payload: { id: string; value: string }) => ({
-  type: ReduxActionTypes.EDIT_API_NAME,
-  payload: payload,
-});
-
 export const saveApiName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_API_NAME,
   payload: payload,

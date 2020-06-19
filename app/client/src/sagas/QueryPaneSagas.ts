@@ -48,7 +48,7 @@ import { getQueryName } from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
 
 const getQueryDraft = (state: AppState, id: string) => {
-  const drafts = state.ui.apiPane.drafts;
+  const drafts = state.entities.actionDrafts;
   if (id in drafts) return drafts[id];
   return {};
 };

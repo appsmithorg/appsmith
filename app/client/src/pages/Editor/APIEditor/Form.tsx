@@ -28,7 +28,6 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -132,7 +131,6 @@ interface APIFormProps {
   dispatch: any;
   datasourceFieldText: string;
   apiName: string;
-  apiNameValidation: ApiNameValidation;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;

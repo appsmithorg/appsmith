@@ -754,30 +754,6 @@ function* copyActionSaga(
   }
 }
 
-function* editApiNameSaga(action: ReduxAction<{ id: string; value: string }>) {
-  const actionNames = yield select(state =>
-    state.entities.actions.map((action: ActionData) => action.config.name),
-  );
-  const draftActionNames = yield select(state =>
-    Object.values(state.ui.apiPane.apiName.drafts),
-  );
-  //TODO: If an api is in saving state, then it should not use that name as well.
-  const validation = validateEntityName(action.payload.value, [
-    ...actionNames,
-    ...draftActionNames,
-  ]);
-
-  yield put(
-    updateApiNameDraft({
-      id: action.payload.id,
-      draft: {
-        value: action.payload.value,
-        validation: validation,
-      },
-    }),
-  );
-}
-
 export function* refactorActionName(
   id: string,
   pageId: string,
@@ -822,14 +798,13 @@ export function* refactorActionName(
 
 function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from drafts, checks if the name isValid, saves
+  const apiId = action.payload.id;
+  const api = yield select(state =>
+    state.entities.actions.find(
+      (action: ActionData) => action.config.id === apiId,
+    ),
+  );
   try {
-    const apiId = action.payload.id;
-    const api = yield select(state =>
-      state.entities.actions.find(
-        (action: ActionData) => action.config.id === apiId,
-      ),
-    );
-
     yield refactorActionName(
       api.config.id,
       api.config.pageId,
@@ -841,6 +816,7 @@ function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
       type: ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
       payload: {
         actionId: action.payload.id,
+        oldName: api.config.name,
       },
     });
     AppToaster.show({
@@ -859,7 +835,6 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
-    takeLatest(ReduxActionTypes.EDIT_API_NAME, editApiNameSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,

@@ -22,7 +22,6 @@ import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
 import { PaginationType, RestAction } from "entities/Action";
-import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
 const Form = styled.form`
@@ -118,7 +117,6 @@ interface APIFormProps {
   };
   apiName: string;
   apiId: string;
-  apiNameValidation: ApiNameValidation;
   dispatch: any;
 }
 

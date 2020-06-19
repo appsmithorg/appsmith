@@ -33,10 +33,6 @@ interface ReduxStateProps {
   isDeleting: Record<string, boolean>;
   allowSave: boolean;
   apiName: string;
-  apiNameValidation: {
-    isValid: boolean;
-    validationMessage: string;
-  };
   currentApplication: UserApplication;
   currentPageName: string | undefined;
   pages: any;
@@ -197,7 +193,6 @@ class ApiEditor extends React.Component<Props> {
                     : ""
                 }
                 apiName={this.props.apiName}
-                apiNameValidation={this.props.apiNameValidation}
                 onChange={this.onChangeHandler}
                 location={this.props.location}
               />
@@ -206,7 +201,6 @@ class ApiEditor extends React.Component<Props> {
             {formUiComponent === "RapidApiEditorForm" && (
               <RapidApiEditorForm
                 apiName={this.props.apiName}
-                apiNameValidation={this.props.apiNameValidation}
                 apiId={this.props.match.params.apiId}
                 paginationType={paginationType}
                 isRunning={isRunning[apiId]}
@@ -236,27 +230,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-  const apiNameDraft =
-    state.ui.apiPane.apiName.drafts[props.match.params.apiId];
-  let apiNameValidation = {
-    isValid: true,
-    validationMessage: "",
-  };
 
-  if (apiNameDraft && apiNameDraft.validation) {
-    apiNameValidation = apiNameDraft.validation;
-  }
-
-  const { drafts, isDeleting, isRunning } = state.ui.apiPane;
-  let data: RestAction | ActionData | RapidApiAction | undefined;
-  let allowSave;
-  if (apiAction && apiAction.id in drafts) {
-    data = drafts[apiAction.id];
-    allowSave = true;
-  } else {
-    data = apiAction;
-    allowSave = false;
-  }
+  const { isDeleting, isRunning } = state.ui.apiPane;
+  const actionDrafts = state.entities.actionDrafts;
+  const allowSave = !!(apiAction && apiAction.id in actionDrafts);
   const datasourceFieldText =
     state.ui.apiPane.datasourceFieldText[formData?.id ?? ""] || "";
 
@@ -267,10 +244,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     currentPageName: getCurrentPageName(state),
     pages: state.entities.pageList.pages,
     apiName: apiName || "",
-    apiNameValidation: apiNameValidation,
     plugins: state.entities.plugins.list,
-    pluginId: _.get(data, "pluginId"),
-    paginationType: _.get(data, "actionConfiguration.paginationType"),
+    pluginId: _.get(apiAction, "pluginId"),
+    paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
     isRunning,
     isDeleting,
