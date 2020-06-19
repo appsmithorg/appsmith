@@ -83,7 +83,7 @@ export interface ActionApiResponse {
 export interface ActionResponse {
   body: object;
   headers: Record<string, string[]>;
-  request: ActionApiResponseReq;
+  request?: ActionApiResponseReq;
   statusCode: string;
   duration: string;
   size: string;
