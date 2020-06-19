@@ -7,6 +7,7 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
+import _ from "lodash";
 
 // TODO Commenting out for now as it is causing performance issues
 // function getQueryParams() {
@@ -37,35 +38,40 @@ import { getPageList } from "./appViewSelectors";
 //   },
 // );
 //
-export const getUnevaluatedDataTree = createSelector(
-  getActionsForCurrentPage,
-  getActionDrafts,
-  getWidgets,
-  getWidgetsMeta,
-  getPageList,
-  (actions, actionDrafts, widgets, widgetsMeta, pageListPayload) => {
-    const pageList = pageListPayload || [];
-    return DataTreeFactory.create({
-      actions,
-      actionDrafts,
-      widgets,
-      widgetsMeta,
-      pageList,
-    });
-  },
-);
+export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
+  createSelector(
+    getActionsForCurrentPage,
+    getActionDrafts,
+    getWidgets,
+    getWidgetsMeta,
+    getPageList,
+    (actions, actionDrafts, widgets, widgetsMeta, pageListPayload) => {
+      const pageList = pageListPayload || [];
+      return DataTreeFactory.create(
+        {
+          actions,
+          actionDrafts,
+          widgets,
+          widgetsMeta,
+          pageList,
+        },
+        withFunctions,
+      );
+    },
+  );
 
-export const evaluateDataTree = createSelector(
-  getUnevaluatedDataTree,
-  (dataTree: DataTree): DataTree => {
-    return getEvaluatedDataTree(dataTree);
-  },
-);
+export const evaluateDataTree = (withFunctions?: boolean) =>
+  createSelector(
+    getUnevaluatedDataTree(withFunctions),
+    (dataTree: DataTree): DataTree => {
+      return getEvaluatedDataTree(dataTree);
+    },
+  );
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
-  evaluateDataTree,
+  evaluateDataTree(false),
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
     log.debug("Evaluating data tree to get autocomplete values");
