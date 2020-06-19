@@ -387,7 +387,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     return { isValid, parsed };
   },
   [VALIDATION_TYPES.DATE]: (
-    value: string,
+    dateString: string,
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
@@ -396,8 +396,10 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .minute(0)
       .second(0)
       .millisecond(0);
-
-    if (value === undefined) {
+    const dateFormat = props.dateFormat ? props.dateFormat : moment.ISO_8601;
+    const dateStr = moment().toISOString();
+    const todayDateString = today.format(dateFormat);
+    if (dateString === undefined) {
       return {
         isValid: false,
         parsed: "",
@@ -407,8 +409,8 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
             : "",
       };
     }
-    const isValid = moment(value, props.dateFormat).isValid();
-    const parsed = isValid ? value : today;
+    const isValid = moment(dateString, dateFormat).isValid();
+    const parsed = isValid ? dateString : todayDateString;
     return {
       isValid,
       parsed,
