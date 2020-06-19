@@ -65,6 +65,20 @@ export const EXPLORER_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
 
+export const EXPLORER_PATHS = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  apiId = ":apiId",
+  queryId = ":queryId",
+): string[] => {
+  const paths = [`${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`];
+  paths.push(
+    `${QUERIES_EDITOR_ID_URL(applicationId, pageId, queryId)}/explorer`,
+  );
+  paths.push(`${API_EDITOR_ID_URL(applicationId, pageId, apiId)}/explorer`);
+  return paths;
+};
+
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
@@ -163,7 +177,7 @@ export const EDITOR_ROUTES = [
     path: EXPLORER_URL,
     title: "Explorer",
     className: "t--nav-link-entity-explorer",
-    exact: true,
+    exact: false,
   },
   {
     icon: MenuIcons.WIDGETS_ICON,

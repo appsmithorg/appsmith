@@ -96,9 +96,10 @@ interface PopoverContentProps {
   theme: EditorTheme;
 }
 
-const CurrentValueViewer = (props: {
+export const CurrentValueViewer = (props: {
   theme: EditorTheme;
   evaluatedValue: any;
+  hideLabel?: boolean;
 }) => {
   let content = (
     <CodeWrapper colorTheme={props.theme}>{"undefined"}</CodeWrapper>
@@ -131,7 +132,7 @@ const CurrentValueViewer = (props: {
   }
   return (
     <React.Fragment>
-      <p>Current Value:</p>
+      {!props.hideLabel && <p>Current Value:</p>}
       <CurrentValueWrapper>{content}</CurrentValueWrapper>
     </React.Fragment>
   );
