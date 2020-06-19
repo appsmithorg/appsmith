@@ -2,11 +2,11 @@
   "resourceUrl": ".t--dataSourceField",
   "searchApi": ".t--sidebar input[type=text]",
   "createapi": ".t--createBlankApiCard",
-  "apiTxt": ".t--nameOfApi input",
+  "apiTxt": ".t--action-name-edit-field input",
   "popover": ".bp3-popover-target >div>svg",
   "moveTo": ".single-select >div:contains('Move to')",
   "copyTo": ".single-select >div:contains('Copy to')",
-  "home": ".single-select >div:contains('Home')",
+  "home": ".single-select >div:contains('Page1')",
   "delete": ".single-select >div:contains('Delete')",
   "path": ".t--path >div textarea",
   "editResourceUrl": ".t--dataSourceField input",
@@ -32,5 +32,7 @@
   "panigationNextUrl": ".t--apiFormPaginationNext div>textarea",
   "panigationPrevUrl": ".t--apiFormPaginationPrev div>textarea",
   "TestNextUrl": ".t--apiFormPaginationNextTest",
-  "TestPreUrl": ".t--apiFormPaginationPrevTest"
+  "TestPreUrl": ".t--apiFormPaginationPrevTest",
+  "EditApiName": "//img[contains(@class,'EditableText')]",
+  "ApiName": ".t--action-name-edit-field span"
 }
