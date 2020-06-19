@@ -28,12 +28,12 @@ export const ExplorerTitle = (props: {
     <Wrapper>
       <h1>EXPLORER</h1>
       <ActionIconGroup>
-        <Icon
+        {/* <Icon
           iconSize={ICON_SIZE}
           icon={props.isCollapsed ? "remove" : "add"}
           onClick={props.onCollapseToggle}
         />
-        <Icon icon="pin" iconSize={ICON_SIZE} />
+        <Icon icon="pin" iconSize={ICON_SIZE} /> */}
       </ActionIconGroup>
     </Wrapper>
   );

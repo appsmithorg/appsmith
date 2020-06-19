@@ -9,6 +9,8 @@ import { ExplorerTitle } from "./ExplorerTitle";
 
 const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 const EntityExplorer = () => {

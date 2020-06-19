@@ -3,11 +3,18 @@ import { AppState } from "reducers";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Page } from "constants/ReduxActionConstants";
+import { merge } from "lodash";
 
 export const useEntities = () => {
-  const canvasWidgets = useSelector((state: AppState) => {
+  let canvasWidgets = useSelector((state: AppState) => {
     return state.entities.canvasWidgets;
   });
+
+  const metaProps = useSelector((state: AppState) => {
+    return state.entities.meta;
+  });
+
+  canvasWidgets = merge(canvasWidgets, metaProps);
 
   const currentPageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;

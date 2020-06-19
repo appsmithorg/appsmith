@@ -52,7 +52,10 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
 const getEntityProperties = (entity: any) => {
   let config: any;
   let name: string;
-  if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
+  if (
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET &&
+    entity.type !== WidgetTypes.TABLE_WIDGET
+  ) {
     config =
       entityDefinitions[
         entity.type as Exclude<
@@ -64,20 +67,36 @@ const getEntityProperties = (entity: any) => {
   } else if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
     config = entityDefinitions.ACTION(entity);
     name = entity.config.name;
+  } else if (entity.type === WidgetTypes.TABLE_WIDGET) {
+    config = entityDefinitions[WidgetTypes.TABLE_WIDGET](entity);
+    name = entity.widgetName;
   }
 
-  return Object.keys(config)
-    .filter(k => k.indexOf("!") === -1)
-    .map((entityProperty: string) => {
-      return (
-        <EntityProperty
-          key={entityProperty}
-          propertyName={entityProperty}
-          entityName={name}
-          value={entity[entityProperty]}
-        />
-      );
-    });
+  return (
+    config &&
+    Object.keys(config)
+      .filter(k => k.indexOf("!") === -1)
+      .map((entityProperty: string) => {
+        let value = entity[entityProperty];
+        if (entityProperty === "run") {
+          value = "Function";
+          entityProperty = entityProperty + "()";
+        }
+        if (entityProperty === "selectedRow") {
+          const tableData = JSON.parse(entity.tableData);
+          if (tableData && tableData[entity.selectedRowIndex])
+            value = tableData[entity.selectedRowIndex];
+        }
+        return (
+          <EntityProperty
+            key={entityProperty}
+            propertyName={entityProperty}
+            entityName={name}
+            value={value}
+          />
+        );
+      })
+  );
 };
 
 const getEntityChildren = (entity: any, step: number) => {
@@ -181,9 +200,12 @@ export const getPageEntityGroups = (
       step={0}
       disabled={!isCurrentPage}
       action={() =>
-        applicationId && history.push(EXPLORER_URL(applicationId, page.id))
+        !isCurrentPage &&
+        applicationId &&
+        history.push(EXPLORER_URL(applicationId, page.id))
       }
       active={isCurrentPage}
+      isDefaultExpanded={isCurrentPage}
     >
       {groups}
     </Entity>
