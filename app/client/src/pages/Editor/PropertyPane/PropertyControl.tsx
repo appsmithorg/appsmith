@@ -61,6 +61,7 @@ const PropertyControl = (props: Props) => {
       validationMessage,
       dataTreePath,
       evaluatedValue,
+      widgetProperties: widgetProperties,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
     };
     const isDynamic: boolean = _.get(
