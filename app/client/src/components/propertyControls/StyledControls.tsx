@@ -89,8 +89,6 @@ export const StyledDropDownContainer = styled.div`
         display: block;
         overflow: auto;
       }
-      .bp3-icon {
-      }
     }
   }
   &&&& .${Classes.MENU_ITEM} {
