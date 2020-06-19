@@ -42,7 +42,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -59,10 +58,8 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -289,32 +286,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
         return action;
     }
 
-
-    private ActionExecutionResult populateRequestFields(ActionConfiguration actionConfiguration,
-                                                        ActionExecutionResult actionExecutionResult) {
-
-        if (actionExecutionResult == null) {
-            return null;
-        }
-
-        if (actionConfiguration.getHeaders() != null) {
-            MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
-
-            actionConfiguration.getHeaders().stream()
-                    .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
-            actionExecutionResult.setRequestHeaders(objectMapper.valueToTree(reqMultiMap));
-            log.debug("Got request headers in actionExecutionResult as: {}", actionExecutionResult.getRequestHeaders());
-        }
-
-        // If the body is set, then use that field as the request body by default
-        if (actionConfiguration.getBody() != null) {
-            actionExecutionResult.setRequestBody(actionConfiguration.getBody());
-        }
-
-        log.debug("Got requestBody in actionExecutionResult as: {}", actionExecutionResult.getRequestBody());
-        return actionExecutionResult;
-    }
-
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         Action actionFromDto = executeActionDTO.getAction();
@@ -481,12 +452,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                                 }
                                 return Mono.just(result);
-                            })
-                            .map(obj -> populateRequestFields(actionConfiguration, (ActionExecutionResult) obj));
+                            });
                 }))
-                .flatMap(obj -> obj);
+                .flatMap(obj -> obj)
+                .map(obj -> (ActionExecutionResult) obj);
 
-                // Populate the actionExecution result further by setting the cached response and saving it to the DB
+                // Populate the actionExecution result by setting the cached response and saving it to the DB
                 return actionExecutionResultMono.flatMap(result -> {
                             Mono<ActionExecutionResult> resultMono = Mono.just(result);
                             if (actionFromDto.getId() == null) {

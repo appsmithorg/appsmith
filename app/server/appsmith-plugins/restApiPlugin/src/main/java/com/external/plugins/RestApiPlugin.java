@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -22,6 +23,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedCaseInsensitiveMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -34,8 +38,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -117,8 +123,13 @@ public class RestApiPlugin extends BasePlugin {
                         HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
                         ActionExecutionResult result = new ActionExecutionResult();
+
+                        // Set the request fields
+                        result.setRequest(populateRequestFields(actionConfiguration, uri));
+
                         result.setStatusCode(statusCode.toString());
                         result.setIsExecutionSuccess(statusCode.is2xxSuccessful());
+
 
                         // Convert the headers into json tree to store in the results
                         String headerInJsonString;
@@ -350,6 +361,36 @@ public class RestApiPlugin extends BasePlugin {
                 }
             }
             return uriBuilder.build(true).toUri();
+        }
+
+        private ActionExecutionRequest populateRequestFields(ActionConfiguration actionConfiguration,
+                                                            URI uri) {
+
+            ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+
+            if (actionConfiguration.getHeaders() != null) {
+                MultiValueMap<String, String> reqMultiMap = CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+
+                actionConfiguration.getHeaders().stream()
+                        .forEach(header -> reqMultiMap.put(header.getKey(), Arrays.asList(header.getValue())));
+                actionExecutionRequest.setHeaders(objectMapper.valueToTree(reqMultiMap));
+            }
+
+            // If the body is set, then use that field as the request body by default
+            if (actionConfiguration.getBody() != null) {
+                actionExecutionRequest.setBody(actionConfiguration.getBody());
+            }
+
+            if (actionConfiguration.getHttpMethod() != null) {
+                actionExecutionRequest.setHttpMethod(actionConfiguration.getHttpMethod());
+            }
+
+            if (uri != null) {
+                actionExecutionRequest.setUrl(uri.toString());
+            }
+
+            log.debug("Got request in actionExecutionResult as: {}", actionExecutionRequest);
+            return actionExecutionRequest;
         }
     }
 }

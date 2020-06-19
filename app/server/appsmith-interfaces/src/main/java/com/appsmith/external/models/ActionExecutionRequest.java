@@ -5,18 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.http.HttpMethod;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class ActionExecutionResult {
-
-    String statusCode;
-    JsonNode headers;
+public class ActionExecutionRequest {
     Object body;
-    Boolean isExecutionSuccess = false;
-
-    ActionExecutionRequest request;
-
+    JsonNode headers;
+    HttpMethod httpMethod;
+    String url;
 }
