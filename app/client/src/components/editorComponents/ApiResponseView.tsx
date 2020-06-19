@@ -164,7 +164,9 @@ const ApiResponseView = (props: Props) => {
     {
       key: "requestHeaders",
       title: "Request Headers",
-      panelComponent: <ResponseHeadersView data={response.request.headers} />,
+      panelComponent: (
+        <ResponseHeadersView data={response.request?.headers || {}} />
+      ),
     },
     {
       key: "requestBody",
@@ -173,9 +175,9 @@ const ApiResponseView = (props: Props) => {
         <CodeEditor
           height={"100%"}
           input={{
-            value: _.isObject(response.request.body)
-              ? JSON.stringify(response.request.body, null, 2)
-              : response.request.body || "",
+            value: _.isObject(response.request?.body)
+              ? JSON.stringify(response.request?.body, null, 2)
+              : response.request?.body || "",
           }}
         />
       ),
