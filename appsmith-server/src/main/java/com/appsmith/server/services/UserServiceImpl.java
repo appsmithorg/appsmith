@@ -32,11 +32,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -194,22 +194,28 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Save the password reset link and send an email to the user
         Mono<Boolean> resetFlowMono = passwordResetTokenMono
-                .flatMap(resetToken -> passwordResetTokenRepository.save(resetToken))
-                .map(obj -> {
-                    String resetUrl = String.format(FORGOT_PASSWORD_CLIENT_URL_FORMAT,
+                .flatMap(passwordResetTokenRepository::save)
+                .flatMap(obj -> {
+                    String resetUrl = String.format(
+                            FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
                             URLEncoder.encode(token, StandardCharsets.UTF_8),
-                            URLEncoder.encode(email, StandardCharsets.UTF_8));
+                            URLEncoder.encode(email, StandardCharsets.UTF_8)
+                    );
+
                     Map<String, String> params = Map.of("resetUrl", resetUrl);
-                    try {
-                        String emailTemplate = emailSender.replaceEmailTemplate(FORGOT_PASSWORD_EMAIL_TEMPLATE, params);
-                        emailSender.sendMail(email, "Appsmith Password Reset", emailTemplate);
-                    } catch (IOException e) {
-                        log.error("Unable to send email because the template replacement failed. Cause: ", e);
-                    }
-                    return Mono.empty();
+                    return emailSender.sendMail(
+                            email,
+                            "Appsmith Password Reset",
+                            FORGOT_PASSWORD_EMAIL_TEMPLATE,
+                            params
+                    );
                 })
-                .thenReturn(true);
+                .thenReturn(true)
+                .onErrorResume(error -> {
+                    log.error("Unable to send email because the template replacement failed. Cause: ", error);
+                    return Mono.just(true);
+                });
 
         // Connect the components to first find a valid user and then initiate the password reset flow
         return userMono.then(resetFlowMono);
@@ -474,21 +480,25 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         final String finalOriginHeader = originHeader;
 
         return userCreate(user)
-                .map(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
+                .flatMap(savedUser -> sendWelcomeEmail(savedUser, finalOriginHeader));
     }
 
-    public User sendWelcomeEmail(User user, String originHeader) {
-        try {
-            Map<String, String> params = new HashMap<>();
-            params.put("firstName", user.getName());
-            params.put("appsmithLink", originHeader);
-            String emailBody = emailSender.replaceEmailTemplate(WELCOME_USER_EMAIL_TEMPLATE, params);
-            emailSender.sendMail(user.getEmail(), "Welcome to Appsmith", emailBody);
-        } catch (IOException e) {
-            // Catching and swallowing this exception because we don't want this to affect the rest of the flow
-            log.error("Unable to send welcome email to the user {}. Cause: ", user.getEmail(), e);
-        }
-        return user;
+    public Mono<User> sendWelcomeEmail(User user, String originHeader) {
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", user.getName());
+        params.put("appsmithLink", originHeader);
+        return emailSender
+                .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
+                .thenReturn(user)
+                .onErrorResume(error -> {
+                    // Swallowing this exception because we don't want this to affect the rest of the flow.
+                    log.error(
+                            "Ignoring error: Unable to send welcome email to the user {}. Cause: ",
+                            user.getEmail(),
+                            Exceptions.unwrap(error)
+                    );
+                    return Mono.just(user);
+                });
     }
 
     @Override
@@ -612,7 +622,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
 
         return Mono.zip(organizationWithUserAddedMono, userUpdatedWithOrgMono, currentUserMono)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     // We reached here. This implies that both user and org got updated without any errors. Proceed forward
                     // with communication (email) here.
                     Organization updatedOrg = tuple.getT1();
@@ -628,39 +638,39 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     }
                     params.put("inviter_org_name", updatedOrg.getName());
 
+                    Mono<Void> emailMono;
                     if (userExisted.get()) {
-
                         // If the user already existed, just send an email informing that the user has been added
                         // to a new organization
                         log.debug("Going to send email to user {} informing that the user has been added to new organization {}",
                                 updatedUser.getEmail(), updatedOrg.getName());
-                        try {
-                            String inviteUrl = originHeader;
-                            params.put("inviteUrl", inviteUrl);
-                            String emailBody = emailSender.replaceEmailTemplate(USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
-                            emailSender.sendMail(updatedUser.getEmail(), "Appsmith: You have been added to a new organization", emailBody);
-                        } catch (IOException e) {
-                            log.error("Unable to send invite user email to {}. Cause: ", updatedUser.getEmail(), e);
-                        }
+                        params.put("inviteUrl", originHeader);
+                        emailMono = emailSender.sendMail(updatedUser.getEmail(), "Appsmith: You have been added to a new organization", USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE, params);
 
                     } else {
                         // The user was created and then added to the organization. Send an email to the user to sign
                         // up on Appsmith platform with the token generated during create user.
                         log.debug("Going to send email for invite user to {} with token {}", updatedUser.getEmail(), updatedUser.getInviteToken());
-                        try {
-                            String inviteUrl = String.format(INVITE_USER_CLIENT_URL_FORMAT, originHeader,
-                                    URLEncoder.encode(updatedUser.getInviteToken(), StandardCharsets.UTF_8),
-                                    URLEncoder.encode(updatedUser.getEmail(), StandardCharsets.UTF_8));
-                            params.put("token", updatedUser.getInviteToken());
-                            params.put("inviteUrl", inviteUrl);
-                            String emailBody = emailSender.replaceEmailTemplate(INVITE_USER_EMAIL_TEMPLATE, params);
-                            emailSender.sendMail(updatedUser.getEmail(), "Invite for Appsmith", emailBody);
-                        } catch (IOException e) {
-                            log.error("Unable to send invite user email to {}. Cause: ", updatedUser.getEmail(), e);
-                        }
+                        String inviteUrl = String.format(
+                                INVITE_USER_CLIENT_URL_FORMAT,
+                                originHeader,
+                                URLEncoder.encode(updatedUser.getInviteToken(), StandardCharsets.UTF_8),
+                                URLEncoder.encode(updatedUser.getEmail(), StandardCharsets.UTF_8)
+                        );
+
+                        params.put("token", updatedUser.getInviteToken());
+                        params.put("inviteUrl", inviteUrl);
+                        emailMono = emailSender.sendMail(updatedUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
+
                     }
+
                     // We have sent out the emails. Just send back the saved user.
-                    return updatedUser;
+                    return emailMono
+                            .thenReturn(updatedUser)
+                            .onErrorResume(error -> {
+                                log.error("Unable to send invite user email to {}. Cause: ", updatedUser.getEmail(), error);
+                                return Mono.just(updatedUser);
+                            });
                 });
     }
 
