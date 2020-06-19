@@ -27,7 +27,7 @@ const StyledCode = styled.div`
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
         white-space: pre-wrap;
         background: transparent;
-        font-size: ${props => props.theme.fontSizes[4]}px;
+        font-size: ${props => props.theme.fontSizes[3]}px;
         overflow-wrap: break-word;
         text-shadow: none;
       }
