@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, Card } from "@blueprintjs/core";
+import { Icon, Card, Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ImageAlt from "assets/images/placeholder-image.svg";
@@ -24,11 +24,11 @@ import {
 import { Page } from "constants/ReduxActionConstants";
 import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_URL,
 } from "constants/routes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QueryAction } from "entities/Action";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 const QueryHomePage = styled.div`
   font-size: 20px;
@@ -84,6 +84,10 @@ const CardsWrapper = styled.div`
     padding-bottom: 0px;
     cursor: pointer !important;
   }
+`;
+
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
 `;
 
 const DatasourceCardsContainer = styled.div`
@@ -143,7 +147,9 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     if (pageId) {
       const newQueryName = createNewQueryName(actions, pageId);
 
-      history.push(QUERIES_EDITOR_ID_URL(applicationId, pageId));
+      history.push(
+        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
+      );
       this.props.createAction({
         name: newQueryName,
         pageId,
@@ -180,6 +186,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       pageId,
       history,
       location,
+      isCreating,
     } = this.props;
 
     const validDataSources: Array<Datasource> = [];
@@ -197,6 +204,14 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     if (!destinationPageId) {
       history.push(
         QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
+      );
+    }
+
+    if (isCreating) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
       );
     }
 

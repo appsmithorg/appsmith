@@ -30,7 +30,6 @@ import {
   QUERY_BODY_FIELD,
 } from "constants/QueryEditorConstants";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryAction, RestAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
 import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
@@ -128,7 +127,6 @@ class QueryEditor extends React.Component<Props> {
       <React.Fragment>
         {queryId ? (
           <QueryEditorForm
-            isCreating={isCreating}
             location={this.props.location}
             applicationId={applicationId}
             pageId={pageId}
