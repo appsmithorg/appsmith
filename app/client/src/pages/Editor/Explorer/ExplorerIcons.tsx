@@ -44,5 +44,7 @@ export const queryIcon = (
 
 export const getWidgetIcon = (type: WidgetType) => {
   const WidgetIcon = WidgetIcons[type];
-  return <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} />;
+  if (WidgetIcon)
+    return <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} />;
+  return null;
 };
