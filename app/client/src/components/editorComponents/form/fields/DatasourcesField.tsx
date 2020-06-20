@@ -106,7 +106,7 @@ const DatasourcesField = (
   }
 
   const DropdownIndicator = (props: any) => {
-    if (props.hasValue) return null;
+    if (props.hasValue || !props.selectProps.inputValue) return null;
 
     const MenuContainer = (
       <StyledMenu>
@@ -198,7 +198,7 @@ const DatasourcesField = (
             const baseUrl = url.origin;
 
             datasourcePayload = {
-              name: baseUrl,
+              name: baseUrl || "DEFAULT_REST_DATASOURCE",
               datasourceConfiguration: {
                 url: baseUrl,
               },
@@ -206,7 +206,7 @@ const DatasourcesField = (
             pathPayload = path + params;
           } catch (e) {
             datasourcePayload = {
-              name: value,
+              name: value || "DEFAULT_REST_DATASOURCE",
               datasourceConfiguration: {
                 url: value,
               },
