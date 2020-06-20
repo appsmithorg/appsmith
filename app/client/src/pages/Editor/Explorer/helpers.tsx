@@ -83,9 +83,13 @@ const getEntityProperties = (entity: any) => {
           entityProperty = entityProperty + "()";
         }
         if (entityProperty === "selectedRow") {
-          const tableData = JSON.parse(entity.tableData);
-          if (tableData && tableData[entity.selectedRowIndex])
-            value = tableData[entity.selectedRowIndex];
+          try {
+            const tableData = JSON.parse(entity.tableData);
+            if (tableData && tableData[entity.selectedRowIndex])
+              value = tableData[entity.selectedRowIndex];
+          } catch (e) {
+            noop();
+          }
         }
         return (
           <EntityProperty
