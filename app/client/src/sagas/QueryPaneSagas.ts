@@ -58,6 +58,9 @@ const getActions = (state: AppState) =>
 
 const getLastUsedAction = (state: AppState) => state.ui.queryPane.lastUsed;
 
+const getQueryCreationStatus = (state: AppState) =>
+  state.ui.queryPane.isCreating;
+
 function* initQueryPaneSaga(
   actionPayload: ReduxAction<{
     pluginType: string;
@@ -71,6 +74,7 @@ function* initQueryPaneSaga(
   }
   const urlId = actionPayload.payload.id;
   const lastUsedId = yield select(getLastUsedAction);
+  const isCreating = yield select(getQueryCreationStatus);
 
   let id = "";
   if (urlId) {
@@ -78,6 +82,8 @@ function* initQueryPaneSaga(
   } else if (lastUsedId) {
     id = lastUsedId;
   }
+
+  if (isCreating) return;
 
   yield put(changeQuery(id, QUERY_CONSTANT));
 }

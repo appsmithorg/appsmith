@@ -25,8 +25,6 @@ import history from "utils/history";
 import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
-import Spinner from "components/editorComponents/Spinner";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
 import TextField from "components/editorComponents/form/fields/TextField";
@@ -168,10 +166,6 @@ const TableHeader = styled.div`
   color: #2e3d49;
 `;
 
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
 const StyledGridComponent = styled(GridComponent)`
   &&& {
     .e-altrow {
@@ -236,7 +230,6 @@ const StyledCheckbox = styled(CheckboxField)`
 `;
 
 type QueryFormProps = {
-  isCreating: boolean;
   onDeleteClick: () => void;
   onSaveClick: () => void;
   onRunClick: () => void;
@@ -284,7 +277,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     executedQueryData,
     selectedPluginPackage,
     createTemplate,
-    isCreating,
     runErrorMessage,
   } = props;
 
@@ -292,7 +284,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
   const isNewQuery = props.location.state?.newQuery ?? false;
-  let queryOutput = { body: [{ "": "" }] };
+  let queryOutput = { body: [{ "": "", " ": "" }] };
   const inputEl = useRef<HTMLInputElement>();
 
   if (executedQueryData) {
@@ -306,14 +298,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       inputEl.current?.select();
     }
   }, [isNewQuery]);
-
-  if (isCreating) {
-    return (
-      <LoadingContainer>
-        <Spinner size={30} />
-      </LoadingContainer>
-    );
-  }
 
   const MenuList = (props: MenuListComponentProps<{ children: Node }>) => {
     return (
@@ -531,10 +515,17 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
       {executedQueryData && dataSources.length && (
         <ResponseContainer>
-          <p className="statementTextArea">Query response</p>
+          <p className="statementTextArea">
+            {executedQueryData.body.length
+              ? "Query response"
+              : "No data records to display"}
+          </p>
           <ResponseContent>
             {isSQL ? (
-              <StyledGridComponent dataSource={queryOutput.body}>
+              <StyledGridComponent
+                gridLines="Vertical"
+                dataSource={queryOutput.body}
+              >
                 <ColumnsDirective>
                   {Object.keys(queryOutput.body[0]).map((key: string) => {
                     return (
