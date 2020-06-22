@@ -31,14 +31,14 @@ export interface ColumnMenuOptionProps {
   id?: string;
   category?: boolean;
   options?: ColumnMenuSubOptionProps[];
-  onClick?: (isSelected: boolean) => void;
+  onClick?: (columnIndex: number, isSelected: boolean) => void;
 }
 
 export interface ColumnMenuSubOptionProps {
   content: string;
   isSelected: boolean;
   closeOnClick: boolean;
-  onClick: () => void;
+  onClick: (columnIndex: number) => void;
 }
 
 interface ReactTableComponentProps {
@@ -293,10 +293,6 @@ export class ReactTableComponent extends React.Component<
     return reorderedColumns;
   };
 
-  showMenu = (columnIndex: number) => {
-    this.setState({ columnIndex: columnIndex, action: "" });
-  };
-
   getColumnMenu = () => {
     const { columnIndex } = this.state;
     let columnType = "";
@@ -327,14 +323,18 @@ export class ReactTableComponent extends React.Component<
       updateColumnType: this.updateColumnType,
       handleUpdateCurrencySymbol: this.handleUpdateCurrencySymbol,
       handleDateFormatUpdate: this.handleDateFormatUpdate,
-      updateAction: (action: string) => this.setState({ action: action }),
+      updateAction: (columnIndex: number, action: string) =>
+        this.setState({ action: action }),
     });
     return columnMenuOptions;
   };
 
-  hideColumn = (isColumnHidden: boolean) => {
+  showMenu = (columnIndex: number) => {
+    this.setState({ columnIndex: columnIndex, action: "" });
+  };
+
+  hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
     const columns = this.getTableColumns();
-    const columnIndex = this.state.columnIndex;
     const column = columns[columnIndex];
     let hiddenColumns = this.props.hiddenColumns || [];
     if (!isColumnHidden) {
@@ -353,9 +353,8 @@ export class ReactTableComponent extends React.Component<
     this.setState({ columnIndex: -1 });
   };
 
-  updateColumnType = (columnType: string) => {
+  updateColumnType = (columnIndex: number, columnType: string) => {
     const columns = this.getTableColumns();
-    const columnIndex = this.state.columnIndex;
     const column = columns[columnIndex];
     const columnTypeMap = this.props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
@@ -370,15 +369,14 @@ export class ReactTableComponent extends React.Component<
     this.setState({ columnName: event.target.value });
   };
 
-  onKeyPress = (key: string) => {
+  onKeyPress = (columnIndex: number, key: string) => {
     if (key === "Enter") {
-      this.handleColumnNameUpdate();
+      this.handleColumnNameUpdate(columnIndex);
     }
   };
 
-  handleColumnNameUpdate = () => {
+  handleColumnNameUpdate = (columnIndex: number) => {
     const columns = this.getTableColumns();
-    const columnIndex = this.state.columnIndex;
     const columnName = this.state.columnName;
     const column = columns[columnIndex];
     const columnNameMap = this.props.columnNameMap || {};
@@ -391,9 +389,11 @@ export class ReactTableComponent extends React.Component<
     });
   };
 
-  handleUpdateCurrencySymbol = (currencySymbol: string) => {
+  handleUpdateCurrencySymbol = (
+    columnIndex: number,
+    currencySymbol: string,
+  ) => {
     const columns = this.getTableColumns();
-    const columnIndex = this.state.columnIndex;
     const column = columns[columnIndex];
     const columnTypeMap = this.props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
@@ -407,9 +407,8 @@ export class ReactTableComponent extends React.Component<
     });
   };
 
-  handleDateFormatUpdate = (dateFormat: string) => {
+  handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
     const columns = this.getTableColumns();
-    const columnIndex = this.state.columnIndex;
     const column = columns[columnIndex];
     const columnTypeMap = this.props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
