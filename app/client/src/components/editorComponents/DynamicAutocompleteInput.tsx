@@ -274,8 +274,6 @@ const IconContainer = styled.div`
   }
 `;
 
-type MenuState = "none" | "default" | "active" | "hover";
-
 const DynamicAutocompleteInputWrapper = styled.div<{
   skin: Skin;
   theme: Theme;
@@ -292,11 +290,7 @@ const DynamicAutocompleteInputWrapper = styled.div<{
     props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
       : "transparent"};
-  .bp3-popover-wrapper:first-of-type {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+
   &:hover {
     border: ${props =>
       props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
