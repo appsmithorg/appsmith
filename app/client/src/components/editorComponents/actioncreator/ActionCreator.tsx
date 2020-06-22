@@ -543,7 +543,9 @@ function renderField(props: {
       if (fieldType === FieldType.ACTION_SELECTOR_FIELD) {
         label = props.label || "";
         displayValue =
-          field.value !== "{{undefined}}" && field.value !== "{{()}}"
+          field.value !== "{{undefined}}" &&
+          field.value !== "{{()}}" &&
+          field.value !== "{{{}, ()}}"
             ? field.value
             : undefined;
         // eslint-disable-next-line react/display-name
