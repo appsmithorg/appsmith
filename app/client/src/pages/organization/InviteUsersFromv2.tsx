@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
-import { reduxForm } from "redux-form";
+import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import Button from "components/editorComponents/Button";
 import { connect } from "react-redux";
@@ -18,11 +18,14 @@ import { Classes } from "@blueprintjs/core";
 import FormMessage from "components/editorComponents/form/FormMessage";
 import {
   INVITE_USERS_SUBMIT_SUCCESS,
-  INVITE_USERS_SUBMIT_ERROR,
+  INVITE_USERS_VALIDATION_EMAILS_EMPTY,
+  INVITE_USERS_VALIDATION_EMAIL_LIST,
+  INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "constants/messages";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
-const StyledForm = styled.div`
+import { isEmail } from "utils/formhelpers";
+const StyledForm = styled.form`
   width: 100%;
   background: white;
   padding: ${props => props.theme.spaces[5]}px;
@@ -76,6 +79,26 @@ const StyledButton = styled(Button)`
   }
 `;
 
+const validate = (values: { users: string; role: string }) => {
+  if (values.users && values.users.length > 0) {
+    const _users = values.users.split(",").filter(Boolean);
+
+    _users.forEach(user => {
+      if (!isEmail(user)) {
+        throw new SubmissionError({
+          _error: INVITE_USERS_VALIDATION_EMAIL_LIST,
+        });
+      }
+    });
+  } else {
+    throw new SubmissionError({ _error: INVITE_USERS_VALIDATION_EMAILS_EMPTY });
+  }
+
+  if (values.role === undefined || values.role?.trim().length === 0) {
+    throw new SubmissionError({ _error: INVITE_USERS_VALIDATION_ROLE_EMPTY });
+  }
+};
+
 const InviteUsersForm = (props: any) => {
   const {
     handleSubmit,
@@ -94,16 +117,16 @@ const InviteUsersForm = (props: any) => {
   }, [props.orgId, fetchUser, fetchAllRoles]);
 
   return (
-    <StyledForm>
+    <StyledForm
+      onSubmit={handleSubmit((values: any, dispatch: any) => {
+        validate(values);
+        return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
+      })}
+    >
       {submitSucceeded && (
         <FormMessage intent="primary" message={INVITE_USERS_SUBMIT_SUCCESS} />
       )}
-      {submitFailed && error && (
-        <FormMessage
-          intent="danger"
-          message={`${INVITE_USERS_SUBMIT_ERROR}: ${error}`}
-        />
-      )}
+      {submitFailed && error && <FormMessage intent="danger" message={error} />}
       <StyledInviteFieldGroup>
         <div className="wrapper">
           <TagListField
@@ -127,9 +150,7 @@ const InviteUsersForm = (props: any) => {
           filled
           intent="primary"
           loading={submitting && !(submitFailed && !anyTouched)}
-          onClick={handleSubmit((values: any, dispatch: any) =>
-            inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch),
-          )}
+          type="submit"
         />
       </StyledInviteFieldGroup>
       <UserList style={{ justifyContent: "space-between" }}>
