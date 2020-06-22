@@ -211,18 +211,7 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
 `;
 
 export const ActionWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin: 10px 5px 0 0;
-  cursor: pointer;
-  padding: 5px;
-  height: 32px;
-  color: ${Colors.WHITE};
-  background: ${Colors.GREEN};
-  border-radius: 4px;
-  letter-spacing: -0.03em;
-  font-weight: bold;
 `;
 
 export const CellWrapper = styled.div<{ isHidden: boolean }>`

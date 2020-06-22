@@ -9,6 +9,7 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { isString } from "lodash";
+import Button from "components/editorComponents/Button";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -399,7 +400,7 @@ export const renderActions = (props: RenderActionProps) => {
               props.onCommandClick(action.dynamicTrigger);
             }}
           >
-            {action.label}
+            <Button text={action.label} intent="primary" filled size="small" />
           </ActionWrapper>
         );
       })}
