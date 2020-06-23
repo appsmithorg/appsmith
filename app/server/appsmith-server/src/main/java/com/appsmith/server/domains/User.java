@@ -10,9 +10,14 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -20,7 +25,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Document
-public class User extends BaseDomain implements UserDetails {
+public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private String name;
 
@@ -62,6 +67,12 @@ public class User extends BaseDomain implements UserDetails {
     @Transient
     Boolean isAnonymous = false;
 
+    // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
+    @Override
+    public Map<String, Object> getAttributes() {
+        return null;
+    }
+
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
         return null;
@@ -92,4 +103,19 @@ public class User extends BaseDomain implements UserDetails {
         return this.isEnabled;
     }
 
+    // TODO: Check the return value for the functions below to ensure that correct values are being returned
+    @Override
+    public Map<String, Object> getClaims() {
+        return new HashMap<>();
+    }
+
+    @Override
+    public OidcUserInfo getUserInfo() {
+        return null;
+    }
+
+    @Override
+    public OidcIdToken getIdToken() {
+        return null;
+    }
 }
