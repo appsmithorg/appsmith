@@ -132,6 +132,9 @@ public class SecurityConfig {
                 .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
                 .authenticationSuccessHandler(authenticationSuccessHandler)
                 .authenticationFailureHandler(authenticationFailureHandler)
+
+                // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
+                // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .and().oauth2Login()
                 .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig))
                 .authenticationSuccessHandler(authenticationSuccessHandler)

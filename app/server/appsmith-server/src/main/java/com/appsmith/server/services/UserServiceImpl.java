@@ -26,9 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,7 +51,7 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 
 @Slf4j
 @Service
-public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService, ReactiveUserDetailsService {
+public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService {
 
     private UserRepository repository;
     private final OrganizationService organizationService;
@@ -377,7 +374,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<Boolean> confirmInviteUser(User inviteUser, String originHeader) {
-        
+
         if (inviteUser.getEmail() == null || inviteUser.getEmail().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "email"));
         }
@@ -392,18 +389,18 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         return repository.findByEmail(inviteUser.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "email", inviteUser.getEmail())))
-            .flatMap(newUser -> {
+                .flatMap(newUser -> {
 
-                // Activate the user now :
-                newUser.setIsEnabled(true);
-                newUser.setPassword(inviteUser.getPassword());
-                // The user has now been invited and has signed up. Delete the invite token because its no longer required
-                newUser.setInviteToken(null);
+                    // Activate the user now :
+                    newUser.setIsEnabled(true);
+                    newUser.setPassword(inviteUser.getPassword());
+                    // The user has now been invited and has signed up. Delete the invite token because its no longer required
+                    newUser.setInviteToken(null);
 
-                return repository.save(newUser)
-                        .map(savedUser -> sendWelcomeEmail(savedUser, originHeader))
-                        .thenReturn(true);
-        });
+                    return repository.save(newUser)
+                            .map(savedUser -> sendWelcomeEmail(savedUser, originHeader))
+                            .thenReturn(true);
+                });
     }
 
     @Override
@@ -449,7 +446,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         user.getPolicies().addAll(crudUserPolicy(user));
 
         // Save the new user
-        Mono<User> savedUserMono = super.create(user);
+        Mono<User> savedUserMono = Mono.just(user)
+                .flatMap(this::validateObject)
+                .flatMap(repository::save);
 
         return savedUserMono
                 .flatMap(savedUser -> {
@@ -520,31 +519,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     /**
-     * This function is used by {@link ReactiveUserDetailsService} in order to load the user from the DB. Will be used
-     * in cases of username, password logins only. By default, the email ID is the username for the user.
-     *
-     * @param username
-     * @return
-     */
-    @Override
-    public Mono<UserDetails> findByUsername(String username) {
-        return repository.findByEmail(username)
-                .switchIfEmpty(Mono.error(new UsernameNotFoundException("Unable to find username: " + username)))
-                // This object cast is required to ensure that we send the right object type back to Spring framework.
-                // Doesn't work without this.
-                .map(user -> (UserDetails) user);
-    }
-
-    /**
      * 1. User doesn't exist :
-     *      a. Create a new user.
-     *      b. Set isEnabled to false
-     *      c. Generate a token. Send out an email informing the user to sign up with token.
-     *      d. Follow the steps for User which already exists
+     * a. Create a new user.
+     * b. Set isEnabled to false
+     * c. Generate a token. Send out an email informing the user to sign up with token.
+     * d. Follow the steps for User which already exists
      * 2. User exists :
-     *      a. Add user to the organization
-     *      b. Add organization to the user
-     *
+     * a. Add user to the organization
+     * b. Add organization to the user
      */
     @Override
     public Mono<User> inviteUser(InviteUserDTO inviteUserDTO, String originHeader) {
