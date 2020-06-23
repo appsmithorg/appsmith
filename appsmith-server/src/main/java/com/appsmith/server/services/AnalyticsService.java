@@ -35,7 +35,7 @@ public class AnalyticsService<T extends BaseDomain> {
                     }
                     traitsMap.put("email", savedUser.getEmail());
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(savedUser.getId())
+                            .userId(savedUser.getUsername())
                             .traits(traitsMap)
                     );
                     analytics.flush();
@@ -43,17 +43,11 @@ public class AnalyticsService<T extends BaseDomain> {
                 });
     }
 
-    private User createAnonymousUser() {
-        User user = new User();
-        user.setId("anonymousUser");
-        return user;
-    }
-
     public Mono<T> sendEvent(String eventTag, T object) {
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
-        Mono<User> userMono = sessionUserService.getCurrentUser()
-                .defaultIfEmpty(createAnonymousUser());
+        Mono<User> userMono = sessionUserService.getCurrentUser();
+
         return userMono
                 .map(user -> {
 
@@ -68,7 +62,7 @@ public class AnalyticsService<T extends BaseDomain> {
 
                     analytics.enqueue(
                             TrackMessage.builder(eventTag)
-                                    .userId(user.getId())
+                                    .userId(user.getUsername())
                                     .properties(analyticsProperties)
                     );
                     return (T) object;

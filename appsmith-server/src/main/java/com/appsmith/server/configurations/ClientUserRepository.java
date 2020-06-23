@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 /**
- * This code has been copied from WebSessionServerOAuth2AuthorizedClientRepository.java
+ * This code has been copied from {@link WebSessionServerOAuth2AuthorizedClientRepository}
  * which also implements ServerOAuth2AuthorizedClientRepository. This was done to make changes
  * to saveAuthorizedClient to also handle adding users to UserRepository.
  * <p>
