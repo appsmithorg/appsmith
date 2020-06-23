@@ -29,9 +29,6 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import EntityNameComponent from "components/editorComponents/EntityNameComponent";
-import { editApiName, saveApiName } from "actions/actionActions";
-import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";

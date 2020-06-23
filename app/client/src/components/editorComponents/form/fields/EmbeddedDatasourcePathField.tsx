@@ -20,6 +20,8 @@ import {
   EditorModes,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 
 type ReduxStateProps = {
   datasource: Datasource | EmbeddedDatasource;
@@ -45,6 +47,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
+      debugger;
       if ("id" in datasource && datasource.id) {
         this.props.updateDatasource({
           ...DEFAULT_DATASOURCE(pluginId),
@@ -107,45 +110,81 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         ? valueOrEvent
         : valueOrEvent.target.value;
     const { path, datasourceUrl } = this.parseInputValue(value);
-    console.log({ path, datasourceUrl });
     this.handlePathUpdate(path);
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };
 
-  handleDatasourceHighlight = (editorInstance: CodeMirror.Doc) => {
+  handleDatasourceHighlight = () => {
     const { datasource } = this.props;
-    if (
-      editorInstance.lineCount() === 1 &&
-      datasource &&
-      "id" in datasource &&
-      datasource.id
-    ) {
-      const value = editorInstance.getValue();
-      const isFullPath = fullPathRegexExp.test(value);
-      let end = 0;
-      if (isFullPath) {
-        const matches = value.match(fullPathRegexExp);
-        if (matches && matches.length) {
-          end = matches[1].length;
+    return (editorInstance: CodeMirror.Doc) => {
+      if (
+        editorInstance.lineCount() === 1 &&
+        datasource &&
+        "id" in datasource &&
+        datasource.id
+      ) {
+        const value = editorInstance.getValue();
+        const isFullPath = fullPathRegexExp.test(value);
+        let end = 0;
+        if (isFullPath) {
+          const matches = value.match(fullPathRegexExp);
+          if (matches && matches.length) {
+            end = matches[1].length;
+          }
         }
+        editorInstance.markText(
+          { ch: 0, line: 0 },
+          { ch: end, line: 0 },
+          {
+            className: "datasource-highlight",
+            atomic: true,
+            inclusiveRight: false,
+          },
+        );
       }
+    };
+  };
+
+  handleDatasourceHint = () => {
+    const { datasourceList } = this.props;
+    return () => {
       return {
-        from: { ch: 0, line: 0 },
-        to: { ch: end, line: 0 },
-        options: {
-          css:
-            "background-color: rgba(104,113,239,0.1); border: 1px solid rgba(104, 113, 239, 0.5); padding: 2px; border-radius: 2px; margin-right: 2px",
-          atomic: true,
-          inclusiveRight: false,
+        showHint: (editor: CodeMirror.Editor) => {
+          const value = editor.getValue();
+          const parsed = this.parseInputValue(value);
+          if (parsed.path === "" && !!value) {
+            editor.showHint({
+              completeSingle: false,
+              hint: () => {
+                const list = datasourceList
+                  .filter(datasource =>
+                    datasource.datasourceConfiguration.url.includes(
+                      parsed.datasourceUrl,
+                    ),
+                  )
+                  .map(datasource => ({
+                    text: datasource.datasourceConfiguration.url,
+                    data: datasource,
+                  }));
+                const hints = {
+                  list,
+                  from: { ch: 0, line: 0 },
+                  to: editor.getCursor(),
+                };
+                CodeMirror.on(
+                  hints,
+                  "pick",
+                  (selected: { text: string; data: Datasource }) => {
+                    this.props.updateDatasource(selected.data);
+                  },
+                );
+                return hints;
+              },
+            });
+          }
         },
       };
-    } else {
-      return {
-        from: { ch: 0, line: 0 },
-        to: { ch: 0, line: 0 },
-        options: {},
-      };
-    }
+    };
   };
 
   render() {
@@ -155,20 +194,19 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     } = this.props;
     const datasourceUrl = _.get(datasource, "datasourceConfiguration.url", "");
     const displayValue = `${datasourceUrl}${value}`;
-
     const input = {
       ...this.props.input,
       value: displayValue,
       onChange: this.handleOnChange,
     };
 
-    const props = {
+    const props: DynamicAutocompleteInputProps = {
       ...this.props,
       input,
-      hints: ["a", "b", "c"],
-      highlightText: this.handleDatasourceHighlight,
       mode: EditorModes.TEXT_WITH_BINDING,
       theme: EditorTheme.LIGHT,
+      marking: [bindingMarker, this.handleDatasourceHighlight()],
+      hinting: [bindingHint, this.handleDatasourceHint()],
     };
 
     return (
@@ -188,7 +226,7 @@ const mapStateToProps = (
   return {
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
-      d => d.pluginId === ownProps.pluginId,
+      d => d.pluginId === ownProps.pluginId && d.isValid,
     ),
   };
 };

@@ -1,3 +1,6 @@
+import CodeMirror from "codemirror";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+
 export enum EditorModes {
   TEXT = "text/plain",
   SQL = "sql",
@@ -26,9 +29,19 @@ export type EditorConfig = {
   mode: EditorModes;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
+  hinting: Array<HintHelper>;
+  marking: Array<MarkHelper>;
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.LIGHT]: "base16-light",
   [EditorTheme.DARK]: "monokai",
 };
+
+export type HintHelper = (editor: CodeMirror.Editor, data: DataTree) => Hinter;
+export type Hinter = {
+  showHint: (editor: CodeMirror.Editor) => void;
+  update?: (data: DataTree) => void;
+};
+
+export type MarkHelper = (editor: CodeMirror.Editor) => void;
