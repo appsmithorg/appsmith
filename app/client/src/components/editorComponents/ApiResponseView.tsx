@@ -15,7 +15,7 @@ import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import FormActionButton from "./form/FormActionButton";
-import { RequestView } from "./Requestview";
+import { RequestView } from "./RequestView";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   CHECK_REQUEST_BODY,
