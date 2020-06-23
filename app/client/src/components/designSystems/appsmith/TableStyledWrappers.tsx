@@ -212,6 +212,11 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
 
 export const ActionWrapper = styled.div`
   margin: 10px 5px 0 0;
+  &&&&&& {
+    .bp3-button span {
+      font-weight: 400;
+    }
+  }
 `;
 
 export const CellWrapper = styled.div<{ isHidden: boolean }>`
