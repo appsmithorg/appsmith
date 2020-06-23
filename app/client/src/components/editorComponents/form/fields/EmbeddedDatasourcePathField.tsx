@@ -29,6 +29,7 @@ import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 type ReduxStateProps = {
   datasource: Datasource | EmbeddedDatasource;
   datasourceList: Datasource[];
+  apiName: string;
 };
 
 type ReduxDispatchProps = {
@@ -89,34 +90,41 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     value: string,
   ): { datasourceUrl: string; path: string } => {
     const { datasource } = this.props;
+
+    if (value === "") {
+      return {
+        datasourceUrl: "",
+        path: "",
+      };
+    }
     if ("id" in datasource && datasource.id) {
       const datasourceUrl = datasource.datasourceConfiguration.url;
       return {
         datasourceUrl,
         path: value.replace(datasourceUrl, ""),
       };
-    } else {
-      let datasourceUrl = "";
-      let path = "";
-      const isFullPath = fullPathRegexExp.test(value);
-      if (isFullPath) {
-        const matches = value.match(fullPathRegexExp);
-        if (matches && matches.length) {
-          datasourceUrl = `${matches[1]}`;
-          path = matches[2];
-        }
-      } else {
-        datasourceUrl = value;
-      }
-      return {
-        datasourceUrl,
-        path,
-      };
     }
+
+    let datasourceUrl = "";
+    let path = "";
+    const isFullPath = fullPathRegexExp.test(value);
+    if (isFullPath) {
+      const matches = value.match(fullPathRegexExp);
+      if (matches && matches.length) {
+        datasourceUrl = `${matches[1]}`;
+        path = matches[2];
+      }
+    } else {
+      datasourceUrl = value;
+    }
+    return {
+      datasourceUrl,
+      path,
+    };
   };
 
   handleOnChange = (valueOrEvent: ChangeEvent<any> | string) => {
-    const value =
+    const value: string =
       typeof valueOrEvent === "string"
         ? valueOrEvent
         : valueOrEvent.target.value;
@@ -155,7 +163,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
-          if (parsed.path === "" && !!value) {
+          if (
+            parsed.path === "" &&
+            !!value &&
+            this.props.datasource &&
+            !("id" in this.props.datasource)
+          ) {
             editor.showHint({
               completeSingle: false,
               hint: () => {
@@ -213,8 +226,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
+      dataTreePath: `${this.props.apiName}.config.actionConfiguration.path`,
     };
-    if (datasource && !("id" in datasource)) {
+    if (datasource && !("id" in datasource) && !!displayValue) {
       props.rightIcon = <StoreAsDatasource />;
     }
 
@@ -233,6 +247,7 @@ const mapStateToProps = (
   ownProps: { pluginId: string },
 ): ReduxStateProps => {
   return {
+    apiName: apiFormValueSelector(state, "name"),
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
       d => d.pluginId === ownProps.pluginId && d.isValid,
