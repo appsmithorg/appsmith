@@ -11,6 +11,7 @@ interface ReactTableComponentState {
   pageSize: number;
   action: string;
   columnName: string;
+  isLoading: boolean;
 }
 
 export interface ReactTableColumnProps {
@@ -45,6 +46,7 @@ interface ReactTableComponentProps {
   widgetId: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  isLoading: boolean;
   renderMode: RenderMode;
   width: number;
   height: number;
@@ -91,6 +93,7 @@ export class ReactTableComponent extends React.Component<
       action: "",
       columnName: "",
       pageSize: props.pageSize,
+      isLoading: props.isLoading,
     };
   }
 
@@ -101,6 +104,9 @@ export class ReactTableComponent extends React.Component<
   componentDidUpdate(prevProps: ReactTableComponentProps) {
     if (this.props.pageSize !== prevProps.pageSize) {
       this.setState({ pageSize: this.props.pageSize });
+    }
+    if (this.props.isLoading !== prevProps.isLoading) {
+      this.setState({ isLoading: this.props.isLoading });
     }
     this.mountEvents();
   }
@@ -447,6 +453,7 @@ export class ReactTableComponent extends React.Component<
     const columns = this.getTableColumns();
     return (
       <Table
+        isLoading={this.state.isLoading}
         width={this.props.width}
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
