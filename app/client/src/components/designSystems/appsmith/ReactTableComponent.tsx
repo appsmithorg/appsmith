@@ -53,7 +53,7 @@ interface ReactTableComponentProps {
   columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: object, rowIndex: number) => void;
-  onCommandClick: (dynamicTrigger: string) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: Function;
   updateHiddenColumns: Function;
   resetSelectedRowIndex: Function;
