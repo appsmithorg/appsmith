@@ -17,12 +17,25 @@ import history from "utils/history";
 import { EXPLORER_URL } from "constants/routes";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { API_EDITOR_ID_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
+import { ReduxAction } from "constants/ReduxActionConstants";
 
 type GroupConfig = {
   groupName: string;
   type: PluginType;
   icon: JSX.Element;
   key: string;
+  getURL: (applicationId: string, pageId: string, id: string) => string;
+  isExpanded: (params: {
+    applicationId: string;
+    pageId: string;
+    apiId?: string;
+    queryId?: string;
+  }) => boolean;
+  dispatchableCreateAction: (pageId: string) => ReduxAction<{ pageId: string }>;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -37,6 +50,18 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         type,
         icon: apiIcon,
         key: generateReactKey(),
+        getURL: (applicationId: string, pageId: string, id: string) => {
+          return `${API_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`;
+        },
+        isExpanded: (params: {
+          applicationId: string;
+          pageId: string;
+          apiId?: string;
+          queryId?: string;
+        }) => {
+          return !!params.apiId;
+        },
+        dispatchableCreateAction: createNewApiAction,
       };
     case PluginType.DB:
       return {
@@ -44,6 +69,17 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         type,
         icon: queryIcon,
         key: generateReactKey(),
+        getURL: (applicationId: string, pageId: string, id: string) =>
+          `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`,
+        isExpanded: (params: {
+          applicationId: string;
+          pageId: string;
+          apiId?: string;
+          queryId?: string;
+        }) => {
+          return !!params.queryId;
+        },
+        dispatchableCreateAction: createNewQueryAction,
       };
     default:
       return undefined;
@@ -115,7 +151,18 @@ const getEntityChildren = (entity: any, step: number) => {
   return getEntityProperties(entity);
 };
 
-const getEntityListItem = (entity: any, step: number, icon?: JSX.Element) => {
+const getEntityListItem = (
+  entity: any,
+  step: number,
+  icon?: JSX.Element,
+  action?: () => void,
+  params?: {
+    applicationId: string;
+    pageId: string;
+    apiId?: string;
+    queryId?: string;
+  },
+) => {
   switch (entity.ENTITY_TYPE) {
     case ENTITY_TYPE.WIDGET:
       if (entity.type === WidgetTypes.CANVAS_WIDGET) {
@@ -131,7 +178,7 @@ const getEntityListItem = (entity: any, step: number, icon?: JSX.Element) => {
           icon={getWidgetIcon(entity.type)}
           name={entity.widgetName}
           step={step}
-          action={noop}
+          action={action || noop}
         >
           {getEntityChildren(entity, step)}
         </Entity>
@@ -143,7 +190,11 @@ const getEntityListItem = (entity: any, step: number, icon?: JSX.Element) => {
           icon={icon}
           name={entity.config.name}
           step={step}
-          action={noop}
+          action={action || noop}
+          isDefaultExpanded={
+            params?.apiId === entity.config.id ||
+            params?.queryId === entity.config.id
+          }
         >
           {getEntityChildren(entity, step)}
         </Entity>
@@ -155,7 +206,13 @@ export const getPageEntityGroups = (
   page: { name: string; id: string },
   entityGroups: Array<{ type: ENTITY_TYPE; entries: any }>,
   isCurrentPage: boolean,
-  applicationId?: string,
+  params: {
+    applicationId: string;
+    pageId: string;
+    apiId?: string;
+    queryId?: string;
+  },
+  dispatch: any,
 ) => {
   const groups = entityGroups.map(group => {
     switch (group.type) {
@@ -173,9 +230,26 @@ export const getPageEntityGroups = (
               name={config?.groupName || "Actions"}
               disabled={!entries.length}
               action={noop}
+              createFn={() =>
+                dispatch(config?.dispatchableCreateAction(params?.pageId))
+              }
+              isDefaultExpanded={config?.isExpanded(params)}
             >
               {entries.map((action: { config: Action }) =>
-                getEntityListItem(action, 2, config?.icon),
+                getEntityListItem(
+                  action,
+                  2,
+                  config?.icon,
+                  () => {
+                    const url = config?.getURL(
+                      params.applicationId,
+                      page.id,
+                      action.config.id,
+                    );
+                    history.push(url);
+                  },
+                  params,
+                ),
               )}
             </Entity>
           );
@@ -206,8 +280,8 @@ export const getPageEntityGroups = (
       disabled={!isCurrentPage}
       action={() =>
         !isCurrentPage &&
-        applicationId &&
-        history.push(EXPLORER_URL(applicationId, page.id))
+        params.applicationId &&
+        history.push(EXPLORER_URL(params.applicationId, page.id))
       }
       active={isCurrentPage}
       isDefaultExpanded={isCurrentPage}

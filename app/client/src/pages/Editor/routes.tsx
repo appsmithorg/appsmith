@@ -137,7 +137,6 @@ class EditorsRouter extends React.Component<
               name={"ApiEditor"}
             />
             <AppRoute
-              exact
               path={API_EDITOR_ID_URL()}
               component={ApiEditor}
               name={"ApiEditor"}
@@ -149,7 +148,6 @@ class EditorsRouter extends React.Component<
               name={"ApiEditor"}
             />
             <AppRoute
-              exact
               path={QUERIES_EDITOR_URL()}
               component={QueryEditor}
               name={"QueryEditor"}

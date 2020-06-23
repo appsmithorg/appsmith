@@ -215,8 +215,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
     // @ts-ignore
     document.activeElement.blur();
 
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
   if (!id) {
     return;
   }
@@ -232,8 +230,8 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 
   yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
-  history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
-
+  // history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+  //
   yield call(initializeExtraFormDataSaga);
 
   if (data.actionConfiguration && data.actionConfiguration.queryParameters) {
@@ -429,7 +427,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+    history.push(`${API_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`);
   }
 }
 

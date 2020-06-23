@@ -1,4 +1,5 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { noop } from "lodash";
@@ -14,8 +15,14 @@ const Wrapper = styled.div`
 `;
 
 const EntityExplorer = () => {
-  const { applicationId } = useParams();
+  const params = useParams<{
+    applicationId: string;
+    pageId: string;
+    apiId?: string;
+    queryId?: string;
+  }>();
   const { pages, widgetTree, actions, currentPageId } = useEntities();
+  const dispatch = useDispatch();
   return (
     <Wrapper>
       <ExplorerTitle isCollapsed onCollapseToggle={noop} />
@@ -35,7 +42,8 @@ const EntityExplorer = () => {
             },
           ],
           page.pageId === currentPageId,
-          applicationId,
+          params,
+          dispatch,
         ),
       )}
     </Wrapper>

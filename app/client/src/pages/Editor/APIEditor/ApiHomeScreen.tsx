@@ -485,6 +485,7 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
 
     if (!destinationPageId) {
       destinationPageId = pageId;
+      console.log("1");
       history.push(
         API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
       );

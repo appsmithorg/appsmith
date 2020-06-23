@@ -49,6 +49,7 @@ export const Sidebar = () => {
           name={"ApiSidebar"}
         />
         <AppRoute
+          exact
           path={API_EDITOR_ID_URL()}
           component={ApiSidebar}
           name={"ApiSidebar"}
@@ -101,6 +102,7 @@ export const Sidebar = () => {
           name={"QuerySidebar"}
         />
         <AppRoute
+          exact
           path={QUERIES_EDITOR_ID_URL()}
           component={QuerySidebar}
           name={"QuerySidebar"}

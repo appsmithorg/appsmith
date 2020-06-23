@@ -107,9 +107,8 @@ function* changeQuerySaga(
 
   const draft = yield select(getQueryDraft, id);
   const data = _.isEmpty(draft) ? action : draft;
-  const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
   yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
-  history.push(URL);
+  // history.push(URL);
 }
 
 function* updateDraftsSaga() {
@@ -173,9 +172,12 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.replace(QUERIES_EDITOR_ID_URL(applicationId, pageId, id), {
-      newQuery: true,
-    });
+    history.replace(
+      `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`,
+      {
+        newQuery: true,
+      },
+    );
   }
 }
 

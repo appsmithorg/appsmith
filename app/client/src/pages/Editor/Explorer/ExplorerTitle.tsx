@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
 const ICON_SIZE = 14;
 
 const Wrapper = styled.div`

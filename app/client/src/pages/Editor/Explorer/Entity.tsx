@@ -7,6 +7,7 @@ const Wrapper = styled.div<{ active: boolean }>`
   padding: ${props => props.theme.spaces[1]}px;
 `;
 const EntityItem = styled.div<{ disabled: boolean }>`
+  position: relative;
   height: 30px;
   font-size: ${props => props.theme.fontSizes[3]}px;
   line-height: ${props => props.theme.lineHeights[2]}px;
@@ -24,10 +25,16 @@ const EntityItem = styled.div<{ disabled: boolean }>`
     }
   }
   & {
-    .${Classes.ICON} {
+    .${Classes.ICON}:first-of-type {
       margin-right: ${props => props.theme.spaces[2]}px;
       color: ${props =>
         props.disabled ? props.theme.colors.paneBG : Colors.WHITE};
+    }
+    .${Classes.ICON}.add {
+      position: absolute;
+      right: 10px;
+      top: 7px;
+      z-index: 2;
     }
   }
   cursor: pointer;
@@ -71,34 +78,54 @@ export type EntityProps = {
   action: () => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
+  createFn?: () => void;
 };
 
 export const Entity = (props: EntityProps) => {
   const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
+
   useEffect(() => {
+    // If the default state must be expanded, expand to show children
     if (props.isDefaultExpanded && !props.disabled) {
       open(true);
+      // Else if entry is disabled, don't expand.
     } else if (props.disabled) {
       open(false);
     }
   }, [props.disabled, props.isDefaultExpanded, open]);
+
+  // Perform the action trigger provided on click of entity
   const handleClick = () => {
     props.action();
+    // Make sure this entity is enabled before toggling the collpse of children.
     !props.disabled && open(!isOpen);
   };
+
+  // Rendering the collapse icon based on isOpen state
   const collapseIcon = isOpen ? (
     <Icon icon="caret-down" />
   ) : (
     <Icon icon="caret-right" />
   );
+
   return (
     <Wrapper active={!!props.active}>
       <EntityItem onClick={handleClick} disabled={!!props.disabled}>
         {props.children && collapseIcon}
         {props.icon} <EntityName>{props.name}</EntityName>
+        {props.createFn && (
+          <Icon
+            icon="add"
+            className="add"
+            onClick={(e: any) => {
+              props.createFn && props.createFn();
+              e.stopPropagation();
+            }}
+          />
+        )}
       </EntityItem>
       {props.children && (
-        <StyledCollapse isOpen={isOpen}>
+        <StyledCollapse isOpen={isOpen} keepChildrenMounted>
           <div>{props.children}</div>
         </StyledCollapse>
       )}

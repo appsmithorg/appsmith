@@ -48,7 +48,9 @@ export const createNewApiAction = (
   payload: { pageId },
 });
 
-export const createNewQueryAction = (pageId: string): ReduxAction<{}> => ({
+export const createNewQueryAction = (
+  pageId: string,
+): ReduxAction<{ pageId: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
   payload: { pageId },
 });
