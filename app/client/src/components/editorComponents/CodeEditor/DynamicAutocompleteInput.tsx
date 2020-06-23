@@ -11,7 +11,6 @@ import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import HelperTooltip from "components/editorComponents/HelperTooltip";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import _ from "lodash";
@@ -51,9 +50,8 @@ interface ReduxStateProps {
 
 export type EditorStyleProps = {
   placeholder?: string;
-  leftIcon?: Function;
-  rightIcon?: Function;
-  description?: string;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   height?: number;
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
@@ -224,8 +222,6 @@ class DynamicAutocompleteInput extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    // TODO Move analytics
-    AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
     this.hinters.forEach(hinter => hinter.showHint(cm));
   };
 
@@ -325,9 +321,9 @@ class DynamicAutocompleteInput extends Component<Props, State> {
             className={className}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
-            <IconContainer>
-              {this.props.leftIcon && <this.props.leftIcon />}
-            </IconContainer>
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
 
             {this.props.leftImage && (
               <img
@@ -356,14 +352,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
               </React.Fragment>
             )}
             {this.props.rightIcon && (
-              <div
-                style={{ zIndex: 100, position: "absolute", right: "-36px" }}
-              >
-                <HelperTooltip
-                  description={this.props.description}
-                  rightIcon={this.props.rightIcon}
-                />
-              </div>
+              <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
           </EditorWrapper>
         </EvaluatedValuePopup>

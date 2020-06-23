@@ -5,6 +5,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const bindingHint: HintHelper = (editor, data) => {
   const ternServer = new TernServer(data);
@@ -62,6 +63,7 @@ export const bindingHint: HintHelper = (editor, data) => {
 
       const shouldShow = cursorBetweenBinding;
       if (shouldShow) {
+        AnalyticsUtil.logEvent("AUTO_COMPELTE_SHOW", {});
         ternServer.complete(editor);
       } else {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

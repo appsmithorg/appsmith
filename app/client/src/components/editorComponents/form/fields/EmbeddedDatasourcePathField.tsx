@@ -1,10 +1,10 @@
 import React, { ChangeEvent } from "react";
 import {
-  Field,
   BaseFieldProps,
-  WrappedFieldInputProps,
-  formValueSelector,
   change,
+  Field,
+  formValueSelector,
+  WrappedFieldInputProps,
 } from "redux-form";
 import DynamicAutocompleteInput, {
   DynamicAutocompleteInputProps,
@@ -19,9 +19,12 @@ import CodeMirror from "codemirror";
 import {
   EditorModes,
   EditorTheme,
+  TabBehaviour,
+  EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 
 type ReduxStateProps = {
   datasource: Datasource | EmbeddedDatasource;
@@ -47,7 +50,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
-      debugger;
       if ("id" in datasource && datasource.id) {
         this.props.updateDatasource({
           ...DEFAULT_DATASOURCE(pluginId),
@@ -86,22 +88,31 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   parseInputValue = (
     value: string,
   ): { datasourceUrl: string; path: string } => {
-    let datasourceUrl = "";
-    let path = "";
-    const isFullPath = fullPathRegexExp.test(value);
-    if (isFullPath) {
-      const matches = value.match(fullPathRegexExp);
-      if (matches && matches.length) {
-        datasourceUrl = `${matches[1]}`;
-        path = matches[2];
-      }
+    const { datasource } = this.props;
+    if ("id" in datasource && datasource.id) {
+      const datasourceUrl = datasource.datasourceConfiguration.url;
+      return {
+        datasourceUrl,
+        path: value.replace(datasourceUrl, ""),
+      };
     } else {
-      datasourceUrl = value;
+      let datasourceUrl = "";
+      let path = "";
+      const isFullPath = fullPathRegexExp.test(value);
+      if (isFullPath) {
+        const matches = value.match(fullPathRegexExp);
+        if (matches && matches.length) {
+          datasourceUrl = `${matches[1]}`;
+          path = matches[2];
+        }
+      } else {
+        datasourceUrl = value;
+      }
+      return {
+        datasourceUrl,
+        path,
+      };
     }
-    return {
-      datasourceUrl,
-      path,
-    };
   };
 
   handleOnChange = (valueOrEvent: ChangeEvent<any> | string) => {
@@ -123,15 +134,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         "id" in datasource &&
         datasource.id
       ) {
-        const value = editorInstance.getValue();
-        const isFullPath = fullPathRegexExp.test(value);
-        let end = 0;
-        if (isFullPath) {
-          const matches = value.match(fullPathRegexExp);
-          if (matches && matches.length) {
-            end = matches[1].length;
-          }
-        }
+        const end = datasource.datasourceConfiguration.url.length;
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -205,9 +208,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       input,
       mode: EditorModes.TEXT_WITH_BINDING,
       theme: EditorTheme.LIGHT,
+      tabBehaviour: TabBehaviour.INPUT,
+      size: EditorSize.COMPACT,
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
+      showLightningMenu: false,
     };
+    if (datasource && !("id" in datasource)) {
+      props.rightIcon = <StoreAsDatasource />;
+    }
 
     return (
       <React.Fragment>

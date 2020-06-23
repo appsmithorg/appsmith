@@ -143,6 +143,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   const postbodyResponsePresent =
     templateId &&
     actionConfiguration &&
+    actionConfigurationBodyFormData &&
     actionConfigurationBodyFormData.length > 0;
 
   // let credentialStepsData;

@@ -43,34 +43,6 @@ interface ComponentProps {
   datasourceFieldText: string;
 }
 
-const StyledMenuItem = styled(MenuItem)`
-  &&&&.bp3-menu-item {
-    align-items: center;
-    width: 202px;
-    justify-content: center;
-  }
-`;
-
-const StyledMenu = styled(Menu)`
-  &&&&.bp3-menu {
-    padding: 8px;
-    background: #ffffff;
-    border: 1px solid #ebeff2;
-    box-sizing: border-box;
-    box-shadow: 0px 2px 4px rgba(67, 70, 74, 0.14);
-    border-radius: 4px;
-  }
-`;
-
-const TooltipStyles = createGlobalStyle`
- .helper-tooltip{
-  .bp3-popover {
-    margin-right: 10px;
-    margin-top: 5px;
-  }
- }
-`;
-
 const DatasourcesField = (
   props: ReduxActionProps & ReduxStateProps & ComponentProps,
 ) => {
@@ -105,54 +77,6 @@ const DatasourcesField = (
     isEmbeddedDatasource = true;
   }
 
-  const DropdownIndicator = (props: any) => {
-    if (props.hasValue || !props.selectProps.inputValue) return null;
-
-    const MenuContainer = (
-      <StyledMenu>
-        <StyledMenuItem
-          icon={
-            <IconWrapper
-              width={theme.fontSizes[4]}
-              height={theme.fontSizes[4]}
-              color={"#535B62"}
-            >
-              <StorageIcon />
-            </IconWrapper>
-          }
-          text="Store as datasource"
-          onClick={storeAsDatasource}
-        />
-      </StyledMenu>
-    );
-
-    return (
-      <>
-        <TooltipStyles />
-        <Popover
-          content={MenuContainer}
-          position={Position.BOTTOM_LEFT}
-          usePortal
-          portalClassName="helper-tooltip"
-        >
-          <div
-            style={{
-              padding: "8px 13px 3px 13px",
-            }}
-            onMouseDown={e => {
-              e.stopPropagation();
-            }}
-          >
-            <ControlIcons.MORE_HORIZONTAL_CONTROL
-              width={theme.fontSizes[4]}
-              height={theme.fontSizes[4]}
-              color="#C4C4C4"
-            />
-          </div>
-        </Popover>
-      </>
-    );
-  };
   return (
     <Field
       name={props.name}
@@ -162,7 +86,6 @@ const DatasourcesField = (
       components={{
         ClearIndicator: () => null,
         IndicatorSeparator: () => null,
-        DropdownIndicator,
       }}
       placeholder="https://<base-url>.com"
       onInputChange={(value: string, actionMeta: InputActionMeta) => {

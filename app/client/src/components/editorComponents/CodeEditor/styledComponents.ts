@@ -192,25 +192,20 @@ export const EditorWrapper = styled.div<{
 `;
 
 export const IconContainer = styled.div`
-  .bp3-icon {
-    border-radius: 4px 0 0 4px;
-    margin: 0;
-    height: 30px;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #eef2f5;
-    svg {
-      height: 20px;
-      width: 20px;
-      path {
-        fill: #979797;
-      }
+  border-radius: 4px 0 0 4px;
+  margin: 0;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eef2f5;
+  svg {
+    height: 20px;
+    width: 20px;
+    path {
+      fill: #979797;
     }
-  }
-  .bp3-popover-target {
-    padding-right: 10px;
   }
 `;
 

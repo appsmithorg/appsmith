@@ -9,6 +9,7 @@ import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import FormLabel from "components/editorComponents/FormLabel";
 import { InputType } from "widgets/InputWidget";
+import HelperTooltip from "components/editorComponents/HelperTooltip";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -61,65 +62,79 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
     <React.Fragment>
       {typeof props.fields.getAll() === "object" && (
         <React.Fragment>
-          {props.fields.map((field: any, index: number) => (
-            <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
-              <div style={{ width: "50vh" }}>
-                <FormLabel>
-                  {extraData && extraData[0].label} {isRequired && "*"}
-                </FormLabel>
-                <TextField name={`${field}.${keyName[1]}`} />
-              </div>
-              {!props.actionConfig && (
-                <div style={{ marginLeft: 16 }}>
-                  <FormLabel>
-                    {extraData && extraData[1].label} {isRequired && "*"}
-                  </FormLabel>
-                  <div style={{ display: "flex", flexDirection: "row" }}>
-                    <div style={{ marginRight: 14, width: 72 }}>
-                      <StyledTextField
-                        name={`${field}.${valueName[1]}`}
-                        type={valueDataType}
-                      />
-                    </div>
-                    {index === props.fields.length - 1 ? (
-                      <Icon
-                        icon="plus"
-                        iconSize={20}
-                        onClick={() =>
-                          props.fields.push({ key: "", value: "" })
-                        }
-                        color={"#A3B3BF"}
-                        style={{ alignSelf: "center" }}
-                      />
-                    ) : (
-                      <FormIcons.DELETE_ICON
-                        height={20}
-                        width={20}
-                        onClick={() => props.fields.remove(index)}
-                        style={{ alignSelf: "center" }}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {props.actionConfig && (
-                <DynamicTextField
-                  name={`${field}.value`}
-                  placeholder={
-                    props.actionConfig[index].mandatory &&
-                    props.actionConfig[index].type
-                      ? `Value (Type: ${props.actionConfig[index].type})`
-                      : `Value (optional)`
-                  }
+          {props.fields.map((field: any, index: number) => {
+            const otherProps: Record<string, any> = {};
+            if (
+              props.actionConfig &&
+              props.actionConfig[index].description &&
+              props.rightIcon
+            ) {
+              otherProps.rightIcon = (
+                <HelperTooltip
+                  description={props.actionConfig[index].description}
                   rightIcon={
                     props.actionConfig[index].description && props.rightIcon
                   }
-                  description={props.actionConfig[index].description}
                 />
-              )}
-            </FormRowWithLabel>
-          ))}
+              );
+            }
+            return (
+              <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
+                <div style={{ width: "50vh" }}>
+                  <FormLabel>
+                    {extraData && extraData[0].label} {isRequired && "*"}
+                  </FormLabel>
+                  <TextField name={`${field}.${keyName[1]}`} />
+                </div>
+                {!props.actionConfig && (
+                  <div style={{ marginLeft: 16 }}>
+                    <FormLabel>
+                      {extraData && extraData[1].label} {isRequired && "*"}
+                    </FormLabel>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div style={{ marginRight: 14, width: 72 }}>
+                        <StyledTextField
+                          name={`${field}.${valueName[1]}`}
+                          type={valueDataType}
+                        />
+                      </div>
+                      {index === props.fields.length - 1 ? (
+                        <Icon
+                          icon="plus"
+                          iconSize={20}
+                          onClick={() =>
+                            props.fields.push({ key: "", value: "" })
+                          }
+                          color={"#A3B3BF"}
+                          style={{ alignSelf: "center" }}
+                        />
+                      ) : (
+                        <FormIcons.DELETE_ICON
+                          height={20}
+                          width={20}
+                          onClick={() => props.fields.remove(index)}
+                          style={{ alignSelf: "center" }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {props.actionConfig && (
+                  <DynamicTextField
+                    name={`${field}.value`}
+                    placeholder={
+                      props.actionConfig[index].mandatory &&
+                      props.actionConfig[index].type
+                        ? `Value (Type: ${props.actionConfig[index].type})`
+                        : `Value (optional)`
+                    }
+                    {...otherProps}
+                  />
+                )}
+              </FormRowWithLabel>
+            );
+          })}
         </React.Fragment>
       )}
     </React.Fragment>
