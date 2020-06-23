@@ -471,13 +471,14 @@ export function* updateActionSaga(
     const isApi = actionPayload.payload.data.pluginType === "API";
     const { data } = actionPayload.payload;
     let action = data;
+
     if (isApi) {
       action = transformRestAction(data);
+      action.name = (yield select(getActions)).find(
+        (act: any) => act.config.id === action.id,
+      )?.config.name;
     }
 
-    action.name = (yield select(getActions)).find(
-      (act: any) => act.config.id === action.id,
-    )?.config.name;
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
     );
