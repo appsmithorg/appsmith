@@ -15,6 +15,13 @@ import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import FormActionButton from "./form/FormActionButton";
+import { RequestView } from "./Requestview";
+import { useLocalStorage } from "utils/hooks/localstorage";
+import {
+  CHECK_REQUEST_BODY,
+  DONT_SHOW_THIS_AGAIN,
+  SHOW_REQUEST,
+} from "constants/messages";
 
 const ResponseWrapper = styled.div`
   position: relative;
@@ -97,18 +104,39 @@ const EMPTY_RESPONSE: ActionResponse = {
 };
 
 const FailedMessageContainer = styled.div`
-  width: calc(100% - 29px);
+  width: 100%;
+  background: #29cca3;
+  height: 77px;
   position: absolute;
-  left: 29px;
   z-index: 10;
-  bottom: 48%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  bottom: 0;
+  padding-top: 10px;
+  padding-bottom: 7px;
+  padding-left: 15px;
+  font-family: DM Sans;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  p {
+    margin-bottom: 5px;
+    color: white;
+  }
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
 `;
 
 const TabbedViewWrapper = styled.div`
   height: calc(100% - 30px);
+`;
+
+const StyledFormActionButton = styled(FormActionButton)`
+  &&& {
+    padding: 10px 12px 9px 9px;
+    margin-right: 9px;
+    border: 0;
+  }
 `;
 
 const ApiResponseView = (props: Props) => {
@@ -127,6 +155,11 @@ const ApiResponseView = (props: Props) => {
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
 
+  const [requestDebugVisible, setRequestDebugVisible] = useLocalStorage(
+    "requestDebugVisible",
+    "true",
+  );
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const tabs = [
     {
@@ -134,17 +167,40 @@ const ApiResponseView = (props: Props) => {
       title: "Response Body",
       panelComponent: (
         <>
-          <FailedMessageContainer>
-            {hasFailed && !isRunning && (
-              <FormActionButton
-                intent={"danger"}
-                text="Check Request body"
-                onClick={() => {
-                  setSelectedIndex(3);
+          {hasFailed && !isRunning && requestDebugVisible === "true" && (
+            <FailedMessageContainer>
+              <p>{CHECK_REQUEST_BODY}</p>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
                 }}
-              />
-            )}
-          </FailedMessageContainer>
+              >
+                <StyledFormActionButton
+                  intent={"danger"}
+                  style={{
+                    background: "white",
+                    color: "#29CCA3",
+                  }}
+                  text={DONT_SHOW_THIS_AGAIN}
+                  onClick={() => {
+                    setRequestDebugVisible(false);
+                  }}
+                />
+                <StyledFormActionButton
+                  style={{
+                    background: "#EF7541",
+                    color: "white",
+                  }}
+                  intent={"danger"}
+                  text={SHOW_REQUEST}
+                  onClick={() => {
+                    setSelectedIndex(1);
+                  }}
+                />
+              </div>
+            </FailedMessageContainer>
+          )}
           <CodeEditor
             input={{
               value: response.body
@@ -157,28 +213,18 @@ const ApiResponseView = (props: Props) => {
       ),
     },
     {
-      key: "headers",
-      title: "Response Headers",
-      panelComponent: <ResponseHeadersView data={response.headers} />,
-    },
-    {
-      key: "requestHeaders",
-      title: "Request Headers",
+      key: "request",
+      title: "Request",
       panelComponent: (
-        <ResponseHeadersView data={response.request?.headers || {}} />
-      ),
-    },
-    {
-      key: "requestBody",
-      title: "Request Body",
-      panelComponent: (
-        <CodeEditor
-          height={"100%"}
-          input={{
-            value: _.isObject(response.request?.body)
+        <RequestView
+          requestURL={response.request?.url || ""}
+          requestHeaders={response.request?.headers || {}}
+          requestMethod={response.request?.httpMethod || ""}
+          requestBody={
+            _.isObject(response.request?.body)
               ? JSON.stringify(response.request?.body, null, 2)
-              : response.request?.body || "",
-          }}
+              : response.request?.body || ""
+          }
         />
       ),
     },
