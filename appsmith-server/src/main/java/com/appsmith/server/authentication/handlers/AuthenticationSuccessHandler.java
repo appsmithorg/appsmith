@@ -1,14 +1,8 @@
 package com.appsmith.server.authentication.handlers;
 
-import com.appsmith.server.acl.AclConstants;
 import com.appsmith.server.constants.Security;
-import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserState;
-import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -21,17 +15,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
-
-    @Autowired
-    UserService userService;
 
     private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -50,9 +38,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
 
         if (authentication instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oauthAuthentication = (OAuth2AuthenticationToken) authentication;
-            return checkAndCreateUser(oauthAuthentication)
-                    .then(handleOAuth2Redirect(webFilterExchange));
+            return handleOAuth2Redirect(webFilterExchange);
         }
 
         return handleRedirect(webFilterExchange);
@@ -100,27 +86,5 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         URI defaultRedirectLocation = URI.create(originHeader);
         return this.redirectStrategy.sendRedirect(exchange, defaultRedirectLocation);
-    }
-
-    private Mono<User> checkAndCreateUser(OAuth2AuthenticationToken authToken) {
-        Map<String, Object> userAttributes = authToken.getPrincipal().getAttributes();
-        User newUser = new User();
-        newUser.setName((String) userAttributes.get("name"));
-        String username = authToken.getName();
-        newUser.setEmail(username);
-        LoginSource loginSource = LoginSource.fromString(authToken.getAuthorizedClientRegistrationId());
-        newUser.setSource(loginSource);
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        // TODO: Check if this is a valid permission available in the DB
-        // TODO: Check to see if this user was invited or is it a new sign up
-        Set<String> permissions = new HashSet<>();
-        // Adding the create organization permission because this is a new user and we will have to create an organization
-        // after this for the user.
-        permissions.addAll(AclConstants.PERMISSIONS_CRUD_ORG);
-        newUser.setPermissions(permissions);
-
-        return userService.findByEmail(username)
-                .switchIfEmpty(Mono.defer(() -> userService.create(newUser))); //In case the user doesn't exist, create and save the user.
     }
 }

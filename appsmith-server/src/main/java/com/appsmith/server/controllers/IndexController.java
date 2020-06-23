@@ -36,8 +36,8 @@ public class IndexController {
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
         Mono<User> userMono = service.getCurrentUser();
-        return principal
-                .map(Principal::getName)
+        return userMono
+                .map(obj -> obj.getUsername())
                 .map(name -> String.format("Hello %s", name));
     }
 
