@@ -1,33 +1,58 @@
-import React from "react";
+import React, { useRef, MutableRefObject } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Popover, PopoverInteractionKind, Tooltip } from "@blueprintjs/core";
+import { Popover, PopoverInteractionKind } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/EvaluatedValuePopup";
-const StyledCode = styled.div`
+import useClipboard from "utils/hooks/useClipboard";
+import { Colors } from "constants/Colors";
+
+const StyledValue = styled.pre`
+  & {
+    font-size: ${props => props.theme.fontSizes[1]}px;
+    margin: 2px 0px;
+    color: ${Colors.GRAY_CHATEAU};
+  }
+`;
+
+const Wrapper = styled.div`
   &&&& {
-    margin: 10px 0;
+    cursor: pointer;
+    margin: 10px 0 10px 8px;
+    position: relative;
     code {
       border: none;
       box-shadow: none;
-      padding: 5px 0.2em;
+      padding: 5px 0em;
+      background: none;
     }
-    & > div {
-      margin: 5px 0;
-    }
-    & {
-      code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.JAVASCRIPT} {
-        font-size: ${props => props.theme.fontSizes[2]}px;
-        white-space: nowrap;
-        overflow: hidden;
+    & div.clipboard-message {
+      position: absolute;
+      left: 0;
+      height: 100%;
+      top: 0;
+      width: 100%;
+
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 1;
+      &.success {
+        background: ${Colors.MAKO};
+      }
+      &.error {
+        background: ${Colors.RED};
       }
     }
+
     & {
       code.${SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH} {
         white-space: pre-wrap;
         background: transparent;
-        font-size: ${props => props.theme.fontSizes[3]}px;
+        font-size: ${props => props.theme.fontSizes[2]}px;
         overflow-wrap: break-word;
         text-shadow: none;
       }
@@ -62,6 +87,9 @@ export type EntityPropertyProps = {
 };
 
 export const EntityProperty = (props: EntityPropertyProps) => {
+  const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(propertyRef);
+
   const transformedValue = (value: any) => {
     if (
       typeof value === "object" ||
@@ -72,21 +100,25 @@ export const EntityProperty = (props: EntityPropertyProps) => {
     }
     return value;
   };
+
+  const codeText = `{{${props.entityName}.${props.propertyName}}}`;
+
   const showPopup =
     typeof props.value === "object" ||
     Array.isArray(props.value) ||
     (props.value && props.value.length && props.value.length > 25);
   const isString = typeof props.value === "string";
 
+  const copyBindingToClipboard = () => {
+    write(codeText);
+  };
+
   return (
-    <StyledCode>
-      <Tooltip content="Copy Binding" hoverOpenDelay={800} position="bottom">
-        <HighlightedCode
-          codeText={`{{${props.entityName}.${props.propertyName}}}`}
-          language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
-          enableCopyToClipboard
-        />
-      </Tooltip>
+    <Wrapper ref={propertyRef} onClick={copyBindingToClipboard}>
+      <HighlightedCode
+        codeText={codeText}
+        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+      />
       <Popover
         interactionKind={PopoverInteractionKind.HOVER}
         position="left"
@@ -102,7 +134,7 @@ export const EntityProperty = (props: EntityPropertyProps) => {
           },
         }}
       >
-        <HighlightedCode codeText={`${transformedValue(props.value)}`} />
+        <StyledValue>{`${transformedValue(props.value)}`} </StyledValue>
         {showPopup && (
           <StyledPopoverContent>
             {!isString && (
@@ -116,7 +148,7 @@ export const EntityProperty = (props: EntityPropertyProps) => {
           </StyledPopoverContent>
         )}
       </Popover>
-    </StyledCode>
+    </Wrapper>
   );
 };
 

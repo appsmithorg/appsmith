@@ -3,56 +3,22 @@ import styled from "styled-components";
 import Prism from "prismjs";
 import themes from "./themes";
 import { Skin } from "constants/DefaultTheme";
-import { noop } from "lodash";
-import useClipboard from "utils/hooks/useClipboard";
-import { Icon } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 
 // TODO(abhinav): This is rudimentary. Enhance it.
 Prism.languages["appsmith-binding"] = {
-  punctuation: /^{{|\.|}}$/,
+  punctuation: {
+    pattern: /^{{|}}$/,
+  },
   property: {
-    pattern: /(\.?)\w+/,
-    lookbehind: false,
+    pattern: /(\.\w+)/,
   },
 };
 
-const StyledCode = styled.div<{ skin: Skin; actionable: boolean }>`
+const StyledCode = styled.div<{ skin: Skin }>`
   position: relative;
-  cursor: ${props => (props.actionable ? "pointer" : "default")};
   ${props => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)};
-  padding: 0 5px;
-  & div.clipboard-message {
-    position: absolute;
-    left: 0;
-    height: 100%;
-    top: 0;
-    width: 100%;
+  padding: 0 0px;
 
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    z-index: 1;
-    &.success {
-      background: ${Colors.BLACK_PEARL};
-    }
-    &.error {
-      background: ${Colors.RED};
-    }
-  }
-  & {
-    .copy-icon {
-      display: none;
-      float: right;
-      color: ${Colors.GRAY};
-    }
-  }
-  &:hover {
-    .copy-icon {
-      display: inline;
-    }
   }
 `;
 
@@ -66,20 +32,11 @@ type HighlightedCodeProps = {
   codeText: string;
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
   skin?: Skin;
-  enableCopyToClipboard?: boolean;
   multiline?: boolean;
 };
 
 export const HighlightedCode = (props: HighlightedCodeProps) => {
-  const codeBlockRef: MutableRefObject<HTMLElement | null> = useRef(null);
-  const preBlockRef: MutableRefObject<HTMLPreElement | null> = useRef(null);
-  const codeRef:
-    | MutableRefObject<HTMLElement | null>
-    | MutableRefObject<HTMLPreElement | null> = props.multiline
-    ? preBlockRef
-    : codeBlockRef;
-
-  const write = useClipboard(codeRef);
+  const codeRef: MutableRefObject<HTMLElement | null> = useRef(null);
 
   // Highlight when component renders with new props.
   // Skin is irrelevant here, as it only uses css.
@@ -96,23 +53,12 @@ export const HighlightedCode = (props: HighlightedCodeProps) => {
   const language =
     props.language || SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.JAVASCRIPT;
 
-  const copyToClipboard = () => {
-    write(props.codeText);
-  };
-
   return (
-    <StyledCode
-      skin={props.skin || Skin.DARK}
-      onClick={!!props.enableCopyToClipboard ? copyToClipboard : noop}
-      actionable={!!props.enableCopyToClipboard}
-    >
+    <StyledCode skin={props.skin || Skin.DARK}>
       {!props.multiline && (
         <code ref={codeRef} className={language}>
           {props.codeText}
         </code>
-      )}
-      {!!props.enableCopyToClipboard && (
-        <Icon icon="duplicate" className="copy-icon" />
       )}
     </StyledCode>
   );

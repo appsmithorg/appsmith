@@ -43,6 +43,15 @@ const StyledCollapse = styled(Collapse)`
     .${Classes.COLLAPSE_BODY} > div {
       padding-left: 8px;
       overflow: hidden;
+      &:before {
+        content: "";
+        width: 1px;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        background: ${Colors.MAKO};
+        position: absolute;
+      }
     }
   }
 `;

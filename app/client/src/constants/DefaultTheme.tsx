@@ -2,7 +2,6 @@ import * as styledComponents from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
-import _ from "lodash";
 import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
@@ -354,9 +353,11 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
 
 export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   const values: string[] = [];
-  _.forIn(border, (value, key) => {
-    values.push(key === "thickness" ? value + "px" : value);
-  });
+  if (border) {
+    for (const [key, value] of Object.entries(border)) {
+      values.push(key === "thickness" ? value + "px" : value.toString());
+    }
+  }
   return values.join(" ");
 };
 
@@ -420,11 +421,7 @@ export const theme: Theme = {
     lightningborder: Colors.ALABASTER,
   },
   lineHeights: [0, 14, 18, 22, 24, 28, 36, 48, 64, 80],
-  fonts: [
-    FontFamilies.DMSans,
-    FontFamilies.AppsmithWidget,
-    FontFamilies.FiraCode,
-  ],
+  fonts: [FontFamilies.DMSans, FontFamilies.FiraCode],
   borders: [
     {
       thickness: 1,

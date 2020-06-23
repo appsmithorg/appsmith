@@ -16,6 +16,7 @@ import { noop } from "lodash";
 import history from "utils/history";
 import { EXPLORER_URL } from "constants/routes";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { API_EDITOR_ID_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
 
 type GroupConfig = {
   groupName: string;
