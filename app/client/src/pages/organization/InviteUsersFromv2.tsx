@@ -79,7 +79,7 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const validate = (values: { users: string; role: string }) => {
+const validateFormValues = (values: { users: string; role: string }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
 
@@ -99,6 +99,19 @@ const validate = (values: { users: string; role: string }) => {
   }
 };
 
+const validate = (values: any) => {
+  const errors: any = {};
+  if (!(values.users && values.users.length > 0)) {
+    errors["users"] = INVITE_USERS_VALIDATION_EMAILS_EMPTY;
+  }
+
+  if (values.role === undefined || values.role?.trim().length === 0) {
+    errors["role"] = INVITE_USERS_VALIDATION_ROLE_EMPTY;
+  }
+
+  return errors;
+};
+
 const InviteUsersForm = (props: any) => {
   const {
     handleSubmit,
@@ -110,6 +123,7 @@ const InviteUsersForm = (props: any) => {
     error,
     fetchUser,
     fetchAllRoles,
+    valid,
   } = props;
   useEffect(() => {
     fetchUser(props.orgId);
@@ -119,7 +133,7 @@ const InviteUsersForm = (props: any) => {
   return (
     <StyledForm
       onSubmit={handleSubmit((values: any, dispatch: any) => {
-        validate(values);
+        validateFormValues(values);
         return inviteUsersToOrg({ ...values, orgId: props.orgId }, dispatch);
       })}
     >
@@ -146,6 +160,7 @@ const InviteUsersForm = (props: any) => {
         </div>
         <StyledButton
           className="invite"
+          disabled={!valid}
           text="Invite"
           filled
           intent="primary"
@@ -205,6 +220,7 @@ export default connect(
     InviteUsersToOrgFormValues,
     { fetchAllRoles: (orgId: string) => void; roles?: any }
   >({
+    validate,
     form: INVITE_USERS_TO_ORG_FORM,
   })(InviteUsersForm),
 );
