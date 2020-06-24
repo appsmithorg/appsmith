@@ -1,0 +1,12 @@
+{
+  "insert": "users",
+  "documents": [
+    {
+      "name": "John Smith",
+      "email": [
+        "john@appsmith.com"
+      ],
+      "gender": "M"
+    }
+  ]
+}

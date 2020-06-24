@@ -1,0 +1,16 @@
+{
+  "update": "users",
+  "updates": [
+    {
+      "q": {
+        "id": 10
+      },
+      "u": {
+        "name": "Updated Sam",
+        "email": [
+          "updates@appsmith.com"
+        ]
+      }
+    }
+  ]
+}

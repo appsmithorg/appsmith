@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
+import java.util.Map;
 
 public interface PluginService extends CrudService<Plugin, String> {
 
@@ -25,7 +26,7 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 
-    Mono<Object> getFormConfig(String pluginId);
+    Mono<Map> getFormConfig(String pluginId);
 
-    Mono<InputStream> getPluginResource(String pluginId, String resourcePath);
+    Mono<InputStream> loadPluginResource(String pluginId, String resourcePath);
 }
