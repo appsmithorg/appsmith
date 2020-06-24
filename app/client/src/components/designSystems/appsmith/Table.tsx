@@ -21,6 +21,7 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
+  searchValue: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
   data: object[];
@@ -46,6 +47,7 @@ interface TableProps {
   selectedRowIndex: number;
   disableDrag: () => void;
   enableDrag: () => void;
+  searchTableData: (searchValue: any) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -100,6 +102,8 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        searchTableData={props.searchTableData}
+        searchValue={props.searchValue}
         updatePageNo={props.updatePageNo}
         nextPageClick={props.nextPageClick}
         prevPageClick={props.prevPageClick}

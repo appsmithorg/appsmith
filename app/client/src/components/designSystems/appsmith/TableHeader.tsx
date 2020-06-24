@@ -5,6 +5,7 @@ import {
   PaginationItemWrapper,
 } from "./TableStyledWrappers";
 import { Icon } from "@blueprintjs/core";
+import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 
 interface TableHeaderProps {
   updatePageNo: Function;
@@ -14,12 +15,19 @@ interface TableHeaderProps {
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
+  searchValue: string;
+  searchTableData: (searchValue: any) => void;
   serverSidePaginationEnabled: boolean;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
     <TableHeaderWrapper>
+      <SearchComponent
+        value={props.searchValue}
+        placeholder="Search..."
+        onSearch={props.searchTableData}
+      />
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper

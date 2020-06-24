@@ -164,7 +164,6 @@ export const IconOptionWrapper = styled.div`
 
 export const PaginationWrapper = styled.div`
   box-sizing: border-box;
-  padding: 10px;
   display: flex;
   width: 100%;
   justify-content: flex-end;
@@ -261,4 +260,5 @@ export const TableHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+  padding: 14px 20px;
 `;

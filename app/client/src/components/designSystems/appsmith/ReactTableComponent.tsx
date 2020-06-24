@@ -2,7 +2,7 @@ import React from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
 
 interface ReactTableComponentState {
@@ -10,6 +10,7 @@ interface ReactTableComponentState {
   columnIndex: number;
   pageSize: number;
   action: string;
+  searchValue: string;
   columnName: string;
   isLoading: boolean;
 }
@@ -44,6 +45,7 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps {
   widgetId: string;
+  searchValue: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
@@ -78,6 +80,7 @@ interface ReactTableComponentProps {
   updateColumnName: Function;
   handleResizeColumn: Function;
   handleReorderColumn: Function;
+  searchTableData: (searchValue: any) => void;
 }
 
 export class ReactTableComponent extends React.Component<
@@ -92,6 +95,7 @@ export class ReactTableComponent extends React.Component<
       columnIndex: -1,
       action: "",
       columnName: "",
+      searchValue: props.searchValue,
       pageSize: props.pageSize,
       isLoading: props.isLoading,
     };
@@ -107,6 +111,9 @@ export class ReactTableComponent extends React.Component<
     }
     if (this.props.isLoading !== prevProps.isLoading) {
       this.setState({ isLoading: this.props.isLoading });
+    }
+    if (this.props.searchValue !== prevProps.searchValue) {
+      this.setState({ searchValue: this.props.searchValue });
     }
     this.mountEvents();
   }
@@ -458,6 +465,7 @@ export class ReactTableComponent extends React.Component<
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
         widgetId={this.props.widgetId}
+        searchValue={this.state.searchValue}
         columns={columns}
         data={this.props.tableData}
         showMenu={this.showMenu}
@@ -468,7 +476,7 @@ export class ReactTableComponent extends React.Component<
         columnAction={this.state.action}
         onColumnNameChange={this.onColumnNameChange}
         handleColumnNameUpdate={this.handleColumnNameUpdate}
-        handleResizeColumn={_.debounce(this.handleResizeColumn, 300)}
+        handleResizeColumn={debounce(this.handleResizeColumn, 300)}
         selectTableRow={this.selectTableRow}
         pageNo={this.props.pageNo - 1}
         updatePageNo={this.props.updatePageNo}
@@ -487,6 +495,7 @@ export class ReactTableComponent extends React.Component<
         enableDrag={() => {
           this.props.disableDrag(false);
         }}
+        searchTableData={debounce(this.props.searchTableData, 500)}
       />
     );
   }
