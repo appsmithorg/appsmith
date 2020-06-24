@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final PageRepository pageRepository;
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
-    private final PolicyUtils policyUtils;
+    private final UserService userService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -60,12 +59,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PageRepository pageRepository,
                                   SessionUserService sessionUserService,
                                   OrganizationService organizationService,
-                                  PolicyUtils policyUtils) {
+                                  UserService userService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
-        this.policyUtils = policyUtils;
+        this.userService = userService;
     }
 
     @Override
@@ -178,8 +177,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     if (user.getIsAnonymous()) {
                         return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
                     }
-                    return Mono.just(user);
+                    return Mono.just(user.getUsername());
                 })
+                .flatMap(userService::findByEmail)
                 .cache();
 
         return userMono
