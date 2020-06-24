@@ -119,8 +119,7 @@
             },
             {
               "label": "Certificate",
-              "configProperty":
-              "datasourceConfiguration.connection.ssl.certificateFile",
+              "configProperty": "datasourceConfiguration.connection.ssl.certificateFile",
               "controlType": "FILE_PICKER"
             }
           ]
@@ -130,20 +129,17 @@
           "children": [
             {
               "label": "CA Certificate",
-              "configProperty":
-              "datasourceConfiguration.connection.ssl.caCertificateFile",
+              "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
               "controlType": "FILE_PICKER"
             },
             {
               "label": "PEM Certificate",
-              "configProperty":
-              "datasourceConfiguration.connection.ssl.pemCertificate.file",
+              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.file",
               "controlType": "FILE_PICKER"
             },
             {
               "label": "PEM Passphrase",
-              "configProperty":
-              "datasourceConfiguration.connection.ssl.pemCertificate.password",
+              "configProperty": "datasourceConfiguration.connection.ssl.pemCertificate.password",
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "PEM Passphrase"
