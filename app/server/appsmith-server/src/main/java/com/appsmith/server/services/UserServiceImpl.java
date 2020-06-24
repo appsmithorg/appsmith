@@ -122,6 +122,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
         }
         return sessionUserService.getCurrentUser()
+                .flatMap(user -> repository.findByEmail(user.getUsername()))
                 .flatMap(user -> {
                     log.debug("Going to set organizationId: {} for user: {}", orgId, user.getId());
 

@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Organization;
@@ -14,9 +13,9 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -38,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static java.util.stream.Collectors.toMap;
 
@@ -51,8 +51,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final UserOrganizationService userOrganizationService;
-    private final PolicyGenerator policyGenerator;
-    private final PolicyUtils policyUtils;
+    private final UserRepository userRepository;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -66,7 +65,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    PluginRepository pluginRepository,
                                    SessionUserService sessionUserService,
                                    UserOrganizationService userOrganizationService,
-                                   PolicyGenerator policyGenerator, PolicyUtils policyUtils) {
+                                   UserRepository userRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.settingService = settingService;
@@ -74,8 +73,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.userOrganizationService = userOrganizationService;
-        this.policyGenerator = policyGenerator;
-        this.policyUtils = policyUtils;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -198,6 +196,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     @Override
     public Mono<Organization> create(Organization organization) {
         return sessionUserService.getCurrentUser()
+                .flatMap(user -> userRepository.findByEmail(user.getUsername(), READ_USERS))
                 .flatMap(user -> create(organization, user));
     }
 
