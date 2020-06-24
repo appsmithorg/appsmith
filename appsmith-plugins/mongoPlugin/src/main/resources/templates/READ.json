@@ -1,0 +1,12 @@
+{
+  "find": "users",
+  "filter": {
+    "id": {
+      "$gte": 10
+    }
+  },
+  "sort": {
+    "id": 1
+  },
+  "limit": 10
+}

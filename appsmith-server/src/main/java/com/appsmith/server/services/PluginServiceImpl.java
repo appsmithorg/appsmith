@@ -17,7 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,17 +27,23 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StreamUtils;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,13 +52,14 @@ import java.util.stream.Collectors;
 @Service
 public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, String> implements PluginService {
 
-    private final ApplicationContext applicationContext;
     private final OrganizationService organizationService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
-    private final SessionUserService sessionUserService;
+
+    private final Map<String, Mono<Map>> formCache = new HashMap<>();
+    private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
@@ -63,21 +71,17 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              PluginRepository repository,
                              AnalyticsService analyticsService,
-                             ApplicationContext applicationContext,
                              OrganizationService organizationService,
                              PluginManager pluginManager,
                              ReactiveRedisTemplate<String, String> reactiveTemplate,
                              ChannelTopic topic,
-                             ObjectMapper objectMapper,
-                             SessionUserService sessionUserService) {
+                             ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.applicationContext = applicationContext;
         this.organizationService = organizationService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
-        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -96,12 +100,12 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     log.debug("Fetching plugins by params: {} for org: {}", params, org.getName());
                     if (org.getPlugins() == null) {
                         log.debug("Null installed plugins found for org: {}. Return empty plugins", org.getName());
-                        return Flux.fromIterable(new ArrayList<>());
+                        return Flux.empty();
                     }
 
                     List<String> pluginIds = org.getPlugins()
                             .stream()
-                            .map(obj -> obj.getPluginId())
+                            .map(OrganizationPlugin::getPluginId)
                             .collect(Collectors.toList());
                     Query query = new Query();
                     query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
@@ -112,12 +116,17 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
                         } catch (IllegalArgumentException e) {
                             log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
-                            List<Plugin> emptyPlugins = new ArrayList<>();
-                            return Flux.fromIterable(emptyPlugins);
+                            return Flux.empty();
                         }
                     }
+
                     return mongoTemplate.find(query, Plugin.class);
-                });
+                })
+                .flatMap(plugin ->
+                        getTemplates(plugin)
+                            .doOnSuccess(plugin::setTemplates)
+                            .thenReturn(plugin)
+                );
     }
 
     @Override
@@ -285,19 +294,90 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Object> getFormConfig(String pluginId) {
-        return getPluginResource(pluginId, "form.json")
-                .flatMap(jsonStream -> {
-                    try {
-                        return Mono.just(new ObjectMapper().readValue(jsonStream, Map.class));
-                    } catch (IOException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
-                    }
-                });
+    public Mono<Map> getFormConfig(String pluginId) {
+        if (!formCache.containsKey(pluginId)) {
+            final Mono<Map> mono = loadPluginResource(pluginId, "form.json")
+                    .flatMap(jsonStream -> Mono.fromSupplier(() -> {
+                        try {
+                            return new ObjectMapper().readValue(jsonStream, Map.class);
+                        } catch (IOException e) {
+                            log.error("Error loading form JSON for plugin " + pluginId, e);
+                            throw Exceptions.propagate(
+                                    new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage())
+                            );
+                        }
+                    }))
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            formCache.remove(pluginId)
+                    )
+                    .onErrorMap(Exceptions::unwrap)
+                    .cache();
+
+            formCache.put(pluginId, mono);
+        }
+
+        return formCache.get(pluginId);
+    }
+
+    private Mono<Map<String, String>> getTemplates(Plugin plugin) {
+        final String pluginId = plugin.getId();
+
+        if (!templateCache.containsKey(pluginId)) {
+            final Mono<Map<String, String>> mono = Mono.fromSupplier(() -> loadTemplatesFromPlugin(plugin))
+                    .onErrorReturn(FileNotFoundException.class, Collections.emptyMap())
+                    .doOnError(throwable ->
+                            // Remove this pluginId from the cache so it is tried again next time.
+                            templateCache.remove(pluginId)
+                    )
+                    // It's okay if the templates folder is not present, we just return empty templates collection.
+                    .onErrorMap(throwable -> new AppsmithException(
+                            AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL, Exceptions.unwrap(throwable).getMessage())
+                    )
+                    .cache();
+
+            templateCache.put(pluginId, mono);
+        }
+
+        return templateCache.get(pluginId);
+    }
+
+    private Map<String, String> loadTemplatesFromPlugin(Plugin plugin) {
+        final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(
+                pluginManager
+                        .getPlugin(plugin.getPackageName())
+                        .getPluginClassLoader()
+        );
+
+        final Map<String, String> templates = new HashMap<>();
+
+        Resource[] resources;
+        try {
+            resources = resolver.getResources("templates/*");
+        } catch (IOException e) {
+            log.error("Error resolving templates in plugin for id: " + plugin.getId());
+            throw Exceptions.propagate(e);
+        }
+
+        for (final Resource resource : resources) {
+            final String filename = resource.getFilename();
+            try {
+                final String templateContent = StreamUtils.copyToString(
+                        resource.getInputStream(), Charset.defaultCharset());
+                if (filename != null) {
+                    templates.put(filename.replaceFirst("\\.\\w+$", ""), templateContent);
+                }
+            } catch (IOException e) {
+                log.error("Error loading template " + filename + " for plugin " + plugin.getId());
+                throw Exceptions.propagate(e);
+            }
+        }
+
+        return templates;
     }
 
     @Override
-    public Mono<InputStream> getPluginResource(String pluginId, String resourcePath) {
+    public Mono<InputStream> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .flatMap(plugin -> {
                     InputStream formResourceStream = pluginManager
