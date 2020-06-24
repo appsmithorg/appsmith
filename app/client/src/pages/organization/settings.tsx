@@ -185,7 +185,7 @@ export const OrgSettings = (props: PageProps) => {
                         username={props.username}
                       />
                     }
-                    position={Position.BOTTOM}
+                    position={Position.BOTTOM_LEFT}
                   >
                     <StyledDropDown>
                       {props.roleName}

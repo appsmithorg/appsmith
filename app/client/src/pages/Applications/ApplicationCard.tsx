@@ -178,7 +178,7 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
       label: "Duplicate",
     });
   }
-  if (props.delete) {
+  if (props.delete && hasEditPermission) {
     moreActionItems.push({
       value: "delete",
       onSelect: deleteApp,
@@ -209,15 +209,17 @@ export const ApplicationCard = (props: ApplicationCardProps) => {
             </Control>
           </Link>
         )}
-        <ContextDropdown
-          options={moreActionItems}
-          toggle={{
-            type: "icon",
-            icon: "MORE_VERTICAL_CONTROL",
-            iconSize: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-          }}
-          className="more"
-        />
+        {!!moreActionItems.length && (
+          <ContextDropdown
+            options={moreActionItems}
+            toggle={{
+              type: "icon",
+              icon: "MORE_VERTICAL_CONTROL",
+              iconSize: theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
+            }}
+            className="more"
+          />
+        )}
       </ApplicationTitle>
       <Link className="t--application-view-link" to={viewApplicationURL}>
         <ApplicationImage className="image-container">
