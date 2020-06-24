@@ -418,4 +418,29 @@ public class DatabaseChangelog {
         );
     }
 
+    @ChangeSet(order = "015", id = "set-plugin-image-and-docs-link", author = "")
+    public void setPluginImageAndDocsLink(MongoTemplate mongoTemplate) {
+        for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
+            if ("postgres-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Postgress.png");
+                plugin.setDocumentationLink("https://www.postgresql.org/docs/12/index.html");
+                plugin.setResponseType(Plugin.ResponseType.TABLE);
+
+            } else if ("restapi-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/RestAPI.png");
+
+            } else if ("mongo-plugin".equals(plugin.getPackageName())) {
+                plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MongoDB.png");
+                plugin.setDocumentationLink("https://docs.mongodb.com/manual/reference/command/nav-crud/");
+                plugin.setResponseType(Plugin.ResponseType.JSON);
+
+            } else {
+                continue;
+
+            }
+
+            mongoTemplate.save(plugin);
+        }
+    }
+
 }
