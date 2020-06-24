@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
@@ -21,7 +21,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     } = this.props;
 
     return (
-      <DynamicAutocompleteInput
+      <CodeEditor
         theme={EditorTheme.DARK}
         input={{ value: propertyValue, onChange: this.onChange }}
         dataTreePath={dataTreePath}

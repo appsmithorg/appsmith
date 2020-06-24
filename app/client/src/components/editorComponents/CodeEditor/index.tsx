@@ -52,7 +52,7 @@ export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  height?: number;
+  height?: string | number;
   meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   className?: string;
@@ -65,12 +65,12 @@ export type EditorStyleProps = {
   expected?: string;
 };
 
-export type DynamicAutocompleteInputProps = EditorStyleProps &
+export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
   };
 
-type Props = ReduxStateProps & EditorConfig & DynamicAutocompleteInputProps;
+type Props = ReduxStateProps & EditorProps;
 
 type State = {
   isFocused: boolean;
@@ -78,7 +78,7 @@ type State = {
   autoCompleteVisible: boolean;
 };
 
-class DynamicAutocompleteInput extends Component<Props, State> {
+class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
     hinting: [bindingHint],
@@ -120,7 +120,7 @@ class DynamicAutocompleteInput extends Component<Props, State> {
       }
 
       options.extraKeys = {};
-      if (this.props.tabBehaviour === TabBehaviour.INDENT) {
+      if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
       this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
@@ -365,4 +365,4 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
 });
 
-export default connect(mapStateToProps)(DynamicAutocompleteInput);
+export default connect(mapStateToProps)(CodeEditor);

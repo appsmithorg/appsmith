@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import "codemirror/addon/mode/multiplex";
 
 CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -20,7 +21,7 @@ CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   return CodeMirror.multiplexingMode(
-    CodeMirror.getMode(config, EditorModes.JSON),
+    CodeMirror.getMode(config, { name: "javascript", json: true }),
     {
       open: "{{",
       close: "}}",

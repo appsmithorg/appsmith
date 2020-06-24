@@ -6,9 +6,9 @@ import {
   formValueSelector,
   WrappedFieldInputProps,
 } from "redux-form";
-import DynamicAutocompleteInput, {
-  DynamicAutocompleteInputProps,
-} from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import CodeEditor, {
+  EditorProps,
+} from "components/editorComponents/CodeEditor";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
@@ -36,7 +36,7 @@ type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedDatasource) => void;
 };
 
-type Props = DynamicAutocompleteInputProps &
+type Props = EditorProps &
   ReduxStateProps &
   ReduxDispatchProps & {
     input: Partial<WrappedFieldInputProps>;
@@ -216,7 +216,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       onChange: this.handleOnChange,
     };
 
-    const props: DynamicAutocompleteInputProps = {
+    const props: EditorProps = {
       ...this.props,
       input,
       mode: EditorModes.TEXT_WITH_BINDING,
@@ -234,7 +234,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <React.Fragment>
-        <DynamicAutocompleteInput {...props} />
+        <CodeEditor {...props} />
       </React.Fragment>
     );
   }

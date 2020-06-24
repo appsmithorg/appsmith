@@ -2,7 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "widgets/InputWidget";
-import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -33,7 +33,7 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <DynamicAutocompleteInput
+      <CodeEditor
         input={{
           value: value,
           onChange: onChange,

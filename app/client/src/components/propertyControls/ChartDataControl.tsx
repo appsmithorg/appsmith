@@ -5,7 +5,7 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import DynamicAutocompleteInput from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -73,7 +73,7 @@ function DataControlComponent(props: RenderComponentProps) {
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <DynamicAutocompleteInput
+        <CodeEditor
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -107,7 +107,7 @@ function DataControlComponent(props: RenderComponentProps) {
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
-        <DynamicAutocompleteInput
+        <CodeEditor
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,

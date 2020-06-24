@@ -1,8 +1,8 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
-import DynamicAutocompleteInput, {
+import CodeEditor, {
   EditorStyleProps,
-} from "components/editorComponents/CodeEditor/DynamicAutocompleteInput";
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -25,13 +25,7 @@ class DynamicTextField extends React.Component<
       theme: EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
     };
-    return (
-      <Field
-        component={DynamicAutocompleteInput}
-        {...this.props}
-        {...editorProps}
-      />
-    );
+    return <Field component={CodeEditor} {...this.props} {...editorProps} />;
   }
 }
 
