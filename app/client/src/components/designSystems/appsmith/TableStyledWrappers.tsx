@@ -266,4 +266,5 @@ export const TableHeaderWrapper = styled.div`
 export const CommonFunctionsMenuWrapper = styled.div`
   display: flex;
   align-items: center;
+  height: 100%;
 `;
