@@ -63,7 +63,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
 
         Mono<User> currentUserMono;
         if (user == null) {
-            currentUserMono = sessionUserService.getCurrentUser();
+            currentUserMono = sessionUserService.getCurrentUser()
+                    .flatMap(user1 -> userRepository.findByEmail(user1.getUsername()));
         } else {
             currentUserMono = Mono.just(user);
         }
