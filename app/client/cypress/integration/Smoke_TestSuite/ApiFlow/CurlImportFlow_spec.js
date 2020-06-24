@@ -20,13 +20,13 @@ describe("Test curl import flow", function() {
           expect(someText).to.equal(response.response.body.data.name);
         });
     });
-    // cy.WaitAutoSave();
+    //cy.WaitAutoSave();
     cy.RunAPI();
     cy.ResponseStatusCheck("200 OK");
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.get(ApiEditor.ApiDeleteBtn).should("be.disabled");
-    cy.testDeleteApi();
+    cy.wait("@deleteAction");
     cy.get("@deleteAction").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
     });
