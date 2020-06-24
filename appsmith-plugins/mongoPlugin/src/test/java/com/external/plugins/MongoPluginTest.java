@@ -123,4 +123,30 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testFindAndModify() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "  findAndModify: \"users\",\n" +
+                "  query: " +
+                "{ " +
+                "id: 10" +
+                " },\n" +
+                "  update: { $set: { gender: \"F\" }}\n" +
+                "}");
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
 }
