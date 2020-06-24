@@ -116,8 +116,12 @@
           "label": "Authentication Mechanism",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
-          "initialValue": "SELF_SIGNED_CERTIFICATE",
+          "initialValue": "NO_SSL",
           "options": [
+            {
+              "label": "No SSL",
+              "value": "NO_SSL"
+            },
             {
               "label": "CA Certificate",
               "value": "CA_CERTIFICATE"
@@ -125,10 +129,6 @@
             {
               "label": "Self Signed Certificate",
               "value": "SELF_SIGNED_CERTIFICATE"
-            },
-            {
-              "label": "No SSL",
-              "value": "NO_SSL"
             }
           ]
         },
