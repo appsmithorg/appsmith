@@ -24,6 +24,8 @@ interface TableProps {
   searchValue: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
+  hiddenColumns?: string[];
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
   showMenu: (columnIndex: number) => void;
   displayColumnActions: boolean;
@@ -112,6 +114,9 @@ export const Table = (props: TableProps) => {
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+        columns={props.columns}
+        hiddenColumns={props.hiddenColumns}
+        updateHiddenColumns={props.updateHiddenColumns}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
