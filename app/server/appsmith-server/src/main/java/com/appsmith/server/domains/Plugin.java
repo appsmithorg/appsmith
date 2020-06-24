@@ -17,6 +17,11 @@ import java.util.List;
 @Document
 public class Plugin extends BaseDomain {
 
+    public enum ResponseType {
+        TABLE,
+        JSON,
+    }
+
     String name;
 
     PluginType type;
@@ -24,6 +29,12 @@ public class Plugin extends BaseDomain {
     String packageName;
 
     String jarLocation;
+
+    String iconLocation;
+
+    String documentationLink;
+
+    ResponseType responseType;
 
     List<PluginParameterType> datasourceParams;
 
