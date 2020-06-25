@@ -6,8 +6,12 @@ import { Theme, Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
 import { Tooltip } from "@blueprintjs/core";
 
-const LightningIconWrapper = styled.span<{ background: string; skin: Skin }>`
-  background: ${props => props.background};
+const LightningIconWrapper = styled.span<{
+  background: string;
+  skin: Skin;
+  isFocused: boolean;
+}>`
+  background: ${props => (props.isFocused ? "none" : props.background)};
   position: absolute;
   right: ${props => (props.skin === Skin.LIGHT ? 2 : 0)}px;
   top: ${props => (props.skin === Skin.LIGHT ? 1 : 0)}px;
@@ -64,6 +68,7 @@ export const LightningMenuTrigger = (props: LightningMenuTriggerProps) => {
       }}
       skin={props.skin}
       className="lightning-menu"
+      isFocused={props.isFocused}
     >
       <Tooltip
         autoFocus={false}
