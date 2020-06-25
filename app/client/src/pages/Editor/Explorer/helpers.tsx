@@ -1,5 +1,5 @@
-import React from "react";
-import Entity from "./Entity";
+import React, { ReactNode } from "react";
+import Entity, { EntityClassNames } from "./Entity";
 import EntityProperty from "./EntityProperty";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
@@ -23,6 +23,7 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import { ReduxAction } from "constants/ReduxActionConstants";
+import { flashElement } from "utils/helpers";
 
 type GroupConfig = {
   groupName: string;
@@ -30,13 +31,15 @@ type GroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (applicationId: string, pageId: string, id: string) => string;
-  isExpanded: (params: {
-    applicationId: string;
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
-  }) => boolean;
+  isExpanded: (params: ExplorerURLParams) => boolean;
   dispatchableCreateAction: (pageId: string) => ReduxAction<{ pageId: string }>;
+};
+
+type ExplorerURLParams = {
+  applicationId: string;
+  pageId: string;
+  apiId?: string;
+  queryId?: string;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -54,12 +57,7 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         getURL: (applicationId: string, pageId: string, id: string) => {
           return `${API_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`;
         },
-        isExpanded: (params: {
-          applicationId: string;
-          pageId: string;
-          apiId?: string;
-          queryId?: string;
-        }) => {
+        isExpanded: (params: ExplorerURLParams) => {
           return !!params.apiId;
         },
         dispatchableCreateAction: createNewApiAction,
@@ -72,12 +70,7 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
           `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`,
-        isExpanded: (params: {
-          applicationId: string;
-          pageId: string;
-          apiId?: string;
-          queryId?: string;
-        }) => {
+        isExpanded: (params: ExplorerURLParams) => {
           return !!params.queryId;
         },
         dispatchableCreateAction: createNewQueryAction,
@@ -141,151 +134,156 @@ const getEntityProperties = (entity: any) => {
   );
 };
 
-const getEntityChildren = (entity: any, step: number) => {
+const getEntityChildren = (entity: any) => {
+  // If this is widget with children
+  // Get the widget entities for the children
+  // This assumes that actions cannot have the `children` property
   const childEntities =
     entity.children &&
     entity.children.length > 0 &&
-    entity.children.map((child: any) =>
-      getEntityListItem({ ...child, ENTITY_TYPE: ENTITY_TYPE.WIDGET }, step),
-    );
+    entity.children.map((child: any) => getWidgetEntity(child));
   if (childEntities) return childEntities;
+
+  // Gets the properties (ReactNodes) for the entity
   return getEntityProperties(entity);
+  // return getEntityProperties(entity);
 };
 
-const getEntityListItem = (
-  entity: any,
-  step: number,
-  icon?: JSX.Element,
-  action?: () => void,
-  params?: {
-    applicationId: string;
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
-  },
-) => {
-  switch (entity.ENTITY_TYPE) {
-    case ENTITY_TYPE.WIDGET:
-      if (entity.type === WidgetTypes.CANVAS_WIDGET) {
-        return getEntityChildren(entity, step);
-      }
-      // TODO(abhinav): Let it pass when the Icon widget is available.
-      if (entity.type === WidgetTypes.ICON_WIDGET) {
-        return null;
-      }
-      const navigateToWidget = () =>
-        history.push(`${history.location.pathname}#${entity.widgetId}`);
-      return (
-        <Entity
-          key={entity.widgetId}
-          icon={getWidgetIcon(entity.type)}
-          name={entity.widgetName}
-          step={step}
-          action={action || navigateToWidget}
-        >
-          {getEntityChildren(entity, step)}
-        </Entity>
-      );
-    case ENTITY_TYPE.ACTION:
-      return (
-        <Entity
-          key={entity.config.id}
-          icon={icon}
-          name={entity.config.name}
-          step={step}
-          action={action || noop}
-          isDefaultExpanded={
-            params?.apiId === entity.config.id ||
-            params?.queryId === entity.config.id
-          }
-          contextMenu={
-            <ActionEntityContextMenu
-              id={entity.config.id}
-              name={entity.config.name}
-            />
-          }
-        >
-          {getEntityChildren(entity, step)}
-        </Entity>
-      );
+// A single widget entity entry in the entity explorer
+const getWidgetEntity = (entity: any) => {
+  // If this is a canvas widget, simply render
+  // child widget entries.
+  // This prevents the Canvas widget from showing up
+  // in the entity explrorer
+  if (entity.type === WidgetTypes.CANVAS_WIDGET) {
+    return getEntityChildren(entity);
   }
+  // TODO(abhinav): Let it pass when the Icon widget is available.
+  if (entity.type === WidgetTypes.ICON_WIDGET) {
+    return null;
+  }
+  const navigateToWidget = () => {
+    const el = document.getElementById(entity.widgetId);
+    el?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center",
+    });
+
+    if (el) flashElement(el);
+  };
+  return (
+    <Entity
+      key={entity.widgetId}
+      icon={getWidgetIcon(entity.type)}
+      name={entity.widgetName}
+      action={navigateToWidget}
+    >
+      {getEntityChildren({ ...entity, ENTITY_TYPE: ENTITY_TYPE.WIDGET })}
+    </Entity>
+  );
 };
 
-export const getPageEntityGroups = (
+// A single entry of an action entity
+// Agnostic of the type of action.
+const getActionEntity = (
+  entity: any,
+  isCurrentAction: boolean,
+  entityURL?: string,
+  icon?: ReactNode,
+) => {
+  return (
+    <Entity
+      key={entity.config.id}
+      icon={icon}
+      name={entity.config.name}
+      action={entityURL ? () => history.push(entityURL) : noop}
+      isDefaultExpanded={isCurrentAction}
+      contextMenu={
+        <ActionEntityContextMenu
+          id={entity.config.id}
+          name={entity.config.name}
+          className={EntityClassNames.ACTION_CONTEXT_MENU}
+        />
+      }
+    >
+      {getEntityChildren(entity)}
+    </Entity>
+  );
+};
+
+// Gets the Actions groups in the entity explorer
+// ACTION_PLUGIN_MAP specifies the number of groups
+// APIs, Queries, etc.
+const getActionGroups = (
   page: { name: string; id: string },
-  entityGroups: Array<{ type: ENTITY_TYPE; entries: any }>,
-  isCurrentPage: boolean,
-  params: {
-    applicationId: string;
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
-  },
+  group: { type: ENTITY_TYPE; entries: any },
+  params: ExplorerURLParams,
   dispatch: any,
 ) => {
-  const groups = entityGroups.map(group => {
-    switch (group.type) {
-      case ENTITY_TYPE.ACTION:
-        return ACTION_PLUGIN_MAP?.map((config?: GroupConfig) => {
-          const entries = group.entries.filter(
-            (entry: { config: Action }) =>
-              entry.config.pluginType === config?.type,
-          );
-          return (
-            <Entity
-              key={page.id + "_" + config?.type}
-              icon={config?.icon}
-              step={1}
-              name={config?.groupName || "Actions"}
-              disabled={!entries.length}
-              action={noop}
-              createFn={() =>
-                dispatch(config?.dispatchableCreateAction(params?.pageId))
-              }
-              isDefaultExpanded={config?.isExpanded(params)}
-            >
-              {entries.map((action: { config: Action }) =>
-                getEntityListItem(
-                  action,
-                  2,
-                  config?.icon,
-                  () => {
-                    const url = config?.getURL(
-                      params.applicationId,
-                      page.id,
-                      action.config.id,
-                    );
-                    history.push(url);
-                  },
-                  params,
-                ),
-              )}
-            </Entity>
-          );
-        });
-      case ENTITY_TYPE.WIDGET:
-        return (
-          <Entity
-            key={page.id + "_widgets"}
-            icon={widgetIcon}
-            name="Widgets"
-            step={1}
-            disabled={false}
-            action={noop}
-          >
-            {getEntityListItem(group.entries, 2)}
-          </Entity>
-        );
-      default:
-        return null;
-    }
+  return ACTION_PLUGIN_MAP?.map((config?: GroupConfig) => {
+    const entries = group.entries.filter(
+      (entry: { config: Action }) => entry.config.pluginType === config?.type,
+    );
+    return (
+      <Entity
+        key={page.id + "_" + config?.type}
+        icon={config?.icon}
+        name={config?.groupName || "Actions"}
+        disabled={!entries.length}
+        action={noop}
+        createFn={() =>
+          dispatch(config?.dispatchableCreateAction(params?.pageId))
+        }
+        isDefaultExpanded={config?.isExpanded(params)}
+      >
+        {entries.map((action: { config: Action }) =>
+          getActionEntity(
+            action,
+            params?.apiId === action.config.id ||
+              params?.queryId === action.config.id,
+            config?.getURL(params.applicationId, page.id, action.config.id),
+            config?.icon,
+          ),
+        )}
+      </Entity>
+    );
   });
+};
+
+// Gets the Widgets group in the entity explorer
+// This is the collapsible component which shows the list
+// of widgets in the selected page.
+const getWidgetsGroup = (
+  page: { name: string; id: string },
+  group: { entries: any },
+) => {
+  return (
+    <Entity
+      key={page.id + "_widgets"}
+      icon={widgetIcon}
+      name="Widgets"
+      disabled={false}
+      action={noop}
+    >
+      {getWidgetEntity(group.entries)}
+    </Entity>
+  );
+};
+
+// Gets the Page Entity Component.
+// This is the collapsible page item in the entity explorer
+const getPageEntity = (
+  page: { name: string; id: string },
+  groups: ReactNode,
+  isCurrentPage: boolean,
+  params: ExplorerURLParams,
+) => {
   return (
     <Entity
       key={page.id}
       icon={pageIcon}
       name={page.name}
-      step={0}
       disabled={!isCurrentPage}
       action={() =>
         !isCurrentPage &&
@@ -298,4 +296,25 @@ export const getPageEntityGroups = (
       {groups}
     </Entity>
   );
+};
+
+// Gets the groups of entities in a page
+export const getPageEntityGroups = (
+  page: { name: string; id: string },
+  entityGroups: Array<{ type: ENTITY_TYPE; entries: any }>,
+  isCurrentPage: boolean,
+  params: ExplorerURLParams,
+  dispatch: any,
+) => {
+  const groups = entityGroups.map(group => {
+    switch (group.type) {
+      case ENTITY_TYPE.ACTION:
+        return getActionGroups(page, group, params, dispatch);
+      case ENTITY_TYPE.WIDGET:
+        return getWidgetsGroup(page, group);
+      default:
+        return null;
+    }
+  });
+  return getPageEntity(page, groups, isCurrentPage, params);
 };

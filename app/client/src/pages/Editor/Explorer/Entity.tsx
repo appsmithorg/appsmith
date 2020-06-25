@@ -8,6 +8,10 @@ enum EntityActionKind {
   DOUBLE_CLICK,
 }
 
+export enum EntityClassNames {
+  ACTION_CONTEXT_MENU = "action-entity",
+}
+
 const Wrapper = styled.div<{ active: boolean }>`
   background: ${props => (props.active ? Colors.SHARK : "none")};
   padding: ${props => props.theme.spaces[1]}px;
@@ -23,7 +27,11 @@ const EntityItem = styled.div<{ disabled: boolean }>`
   padding: ${props => props.theme.spaces[1]}px;
   border-radius: none;
   color: ${props => (props.disabled ? Colors.SLATE_GRAY : Colors.WHITE)};
-
+  .${EntityClassNames.ACTION_CONTEXT_MENU} {
+    position: absolute;
+    right: 5px;
+    z-index: 2;
+  }
   &:hover {
     background: ${Colors.MAKO};
     .${Classes.ICON} {
@@ -79,7 +87,6 @@ export type EntityProps = {
   name: string;
   children?: ReactNode;
   icon: ReactNode;
-  step: number;
   disabled?: boolean;
   action: () => void;
   active?: boolean;
@@ -121,6 +128,18 @@ export const Entity = (props: EntityProps) => {
     <Icon icon="caret-right" />
   );
 
+  // Render the "add" button if a createFn is provided
+  const createIconBtn = props.createFn && (
+    <Icon
+      icon="add"
+      className="add"
+      onClick={(e: any) => {
+        props.createFn && props.createFn();
+        e.stopPropagation();
+      }}
+    />
+  );
+
   return (
     <Wrapper active={!!props.active}>
       <EntityItem
@@ -129,17 +148,9 @@ export const Entity = (props: EntityProps) => {
         disabled={!!props.disabled}
       >
         {props.children && collapseIcon}
-        {props.icon} <EntityName>{props.name}</EntityName>
-        {props.createFn && (
-          <Icon
-            icon="add"
-            className="add"
-            onClick={(e: any) => {
-              props.createFn && props.createFn();
-              e.stopPropagation();
-            }}
-          />
-        )}
+        {props.icon}
+        <EntityName>{props.name}</EntityName>
+        {createIconBtn}
         {props.contextMenu}
       </EntityItem>
       {props.children && (

@@ -7,7 +7,6 @@ import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-
 import {
   moveActionRequest,
   copyActionRequest,
@@ -31,6 +30,7 @@ type EntityContextMenuProps = {
   theme: Theme;
   id: string;
   name: string;
+  className?: string;
 };
 export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
   const { pageId } = useParams<{ pageId: string }>();
@@ -75,10 +75,16 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
 
   return (
     <TreeDropdown
+      className={props.className}
       defaultText=""
       onSelect={noop}
       selectedValue=""
       optionTree={[
+        {
+          value: "rename",
+          onSelect: noop,
+          label: "Edit Name",
+        },
         {
           value: "copy",
           onSelect: noop,
