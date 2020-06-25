@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Icon } from "@blueprintjs/core";
-import {
-  GridComponent,
-  ColumnsDirective,
-  ColumnDirective,
-} from "@syncfusion/ej2-react-grids";
+import { TableWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 import { AppState } from "reducers";
 import {
   getAllUsers,
@@ -27,6 +23,7 @@ import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import { useTable, useFlexLayout } from "react-table";
 type OrgProps = {
   allOrgs: Organization[];
   changeOrgName: (value: string) => void;
@@ -57,25 +54,23 @@ type DropdownProps = {
   username: string;
 };
 
-const StyledGridComponent = styled(GridComponent)`
-  &&& {
-    .e-altrow {
-      background-color: #fafafa;
-    }
-    .e-active {
-      background: #cccccc;
-    }
-    .e-gridcontent {
+const StyledDropDown = styled.div`
+  cursor: pointer;
+`;
+
+const StyledTableWrapped = styled(TableWrapper)`
+  width: 100%;
+  height: auto;
+  font-size: 14px;
+  .table {
+    .tbody {
+      overflow: auto;
+      height: auto;
       max-height: calc(
         100vh - (100vh / 3) - ${props => props.theme.headerHeight}
       );
-      overflow: auto;
     }
   }
-`;
-
-const StyledDropDown = styled.div`
-  cursor: pointer;
 `;
 
 const StyledMenu = styled(Menu)`
@@ -103,8 +98,102 @@ export const OrgSettings = (props: PageProps) => {
     roles: props.allRole,
     isCurrentUser: user.username === props.currentUser?.username,
   }));
+  const data = React.useMemo(() => userTableData, [
+    props.allUsers,
+    props.allRole,
+  ]);
+  const columns = React.useMemo(() => {
+    return [
+      {
+        Header: "Email",
+        accessor: "username",
+      },
+      {
+        Header: "Name",
+        accessor: "name",
+      },
+      {
+        Header: "Role",
+        accessor: "roleName",
+        Cell: (cellProps: any) => {
+          const {
+            roleName,
+            roles,
+            username,
+            isCurrentUser,
+            isChangingRole,
+          } = cellProps.row.original;
+
+          if (isCurrentUser) {
+            return <div>{roleName}</div>;
+          }
+
+          return (
+            <Popover
+              content={
+                <Dropdown
+                  activeItem={roleName}
+                  userRoles={roles}
+                  username={username}
+                />
+              }
+              position={Position.BOTTOM_LEFT}
+            >
+              <StyledDropDown>
+                {roleName}
+                <Icon icon="chevron-down" />
+                {isChangingRole ? <Spinner size={20} /> : undefined}
+              </StyledDropDown>
+            </Popover>
+          );
+        },
+      },
+      {
+        Header: "Delete",
+        accessor: "delete",
+        Cell: (cellProps: any) => {
+          const {
+            username,
+            isCurrentUser,
+            isDeleting,
+          } = cellProps.row.original;
+
+          return (
+            !isCurrentUser &&
+            (isDeleting ? (
+              <Spinner size={20} />
+            ) : (
+              <FormIcons.DELETE_ICON
+                height={20}
+                width={20}
+                color={"grey"}
+                background={"grey"}
+                onClick={() => deleteOrgUser(orgId, username)}
+                style={{ alignSelf: "center", cursor: "pointer" }}
+              />
+            ))
+          );
+        },
+      },
+    ];
+  }, [props.allUsers, props.allRole]);
+
   const currentOrg = allOrgs.find(org => org.organization.id === orgId);
   const currentOrgName = currentOrg?.organization.name ?? "";
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable(
+    {
+      columns,
+      data,
+      manualPagination: true,
+    },
+    useFlexLayout,
+  );
 
   useEffect(() => {
     fetchUser(orgId);
@@ -166,67 +255,61 @@ export const OrgSettings = (props: PageProps) => {
       {props.isFetchAllUsers && props.isFetchAllRoles ? (
         <Spinner size={30} />
       ) : (
-        <StyledGridComponent dataSource={userTableData}>
-          <ColumnsDirective>
-            <ColumnDirective
-              key="username"
-              field="username"
-              headerText="Email"
-            />
-            <ColumnDirective key="name" field="name" headerText="Name" />
-            <ColumnDirective
-              key="rolename"
-              field="rolename"
-              headerText="Role"
-              width={350}
-              template={(props: any) => {
-                return props.isCurrentUser ? (
-                  <div>{props.roleName}</div>
-                ) : (
-                  <Popover
-                    content={
-                      <Dropdown
-                        activeItem={props.roleName}
-                        userRoles={props.roles}
-                        username={props.username}
-                      />
-                    }
-                    position={Position.BOTTOM_LEFT}
-                  >
-                    <StyledDropDown>
-                      {props.roleName}
-                      <Icon icon="chevron-down" />
-                      {props.isChangingRole ? <Spinner size={20} /> : undefined}
-                    </StyledDropDown>
-                  </Popover>
-                );
-              }}
-            />
-            <ColumnDirective
-              key="delete"
-              field="delete"
-              headerText="Delete"
-              width={100}
-              template={(props: any) => {
-                return (
-                  !props.isCurrentUser &&
-                  (props.isDeleting ? (
-                    <Spinner size={20} />
-                  ) : (
-                    <FormIcons.DELETE_ICON
-                      height={20}
-                      width={20}
-                      color={"grey"}
-                      background={"grey"}
-                      onClick={() => deleteOrgUser(orgId, props.username)}
-                      style={{ alignSelf: "center", cursor: "pointer" }}
-                    />
-                  ))
-                );
-              }}
-            />
-          </ColumnsDirective>
-        </StyledGridComponent>
+        <StyledTableWrapped width={200} height={200}>
+          <div className="tableWrap">
+            <div {...getTableProps()} className="table">
+              {headerGroups.map((headerGroup: any, index: number) => (
+                <div
+                  key={index}
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr"
+                >
+                  {headerGroup.headers.map(
+                    (column: any, columnIndex: number) => (
+                      <div
+                        key={columnIndex}
+                        {...column.getHeaderProps()}
+                        className="th header-reorder"
+                      >
+                        <div
+                          className={
+                            !column.isHidden
+                              ? "draggable-header"
+                              : "hidden-header"
+                          }
+                        >
+                          {column.render("Header")}
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ))}
+              <div {...getTableBodyProps()} className="tbody">
+                {rows.map((row: any, index: number) => {
+                  prepareRow(row);
+                  return (
+                    <div key={index} {...row.getRowProps()} className={"tr"}>
+                      {row.cells.map((cell: any, cellIndex: number) => {
+                        return (
+                          <div
+                            key={cellIndex}
+                            {...cell.getCellProps()}
+                            className="td"
+                            data-rowindex={index}
+                            data-colindex={cellIndex}
+                          >
+                            {cell.render("Cell")}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </StyledTableWrapped>
       )}
     </React.Fragment>
   );
