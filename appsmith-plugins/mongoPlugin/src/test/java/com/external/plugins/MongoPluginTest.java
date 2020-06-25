@@ -5,7 +5,11 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -14,7 +18,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -35,6 +41,16 @@ public class MongoPluginTest {
     public void setUp() {
         address = mongoContainer.getContainerIpAddress();
         port = mongoContainer.getFirstMappedPort();
+
+        final MongoClient mongoClient = new MongoClient(address, port);
+        if (!mongoClient.getDatabase("test").listCollectionNames().iterator().hasNext()) {
+            final MongoCollection<Document> usersCOllection = mongoClient.getDatabase("test").getCollection("users");
+            usersCOllection.insertMany(List.of(
+                    new Document(Map.of("name", "Cierra Vega", "gender", "F", "age", 20, "luckyNumber", 987654321L)),
+                    new Document(Map.of("name", "Alden Cantrell", "gender", "M", "age", 30)),
+                    new Document(Map.of("name", "Kierra Gentry", "gender", "F", "age", 40))
+            ));
+        }
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -78,7 +94,7 @@ public class MongoPluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("{\n" +
                 "      find: \"users\",\n" +
-                "      filter: { id: { $gte: 10 } },\n" +
+                "      filter: { age: { $gte: 30 } },\n" +
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
@@ -91,6 +107,7 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
     }
@@ -108,6 +125,7 @@ public class MongoPluginTest {
                 "          name: \"John Smith\",\n" +
                 "          email: [\"john@appsmith.com](mailto:%22john@appsmith.com)\"],\n" +
                 "          gender: \"M\",\n" +
+                "          age: \"50\",\n" +
                 "        },\n" +
                 "      ],\n" +
                 "    }");
@@ -133,7 +151,7 @@ public class MongoPluginTest {
                 "  findAndModify: \"users\",\n" +
                 "  query: " +
                 "{ " +
-                "id: 10" +
+                "name: \"Alden Cantrell\"" +
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
@@ -145,6 +163,34 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testCleanUp() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      limit: 1,\n" +
+                "    }");
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    final ArrayNode body = (ArrayNode) result.getBody();
+                    assertEquals(1, body.size());
+                    final JsonNode node = body.get(0);
+                    assertTrue(node.get("_id").isTextual());
+                    assertTrue(node.get("luckyNumber").isNumber());
                 })
                 .verifyComplete();
     }
