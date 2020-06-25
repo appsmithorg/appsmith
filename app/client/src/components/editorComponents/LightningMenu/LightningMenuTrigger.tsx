@@ -22,6 +22,9 @@ const LightningIconWrapper = styled.span<{
   height: ${props => (props.skin === Skin.LIGHT ? 30 : 32)}px;
   z-index: 10;
   cursor: pointer;
+  &:hover {
+    background: ${props => props.isFocused && props.background};
+  }
 `;
 
 interface LightningMenuTriggerProps {
