@@ -41,6 +41,10 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   width: ${props => props.theme.evaluatedValuePopup.width}px;
   max-height: ${props => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
   background-color: ${props => THEMES[props.colorTheme].backgroundColor};
   color: ${props => THEMES[props.colorTheme].textColor};
   padding: 15px;
@@ -51,6 +55,10 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 const CurrentValueWrapper = styled.div`
   max-height: 150px;
   overflow-y: auto;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -58,6 +66,10 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
   overflow: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
@@ -65,6 +77,10 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
   overflow: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const ErrorText = styled.p`
