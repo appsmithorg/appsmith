@@ -691,7 +691,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                 .filter(policy -> policy.getPermission().equals(MANAGE_PAGES.getValue())
                         || policy.getPermission().equals(READ_PAGES.getValue()))
                 .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Page.class, Action.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Page.class, Action.class);
         action.setPolicies(documentPolicies);
     }
 }

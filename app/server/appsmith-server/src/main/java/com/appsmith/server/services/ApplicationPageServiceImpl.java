@@ -215,7 +215,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                                 policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                 ).collect(Collectors.toSet());
 
-                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Organization.class, Application.class);
+                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Application.class);
                         application.setPolicies(documentPolicies);
                         return application;
                     });
@@ -249,7 +249,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .filter(policy -> policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())
                         || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                 .collect(Collectors.toSet());
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Application.class, Page.class);
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Application.class, Page.class);
         page.setPolicies(documentPolicies);
     }
 
