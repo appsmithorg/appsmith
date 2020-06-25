@@ -118,7 +118,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                                                 policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue())
                                                 ).collect(Collectors.toSet());
 
-                                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(user, policySet, Organization.class, Datasource.class);
+                                        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(policySet, Organization.class, Datasource.class);
                                         datasource1.setPolicies(documentPolicies);
                                         return datasource1;
                                     });

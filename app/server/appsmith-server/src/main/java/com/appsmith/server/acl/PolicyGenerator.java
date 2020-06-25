@@ -1,7 +1,6 @@
 package com.appsmith.server.acl;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.domains.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,8 @@ import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -123,7 +124,7 @@ public class PolicyGenerator {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    public Set<Policy> getLateralPoliciesForUser(AclPermission permission, User user, Class destinationEntity) {
+    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
                 .map(edge -> lateralGraph.getEdgeTarget(edge))
@@ -135,7 +136,7 @@ public class PolicyGenerator {
                     return false;
                 })
                 .map(lateralPermission -> Policy.builder().permission(lateralPermission.getValue())
-                        .users(Set.of(user.getUsername())).build())
+                        .users(userNames).build())
                 .collect(Collectors.toSet());
     }
 
@@ -146,11 +147,10 @@ public class PolicyGenerator {
      *
      * @param policy
      * @param aclPermission
-     * @param user
      * @param destinationEntity
      * @return
      */
-    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, User user, Class destinationEntity) {
+    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class destinationEntity) {
         // Check the hierarchy graph to derive child permissions that must be given to this
         // document
         Set<Policy> childPolicySet = new HashSet<>();
@@ -163,23 +163,43 @@ public class PolicyGenerator {
                         .users(policy.getUsers()).build());
             }
 
-            // Get the lateral permissions that must be applied given the child permission
-            // This is applied at a user level and not from the parent object. Hence only the
-            // current user gets these permissions
-            childPolicySet.addAll(getLateralPoliciesForUser(childPermission, user, destinationEntity));
+            // Check the lateral graph to derive the child permissions that must be given to this document
+            childPolicySet.addAll(getLateralPolicies(childPermission, policy.getUsers(), destinationEntity));
         }
 
         return childPolicySet;
     }
 
-    public Set<Policy> getAllChildPolicies(User user, Set<Policy> policySet, Class inheritingEntity, Class destinationEntity) {
-        return policySet.stream()
+    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class inheritingEntity, Class destinationEntity) {
+        Set<Policy> policies = policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission
                             .getPermissionByValue(policy.getPermission(), inheritingEntity);
                     // Get all the child policies for the given policy and aclPermission
-                    return getChildPolicies(policy, aclPermission, user, destinationEntity);
+                    return getChildPolicies(policy, aclPermission, destinationEntity);
                 }).flatMap(Collection::stream)
                 .collect(Collectors.toSet());
+
+        Map<String, Policy> policyMap = new LinkedHashMap<>();
+
+        for (Policy policy : policies) {
+            if (policyMap.containsKey(policy.getPermission())) {
+                Policy mergedPolicy = policyMap.get(policy.getPermission());
+
+                HashSet<String> users = new HashSet<>(mergedPolicy.getUsers());
+                users.addAll(policy.getUsers());
+                mergedPolicy.setUsers(users);
+
+                HashSet<String> groups = new HashSet<>(mergedPolicy.getGroups());
+                groups.addAll(policy.getGroups());
+                mergedPolicy.setGroups(groups);
+
+                policyMap.put(policy.getPermission(), mergedPolicy);
+            } else {
+                policyMap.put(policy.getPermission(), policy);
+            }
+        }
+
+        return new HashSet<>(policyMap.values());
     }
 }

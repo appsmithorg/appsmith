@@ -116,7 +116,7 @@ public class PolicyUtils<T extends BaseDomain> {
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
                             .users(Set.of(user.getUsername())).build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPoliciesForUser(perm, user, null);
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(user.getUsername()), null);
                     policiesForUser.add(policyWithCurrentPermission);
                     return policiesForUser;
                 })
@@ -131,7 +131,7 @@ public class PolicyUtils<T extends BaseDomain> {
                         || policy.getPermission().equals(ORGANIZATION_READ_APPLICATIONS.getValue()))
                 .collect(Collectors.toSet());
 
-        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Organization.class, destinationEntity)
+        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Organization.class, destinationEntity)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
@@ -177,7 +177,7 @@ public class PolicyUtils<T extends BaseDomain> {
                         || policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                 .collect(Collectors.toSet());
 
-        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Application.class, Page.class)
+        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Application.class, Page.class)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
@@ -205,7 +205,7 @@ public class PolicyUtils<T extends BaseDomain> {
                         || policy.getPermission().equals(READ_PAGES.getValue()))
                 .collect(Collectors.toSet());
 
-        return policyGenerator.getAllChildPolicies(user, extractedInterestingPolicySet, Page.class, Action.class)
+        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, Page.class, Action.class)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
