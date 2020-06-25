@@ -294,20 +294,25 @@ public class ActionServiceTest {
                 "  \"name\": \"propertyPane\"\n" +
                 "}";
 
-        Object obj = actionService.variableSubstitution("{{Input.text}}", Map.of("Input.text", json));
-        assertThat(obj).isNotNull();
-        assertThat(obj).isInstanceOf(String.class);
+        Action action = new Action();
+        action.setActionConfiguration(new ActionConfiguration());
+        action.getActionConfiguration().setBody("{{Input.text}}");
+
+        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", json));
+        assertThat(renderedAction).isNotNull();
+        assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo(json);
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void testVariableSubstitutionWithNewline() {
-        String inputText = "name\\nvalue";
-        String expectedOutput = "name\nvalue";
-        Object obj = actionService.variableSubstitution("{{Input.text}}", Map.of("Input.text", inputText));
-        assertThat(obj).isNotNull();
-        assertThat(obj).isInstanceOf(String.class);
-        assertThat(obj).isEqualTo(expectedOutput);
+        Action action = new Action();
+        action.setActionConfiguration(new ActionConfiguration());
+        action.getActionConfiguration().setBody("{{Input.text}}");
+
+        Action renderedAction = actionService.variableSubstitution(action, Map.of("Input.text", "name\nvalue"));
+        assertThat(renderedAction).isNotNull();
+        assertThat(renderedAction.getActionConfiguration().getBody()).isEqualTo("name\nvalue");
     }
 
     @Test

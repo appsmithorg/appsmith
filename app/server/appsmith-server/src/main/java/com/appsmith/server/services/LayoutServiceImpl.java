@@ -7,22 +7,16 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
-import org.jgrapht.Graph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -84,112 +78,6 @@ public class LayoutServiceImpl implements LayoutService {
                     return matchedLayout;
                 });
     }
-
-
-    /**
-     * Walks the DSL and adds relationship between widgets and actions. Widgets have at this point already been added
-     * to the graph by function extractAllWidgetNamesAndAddThemAsVerticesToTheGraph. Actions are recognized by comparing
-     * them to a master list of action names which could be found in the DSL by the name of masterPageActions. Once
-     * an action name has been found in the dynamic binding, it is then added to boundPageActions list.
-     *
-     * @param dsl
-     * @param graph
-     * @param masterPageActions
-     * @param boundPageActions
-     */
-    @Deprecated
-    private void extractRelationshipsFromDSLAndAddThemAsEdgesToTheGraph(net.minidev.json.JSONObject dsl, Graph graph, List<String> masterPageActions, List<String> boundPageActions) {
-        if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            //This isnt a valid widget configuration. No need to traverse this.
-            return;
-        }
-
-        String widgetName = dsl.getAsString(FieldName.WIDGET_NAME);
-
-        Object bindings = dsl.get(FieldName.DYNAMIC_BINDINGS);
-
-        // If dynamic bindings exist, then an edge needs to be added to the graph to represent this relationship.
-        if (bindings != null) {
-            JSONObject db = new JSONObject();
-            Map data = (Map) bindings;
-            db.putAll(data);
-            // The dynamic binding currently is represented as : {"keyName" : true}
-            // So we need to only get the keyName.
-            List<String> dynamicBindingKeys = new ArrayList<>(db.keySet());
-
-            dynamicBindingKeys.forEach(dynamicBindingKey -> {
-                // Assumption here is that DSL creator has ensured that key with name `dynamicBindingKey` would exist in
-                // widget object.
-                String binding = dsl.getAsString(dynamicBindingKey);
-
-                Set<String> extractMustacheKeys = extractMustacheKeysFromJson(binding);
-                if (!extractMustacheKeys.isEmpty()) {
-                    for (String mustacheKey : extractMustacheKeys) {
-                        String key = mustacheKey.trim();
-
-                        Matcher matcher = pattern.matcher(key);
-
-                        while (matcher.find()) {
-                            String word = matcher.group();
-
-                            // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                            String[] subStrings = word.split(Pattern.quote("."));
-
-                            // This only adds an edge if the string matches any action name or widget name
-                            if (masterPageActions.contains(subStrings[0]) || graph.vertexSet().contains(subStrings[0])) {
-
-                                //If this is an action and not a widget, add it to list of bound actions
-                                if (masterPageActions.contains(subStrings[0])) {
-                                    boundPageActions.add(subStrings[0]);
-                                }
-
-                                if (!graph.vertexSet().contains(subStrings[0])) {
-                                    graph.addVertex(subStrings[0]);
-                                }
-                                //Now add the edge to represent this relationship between the widget and widget/action
-                                graph.addEdge(subStrings[0], widgetName);
-                            }
-                        }
-                    }
-                }
-            });
-
-        }
-
-        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
-        if (children != null) {
-            for (int i = 0; i < children.size(); i++) {
-                Map data = (Map) children.get(i);
-                JSONObject object = new JSONObject();
-                object.putAll(data);
-                extractRelationshipsFromDSLAndAddThemAsEdgesToTheGraph(object, graph, masterPageActions, boundPageActions);
-            }
-        }
-    }
-
-    /**
-     * This function returns all the nodes which are at the top of the graph.
-     * These nodes are the nodes which are not dependent on any other node. Since the graph displays the dependencies of
-     * different widgets and actions between each other, the root nodes of the graphs are clearly the ones which are
-     * independent of others.
-     *
-     * @param graph
-     * @return
-     */
-    @Deprecated
-    private ArrayList<String> getRootNodesOfGraph(Graph graph) {
-        Set vertexSet = graph.vertexSet();
-        ArrayList<String> topVertices = new ArrayList<>();
-        vertexSet.forEach(vertex -> {
-            int inDegree = graph.inDegreeOf(vertex);
-            //If this is a root node (Also includes nodes which are not connected to anything), we are interested.
-            if (inDegree == 0) {
-                topVertices.add((String) vertex);
-            }
-        });
-        return topVertices;
-    }
-
 
 }
 

@@ -1,10 +1,30 @@
 package com.appsmith.server.helpers;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.util.StringUtils;
+
+import java.beans.PropertyDescriptor;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.BeanCopyUtils.isDomainModel;
+
+@Slf4j
 public class MustacheHelper {
 
     /**
@@ -16,6 +36,10 @@ public class MustacheHelper {
      * text and the others are mustache interpolations.
      */
     public static List<String> tokenize(String template) {
+        if (StringUtils.isEmpty(template)) {
+            return Collections.emptyList();
+        }
+
         List<String> tokens = new ArrayList<>();
 
         int length = template.length();
@@ -132,18 +156,61 @@ public class MustacheHelper {
         return keys;
     }
 
-    /**
-     * The JSON template contains some Mustache interpolations inside some values, serialized as JSON. Because of this,
-     * JSON special characters like double-quote and backslash are escaped in the template. We need to unescape them,
-     * making the JSON invalid, but the Javascript inside the Mustache double-braces will be valid. Then, our parser can
-     * do its work.
-     *
-     * @param jsonTemplate The template string. Usually the result of calling `objectMapper.writeValueAsString(obj)`.
-     * @return A Set of strings that serve as replacement keys, with the surrounding double braces stripped and then
-     * trimmed.
-     */
-    public static Set<String> extractMustacheKeysFromJson(String jsonTemplate) {
-        return extractMustacheKeys(unescape(jsonTemplate));
+    public static Set<String> extractMustacheKeysFromFields(Object object) {
+        final Set<String> keys = new HashSet<>();
+
+        // Linearized recursive search. Instead of calling this function recursively for nested values, we add them to
+        // the end of the queue and process them in a linear fashion. This strategy doesn't suffer from a stack overflow
+        // exception, since it doesn't rely on the call-stack. Hence, ideal for processing large DSLs.
+        final Queue<Object> processQueue = new LinkedList<>();
+        processQueue.add(object);
+
+        while (!processQueue.isEmpty()) {
+            final Object obj = processQueue.remove();
+
+            if (obj == null) {
+                continue;
+            }
+
+            if (isDomainModel(obj.getClass())) {
+                // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
+                // values are not null.
+                processQueue.addAll(getBeanPropertyValues(obj));
+
+            } else if (obj instanceof List) {
+                processQueue.addAll((List) obj);
+
+            } else if (obj instanceof Map) {
+                processQueue.addAll(((Map) obj).values());
+
+            } else if (obj instanceof String) {
+                keys.addAll(extractMustacheKeys((String) obj));
+
+            }
+        }
+
+        return keys;
+    }
+
+    private static List<Object> getBeanPropertyValues(Object object) {
+        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        final List<Object> values = new ArrayList<>();
+
+        for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
+            // For properties like `class` that don't have a set method, just ignore them.
+            if (propertyDescriptor.getWriteMethod() == null) {
+                continue;
+            }
+
+            String name = propertyDescriptor.getName();
+            Object value = sourceBeanWrapper.getPropertyValue(name);
+
+            if (value != null) {
+                values.add(value);
+            }
+        }
+
+        return values;
     }
 
     private static void clearAndPushToken(StringBuilder tokenBuilder, List<String> tokenList) {
@@ -153,17 +220,73 @@ public class MustacheHelper {
         }
     }
 
+    public static <T> T renderFieldValues(T object, Map<String, String> context) {
+        final String className = object.getClass().getSimpleName();
+        final BeanWrapper sourceBeanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+
+        try {
+
+            for (PropertyDescriptor propertyDescriptor : sourceBeanWrapper.getPropertyDescriptors()) {
+                // For properties like `class` that don't have a set method, just ignore them.
+                if (propertyDescriptor.getWriteMethod() == null) {
+                    continue;
+                }
+
+                String name = propertyDescriptor.getName();
+                Object value = sourceBeanWrapper.getPropertyValue(name);
+
+                // If value is null, don't copy it over to target and just move on to the next property.
+                if (value == null) {
+                    continue;
+                }
+
+                if (isDomainModel(propertyDescriptor.getPropertyType())) {
+                    // Go deeper *only* if the property belongs to Appsmith's models, and both the source and target
+                    // values are not null.
+                    renderFieldValues(value, context);
+
+                } else if (value instanceof List) {
+                    for (Object childValue : (List) value) {
+                        if (isDomainModel(childValue.getClass())) {
+                            renderFieldValues(childValue, context);
+                        }
+                    }
+
+                } else if (value instanceof Map) {
+                    for (Object childValue : ((Map) value).values()) {
+                        if (isDomainModel(childValue.getClass())) {
+                            renderFieldValues(childValue, context);
+                        }
+                    }
+
+                } else if (value instanceof String) {
+                    sourceBeanWrapper.setPropertyValue(
+                            name,
+                            render((String) value, className + "." + name, context)
+                    );
+
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Exception caught while substituting values in mustache template.", e);
+
+        }
+
+        return object;
+    }
+
     /**
-     * This will replace instances of `\"` (a single backslash followed by a double-quote) with just a double-quote and
-     * instances of `\\` (two backslash characters back-to-back) with a single backslash. This is useful to undo the
-     * escaping done during JSON serialization. Note that the input string is expected to be valid JSON, although this
-     * is not verified. The return value will NOT be valid JSON.
-     *
-     * @param jsonString Input string to apply replacements on.
-     * @return String Contents of `jsonString` with the replacements applied.
+     * @param template    : This is the string which contains {{key}} which would be replaced with value
+     * @param keyValueMap : This is the map of keys with values.
+     * @return It finally returns the string in which all the keys in template have been replaced with values.
      */
-    private static String unescape(String jsonString) {
-        return jsonString.replaceAll("\\\\([\"\\\\])", "$1");
+    private static String render(String template, String name, Map<String, String> keyValueMap) {
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache mustache = mf.compile(new StringReader(template), name);
+        Writer writer = new StringWriter();
+        mustache.execute(writer, keyValueMap);
+        return StringEscapeUtils.unescapeHtml4(writer.toString());
     }
 
 }

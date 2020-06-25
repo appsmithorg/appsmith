@@ -443,4 +443,37 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "016", id = "fix-double-escapes", author = "")
+    public void fixDoubleEscapes(MongoTemplate mongoTemplate) {
+        final List<Action> actions = mongoTemplate.find(
+                query(where("jsonPathKeys").exists(true)),
+                Action.class
+        );
+
+        for (final Action action : actions) {
+            final Set<String> keys = action.getJsonPathKeys();
+            if (CollectionUtils.isEmpty(keys)) {
+                continue;
+            }
+
+            final Set<String> fixedKeys = new HashSet<>();
+            boolean hasFixes = false;
+            for (final String key : keys) {
+                final String fixed = key
+                        .replaceAll("\\\\n", "\n")
+                        .replaceAll("\\\\r", "\r")
+                        .replaceAll("\\\\t", "\t");
+                fixedKeys.add(fixed);
+                if (!hasFixes && !fixed.equals(key)) {
+                    hasFixes = true;
+                }
+            }
+
+            if (hasFixes) {
+                action.setJsonPathKeys(fixedKeys);
+                mongoTemplate.save(action);
+            }
+        }
+    }
+
 }

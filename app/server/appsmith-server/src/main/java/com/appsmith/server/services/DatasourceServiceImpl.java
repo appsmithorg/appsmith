@@ -13,10 +13,10 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -248,14 +247,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
-        // Convert the object to String as a preparation to send it to mustache extraction
-        try {
-            String datasourceConfigStr = objectMapper.writeValueAsString(datasource.getDatasourceConfiguration());
-            return extractMustacheKeysFromJson(datasourceConfigStr);
-        } catch (JsonProcessingException e) {
-            log.error("Exception caught while extracting mustache keys from action configuration. ", e);
-        }
-        return new HashSet<>();
+
+        return MustacheHelper.extractMustacheKeysFromFields(datasource.getDatasourceConfiguration());
     }
 
     @Override
