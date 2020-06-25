@@ -268,13 +268,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                             }
 
                             // Step 1. Remove the existing role of the user from the organization
-                            Mono<Organization> userRemovedOrganizationMono = this.removeUserRoleFromOrganization(organization.getId(), userRole);
+                            Mono<Organization> userRemovedOrganizationMono = this.removeUserRoleFromOrganizationGivenUserObject(organization, user);
                             // Step 2. Add the new role (if present) to the organization for the user
                             Mono<Organization> finalUpdatedOrganizationMono = userRemovedOrganizationMono;
                             if (userRole.getRoleName() != null) {
                                 // If a userRole name has been specified, then it means that the user's role has been modified.
                                 finalUpdatedOrganizationMono = userRemovedOrganizationMono
-                                        .flatMap(organization1 -> this.addUserRoleToOrganization(organization1.getId(), userRole));
+                                        .flatMap(organization1 -> this.addUserToOrganizationGivenUserObject(organization1, user, userRole));
                             } else {
                                 // If the roleName was not present, then it implies that the user is being removed from the org.
                                 // Since at this point we have already removed the user from the organization, we dont need to do anything else.
