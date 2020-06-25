@@ -221,7 +221,7 @@ class Applications extends Component<
               <>
                 {!isPermitted(
                   organization.userPermissions,
-                  PERMISSION_TYPE.CREATE_APPLICATION,
+                  PERMISSION_TYPE.MANAGE_ORGANIZATION,
                 ) ? (
                   <OrgName>
                     {MenuIcons.ORG_ICON({

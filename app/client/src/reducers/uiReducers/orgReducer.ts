@@ -11,7 +11,6 @@ const initialState: OrgReduxState = {
     fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
-    isDeletingOrgUser: false,
   },
   currentOrgId: "",
   orgUsers: [],
@@ -86,23 +85,49 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string; roleName: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      const existingUser = user;
-      if (existingUser.username === action.payload.username) {
-        existingUser.roleName = action.payload.roleName;
-
-        return existingUser;
+      if (user.username === action.payload.username) {
+        return {
+          ...user,
+          roleName: action.payload.roleName,
+          isChangingRole: false,
+        };
       }
-
-      return existingUser;
+      return user;
     });
     return {
       ...state,
       orgUsers: _orgUsers,
     };
   },
-
-  [ReduxActionTypes.DELETE_ORG_USER_INIT]: (state: OrgReduxState) => {
-    return { ...state, isDeletingOrgUser: true };
+  [ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT]: (
+    state: OrgReduxState,
+    action: ReduxAction<{ username: string }>,
+  ) => {
+    const _orgUsers = state.orgUsers.map((user: OrgUser) => {
+      if (user.username == action.payload.username) {
+        return {
+          ...user,
+          isChangingRole: true,
+        };
+      }
+      return user;
+    });
+    return { ...state, orgUsers: _orgUsers };
+  },
+  [ReduxActionTypes.DELETE_ORG_USER_INIT]: (
+    state: OrgReduxState,
+    action: ReduxAction<{ username: string }>,
+  ) => {
+    const _orgUsers = state.orgUsers.map((user: OrgUser) => {
+      if (user.username == action.payload.username) {
+        return {
+          ...user,
+          isDeleting: true,
+        };
+      }
+      return user;
+    });
+    return { ...state, orgUsers: _orgUsers };
   },
   [ReduxActionTypes.DELETE_ORG_USER_SUCCESS]: (
     state: OrgReduxState,
@@ -114,11 +139,21 @@ const orgReducer = createReducer(initialState, {
     return {
       ...state,
       orgUsers: _orgUsers,
-      isDeletingOrgUser: false,
     };
   },
+  [ReduxActionTypes.CHANGE_ORG_USER_ROLE_ERROR]: (state: OrgReduxState) => {
+    const _orgUsers = state.orgUsers.map(user => ({
+      ...user,
+      isChangingRole: false,
+    }));
+    return { ...state, orgUsers: _orgUsers };
+  },
   [ReduxActionTypes.DELETE_ORG_USER_ERROR]: (state: OrgReduxState) => {
-    return { ...state, isDeletingOrgUser: false };
+    const _orgUsers = state.orgUsers.map(user => ({
+      ...user,
+      isDeleting: false,
+    }));
+    return { ...state, orgUsers: _orgUsers };
   },
   [ReduxActionTypes.SET_CURRENT_ORG_ID]: (
     state: OrgReduxState,
@@ -144,7 +179,6 @@ export interface OrgReduxState {
     fetchingRoles: boolean;
     isFetchAllRoles: boolean;
     isFetchAllUsers: boolean;
-    isDeletingOrgUser: boolean;
   };
   orgUsers: OrgUser[];
   orgRoles: any;

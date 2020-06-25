@@ -25,6 +25,8 @@ import "@syncfusion/ej2-react-grids/styles/material.css";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 type OrgProps = {
   allOrgs: Organization[];
   changeOrgName: (value: string) => void;
@@ -35,6 +37,7 @@ type OrgProps = {
   changeOrgUserRole: (orgId: string, role: string, username: string) => void;
   allUsers: OrgUser[];
   allRole: object;
+  currentUser: User | undefined;
   isFetchAllUsers: boolean;
   isFetchAllRoles: boolean;
 };
@@ -98,6 +101,7 @@ export const OrgSettings = (props: PageProps) => {
   const userTableData = props.allUsers.map(user => ({
     ...user,
     roles: props.allRole,
+    isCurrentUser: user.username === props.currentUser?.username,
   }));
   const currentOrg = allOrgs.find(org => org.organization.id === orgId);
   const currentOrgName = currentOrg?.organization.name ?? "";
@@ -176,7 +180,9 @@ export const OrgSettings = (props: PageProps) => {
               headerText="Role"
               width={350}
               template={(props: any) => {
-                return (
+                return props.isCurrentUser ? (
+                  <div>{props.roleName}</div>
+                ) : (
                   <Popover
                     content={
                       <Dropdown
@@ -190,6 +196,7 @@ export const OrgSettings = (props: PageProps) => {
                     <StyledDropDown>
                       {props.roleName}
                       <Icon icon="chevron-down" />
+                      {props.isChangingRole ? <Spinner size={20} /> : undefined}
                     </StyledDropDown>
                   </Popover>
                 );
@@ -202,14 +209,19 @@ export const OrgSettings = (props: PageProps) => {
               width={100}
               template={(props: any) => {
                 return (
-                  <FormIcons.DELETE_ICON
-                    height={20}
-                    width={20}
-                    color={"grey"}
-                    background={"grey"}
-                    onClick={() => deleteOrgUser(orgId, props.username)}
-                    style={{ alignSelf: "center", cursor: "pointer" }}
-                  />
+                  !props.isCurrentUser &&
+                  (props.isDeleting ? (
+                    <Spinner size={20} />
+                  ) : (
+                    <FormIcons.DELETE_ICON
+                      height={20}
+                      width={20}
+                      color={"grey"}
+                      background={"grey"}
+                      onClick={() => deleteOrgUser(orgId, props.username)}
+                      style={{ alignSelf: "center", cursor: "pointer" }}
+                    />
+                  ))
                 );
               }}
             />
@@ -226,6 +238,7 @@ const mapStateToProps = (state: AppState) => ({
   isFetchAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
   isFetchAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
   allOrgs: getOrgs(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

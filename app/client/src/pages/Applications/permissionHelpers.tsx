@@ -1,4 +1,5 @@
 export enum PERMISSION_TYPE {
+  MANAGE_ORGANIZATION = "manage:organizations",
   CREATE_APPLICATION = "manage:orgApplications",
   MANAGE_APPLICATION = "manage:applications",
   READ_APPLICATION = "read:applications",
