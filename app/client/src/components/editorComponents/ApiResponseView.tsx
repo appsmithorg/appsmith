@@ -42,50 +42,50 @@ const StatusCodeText = styled(BaseText)<{ code: string }>`
     props.code.match(/2\d\d/) ? props.theme.colors.primary : Colors.RED};
 `;
 
-const TableWrapper = styled.div`
-  &&& {
-    table {
-      table-layout: fixed;
-      width: 100%;
-      td {
-        font-size: 12px;
-        width: 50%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-  }
-`;
+// const TableWrapper = styled.div`
+//   &&& {
+//     table {
+//       table-layout: fixed;
+//       width: 100%;
+//       td {
+//         font-size: 12px;
+//         width: 50%;
+//         white-space: nowrap;
+//         overflow: hidden;
+//         text-overflow: ellipsis;
+//       }
+//     }
+//   }
+// `;
 
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
 }
 
-const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
-  if (!props.data) return <div />;
-  return (
-    <TableWrapper>
-      <table className="bp3-html-table bp3-html-table-striped bp3-html-table-condensed">
-        <thead>
-          <tr>
-            <th>Key</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.keys(props.data).map(k => (
-            <tr key={k}>
-              <td>{k}</td>
-              <td>{props.data[k].join(", ")}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </TableWrapper>
-  );
-};
+// const ResponseHeadersView = (props: { data: Record<string, string[]> }) => {
+//   if (!props.data) return <div />;
+//   return (
+//     <TableWrapper>
+//       <table className="bp3-html-table bp3-html-table-striped bp3-html-table-condensed">
+//         <thead>
+//           <tr>
+//             <th>Key</th>
+//             <th>Value</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {Object.keys(props.data).map(k => (
+//             <tr key={k}>
+//               <td>{k}</td>
+//               <td>{props.data[k].join(", ")}</td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </TableWrapper>
+//   );
+// };
 
 type Props = ReduxStateProps & RouteComponentProps<APIEditorRouteParams>;
 

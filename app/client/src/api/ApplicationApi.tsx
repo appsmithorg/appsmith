@@ -1,7 +1,6 @@
 import Api from "./Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
-import { getUserCurrentOrgId } from "selectors/organizationSelectors";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -24,9 +23,9 @@ export interface ApplicationResponsePayload {
   pages?: ApplicationPagePayload[];
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-}
+// export interface FetchApplicationResponse extends ApiResponse {
+//   data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+// }
 
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
