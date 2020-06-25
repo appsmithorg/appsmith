@@ -172,13 +172,15 @@ const getEntityListItem = (
       if (entity.type === WidgetTypes.ICON_WIDGET) {
         return null;
       }
+      const navigateToWidget = () =>
+        history.push(`${history.location.pathname}#${entity.widgetId}`);
       return (
         <Entity
           key={entity.widgetId}
           icon={getWidgetIcon(entity.type)}
           name={entity.widgetName}
           step={step}
-          action={action || noop}
+          action={action || navigateToWidget}
         >
           {getEntityChildren(entity, step)}
         </Entity>

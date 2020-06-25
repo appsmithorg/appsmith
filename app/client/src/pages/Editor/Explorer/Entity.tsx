@@ -2,6 +2,12 @@ import React, { ReactNode, useState, useEffect } from "react";
 import { Icon, Collapse, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+
+enum EntityActionKind {
+  SINGLE_CLICK,
+  DOUBLE_CLICK,
+}
+
 const Wrapper = styled.div<{ active: boolean }>`
   background: ${props => (props.active ? Colors.SHARK : "none")};
   padding: ${props => props.theme.spaces[1]}px;
@@ -79,6 +85,7 @@ export type EntityProps = {
   active?: boolean;
   isDefaultExpanded?: boolean;
   createFn?: () => void;
+  actionKind?: EntityActionKind;
 };
 
 export const Entity = (props: EntityProps) => {
@@ -96,9 +103,15 @@ export const Entity = (props: EntityProps) => {
 
   // Perform the action trigger provided on click of entity
   const handleClick = () => {
-    props.action();
+    props.actionKind === EntityActionKind.SINGLE_CLICK && props.action();
     // Make sure this entity is enabled before toggling the collpse of children.
     !props.disabled && open(!isOpen);
+  };
+
+  const handleDblClick = () => {
+    console.log("handle dbl click");
+    (!props.actionKind || props.actionKind === EntityActionKind.DOUBLE_CLICK) &&
+      props.action();
   };
 
   // Rendering the collapse icon based on isOpen state
@@ -110,7 +123,11 @@ export const Entity = (props: EntityProps) => {
 
   return (
     <Wrapper active={!!props.active}>
-      <EntityItem onClick={handleClick} disabled={!!props.disabled}>
+      <EntityItem
+        onClick={handleClick}
+        onDoubleClick={handleDblClick}
+        disabled={!!props.disabled}
+      >
         {props.children && collapseIcon}
         {props.icon} <EntityName>{props.name}</EntityName>
         {props.createFn && (
