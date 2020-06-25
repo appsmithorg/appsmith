@@ -83,20 +83,26 @@ public class PolicyUtils<T extends BaseDomain> {
     }
 
     public T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
+        // Making a deep copy here so we don't modify the `policyMap` object.
+        // TODO: Investigate a solution without using deep-copy.
+        final Map<String, Policy> policyMap1 = new HashMap<>();
+        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
+            policyMap1.put(entry.getKey(), entry.getValue());
+        }
 
         // Remove the user from the existing permission policy if it exists.
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
-            if (policyMap.containsKey(permission)) {
-                policy.getUsers().removeAll(policyMap.get(permission).getUsers());
+            if (policyMap1.containsKey(permission)) {
+                policy.getUsers().removeAll(policyMap1.get(permission).getUsers());
                 if (policy.getGroups() == null) {
                     policy.setGroups(new HashSet<>());
                 }
-                if (policyMap.get(permission).getGroups() != null) {
-                    policy.getGroups().removeAll(policyMap.get(permission).getGroups());
+                if (policyMap1.get(permission).getGroups() != null) {
+                    policy.getGroups().removeAll(policyMap1.get(permission).getGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
-                policyMap.remove(permission);
+                policyMap1.remove(permission);
             }
         }
 
