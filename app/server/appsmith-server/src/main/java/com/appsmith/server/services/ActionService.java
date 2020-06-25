@@ -24,7 +24,7 @@ public interface ActionService extends CrudService<Action, String> {
 
     Action extractAndSetJsonPathKeys(Action action);
 
-    Object variableSubstitution(Object configuration, Map<String, String> replaceParamsMap);
+    <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
     Mono<Action> findById(String id);
 

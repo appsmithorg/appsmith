@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MustacheHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,6 @@ import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -83,35 +83,21 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             return Mono.just(layout);
         }
 
-        // Convert the DSL into a String
-        String dslString;
-        try {
-            dslString = objectMapper.writeValueAsString(dsl);
-        } catch (JsonProcessingException e) {
-            log.debug("Exception caught during conversion of DSL Json object to String. ", e);
-            return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
-        }
-
         Set<String> widgetNames = new HashSet<>();
         extractAllWidgetNamesFromDSL(dsl, widgetNames);
         layout.setWidgetNames(widgetNames);
 
-        Mono<Set<String>> dynamicBindingNamesMono = Mono.just(dslString)
-                // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
-                .map(dslString1 -> extractMustacheKeysFromJson(dslString1))
-                .map(dynamicBindings -> {
-                    Set<String> dynamicBindingNames = new HashSet<>();
-                    if (!dynamicBindings.isEmpty()) {
-                        for (String mustacheKey : dynamicBindings) {
-                            // Extract all the words in the dynamic bindings
-                            extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
-                        }
-                    }
-                    return dynamicBindingNames;
-                });
+        // Extract all the mustache keys in the DSL to get the dynamic bindings used in the DSL.
+        final Set<String> dynamicBindings = MustacheHelper.extractMustacheKeysFromFields(dsl);
+        Set<String> dynamicBindingNames = new HashSet<>();
+        if (!CollectionUtils.isEmpty(dynamicBindings)) {
+            for (String mustacheKey : dynamicBindings) {
+                // Extract all the words in the dynamic bindings
+                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+            }
+        }
 
-        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = dynamicBindingNamesMono
-                .flatMap(dynamicBindingNames -> findOnLoadActionsInPage(dynamicBindingNames, pageId));
+        Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findOnLoadActionsInPage(dynamicBindingNames, pageId);
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))

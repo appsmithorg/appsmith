@@ -26,16 +26,12 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MustacheHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ActionRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -51,10 +47,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -70,7 +63,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.helpers.MustacheHelper.extractMustacheKeysFromJson;
 
 @Slf4j
 @Service
@@ -259,14 +251,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             return new HashSet<>();
         }
 
-        // Convert the object to String as a preparation to send it to mustache extraction
-        try {
-            String actionConfigStr = objectMapper.writeValueAsString(action.getActionConfiguration());
-            return extractMustacheKeysFromJson(actionConfigStr);
-        } catch (JsonProcessingException e) {
-            log.error("Exception caught while extracting mustache keys from action configuration. ", e);
-        }
-        return new HashSet<>();
+        return MustacheHelper.extractMustacheKeysFromFields(action.getActionConfiguration());
     }
 
     /**
@@ -292,19 +277,12 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
 
         // 1. Validate input parameters which are required for mustache replacements
         List<Param> params = executeActionDTO.getParams();
-        if (params != null && !params.isEmpty()) {
+        if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
-                if (param.getKey() == null || param.getKey().isEmpty()) {
-                    continue;
-                }
-
                 // In case the parameter values turn out to be null, set it to empty string instead to allow the
                 // the execution to go through no matter what.
-                else if (param.getValue() == null) {
+                if (!StringUtils.isEmpty(param.getKey()) && param.getValue() == null) {
                     param.setValue("");
-                } else {
-                    String value = StringEscapeUtils.escapeJava(param.getValue());
-                    param.setValue(value);
                 }
             }
         }
@@ -390,7 +368,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                                         // We also add a backslash before every double-quote or backslash character
                                         // because we apply the template replacing in a JSON-stringified version of
                                         // these properties, where these two characters are escaped.
-                                        p -> p.getKey().trim().replaceAll("[\"\\\\]", "\\\\$0"),
+                                        p -> p.getKey().trim(), // .replaceAll("[\"\n\\\\]", "\\\\$0"),
                                         Param::getValue,
                                         // In case of a conflict, we pick the older value
                                         (oldValue, newValue) -> oldValue)
@@ -523,17 +501,8 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
      * This function replaces the variables in the Object with the actual params
      */
     @Override
-    public Object variableSubstitution(Object configuration,
-                                       Map<String, String> replaceParamsMap) {
-        try {
-            // Convert the object to String as a preparation to send it to mustacheReplacement
-            String objectInJsonString = objectMapper.writeValueAsString(configuration);
-            objectInJsonString = mustacheReplacement(objectInJsonString, configuration.getClass().getSimpleName(), replaceParamsMap);
-            return objectMapper.readValue(objectInJsonString, configuration.getClass());
-        } catch (Exception e) {
-            log.error("Exception caught while substituting values in mustache template.", e);
-        }
-        return configuration;
+    public <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap) {
+        return MustacheHelper.renderFieldValues(configuration, replaceParamsMap);
     }
 
     @Override
@@ -544,21 +513,6 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> findByPageId(String pageId, AclPermission permission) {
         return repository.findByPageId(pageId, permission);
-    }
-
-    /**
-     * @param template    : This is the string which contains {{key}} which would be replaced with value
-     * @param name        : This is the class name of the object from which template string was created
-     * @param keyValueMap : This is the map of keys with values.
-     * @return It finally returns the string in which all the keys in template have been replaced with values.
-     */
-    private String mustacheReplacement(String template, String name, Map<String, String> keyValueMap) {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mustache = mf.compile(new StringReader(template), name);
-        Writer writer = new StringWriter();
-        mustache.execute(writer, keyValueMap);
-
-        return StringEscapeUtils.unescapeHtml4(writer.toString());
     }
 
     @Override
