@@ -310,7 +310,7 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  searchValue?: string;
+  searchValue: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;

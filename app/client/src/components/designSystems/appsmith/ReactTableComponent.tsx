@@ -10,7 +10,6 @@ interface ReactTableComponentState {
   columnIndex: number;
   pageSize: number;
   action: string;
-  searchValue: string;
   columnName: string;
   isLoading: boolean;
 }
@@ -95,7 +94,6 @@ export class ReactTableComponent extends React.Component<
       columnIndex: -1,
       action: "",
       columnName: "",
-      searchValue: props.searchValue,
       pageSize: props.pageSize,
       isLoading: props.isLoading,
     };
@@ -111,9 +109,6 @@ export class ReactTableComponent extends React.Component<
     }
     if (this.props.isLoading !== prevProps.isLoading) {
       this.setState({ isLoading: this.props.isLoading });
-    }
-    if (this.props.searchValue !== prevProps.searchValue) {
-      this.setState({ searchValue: this.props.searchValue });
     }
     this.mountEvents();
   }
@@ -465,7 +460,7 @@ export class ReactTableComponent extends React.Component<
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
         widgetId={this.props.widgetId}
-        searchValue={this.state.searchValue}
+        searchValue={this.props.searchValue}
         columns={columns}
         data={this.props.tableData}
         showMenu={this.showMenu}
