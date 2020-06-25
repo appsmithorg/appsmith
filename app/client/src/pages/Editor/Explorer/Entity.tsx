@@ -86,6 +86,7 @@ export type EntityProps = {
   isDefaultExpanded?: boolean;
   createFn?: () => void;
   actionKind?: EntityActionKind;
+  contextMenu?: ReactNode;
 };
 
 export const Entity = (props: EntityProps) => {
@@ -109,7 +110,6 @@ export const Entity = (props: EntityProps) => {
   };
 
   const handleDblClick = () => {
-    console.log("handle dbl click");
     (!props.actionKind || props.actionKind === EntityActionKind.DOUBLE_CLICK) &&
       props.action();
   };
@@ -140,6 +140,7 @@ export const Entity = (props: EntityProps) => {
             }}
           />
         )}
+        {props.contextMenu}
       </EntityItem>
       {props.children && (
         <StyledCollapse isOpen={isOpen} keepChildrenMounted>

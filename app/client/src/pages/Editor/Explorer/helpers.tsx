@@ -10,6 +10,7 @@ import {
   widgetIcon,
   queryIcon,
 } from "./ExplorerIcons";
+import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import { PluginType, Action } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { noop } from "lodash";
@@ -196,6 +197,12 @@ const getEntityListItem = (
           isDefaultExpanded={
             params?.apiId === entity.config.id ||
             params?.queryId === entity.config.id
+          }
+          contextMenu={
+            <ActionEntityContextMenu
+              id={entity.config.id}
+              name={entity.config.name}
+            />
           }
         >
           {getEntityChildren(entity, step)}

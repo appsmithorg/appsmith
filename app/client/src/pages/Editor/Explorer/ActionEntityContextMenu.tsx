@@ -6,37 +6,64 @@ import { ControlIcons } from "icons/ControlIcons";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { AppState } from "reducers";
+import { getNextEntityName } from "utils/AppsmithUtils";
+
 import {
   moveActionRequest,
   copyActionRequest,
   deleteAction,
 } from "actions/actionActions";
 import { noop } from "lodash";
-const useNewAPIName = (apiName: string, pageId: string) => {
-  console.log({ apiName, pageId });
+
+const useNewAPIName = () => {
+  // This takes into consideration only the current page widgets
+  // If we're moving to a different page, there could be a widget
+  // with the same name as the generated API name
+  // TODO: Figure out how to handle this scenario
+  const apiNames = useSelector((state: AppState) =>
+    state.entities.actions.map(action => action.config.name),
+  );
+  return (name: string) =>
+    apiNames.indexOf(name) > -1 ? getNextEntityName(name, apiNames) : name;
 };
-export const APIContextMenu = (props: {
+
+type EntityContextMenuProps = {
   theme: Theme;
-  apiId: string;
-  apiName: string;
-}) => {
+  id: string;
+  name: string;
+};
+export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
   const { pageId } = useParams<{ pageId: string }>();
+  const nextEntityName = useNewAPIName();
+
   const dispatch = useDispatch();
-  const copyAPIToPage = (apiId: string, apiName: string, pageId: string) =>
+  const copyActionToPage = (
+    actionId: string,
+    actionName: string,
+    pageId: string,
+  ) =>
     dispatch(
       copyActionRequest({
-        id: apiId,
+        id: actionId,
         destinationPageId: pageId,
-        // TODO: This will be the name of the new copied API
-        // As the API names have to be unique
-        name: `${apiName}Copy`,
+        name: nextEntityName(`${actionName}Copy`),
       }),
     );
-  const moveAPIToPage = (apiId: string, apiName: string, pageId: string) => {
-    console.log({ apiId, apiName, pageId });
-  };
-  const deleteAPI = (apiId: string, apiName: string) =>
-    dispatch(deleteAction({ id: apiId, name: apiName }));
+  const moveActionToPage = (
+    actionId: string,
+    actionName: string,
+    destinationPageId: string,
+  ) =>
+    dispatch(
+      moveActionRequest({
+        id: actionId,
+        destinationPageId,
+        originalPageId: pageId,
+        name: nextEntityName(actionName),
+      }),
+    );
+  const deleteActionFromPage = (actionId: string, actionName: string) =>
+    dispatch(deleteAction({ id: actionId, name: actionName }));
 
   const menuPages = useSelector((state: AppState) => {
     return state.entities.pageList.pages.map(page => ({
@@ -49,40 +76,36 @@ export const APIContextMenu = (props: {
   return (
     <TreeDropdown
       defaultText=""
-      onSelect={() => {
-        return null;
-      }}
+      onSelect={noop}
       selectedValue=""
       optionTree={[
         {
           value: "copy",
-          onSelect: () => null,
+          onSelect: noop,
           label: "Copy to",
           children: menuPages.map(page => {
             return {
               ...page,
-              onSelect: () =>
-                copyAPIToPage(props.apiId, props.apiName, page.id),
+              onSelect: () => copyActionToPage(props.id, props.name, page.id),
             };
           }),
         },
         {
           value: "move",
-          onSelect: () => null,
+          onSelect: noop,
           label: "Move to",
           children: menuPages
             .filter(page => page.id !== pageId) // Remove current page from the list
             .map(page => {
               return {
                 ...page,
-                onSelect: () =>
-                  moveAPIToPage(props.apiId, props.apiName, page.id),
+                onSelect: () => moveActionToPage(props.id, props.name, page.id),
               };
             }),
         },
         {
           value: "delete",
-          onSelect: () => deleteAPI(props.apiId, props.apiName),
+          onSelect: () => deleteActionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
         },
@@ -97,4 +120,4 @@ export const APIContextMenu = (props: {
   );
 };
 
-export default withTheme(APIContextMenu);
+export default withTheme(ActionEntityContextMenu);
