@@ -27,7 +27,12 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { change, initialize } from "redux-form";
-import { getAction, getActionParams, getActionTimeout } from "./ActionSagas";
+import {
+  extractBindingsFromAction,
+  getAction,
+  getActionParams,
+  getActionTimeout,
+} from "./ActionSagas";
 import { AppState } from "reducers";
 import ActionAPI, {
   PaginationField,
@@ -40,12 +45,12 @@ import { changeQuery, deleteQuerySuccess } from "actions/queryPaneActions";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { PageAction } from "constants/ActionConstants";
-import { isDynamicValue, getDynamicBindings } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GenericApiResponse } from "api/ApiResponses";
 import { validateResponse } from "./ErrorSagas";
 import { getQueryName } from "selectors/entitiesSelector";
-import { RestAction } from "entities/Action";
+import { QueryAction, RestAction } from "entities/Action";
 
 const getQueryDraft = (state: AppState, id: string) => {
   const drafts = state.entities.actionDrafts;
@@ -146,7 +151,6 @@ function* updateDynamicBindingsSaga(
 
   const isDynamic = isDynamicValue(value);
   let dynamicBindings: Property[] = values.dynamicBindingPathList || [];
-  console.log({ field, value, isDynamic, dynamicBindings });
   const fieldExists = _.some(dynamicBindings, { key: field });
 
   if (!isDynamic && fieldExists) {
@@ -214,7 +218,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
 
 export function* executeQuerySaga(
   actionPayload: ReduxAction<{
-    action: RestAction;
+    action: QueryAction;
     actionId: string;
     paginationField: PaginationField;
   }>,
@@ -224,7 +228,7 @@ export function* executeQuerySaga(
       values,
       dirty,
     }: {
-      values: RestAction;
+      values: QueryAction;
       dirty: boolean;
       valid: boolean;
     } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
@@ -233,16 +237,8 @@ export function* executeQuerySaga(
     let jsonPathKeys = actionObject.jsonPathKeys;
 
     if (dirty) {
-      action = _.omit(values, "id") as RestAction;
-
-      const actionString = JSON.stringify(action);
-      if (isDynamicValue(actionString)) {
-        const { jsSnippets } = getDynamicBindings(actionString);
-        // Replace cause the existing keys could have been updated
-        jsonPathKeys = jsSnippets.filter(jsSnippet => !!jsSnippet);
-      } else {
-        jsonPathKeys = [];
-      }
+      action = _.omit(values, "id") as QueryAction;
+      jsonPathKeys = extractBindingsFromAction(action as QueryAction);
     }
 
     const { paginationField } = actionPayload.payload;

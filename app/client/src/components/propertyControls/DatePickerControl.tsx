@@ -4,7 +4,7 @@ import { StyledDatePicker } from "./StyledControls";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const DatePickerControlWrapper = styled.div`
   display: flex;

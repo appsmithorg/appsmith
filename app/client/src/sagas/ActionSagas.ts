@@ -44,7 +44,6 @@ import {
   moveActionError,
   moveActionSuccess,
   updateActionSuccess,
-  updateApiNameDraft,
   fetchActionsForPage,
 } from "actions/actionActions";
 import {
@@ -77,8 +76,7 @@ import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
-import { validateEntityName } from "components/editorComponents/EntityNameComponent";
+import { Action, RestAction } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getActions } from "selectors/entitiesSelector";
 
@@ -549,6 +547,18 @@ export function* deleteActionSaga(
   }
 }
 
+export function extractBindingsFromAction(action: Action) {
+  const bindings: string[] = [];
+  action.dynamicBindingPathList.forEach(a => {
+    const value = _.get(action, a.key);
+    if (isDynamicValue(value)) {
+      const { jsSnippets } = getDynamicBindings(value);
+      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+    }
+  });
+  return bindings;
+}
+
 export function* runApiActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -574,15 +584,7 @@ export function* runApiActionSaga(
     }
     if (dirty) {
       action = _.omit(transformRestAction(values), "id") as RestAction;
-
-      const actionString = JSON.stringify(action);
-      if (isDynamicValue(actionString)) {
-        const { jsSnippets } = getDynamicBindings(actionString);
-        // Replace cause the existing keys could have been updated
-        jsonPathKeys = jsSnippets.filter(jsSnippet => !!jsSnippet);
-      } else {
-        jsonPathKeys = [];
-      }
+      jsonPathKeys = extractBindingsFromAction(action as RestAction);
     }
     const { paginationField } = reduxAction.payload;
 

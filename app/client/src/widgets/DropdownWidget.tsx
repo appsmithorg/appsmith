@@ -135,7 +135,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectedOption.value,
       );
     } else if (this.props.selectionType === "MULTI_SELECT") {
-      console.log(this.props, selectedOption);
       const isAlreadySelected = this.props.selectedOptionValueArr.includes(
         selectedOption.value,
       );
