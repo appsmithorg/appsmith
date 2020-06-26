@@ -14,6 +14,13 @@ import {
 } from "actions/actionActions";
 import { noop } from "lodash";
 
+//TODO(ABHINAV): show only on hover
+// modal should open on close
+// I should delay single click for a few ms, to make sure
+// both dblclick and single click don't register
+// Pages will be grouped, current page will always be expanded
+// On edit entity, the rest of the tree should be
+
 const useNewAPIName = () => {
   // This takes into consideration only the current page widgets
   // If we're moving to a different page, there could be a widget

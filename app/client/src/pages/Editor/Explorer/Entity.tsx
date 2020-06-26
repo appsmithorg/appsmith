@@ -12,11 +12,12 @@ export enum EntityClassNames {
   ACTION_CONTEXT_MENU = "action-entity",
 }
 
-const Wrapper = styled.div<{ active: boolean }>`
-  background: ${props => (props.active ? Colors.SHARK : "none")};
-  padding: ${props => props.theme.spaces[1]}px;
+const Wrapper = styled.div`
+  padding: ${props => props.theme.spaces[1]}px 0;
 `;
-const EntityItem = styled.div<{ disabled: boolean }>`
+const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
+  background: ${props => (props.active ? Colors.SHARK : "none")};
+
   position: relative;
   height: 30px;
   font-size: ${props => props.theme.fontSizes[3]}px;
@@ -24,8 +25,8 @@ const EntityItem = styled.div<{ disabled: boolean }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  padding: ${props => props.theme.spaces[1]}px;
-  border-radius: none;
+  padding: ${props => props.theme.spaces[1]}px 0px;
+  border-radius: 0;
   color: ${props => (props.disabled ? Colors.SLATE_GRAY : Colors.WHITE)};
   .${EntityClassNames.ACTION_CONTEXT_MENU} {
     position: absolute;
@@ -62,15 +63,15 @@ const EntityItem = styled.div<{ disabled: boolean }>`
 const StyledCollapse = styled(Collapse)`
   & {
     .${Classes.COLLAPSE_BODY} > div {
-      padding-left: 8px;
+      padding-left: 4px;
       overflow: hidden;
       &:before {
         content: "";
         width: 1px;
-        left: 10px;
+        left: 4px;
         top: 0;
         bottom: 0;
-        background: ${Colors.MAKO};
+        background: ${Colors.OUTER_SPACE};
         position: absolute;
       }
     }
@@ -141,8 +142,9 @@ export const Entity = (props: EntityProps) => {
   );
 
   return (
-    <Wrapper active={!!props.active}>
+    <Wrapper>
       <EntityItem
+        active={!!props.active}
         onClick={handleClick}
         onDoubleClick={handleDblClick}
         disabled={!!props.disabled}
