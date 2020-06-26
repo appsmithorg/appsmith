@@ -456,8 +456,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     // Creating the personal workspace and assigning the default groups to the new user
                     log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
                     return organizationService.create(personalOrg, savedUser)
-                            .thenReturn(savedUser);
+                            .thenReturn(repository.findByEmail(savedUser.getUsername()));
                 })
+                .flatMap(obj -> obj)
                 .flatMap(analyticsService::trackNewUser);
     }
 

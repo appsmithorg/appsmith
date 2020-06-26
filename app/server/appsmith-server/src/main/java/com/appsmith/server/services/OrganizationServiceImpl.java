@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
@@ -138,7 +137,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                     });
         }
 
-        Mono<Organization> organizationMono = setSlugMono
+        return setSlugMono
                 .flatMap(this::validateObject)
                 //transform the organization data to embed setting object in each object in organizationSetting list.
                 .flatMap(this::enhanceOrganizationSettingList)
@@ -154,8 +153,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                             org.setPlugins(pluginList);
                             return org;
                         }))
-                //Call the BaseService function to save the updated organization
-                .flatMap(super::create)
+                // Save the organization in the db
+                .flatMap(repository::save)
                 // Set the current user as admin for the organization
                 .flatMap(createdOrg -> {
                     UserRole userRole = new UserRole();
@@ -165,26 +164,10 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     return userOrganizationService.addUserToOrganizationGivenUserObject(createdOrg, user, userRole);
                 })
-                // TODO : Remove the following code
+                // Now add the org id to the user object and then return the saved org
                 .flatMap(savedOrganization -> userOrganizationService
                         .addUserToOrganization(savedOrganization.getId(), user)
                         .thenReturn(savedOrganization));
-
-        return organizationMono
-                .flatMap(org -> groupService.createDefaultGroupsForOrg(org.getId())
-                        // Get only the group ids of the default groups to assign them to the user
-                        .map(group -> group.getId())
-                        .collect(Collectors.toSet())
-                        .flatMap(groupIds -> {
-                            // Set the default group Ids for the user
-                            // Append the new organization's default groups to the existing ones belonging to the user
-                            user.getGroupIds().addAll(groupIds);
-                            // At this point the organization have been saved and the user has been added to the org.
-                            // Now add the newly created organization to the newly created user.
-                            return userOrganizationService.saveUser(user);
-                        })
-                        .thenReturn(org)
-                );
     }
 
     /**
