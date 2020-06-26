@@ -11,12 +11,14 @@ import {
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
-    background: linear-gradient(0deg, #ffffff, #ffffff), #e9faf3;
-    border: 1px solid #29cca3;
+    background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
+      ${Colors.POLAR};
+    border: 1px solid ${Colors.GREEN};
     box-sizing: border-box;
     border-radius: 4px;
     width: 32px;
@@ -83,7 +85,7 @@ const TableHeader = (props: TableHeaderProps) => {
               props.prevPageClick();
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
+            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
           </PaginationItemWrapper>
           <PaginationItemWrapper selected className="page-item">
             {props.pageNo + 1}
@@ -94,7 +96,7 @@ const TableHeader = (props: TableHeaderProps) => {
               props.nextPageClick();
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
+            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
@@ -111,7 +113,7 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1);
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
+            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
           </PaginationItemWrapper>
           <RowWrapper>
             Page{" "}
@@ -132,7 +134,7 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1);
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
+            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
