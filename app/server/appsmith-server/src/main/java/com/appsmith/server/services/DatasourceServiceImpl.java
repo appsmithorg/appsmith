@@ -160,6 +160,12 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.just(datasource);
         }
 
+        if (datasource.getOrganizationId() == null) {
+            invalids.add(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage());
+            datasource.setInvalids(invalids);
+            return Mono.just(datasource);
+        }
+
         Mono<Organization> checkPluginInstallationAndThenReturnOrganizationMono = organizationService
                 .findByIdAndPluginsPluginId(datasource.getOrganizationId(), datasource.getPluginId())
                 .switchIfEmpty(Mono.defer(() -> {

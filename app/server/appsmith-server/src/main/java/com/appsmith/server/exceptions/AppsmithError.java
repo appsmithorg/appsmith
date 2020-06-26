@@ -47,6 +47,7 @@ public enum AppsmithError {
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}."),
     MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later"),
     DATASOURCE_HAS_ACTIONS(409, 4030, "Cannot delete datasource since it has {0} action(s) using it."),
+    ORGANIZATION_ID_NOT_GIVEN(400, 4031, "Missing organization id. Please enter one."),
     ;
 
 
