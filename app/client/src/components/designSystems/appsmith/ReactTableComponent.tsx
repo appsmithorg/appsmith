@@ -185,13 +185,28 @@ export class ReactTableComponent extends React.Component<
     });
   }
 
+  getAllTableColumnKeys = () => {
+    const tableData: object[] = this.props.tableData;
+    const columnKeys: string[] = [];
+    for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
+      const row = tableData[i];
+      for (const key in row) {
+        if (!columnKeys.includes(key)) {
+          columnKeys.push(key);
+        }
+      }
+    }
+    return columnKeys;
+  };
+
   getTableColumns = () => {
     const tableData: object[] = this.props.tableData;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
     if (tableData.length) {
-      const row = tableData[0];
-      for (const i in row) {
+      const columnKeys: string[] = this.getAllTableColumnKeys();
+      for (let index = 0, length = columnKeys.length; index < length; index++) {
+        const i = columnKeys[index];
         const columnName: string =
           this.props.columnNameMap && this.props.columnNameMap[i]
             ? this.props.columnNameMap[i]
