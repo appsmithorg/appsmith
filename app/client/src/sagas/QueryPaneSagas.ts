@@ -103,9 +103,10 @@ function* changeQuerySaga(
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
     document.activeElement.blur();
-
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
+  console.log("here", { URL });
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;
@@ -119,7 +120,7 @@ function* changeQuerySaga(
   const draft = yield select(getQueryDraft, id);
   const data = _.isEmpty(draft) ? action : draft;
   yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
-  // history.push(URL);
+  history.push(URL);
 }
 
 function* updateDraftsSaga() {
@@ -182,12 +183,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.replace(
-      `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`,
-      {
-        newQuery: true,
-      },
-    );
+    history.replace(`${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`, {
+      newQuery: true,
+    });
   }
 }
 

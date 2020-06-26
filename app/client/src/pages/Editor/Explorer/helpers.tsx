@@ -17,7 +17,13 @@ import { noop } from "lodash";
 import history from "utils/history";
 import { EXPLORER_URL } from "constants/routes";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { API_EDITOR_ID_URL, QUERIES_EDITOR_ID_URL } from "constants/routes";
+import {
+  API_EDITOR_ID_URL,
+  QUERIES_EDITOR_ID_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  getPathWithExplorerSidebar,
+} from "constants/routes";
 import {
   createNewApiAction,
   createNewQueryAction,
@@ -33,6 +39,11 @@ type GroupConfig = {
   getURL: (applicationId: string, pageId: string, id: string) => string;
   isExpanded: (params: ExplorerURLParams) => boolean;
   dispatchableCreateAction: (pageId: string) => ReduxAction<{ pageId: string }>;
+  generateCreatePageURL: (
+    applicationId: string,
+    pageId: string,
+    selectedPageId: string,
+  ) => string;
 };
 
 type ExplorerURLParams = {
@@ -55,12 +66,13 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         icon: apiIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) => {
-          return `${API_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`;
+          return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
         },
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.apiId;
         },
         dispatchableCreateAction: createNewApiAction,
+        generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
       };
     case PluginType.DB:
       return {
@@ -69,11 +81,12 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         icon: queryIcon,
         key: generateReactKey(),
         getURL: (applicationId: string, pageId: string, id: string) =>
-          `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}/explorer`,
+          `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`,
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.queryId;
         },
         dispatchableCreateAction: createNewQueryAction,
+        generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
       };
     default:
       return undefined;
@@ -199,6 +212,7 @@ const getActionEntity = (
       name={entity.config.name}
       action={entityURL ? () => history.push(entityURL) : noop}
       isDefaultExpanded={isCurrentAction}
+      active={isCurrentAction}
       contextMenu={
         <ActionEntityContextMenu
           id={entity.config.id}
@@ -232,9 +246,16 @@ const getActionGroups = (
         name={config?.groupName || "Actions"}
         disabled={!entries.length}
         action={noop}
-        createFn={() =>
-          dispatch(config?.dispatchableCreateAction(params?.pageId))
-        }
+        createFn={() => {
+          const path = config?.generateCreatePageURL(
+            params?.applicationId,
+            params?.pageId,
+            params?.pageId,
+          );
+          console.log({ path });
+          console.log(getPathWithExplorerSidebar(path));
+          history.push(path);
+        }}
         isDefaultExpanded={config?.isExpanded(params)}
       >
         {entries.map((action: { config: Action }) =>
@@ -284,7 +305,6 @@ const getPageEntity = (
       key={page.id}
       icon={pageIcon}
       name={page.name}
-      disabled={!isCurrentPage}
       action={() =>
         !isCurrentPage &&
         params.applicationId &&

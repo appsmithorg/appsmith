@@ -76,7 +76,24 @@ export const EXPLORER_PATHS = (
     `${QUERIES_EDITOR_ID_URL(applicationId, pageId, queryId)}/explorer`,
   );
   paths.push(`${API_EDITOR_ID_URL(applicationId, pageId, apiId)}/explorer`);
+  paths.push(
+    `${API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      applicationId,
+      pageId,
+      pageId,
+    )}/explorer`,
+  );
+  paths.push(`${getCurlImportPageURL(applicationId, pageId)}/explorer`);
   return paths;
+};
+
+export const getPathWithExplorerSidebar = (path?: string) => {
+  if (path) {
+    const url = new URL(path, window.location.href);
+    console.log({ url });
+    return `${url.pathname}/explorer${url.search}`;
+  }
+  return path;
 };
 
 export const DATA_SOURCES_EDITOR_URL = (
@@ -139,7 +156,7 @@ function convertToQueryParams(params: Record<string, string> = {}): string {
   const paramKeys = Object.keys(params);
   let queryParams = "";
   if (paramKeys) {
-    paramKeys.forEach((paramKey: string, index: number) => {
+    paramKeys.forEach((paramKey: string) => {
       const value = params[paramKey];
       if (paramKey && value) {
         queryParams = queryParams + `&${paramKey}=${value}`;

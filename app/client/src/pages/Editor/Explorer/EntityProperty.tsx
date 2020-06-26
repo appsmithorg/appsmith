@@ -86,20 +86,20 @@ export type EntityPropertyProps = {
   value: string;
 };
 
+const transformedValue = (value: any) => {
+  if (
+    typeof value === "object" ||
+    Array.isArray(value) ||
+    (value && value.length && value.length > 30)
+  ) {
+    return JSON.stringify(value).slice(0, 25) + "...";
+  }
+  return `${value}`;
+};
+
 export const EntityProperty = (props: EntityPropertyProps) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
-
-  const transformedValue = (value: any) => {
-    if (
-      typeof value === "object" ||
-      Array.isArray(value) ||
-      (value && value.length && value.length > 30)
-    ) {
-      return JSON.stringify(value).slice(0, 25) + "...";
-    }
-    return value;
-  };
 
   const codeText = `{{${props.entityName}.${props.propertyName}}}`;
 
@@ -113,12 +113,11 @@ export const EntityProperty = (props: EntityPropertyProps) => {
     write(codeText);
   };
 
-  return (
-    <Wrapper ref={propertyRef} onClick={copyBindingToClipboard}>
-      <HighlightedCode
-        codeText={codeText}
-        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
-      />
+  let propertyValue = (
+    <StyledValue>{transformedValue(props.value)}</StyledValue>
+  );
+  if (showPopup) {
+    propertyValue = (
       <Popover
         interactionKind={PopoverInteractionKind.HOVER}
         position="left"
@@ -132,9 +131,12 @@ export const EntityProperty = (props: EntityPropertyProps) => {
             enabled: false,
             boundariesElement: "viewport",
           },
+          hide: {
+            enabled: false,
+          },
         }}
       >
-        <StyledValue>{`${transformedValue(props.value)}`} </StyledValue>
+        <StyledValue>{transformedValue(props.value)} </StyledValue>
         {showPopup && (
           <StyledPopoverContent>
             {!isString && (
@@ -148,6 +150,16 @@ export const EntityProperty = (props: EntityPropertyProps) => {
           </StyledPopoverContent>
         )}
       </Popover>
+    );
+  }
+
+  return (
+    <Wrapper ref={propertyRef} onClick={copyBindingToClipboard}>
+      <HighlightedCode
+        codeText={codeText}
+        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+      />
+      {propertyValue}
     </Wrapper>
   );
 };

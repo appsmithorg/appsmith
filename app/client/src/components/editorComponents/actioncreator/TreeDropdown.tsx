@@ -1,5 +1,5 @@
 import React from "react";
-import { find } from "lodash";
+import { find, noop } from "lodash";
 import { DropdownOption } from "widgets/DropdownWidget";
 import {
   StyledPopover,
@@ -98,16 +98,24 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         active={isSelected}
         key={option.value}
         icon={option.id === "create" ? "plus" : undefined}
-        onClick={(e: any) => {
-          e.stopPropagation();
-          if (option.children) handleSelect(option);
-        }}
+        onClick={
+          option.children ? noop : () => handleSelect(option)
+          // (e: any) => {
+          // if (option.children) {
+          //   handleSelect(option);
+          // } else {
+          //   option.onSelect && option.onSelect(option);
+          //   e.stopPropagation();
+          // }
+          // }
+        }
         text={option.label}
         intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.RIGHT,
+          targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
       >
         {option.children && option.children.map(renderTreeOption)}
@@ -139,6 +147,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       content={menuItems}
       position={PopoverPosition.AUTO_END}
       className={props.className}
+      targetProps={{ onClick: (e: any) => e.stopPropagation() }}
     >
       {toggle ? toggle : defaultToggle}
     </StyledPopover>

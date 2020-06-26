@@ -45,14 +45,14 @@ export const Sidebar = () => {
         <AppRoute
           exact
           path={API_EDITOR_URL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact
           path={API_EDITOR_ID_URL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact
@@ -79,33 +79,33 @@ export const Sidebar = () => {
         <AppRoute
           exact
           path={getCurlImportPageURL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact
           path={getProviderTemplatesURL()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
 
         <AppRoute
           exact
           path={API_EDITOR_URL_WITH_SELECTED_PAGE_ID()}
-          component={ApiSidebar}
-          name={"ApiSidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact
           path={QUERIES_EDITOR_URL()}
-          component={QuerySidebar}
-          name={"QuerySidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact
           path={QUERIES_EDITOR_ID_URL()}
-          component={QuerySidebar}
-          name={"QuerySidebar"}
+          component={ExplorerSidebar}
+          name={"ExplorerSidebar"}
         />
         <AppRoute
           exact

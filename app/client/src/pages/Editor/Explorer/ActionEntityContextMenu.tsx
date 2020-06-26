@@ -88,11 +88,6 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
       selectedValue=""
       optionTree={[
         {
-          value: "rename",
-          onSelect: noop,
-          label: "Edit Name",
-        },
-        {
           value: "copy",
           onSelect: noop,
           label: "Copy to",
