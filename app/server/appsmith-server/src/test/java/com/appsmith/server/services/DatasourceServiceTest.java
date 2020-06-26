@@ -86,10 +86,8 @@ public class DatasourceServiceTest {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-pluginId");
         datasource.setOrganizationId(orgId);
-        Mono<Datasource> datasourceMono = Mono.just(datasource)
-                .flatMap(datasourceService::create);
         StepVerifier
-                .create(datasourceMono)
+                .create(datasourceService.create(datasource))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
@@ -101,14 +99,28 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createDatasourceWithNullOrganizationId() {
+        Datasource datasource = new Datasource();
+        datasource.setName("DS-with-null-organizationId");
+        datasource.setPluginId("random plugin id");
+        StepVerifier
+                .create(datasourceService.validateDatasource(datasource))
+                .assertNext(datasource1 -> {
+                    assertThat(datasource1.getName()).isEqualTo(datasource.getName());
+                    assertThat(datasource1.getIsValid()).isFalse();
+                    assertThat(datasource1.getInvalids().contains(AppsmithError.ORGANIZATION_ID_NOT_GIVEN.getMessage()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
         datasource.setOrganizationId(orgId);
-        Mono<Datasource> datasourceMono = Mono.just(datasource)
-                .flatMap(datasourceService::create);
         StepVerifier
-                .create(datasourceMono)
+                .create(datasourceService.create(datasource))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID)))
                 .verify();
