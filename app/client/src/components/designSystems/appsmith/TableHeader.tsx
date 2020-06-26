@@ -1,14 +1,48 @@
 import React from "react";
+import styled from "styled-components";
+import { Icon, NumericInput } from "@blueprintjs/core";
 import {
+  RowWrapper,
   PaginationWrapper,
   TableHeaderWrapper,
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
-import { Icon } from "@blueprintjs/core";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+
+const PageNumberInputWrapper = styled(NumericInput)`
+  &&& input {
+    box-shadow: none;
+    background: linear-gradient(0deg, #ffffff, #ffffff), #e9faf3;
+    border: 1px solid #29cca3;
+    box-sizing: border-box;
+    border-radius: 4px;
+    width: 32px;
+    padding: 0 !important;
+    text-align: center;
+  }
+  margin: 0 8px;
+`;
+
+const PageNumberInput = (props: {
+  pageNo: number;
+  pageCount: number;
+  updatePageNo: Function;
+}) => {
+  return (
+    <PageNumberInputWrapper
+      value={props.pageNo}
+      min={1}
+      max={props.pageCount}
+      buttonPosition="none"
+      onValueChange={(value: number) => {
+        props.updatePageNo(value - 1);
+      }}
+    />
+  );
+};
 
 interface TableHeaderProps {
   updatePageNo: Function;
@@ -66,6 +100,9 @@ const TableHeader = (props: TableHeaderProps) => {
       )}
       {!props.serverSidePaginationEnabled && (
         <PaginationWrapper>
+          <RowWrapper>
+            Showing {props.currentPageIndex + 1}-{props.pageCount} items
+          </RowWrapper>
           <PaginationItemWrapper
             disabled={props.currentPageIndex === 0}
             onClick={() => {
@@ -76,20 +113,15 @@ const TableHeader = (props: TableHeaderProps) => {
           >
             <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
           </PaginationItemWrapper>
-          {props.pageOptions.map((pageNumber: number, index: number) => {
-            return (
-              <PaginationItemWrapper
-                key={index}
-                selected={pageNumber === props.currentPageIndex}
-                onClick={() => {
-                  props.updatePageNo(pageNumber + 1);
-                }}
-                className="page-item"
-              >
-                {index + 1}
-              </PaginationItemWrapper>
-            );
-          })}
+          <RowWrapper>
+            Page{" "}
+            <PageNumberInput
+              pageNo={props.pageNo + 1}
+              updatePageNo={props.updatePageNo}
+              pageCount={props.pageCount}
+            />{" "}
+            of {props.pageCount}
+          </RowWrapper>
           <PaginationItemWrapper
             disabled={props.currentPageIndex === props.pageCount - 1}
             onClick={() => {
