@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -69,7 +70,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
             currentUserMono = Mono.just(user);
         }
 
-        return organizationRepository.findById(orgId)
+       // Querying by example here because the organizationRepository.findById wasn't working when the user
+        // signs up for a new account via Google SSO.
+        Organization exampleOrg = new Organization();
+        exampleOrg.setId(orgId);
+        exampleOrg.setPolicies(null);
+
+        return organizationRepository.findOne(Example.of(exampleOrg))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization", orgId)))
                 .zipWith(currentUserMono)
                 .map(tuple -> {

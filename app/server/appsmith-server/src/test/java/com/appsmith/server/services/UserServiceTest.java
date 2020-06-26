@@ -150,13 +150,13 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    log.debug("{}", user.getPolicies());
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getPolicies()).isNotEmpty();
                     assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
+                    assertThat(user.getOrganizationIds().size()).isEqualTo(1);
                 })
                 .verifyComplete();
     }

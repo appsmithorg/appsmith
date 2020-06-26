@@ -18,7 +18,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is invoked for SSO logins like <strong>Github</strong> which implement the {@link OAuth2User} interface for the user.
+ * This class is invoked for SSO logins like <strong>Google</strong> which implement the {@link OAuth2User} interface for the user.
  * We transform the {@link OAuth2User} object to {@link User} object via the {@link #loadUser(OidcUserRequest)}
  * We also create the user if it doesn't exist we create it via {@link #checkAndCreateUser(OidcUser, OidcUserRequest)}
  */
@@ -54,7 +54,11 @@ public class CustomOidcUserServiceImpl extends OidcReactiveOAuth2UserService
         return repository.findByEmail(username)
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
-                    newUser.setName(oidcUser.getName());
+                    if (oidcUser.getUserInfo() != null) {
+                        newUser.setName(oidcUser.getUserInfo().getFullName());
+                    } else {
+                        newUser.setName(oidcUser.getName());
+                    }
                     newUser.setEmail(username);
                     LoginSource loginSource = LoginSource.fromString(userRequest.getClientRegistration().getRegistrationId());
                     newUser.setSource(loginSource);
