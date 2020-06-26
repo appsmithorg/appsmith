@@ -40,7 +40,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("Post Action test API fetaure", function() {
-    cy.CreateSubsequentAPI("FirstAPI");
+    cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.postAction);
     cy.EnterSourceDetailsWithbody(
@@ -65,7 +65,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("PATCH Action test API fetaure", function() {
-    cy.CreateSubsequentAPI("FirstAPI");
+    cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.patchAction);
     cy.EnterSourceDetailsWithbody(
@@ -89,9 +89,25 @@ describe("API Panel Test Functionality", function() {
     cy.log("Response data check successful");
   });
 
+  it("Delete Action test API fetaure", function() {
+    cy.CreateAPI("FirstAPI");
+    cy.log("Creation of FirstAPI Action successful");
+    cy.SelectAction(testdata.deleteAction);
+    cy.EnterSourceDetailsWithbody(
+      testdata.baseUrl2,
+      testdata.methodpatch,
+      testdata.headerKey,
+      testdata.headerValue,
+    );
+    cy.WaitAutoSave();
+    cy.RunAPI();
+    cy.ResponseStatusCheck("204 NO_CONTENT");
+    cy.log("Response code check successful");
+  });
+
   it("Test GET Action for mock API with header and pagination", function() {
     const apiname = "FirstAPI";
-    cy.CreateSubsequentAPI(apiname);
+    cy.CreateAPI(apiname);
     cy.log("Creation of API Action successful");
     cy.EnterSourceDetailsWithHeader(
       testdata.baseUrl,
@@ -121,7 +137,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("API check with query params test API fetaure", function() {
-    cy.CreateSubsequentAPI("FirstAPI");
+    cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.EnterSourceDetailsWithQueryParam(
       testdata.baseUrl,
@@ -139,7 +155,7 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("API check with Invalid Header", function() {
-    cy.CreateSubsequentAPI("FirstAPI");
+    cy.CreateAPI("FirstAPI");
     cy.log("Creation of SecondAPI Action successful");
     cy.EnterSourceDetailsWithQueryParam(
       testdata.baseUrl,

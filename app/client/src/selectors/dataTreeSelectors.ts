@@ -7,7 +7,6 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import * as log from "loglevel";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import _ from "lodash";
 
 // TODO Commenting out for now as it is causing performance issues
 // function getQueryParams() {

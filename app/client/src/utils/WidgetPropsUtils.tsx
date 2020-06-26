@@ -100,6 +100,37 @@ const chartDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
+const singleChartDataMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map(child => {
+    if (child.type === WidgetTypes.CHART_WIDGET) {
+      // Check if chart widget has the deprecated singleChartData property
+      if (child.hasOwnProperty("singleChartData")) {
+        // This is to make sure that the format of the chartData is accurate
+        if (
+          Array.isArray(child.singleChartData) &&
+          !child.singleChartData[0].hasOwnProperty("seriesName")
+        ) {
+          child.singleChartData = {
+            seriesName: "Series 1",
+            data: child.singleChartData || [],
+          };
+        }
+        //TODO: other possibilities?
+        child.chartData = JSON.stringify([...child.singleChartData]);
+        delete child.singleChartData;
+      }
+    }
+    if (child.children && child.children.length > 0) {
+      child = singleChartDataMigration(child);
+    }
+    return child;
+  });
+
+  return currentDSL;
+};
+
 const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
     if (children.type === WidgetTypes.MAP_WIDGET) {
@@ -199,6 +230,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = mapDataMigration(currentDSL);
     currentDSL.version = 4;
   }
+  if (currentDSL.version === 4) {
+    currentDSL = singleChartDataMigration(currentDSL);
+    currentDSL.version = 5;
+  }
+
   return currentDSL;
 };
 

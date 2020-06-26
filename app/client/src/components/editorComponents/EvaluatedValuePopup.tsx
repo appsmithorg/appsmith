@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
@@ -41,21 +41,24 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   width: ${props => props.theme.evaluatedValuePopup.width}px;
   max-height: ${props => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
   background-color: ${props => THEMES[props.colorTheme].backgroundColor};
   color: ${props => THEMES[props.colorTheme].textColor};
   padding: 15px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
-  .react-json-view {
-    .icon-container {
-      display: none !important;
-    }
-  }
 `;
 
 const CurrentValueWrapper = styled.div`
   max-height: 150px;
   overflow-y: auto;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -63,6 +66,10 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
   overflow: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
@@ -70,6 +77,10 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
   background-color: ${props => THEMES[props.colorTheme].editorBackground};
   color: ${props => THEMES[props.colorTheme].editorColor};
   overflow: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
 `;
 
 const ErrorText = styled.p`
@@ -94,6 +105,8 @@ interface PopoverContentProps {
   expected?: string;
   evaluatedValue: any;
   theme: EditorTheme;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }
 
 const CurrentValueViewer = (props: {
@@ -140,6 +153,8 @@ const CurrentValueViewer = (props: {
 const PopoverContent = (props: PopoverContentProps) => {
   return (
     <ContentWrapper
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
       colorTheme={props.theme}
       className="t--CodeEditor-evaluatedValue"
     >
@@ -161,6 +176,8 @@ const PopoverContent = (props: PopoverContentProps) => {
 };
 
 const EvaluatedValuePopup = (props: Props) => {
+  const [contentHovered, setContentHovered] = useState(false);
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   let placement: Placement = "left-start";
   if (wrapperRef.current) {
@@ -169,9 +186,10 @@ const EvaluatedValuePopup = (props: Props) => {
       placement = "right-start";
     }
   }
+
   return (
     <Wrapper ref={wrapperRef}>
-      {props.isOpen && (
+      {(props.isOpen || contentHovered) && (
         <Popper
           targetNode={wrapperRef.current || undefined}
           isOpen
@@ -189,6 +207,12 @@ const EvaluatedValuePopup = (props: Props) => {
             evaluatedValue={props.evaluatedValue}
             hasError={props.hasError}
             theme={props.theme}
+            onMouseLeave={() => {
+              setContentHovered(false);
+            }}
+            onMouseEnter={() => {
+              setContentHovered(true);
+            }}
           />
         </Popper>
       )}

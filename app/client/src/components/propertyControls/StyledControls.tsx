@@ -17,7 +17,7 @@ import { Skin } from "constants/DefaultTheme";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
-  level?: number;
+  isAction?: boolean;
 };
 
 export const ControlWrapper = styled.div<ControlWrapperProps>`
@@ -26,8 +26,7 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${props =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${props => props.theme.spaces[3]}px 0;
-  padding-left: ${props => (props.level ? 18 * props.level : 0)}px;
+  padding: ${props => (props.isAction ? "0" : "8px 0 ")};
   & > label {
     color: ${props => props.theme.colors.paneText};
     margin-bottom: ${props => props.theme.spaces[1]}px;
@@ -81,6 +80,14 @@ export const StyledDropDownContainer = styled.div`
         border: none;
         box-shadow: none;
         background: transparent;
+        white-space: normal;
+        word-break: break-word;
+      }
+      .bp3-button-text {
+        white-space: normal;
+        word-break: break-word;
+        display: block;
+        overflow: auto;
       }
     }
   }

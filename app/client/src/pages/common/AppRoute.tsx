@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
 import { Route } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import {
   useShowPropertyPane,
   useWidgetSelection,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { setCurrentUserDetails } from "actions/userActions";
 
 export const WrappedComponent = (props: any) => {
   const showPropertyPane = useShowPropertyPane();
@@ -31,13 +29,6 @@ const AppRoute = ({
   name: string;
   location?: any;
 }) => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (!/^\/user\/\w+/.test(rest.location.pathname)) {
-      dispatch(setCurrentUserDetails());
-    }
-  }, [rest.name, rest.location.pathname, dispatch]);
-
   useEffect(() => {
     if (!rest.logDisable) {
       AnalyticsUtil.logEvent("NAVIGATE_EDITOR", {

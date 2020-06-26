@@ -9,8 +9,8 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.EnterSourceDetailsWithHeader(
-      testdata.baseUrl2,
-      testdata.methods1,
+      testdata.baseUrl,
+      testdata.methods,
       testdata.headerKey,
       testdata.headerValue,
     );
@@ -24,7 +24,7 @@ describe("API Panel Test Functionality", function() {
     cy.ClearSearch();
     cy.SearchAPIandClick("SecondAPI");
     //invalid api end point check
-    cy.EditSourceDetail(testdata.baseUrl3, testdata.invalidPath);
+    cy.EditSourceDetail(testdata.baseUrl, testdata.invalidPath);
     cy.RunAPI();
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.DeleteAPI();

@@ -40,7 +40,7 @@ function getSelectedOption(
   defaultText: string,
   options: TreeDropdownOption[],
 ) {
-  let selectedOption = {
+  let selectedOption: TreeDropdownOption = {
     label: defaultText,
     value: "",
   };
@@ -88,7 +88,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   };
 
   function renderTreeOption(option: TreeDropdownOption) {
-    const isSelected = selectedOption.value === option.value;
+    const isSelected =
+      selectedOption.value === option.value ||
+      selectedOption.type === option.value;
     return (
       <StyledMenuItem
         className={option.className || "single-select"}

@@ -32,6 +32,7 @@ interface ReduxStateProps {
   isRunning: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   allowSave: boolean;
+  isCreating: boolean;
   apiName: string;
   currentApplication: UserApplication;
   currentPageName: string | undefined;
@@ -146,6 +147,7 @@ class ApiEditor extends React.Component<Props> {
       pluginId,
       isRunning,
       isDeleting,
+      isCreating,
       paginationType,
     } = this.props;
 
@@ -165,6 +167,7 @@ class ApiEditor extends React.Component<Props> {
         history={this.props.history}
         location={this.props.location}
         match={this.props.match}
+        isCreatingApi={isCreating}
       />
     );
 
@@ -231,7 +234,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
 
-  const { isDeleting, isRunning } = state.ui.apiPane;
+  const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
   const actionDrafts = state.entities.actionDrafts;
   const allowSave = !!(apiAction && apiAction.id in actionDrafts);
   const datasourceFieldText =
@@ -250,6 +253,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     apiAction,
     isRunning,
     isDeleting,
+    isCreating,
     allowSave,
   };
 };

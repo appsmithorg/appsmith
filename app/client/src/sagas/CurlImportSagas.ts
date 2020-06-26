@@ -15,16 +15,22 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { fetchActions } from "actions/actionActions";
 import { CURL } from "constants/ApiConstants";
 import { changeApi } from "actions/apiPaneActions";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
+import transformCurlImport from "transformers/CurlImportTransformer";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { type, pageId, name } = action.payload;
   let { curl } = action.payload;
   try {
-    // Transform to add quotes if not present
-    curl = `${curl.charAt(0) !== '"' ? '"' : ""}${curl}${
-      curl.charAt(curl.length - 1) !== '"' ? '"' : ""
-    }`;
-    const request: CurlImportRequest = { type, pageId, name, curl };
+    curl = transformCurlImport(curl);
+    const organizationId = yield select(getCurrentOrgId);
+    const request: CurlImportRequest = {
+      type,
+      pageId,
+      name,
+      curl,
+      organizationId,
+    };
 
     const response: ApiResponse = yield CurlImportApi.curlImport(request);
     const isValidResponse = yield validateResponse(response);

@@ -8,6 +8,7 @@ import { RestAction } from "entities/Action";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
+  isCreating: false,
   isFetching: false,
   isRunning: {},
   isSaving: {},
@@ -21,6 +22,7 @@ const initialState: ApiPaneReduxState = {
 
 export interface ApiPaneReduxState {
   lastUsed: string;
+  isCreating: boolean;
   isFetching: boolean;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
@@ -44,6 +46,24 @@ const apiPaneReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state: ApiPaneReduxState) => ({
     ...state,
     isFetching: false,
+  }),
+  [ReduxActionTypes.CREATE_ACTION_INIT]: (
+    state: ApiPaneReduxState,
+  ): ApiPaneReduxState => ({
+    ...state,
+    isCreating: true,
+  }),
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
+    state: ApiPaneReduxState,
+  ): ApiPaneReduxState => ({
+    ...state,
+    isCreating: false,
+  }),
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (
+    state: ApiPaneReduxState,
+  ): ApiPaneReduxState => ({
+    ...state,
+    isCreating: false,
   }),
   [ReduxActionTypes.RUN_API_REQUEST]: (
     state: ApiPaneReduxState,

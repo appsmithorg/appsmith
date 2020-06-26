@@ -60,13 +60,15 @@ const MainConfiguration = styled.div`
 
 const ActionButtons = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: row;
 `;
 
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 72px;
-    margin: 0 5px;
-    min-height: 30px;
+    margin-left: 16px;
+    min-height: 32px;
   }
 `;
 

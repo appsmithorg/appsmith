@@ -400,7 +400,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       .second(0)
       .millisecond(0);
     const dateFormat = props.dateFormat ? props.dateFormat : moment.ISO_8601;
-    const dateStr = moment().toISOString();
+    // const dateStr = moment().toISOString();
     const todayDateString = today.format(dateFormat);
     if (dateString === undefined) {
       return {

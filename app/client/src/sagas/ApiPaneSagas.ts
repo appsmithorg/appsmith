@@ -36,6 +36,7 @@ import {
   getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -64,6 +65,7 @@ import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getApiDraft = (state: AppState, id: string) => {
   const drafts = state.entities.actionDrafts;
@@ -79,6 +81,7 @@ const getLastUsedEditorPage = (state: AppState) =>
   state.ui.apiPane.lastUsedEditorPage;
 const getLastUsedProvider = (state: AppState) =>
   state.ui.providers.lastUsedProviderId;
+const getApiCreationStatus = (state: AppState) => state.ui.apiPane.isCreating;
 
 function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   const isInitialized = yield select(getIsEditorInitialized);
@@ -91,6 +94,7 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   const lastUsedEditorPage = yield select(getLastUsedEditorPage);
+  const isCreating = yield select(getApiCreationStatus);
   let lastSelectedPage = yield select(getLastSelectedPage);
   if (lastSelectedPage === "") {
     lastSelectedPage = pageId;
@@ -102,6 +106,9 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   } else if (lastUsedId) {
     id = lastUsedId;
   }
+
+  if (isCreating) return;
+
   if (lastUsedProviderId && lastUsedEditorPage.includes("provider")) {
     history.push(
       getProviderTemplatesURL(
@@ -477,10 +484,12 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
+  const organizationId = yield select(getCurrentOrgId);
   const pluginId = yield select(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
+  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -495,9 +504,13 @@ function* handleCreateNewApiActionSaga(
         datasource: {
           name: "DEFAULT_REST_DATASOURCE",
           pluginId,
+          organizationId,
         },
         pageId,
       }),
+    );
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
   }
 }

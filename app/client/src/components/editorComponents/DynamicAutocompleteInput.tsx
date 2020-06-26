@@ -96,6 +96,10 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     max-height: 20em;
     width: 200px;
     overflow-y: auto;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
     background: ${props =>
       props.editorTheme === "DARK" ? "#090A0F" : "#ffffff"};
     border: 1px solid;
@@ -148,6 +152,10 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
       props.editorTheme === "DARK" ? "#23292e" : "#DEDEDE"} !important;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
     overflow: scroll;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
   }
 `;
 
@@ -274,8 +282,6 @@ const IconContainer = styled.div`
   }
 `;
 
-type MenuState = "none" | "default" | "active" | "hover";
-
 const DynamicAutocompleteInputWrapper = styled.div<{
   skin: Skin;
   theme: Theme;
@@ -292,11 +298,7 @@ const DynamicAutocompleteInputWrapper = styled.div<{
     props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
       : "transparent"};
-  .bp3-popover-wrapper:first-of-type {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+
   &:hover {
     border: ${props =>
       props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};

@@ -1,4 +1,4 @@
-import API from "./Api";
+import API, { HttpMethod } from "./Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
 import {
   APIRequest,
@@ -58,6 +58,13 @@ export interface ExecuteActionResponse extends ApiResponse {
   data: any;
 }
 
+export interface ActionApiResponseReq {
+  headers: Record<string, string[]>;
+  body: object | null;
+  httpMethod: HttpMethod | "";
+  url: string;
+}
+
 export interface ActionApiResponse {
   responseMeta: ResponseMeta;
   data: {
@@ -65,8 +72,7 @@ export interface ActionApiResponse {
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
-    requestHeaders: Record<string, string[]>;
-    requestBody: object | null;
+    request: ActionApiResponseReq;
   };
   clientMeta: {
     duration: string;
@@ -77,8 +83,7 @@ export interface ActionApiResponse {
 export interface ActionResponse {
   body: object;
   headers: Record<string, string[]>;
-  requestBody: object | null;
-  requestHeaders: Record<string, string[]>;
+  request?: ActionApiResponseReq;
   statusCode: string;
   duration: string;
   size: string;

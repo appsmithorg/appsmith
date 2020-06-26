@@ -6,7 +6,6 @@ import {
 } from "redux-form";
 import TagInputComponent from "components/editorComponents/TagInputComponent";
 import { Intent } from "constants/DefaultTheme";
-import FormFieldError from "components/editorComponents/form/FieldError";
 
 const renderComponent = (
   componentProps: TagListFieldProps & {
@@ -17,14 +16,6 @@ const renderComponent = (
   return (
     <React.Fragment>
       <TagInputComponent {...componentProps} />
-
-      <FormFieldError
-        error={
-          componentProps.meta.touched &&
-          !componentProps.meta.pristine &&
-          componentProps.meta.error
-        }
-      />
     </React.Fragment>
   );
 };

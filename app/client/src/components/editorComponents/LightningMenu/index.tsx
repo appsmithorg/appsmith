@@ -1,5 +1,4 @@
 import React from "react";
-import { Tooltip } from "@blueprintjs/core";
 import CustomizedDropdown, {
   CustomizedDropdownProps,
 } from "pages/common/CustomizedDropdown";
@@ -7,7 +6,6 @@ import CustomizedDropdown, {
 import { Directions } from "utils/helpers";
 import { RestAction } from "entities/Action";
 import { WidgetProps } from "widgets/BaseWidget";
-import { LIGHTNING_MENU_DATA_TOOLTIP } from "constants/messages";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
@@ -43,11 +41,7 @@ const lightningMenuOptions = (
     ],
     openDirection: Directions.DOWN,
     trigger: {
-      content: (
-        <Tooltip hoverOpenDelay={1000} content={LIGHTNING_MENU_DATA_TOOLTIP}>
-          {trigger}
-        </Tooltip>
-      ),
+      content: trigger,
     },
     skin,
     onCloseDropDown: () => {

@@ -9,6 +9,7 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { isString } from "lodash";
+import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -291,13 +292,14 @@ export const renderCell = (
           </CellWrapper>
         );
       }
+      const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       return (
         <CellWrapper isHidden={isHidden}>
           {value
             .toString()
             .split(",")
             .map((item: string, index: number) => {
-              if (item.match(/\.(jpeg|jpg|gif|png)$/)) {
+              if (imageRegex.test(item)) {
                 return (
                   <div
                     key={index}
@@ -312,18 +314,11 @@ export const renderCell = (
         </CellWrapper>
       );
     case "video":
-      const youtubeRegex = new RegExp(
-        "^(https?://)?(www.)?(youtube.com|youtu.?be)/embed/.+$",
-      );
+      const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
       if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper isHidden={isHidden} className="video-cell">
-            <iframe
-              title={`video-${widgetId}-${rowIndex}`}
-              width="56"
-              height="32"
-              src={`${value}`}
-            ></iframe>
+            <VideoComponent url={value} />
           </CellWrapper>
         );
       } else {

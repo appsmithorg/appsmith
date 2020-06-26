@@ -51,6 +51,7 @@ export const Colors: Record<string, string> = {
   WATUSI: "#FFE0D2",
   GRAY: "#828282",
   ATHENS_GRAY_DARKER: "#F8F9FA",
+  POMEGRANATE: "#F44336",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

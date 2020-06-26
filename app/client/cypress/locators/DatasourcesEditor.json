@@ -8,6 +8,9 @@
   "authenticationAuthtype": "[data-cy=datasourceConfiguration\\.authentication\\.authType]",
   "sslAuthtype": "[data-cy=datasourceConfiguration\\.connection\\.ssl\\.authType]",
   "url": "input[name='datasourceConfiguration.url']",
+  "MongoDB": ".t--plugin-name:contains('MongoDB')",
+  "RESTAPI": ".t--plugin-name:contains('REST API')",
+  "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "sectionSSL": "[data-cy=section-SSL\\ \\(optional\\)]"
 }

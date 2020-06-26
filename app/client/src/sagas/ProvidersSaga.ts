@@ -35,6 +35,7 @@ import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { ADD_API_TO_PAGE_SUCCESS_MESSAGE } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -68,7 +69,11 @@ export function* fetchProviderTemplatesSaga(
 export function* addApiToPageSaga(
   action: ReduxActionWithPromise<AddApiToPageRequest>,
 ) {
-  const request: AddApiToPageRequest = action.payload;
+  const organizationId = yield select(getCurrentOrgId);
+  const request: AddApiToPageRequest = {
+    ...action.payload,
+    organizationId,
+  };
   try {
     const response: FetchProviderTemplateResponse = yield ProvidersApi.addApiToPage(
       request,

@@ -19,12 +19,14 @@ import { ControlIcons } from "icons/ControlIcons";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { InputActionMeta } from "react-select";
 import { setDatasourceFieldText } from "actions/apiPaneActions";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 interface ReduxStateProps {
   datasources: DatasourceDataState;
   validDatasourcePlugins: Plugin[];
   apiId: string;
   value: Datasource;
+  organizationId: string;
 }
 interface ReduxActionProps {
   createDatasource: (value: string) => void;
@@ -104,7 +106,7 @@ const DatasourcesField = (
   }
 
   const DropdownIndicator = (props: any) => {
-    if (props.hasValue) return null;
+    if (props.hasValue || !props.selectProps.inputValue) return null;
 
     const MenuContainer = (
       <StyledMenu>
@@ -178,8 +180,16 @@ const DatasourcesField = (
         }
         setValue(value);
         if (isEmbeddedDatasource) {
-          let datasourcePayload: Datasource | CreateDatasourceConfig;
+          let datasourcePayload: {
+            name: string;
+            datasourceConfiguration: { url: string };
+          };
           let pathPayload: string;
+          const defaultDatasourcePayload = {
+            pluginId: props.pluginId,
+            appName: props.appName,
+            organizationId: props.organizationId,
+          };
 
           try {
             const url = new URL(value);
@@ -188,28 +198,27 @@ const DatasourcesField = (
             const baseUrl = url.origin;
 
             datasourcePayload = {
-              name: baseUrl,
+              name: baseUrl || "DEFAULT_REST_DATASOURCE",
               datasourceConfiguration: {
                 url: baseUrl,
               },
-              pluginId: props.pluginId,
-              appName: props.appName,
             };
             pathPayload = path + params;
           } catch (e) {
             datasourcePayload = {
-              name: value,
+              name: value || "DEFAULT_REST_DATASOURCE",
               datasourceConfiguration: {
                 url: value,
               },
-              pluginId: props.pluginId,
-              appName: props.appName,
             };
             pathPayload = "";
           }
 
           const updateValues = _.debounce(() => {
-            props.changeDatasource(datasourcePayload);
+            props.changeDatasource({
+              ...defaultDatasourcePayload,
+              ...datasourcePayload,
+            });
             props.changePath(pathPayload);
           }, 50);
 
@@ -254,11 +263,13 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
   const selector = formValueSelector(API_EDITOR_FORM_NAME);
   const apiId = selector(state, "id");
   const datasource = selector(state, "datasource");
+  const organizationId = getCurrentOrgId(state);
   return {
     datasources: state.entities.datasources,
     validDatasourcePlugins: getDatasourcePlugins(state),
     apiId,
     value: datasource,
+    organizationId,
   };
 };
 
