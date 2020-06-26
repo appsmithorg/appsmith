@@ -96,7 +96,7 @@ describe("Text-Table Binding Functionality", function() {
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then(tabDataP => {
-        const tabValueP = tabDataP;
+        const tabValueP = `\"${tabDataP}\"`;
         cy.get(commonlocators.TextInside).should("have.text", tabValueP);
       });
     });
