@@ -4,7 +4,7 @@
     "createBlankApiCard": ".t--createBlankApiCard",
     "eachProviderCard": ".t--eachProviderCard",
     "nameOfApi": ".t--nameOfApi",
-    "ApiNameField": ".t--nameOfApi input",
+    "ApiNameField": ".t--action-name-edit-field input",
     "addToPageBtn": ".t--addToPageBtn",
     "ApiDeleteBtn": ".t--apiFormDeleteBtn",
     "ApiRunBtn": ".t--apiFormRunBtn",

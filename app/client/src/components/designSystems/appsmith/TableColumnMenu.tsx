@@ -46,7 +46,7 @@ export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
               key={index}
               onClick={() => {
                 if (option.onClick) {
-                  option.onClick(!!option.isSelected);
+                  option.onClick(props.columnIndex, !!option.isSelected);
                 }
               }}
               className={
@@ -74,7 +74,7 @@ export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
                       (item: ColumnMenuSubOptionProps, itemIndex: number) => (
                         <OptionWrapper
                           key={itemIndex}
-                          onClick={item.onClick}
+                          onClick={() => item.onClick(props.columnIndex)}
                           className={
                             item.closeOnClick ? Classes.POPOVER_DISMISS : ""
                           }

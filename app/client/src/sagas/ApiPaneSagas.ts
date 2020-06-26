@@ -15,6 +15,7 @@ import {
 import { getFormSyncErrors } from "redux-form";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
@@ -35,6 +36,7 @@ import {
   getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
 } from "constants/routes";
 import {
   getCurrentApplicationId,
@@ -66,7 +68,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getApiDraft = (state: AppState, id: string) => {
-  const drafts = state.ui.apiPane.drafts;
+  const drafts = state.entities.actionDrafts;
   if (id in drafts) return drafts[id];
   return {};
 };
@@ -79,6 +81,7 @@ const getLastUsedEditorPage = (state: AppState) =>
   state.ui.apiPane.lastUsedEditorPage;
 const getLastUsedProvider = (state: AppState) =>
   state.ui.providers.lastUsedProviderId;
+const getApiCreationStatus = (state: AppState) => state.ui.apiPane.isCreating;
 
 function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   const isInitialized = yield select(getIsEditorInitialized);
@@ -91,6 +94,7 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   const lastUsedEditorPage = yield select(getLastUsedEditorPage);
+  const isCreating = yield select(getApiCreationStatus);
   let lastSelectedPage = yield select(getLastSelectedPage);
   if (lastSelectedPage === "") {
     lastSelectedPage = pageId;
@@ -102,6 +106,9 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
   } else if (lastUsedId) {
     id = lastUsedId;
   }
+
+  if (isCreating) return;
+
   if (lastUsedProviderId && lastUsedEditorPage.includes("provider")) {
     history.push(
       getProviderTemplatesURL(
@@ -247,6 +254,8 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 function* updateDraftsSaga() {
+  // debounce
+  // TODO check for save
   const result = yield race({
     change: take(ReduxFormActionTypes.VALUE_CHANGE),
     timeout: delay(300),
@@ -478,6 +487,7 @@ function* handleCreateNewApiActionSaga(
     getPluginIdOfPackageName,
     REST_PLUGIN_PACKAGE_NAME,
   );
+  const applicationId = yield select(getCurrentApplicationId);
   const { pageId } = action.payload;
   if (pageId && pluginId) {
     const actions = yield select(getActions);
@@ -496,6 +506,9 @@ function* handleCreateNewApiActionSaga(
         },
         pageId,
       }),
+    );
+    history.push(
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(applicationId, pageId, pageId),
     );
   }
 }
@@ -541,6 +554,16 @@ function* handleCreateNewQueryActionSaga(
   }
 }
 
+function* handleApiNameChangeSaga(action: ReduxAction<{ name: string }>) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.name));
+}
+
+function* handleApiNameChangeFailureSaga(
+  action: ReduxAction<{ oldName: string }>,
+) {
+  yield put(change(API_EDITOR_FORM_NAME, "name", action.payload.oldName));
+}
+
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
@@ -550,6 +573,11 @@ export default function* root() {
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
+    takeEvery(
+      ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
+      handleApiNameChangeFailureSaga,
+    ),
     takeEvery(
       ReduxActionTypes.CREATE_NEW_API_ACTION,
       handleCreateNewApiActionSaga,

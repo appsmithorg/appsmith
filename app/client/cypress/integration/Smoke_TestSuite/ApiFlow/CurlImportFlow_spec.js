@@ -10,21 +10,23 @@ describe("Test curl import flow", function() {
       "curl -X GET http://app.appsmith.com/scrap/api?slugifiedName=Freshdesk&ownerName=volodimir.kudriachenko",
     );
     cy.importCurl();
-    cy.get(ApiEditor.ApiNameField).should("be.visible");
+    cy.xpath(apiwidget.EditApiName).should("be.visible");
     cy.get("@curlImport").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
-      cy.get(ApiEditor.ApiNameField).should(
-        "have.value",
-        response.response.body.data.name,
-      );
+      cy.get(apiwidget.ApiName)
+        .invoke("text")
+        .then(text => {
+          const someText = text;
+          expect(someText).to.equal(response.response.body.data.name);
+        });
     });
-    // cy.WaitAutoSave();
+    //cy.WaitAutoSave();
     cy.RunAPI();
-
+    cy.ResponseStatusCheck("200 OK");
     cy.get(ApiEditor.formActionButtons).should("be.visible");
     cy.get(ApiEditor.ApiDeleteBtn).click();
     cy.get(ApiEditor.ApiDeleteBtn).should("be.disabled");
-    cy.testDeleteApi();
+    cy.wait("@deleteAction");
     cy.get("@deleteAction").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
     });

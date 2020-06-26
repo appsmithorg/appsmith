@@ -17,6 +17,8 @@ export type OrgUser = {
   username: string;
   name: string;
   roleName: string;
+  isDeleting: boolean;
+  isChangingRole: boolean;
 };
 
 export type Organization = {

@@ -24,6 +24,7 @@ import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import TernServer from "utils/autocomplete/TernServer";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
@@ -95,6 +96,10 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
     max-height: 20em;
     width: 200px;
     overflow-y: auto;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
     background: ${props =>
       props.editorTheme === "DARK" ? "#090A0F" : "#ffffff"};
     border: 1px solid;
@@ -147,6 +152,10 @@ const HintStyles = createGlobalStyle<{ editorTheme: EditorTheme }>`
       props.editorTheme === "DARK" ? "#23292e" : "#DEDEDE"} !important;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
     overflow: scroll;
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;
   }
 `;
 
@@ -166,7 +175,7 @@ const EditorWrapper = styled.div<{
   position: absolute;
   right: 0;
   left: 0;
-  top: 0;  
+  top: 0;
   `
       : `z-index: 0; position: relative;`}
   background-color: ${props =>
@@ -180,7 +189,7 @@ const EditorWrapper = styled.div<{
   flex-direction: row;
   text-transform: none;
   min-height: 32px;
-  
+
   height: auto;
   ${props =>
     props.setMaxHeight &&
@@ -273,8 +282,6 @@ const IconContainer = styled.div`
   }
 `;
 
-type MenuState = "none" | "default" | "active" | "hover";
-
 const DynamicAutocompleteInputWrapper = styled.div<{
   skin: Skin;
   theme: Theme;
@@ -291,11 +298,7 @@ const DynamicAutocompleteInputWrapper = styled.div<{
     props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
       : "transparent"};
-  .bp3-popover-wrapper:first-of-type {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
+
   &:hover {
     border: ${props =>
       props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
@@ -459,8 +462,8 @@ class DynamicAutocompleteInput extends Component<Props, State> {
         // Update the dynamic bindings for autocomplete
         if (prevProps.dynamicData !== this.props.dynamicData) {
           if (this.ternServer) {
-            // const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
-            // this.ternServer.updateDef("dataTree", dataTreeDef);
+            const dataTreeDef = dataTreeTypeDefCreator(this.props.dynamicData);
+            this.ternServer.updateDef("dataTree", dataTreeDef);
           } else {
             this.editor.setOption("hintOptions", {
               completeSingle: false,

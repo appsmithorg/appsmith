@@ -100,13 +100,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
-    const computedSelectedIndexArr = this.props.selectedOptionValueArr
-      .map((opt: string) =>
-        _.findIndex(this.props.options, {
-          value: opt,
-        }),
-      )
-      .filter((i: number) => i > -1);
+    const computedSelectedIndexArr = Array.isArray(
+      this.props.selectedOptionValueArr,
+    )
+      ? this.props.selectedOptionValueArr
+          .map((opt: string) =>
+            _.findIndex(this.props.options, {
+              value: opt,
+            }),
+          )
+          .filter((i: number) => i > -1)
+      : [];
 
     return (
       <DropDownComponent
@@ -131,7 +135,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         selectedOption.value,
       );
     } else if (this.props.selectionType === "MULTI_SELECT") {
-      console.log(this.props, selectedOption);
       const isAlreadySelected = this.props.selectedOptionValueArr.includes(
         selectedOption.value,
       );

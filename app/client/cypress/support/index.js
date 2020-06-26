@@ -30,8 +30,7 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 before(function() {
   console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
   cy.startServerAndRoutes();
-  cy.LogintoApp(loginData.username, loginData.password);
-  /*
+  //cy.LogintoApp(loginData.username, loginData.password);
   cy.LoginFromAPI(loginData.username, loginData.password);
   cy.visit("/applications");
   cy.wait("@applications").should(
@@ -39,20 +38,21 @@ before(function() {
     "response.body.responseMeta.status",
     200,
   );
-  */
+
   cy.generateUUID().then(id => {
     appId = id;
     cy.CreateApp(id);
     localStorage.setItem("AppName", appId);
   });
 
+  /*
   cy.generateUUID().then(uid => {
     pageid = uid;
     cy.Createpage(pageid);
     cy.NavigateToWidgets(pageid);
     localStorage.setItem("PageName", pageid);
   });
-
+*/
   cy.fixture("example").then(function(data) {
     this.data = data;
   });

@@ -368,7 +368,8 @@ function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
-  const datasource = _.get(values, "datasource");
+  let datasource = _.get(values, "datasource");
+  datasource = _.omit(datasource, ["name"]);
 
   history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
 

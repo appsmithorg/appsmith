@@ -15,6 +15,7 @@ import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
 import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
+import { ReactComponent as YoutubeIcon } from "assets/icons/control/youtube.svg";
 
 /* eslint-disable react/display-name */
 
@@ -89,6 +90,11 @@ export const ControlIcons: {
   HELP_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
       <HelpIcon />
+    </IconWrapper>
+  ),
+  OPEN_YOUTUBE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <YoutubeIcon />
     </IconWrapper>
   ),
 };

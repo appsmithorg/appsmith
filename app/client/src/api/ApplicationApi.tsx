@@ -23,9 +23,9 @@ export interface ApplicationResponsePayload {
   pages?: ApplicationPagePayload[];
 }
 
-export interface FetchApplicationResponse extends ApiResponse {
-  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-}
+// export interface FetchApplicationResponse extends ApiResponse {
+//   data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+// }
 
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;

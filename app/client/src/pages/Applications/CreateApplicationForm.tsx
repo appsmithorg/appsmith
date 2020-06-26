@@ -47,11 +47,8 @@ export const CreateApplicationForm = (props: Props) => {
 
 const mapStateToProps = (state: AppState, props: Props): any => {
   const orgId = props.orgId;
-  console.log(orgId, " orgId in mapStateToProps");
   return {
-    initialValues: {
-      orgId: props.orgId,
-    },
+    initialValues: { orgId },
   };
 };
 

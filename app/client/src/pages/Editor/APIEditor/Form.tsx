@@ -28,7 +28,6 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import { ApiNameValidation } from "reducers/uiReducers/apiPaneReducer";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -61,13 +60,15 @@ const MainConfiguration = styled.div`
 
 const ActionButtons = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: row;
 `;
 
 const ActionButton = styled(BaseButton)`
   &&& {
     max-width: 72px;
-    margin: 0 5px;
-    min-height: 30px;
+    margin-left: 16px;
+    min-height: 32px;
   }
 `;
 
@@ -132,7 +133,6 @@ interface APIFormProps {
   dispatch: any;
   datasourceFieldText: string;
   apiName: string;
-  apiNameValidation: ApiNameValidation;
 }
 
 type Props = APIFormProps & InjectedFormProps<RestAction, APIFormProps>;

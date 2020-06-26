@@ -34,7 +34,7 @@ export type RunActionPayload = {
 
 export interface DataTreeAction extends Omit<ActionData, "data"> {
   data: ActionResponse["body"];
-  run: ActionDispatcher<RunActionPayload, [string, string]>;
+  run: ActionDispatcher<RunActionPayload, [string, string]> | {};
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
@@ -75,20 +75,15 @@ type DataTreeSeed = {
 };
 
 export class DataTreeFactory {
-  static create({
-    actions,
-    actionDrafts,
-    widgets,
-    widgetsMeta,
-    pageList,
-  }: DataTreeSeed): DataTree {
+  static create(
+    { actions, actionDrafts, widgets, widgetsMeta, pageList }: DataTreeSeed,
+    // TODO(hetu)
+    // temporary fix for not getting functions while normal evals which crashes the app
+    // need to remove this after we get a proper solve
+    withFunctions?: boolean,
+  ): DataTree {
     const dataTree: DataTree = {};
-    dataTree.actionPaths = [
-      "navigateTo",
-      "showAlert",
-      "showModal",
-      "closeModal",
-    ];
+    const actionPaths = [];
     actions.forEach(a => {
       const config =
         a.config.id in actionDrafts ? actionDrafts[a.config.id] : a.config;
@@ -108,19 +103,24 @@ export class DataTreeFactory {
         config: config,
         dynamicBindingPathList,
         data: a.data ? a.data.body : {},
-        run: function(onSuccess: string, onError: string) {
-          return {
-            type: "RUN_ACTION",
-            payload: {
-              actionId: this.config.id,
-              onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
-              onError: onError ? `{{${onError.toString()}}}` : "",
-            },
-          };
-        },
+        run: withFunctions
+          ? function(this: DataTreeAction, onSuccess: string, onError: string) {
+              return {
+                type: "RUN_ACTION",
+                payload: {
+                  actionId: this.config.id,
+                  onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
+                  onError: onError ? `{{${onError.toString()}}}` : "",
+                },
+              };
+            }
+          : {},
         ENTITY_TYPE: ENTITY_TYPE.ACTION,
       };
-      dataTree.actionPaths && dataTree.actionPaths.push(`${config.name}.run`);
+      if (withFunctions) {
+        actionPaths.push(`${config.name}.run`);
+      }
+      dataTree.actionPaths && dataTree.actionPaths.push();
     });
     Object.keys(widgets).forEach(w => {
       const widget = widgets[w];
@@ -149,35 +149,44 @@ export class DataTreeFactory {
         ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       };
     });
-    dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
-      return {
-        type: "NAVIGATE_TO",
-        payload: { pageNameOrUrl, params },
-      };
-    };
 
-    dataTree.showAlert = function(message: string, style: string) {
-      return {
-        type: "SHOW_ALERT",
-        payload: { message, style },
+    if (withFunctions) {
+      dataTree.navigateTo = function(pageNameOrUrl: string, params: object) {
+        return {
+          type: "NAVIGATE_TO",
+          payload: { pageNameOrUrl, params },
+        };
       };
-    };
+      actionPaths.push("navigateTo");
 
-    // dataTree.url = url;
-    dataTree.showModal = function(modalName: string) {
-      return {
-        type: "SHOW_MODAL_BY_NAME",
-        payload: { modalName },
+      dataTree.showAlert = function(message: string, style: string) {
+        return {
+          type: "SHOW_ALERT",
+          payload: { message, style },
+        };
       };
-    };
-    dataTree.closeModal = function(modalName: string) {
-      return {
-        type: "CLOSE_MODAL",
-        payload: { modalName },
+      actionPaths.push("showAlert");
+
+      // dataTree.url = url;
+      dataTree.showModal = function(modalName: string) {
+        return {
+          type: "SHOW_MODAL_BY_NAME",
+          payload: { modalName },
+        };
       };
-    };
+      actionPaths.push("showModal");
+
+      dataTree.closeModal = function(modalName: string) {
+        return {
+          type: "CLOSE_MODAL",
+          payload: { modalName },
+        };
+      };
+      actionPaths.push("closeModal");
+    }
 
     dataTree.pageList = pageList;
+    dataTree.actionPaths = actionPaths;
     return dataTree;
   }
 }

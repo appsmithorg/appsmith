@@ -98,9 +98,14 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      const users = response.data.map(user => ({
+        ...user,
+        isDeleting: false,
+        isChangingRole: false,
+      }));
       yield put({
         type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
-        payload: response.data,
+        payload: users,
       });
     }
   } catch (error) {

@@ -44,7 +44,6 @@ import {
   moveActionError,
   moveActionSuccess,
   updateActionSuccess,
-  updateApiNameDraft,
   fetchActionsForPage,
 } from "actions/actionActions";
 import {
@@ -77,8 +76,7 @@ import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
-import { validateEntityName } from "components/editorComponents/EntityNameComponent";
+import { Action, RestAction } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getActions } from "selectors/entitiesSelector";
 
@@ -146,15 +144,19 @@ const createActionErrorResponse = (
     ? response.responseMeta.error.code.toString()
     : "Error",
   headers: {},
-  requestHeaders: {},
-  requestBody: null,
+  request: {
+    headers: {},
+    body: {},
+    httpMethod: "",
+    url: "",
+  },
   duration: "0",
   size: "0",
 });
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTree);
+  const tree = yield select(evaluateDataTree(true));
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -377,7 +379,7 @@ export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug("Evaluating data tree to get action trigger");
   log.debug({ dynamicString });
-  const tree = yield select(evaluateDataTree);
+  const tree = yield select(evaluateDataTree(true));
   log.debug({ tree });
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   log.debug({ triggers });
@@ -471,13 +473,14 @@ export function* updateActionSaga(
     const isApi = actionPayload.payload.data.pluginType === "API";
     const { data } = actionPayload.payload;
     let action = data;
+
     if (isApi) {
       action = transformRestAction(data);
+      action.name = (yield select(getActions)).find(
+        (act: any) => act.config.id === action.id,
+      )?.config.name;
     }
 
-    action.name = (yield select(getActions)).find(
-      (act: any) => act.config.id === action.id,
-    )?.config.name;
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
       action,
     );
@@ -544,6 +547,18 @@ export function* deleteActionSaga(
   }
 }
 
+export function extractBindingsFromAction(action: Action) {
+  const bindings: string[] = [];
+  action.dynamicBindingPathList.forEach(a => {
+    const value = _.get(action, a.key);
+    if (isDynamicValue(value)) {
+      const { jsSnippets } = getDynamicBindings(value);
+      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
+    }
+  });
+  return bindings;
+}
+
 export function* runApiActionSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -569,15 +584,7 @@ export function* runApiActionSaga(
     }
     if (dirty) {
       action = _.omit(transformRestAction(values), "id") as RestAction;
-
-      const actionString = JSON.stringify(action);
-      if (isDynamicValue(actionString)) {
-        const { jsSnippets } = getDynamicBindings(actionString);
-        // Replace cause the existing keys could have been updated
-        jsonPathKeys = jsSnippets.filter(jsSnippet => !!jsSnippet);
-      } else {
-        jsonPathKeys = [];
-      }
+      jsonPathKeys = extractBindingsFromAction(action as RestAction);
     }
     const { paginationField } = reduxAction.payload;
 
@@ -754,30 +761,6 @@ function* copyActionSaga(
   }
 }
 
-function* editApiNameSaga(action: ReduxAction<{ id: string; value: string }>) {
-  const actionNames = yield select(state =>
-    state.entities.actions.map((action: ActionData) => action.config.name),
-  );
-  const draftActionNames = yield select(state =>
-    Object.values(state.ui.apiPane.apiName.drafts),
-  );
-  //TODO: If an api is in saving state, then it should not use that name as well.
-  const validation = validateEntityName(action.payload.value, [
-    ...actionNames,
-    ...draftActionNames,
-  ]);
-
-  yield put(
-    updateApiNameDraft({
-      id: action.payload.id,
-      draft: {
-        value: action.payload.value,
-        validation: validation,
-      },
-    }),
-  );
-}
-
 export function* refactorActionName(
   id: string,
   pageId: string,
@@ -822,14 +805,13 @@ export function* refactorActionName(
 
 function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from drafts, checks if the name isValid, saves
+  const apiId = action.payload.id;
+  const api = yield select(state =>
+    state.entities.actions.find(
+      (action: ActionData) => action.config.id === apiId,
+    ),
+  );
   try {
-    const apiId = action.payload.id;
-    const api = yield select(state =>
-      state.entities.actions.find(
-        (action: ActionData) => action.config.id === apiId,
-      ),
-    );
-
     yield refactorActionName(
       api.config.id,
       api.config.pageId,
@@ -841,6 +823,7 @@ function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
       type: ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
       payload: {
         actionId: action.payload.id,
+        oldName: api.config.name,
       },
     });
     AppToaster.show({
@@ -859,7 +842,6 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
-    takeLatest(ReduxActionTypes.EDIT_API_NAME, editApiNameSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,

@@ -37,7 +37,7 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  evaluateDataTree,
+  evaluateDataTree(false),
   (
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,

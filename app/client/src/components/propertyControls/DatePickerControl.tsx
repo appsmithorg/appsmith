@@ -4,6 +4,7 @@ import { StyledDatePicker } from "./StyledControls";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const DatePickerControlWrapper = styled.div`
   display: flex;
@@ -36,17 +37,25 @@ class DatePickerControl extends BaseControl<
   DatePickerControlProps,
   DatePickerControlState
 > {
+  now = moment();
+  year = this.now.get("year");
+  maxDate: Date = this.now
+    .clone()
+    .set({ month: 11, date: 31, year: this.year + 20 })
+    .toDate();
+  minDate: Date = this.now
+    .clone()
+    .set({ month: 0, date: 1, year: this.year - 20 })
+    .toDate();
+
   constructor(props: DatePickerControlProps) {
     super(props);
     this.state = {
       selectedDate: props.propertyValue,
     };
   }
+
   render() {
-    const now = moment();
-    const year = now.get("year");
-    const minDate = now.clone().set({ month: 0, date: 1, year: year - 20 });
-    const maxDate = now.clone().set({ month: 11, date: 31, year: year + 20 });
     return (
       <DatePickerControlWrapper>
         <StyledDatePicker
@@ -57,11 +66,11 @@ class DatePickerControl extends BaseControl<
           timePrecision={TimePrecision.MINUTE}
           closeOnSelection
           onChange={this.onDateSelected}
-          maxDate={maxDate.toDate()}
-          minDate={minDate.toDate()}
+          maxDate={this.maxDate}
+          minDate={this.minDate}
           value={
             this.props.propertyValue
-              ? moment(this.props.propertyValue).toDate()
+              ? this.parseDate(this.props.propertyValue)
               : null
           }
         />
@@ -70,17 +79,22 @@ class DatePickerControl extends BaseControl<
   }
 
   onDateSelected = (date: Date): void => {
-    const selectedDate = date ? moment(date).toISOString(true) : undefined;
+    const selectedDate = date ? this.formatDate(date) : undefined;
     this.setState({ selectedDate: selectedDate });
     this.updateProperty(this.props.propertyName, selectedDate);
   };
 
   formatDate = (date: Date): string => {
-    return moment(date).format("DD/MM/YYYY HH:mm");
+    return moment(date).format(
+      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
+    );
   };
 
   parseDate = (dateStr: string): Date => {
-    return moment(dateStr, "DD/MM/YYYY HH:mm").toDate();
+    return moment(
+      dateStr,
+      this.props.widgetProperties.dateFormat || "DD/MM/YYYY HH:mm",
+    ).toDate();
   };
 
   static getControlType() {
@@ -91,6 +105,7 @@ class DatePickerControl extends BaseControl<
 export interface DatePickerControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
+  widgetProperties: WidgetProps;
 }
 
 interface DatePickerControlState {
