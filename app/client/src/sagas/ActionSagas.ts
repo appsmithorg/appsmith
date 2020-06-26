@@ -476,9 +476,7 @@ export function* updateActionSaga(
 
     if (isApi) {
       action = transformRestAction(data);
-      action.name = (yield select(getActions)).find(
-        (act: any) => act.config.id === action.id,
-      )?.config.name;
+      action = _.omit(action, "name") as RestAction;
     }
 
     const response: GenericApiResponse<RestAction> = yield ActionAPI.updateAPI(
