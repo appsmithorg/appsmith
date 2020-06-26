@@ -176,15 +176,17 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  //cy.wait("@createNewApi");
-  //cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  cy.wait("@postSave");
   cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.wait("@postexe");
+  cy.xpath(apiwidget.EditApiName).should("be.visible");
   cy.xpath(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
     .should("have.value", apiname);
-  //cy.WaitAutoSave();
+  cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
   cy.wait(4000);
@@ -1015,7 +1017,7 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .wait(500);
   cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
     .first()
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("closePropertyPane", () => {
@@ -1026,10 +1028,12 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);
-    cy.get(ApiEditor.ApiNameField).should(
-      "have.value",
-      response.response.body.data.name,
-    );
+    cy.get(ApiEditor.ApiNameField)
+      .invoke("text")
+      .then(text => {
+        const someText = text;
+        expect(someText).to.equal(response.response.body.data.name);
+      });
   });
 
   cy.get(ApiEditor.dataSourceField).click();
