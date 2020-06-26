@@ -32,7 +32,7 @@ interface TableProps {
   columnIndex: number;
   columnAction: string;
   onColumnNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleColumnNameUpdate: () => void;
+  handleColumnNameUpdate: (columnIndex: number) => void;
   handleResizeColumn: Function;
   selectTableRow: (
     row: { original: object; index: number },
@@ -42,7 +42,7 @@ interface TableProps {
   updatePageNo: Function;
   nextPageClick: () => void;
   prevPageClick: () => void;
-  onKeyPress: (key: string) => void;
+  onKeyPress: (columnIndex: number, key: string) => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
   disableDrag: () => void;
@@ -127,7 +127,9 @@ export const Table = (props: TableProps) => {
                           <InputGroup
                             placeholder="Enter Column Name"
                             onChange={props.onColumnNameChange}
-                            onKeyPress={event => props.onKeyPress(event.key)}
+                            onKeyPress={event =>
+                              props.onKeyPress(columnIndex, event.key)
+                            }
                             type="text"
                             defaultValue={
                               props.columnNameMap &&
@@ -136,7 +138,9 @@ export const Table = (props: TableProps) => {
                                 : column.id
                             }
                             className="input-group"
-                            onBlur={() => props.handleColumnNameUpdate()}
+                            onBlur={() =>
+                              props.handleColumnNameUpdate(columnIndex)
+                            }
                           />
                         )}
                       {(props.columnIndex !== columnIndex ||

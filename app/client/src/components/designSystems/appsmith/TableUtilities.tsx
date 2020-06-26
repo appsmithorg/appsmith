@@ -16,11 +16,14 @@ interface MenuOptionProps {
   isColumnHidden: boolean;
   columnType: string;
   format?: string;
-  hideColumn: (isColumnHidden: boolean) => void;
-  updateAction: (action: string) => void;
-  updateColumnType: (columnType: string) => void;
-  handleUpdateCurrencySymbol: (currencySymbol: string) => void;
-  handleDateFormatUpdate: (dateFormat: string) => void;
+  hideColumn: (columnIndex: number, isColumnHidden: boolean) => void;
+  updateAction: (columnIndex: number, action: string) => void;
+  updateColumnType: (columnIndex: number, columnType: string) => void;
+  handleUpdateCurrencySymbol: (
+    columnIndex: number,
+    currencySymbol: string,
+  ) => void;
+  handleDateFormatUpdate: (columnIndex: number, dateFormat: string) => void;
 }
 
 export const getMenuOptions = (props: MenuOptionProps) => {
@@ -29,16 +32,16 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       content: "Rename a Column",
       closeOnClick: true,
       id: "rename_column",
-      onClick: () => {
-        props.updateAction("rename_column");
+      onClick: (columnIndex: number) => {
+        props.updateAction(columnIndex, "rename_column");
       },
     },
     {
       content: props.isColumnHidden ? "Show Column" : "Hide Column",
       closeOnClick: true,
       id: "hide_column",
-      onClick: () => {
-        props.hideColumn(props.isColumnHidden);
+      onClick: (columnIndex: number) => {
+        props.hideColumn(columnIndex, props.isColumnHidden);
       },
     },
   ];
@@ -65,11 +68,11 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       ),
       closeOnClick: true,
       isSelected: props.columnType === "image",
-      onClick: (isSelected: boolean) => {
+      onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
-          props.updateColumnType("");
+          props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType("image");
+          props.updateColumnType(columnIndex, "image");
         }
       },
     },
@@ -86,11 +89,11 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       ),
       isSelected: props.columnType === "video",
       closeOnClick: true,
-      onClick: (isSelected: boolean) => {
+      onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
-          props.updateColumnType("");
+          props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType("video");
+          props.updateColumnType(columnIndex, "video");
         }
       },
     },
@@ -107,11 +110,11 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       ),
       closeOnClick: true,
       isSelected: props.columnType === "text",
-      onClick: (isSelected: boolean) => {
+      onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
-          props.updateColumnType("");
+          props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType("text");
+          props.updateColumnType(columnIndex, "text");
         }
       },
     },
@@ -139,56 +142,56 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           content: "USD - $",
           isSelected: props.format === "$",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("$");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "$");
           },
         },
         {
           content: "INR - ₹",
           isSelected: props.format === "₹",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("₹");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "₹");
           },
         },
         {
           content: "GBP - £",
           isSelected: props.format === "£",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("£");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "£");
           },
         },
         {
           content: "AUD - A$",
           isSelected: props.format === "A$",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("A$");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "A$");
           },
         },
         {
           content: "EUR - €",
           isSelected: props.format === "€",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("€");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "€");
           },
         },
         {
           content: "SGD - S$",
           isSelected: props.format === "S$",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("S$");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "S$");
           },
         },
         {
           content: "CAD - C$",
           isSelected: props.format === "C$",
           closeOnClick: true,
-          onClick: () => {
-            props.handleUpdateCurrencySymbol("C$");
+          onClick: (columnIndex: number) => {
+            props.handleUpdateCurrencySymbol(columnIndex, "C$");
           },
         },
       ],
@@ -217,32 +220,32 @@ export const getMenuOptions = (props: MenuOptionProps) => {
           content: "MM-DD-YY",
           isSelected: props.format === "MM-DD-YY",
           closeOnClick: true,
-          onClick: () => {
-            props.handleDateFormatUpdate("MM-DD-YY");
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(columnIndex, "MM-DD-YY");
           },
         },
         {
           content: "DD-MM-YY",
           isSelected: props.format === "DD-MM-YY",
           closeOnClick: true,
-          onClick: () => {
-            props.handleDateFormatUpdate("DD-MM-YY");
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(columnIndex, "DD-MM-YY");
           },
         },
         {
           content: "DD/MM/YY",
           isSelected: props.format === "DD/MM/YY",
           closeOnClick: true,
-          onClick: () => {
-            props.handleDateFormatUpdate("DD/MM/YY");
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(columnIndex, "DD/MM/YY");
           },
         },
         {
           content: "MM/DD/YY",
           isSelected: props.format === "MM/DD/YY",
           closeOnClick: true,
-          onClick: () => {
-            props.handleDateFormatUpdate("MM/DD/YY");
+          onClick: (columnIndex: number) => {
+            props.handleDateFormatUpdate(columnIndex, "MM/DD/YY");
           },
         },
       ],
@@ -260,11 +263,11 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       ),
       closeOnClick: true,
       isSelected: props.columnType === "time",
-      onClick: (isSelected: boolean) => {
+      onClick: (columnIndex: number, isSelected: boolean) => {
         if (isSelected) {
-          props.updateColumnType("");
+          props.updateColumnType(columnIndex, "");
         } else {
-          props.updateColumnType("time");
+          props.updateColumnType(columnIndex, "time");
         }
       },
     },
