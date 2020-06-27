@@ -45,19 +45,12 @@ public class PageServiceTest {
     @Autowired
     OrganizationService organizationService;
 
-    Mono<Application> applicationMono;
-
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
 
-        User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
 
-        Application application = new Application();
-        application.setName("PageAPI-Test-Application");
-        applicationMono = applicationPageService.createApplication(application, orgId);
     }
 
     @Test
@@ -100,6 +93,12 @@ public class PageServiceTest {
         Page testPage = new Page();
         testPage.setName("PageServiceTest TestApp");
 
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
+
+        Application newApp = new Application();
+        newApp.setName("Valid Page Creation Test Application");
+        Mono<Application> applicationMono = applicationPageService.createApplication(newApp, orgId);
         Mono<Page> pageMono = applicationMono
                 .map(application -> {
                     testPage.setApplicationId(application.getId());
@@ -121,6 +120,53 @@ public class PageServiceTest {
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
                     assertThat(page.getLayouts().get(0).getWidgetNames()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validChangePageName() {
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Page testPage = new Page();
+        testPage.setName("Before Page Name Change");
+
+        User apiUser = userService.findByEmail("api_user").block();
+        String orgId = apiUser.getOrganizationIds().iterator().next();
+
+        Application newApp = new Application();
+        newApp.setName("Valid Change Page Name Test Application");
+        Mono<Application> applicationMono = applicationPageService.createApplication(newApp, orgId);
+        Mono<Page> pageMono = applicationMono
+                .map(application -> {
+                    testPage.setApplicationId(application.getId());
+                    return testPage;
+                })
+                .flatMap(applicationPageService::createPage)
+                .flatMap(page -> {
+                    Page newPage = new Page();
+                    newPage.setId(page.getId());
+                    newPage.setName("New Page Name");
+                    return pageService.update(page.getId(), newPage);
+                });
+
+        StepVerifier
+                .create(pageMono)
+                .assertNext(page -> {
+                    assertThat(page).isNotNull();
+                    assertThat(page.getId()).isNotNull();
+                    assertThat("New Page Name".equals(page.getName()));
+
+                    // Check for the policy object not getting overwritten during update
+                    assertThat(page.getPolicies()).isNotEmpty();
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
                 })
                 .verifyComplete();
     }
