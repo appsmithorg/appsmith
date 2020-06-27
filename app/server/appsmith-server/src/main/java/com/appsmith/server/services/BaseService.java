@@ -70,6 +70,12 @@ public abstract class BaseService<R extends BaseRepository & AppsmithRepository,
 
         Query query = new Query(Criteria.where("id").is(id));
 
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (resource.getPolicies().isEmpty()) {
+            resource.setPolicies(null);
+        }
+
         DBObject update = getDbObject(resource);
 
         Update updateObj = new Update();
