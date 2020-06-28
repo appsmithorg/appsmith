@@ -17,7 +17,6 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";

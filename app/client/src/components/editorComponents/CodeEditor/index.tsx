@@ -4,6 +4,7 @@ import { AppState } from "reducers";
 import CodeMirror, { EditorConfiguration } from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/monokai.css";
+import "codemirror/theme/neat.css";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
@@ -38,9 +39,6 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 const LightningMenu = lazy(() =>
   import("components/editorComponents/LightningMenu"),
 );
-require("codemirror/mode/javascript/javascript");
-require("codemirror/mode/sql/sql");
-require("codemirror/addon/hint/sql-hint");
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = ["Enter", "Tab", "Escape"];
 

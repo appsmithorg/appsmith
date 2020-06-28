@@ -34,7 +34,7 @@ export type EditorConfig = {
 };
 
 export const EditorThemes: Record<EditorTheme, string> = {
-  [EditorTheme.LIGHT]: "base16-light",
+  [EditorTheme.LIGHT]: "neat",
   [EditorTheme.DARK]: "monokai",
 };
 

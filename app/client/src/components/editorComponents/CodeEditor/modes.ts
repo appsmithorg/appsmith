@@ -1,6 +1,9 @@
 import CodeMirror from "codemirror";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import "codemirror/addon/mode/multiplex";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/sql/sql";
+import "codemirror/addon/hint/sql-hint";
 
 CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function(config) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore

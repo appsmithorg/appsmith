@@ -113,8 +113,9 @@ export const EditorWrapper = styled.div<{
   left: 0;
   top: 0;
   `
-      : `z-index: 0; position: relative; height: 32px;`}
+      : `z-index: 0; position: relative;`}
   min-height: 32px;
+  height: auto;
   background-color: ${props =>
     props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
