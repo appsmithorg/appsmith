@@ -113,7 +113,8 @@ export const EditorWrapper = styled.div<{
   left: 0;
   top: 0;
   `
-      : `z-index: 0; position: relative;`}
+      : `z-index: 0; position: relative; height: 32px;`}
+  min-height: 32px;
   background-color: ${props =>
     props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
@@ -124,11 +125,8 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  min-height: 32px;
-
-  height: auto;
   && {
-     .binding-highlight {
+    .binding-highlight {
       color: ${props =>
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark
@@ -136,7 +134,7 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
     .datasource-highlight {
-      background-color: rgba(104,113,239,0.1);
+      background-color: rgba(104, 113, 239, 0.1);
       border: 1px solid rgba(104, 113, 239, 0.5);
       padding: 2px;
       border-radius: 2px;
@@ -173,7 +171,7 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-lines {
       background-color: ${props => props.disabled && "#eef2f5"};
-      cursor: ${props => (props.disabled ? "not-allowed" : "text")}
+      cursor: ${props => (props.disabled ? "not-allowed" : "text")};
     }
   }
   .bp3-popover-target {

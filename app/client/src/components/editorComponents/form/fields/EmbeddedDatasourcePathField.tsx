@@ -99,10 +99,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     }
     if ("id" in datasource && datasource.id) {
       const datasourceUrl = datasource.datasourceConfiguration.url;
-      return {
-        datasourceUrl,
-        path: value.replace(datasourceUrl, ""),
-      };
+      if (value.includes(datasourceUrl)) {
+        return {
+          datasourceUrl,
+          path: value.replace(datasourceUrl, ""),
+        };
+      }
     }
 
     let datasourceUrl = "";
