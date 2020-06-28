@@ -53,12 +53,6 @@ import { getQueryName } from "selectors/entitiesSelector";
 import { QueryAction, RestAction } from "entities/Action";
 import { updateAction } from "actions/actionActions";
 
-const getQueryDraft = (state: AppState, id: string) => {
-  const drafts = state.entities.actionDrafts;
-  if (id in drafts) return drafts[id];
-  return {};
-};
-
 const getActions = (state: AppState) =>
   state.entities.actions.map(a => a.config);
 
@@ -117,10 +111,8 @@ function* changeQuerySaga(
     return;
   }
 
-  const draft = yield select(getQueryDraft, id);
-  const data = _.isEmpty(draft) ? action : draft;
   const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
-  yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
+  yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   history.push(URL);
 }
 

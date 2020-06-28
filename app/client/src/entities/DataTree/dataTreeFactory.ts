@@ -8,8 +8,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
-import { Property, ActionConfig } from "entities/Action";
+import { Property } from "entities/Action";
 
 export type ActionDescription<T> = {
   type: string;
@@ -68,7 +67,6 @@ export type DataTree = {
 
 type DataTreeSeed = {
   actions: ActionDataState;
-  actionDrafts: ActionDraftsState;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
   pageList: PageListPayload;
@@ -77,7 +75,7 @@ type DataTreeSeed = {
 
 export class DataTreeFactory {
   static create(
-    { actions, actionDrafts, widgets, widgetsMeta, pageList }: DataTreeSeed,
+    { actions, widgets, widgetsMeta, pageList }: DataTreeSeed,
     // TODO(hetu)
     // temporary fix for not getting functions while normal evals which crashes the app
     // need to remove this after we get a proper solve
@@ -86,8 +84,7 @@ export class DataTreeFactory {
     const dataTree: DataTree = {};
     const actionPaths = [];
     actions.forEach(a => {
-      const config =
-        a.config.id in actionDrafts ? actionDrafts[a.config.id] : a.config;
+      const config = a.config;
       let dynamicBindingPathList: Property[] = [];
       // update paths
       if (

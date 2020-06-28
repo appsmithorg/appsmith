@@ -67,12 +67,6 @@ import { RestAction } from "entities/Action";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
-const getApiDraft = (state: AppState, id: string) => {
-  const drafts = state.entities.actionDrafts;
-  if (id in drafts) return drafts[id];
-  return {};
-};
-
 const getActionConfigs = (state: AppState): ActionData["config"][] =>
   state.entities.actions.map(a => a.config);
 
@@ -229,25 +223,20 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
   const action = yield select(getAction, id);
   if (!action) return;
-  const draft = yield select(getApiDraft, id);
-  let data;
 
-  if (_.isEmpty(draft)) {
-    data = action;
-  } else {
-    data = draft;
-  }
-
-  yield put(initialize(API_EDITOR_FORM_NAME, data));
+  yield put(initialize(API_EDITOR_FORM_NAME, action));
   history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
 
   yield call(initializeExtraFormDataSaga);
 
-  if (data.actionConfiguration && data.actionConfiguration.queryParameters) {
+  if (
+    action.actionConfiguration &&
+    action.actionConfiguration.queryParameters
+  ) {
     // Sync the api params my mocking a change action
     yield call(syncApiParamsSaga, {
       type: ReduxFormActionTypes.ARRAY_REMOVE,
-      payload: data.actionConfiguration.queryParameters,
+      payload: action.actionConfiguration.queryParameters,
       meta: {
         field: "actionConfiguration.queryParameters",
       },

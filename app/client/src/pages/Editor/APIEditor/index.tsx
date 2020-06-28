@@ -235,8 +235,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiName = getApiName(state, props.match.params.apiId);
 
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  const actionDrafts = state.entities.actionDrafts;
-  const allowSave = !!(apiAction && apiAction.id in actionDrafts);
+  const allowSave = true;
   const datasourceFieldText =
     state.ui.apiPane.datasourceFieldText[formData?.id ?? ""] || "";
 
