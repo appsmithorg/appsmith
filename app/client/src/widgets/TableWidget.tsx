@@ -10,18 +10,10 @@ import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
 } from "utils/ValidationFactory";
-// import { ColumnModel } from "@syncfusion/ej2-grids";
-// import { ColumnDirTypecast } from "@syncfusion/ej2-react-grids";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { Classes } from "@blueprintjs/core";
-
-// const TableComponent = React.lazy(() =>
-//   import(
-//     /* webpackPrefetch: true, webpackChunkName: "table" */ "components/designSystems/syncfusion/TableComponent"
-//   ),
-// );
 
 // const ROW_HEIGHT = 37;
 // const TABLE_HEADER_HEIGHT = 39;
