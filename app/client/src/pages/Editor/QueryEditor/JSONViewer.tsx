@@ -16,7 +16,7 @@ const Record = styled(Card)`
 `;
 
 type JSONOutputProps = {
-  src: [];
+  src: Record<string, any>[];
 };
 
 type Props = JSONOutputProps;
