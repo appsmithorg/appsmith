@@ -17,7 +17,6 @@ import { OrgUser, Organization } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
-import "@syncfusion/ej2-react-grids/styles/material.css";
 import { RouteComponentProps } from "react-router";
 import Spinner from "components/editorComponents/Spinner";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -102,6 +101,40 @@ export const OrgSettings = (props: PageProps) => {
     props.allUsers,
     props.allRole,
   ]);
+
+  const RoleNameCell = (cellProps: any) => {
+    const {
+      roleName,
+      roles,
+      username,
+      isCurrentUser,
+      isChangingRole,
+    } = cellProps.row.original;
+
+    if (isCurrentUser) {
+      return <div>{roleName}</div>;
+    }
+
+    return (
+      <Popover
+        content={
+          <Dropdown
+            activeItem={roleName}
+            userRoles={roles}
+            username={username}
+          />
+        }
+        position={Position.BOTTOM_LEFT}
+      >
+        <StyledDropDown>
+          {roleName}
+          <Icon icon="chevron-down" />
+          {isChangingRole ? <Spinner size={20} /> : undefined}
+        </StyledDropDown>
+      </Popover>
+    );
+  };
+
   const columns = React.useMemo(() => {
     return [
       {
@@ -115,38 +148,7 @@ export const OrgSettings = (props: PageProps) => {
       {
         Header: "Role",
         accessor: "roleName",
-        Cell: (cellProps: any) => {
-          const {
-            roleName,
-            roles,
-            username,
-            isCurrentUser,
-            isChangingRole,
-          } = cellProps.row.original;
-
-          if (isCurrentUser) {
-            return <div>{roleName}</div>;
-          }
-
-          return (
-            <Popover
-              content={
-                <Dropdown
-                  activeItem={roleName}
-                  userRoles={roles}
-                  username={username}
-                />
-              }
-              position={Position.BOTTOM_LEFT}
-            >
-              <StyledDropDown>
-                {roleName}
-                <Icon icon="chevron-down" />
-                {isChangingRole ? <Spinner size={20} /> : undefined}
-              </StyledDropDown>
-            </Popover>
-          );
-        },
+        Cell: RoleNameCell,
       },
       {
         Header: "Delete",

@@ -28,7 +28,6 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
-import "@syncfusion/ej2-react-grids/styles/material.css";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
 import Table from "./Table";
