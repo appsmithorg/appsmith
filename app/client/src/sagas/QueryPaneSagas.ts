@@ -27,12 +27,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { change, initialize } from "redux-form";
-import {
-  extractBindingsFromAction,
-  getAction,
-  getActionParams,
-  getActionTimeout,
-} from "./ActionSagas";
 import { AppState } from "reducers";
 import ActionAPI, {
   PaginationField,
@@ -49,8 +43,13 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GenericApiResponse } from "api/ApiResponses";
 import { validateResponse } from "./ErrorSagas";
-import { getQueryName } from "selectors/entitiesSelector";
+import { getAction, getQueryName } from "selectors/entitiesSelector";
 import { QueryAction, RestAction } from "entities/Action";
+import {
+  extractBindingsFromAction,
+  getActionParams,
+  getActionTimeout,
+} from "sagas/ActionExecutionSagas";
 import { updateAction } from "actions/actionActions";
 
 const getActions = (state: AppState) =>
@@ -215,7 +214,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-export function* executeQuerySaga(
+function* executeQuerySaga(
   actionPayload: ReduxAction<{
     action: QueryAction;
     actionId: string;
@@ -296,7 +295,7 @@ export function* executeQuerySaga(
   }
 }
 
-export function* deleteQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
+function* deleteQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     const id = actionPayload.payload.id;
     const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(

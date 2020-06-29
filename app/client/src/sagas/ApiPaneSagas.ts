@@ -46,7 +46,6 @@ import {
   getDataSources,
 } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
-import { getAction } from "./ActionSagas";
 import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
@@ -57,7 +56,7 @@ import {
 } from "constants/messages";
 import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getActions, getPlugins } from "selectors/entitiesSelector";
+import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { createActionRequest } from "actions/actionActions";
 import { Datasource } from "api/DatasourcesApi";

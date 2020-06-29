@@ -1,7 +1,7 @@
 import { AppState } from "reducers";
 import {
-  ActionDataState,
   ActionData,
+  ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -9,6 +9,8 @@ import { API_CONSTANT } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
 import { Page } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
+import { RestAction } from "entities/Action";
+import _ from "lodash";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -176,3 +178,28 @@ export const getActionResponses = createSelector(getActions, actions => {
 
   return responses;
 });
+export const getAction = (
+  state: AppState,
+  actionId: string,
+): RestAction | undefined => {
+  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  return action ? action.config : undefined;
+};
+
+export function getCurrentPageNameByActionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.actions.find(action => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getPageNameByPageId(state: AppState, pageId: string): string {
+  const page = state.entities.pageList.pages.find(
+    page => page.pageId === pageId,
+  );
+  return page ? page.pageName : "";
+}
