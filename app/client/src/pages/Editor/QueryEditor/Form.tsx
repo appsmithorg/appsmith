@@ -35,6 +35,7 @@ import Table from "./Table";
 import { RestAction } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -328,12 +329,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     <QueryFormContainer>
       <form onSubmit={handleSubmit}>
         <FormRow>
-          <TextField
-            name="name"
-            placeholder="Query"
-            className="queryInput"
-            refHandler={inputEl}
-          />
+          <ActionNameEditor />
           <DropdownSelect>
             <DropdownField
               placeholder="Datasource"
@@ -398,15 +394,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
                 onClick={onRunClick}
               />
             )}
-            <ActionButton
-              className="t--save-query"
-              text="Save"
-              accent="primary"
-              filled
-              onClick={onSaveClick}
-              loading={isSaving}
-              disabled={!allowSave}
-            />
           </ActionButtons>
         </FormRow>
         <div style={{ display: "flex", justifyContent: "space-between" }}>

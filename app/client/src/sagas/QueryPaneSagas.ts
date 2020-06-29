@@ -51,6 +51,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import { validateResponse } from "./ErrorSagas";
 import { getQueryName } from "selectors/entitiesSelector";
 import { QueryAction, RestAction } from "entities/Action";
+import { updateAction } from "actions/actionActions";
 
 const getQueryDraft = (state: AppState, id: string) => {
   const drafts = state.entities.actionDrafts;
@@ -123,7 +124,7 @@ function* changeQuerySaga(
   history.push(URL);
 }
 
-function* updateDraftsSaga() {
+function* saveQueryAction() {
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
   if (!values.id) return;
   const action = yield select(getAction, values.id);
@@ -137,6 +138,12 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_API_DRAFT,
       payload: { id: values.id, draft: values },
     });
+
+    yield put(
+      updateAction({
+        data: values,
+      }),
+    );
   }
 }
 
@@ -171,7 +178,7 @@ function* formValueChangeSaga(
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   yield all([
     call(updateDynamicBindingsSaga, actionPayload),
-    call(updateDraftsSaga),
+    call(saveQueryAction),
   ]);
 }
 
