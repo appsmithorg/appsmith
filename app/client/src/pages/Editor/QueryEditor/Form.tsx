@@ -6,11 +6,6 @@ import {
   FormSubmitHandler,
   formValueSelector,
 } from "redux-form";
-import {
-  GridComponent,
-  ColumnsDirective,
-  ColumnDirective,
-} from "@syncfusion/ej2-react-grids";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Popover, Icon } from "@blueprintjs/core";
@@ -36,6 +31,7 @@ import { PLUGIN_PACKAGE_POSTGRES } from "constants/QueryEditorConstants";
 import "@syncfusion/ej2-react-grids/styles/material.css";
 import { Colors } from "constants/Colors";
 import JSONViewer from "./JSONViewer";
+import Table from "./Table";
 import { RestAction } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -159,31 +155,6 @@ const TooltipStyles = createGlobalStyle`
  }
 `;
 
-const TableHeader = styled.div`
-  font-weight: 500;
-  font-size: 14px;
-  font-family: "DM Sans";
-  color: #2e3d49;
-`;
-
-const StyledGridComponent = styled(GridComponent)`
-  &&& {
-    .e-altrow {
-      background-color: #fafafa;
-    }
-    .e-active {
-      background: #cccccc;
-    }
-    .e-gridcontent {
-      max-height: calc(
-        100vh - (100vh / 3) - 175px - 49px -
-          ${props => props.theme.headerHeight}
-      );
-      overflow: auto;
-    }
-  }
-`;
-
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: ${Colors.RED};
@@ -241,7 +212,9 @@ type QueryFormProps = {
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
-  executedQueryData: any;
+  executedQueryData: {
+    body: Record<string, any>[];
+  };
   applicationId: string;
   selectedPluginPackage: string;
   runErrorMessage: string | undefined;
@@ -284,7 +257,9 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
 
   const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
   const isNewQuery = props.location.state?.newQuery ?? false;
-  let queryOutput = { body: [{ "": "", " ": "" }] };
+  let queryOutput: {
+    body: Record<string, any>[];
+  } = { body: [] };
   const inputEl = useRef<HTMLInputElement>();
 
   if (executedQueryData) {
@@ -520,33 +495,14 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
               ? "Query response"
               : "No data records to display"}
           </p>
-          <ResponseContent>
-            {isSQL ? (
-              <StyledGridComponent
-                gridLines="Vertical"
-                dataSource={queryOutput.body}
-              >
-                <ColumnsDirective>
-                  {Object.keys(queryOutput.body[0]).map((key: string) => {
-                    return (
-                      <ColumnDirective
-                        headerTemplate={(props: { headerText: any }) => {
-                          const { headerText } = props;
 
-                          return <TableHeader>{headerText}</TableHeader>;
-                        }}
-                        key={key}
-                        field={key}
-                        width="200"
-                      />
-                    );
-                  })}
-                </ColumnsDirective>
-              </StyledGridComponent>
-            ) : (
+          {isSQL ? (
+            <Table data={queryOutput.body} />
+          ) : (
+            <ResponseContent>
               <JSONViewer src={executedQueryData.body} />
-            )}
-          </ResponseContent>
+            </ResponseContent>
+          )}
         </ResponseContainer>
       )}
     </QueryFormContainer>
