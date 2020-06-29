@@ -9,7 +9,7 @@ import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
-import { Property } from "entities/Action";
+import { Property, ActionConfig } from "entities/Action";
 
 export type ActionDescription<T> = {
   type: string;
@@ -31,8 +31,10 @@ export type RunActionPayload = {
   onError: string;
 };
 
-export interface DataTreeAction extends Omit<ActionData, "data"> {
+export interface DataTreeAction extends Omit<ActionData, "data" | "config"> {
   data: ActionResponse["body"];
+  actionId: string;
+  config: Partial<ActionConfig>;
   run: ActionDispatcher<RunActionPayload, [string, string]> | {};
   dynamicBindingPathList: Property[];
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
@@ -99,7 +101,8 @@ export class DataTreeFactory {
       }
       dataTree[config.name] = {
         ...a,
-        config: config,
+        actionId: config.id,
+        config: config.actionConfiguration,
         dynamicBindingPathList,
         data: a.data ? a.data.body : {},
         run: withFunctions
@@ -107,7 +110,7 @@ export class DataTreeFactory {
               return {
                 type: "RUN_ACTION",
                 payload: {
-                  actionId: this.config.id,
+                  actionId: this.actionId,
                   onSuccess: onSuccess ? `{{${onSuccess.toString()}}}` : "",
                   onError: onError ? `{{${onError.toString()}}}` : "",
                 },
