@@ -219,6 +219,12 @@ export function* executeActionSaga(
     );
     if (isErrorResponse(response)) {
       const payload = createActionErrorResponse(response);
+      if (_.isNil(response.responseMeta.error)) {
+        AppToaster.show({
+          message: api.name + " execution failed",
+          type: "error",
+        });
+      }
       if (onError) {
         yield put(
           executeAction({
