@@ -177,19 +177,17 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
-  cy.wait("@postSave");
-  cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.wait("@postexe");
-  cy.get(apiwidget.EditApiName).should("be.visible");
-  cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .should("have.value", apiname);
-  //cy.WaitAutoSave();
+    .blur();
+  cy.WaitAutoSave();
+  cy.wait("@getActions");
+  cy.get(apiwidget.resourceUrl).should("be.visible");
+  cy.get(apiwidget.EditApiName).should("be.visible");
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
-  cy.wait(4000);
+  cy.wait(2000);
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", apiname => {
@@ -216,7 +214,7 @@ Cypress.Commands.add("EditApiName", apiname => {
 });
 
 Cypress.Commands.add("WaitAutoSave", () => {
-  cy.wait("@saveQuery");
+  cy.wait("@saveAction");
   //cy.wait("@postExecute");
 });
 
@@ -1163,7 +1161,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
-  cy.route("PUT", "/api/v1/actions/*").as("saveQuery");
+  cy.route("PUT", "/api/v1/actions/*").as("saveAction");
 });
 
 Cypress.Commands.add("alertValidate", text => {
