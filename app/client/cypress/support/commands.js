@@ -176,10 +176,12 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .first()
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
-  //cy.wait("@createNewApi");
-  //cy.wait("@getUser");
+  cy.wait("@createNewApi");
+  cy.wait("@postSave");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.xpath(apiwidget.EditApiName).click();
+  cy.wait("@postexe");
+  cy.get(apiwidget.EditApiName).should("be.visible");
+  cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -205,7 +207,7 @@ Cypress.Commands.add("CreateSubsequentAPI", apiname => {
 
 Cypress.Commands.add("EditApiName", apiname => {
   //cy.wait("@getUser");
-  cy.xpath(apiwidget.EditApiName).click();
+  cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -383,7 +385,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.xpath(apiwidget.EditApiName).click();
+  cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -1015,7 +1017,7 @@ Cypress.Commands.add("openPropertyPane", widgetType => {
     .wait(500);
   cy.get(`${selector}:first-of-type .t--widget-propertypane-toggle`)
     .first()
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("closePropertyPane", () => {
@@ -1026,10 +1028,12 @@ Cypress.Commands.add("createApi", (url, parameters) => {
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);
-    cy.get(ApiEditor.ApiNameField).should(
-      "have.value",
-      response.response.body.data.name,
-    );
+    cy.get(ApiEditor.ApiNameField)
+      .invoke("text")
+      .then(text => {
+        const someText = text;
+        expect(someText).to.equal(response.response.body.data.name);
+      });
   });
 
   cy.get(ApiEditor.dataSourceField).click();

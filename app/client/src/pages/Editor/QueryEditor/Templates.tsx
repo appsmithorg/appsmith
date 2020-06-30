@@ -9,44 +9,44 @@ const Templates: Record<string, any> = {
       insert: "users",
       documents: [
         {
-          name: "John Smith",
-          email: ["john@appsmith.com](mailto:%22john@appsmith.com)"],
-          gender: "M",
+          name: "{{Input1.text}}",
+          email: "{{Input2.text}}",
+          gender: "{{Dropdown2.selectedOptionValue}}",
         },
       ],
     },
     read: {
       find: "users",
-      filter: { id: { $gte: 10 } },
+      filter: { id: { $gte: "{{Input1.text}}" } },
       sort: { id: 1 },
       limit: 10,
     },
     delete: {
       delete: "users",
-      deletes: [{ q: { id: 10 } }],
+      deletes: [{ q: { id: "{{Table1.selectedRow.id}}" } }],
     },
     update: {
       update: "users",
       updates: [
         {
-          q: { id: 10 },
+          q: { id: "{{Table1.selectedRow.id}}" },
           u: {
-            name: "Updated Sam",
-            email: ["updates@appsmith.com](mailto:%22updates@appsmith.com)"],
+            name: "{{Input1.text}}",
+            email: "{{Input2.text}}",
           },
         },
       ],
     },
   },
   [PLUGIN_PACKAGE_POSTGRES]: {
-    create: `INSERT INTO users(
-id, name, gender, avatar, email, address, role)
-VALUES (?, ?, ?, ?, ?, ?, ?);`,
-    read: "SELECT * FROM users ORDER BY id LIMIT 10",
-    delete: `DELETE FROM users WHERE id=?`,
+    create: `INSERT INTO users(name, gender)
+VALUES ('{{Dropdown1.selectedOptionValue}}', '{{Input2.text}}');`,
+    read:
+      "SELECT * FROM users where name like '%{{Input1.text}}%' ORDER BY id LIMIT 10",
+    delete: `DELETE FROM users WHERE id={{Table1.selectedRow.id}}`,
     update: `UPDATE users
-Set status='APPROVED'
-WHERE id=1;`,
+Set status={{Dropdown1.selectedOptionValue}}
+WHERE id={{Table1.selectedRow.id}};`,
   },
 };
 

@@ -219,6 +219,12 @@ export function* executeActionSaga(
     );
     if (isErrorResponse(response)) {
       const payload = createActionErrorResponse(response);
+      if (_.isNil(response.responseMeta.error)) {
+        AppToaster.show({
+          message: api.name + " execution failed",
+          type: "error",
+        });
+      }
       if (onError) {
         yield put(
           executeAction({
@@ -471,11 +477,15 @@ export function* updateActionSaga(
 ) {
   try {
     const isApi = actionPayload.payload.data.pluginType === "API";
+    const isDB = actionPayload.payload.data.pluginType === "DB";
+
     const { data } = actionPayload.payload;
     let action = data;
 
     if (isApi) {
       action = transformRestAction(data);
+    }
+    if (isApi || isDB) {
       action = _.omit(action, "name") as RestAction;
     }
 

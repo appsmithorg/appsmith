@@ -18,7 +18,6 @@
     "@optimizely/optimizely-sdk": "^4.0.0",
     "@sentry/browser": "^5.6.3",
     "@sentry/webpack-plugin": "^1.10.0",
-    "@syncfusion/ej2-react-grids": "^17.4.40",
     "@tinymce/tinymce-react": "^3.5.0",
     "@types/chance": "^1.0.7",
     "@types/fontfaceobserver": "^0.0.6",

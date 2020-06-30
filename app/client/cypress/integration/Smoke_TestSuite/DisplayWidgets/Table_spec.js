@@ -29,7 +29,9 @@ describe("Table Widget Functionality", function() {
     //   cy.log("the value is" + tabValue);
     // });
     cy.pageNo();
+    /*
     cy.openPropertyPane("tablewidget");
+      */
     cy.get(widgetsPage.tableOnRowSelected)
       .get(commonlocators.dropdownSelectButton)
       .first()

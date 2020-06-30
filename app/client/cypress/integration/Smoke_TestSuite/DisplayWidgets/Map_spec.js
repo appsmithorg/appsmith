@@ -8,10 +8,8 @@ describe("Map Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  this.beforeEach(() => {
-    cy.openPropertyPane("mapwidget");
-  });
   it("Map Widget Functionality", function() {
+    cy.openPropertyPane("mapwidget");
     /**
      * @param{Text} Random Text
      * @param{MapWidget}Mouseover
@@ -45,6 +43,7 @@ describe("Map Widget Functionality", function() {
       .type(this.data.location2)
       .type("{enter}");
   });
+
   it("Map-Enable Location,Map search and Create Marker Property Validation", function() {
     /**
      * Enable the Search Location checkbox and Validate the same in editor mode
@@ -81,6 +80,7 @@ describe("Map Widget Functionality", function() {
   });
 
   it("Map-Disable Location, Mapsearch and Create Marker Property Validation", function() {
+    cy.openPropertyPane("mapwidget");
     /**
      * Disable the Search Location checkbox and Validate the same in editor mode
      */
@@ -110,6 +110,7 @@ describe("Map Widget Functionality", function() {
   });
 
   it("Map-Check Visible field Validation", function() {
+    cy.openPropertyPane("mapwidget");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -118,6 +119,7 @@ describe("Map Widget Functionality", function() {
   });
 
   it("Map-Unckeck Visible field Validation", function() {
+    cy.openPropertyPane("mapwidget");
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

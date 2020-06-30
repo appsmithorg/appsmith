@@ -10,7 +10,6 @@ describe("Test curl import flow", function() {
       "curl -X GET http://app.appsmith.com/scrap/api?slugifiedName=Freshdesk&ownerName=volodimir.kudriachenko",
     );
     cy.importCurl();
-    cy.xpath(apiwidget.EditApiName).should("be.visible");
     cy.get("@curlImport").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
