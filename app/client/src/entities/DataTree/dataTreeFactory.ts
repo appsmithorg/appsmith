@@ -8,7 +8,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { PageListPayload } from "constants/ReduxActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
-import { Property } from "entities/Action";
+import { ActionConfig, Property } from "entities/Action";
 
 export type ActionDescription<T> = {
   type: string;
