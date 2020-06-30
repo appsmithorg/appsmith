@@ -383,7 +383,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", apiname => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
