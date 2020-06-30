@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet" />    
+  <title>Appsmith</title>
+  <style>
+    #loader {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 4px;
+      background:#D36500;
+      transition: all ease-in 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="loader" style="width: 30vw;"></div>
+  <div id="root"></div>
+  <script type="text/javascript">
+    window.addEventListener("DOMContentLoaded", (event) => {
+      document.getElementById("loader").style.width = "50vw";
+    });
+    window.addEventListener("load", (event) => {
+      document.getElementById("loader").style.width = "100vw";
+      setTimeout(() => {
+        document.getElementById("loader").style.opacity = 0;
+      });
+    });
+    const registerPageServiceWorker = () => {
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/pageService.js").catch(error => {
+            console.log("Service Worker Registration failed: " + error);
+          });
+        });
+      }
+    };
+    registerPageServiceWorker();
+
+  </script>
+  <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>
+</body>
+
+</html>

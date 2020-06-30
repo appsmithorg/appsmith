@@ -1,0 +1,5 @@
+{
+	"src/**/*.tsx": ["npx eslint --fix", "npx prettier --write", "git add"],
+	"cypress/**/*.js": ["npx eslint --fix", "npx prettier --write", "git add"],
+	"src/**/*.ts": ["npx eslint --fix", "npx prettier --write", "git add"],
+}

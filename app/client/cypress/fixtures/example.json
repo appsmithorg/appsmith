@@ -1,0 +1,173 @@
+{
+  "country": "India",
+  "link": "www.google.com",
+  "command": "{command}{A}{del}",
+  "marker": [
+    {
+      "lat": -34.397,
+      "lng": 150.644,
+      "title": "Marker Test"
+    }
+  ],
+  "location2": "Australia",
+  "name": "containtest",
+  "colour": "Red",
+  "Hover": "mouseover",
+  "inputdata": "one",
+  "text": "Adi12",
+  "number": "2",
+  "default": "initial",
+  "radio1": "test1",
+  "radio2": "test2",
+  "radio3": "test3",
+  "radio4": "test4",
+  "textcheck": "checker",
+  "textverify": "input",
+  "alert": "hello",
+  "layoutId": "5e86eb6492fdf85af565096f",
+  "contains": "lock",
+  "input": [
+    {
+      "label": "Option 1",
+      "value": "1"
+    },
+    {
+      "label": "Option 2",
+      "value": "2"
+    },
+    {
+      "label": "Option 3",
+      "value": "3"
+    },
+    {
+      "label": "Option 4",
+      "value": "4"
+    },
+    {
+      "label": "Option 5",
+      "value": "5"
+    }
+  ],
+  "para": "This is to test the system data.",
+  "regex": "z{3}",
+  "chartInput": [
+    {
+      "x": "Mon",
+      "y": 10000
+    },
+    {
+      "x": "Tue",
+      "y": 12000
+    },
+    {
+      "x": "Wed",
+      "y": 32000
+    },
+    {
+      "x": "Thu",
+      "y": 36000
+    },
+    {
+      "x": "Fri",
+      "y": 30000
+    },
+    {
+      "x": "Sat",
+      "y": 31000
+    },
+    {
+      "x": "Sun",
+      "y": 42000
+    }
+  ],
+  "series": "Weekly",
+  "plan": "Weekly plan",
+  "ylabel": "total wages",
+  "placeholder": "check",
+  "chartIndata": "App Sign Up",
+  "dropdownInput": "TestD",
+  "radioInputName": "Test Radio",
+  "checkbocInputName": "value",
+  "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
+  "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "textfun": "{{Table1.selectedRow.userName}}",
+  "textfunID": "{{Table1.selectedRow.id}}",
+  "textfunemail": "{{Table1.selectedRow.email}}",
+  "name1": "Using fixtures to represent data",
+  "email": "hello@cypress.io",
+  "body": "Fixtures are a great way to mock data for responses to routes",
+  "ButtonLabel": "Test Button",
+  "ButtonName": "Submitbutton",
+  "AlertModalName": "Alert_Modal",
+  "FormModalName": "Form_Modal",
+  "TextLabelValue": "Test Text Label",
+  "TextName": "TestTextBox",
+  "TextLabel": "Label",
+  "TextBody": "Body",
+  "TextHeading": "Heading",
+  "Datepickername": "Datepicker",
+  "DatepickerLable": "date",
+  "RichTextEditorName": "RichtextEditor",
+  "HtmlText": "This is the initial<b>content </b> <h1> This is a Heading</h1> <p> This is a paragraph.</p>",
+  "RichTexteditorBody": "Here is the text area to edit html",
+  "userApi": "http://postgrest.appsmith.com:3000",
+  "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "defaultdata":"TestData",
+  "label":"one",
+  "rgbValue":"rgb(255, 0, 0)",
+  "tabName":"Aditya",
+  "TableInput":[
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    },
+    {
+      "id": 6788734,
+      "email": "tobias.funke@reqres.in",
+      "userName": "Tobias Funke",
+      "productName": "Beef steak",
+      "orderAmount": 19.99
+    },
+    {
+      "id": 7434532,
+      "email": "byron.fields@reqres.in",
+      "userName": "Byron Fields",
+      "productName": "Chicken Sandwich",
+      "orderAmount": 4.99
+    },
+    {
+      "id": 7434532,
+      "email": "ryan.holmes@reqres.in",
+      "userName": "Ryan Holmes",
+      "productName": "Avocado Panini",
+      "orderAmount": 7.99
+    }
+  ],
+  "chartInputValidate": [
+    {
+      "x": "Test1",
+      "y": 5400
+    },
+    {
+      "x": "Test2",
+      "y": 10000
+    },
+    {
+      "x": "Test3",
+      "y": 1000
+    }
+  ],
+  "Chartval":["Test1", "Test2", "Test3"],
+  "paginationUrl":"https://pokeapi.co/api/v2/",
+  "paginationParam":"pokemon?offset={{(Table1.pageNo - 1) * Table1.pageSize }}"
+}
