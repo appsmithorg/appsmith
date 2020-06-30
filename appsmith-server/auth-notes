@@ -1,0 +1,5 @@
+ReactiveAuthenticationManager - default: OAuth2AuthorizationCodeReactiveAuthenticationManager
+AuthenticationWebFilter - #authenticate function is called after you select the google account on the UI.
+OAuth2LoginAuthenticationWebFilter (extends AuthenticationWebFilter) : onAuthenticationSuccess called after the login with Google is a success
+
+ClientUserRepository : This is a custom Appsmith class that saves the AuthorizedClient object in-memory 
