@@ -426,7 +426,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         ) : isSQL ? (
           <Field
             name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
+            dataTreePath={`${props.actionName}.config.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="sql-js"
@@ -435,7 +435,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         ) : (
           <Field
             name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
+            dataTreePath={`${props.actionName}.config.body`}
             component={DynamicAutocompleteInput}
             className="textAreaStyles"
             mode="js-js"
