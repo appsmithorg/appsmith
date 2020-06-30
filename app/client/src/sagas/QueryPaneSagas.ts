@@ -150,7 +150,7 @@ function* saveQueryAction() {
 function* updateDynamicBindingsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
-  const field = actionPayload.meta.field;
+  const field = actionPayload.meta.field.replace("actionConfiguration.", "");
   if (field === "dynamicBindingPathList") return;
   const value = actionPayload.payload;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
