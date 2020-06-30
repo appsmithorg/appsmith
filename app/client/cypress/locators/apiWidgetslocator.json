@@ -33,6 +33,6 @@
   "panigationPrevUrl": ".t--apiFormPaginationPrev div>textarea",
   "TestNextUrl": ".t--apiFormPaginationNextTest",
   "TestPreUrl": ".t--apiFormPaginationPrevTest",
-  "EditApiName": "//img[contains(@class,'EditableText')]",
+  "EditApiName": "img[alt='Edit pen']",
   "ApiName": ".t--action-name-edit-field span"
 }
