@@ -438,7 +438,11 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(API_EDITOR_FORM_NAME, _.omit(data, "name")));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+    history.push(
+      API_EDITOR_ID_URL(applicationId, pageId, id, {
+        new: "true",
+      }),
+    );
   }
 }
 
