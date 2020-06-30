@@ -61,6 +61,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
       onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
       onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      searchValue: VALIDATION_TYPES.TEXT,
     };
   }
   static getDerivedPropertiesMap() {
@@ -74,6 +75,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
+      searchValue: "",
     };
   }
 
@@ -81,6 +83,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       onRowSelected: true,
       onPageChange: true,
+      onSearch: true,
     };
   }
 
@@ -312,7 +315,7 @@ export interface TableWidgetProps extends WidgetProps {
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
-  onSearch?: string;
+  onSearch: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;

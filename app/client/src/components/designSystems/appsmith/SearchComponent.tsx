@@ -21,19 +21,22 @@ const SearchInputWrapper = styled(InputGroup)`
 `;
 
 const SearchComponent = (props: SearchProps) => {
+  const [value, setValue] = React.useState(props.value);
   const handleSearch = (
     event:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
-    props.onSearch(event.target.value);
+    const search = event.target.value;
+    setValue(search);
+    props.onSearch(search);
   };
   return (
     <SearchInputWrapper
       leftIcon="search"
       onChange={handleSearch}
       placeholder={props.placeholder}
-      value={props.value}
+      value={value}
     />
   );
 };
