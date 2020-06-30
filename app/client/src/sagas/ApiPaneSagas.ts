@@ -213,8 +213,11 @@ function* initializeExtraFormDataSaga() {
   }
 }
 
-function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
+function* changeApiSaga(
+  actionPayload: ReduxAction<{ id: string; newApi?: boolean }>,
+) {
   const { id } = actionPayload.payload;
+  const { newApi } = actionPayload.payload;
   // Typescript says Element does not have blur function but it does;
   document.activeElement &&
     "blur" in document.activeElement &&
@@ -239,7 +242,14 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 
   yield put(initialize(API_EDITOR_FORM_NAME, data));
-  history.push(API_EDITOR_ID_URL(applicationId, pageId, id));
+  history.push(
+    API_EDITOR_ID_URL(
+      applicationId,
+      pageId,
+      id,
+      newApi ? { new: "true" } : undefined,
+    ),
+  );
 
   yield call(initializeExtraFormDataSaga);
 
