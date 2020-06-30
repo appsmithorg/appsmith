@@ -237,6 +237,8 @@ export const ReduxActionTypes: { [key: string]: string } = {
   SAVE_API_NAME: "SAVE_API_NAME",
   SAVE_API_NAME_SUCCESS: "SAVE_API_NAME_SUCCESS",
   UPDATE_API_NAME_DRAFT: "UPDATE_API_NAME_DRAFT",
+  SET_ACTION_PROPERTY: "SET_ACTION_PROPERTY",
+  UPDATE_ACTION_PROPERTY: "UPDATE_ACTION_PROPERTY",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

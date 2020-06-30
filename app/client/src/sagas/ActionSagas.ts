@@ -11,7 +11,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
@@ -27,16 +27,21 @@ import {
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
+  SetActionPropertyPayload,
+  updateActionProperty,
   updateActionSuccess,
 } from "actions/actionActions";
-import { removeBindingsFromObject } from "utils/DynamicBindingUtils";
+import {
+  isDynamicValue,
+  removeBindingsFromObject,
+} from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { RestAction } from "entities/Action";
+import { Action, RestAction } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
@@ -209,11 +214,7 @@ function* moveActionSaga(
     name: string;
   }>,
 ) {
-  const drafts = yield select(state => state.ui.apiPane.drafts);
-  const dirty = action.payload.id in drafts;
-  const actionObject: RestAction = dirty
-    ? drafts[action.payload.id]
-    : yield select(getAction, action.payload.id);
+  const actionObject: RestAction = yield select(getAction, action.payload.id);
   const withoutBindings = removeBindingsFromObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
@@ -255,11 +256,7 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const drafts = yield select(state => state.ui.apiPane.drafts);
-  const dirty = action.payload.id in drafts;
-  let actionObject = dirty
-    ? drafts[action.payload.id]
-    : yield select(getAction, action.payload.id);
+  let actionObject: RestAction = yield select(getAction, action.payload.id);
   if (action.payload.destinationPageId !== actionObject.pageId) {
     actionObject = removeBindingsFromObject(actionObject);
   }
@@ -368,8 +365,52 @@ function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
   }
 }
 
+function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: string,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  const isDynamic = isDynamicValue(value);
+  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
+  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+  if (!isDynamic && fieldExists) {
+    dynamicBindings = dynamicBindings.filter(d => d.key !== bindingField);
+  }
+  if (isDynamic && !fieldExists) {
+    dynamicBindings.push({ key: bindingField });
+  }
+  if (dynamicBindings !== action.dynamicBindingPathList) {
+    return dynamicBindings;
+  }
+  return action.dynamicBindingPathList;
+}
+
+function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
+  const { actionId, value, propertyName } = action.payload;
+  if (!actionId) return;
+  const actionObj = yield select(getAction, actionId);
+  const effects: Record<string, any> = {};
+  // Value change effect
+  effects[propertyName] = value;
+  // Bindings change effect
+  effects.dynamicBindingPathList = getDynamicBindingsChangesSaga(
+    actionObj,
+    value,
+    propertyName,
+  );
+  console.log({ effects });
+  yield all(
+    Object.keys(effects).map(field =>
+      put(updateActionProperty({ id: actionId, field, value: effects[field] })),
+    ),
+  );
+}
+
 export function* watchActionSagas() {
   yield all([
+    takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),

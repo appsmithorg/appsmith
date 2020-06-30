@@ -8,6 +8,7 @@ import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/ActionConstants";
 import _ from "lodash";
 import { RapidApiAction, RestAction } from "entities/Action";
+import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 export interface ActionData {
   isLoading: boolean;
   config: RestAction | RapidApiAction;
@@ -78,13 +79,23 @@ const actionsReducer = createReducer(initialState, {
         a.config.name !== action.payload.name &&
         a.config.id !== action.payload.name,
     ),
-  [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
+  // [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
+  //   state: ActionDataState,
+  //   action: ReduxAction<{ data: RestAction }>,
+  // ): ActionDataState =>
+  //   state.map(a => {
+  //     if (a.config.id === action.payload.data.id)
+  //       return { ...a, config: action.payload.data };
+  //     return a;
+  //   }),
+  [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
     state: ActionDataState,
-    action: ReduxAction<{ data: RestAction }>,
-  ): ActionDataState =>
+    action: ReduxAction<UpdateActionPropertyActionPayload>,
+  ) =>
     state.map(a => {
-      if (a.config.id === action.payload.data.id)
-        return { ...a, config: action.payload.data };
+      if (a.config.id === action.payload.id) {
+        return _.set(a, `config.${action.payload.field}`, action.payload.value);
+      }
       return a;
     }),
   [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (

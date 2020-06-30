@@ -58,12 +58,11 @@ import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest, setActionProperty } from "actions/actionActions";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const getActionConfigs = (state: AppState): ActionData["config"][] =>
@@ -377,44 +376,31 @@ function* updateFormFields(
   }
 }
 
-function* updateDynamicBindingsSaga(
-  actionPayload: ReduxActionWithMeta<string, { field: string }>,
-) {
-  const field = actionPayload.meta.field.replace("actionConfiguration.", "");
-  const value = actionPayload.payload;
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  if (!values.id) return;
-
-  const isDynamic = isDynamicValue(value);
-  let dynamicBindings: Property[] = values.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: field });
-
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter(d => d.key !== field);
-  }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: field });
-  }
-  if (dynamicBindings !== values.dynamicBindingPathList) {
-    yield put(
-      change(API_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
-    );
-  }
-}
-
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { form, field } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
   if (field === "dynamicBindingPathList") return;
-  yield all([
-    call(updateDynamicBindingsSaga, actionPayload),
-    call(validateInputSaga),
-    call(updateDraftsSaga),
-    call(syncApiParamsSaga, actionPayload),
-    call(updateFormFields, actionPayload),
-  ]);
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  if (!values.id) return;
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: field,
+      value: actionPayload.payload,
+    }),
+  );
+  // yield all([
+  //   put(
+  //
+  //   ),
+  //   call(updateDynamicBindingsSaga, actionPayload),
+  //   call(validateInputSaga),
+  //   call(updateDraftsSaga),
+  //   call(syncApiParamsSaga, actionPayload),
+  //   call(updateFormFields, actionPayload),
+  // ]);
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
