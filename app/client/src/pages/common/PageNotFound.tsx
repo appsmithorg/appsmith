@@ -1,45 +1,57 @@
 import React from "react";
-import styled from "styled-components";
-import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core";
 import { RouterProps } from "react-router";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import Button from "components/editorComponents/Button";
+import PageUnavailableImage from "assets/images/404-image.png";
+import PageHeader from "pages/common/PageHeader";
 
-const NotFoundPageWrapper = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-const Title = styled.div`
-  font-size: ${props => props.theme.fontSizes[10]}px;
+const Wrapper = styled.div`
   text-align: center;
+  margin-top: 5%;
+  .boldText {
+    font-weight: 800;
+    font-size: 24px;
+  }
+  .pageUnavailableImg {
+    width: 35%;
+  }
+  .buttonPosition {
+    margin: auto;
+  }
 `;
+
 class PageNotFound extends React.PureComponent<RouterProps> {
   public render() {
     return (
-      <NotFoundPageWrapper>
-        <Card elevation={Elevation.TWO}>
-          <Title>
-            <span role="img" aria-label="Page Not Found">
-              🙊
-            </span>
-          </Title>
-          <NonIdealState
-            description={
-              "We didn't mean for you to reach this page. Let's find your way back to building awesome applications."
-            }
-            action={
+      <>
+        <PageHeader />
+        <Wrapper>
+          <img
+            src={PageUnavailableImage}
+            alt="Page Unavailable"
+            className="pageUnavailableImg"
+          ></img>
+          <div>
+            <p className="boldText">Page not found</p>
+            <p>
+              Either this page doesn't exist, or you don't have access to <br />
+              this page.
+            </p>
+            <Link to="/">
               <Button
-                onClick={() => {
-                  this.props.history.push("/");
-                }}
-              >
-                {"Home"}
-              </Button>
-            }
-          />
-        </Card>
-      </NotFoundPageWrapper>
+                filled
+                text="Go back to homepage"
+                intent="primary"
+                icon="arrow-right"
+                iconAlignment="right"
+                size="small"
+                className="buttonPosition"
+              />
+            </Link>
+          </div>
+        </Wrapper>
+      </>
     );
   }
 }
