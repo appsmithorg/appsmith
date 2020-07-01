@@ -11,6 +11,7 @@ import {
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import TableDataDownload from "components/designSystems/appsmith/TableDataDownload";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
@@ -58,6 +59,7 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  tableData: object[];
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
@@ -65,6 +67,7 @@ interface TableHeaderProps {
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   searchValue: string;
+  widgetId: string;
   searchTableData: (searchValue: any) => void;
   serverSidePaginationEnabled: boolean;
 }
@@ -83,6 +86,7 @@ const TableHeader = (props: TableHeaderProps) => {
           hiddenColumns={props.hiddenColumns}
           updateHiddenColumns={props.updateHiddenColumns}
         />
+        <TableDataDownload data={props.tableData} widgetId={props.widgetId} />
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>

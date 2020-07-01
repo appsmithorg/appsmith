@@ -107,6 +107,7 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        tableData={props.data}
         searchTableData={props.searchTableData}
         searchValue={props.searchValue}
         updatePageNo={props.updatePageNo}
@@ -116,6 +117,7 @@ export const Table = (props: TableProps) => {
         pageCount={pageCount}
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
+        widgetId={props.widgetId}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";
