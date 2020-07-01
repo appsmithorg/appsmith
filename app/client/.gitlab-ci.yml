@@ -1,0 +1,193 @@
+.only-default: &only-default
+  only:
+    - release
+    - master
+    - merge_requests
+
+.set_env_variables: &set_env_variables
+  - |
+    if [ "$CI_COMMIT_BRANCH" == "master" ]; then
+      REACT_APP_ENVIRONMENT="PRODUCTION"
+      REACT_APP_BASE_URL="https://api.appsmith.com"
+    elif [ "$CI_COMMIT_BRANCH" == "release" ]; then
+      REACT_APP_ENVIRONMENT="STAGING"
+      REACT_APP_BASE_URL="https://release-api.appsmith.com"
+    else
+      REACT_APP_ENVIRONMENT="DEVELOPMENT"
+      REACT_APP_BASE_URL="https://release-api.appsmith.com"
+    fi
+
+.set_automation_env: &set_automation_env
+  - |
+    REACT_APP_ENVIRONMENT="AUTOMATION"
+    REACT_APP_BASE_URL="https://release-api.appsmith.com"
+
+
+# This image contains Nginx & Cypress binaries
+image: appsmith/cypress-nginx
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
+  DOCKER_DRIVER: overlay
+  DOCKER_IMAGE_NAME: $CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm
+    - cache/Cypress
+    - node_modules
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+react-build-release:
+  image: tarampampam/node:10.16-alpine
+  stage: build
+  script:
+    - *set_env_variables
+    - echo $REACT_APP_ENVIRONMENT
+    - yarn install
+    - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build/
+  only:
+    - release
+    - feature/acl
+
+react-build-automation:
+  image: tarampampam/node:10.16-alpine
+  stage: build
+  script:
+    - *set_automation_env
+    - echo $REACT_APP_ENVIRONMENT
+    - yarn install
+    - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT REACT_APP_BASE_URL=$REACT_APP_BASE_URL GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
+    # Copying the build folder so that it doesn't conflict with build images created for docker packaging
+    - mv build/ build-automation/
+  artifacts:
+    expire_in: 6 hours
+    paths:
+      - build-automation/
+  only:
+    - release
+    - merge_requests
+  
+unit_test:
+  image: tarampampam/node:10.16-alpine
+  stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
+  script:
+    - *set_automation_env
+    - yarn run test:unit
+  only:
+    - release
+    - merge_requests
+  except:
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
+
+# all jobs that actually run tests can use the same definition
+cypress-test:
+  image: appsmith/cypress-nginx
+  stage: test
+  # Start running this job only when the build-automation job is complete
+  needs: ["react-build-automation"]
+  # Run 6 machines in parallel for this job
+  parallel: 6
+  script:
+    - *set_automation_env
+    # show where the Cypress test runner binaries are cached
+    - $(npm bin)/cypress cache path
+    # show all installed versions of Cypress binary
+    - $(npm bin)/cypress cache list
+    - $(npm bin)/cypress verify    
+    # This is required in order to ensure that all the test cases pass
+    - echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
+    - serve -s build-automation -p 3000 &
+    - mkdir -p /var/www/appsmith /etc/certificate
+    - cp ./docker/nginx-linux.conf /etc/nginx/conf.d/app.conf
+    - cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
+    - cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
+    - nginx
+    # This command configures the cypress suite to point to our custom installation of sorry-cypress that will help us parallelize our tests
+    - |
+      DEBUG=cypress:* $(npm bin)/cypress version
+      sed -i -e 's|api_url:.*$|api_url: "https://appsmith-cypress.herokuapp.com/"|g' /builds/theappsmith/internal-tools-client/cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
+    - BUILD_ID=$CI_COMMIT_SHORT_SHA yarn test:ci
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - cypress/screenshots
+      - cypress/videos
+  only:
+    # We don't test on master right now because of changing environment variables for REACT_APP_BASE_URL. Need to figure out a way to configure that.
+    - release
+    - merge_requests
+  except:
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "feature/acl"
+
+docker-package-release:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - *set_env_variables
+    - docker build -t appsmith/appsmith-editor:release .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:release
+  only:
+    - release
+
+react-build-prod:
+  image: tarampampam/node:10.16-alpine
+  stage: build
+  script:
+    - *set_env_variables
+    - yarn install
+    - REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT GIT_SHA=$CI_COMMIT_SHORT_SHA yarn build
+  artifacts:
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - build/
+  only:
+    - master
+
+docker-package-prod:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - *set_env_variables
+    - docker build -t appsmith/appsmith-editor:latest .
+    - docker build -t appsmith/appsmith-editor:$CI_COMMIT_SHORT_SHA .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    # If we don't add the tag to the `docker push` command, all the tags for this image will be pushed
+    - docker push appsmith/appsmith-editor
+  only:
+    - master
+
+docker-package-acl:
+  image: docker:dind
+  services:
+    - docker:dind
+  stage: package
+  script:
+    - *set_env_variables
+    - docker build -t appsmith/appsmith-editor:acl .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_ACCESS_TOKEN
+    - docker push appsmith/appsmith-editor:acl
+  only:
+    - feature/acl

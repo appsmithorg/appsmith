@@ -1,0 +1,16 @@
+{
+  "baseUrl": "https://dev.appsmith.com/",
+  "defaultCommandTimeout": 20000,
+  "requestTimeout": 21000,
+  "pageLoadTimeout": 20000,
+  "video": false,
+  "reporter": "mochawesome",
+  "reporterOptions": {
+    "reportDir": "results",
+    "overwrite": false,
+    "html": true,
+    "json": false
+  },
+  "viewportHeight": 900,
+  "viewportWidth": 1400
+}

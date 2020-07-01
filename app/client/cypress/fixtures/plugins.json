@@ -1,0 +1,4 @@
+{
+    "postgresPackageName": "postgres-plugin",
+    "mongoPackageName": "mongo-plugin"
+}

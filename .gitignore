@@ -1,14 +1,4 @@
 .DS_Store
-dist/**
-target/**
-.idea/**
-**/.idea
-**/target
-**/dist
+.idea
 *.iml
-node_modules
-.settings/**
-**/.settings
-**/.classpath
-**/.project
-**/.factorypath
+

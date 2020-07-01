@@ -1,0 +1,9 @@
+{
+    "tabWidget": ".t--draggable-tabswidget",
+    "tabInput": ".t--draggable-tabswidget span.t--widget-name",
+    "tabName": ".t--property-control-tabs  input",
+    "tabDefault": ".t--property-control-defaulttab .CodeMirror-code",
+    "tabButton": ".t--property-control-tabs  button",
+    "tabDelete": ".t--property-control-tabs  mask",
+    "tabContainer": "div[type='TABS_WIDGET']"
+}

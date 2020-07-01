@@ -1,0 +1,15 @@
+{
+    "CreateApp":"span[class='bp3-button-text']",
+    "searchInput": "input[type='text']",
+    "appEditIcon": ".t--application-edit-link",
+    "publishButton":".t--application-publish-btn",
+    "publishCrossButton":"span[icon='small-cross']",
+    "homePageID":"//div[@id='root']",
+    "appMoreIcon":".bp3-popover-wrapper.more .bp3-popover-target",
+    "deleteButton":".bp3-menu-item.bp3-popover-dismiss",
+    "selectAction":"#Base",
+    "deleteApp":".bp3-menu-item",
+    "homeIcon": ".bp3-icon-home",
+    "inputAppName": "input[name=applicationName]",
+    "createNew": ".createnew"
+}
