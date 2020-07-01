@@ -46,12 +46,11 @@ Appsmith provides a better way of building internal tools by visualising them as
 * **Fine-grained access control**: Control who can edit / view your applications from a single control panel
 * **App management**: Build and organise multiple applications on a single platform
 
-Read more at [appsmith.com](https://appsmtih.com) and the [docs](https://docs.appsmith.com).
-
-## Support
+## Documentation & Support
 
 If you have encountered a bug or need to get in touch with us, you can contact us using one of the following channels:
 
+* Documentation: [Documentation](https://docs.appsmith.com)
 * Support & feedback: [Discord](https://discord.gg/rBTTVJp)
 * Issue & bug tracking: [GitHub issues](https://github.com/getappsmith/appsmith/issues)
 
