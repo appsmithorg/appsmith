@@ -76,9 +76,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  searchTableData = (tableData: object[]) => {
+    const searchValue =
+      this.props.searchValue !== undefined
+        ? this.props.searchValue.toString()
+        : "";
+    return tableData.filter((item: object) => {
+      return Object.values(item)
+        .join(", ")
+        .includes(searchValue);
+    });
+  };
+
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
     // const columns = constructColumns(tableData, hiddenColumns);
+    const filteredTableData = this.searchTableData(tableData);
 
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
@@ -109,57 +122,58 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // /*
     return (
       <Suspense fallback={<Skeleton />}>
-        <div className={this.props.isLoading ? Classes.SKELETON : ""}>
-          <ReactTableComponent
-            height={componentHeight}
-            width={componentWidth}
-            tableData={tableData}
-            widgetId={this.props.widgetId}
-            renderMode={this.props.renderMode}
-            hiddenColumns={hiddenColumns}
-            columnActions={this.props.columnActions}
-            columnNameMap={this.props.columnNameMap}
-            columnTypeMap={this.props.columnTypeMap}
-            columnOrder={this.props.columnOrder}
-            pageSize={pageSize}
-            onCommandClick={this.onCommandClick}
-            selectedRowIndex={
-              this.props.selectedRowIndex === undefined
-                ? -1
-                : this.props.selectedRowIndex
-            }
-            serverSidePaginationEnabled={serverSidePaginationEnabled}
-            onRowClick={this.handleRowClick}
-            pageNo={pageNo}
-            nextPageClick={this.handleNextPageClick}
-            prevPageClick={this.handlePrevPageClick}
-            updatePageNo={(pageNo: number) => {
-              super.updateWidgetMetaProperty("pageNo", pageNo);
-            }}
-            updateHiddenColumns={(hiddenColumns?: string[]) => {
-              super.updateWidgetProperty("hiddenColumns", hiddenColumns);
-            }}
-            updateColumnType={(columnTypeMap: {
-              [key: string]: { type: string; format: string };
-            }) => {
-              super.updateWidgetProperty("columnTypeMap", columnTypeMap);
-            }}
-            updateColumnName={(columnNameMap: { [key: string]: string }) => {
-              super.updateWidgetProperty("columnNameMap", columnNameMap);
-            }}
-            handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-              super.updateWidgetProperty("columnSizeMap", columnSizeMap);
-            }}
-            handleReorderColumn={(columnOrder: string[]) => {
-              super.updateWidgetProperty("columnOrder", columnOrder);
-            }}
-            columnSizeMap={this.props.columnSizeMap}
-            resetSelectedRowIndex={this.resetSelectedRowIndex}
-            disableDrag={(disable: boolean) => {
-              this.disableDrag(disable);
-            }}
-          />
-        </div>
+        <ReactTableComponent
+          height={componentHeight}
+          width={componentWidth}
+          tableData={filteredTableData}
+          isLoading={this.props.isLoading}
+          widgetId={this.props.widgetId}
+          searchValue={this.props.searchValue}
+          renderMode={this.props.renderMode}
+          hiddenColumns={hiddenColumns}
+          columnActions={this.props.columnActions}
+          columnNameMap={this.props.columnNameMap}
+          columnTypeMap={this.props.columnTypeMap}
+          columnOrder={this.props.columnOrder}
+          pageSize={pageSize}
+          onCommandClick={this.onCommandClick}
+          selectedRowIndex={
+            this.props.selectedRowIndex === undefined
+              ? -1
+              : this.props.selectedRowIndex
+          }
+          serverSidePaginationEnabled={serverSidePaginationEnabled}
+          onRowClick={this.handleRowClick}
+          pageNo={pageNo}
+          nextPageClick={this.handleNextPageClick}
+          prevPageClick={this.handlePrevPageClick}
+          updatePageNo={(pageNo: number) => {
+            super.updateWidgetMetaProperty("pageNo", pageNo);
+          }}
+          updateHiddenColumns={(hiddenColumns?: string[]) => {
+            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+          }}
+          updateColumnType={(columnTypeMap: {
+            [key: string]: { type: string; format: string };
+          }) => {
+            super.updateWidgetProperty("columnTypeMap", columnTypeMap);
+          }}
+          updateColumnName={(columnNameMap: { [key: string]: string }) => {
+            super.updateWidgetProperty("columnNameMap", columnNameMap);
+          }}
+          handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
+            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+          }}
+          handleReorderColumn={(columnOrder: string[]) => {
+            super.updateWidgetProperty("columnOrder", columnOrder);
+          }}
+          columnSizeMap={this.props.columnSizeMap}
+          resetSelectedRowIndex={this.resetSelectedRowIndex}
+          disableDrag={(disable: boolean) => {
+            this.disableDrag(disable);
+          }}
+          searchTableData={this.handleSearchTable}
+        />
       </Suspense>
     );
     // */
@@ -200,6 +214,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
     */
   }
+
+  handleSearchTable = (searchValue: any) => {
+    const { onSearch } = this.props;
+    super.updateWidgetMetaProperty("searchValue", searchValue);
+    if (onSearch) {
+      super.executeAction({
+        dynamicString: onSearch,
+        event: {
+          type: EventType.ON_SEARCH,
+        },
+      });
+    }
+  };
 
   updateHiddenColumns = (hiddenColumns?: string[]) => {
     super.updateWidgetProperty("hiddenColumns", hiddenColumns);
@@ -272,10 +299,12 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
+  searchValue: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
+  onSearch?: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;
