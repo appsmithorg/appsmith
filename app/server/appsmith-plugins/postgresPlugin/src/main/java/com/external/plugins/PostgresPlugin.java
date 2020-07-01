@@ -26,6 +26,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,17 +85,37 @@ public class PostgresPlugin extends BasePlugin {
                     resultSet = statement.getResultSet();
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     int colCount = metaData.getColumnCount();
+
                     while (resultSet.next()) {
                         Map<String, Object> row = new HashMap<>(colCount);
+
                         for (int i = 1; i <= colCount; i++) {
                             Object value;
+
                             if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(metaData.getColumnTypeName(i))) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+
+                            } else if ("timestamp".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                                value = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(
+                                        Instant.ofEpochMilli(resultSet.getDate(i).getTime()).atOffset(ZoneOffset.UTC).toLocalDateTime()
+                                );
+
+                            } else if ("timestamptz".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                                value = DateTimeFormatter.ISO_INSTANT.format(resultSet.getDate(i).toInstant());
+
+                            } else if ("time".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                                value = DateTimeFormatter.ISO_LOCAL_TIME.format(
+                                        Instant.ofEpochMilli(resultSet.getTime(i).getTime()).atOffset(ZoneOffset.UTC).toLocalDateTime()
+                                );
+
                             } else {
                                 value = resultSet.getObject(i);
+
                             }
+
                             row.put(metaData.getColumnName(i), value);
                         }
+
                         rowsList.add(row);
                     }
 

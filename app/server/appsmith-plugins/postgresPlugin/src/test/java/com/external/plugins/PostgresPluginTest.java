@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -67,6 +68,10 @@ public class PostgresPluginTest {
         )) {
 
             try (Statement statement = connection.createStatement()) {
+                statement.execute("SET TIME ZONE 'UTC'");
+            }
+
+            try (Statement statement = connection.createStatement()) {
                 statement.execute("DROP TABLE IF EXISTS users");
             }
 
@@ -77,18 +82,19 @@ public class PostgresPluginTest {
                         "    password VARCHAR (50) NOT NULL,\n" +
                         "    email VARCHAR (355) UNIQUE NOT NULL,\n" +
                         "    dob DATE NOT NULL,\n" +
+                        "    time1 TIME NOT NULL,\n" +
                         "    created_on TIMESTAMP NOT NULL\n" +
                         ")");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO users VALUES (1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31', now())");
+                        "INSERT INTO users VALUES (1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31', '18:30:45', '2018-11-30 23:59:59')");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO users VALUES (2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31', now())");
+                        "INSERT INTO users VALUES (2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31', '15:45:30', '2019-11-30 23:59:59')");
             }
 
         } catch (SQLException throwables) {
@@ -141,10 +147,15 @@ public class PostgresPluginTest {
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
+
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    assertEquals(((ArrayNode) result.getBody()).get(0).get("dob").asText(), "2018-12-31");
+
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals("2018-12-31", node.get("dob").asText());
+                    assertEquals("18:30:45", node.get("time1").asText());
+                    assertEquals("2018-11-30T23:59:59Z", node.get("created_on").asText());
                 })
                 .verifyComplete();
     }
