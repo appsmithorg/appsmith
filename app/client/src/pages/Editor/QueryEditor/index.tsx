@@ -122,7 +122,7 @@ class QueryEditor extends React.Component<Props> {
       value: dataSource.id,
       image: getPluginImage(this.props.plugins, dataSource.pluginId),
     }));
-
+    console.log("here", { queryId }, this.props.match.params);
     return (
       <React.Fragment>
         {queryId ? (

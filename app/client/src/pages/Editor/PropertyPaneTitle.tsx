@@ -30,7 +30,6 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const widgets = useSelector(getExistingWidgetNames);
 
   const [name, setName] = useState(props.title);
-  const [isEditing, setIsEditing] = useState(false);
   const updateTitle = (value: string) => {
     if (
       value &&
@@ -40,7 +39,6 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     ) {
       if (widgets.indexOf(value.trim()) > -1) {
         setName(props.title);
-        setIsEditing(true);
       }
       dispatch(updateWidgetName(props.widgetId, value.trim()));
     }
