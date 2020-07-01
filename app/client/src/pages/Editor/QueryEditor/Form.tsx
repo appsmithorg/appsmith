@@ -22,7 +22,6 @@ import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
-import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
@@ -236,11 +235,8 @@ type Props = StateAndRouteProps &
 const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const {
     handleSubmit,
-    allowSave,
     isDeleting,
-    isSaving,
     isRunning,
-    onSaveClick,
     onRunClick,
     onDeleteClick,
     DATASOURCES_OPTIONS,

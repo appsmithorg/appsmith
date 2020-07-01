@@ -19,6 +19,14 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
+const StyledTextField = styled(TextField)`
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+`;
+
 const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
@@ -68,7 +76,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   </FormLabel>
                   <div style={{ display: "flex", flexDirection: "row" }}>
                     <div style={{ marginRight: 14, width: 72 }}>
-                      <TextField
+                      <StyledTextField
                         name={`${field}.${valueName[1]}`}
                         type={valueDataType}
                       />
