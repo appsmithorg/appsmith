@@ -4,8 +4,6 @@ import {
   Classes,
   PopoverInteractionKind,
   Position,
-  Icon,
-  Checkbox,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
