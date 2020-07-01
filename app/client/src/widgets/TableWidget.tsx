@@ -205,11 +205,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     super.updateWidgetProperty("hiddenColumns", hiddenColumns);
   };
 
-  onCommandClick = (action: string) => {
+  onCommandClick = (action: string, onComplete: () => void) => {
     super.executeAction({
       dynamicString: action,
       event: {
         type: EventType.ON_CLICK,
+        callback: onComplete,
       },
     });
   };

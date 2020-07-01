@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Icon } from "@blueprintjs/core";
 import moment from "moment-timezone";
 import {
@@ -10,6 +10,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { isString } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
+import Button from "components/editorComponents/Button";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -382,7 +383,7 @@ export const renderCell = (
 
 interface RenderActionProps {
   columnActions?: ColumnAction[];
-  onCommandClick: (dynamicTrigger: string) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
 export const renderActions = (props: RenderActionProps) => {
@@ -391,16 +392,38 @@ export const renderActions = (props: RenderActionProps) => {
     <CellWrapper isHidden={false}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
-          <ActionWrapper
+          <TableAction
             key={index}
-            onClick={() => {
-              props.onCommandClick(action.dynamicTrigger);
-            }}
-          >
-            {action.label}
-          </ActionWrapper>
+            action={action}
+            onCommandClick={props.onCommandClick}
+          />
         );
       })}
     </CellWrapper>
+  );
+};
+
+const TableAction = (props: {
+  action: ColumnAction;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  return (
+    <ActionWrapper>
+      <Button
+        loading={loading}
+        onClick={() => {
+          setLoading(true);
+          props.onCommandClick(props.action.dynamicTrigger, onComplete);
+        }}
+        text={props.action.label}
+        intent="primary"
+        filled
+        size="small"
+      />
+    </ActionWrapper>
   );
 };
