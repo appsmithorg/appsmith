@@ -2,17 +2,7 @@
  * Handles the Api pane ui state. It looks into the routing based on actions too
  * */
 import _ from "lodash";
-import {
-  all,
-  select,
-  put,
-  takeEvery,
-  take,
-  call,
-  race,
-  delay,
-} from "redux-saga/effects";
-import { getFormSyncErrors } from "redux-form";
+import { all, select, put, takeEvery, take, call } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -49,11 +39,6 @@ import { initialize, autofill, change } from "redux-form";
 import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
-import {
-  FIELD_REQUIRED_ERROR,
-  UNIQUE_NAME_ERROR,
-  VALID_FUNCTION_NAME_ERROR,
-} from "constants/messages";
 import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
@@ -64,9 +49,6 @@ import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { RestAction } from "entities/Action";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-
-const getActionConfigs = (state: AppState): ActionData["config"][] =>
-  state.entities.actions.map(a => a.config);
 
 const getLastUsedAction = (state: AppState) => state.ui.apiPane.lastUsed;
 const getLastUsedEditorPage = (state: AppState) =>
@@ -242,46 +224,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* validateInputSaga() {
-  const errors = {};
-  const existingErrors = yield select(getFormSyncErrors);
-  const actions: RestAction[] = yield select(getActionConfigs);
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-
-  // Name field validation
-  let hasSameName = false;
-  const sameNames = actions.filter(
-    (action: RestAction) => action.name === values.name && action.id,
-  );
-  if (
-    sameNames.length > 1 ||
-    (sameNames.length === 1 && sameNames[0].id !== values.id)
-  ) {
-    hasSameName = true;
-  }
-  if (!_.trim(values.name)) {
-    _.set(errors, "name", FIELD_REQUIRED_ERROR);
-  } else if (values.name.indexOf(" ") !== -1) {
-    _.set(errors, "name", VALID_FUNCTION_NAME_ERROR);
-  } else if (hasSameName) {
-    _.set(errors, "name", UNIQUE_NAME_ERROR);
-  } else {
-    _.unset(errors, "name");
-  }
-
-  if (existingErrors !== errors) {
-    yield put({
-      type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
-      meta: {
-        form: API_EDITOR_FORM_NAME,
-      },
-      payload: {
-        syncErrors: errors,
-      },
-    });
-  }
-}
-
 function* updateFormFields(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
@@ -365,16 +307,10 @@ function* formValueChangeSaga(
       value: actionPayload.payload,
     }),
   );
-  // yield all([
-  //   put(
-  //
-  //   ),
-  //   call(updateDynamicBindingsSaga, actionPayload),
-  //   call(validateInputSaga),
-  //   call(updateDraftsSaga),
-  //   call(syncApiParamsSaga, actionPayload),
-  //   call(updateFormFields, actionPayload),
-  // ]);
+  yield all([
+    call(syncApiParamsSaga, actionPayload),
+    call(updateFormFields, actionPayload),
+  ]);
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
@@ -390,8 +326,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-function* handleActionDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
+function* handleActionDeletedSaga() {
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   history.push(API_EDITOR_URL(applicationId, pageId));
