@@ -190,9 +190,11 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, data));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.replace(QUERIES_EDITOR_ID_URL(applicationId, pageId, id), {
-      newQuery: true,
-    });
+    history.replace(
+      QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
+        new: true,
+      }),
+    );
   }
 }
 
