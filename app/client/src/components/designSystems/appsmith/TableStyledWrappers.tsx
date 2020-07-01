@@ -164,11 +164,11 @@ export const IconOptionWrapper = styled.div`
 
 export const PaginationWrapper = styled.div`
   box-sizing: border-box;
-  padding: 10px;
   display: flex;
   width: 100%;
   justify-content: flex-end;
   align-items: center;
+  padding: 14px 20px;
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -254,4 +254,17 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
       border-radius: 4px;
     }
   }
+`;
+
+export const TableHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+`;
+
+export const CommonFunctionsMenuWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
