@@ -102,6 +102,8 @@ export const EditorWrapper = styled.div<{
   isFocused: boolean;
   disabled?: boolean;
   size: EditorSize;
+  height?: string | number;
+  borderLess?: boolean;
 }>`
   width: 100%;
   ${props =>
@@ -115,13 +117,17 @@ export const EditorWrapper = styled.div<{
   `
       : `z-index: 0; position: relative;`}
   min-height: 32px;
-  height: auto;
+  height: ${props => props.height || "auto"};
   background-color: ${props =>
     props.editorTheme === EditorTheme.DARK ? "#272822" : "#fff"};
   background-color: ${props => props.disabled && "#eef2f5"};
-  border: 1px solid;
+  ${props =>
+    !props.borderLess &&
+    `
+    border: 1px solid;
+    border-radius: 4px;
+  `}
   border-color: ${getBorderStyle};
-  border-radius: 4px;
   display: flex;
   flex: 1;
   flex-direction: row;

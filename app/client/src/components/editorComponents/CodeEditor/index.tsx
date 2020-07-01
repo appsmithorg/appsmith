@@ -61,6 +61,7 @@ export type EditorStyleProps = {
   dataTreePath?: string;
   evaluatedValue?: any;
   expected?: string;
+  borderLess?: boolean;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -267,6 +268,8 @@ class CodeEditor extends Component<Props, State> {
       expected,
       size,
       evaluatedValue,
+      height,
+      borderLess,
     } = this.props;
     const hasError = !!(meta && meta.error);
     let evaluated = evaluatedValue;
@@ -317,6 +320,8 @@ class CodeEditor extends Component<Props, State> {
             isFocused={this.state.isFocused}
             disabled={disabled}
             className={className}
+            height={height}
+            borderLess={borderLess}
           >
             <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (

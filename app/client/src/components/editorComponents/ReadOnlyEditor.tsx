@@ -29,6 +29,7 @@ const ReadOnlyEditor = (props: Props) => {
     height: props.height,
     showLightningMenu: false,
     showLineNumbers: true,
+    borderLess: true,
   };
   return <CodeEditor {...editorProps} />;
 };
