@@ -277,4 +277,5 @@ export const RowWrapper = styled.div`
   line-height: 20px;
   color: #4e5d78;
   margin: 0 4px;
+  white-space: nowrap;
 `;

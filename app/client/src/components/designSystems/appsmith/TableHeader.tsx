@@ -39,8 +39,15 @@ const PageNumberInput = (props: {
       min={1}
       max={props.pageCount}
       buttonPosition="none"
+      clampValueOnBlur={true}
       onValueChange={(value: number) => {
-        props.updatePageNo(value - 1);
+        if (isNaN(value) || value < 1) {
+          props.updatePageNo(1);
+        } else if (value > props.pageCount) {
+          props.updatePageNo(props.pageCount);
+        } else {
+          props.updatePageNo(value);
+        }
       }}
     />
   );
