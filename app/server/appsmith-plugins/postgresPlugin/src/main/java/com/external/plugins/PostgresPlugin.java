@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,7 +85,13 @@ public class PostgresPlugin extends BasePlugin {
                     while (resultSet.next()) {
                         Map<String, Object> row = new HashMap<>(colCount);
                         for (int i = 1; i <= colCount; i++) {
-                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                            Object value;
+                            if ("date".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                                value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
+                            } else {
+                                value = resultSet.getObject(i);
+                            }
+                            row.put(metaData.getColumnName(i), value);
                         }
                         rowsList.add(row);
                     }
