@@ -44,6 +44,7 @@ public class PostgresPlugin extends BasePlugin {
     private static final String USER = "user";
     private static final String PASSWORD = "password";
     private static final String SSL = "ssl";
+    private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -86,7 +87,7 @@ public class PostgresPlugin extends BasePlugin {
                         Map<String, Object> row = new HashMap<>(colCount);
                         for (int i = 1; i <= colCount; i++) {
                             Object value;
-                            if ("date".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                            if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(metaData.getColumnTypeName(i))) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
                             } else {
                                 value = resultSet.getObject(i);
