@@ -242,32 +242,6 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* updateDraftsSaga() {
-  // debounce
-  // TODO check for save
-  const result = yield race({
-    change: take(ReduxFormActionTypes.VALUE_CHANGE),
-    timeout: delay(300),
-  });
-  if (result.timeout) {
-    const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-    if (!values.id) return;
-    const action = yield select(getAction, values.id);
-
-    if (_.isEqual(values, action)) {
-      yield put({
-        type: ReduxActionTypes.DELETE_API_DRAFT,
-        payload: { id: values.id },
-      });
-    } else {
-      yield put({
-        type: ReduxActionTypes.UPDATE_API_DRAFT,
-        payload: { id: values.id, draft: values },
-      });
-    }
-  }
-}
-
 function* validateInputSaga() {
   const errors = {};
   const existingErrors = yield select(getFormSyncErrors);
@@ -416,25 +390,11 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-function* handleActionUpdatedSaga(
-  actionPayload: ReduxAction<{ data: RestAction }>,
-) {
-  const { id } = actionPayload.payload.data;
-  yield put({
-    type: ReduxActionTypes.DELETE_API_DRAFT,
-    payload: { id },
-  });
-}
-
 function* handleActionDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   history.push(API_EDITOR_URL(applicationId, pageId));
-  yield put({
-    type: ReduxActionTypes.DELETE_API_DRAFT,
-    payload: { id },
-  });
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -545,7 +505,6 @@ export default function* root() {
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_SUCCESS, handleActionUpdatedSaga),
     takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
