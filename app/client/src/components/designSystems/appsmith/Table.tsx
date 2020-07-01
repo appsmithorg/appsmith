@@ -6,23 +6,23 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { Icon, InputGroup } from "@blueprintjs/core";
-import {
-  TableWrapper,
-  PaginationWrapper,
-  PaginationItemWrapper,
-} from "./TableStyledWrappers";
+import { InputGroup } from "@blueprintjs/core";
+import { TableWrapper } from "./TableStyledWrappers";
 import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
 import { TableColumnMenuPopup } from "./TableColumnMenu";
+import TableHeader from "./TableHeader";
+import { Classes } from "@blueprintjs/core";
 
 interface TableProps {
   width: number;
   height: number;
   pageSize: number;
   widgetId: string;
+  searchValue: string;
+  isLoading: boolean;
   columns: ReactTableColumnProps[];
   data: object[];
   showMenu: (columnIndex: number) => void;
@@ -47,6 +47,7 @@ interface TableProps {
   selectedRowIndex: number;
   disableDrag: () => void;
   enableDrag: () => void;
+  searchTableData: (searchValue: any) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -100,7 +101,19 @@ export const Table = (props: TableProps) => {
       height={props.height}
       id={`table${props.widgetId}`}
     >
-      <div className="tableWrap">
+      <TableHeader
+        searchTableData={props.searchTableData}
+        searchValue={props.searchValue}
+        updatePageNo={props.updatePageNo}
+        nextPageClick={props.nextPageClick}
+        prevPageClick={props.prevPageClick}
+        pageNo={props.pageNo}
+        pageCount={pageCount}
+        currentPageIndex={currentPageIndex}
+        pageOptions={pageOptions}
+        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      />
+      <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
           <div onMouseOver={props.disableDrag} onMouseLeave={props.enableDrag}>
             {headerGroups.map((headerGroup: any, index: number) => (
@@ -220,66 +233,6 @@ export const Table = (props: TableProps) => {
           </div>
         </div>
       </div>
-      {props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <PaginationItemWrapper
-            disabled={false}
-            onClick={() => {
-              props.prevPageClick();
-            }}
-          >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-          <PaginationItemWrapper selected className="page-item">
-            {props.pageNo + 1}
-          </PaginationItemWrapper>
-          <PaginationItemWrapper
-            disabled={false}
-            onClick={() => {
-              props.nextPageClick();
-            }}
-          >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
-      {!props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <PaginationItemWrapper
-            disabled={currentPageIndex === 0}
-            onClick={() => {
-              const pageNo = currentPageIndex > 0 ? currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1);
-            }}
-          >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-          {pageOptions.map((pageNumber: number, index: number) => {
-            return (
-              <PaginationItemWrapper
-                key={index}
-                selected={pageNumber === currentPageIndex}
-                onClick={() => {
-                  props.updatePageNo(pageNumber + 1);
-                }}
-                className="page-item"
-              >
-                {index + 1}
-              </PaginationItemWrapper>
-            );
-          })}
-          <PaginationItemWrapper
-            disabled={currentPageIndex === pageCount - 1}
-            onClick={() => {
-              const pageNo =
-                currentPageIndex < pageCount - 1 ? currentPageIndex + 1 : 0;
-              props.updatePageNo(pageNo + 1);
-            }}
-          >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
     </TableWrapper>
   );
 };
