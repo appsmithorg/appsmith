@@ -70,6 +70,7 @@ const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
     display: none;
   }
   -ms-overflow-style: none;
+  white-space: pre-wrap;
 `;
 
 const TypeText = styled.pre<{ colorTheme: EditorTheme }>`

@@ -267,6 +267,10 @@ export function* executeQuerySaga(
       throw Error(response.data.body.toString());
     }
 
+    if (!response.data.body) {
+      throw Error("An unexpected error occurred.");
+    }
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.RUN_QUERY_SUCCESS,
