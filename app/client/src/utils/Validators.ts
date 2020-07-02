@@ -425,7 +425,7 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    console.log("value", value);
+    // console.log("value", value);
     // if (Array.isArray(value) && value.length) {
     return {
       isValid: true,
