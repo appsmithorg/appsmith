@@ -13,9 +13,13 @@ server {
     proxy_set_header Connection "upgrade";
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header Accept-Encoding "";
+
     
+    sub_filter_once off;
     location / {
        proxy_pass http://localhost:3000;
+       sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
     }
 
     location /f {
@@ -58,9 +62,13 @@ server {
     proxy_set_header Connection "upgrade";
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header Accept-Encoding "";
 
+
+    sub_filter_once off;
     location / {
        proxy_pass http://localhost:3000;
+       sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
     }
     
     location /f {

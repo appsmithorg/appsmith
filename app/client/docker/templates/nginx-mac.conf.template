@@ -11,9 +11,17 @@ server {
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
+    proxy_set_header Accept-Encoding "";
+    
+    index index.html index.htm;
 
+    sub_filter_once off;
     location / {
-       proxy_pass http://host.docker.internal:3000;
+        proxy_pass http://host.docker.internal:3000;
+        sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
+        sub_filter __HOTJAR_HJID__ ${HOTJAR_HJID};
+        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${GOOGLE_CLIENT_ID};
+        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${GITHUB_CLIENT_ID};
     }
 
     location /f {
@@ -56,10 +64,19 @@ server {
     proxy_ssl_server_name on;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
+    proxy_set_header Accept-Encoding "";
 
+    index index.html index.htm;
+
+    sub_filter_once off;
     location / {
-       proxy_pass http://host.docker.internal:3000;
+        proxy_pass http://host.docker.internal:3000;
+        sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
+        sub_filter __HOTJAR_HJID__ ${HOTJAR_HJID};
+        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${GOOGLE_CLIENT_ID};
+        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${GITHUB_CLIENT_ID};
     }
+
     
     location /f {
        proxy_pass https://cdn.optimizely.com/;
