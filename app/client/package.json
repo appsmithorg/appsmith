@@ -46,7 +46,7 @@
     "algoliasearch": "^4.2.0",
     "axios": "^0.18.0",
     "chance": "^1.1.3",
-    "codemirror": "^5.50.0",
+    "codemirror": "^5.55.0",
     "eslint": "^6.4.0",
     "fast-deep-equal": "^3.1.1",
     "flow-bin": "^0.91.0",
@@ -123,9 +123,7 @@
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_BASE_URL=https://api.appsmith.com REACT_APP_ENVIRONMENT=PRODUCTION craco start",
-    "storybook": "start-storybook",
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
-    "build-storybook": "build-storybook -c .storybook -o .storybook-out",
     "test:unit": "$(npm bin)/jest -b --colors"
   },
   "resolution": {
@@ -142,13 +140,6 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
-    "@storybook/addon-contexts": "^5.2.6",
-    "@storybook/addon-docs": "^5.2.8",
-    "@storybook/addon-knobs": "^5.2.6",
-    "@storybook/addon-notes": "^5.2.6",
-    "@storybook/addons": "^5.2.6",
-    "@storybook/preset-create-react-app": "^1.3.1",
-    "@storybook/react": "^5.2.6",
     "@types/codemirror": "^0.0.82",
     "@types/jest": "^24.0.22",
     "@types/react-beautiful-dnd": "^11.0.4",
@@ -182,7 +173,6 @@
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
     "source-map-explorer": "^2.4.2",
-    "storybook-addon-designs": "^5.1.1",
     "ts-jest": "^24.3.0",
     "webpack-merge": "^4.2.2",
     "workbox-webpack-plugin": "^5.1.2"

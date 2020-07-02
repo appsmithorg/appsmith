@@ -1,7 +1,7 @@
 import { ITreeNode, Classes, Tree } from "@blueprintjs/core";
 import React, { useState } from "react";
 import styled from "styled-components";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 
 const StyledKey = styled.span`
   font-family: DM Sans;
@@ -167,7 +167,7 @@ export function RequestView(props: {
               {
                 id: 1,
                 label: (
-                  <CodeEditor
+                  <ReadOnlyEditor
                     input={{
                       value: props.requestBody,
                     }}
