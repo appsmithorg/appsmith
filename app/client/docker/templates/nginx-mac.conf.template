@@ -18,10 +18,17 @@ server {
     sub_filter_once off;
     location / {
         proxy_pass http://host.docker.internal:3000;
-        sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
-        sub_filter __HOTJAR_HJID__ ${HOTJAR_HJID};
-        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${GOOGLE_CLIENT_ID};
-        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${GITHUB_CLIENT_ID};
+        sub_filter __SENTRY_DSN__ ${APPSMITH_SENTRY_DSN};
+        sub_filter __HOTJAR_HJID__ ${APPSMITH_HOTJAR_HJID};
+        sub_filter __HOTJAR_HJSV__ ${APPSMITH_HOTJAR_HJSV};
+        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${APPSMITH_GOOGLE_CLIENT_ID};
+        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${APPSMITH_GITHUB_CLIENT_ID};
+        sub_filter __RAPID_API_KEY__ ${APPSMITH_RAPID_API_KEY};
+        sub_filter __SEGMENT_KEY__ ${APPSMITH_SEGMENT_KEY};
+        sub_filter __OPTIMIZELY_KEY__ ${APPSMITH_OPTIMIZELY_KEY};
+        sub_filter __ALGOLIA_API_ID__ ${APPSMITH_ALGOLIA_API_ID};
+        sub_filter __ALGOLIA_SEARCH_INDEX_NAME__ ${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME};
+        sub_filter __ALGOLIA_API_KEY__ ${APPSMITH_ALGOLIA_API_KEY};
     }
 
     location /f {
@@ -71,10 +78,17 @@ server {
     sub_filter_once off;
     location / {
         proxy_pass http://host.docker.internal:3000;
-        sub_filter __SENTRY_DSN__ ${SENTRY_DSN};
-        sub_filter __HOTJAR_HJID__ ${HOTJAR_HJID};
-        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${GOOGLE_CLIENT_ID};
-        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${GITHUB_CLIENT_ID};
+        sub_filter __SENTRY_DSN__ ${APPSMITH_SENTRY_DSN};
+        sub_filter __HOTJAR_HJID__ ${APPSMITH_HOTJAR_HJID};
+        sub_filter __HOTJAR_HJSV__ ${APPSMITH_HOTJAR_HJSV};
+        sub_filter __GOOGLE_OAUTH_CLIENT_ID__ ${APPSMITH_GOOGLE_CLIENT_ID};
+        sub_filter __GITHUB_OAUTH_CLIENT_ID__ ${APPSMITH_GITHUB_CLIENT_ID};
+        sub_filter __RAPID_API_KEY__ ${APPSMITH_RAPID_API_KEY};
+        sub_filter __SEGMENT_KEY__ ${APPSMITH_SEGMENT_KEY};
+        sub_filter __OPTIMIZELY_KEY__ ${APPSMITH_OPTIMIZELY_KEY};
+        sub_filter __ALGOLIA_API_ID__ ${APPSMITH_ALGOLIA_API_ID};
+        sub_filter __ALGOLIA_SEARCH_INDEX_NAME__ ${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME};
+        sub_filter __ALGOLIA_API_KEY__ ${APPSMITH_ALGOLIA_API_KEY};
     }
 
     

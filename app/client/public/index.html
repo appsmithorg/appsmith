@@ -43,9 +43,21 @@
     registerPageServiceWorker();
     window.APPSMITH_FEATURE_CONFIGS =  {
       sentry: "__SENTRY_DSN__",
-      hotjar: "__HOTJAR_HJID__",
-      google: "__GOOGLE_OAUTH_CLIENT_ID__",
-      github: "__GITHUB_OAUTH_CLIENT_ID__",
+      hotjar: {
+        id: "__HOTJAR_HJID__",
+        sv: "__HOTJAR_HJSV__",
+      },
+      enableGoogleOAuth: ("__GOOGLE_OAUTH_CLIENT_ID__").trim().length > 0,
+      enableGithubOAuth: ("__GITHUB_OAUTH_CLIENT_ID__").trim().length > 0,
+      enableRapidAPI: ("__RAPID_API_KEY__").trim().length > 0,
+      segment: "__SEGMENT_KEY__",
+      optimizely: "__OPTIMIZELY_KEY__",
+      enableMixpanel: ("__SEGMENT_KEY__").trim().length > 0,
+      algolia: {
+        apiId: "__ALGOLIA_API_ID__",
+        apiKey: "__ALGOLIA_API_KEY__",
+        indexName: "__ALGOLIA_SEARCH_INDEX_NAME__",
+      },
     };
   </script>
   <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>
