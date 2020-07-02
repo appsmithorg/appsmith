@@ -425,13 +425,13 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
     props: WidgetProps,
     dataTree?: DataTree,
   ): ValidationResponse => {
-    // if (Array.isArray(value) && value.length) {
-    return {
-      isValid: true,
-      parsed: value,
-      transformed: "Function Call",
-    };
-    // }
+    if (Array.isArray(value) && value.length) {
+      return {
+        isValid: true,
+        parsed: undefined,
+        transformed: "Function Call",
+      };
+    }
     /*
     if (_.isString(value)) {
       if (value.indexOf("navigateTo") !== -1) {
@@ -459,12 +459,12 @@ export const VALIDATORS: Record<ValidationType, Validator> = {
       }
     }
     */
-    // return {
-    //   isValid: false,
-    //   parsed: undefined,
-    //   transformed: "undefined",
-    //   message: "Not a function call",
-    // };
+    return {
+      isValid: false,
+      parsed: undefined,
+      transformed: "undefined",
+      message: "Not a function call",
+    };
   },
   [VALIDATION_TYPES.ARRAY_ACTION_SELECTOR]: (
     value: any,
