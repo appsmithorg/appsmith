@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { debounce } from "lodash";
 import { InputGroup } from "@blueprintjs/core";
 
 interface SearchProps {
