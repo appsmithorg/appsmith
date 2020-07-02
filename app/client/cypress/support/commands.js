@@ -986,16 +986,9 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
 });
 
-Cypress.Commands.add("runSaveDeleteQuery", () => {
+Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-
-  cy.get(queryEditor.saveQuery).click();
-  cy.wait("@saveQuery").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,

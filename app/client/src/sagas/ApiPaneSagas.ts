@@ -392,7 +392,7 @@ function* updateFormFields(
 function* updateDynamicBindingsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
-  const field = actionPayload.meta.field;
+  const field = actionPayload.meta.field.replace("actionConfiguration.", "");
   const value = actionPayload.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
