@@ -109,57 +109,56 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // /*
     return (
       <Suspense fallback={<Skeleton />}>
-        <div className={this.props.isLoading ? Classes.SKELETON : ""}>
-          <ReactTableComponent
-            height={componentHeight}
-            width={componentWidth}
-            tableData={tableData}
-            widgetId={this.props.widgetId}
-            renderMode={this.props.renderMode}
-            hiddenColumns={hiddenColumns}
-            columnActions={this.props.columnActions}
-            columnNameMap={this.props.columnNameMap}
-            columnTypeMap={this.props.columnTypeMap}
-            columnOrder={this.props.columnOrder}
-            pageSize={pageSize}
-            onCommandClick={this.onCommandClick}
-            selectedRowIndex={
-              this.props.selectedRowIndex === undefined
-                ? -1
-                : this.props.selectedRowIndex
-            }
-            serverSidePaginationEnabled={serverSidePaginationEnabled}
-            onRowClick={this.handleRowClick}
-            pageNo={pageNo}
-            nextPageClick={this.handleNextPageClick}
-            prevPageClick={this.handlePrevPageClick}
-            updatePageNo={(pageNo: number) => {
-              super.updateWidgetMetaProperty("pageNo", pageNo);
-            }}
-            updateHiddenColumns={(hiddenColumns?: string[]) => {
-              super.updateWidgetProperty("hiddenColumns", hiddenColumns);
-            }}
-            updateColumnType={(columnTypeMap: {
-              [key: string]: { type: string; format: string };
-            }) => {
-              super.updateWidgetProperty("columnTypeMap", columnTypeMap);
-            }}
-            updateColumnName={(columnNameMap: { [key: string]: string }) => {
-              super.updateWidgetProperty("columnNameMap", columnNameMap);
-            }}
-            handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
-              super.updateWidgetProperty("columnSizeMap", columnSizeMap);
-            }}
-            handleReorderColumn={(columnOrder: string[]) => {
-              super.updateWidgetProperty("columnOrder", columnOrder);
-            }}
-            columnSizeMap={this.props.columnSizeMap}
-            resetSelectedRowIndex={this.resetSelectedRowIndex}
-            disableDrag={(disable: boolean) => {
-              this.disableDrag(disable);
-            }}
-          />
-        </div>
+        <ReactTableComponent
+          height={componentHeight}
+          width={componentWidth}
+          tableData={tableData}
+          isLoading={this.props.isLoading}
+          widgetId={this.props.widgetId}
+          renderMode={this.props.renderMode}
+          hiddenColumns={hiddenColumns}
+          columnActions={this.props.columnActions}
+          columnNameMap={this.props.columnNameMap}
+          columnTypeMap={this.props.columnTypeMap}
+          columnOrder={this.props.columnOrder}
+          pageSize={pageSize}
+          onCommandClick={this.onCommandClick}
+          selectedRowIndex={
+            this.props.selectedRowIndex === undefined
+              ? -1
+              : this.props.selectedRowIndex
+          }
+          serverSidePaginationEnabled={serverSidePaginationEnabled}
+          onRowClick={this.handleRowClick}
+          pageNo={pageNo}
+          nextPageClick={this.handleNextPageClick}
+          prevPageClick={this.handlePrevPageClick}
+          updatePageNo={(pageNo: number) => {
+            super.updateWidgetMetaProperty("pageNo", pageNo);
+          }}
+          updateHiddenColumns={(hiddenColumns?: string[]) => {
+            super.updateWidgetProperty("hiddenColumns", hiddenColumns);
+          }}
+          updateColumnType={(columnTypeMap: {
+            [key: string]: { type: string; format: string };
+          }) => {
+            super.updateWidgetProperty("columnTypeMap", columnTypeMap);
+          }}
+          updateColumnName={(columnNameMap: { [key: string]: string }) => {
+            super.updateWidgetProperty("columnNameMap", columnNameMap);
+          }}
+          handleResizeColumn={(columnSizeMap: { [key: string]: number }) => {
+            super.updateWidgetProperty("columnSizeMap", columnSizeMap);
+          }}
+          handleReorderColumn={(columnOrder: string[]) => {
+            super.updateWidgetProperty("columnOrder", columnOrder);
+          }}
+          columnSizeMap={this.props.columnSizeMap}
+          resetSelectedRowIndex={this.resetSelectedRowIndex}
+          disableDrag={(disable: boolean) => {
+            this.disableDrag(disable);
+          }}
+        />
       </Suspense>
     );
     // */
