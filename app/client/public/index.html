@@ -41,22 +41,28 @@
       }
     };
     registerPageServiceWorker();
+    const parseConfig = (config) => {
+      if(config.trim().length === 0 || config.trim().indexOf("$") === 0 || config.trim().indexOf("__") === 0) {
+        return "";
+      }
+      return config;
+    }
     window.APPSMITH_FEATURE_CONFIGS =  {
-      sentry: "__SENTRY_DSN__",
+      sentry: parseConfig("__SENTRY_DSN__"),
       hotjar: {
-        id: "__HOTJAR_HJID__",
-        sv: "__HOTJAR_HJSV__",
+        id: parseConfig("__HOTJAR_HJID__"),
+        sv: parseConfig("__HOTJAR_HJSV__"),
       },
-      enableGoogleOAuth: ("__GOOGLE_OAUTH_CLIENT_ID__").trim().length > 0,
-      enableGithubOAuth: ("__GITHUB_OAUTH_CLIENT_ID__").trim().length > 0,
-      enableRapidAPI: ("__RAPID_API_KEY__").trim().length > 0,
-      segment: "__SEGMENT_KEY__",
-      optimizely: "__OPTIMIZELY_KEY__",
-      enableMixpanel: ("__SEGMENT_KEY__").trim().length > 0,
+      enableGoogleOAuth: parseConfig("__GOOGLE_OAUTH_CLIENT_ID__").trim().length > 0,
+      enableGithubOAuth: parseConfig("__GITHUB_OAUTH_CLIENT_ID__").trim().length > 0,
+      enableRapidAPI: parseConfig("__RAPID_API_KEY__").trim().length > 0,
+      segment: parseConfig("__SEGMENT_KEY__"),
+      optimizely: parseConfig("__OPTIMIZELY_KEY__"),
+      enableMixpanel: parseConfig("__SEGMENT_KEY__").trim().length > 0,
       algolia: {
-        apiId: "__ALGOLIA_API_ID__",
-        apiKey: "__ALGOLIA_API_KEY__",
-        indexName: "__ALGOLIA_SEARCH_INDEX_NAME__",
+        apiId: parseConfig("__ALGOLIA_API_ID__"),
+        apiKey: parseConfig("__ALGOLIA_API_KEY__"),
+        indexName: parseConfig("__ALGOLIA_SEARCH_INDEX_NAME__"),
       },
     };
   </script>

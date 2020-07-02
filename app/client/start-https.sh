@@ -44,8 +44,7 @@ else
 fi
 
 unameOut="$(uname -s)"
-vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z_]\+" ../../.env | xargs))"
-
+vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z_]\+" ../../.env.example | xargs))"
 case "${unameOut}" in
     Linux*)     machine=Linux
                 echo "
