@@ -80,7 +80,6 @@ export const modalGetter = (value: string) => {
 const alertTextSetter = (changeValue: any, currentValue: string): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  console.log("args", args);
   args[0] = `'${changeValue}'`;
   const result = currentValue.replace(
     ACTION_TRIGGER_REGEX,
@@ -102,7 +101,6 @@ const alertTextGetter = (value: string) => {
 const alertTypeSetter = (changeValue: any, currentValue: string): string => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
   const args = matches[0][2].split(",");
-  console.log("args", args);
   args[1] = changeValue as string;
   return currentValue.replace(
     ACTION_TRIGGER_REGEX,
@@ -115,7 +113,6 @@ const alertTypeGetter = (value: string) => {
   if (matches.length) {
     const funcArgs = matches[0][2];
     const arg = funcArgs.split(",")[1];
-    console.log("arg", arg);
     return arg ? arg.trim() : "'primary'";
   }
   return "";
@@ -424,7 +421,6 @@ function getFieldFromValue(
       const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
       const successArg = args[0];
       const errorArg = args[1];
-      console.log(value, matches, funcArgs, args, successArg, errorArg);
       let sucesssValue;
       if (successArg && successArg.length > 0) {
         sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
@@ -699,7 +695,6 @@ function Fields(props: {
                       const parentValue = selectorField.getParentValue(
                         value.substring(2, value.length - 2),
                       );
-                      console.log("values", value, parentValue);
                       props.onValueChange(parentValue);
                     }}
                   />
@@ -744,7 +739,6 @@ function Fields(props: {
               const parentValue = selectorField.getParentValue(
                 value.substring(2, value.length - 2),
               );
-              console.log("values", value, parentValue, props);
               props.onValueChange(parentValue);
             }}
           />
@@ -866,9 +860,7 @@ export function ActionCreator(props: ActionCreatorProps) {
   const queryOptionTree = useQueryOptionTree();
   const modalDropdownList = useModalDropdownList();
   const pageDropdownOptions = useSelector(getPageDropdownOptions);
-  console.log("props.value", props.value);
   const fields = getFieldFromValue(props.value);
-  console.log("fields", fields);
   return (
     <TreeStructure>
       <Fields
