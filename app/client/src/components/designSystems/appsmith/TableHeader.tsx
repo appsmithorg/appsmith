@@ -15,8 +15,8 @@ interface TableHeaderProps {
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
-  searchValue: string;
-  searchTableData: (searchValue: any) => void;
+  searchKey: string;
+  searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
 }
 
@@ -24,7 +24,7 @@ const TableHeader = (props: TableHeaderProps) => {
   return (
     <TableHeaderWrapper>
       <SearchComponent
-        value={props.searchValue}
+        value={props.searchKey}
         placeholder="Search..."
         onSearch={props.searchTableData}
       />
