@@ -42,7 +42,7 @@ const queryPaneReducer = createReducer(initialState, {
       isCreating: false,
     };
   },
-  [ReduxActionTypes.CREATE_ACTION_ERROR]: (state: QueryPaneReduxState) => {
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (state: QueryPaneReduxState) => {
     return {
       ...state,
       isCreating: false,
