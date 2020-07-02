@@ -150,7 +150,7 @@ function* saveQueryAction() {
 function* updateDynamicBindingsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
-  const field = actionPayload.meta.field;
+  const field = actionPayload.meta.field.replace("actionConfiguration.", "");
   if (field === "dynamicBindingPathList") return;
   const value = actionPayload.payload;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
@@ -265,6 +265,10 @@ export function* executeQuerySaga(
 
     if (!isExecutionSuccess) {
       throw Error(response.data.body.toString());
+    }
+
+    if (!response.data.body) {
+      throw Error("An unexpected error occurred.");
     }
 
     if (isValidResponse) {

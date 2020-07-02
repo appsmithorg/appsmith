@@ -44,7 +44,7 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps {
   widgetId: string;
-  searchValue: string;
+  searchKey: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
@@ -79,7 +79,7 @@ interface ReactTableComponentProps {
   updateColumnName: Function;
   handleResizeColumn: Function;
   handleReorderColumn: Function;
-  searchTableData: (searchValue: any) => void;
+  searchTableData: (searchKey: any) => void;
 }
 
 export class ReactTableComponent extends React.Component<
@@ -474,7 +474,7 @@ export class ReactTableComponent extends React.Component<
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
         widgetId={this.props.widgetId}
-        searchValue={this.props.searchValue}
+        searchKey={this.props.searchKey}
         columns={columns}
         hiddenColumns={this.props.hiddenColumns}
         updateHiddenColumns={this.props.updateHiddenColumns}
