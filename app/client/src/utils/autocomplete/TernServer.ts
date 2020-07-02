@@ -80,6 +80,7 @@ class TernServer {
           docs: true,
           urls: true,
           origins: true,
+          caseInsensitive: true,
         },
         (error, data) => {
           if (error) return this.showError(cm, error);
@@ -197,6 +198,7 @@ class TernServer {
       docs?: boolean;
       urls?: boolean;
       origins?: boolean;
+      caseInsensitive?: boolean;
       preferFunction?: boolean;
       end?: CodeMirror.Position;
     },
