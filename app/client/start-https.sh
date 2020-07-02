@@ -13,9 +13,7 @@ fi
 
 if ! envsubst_loc="$(type -p "envsubst")" || [[ -z $envsubst_loc ]]; then
 	echo "Could not find envsubst: If you're on a mac; brew install gettext"
-  exit
-else
-	echo "found envsubst"
+    exit
 fi
 
 
