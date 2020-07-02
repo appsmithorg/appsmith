@@ -10,7 +10,7 @@
   </p>
   <p>
 
-[![GitHub release](https://img.shields.io/github/release/getappsmith/appsmith/all?logo=GitHub)](https://github.com/getappsmith/appsmith/releases/latest) 
+[![GitHub release](https://img.shields.io/github/release/getappsmith/appsmith/all?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
