@@ -65,7 +65,7 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isCreating: false,
   }),
-  [ReduxActionTypes.RUN_API_REQUEST]: (
+  [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -75,7 +75,7 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: true,
     },
   }),
-  [ReduxActionTypes.RUN_API_SUCCESS]: (
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
@@ -88,7 +88,7 @@ const apiPaneReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionErrorTypes.RUN_API_ERROR]: (
+  [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({

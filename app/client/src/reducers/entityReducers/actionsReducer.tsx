@@ -142,12 +142,12 @@ const actionsReducer = createReducer(initialState, {
 
       return a;
     }),
-  [ReduxActionTypes.RUN_API_REQUEST]: (
+  [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: ActionDataState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
     state.map(a => {
-      if (action.payload === a.config.id) {
+      if (action.payload.id === a.config.id) {
         return {
           ...a,
           isLoading: true,
@@ -156,7 +156,7 @@ const actionsReducer = createReducer(initialState, {
 
       return a;
     }),
-  [ReduxActionTypes.RUN_API_SUCCESS]: (
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ): ActionDataState => {
@@ -168,20 +168,7 @@ const actionsReducer = createReducer(initialState, {
       return a;
     });
   },
-  [ReduxActionTypes.RUN_QUERY_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<{ actionId: string; data: ActionResponse }>,
-  ): ActionDataState => {
-    const actionId: string = action.payload.actionId;
-
-    return state.map(a => {
-      if (a.config.id === actionId) {
-        return { ...a, isLoading: false, data: action.payload.data };
-      }
-      return a;
-    });
-  },
-  [ReduxActionErrorTypes.RUN_API_ERROR]: (
+  [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState =>

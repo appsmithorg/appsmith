@@ -10,10 +10,8 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add Paginate with Table Page No and Execute the Api", function() {
-    cy.NavigateToApiEditor();
-    cy.testCreateApiButton();
     /**Create an Api1 of Paginate with Table Page No */
-    cy.createApi(this.data.paginationUrl, this.data.paginationParam);
+    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
@@ -56,10 +54,8 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add Paginate with Response URL and Execute the Api", function() {
-    cy.NavigateToApiEditor();
-    cy.testCreateApiButton();
     /** Create Api2 of Paginate with Response URL*/
-    cy.createApi(this.data.paginationUrl, "pokemon");
+    cy.createAndFillApi(this.data.paginationUrl, "pokemon");
     cy.RunAPI();
     cy.NavigateToPaginationTab();
     cy.get(apiPage.apiPaginationNextText).type("{{Api2.data.next}}", {

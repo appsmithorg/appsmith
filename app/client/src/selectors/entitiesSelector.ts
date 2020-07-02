@@ -203,3 +203,17 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
   );
   return page ? page.pageName : "";
 }
+
+const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
+const getApiPaneSavingMap = (state: AppState) => state.ui.apiPane.isSaving;
+
+export const isActionSaving = (id: string) =>
+  createSelector(
+    [getQueryPaneSavingMap, getApiPaneSavingMap],
+    (querySavingMap, apiSavingsMap) => {
+      return (
+        (id in querySavingMap && querySavingMap[id]) ||
+        (id in apiSavingsMap && apiSavingsMap[id])
+      );
+    },
+  );

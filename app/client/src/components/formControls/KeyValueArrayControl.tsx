@@ -57,6 +57,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   if (extraData) {
     isRequired = extraData[0].isRequired || extraData[1].isRequired;
   }
+  console.log({ props });
 
   return (
     <React.Fragment>

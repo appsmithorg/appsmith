@@ -15,6 +15,7 @@ import {
   call,
   put,
   select,
+  take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
@@ -56,12 +57,12 @@ import ActionAPI, {
 import {
   getAction,
   getCurrentPageNameByActionId,
+  isActionSaving,
 } from "selectors/entitiesSelector";
-import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { transformRestAction } from "transformers/RestActionTransformer";
 import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
+import { validateResponse } from "sagas/ErrorSagas";
+import { ToastType } from "react-toastify";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -146,7 +147,7 @@ const createActionErrorResponse = (
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTree(true));
+  const tree = yield select(evaluateDataTree(false));
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -349,37 +350,27 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   }
 }
 
-export function* runApiActionSaga(
+function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
     paginationField: PaginationField;
   }>,
 ) {
   try {
-    const {
-      values,
-      dirty,
-      valid,
-    }: {
-      values: RestAction;
-      dirty: boolean;
-      valid: boolean;
-    } = yield select(getFormData, API_EDITOR_FORM_NAME);
-    const actionObject: PageAction = yield select(getAction, values.id);
-    let action: ExecuteActionRequest["action"] = { id: values.id };
-    let jsonPathKeys = actionObject.jsonPathKeys;
-    if (!valid) {
-      console.error("Form error");
-      return;
+    const actionId = reduxAction.payload.id;
+    const isSaving = yield select(isActionSaving(actionId));
+    console.log({ isSaving });
+    if (isSaving) {
+      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    if (dirty) {
-      action = _.omit(transformRestAction(values), "id") as RestAction;
-      jsonPathKeys = extractBindingsFromAction(action as RestAction);
-    }
+    const actionObject: PageAction = yield select(getAction, actionId);
+    const action: ExecuteActionRequest["action"] = { id: actionId };
+    const jsonPathKeys = actionObject.jsonPathKeys;
+
     const { paginationField } = reduxAction.payload;
 
     const params = yield call(getActionParams, jsonPathKeys);
-    const timeout = yield select(getActionTimeout, values.id);
+    const timeout = yield select(getActionTimeout, actionId);
     const response: ActionApiResponse = yield ActionAPI.executeAction(
       {
         action,
@@ -388,29 +379,48 @@ export function* runApiActionSaga(
       },
       timeout,
     );
-    let payload = createActionSuccessResponse(response);
-    if (response.responseMeta && response.responseMeta.error) {
-      payload = createActionErrorResponse(response);
+    const isValidResponse = yield validateResponse(response);
+
+    if (isValidResponse) {
+      let payload = createActionSuccessResponse(response);
+      if (response.responseMeta && response.responseMeta.error) {
+        payload = createActionErrorResponse(response);
+      }
+
+      const pageName = yield select(getCurrentPageNameByActionId, actionId);
+      const eventName =
+        actionObject.pluginType === "API" ? "RUN_API" : "RUN_QUERY";
+
+      AnalyticsUtil.logEvent(eventName, {
+        actionId,
+        actionName: actionObject.name,
+        pageName: pageName,
+        responseTime: response.clientMeta.duration,
+        apiType: "INTERNAL",
+      });
+
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_SUCCESS,
+        payload: { [actionId]: payload },
+      });
+      AppToaster.show({
+        message: "Action ran successfully",
+        type: ToastType.SUCCESS,
+      });
+    } else {
+      let error = "An unexpected error occurred";
+      if (response.data.body) {
+        error = response.data.body.toString();
+      }
+      yield put({
+        type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
+        payload: { error, id: reduxAction.payload.id },
+      });
     }
-    const id = values.id || "DRY_RUN";
-
-    const pageName = yield select(getCurrentPageNameByActionId, values.id);
-
-    AnalyticsUtil.logEvent("RUN_API", {
-      apiId: values.id,
-      apiName: values.name,
-      pageName: pageName,
-      responseTime: response.clientMeta.duration,
-      apiType: "INTERNAL",
-    });
-
-    yield put({
-      type: ReduxActionTypes.RUN_API_SUCCESS,
-      payload: { [id]: payload },
-    });
   } catch (error) {
+    console.error(error);
     yield put({
-      type: ReduxActionErrorTypes.RUN_API_ERROR,
+      type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: { error, id: reduxAction.payload.id },
     });
   }
@@ -460,7 +470,7 @@ function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
 export function* watchActionExecutionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
-    takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
+    takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

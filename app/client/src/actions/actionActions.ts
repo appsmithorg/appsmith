@@ -48,12 +48,12 @@ export const fetchActionsForPageSuccess = (actions: RestAction[]) => {
   };
 };
 
-export const runApiAction = (id: string, paginationField?: PaginationField) => {
+export const runAction = (id: string, paginationField?: PaginationField) => {
   return {
-    type: ReduxActionTypes.RUN_API_REQUEST,
+    type: ReduxActionTypes.RUN_ACTION_REQUEST,
     payload: {
-      id: id,
-      paginationField: paginationField,
+      id,
+      paginationField,
     },
   };
 };
@@ -192,7 +192,7 @@ export const updateActionProperty = (
 export default {
   createAction: createActionRequest,
   fetchActions,
-  runAction: runApiAction,
+  runAction: runAction,
   deleteAction,
   deleteActionSuccess,
   updateAction,

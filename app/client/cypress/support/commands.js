@@ -183,7 +183,8 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   //cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
@@ -214,13 +215,14 @@ Cypress.Commands.add("EditApiName", apiname => {
 });
 
 Cypress.Commands.add("WaitAutoSave", () => {
+  // wait for save query to trigger
+  cy.wait(200);
   cy.wait("@saveQuery");
   //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
-  // cy.wait('@postTrack');
   cy.wait("@postExecute");
 });
 
@@ -1015,7 +1017,9 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.editPropCrossButton).click();
 });
 
-Cypress.Commands.add("createApi", (url, parameters) => {
+Cypress.Commands.add("createAndFillApi", (url, parameters) => {
+  cy.NavigateToApiEditor();
+  cy.testCreateApiButton();
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);

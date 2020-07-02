@@ -12,8 +12,8 @@ import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
-import { updateAction } from "actions/actionActions";
-import { deleteQuery, executeQuery } from "actions/queryPaneActions";
+import { runAction, updateAction } from "actions/actionActions";
+import { deleteQuery } from "actions/queryPaneActions";
 import { AppState } from "reducers";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -189,7 +189,7 @@ const mapDispatchToProps = (dispatch: any): any => ({
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   deleteAction: (id: string) => dispatch(deleteQuery({ id })),
   runAction: (action: RestAction, actionId: string) =>
-    dispatch(executeQuery({ action, actionId })),
+    dispatch(runAction(actionId)),
   createTemplate: (template: any) => {
     dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
   },

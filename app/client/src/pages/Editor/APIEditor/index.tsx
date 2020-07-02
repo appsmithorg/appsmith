@@ -4,11 +4,7 @@ import { getFormValues, submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import ApiHomeScreen from "./ApiHomeScreen";
-import {
-  runApiAction,
-  deleteAction,
-  updateAction,
-} from "actions/actionActions";
+import { runAction, deleteAction, updateAction } from "actions/actionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
@@ -260,7 +256,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   runAction: (id: string, paginationField?: PaginationField) =>
-    dispatch(runApiAction(id, paginationField)),
+    dispatch(runAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
