@@ -137,7 +137,7 @@ const actionsReducer = createReducer(initialState, {
   ): ActionDataState =>
     state.map(a => {
       if (a.config.id === action.payload.actionId) {
-        return { ...a, isLoading: false };
+        return { ...a, isLoading: false, data: action.payload.error };
       }
 
       return a;

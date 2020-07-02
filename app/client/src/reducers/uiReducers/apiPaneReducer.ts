@@ -5,6 +5,7 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { RestAction } from "entities/Action";
+import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
@@ -13,6 +14,7 @@ const initialState: ApiPaneReduxState = {
   isRunning: {},
   isSaving: {},
   isDeleting: {},
+  isDirty: {},
   currentCategory: "",
   lastUsedEditorPage: "",
   lastSelectedPage: "",
@@ -27,6 +29,7 @@ export interface ApiPaneReduxState {
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
+  isDirty: Record<string, boolean>;
   currentCategory: string;
   lastUsedEditorPage: string;
   datasourceFieldText: Record<string, string>;
@@ -98,6 +101,16 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<UpdateActionPropertyActionPayload>,
+  ) => ({
+    ...state,
+    isDirty: {
+      ...state.isDirty,
+      [action.payload.id]: true,
+    },
+  }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ data: RestAction }>,
@@ -115,6 +128,10 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isSaving: {
       ...state.isSaving,
+      [action.payload.data.id]: false,
+    },
+    isDirty: {
+      ...state.isDirty,
       [action.payload.data.id]: false,
     },
   }),

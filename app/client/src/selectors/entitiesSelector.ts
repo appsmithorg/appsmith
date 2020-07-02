@@ -206,6 +206,7 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
 
 const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
 const getApiPaneSavingMap = (state: AppState) => state.ui.apiPane.isSaving;
+const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
 
 export const isActionSaving = (id: string) =>
   createSelector(
@@ -217,3 +218,8 @@ export const isActionSaving = (id: string) =>
       );
     },
   );
+
+export const isActionDirty = (id: string) =>
+  createSelector([getActionDirtyState], actionDirtyMap => {
+    return id in actionDirtyMap && actionDirtyMap[id];
+  });

@@ -109,6 +109,7 @@ function* syncApiParamsSaga(
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
+      console.log({ params });
       yield put(
         autofill(
           API_EDITOR_FORM_NAME,
@@ -211,7 +212,7 @@ function* changeApiSaga(actionPayload: ReduxAction<{ id: string }>) {
 
   if (
     action.actionConfiguration &&
-    action.actionConfiguration.queryParameters
+    action.actionConfiguration.queryParameters?.length
   ) {
     // Sync the api params my mocking a change action
     yield call(syncApiParamsSaga, {
@@ -298,13 +299,26 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
-  yield put(
+  if (
+    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+  ) {
+    const value = _.get(values, field);
     setActionProperty({
       actionId: values.id,
       propertyName: field,
-      value: actionPayload.payload,
-    }),
-  );
+      value,
+    });
+  } else {
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value: actionPayload.payload,
+      }),
+    );
+  }
+
   yield all([
     call(syncApiParamsSaga, actionPayload),
     call(updateFormFields, actionPayload),

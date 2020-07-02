@@ -147,7 +147,7 @@ const queryPaneReducer = createReducer(initialState, {
       },
       runQuerySuccessData: {
         ...state.runQuerySuccessData,
-        [actionId]: action.payload.data,
+        ...action.payload,
       },
       runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
     };

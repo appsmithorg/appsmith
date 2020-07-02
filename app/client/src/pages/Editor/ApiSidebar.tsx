@@ -50,6 +50,7 @@ const ActionItem = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
+  max-width: 90%;
 `;
 
 const ActionName = styled.span`
@@ -58,7 +59,6 @@ const ActionName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
 `;
 
 interface ReduxStateProps {

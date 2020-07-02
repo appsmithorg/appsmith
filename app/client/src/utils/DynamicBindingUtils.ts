@@ -269,6 +269,7 @@ export function getEvaluatedDataTree(dataTree: DataTree): DataTree {
     cachedDataTreeString = dataTreeString;
     dependencyTreeCache = createDependencyTree(dataTree);
   }
+  console.log({ dependencyTreeCache });
   const createDepsEnd = performance.now();
   const {
     dependencyMap,

@@ -35,6 +35,10 @@ class JSONOutput extends React.Component<Props> {
       collapsed: 1,
     };
 
+    if (typeof src !== "object") {
+      return <OutputContainer>{src}</OutputContainer>;
+    }
+
     if (!src.length) {
       return (
         <OutputContainer>

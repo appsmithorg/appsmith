@@ -57,6 +57,7 @@ import ActionAPI, {
 import {
   getAction,
   getCurrentPageNameByActionId,
+  isActionDirty,
   isActionSaving,
 } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
@@ -115,35 +116,15 @@ export const getActionTimeout = (
   }
   return undefined;
 };
-const createActionSuccessResponse = (
+const createActionExecutionResponse = (
   response: ActionApiResponse,
 ): ActionResponse => ({
   ...response.data,
   ...response.clientMeta,
 });
 const isErrorResponse = (response: ActionApiResponse) => {
-  return (
-    (response.responseMeta && response.responseMeta.error) ||
-    !response.data.isExecutionSuccess
-  );
+  return !response.data.isExecutionSuccess;
 };
-const createActionErrorResponse = (
-  response: ActionApiResponse,
-): ActionResponse => ({
-  body: response.responseMeta.error || { error: "Error" },
-  statusCode: response.responseMeta.error
-    ? response.responseMeta.error.code.toString()
-    : "Error",
-  headers: {},
-  request: {
-    headers: {},
-    body: {},
-    httpMethod: "",
-    url: "",
-  },
-  duration: "0",
-  size: "0",
-});
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   log.debug("Evaluating data tree to get action binding value");
@@ -205,14 +186,14 @@ export function* executeActionSaga(
       executeActionRequest,
       timeout,
     );
+    const payload = createActionExecutionResponse(response);
+    yield put(
+      executeApiActionSuccess({
+        id: actionId,
+        response: payload,
+      }),
+    );
     if (isErrorResponse(response)) {
-      const payload = createActionErrorResponse(response);
-      if (_.isNil(response.responseMeta.error)) {
-        AppToaster.show({
-          message: api.name + " execution failed",
-          type: "error",
-        });
-      }
       if (onError) {
         yield put(
           executeAction({
@@ -229,20 +210,7 @@ export function* executeActionSaga(
           event.callback({ success: false });
         }
       }
-      yield put(
-        executeActionError({
-          actionId,
-          error: response.responseMeta.error,
-        }),
-      );
     } else {
-      const payload = createActionSuccessResponse(response);
-      yield put(
-        executeApiActionSuccess({
-          id: apiAction.actionId,
-          response: payload,
-        }),
-      );
       if (onSuccess) {
         yield put(
           executeAction({
@@ -268,6 +236,10 @@ export function* executeActionSaga(
         error,
       }),
     );
+    AppToaster.show({
+      message: "Action execution failed",
+      type: "error",
+    });
     if (onError) {
       yield put(
         executeAction({
@@ -359,8 +331,8 @@ function* runActionSaga(
   try {
     const actionId = reduxAction.payload.id;
     const isSaving = yield select(isActionSaving(actionId));
-    console.log({ isSaving });
-    if (isSaving) {
+    const isDirty = yield select(isActionDirty(actionId));
+    if (isSaving || isDirty) {
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
     const actionObject: PageAction = yield select(getAction, actionId);
@@ -382,10 +354,7 @@ function* runActionSaga(
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
-      let payload = createActionSuccessResponse(response);
-      if (response.responseMeta && response.responseMeta.error) {
-        payload = createActionErrorResponse(response);
-      }
+      const payload = createActionExecutionResponse(response);
 
       const pageName = yield select(getCurrentPageNameByActionId, actionId);
       const eventName =
@@ -449,7 +418,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       }),
     );
   } else {
-    const payload = createActionSuccessResponse(response);
+    const payload = createActionExecutionResponse(response);
     yield put(
       executeApiActionSuccess({
         id: pageAction.id,
