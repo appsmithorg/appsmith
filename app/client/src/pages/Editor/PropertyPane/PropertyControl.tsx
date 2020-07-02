@@ -32,6 +32,7 @@ const PropertyControl = (props: Props) => {
   ): { isValid: boolean; validationMessage?: string } => {
     let isValid = true;
     let validationMessage = "";
+    console.log("widgetProperties", widgetProperties);
     if (widgetProperties) {
       isValid = widgetProperties.invalidProps
         ? !(propertyName in widgetProperties.invalidProps)
@@ -48,6 +49,7 @@ const PropertyControl = (props: Props) => {
   const { propertyName, label } = propertyConfig;
   if (widgetProperties) {
     const propertyValue = widgetProperties[propertyName];
+    console.log("propertyValue", propertyName, propertyValue);
     const dataTreePath = `${widgetProperties.widgetName}.evaluatedValues.${propertyName}`;
     const evaluatedValue = _.get(
       widgetProperties,
