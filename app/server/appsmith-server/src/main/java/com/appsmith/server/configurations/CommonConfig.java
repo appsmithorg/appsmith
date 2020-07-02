@@ -8,27 +8,27 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @Configuration
 public class CommonConfig {
 
-    private String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
+    private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
-    @Value("${oauth2.allowed-domains:}")
-    private String allowedDomainList;
+    @Value("${oauth2.allowed-domains}")
+    private static String allowedDomainList;
 
-    List<String> domainList;
+    private List<String> domainList;
 
     @Bean
     public Scheduler scheduler() {
@@ -49,17 +49,12 @@ public class CommonConfig {
     }
 
     public List<String> getAllowedDomains() {
-        if (allowedDomainList == null || allowedDomainList.trim().isEmpty()) {
-            return new ArrayList<>();
+        if (domainList == null) {
+            domainList = StringUtils.hasText(allowedDomainList)
+                    ? Arrays.asList(allowedDomainList.trim().split("\\s*,[,\\s]*"))
+                    : Collections.emptyList();
         }
 
-        if (this.domainList == null) {
-            this.domainList = Arrays.asList(allowedDomainList.split(","))
-                    .stream()
-                    .filter(domain -> (domain != null && !domain.trim().isEmpty()))
-                    .collect(Collectors.toList());
-        }
-
-        return this.domainList;
+        return domainList;
     }
 }

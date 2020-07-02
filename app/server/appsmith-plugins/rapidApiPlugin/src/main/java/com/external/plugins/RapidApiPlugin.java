@@ -15,10 +15,12 @@ import org.bson.internal.Base64;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -40,8 +42,13 @@ import java.util.regex.Pattern;
 
 public class RapidApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
-    private static final String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
-    private static final String RAPID_API_KEY_VALUE = "6d804a25b8mshc11f75089009c26p12c8d8jsna1a83b13ffd5";
+
+    @Value("${rapidapi.key.name}")
+    private static String rapidApiKeyName;
+
+    @Value("${rapidapi.key.value}")
+    private static String rapidApiKeyValue;
+
     private static final String JSON_TYPE = "apipayload";
 
     public RapidApiPlugin(PluginWrapper wrapper) {
@@ -56,6 +63,10 @@ public class RapidApiPlugin extends BasePlugin {
         public Mono<Object> execute(Object connection,
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
+
+            if (StringUtils.isEmpty(rapidApiKeyValue)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."));
+            }
 
             String requestBody = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
             String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
@@ -77,7 +88,7 @@ public class RapidApiPlugin extends BasePlugin {
             }
 
             // Add the rapid api headers
-            webClientBuilder.defaultHeader(RAPID_API_KEY_NAME, RAPID_API_KEY_VALUE);
+            webClientBuilder.defaultHeader(rapidApiKeyName, rapidApiKeyValue);
 
             //If route parameters exist, update the URL by replacing the key surrounded by '{' and '}'
             if (actionConfiguration.getRouteParameters() != null && !actionConfiguration.getRouteParameters().isEmpty()) {
@@ -258,7 +269,9 @@ public class RapidApiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.just(new DatasourceTestResult());
+            return StringUtils.isEmpty(rapidApiKeyValue)
+                    ? Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."))
+                    : Mono.just(new DatasourceTestResult());
         }
 
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {

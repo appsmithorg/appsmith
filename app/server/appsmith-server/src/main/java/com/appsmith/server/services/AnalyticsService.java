@@ -21,12 +21,16 @@ public class AnalyticsService<T extends BaseDomain> {
     private final SessionUserService sessionUserService;
 
     @Autowired
-    public AnalyticsService(Analytics analytics, SessionUserService sessionUserService) {
+    public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
     }
 
     public Mono<User> trackNewUser(User user) {
+        if (analytics == null) {
+            return Mono.just(user);
+        }
+
         return Mono.just(user)
                 .map(savedUser -> {
                     Map<String, String> traitsMap = new HashMap<>();
@@ -44,6 +48,10 @@ public class AnalyticsService<T extends BaseDomain> {
     }
 
     public Mono<T> sendEvent(String eventTag, T object) {
+        if (analytics == null) {
+            return Mono.just(object);
+        }
+
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
         Mono<User> userMono = sessionUserService.getCurrentUser();

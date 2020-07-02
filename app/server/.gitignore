@@ -12,3 +12,4 @@ node_modules
 **/.classpath
 **/.project
 **/.factorypath
+envs/*.env
