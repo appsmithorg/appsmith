@@ -1,14 +1,31 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
-import DynamicAutocompleteInput, {
-  DynamicAutocompleteInputProps,
-} from "components/editorComponents/DynamicAutocompleteInput";
+import CodeEditor, {
+  EditorStyleProps,
+} from "components/editorComponents/CodeEditor";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 class DynamicTextField extends React.Component<
-  BaseFieldProps & DynamicAutocompleteInputProps
+  BaseFieldProps &
+    EditorStyleProps & {
+      size?: EditorSize;
+      tabBehaviour?: TabBehaviour;
+      mode?: EditorModes;
+    }
 > {
   render() {
-    return <Field component={DynamicAutocompleteInput} {...this.props} />;
+    const editorProps = {
+      mode: this.props.mode || EditorModes.TEXT_WITH_BINDING,
+      tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
+      theme: EditorTheme.LIGHT,
+      size: this.props.size || EditorSize.COMPACT,
+    };
+    return <Field component={CodeEditor} {...this.props} {...editorProps} />;
   }
 }
 

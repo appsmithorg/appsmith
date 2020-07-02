@@ -13,7 +13,6 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-import { Classes } from "@blueprintjs/core";
 
 // const ROW_HEIGHT = 37;
 // const TABLE_HEADER_HEIGHT = 39;

@@ -7,16 +7,15 @@ describe("Test curl import flow", function() {
     cy.NavigateToApiEditor();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
-      "curl -d { name : 'morpheus',job : 'leader'} -H Content-Type: application/json https://reqres.in/api/users",
+      "curl -d {name:'morpheus',job:'leader'} -H Content-Type:application/json https://reqres.in/api/users",
       {
         force: true,
         parseSpecialCharSequences: false,
       },
     );
     cy.importCurl();
-    cy.xpath(apiwidget.EditApiName).should("be.visible");
     cy.RunAPI();
-    cy.ResponseStatusCheck("200 OK");
+    cy.ResponseStatusCheck("201 CREATED");
     cy.get("@curlImport").then(response => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);
       cy.get(apiwidget.ApiName)
