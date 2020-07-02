@@ -191,7 +191,9 @@ class ApiSidebar extends React.Component<Props> {
       },
       actions,
     } = this.props;
-    const data = actions.map(a => a.config).filter(a => a.pluginType === "API");
+    const data = actions
+      .filter(a => a.config?.pluginType === "API")
+      .map(a => a.config);
     return (
       <EditorSidebar
         isLoading={isFetching}

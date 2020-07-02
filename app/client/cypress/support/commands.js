@@ -177,9 +177,7 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
-  cy.wait("@postSave");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.wait("@postexe");
   cy.get(apiwidget.EditApiName).should("be.visible");
   cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
@@ -258,7 +256,7 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .first()
     .click({ force: true })
     .type(datasource);
-  /*  
+  /*
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
@@ -1131,10 +1129,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
-  cy.route("POST", "/v1/t").as("postSave");
   cy.route("PUT", "/api/v1/actions/*").as("putActions");
   cy.route("POST", "/track/*").as("postTrack");
-  cy.route("POST", "/v1/m").as("postexe");
   cy.route("POST", "/api/v1/actions/execute").as("postExecute");
   cy.route("POST", "/api/v1/actions").as("postaction");
 

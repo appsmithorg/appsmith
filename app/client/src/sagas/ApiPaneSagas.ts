@@ -229,11 +229,10 @@ function* updateFormFields(
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
-  const formData = yield select(getFormData, API_EDITOR_FORM_NAME);
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   if (field === "actionConfiguration.httpMethod") {
     if (value !== "GET") {
-      const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
       const { actionConfiguration } = values;
       const actionConfigurationHeaders = actionConfiguration.headers;
       let contentType;
@@ -257,12 +256,11 @@ function* updateFormFields(
       }
     }
   } else if (field.includes("actionConfiguration.headers")) {
-    const formValues = formData.values;
     const actionConfigurationHeaders = _.get(
-      formValues,
+      values,
       "actionConfiguration.headers",
     );
-    const apiId = _.get(formValues, "id");
+    const apiId = _.get(values, "id");
     let displayFormat;
 
     if (actionConfigurationHeaders) {
