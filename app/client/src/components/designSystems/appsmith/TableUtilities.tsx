@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Icon } from "@blueprintjs/core";
+import { Icon, InputGroup } from "@blueprintjs/core";
 import moment from "moment-timezone";
 import {
   MenuColumnWrapper,
@@ -18,7 +18,6 @@ interface MenuOptionProps {
   columnType: string;
   format?: string;
   hideColumn: (columnIndex: number, isColumnHidden: boolean) => void;
-  updateAction: (columnIndex: number, action: string) => void;
   updateColumnType: (columnIndex: number, columnType: string) => void;
   handleUpdateCurrencySymbol: (
     columnIndex: number,
@@ -33,9 +32,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       content: "Rename a Column",
       closeOnClick: true,
       id: "rename_column",
-      onClick: (columnIndex: number) => {
-        props.updateAction(columnIndex, "rename_column");
-      },
+      editColumnName: true,
     },
     {
       content: props.isColumnHidden ? "Show Column" : "Hide Column",
@@ -412,7 +409,11 @@ const TableAction = (props: {
     setLoading(false);
   };
   return (
-    <ActionWrapper>
+    <ActionWrapper
+      onClick={e => {
+        e.stopPropagation();
+      }}
+    >
       <Button
         loading={loading}
         onClick={() => {
@@ -425,5 +426,35 @@ const TableAction = (props: {
         size="small"
       />
     </ActionWrapper>
+  );
+};
+
+export const RenameColumn = (props: {
+  value: any;
+  columnIndex: number;
+  handleSave: (columnIndex: number, value: any) => void;
+}) => {
+  const [columnName, updateColumnName] = useState(props.value);
+  const onKeyPress = (key: string) => {
+    if (key === "Enter") {
+      props.handleSave(props.columnIndex, columnName);
+    }
+  };
+  const onColumnNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateColumnName(event.target.value);
+  };
+  const handleColumnNameUpdate = () => {
+    props.handleSave(props.columnIndex, columnName);
+  };
+  return (
+    <InputGroup
+      type="text"
+      className="input-group"
+      placeholder="Enter Column Name"
+      defaultValue={columnName}
+      onChange={onColumnNameChange}
+      onKeyPress={e => onKeyPress(e.key)}
+      onBlur={e => handleColumnNameUpdate()}
+    />
   );
 };

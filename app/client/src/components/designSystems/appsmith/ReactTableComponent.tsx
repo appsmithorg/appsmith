@@ -5,15 +5,6 @@ import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import _ from "lodash";
 import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
 
-interface ReactTableComponentState {
-  trigger: number;
-  columnIndex: number;
-  pageSize: number;
-  action: string;
-  columnName: string;
-  isLoading: boolean;
-}
-
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
@@ -28,6 +19,7 @@ export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
   closeOnClick?: boolean;
   isSelected?: boolean;
+  editColumnName?: boolean;
   columnAccessor?: string;
   id?: string;
   category?: boolean;
@@ -81,33 +73,10 @@ interface ReactTableComponentProps {
 }
 
 export class ReactTableComponent extends React.Component<
-  ReactTableComponentProps,
-  ReactTableComponentState
+  ReactTableComponentProps
 > {
   private dragged = -1;
-  constructor(props: ReactTableComponentProps) {
-    super(props);
-    this.state = {
-      trigger: 0,
-      columnIndex: -1,
-      action: "",
-      columnName: "",
-      pageSize: props.pageSize,
-      isLoading: props.isLoading,
-    };
-  }
-
   componentDidMount() {
-    this.mountEvents();
-  }
-
-  componentDidUpdate(prevProps: ReactTableComponentProps) {
-    if (this.props.pageSize !== prevProps.pageSize) {
-      this.setState({ pageSize: this.props.pageSize });
-    }
-    if (this.props.isLoading !== prevProps.isLoading) {
-      this.setState({ isLoading: this.props.isLoading });
-    }
     this.mountEvents();
   }
 
@@ -183,7 +152,6 @@ export class ReactTableComponent extends React.Component<
           columnOrder.splice(this.dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
           this.props.handleReorderColumn(columnOrder);
-          this.setState({ trigger: Math.random() });
         } else {
           this.dragged = -1;
         }
@@ -314,24 +282,18 @@ export class ReactTableComponent extends React.Component<
     return reorderedColumns;
   };
 
-  getColumnMenu = () => {
-    const { columnIndex } = this.state;
-    let columnType = "";
-    let columnId = "";
-    let format = "";
-    if (columnIndex !== -1) {
-      const columns = this.getTableColumns();
-      const column = columns[columnIndex];
-      columnId = column.accessor;
-      columnType =
-        this.props.columnTypeMap && this.props.columnTypeMap[columnId]
-          ? this.props.columnTypeMap[columnId].type
-          : "";
-      format =
-        this.props.columnTypeMap && this.props.columnTypeMap[columnId]
-          ? this.props.columnTypeMap[columnId].format
-          : "";
-    }
+  getColumnMenu = (columnIndex: number) => {
+    const columns = this.getTableColumns();
+    const column = columns[columnIndex];
+    const columnId = column.accessor;
+    const columnType =
+      this.props.columnTypeMap && this.props.columnTypeMap[columnId]
+        ? this.props.columnTypeMap[columnId].type
+        : "";
+    const format =
+      this.props.columnTypeMap && this.props.columnTypeMap[columnId]
+        ? this.props.columnTypeMap[columnId].format
+        : "";
     const isColumnHidden = !!(
       this.props.hiddenColumns && this.props.hiddenColumns.includes(columnId)
     );
@@ -344,14 +306,8 @@ export class ReactTableComponent extends React.Component<
       updateColumnType: this.updateColumnType,
       handleUpdateCurrencySymbol: this.handleUpdateCurrencySymbol,
       handleDateFormatUpdate: this.handleDateFormatUpdate,
-      updateAction: (columnIndex: number, action: string) =>
-        this.setState({ action: action }),
     });
     return columnMenuOptions;
-  };
-
-  showMenu = (columnIndex: number) => {
-    this.setState({ columnIndex: columnIndex, action: "" });
   };
 
   hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
@@ -371,7 +327,6 @@ export class ReactTableComponent extends React.Component<
       });
     }
     this.props.updateHiddenColumns(hiddenColumns);
-    this.setState({ columnIndex: -1 });
   };
 
   updateColumnType = (columnIndex: number, columnType: string) => {
@@ -383,31 +338,14 @@ export class ReactTableComponent extends React.Component<
       format: "",
     };
     this.props.updateColumnType(columnTypeMap);
-    this.setState({ action: "", columnIndex: -1 });
   };
 
-  onColumnNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ columnName: event.target.value });
-  };
-
-  onKeyPress = (columnIndex: number, key: string) => {
-    if (key === "Enter") {
-      this.handleColumnNameUpdate(columnIndex);
-    }
-  };
-
-  handleColumnNameUpdate = (columnIndex: number) => {
+  handleColumnNameUpdate = (columnIndex: number, columnName: string) => {
     const columns = this.getTableColumns();
-    const columnName = this.state.columnName;
     const column = columns[columnIndex];
     const columnNameMap = this.props.columnNameMap || {};
     columnNameMap[column.accessor] = columnName;
     this.props.updateColumnName(columnNameMap);
-    this.setState({
-      columnIndex: -1,
-      columnName: "",
-      action: "",
-    });
   };
 
   handleUpdateCurrencySymbol = (
@@ -422,10 +360,6 @@ export class ReactTableComponent extends React.Component<
       format: currencySymbol,
     };
     this.props.updateColumnType(columnTypeMap);
-    this.setState({
-      columnIndex: -1,
-      action: "",
-    });
   };
 
   handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
@@ -437,10 +371,6 @@ export class ReactTableComponent extends React.Component<
       format: dateFormat,
     };
     this.props.updateColumnType(columnTypeMap);
-    this.setState({
-      columnIndex: -1,
-      action: "",
-    });
   };
 
   handleResizeColumn = (columnIndex: number, columnWidth: string) => {
@@ -467,20 +397,17 @@ export class ReactTableComponent extends React.Component<
     const columns = this.getTableColumns();
     return (
       <Table
-        isLoading={this.state.isLoading}
+        isLoading={this.props.isLoading}
         width={this.props.width}
         height={this.props.height}
-        pageSize={this.state.pageSize || 1}
+        pageSize={this.props.pageSize || 1}
         widgetId={this.props.widgetId}
         columns={columns}
+        columnOrder={(this.props.columnOrder || []).join(",")}
         data={this.props.tableData}
-        showMenu={this.showMenu}
         displayColumnActions={this.props.renderMode === RenderModes.CANVAS}
         columnNameMap={this.props.columnNameMap}
-        columnMenuOptions={this.getColumnMenu()}
-        columnIndex={this.state.columnIndex}
-        columnAction={this.state.action}
-        onColumnNameChange={this.onColumnNameChange}
+        getColumnMenu={this.getColumnMenu}
         handleColumnNameUpdate={this.handleColumnNameUpdate}
         handleResizeColumn={_.debounce(this.handleResizeColumn, 300)}
         selectTableRow={this.selectTableRow}
@@ -492,7 +419,6 @@ export class ReactTableComponent extends React.Component<
         prevPageClick={() => {
           this.props.prevPageClick();
         }}
-        onKeyPress={this.onKeyPress}
         serverSidePaginationEnabled={this.props.serverSidePaginationEnabled}
         selectedRowIndex={this.props.selectedRowIndex}
         disableDrag={() => {

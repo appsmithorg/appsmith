@@ -17,12 +17,13 @@ import {
 } from "./ReactTableComponent";
 
 interface TableColumnMenuPopup {
-  showMenu: (index: number) => void;
   columnIndex: number;
-  columnMenuOptions: ColumnMenuOptionProps[];
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  editColumnName: () => void;
 }
 
 export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
+  const columnMenuOptions = props.getColumnMenu(props.columnIndex);
   return (
     <Popover
       minimal
@@ -31,22 +32,17 @@ export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
       interactionKind={PopoverInteractionKind.CLICK}
       position={Position.BOTTOM}
     >
-      <Icon
-        icon="more"
-        iconSize={12}
-        color="#A1ACB3"
-        onClick={e => {
-          props.showMenu(props.columnIndex);
-        }}
-      />
+      <Icon icon="more" iconSize={12} color="#A1ACB3" />
       <DropDownWrapper>
-        {props.columnMenuOptions.map(
+        {columnMenuOptions.map(
           (option: ColumnMenuOptionProps, index: number) => (
             <OptionWrapper
               key={index}
               onClick={() => {
                 if (option.onClick) {
                   option.onClick(props.columnIndex, !!option.isSelected);
+                } else if (option.editColumnName) {
+                  props.editColumnName();
                 }
               }}
               className={

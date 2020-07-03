@@ -6,13 +6,13 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { InputGroup } from "@blueprintjs/core";
 import { TableWrapper } from "./TableStyledWrappers";
 import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
 import { TableColumnMenuPopup } from "./TableColumnMenu";
+import { RenameColumn } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
@@ -21,17 +21,14 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
+  columnOrder: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
   data: object[];
-  showMenu: (columnIndex: number) => void;
   displayColumnActions: boolean;
   columnNameMap?: { [key: string]: string };
-  columnMenuOptions: ColumnMenuOptionProps[];
-  columnIndex: number;
-  columnAction: string;
-  onColumnNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleColumnNameUpdate: (columnIndex: number) => void;
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   handleResizeColumn: Function;
   selectTableRow: (
     row: { original: object; index: number },
@@ -41,7 +38,6 @@ interface TableProps {
   updatePageNo: Function;
   nextPageClick: () => void;
   prevPageClick: () => void;
-  onKeyPress: (columnIndex: number, key: string) => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
   disableDrag: () => void;
@@ -49,7 +45,6 @@ interface TableProps {
 }
 
 export const Table = (props: TableProps) => {
-  const { data, columns } = props;
   const defaultColumn = React.useMemo(
     () => ({
       minWidth: 30,
@@ -58,9 +53,10 @@ export const Table = (props: TableProps) => {
     }),
     [],
   );
-
-  const pageCount = Math.ceil(data.length / props.pageSize);
+  const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+  const columns = React.useMemo(() => props.columns, [props.columnOrder]);
+  const data = React.useMemo(() => props.data, [currentPageIndex]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -89,7 +85,7 @@ export const Table = (props: TableProps) => {
   let endIndex = startIndex + props.pageSize;
   if (props.serverSidePaginationEnabled) {
     startIndex = 0;
-    endIndex = data.length;
+    endIndex = props.data.length;
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
@@ -114,9 +110,9 @@ export const Table = (props: TableProps) => {
           <div onMouseOver={props.disableDrag} onMouseLeave={props.enableDrag}>
             {headerGroups.map((headerGroup: any, index: number) => (
               <div
-                key={index}
                 {...headerGroup.getHeaderGroupProps()}
                 className="tr"
+                key={index}
               >
                 {headerGroup.headers.map((column: any, columnIndex: number) => {
                   if (column.isResizing) {
@@ -127,53 +123,24 @@ export const Table = (props: TableProps) => {
                   }
                   return (
                     <div
-                      key={columnIndex}
                       {...column.getHeaderProps()}
                       className="th header-reorder"
+                      key={columnIndex}
                     >
-                      {props.columnIndex === columnIndex &&
-                        props.columnAction === "rename_column" && (
-                          <InputGroup
-                            placeholder="Enter Column Name"
-                            onChange={props.onColumnNameChange}
-                            onKeyPress={event =>
-                              props.onKeyPress(columnIndex, event.key)
-                            }
-                            type="text"
-                            defaultValue={
-                              props.columnNameMap &&
-                              props.columnNameMap[column.id]
-                                ? props.columnNameMap[column.id]
-                                : column.id
-                            }
-                            className="input-group"
-                            onBlur={() =>
-                              props.handleColumnNameUpdate(columnIndex)
-                            }
-                          />
-                        )}
-                      {(props.columnIndex !== columnIndex ||
-                        (props.columnIndex === columnIndex &&
-                          "rename_column" !== props.columnAction)) && (
-                        <div
-                          className={
-                            !column.isHidden
-                              ? "draggable-header"
-                              : "hidden-header"
-                          }
-                        >
-                          {column.render("Header")}
-                        </div>
-                      )}
-                      {props.displayColumnActions && (
-                        <div className="column-menu">
-                          <TableColumnMenuPopup
-                            showMenu={props.showMenu}
-                            columnMenuOptions={props.columnMenuOptions}
-                            columnIndex={columnIndex}
-                          />
-                        </div>
-                      )}
+                      <RenderColumn
+                        columnName={
+                          props.columnNameMap && props.columnNameMap[column.id]
+                            ? props.columnNameMap[column.id]
+                            : column.id
+                        }
+                        columnIndex={columnIndex}
+                        isHidden={column.isHidden}
+                        displayColumnActions={props.displayColumnActions}
+                        handleColumnNameUpdate={props.handleColumnNameUpdate}
+                        getColumnMenu={props.getColumnMenu}
+                      >
+                        {column.render("Header")}
+                      </RenderColumn>
                       <div
                         {...column.getResizerProps()}
                         className={`resizer ${
@@ -189,11 +156,10 @@ export const Table = (props: TableProps) => {
               renderEmptyRows(1, props.columns, props.width)}
           </div>
           <div {...getTableBodyProps()} className="tbody">
-            {subPage.map((row, index) => {
+            {subPage.map((row, rowIndex) => {
               prepareRow(row);
               return (
                 <div
-                  key={index}
                   {...row.getRowProps()}
                   className={
                     "tr" +
@@ -203,15 +169,16 @@ export const Table = (props: TableProps) => {
                     row.toggleRowSelected();
                     props.selectTableRow(row, row.index === selectedRowIndex);
                   }}
+                  key={rowIndex}
                 >
                   {row.cells.map((cell, cellIndex) => {
                     return (
                       <div
-                        key={cellIndex}
                         {...cell.getCellProps()}
                         className="td"
-                        data-rowindex={index}
+                        data-rowindex={rowIndex}
                         data-colindex={cellIndex}
+                        key={cellIndex}
                       >
                         {cell.render("Cell")}
                       </div>
@@ -272,6 +239,47 @@ const renderEmptyRows = (
           </div>
         );
       })}
+    </React.Fragment>
+  );
+};
+
+const RenderColumn = (props: {
+  columnName: string;
+  columnIndex: number;
+  isHidden: boolean;
+  displayColumnActions: boolean;
+  handleColumnNameUpdate: (columnIndex: number, name: string) => void;
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  children: React.ReactNode;
+}) => {
+  const [renameColumn, toggleRenameColumn] = React.useState(false);
+  const handleSaveColumnName = (columnIndex: number, columName: string) => {
+    props.handleColumnNameUpdate(columnIndex, columName);
+    toggleRenameColumn(false);
+  };
+  return (
+    <React.Fragment>
+      {renameColumn && (
+        <RenameColumn
+          value={props.columnName}
+          handleSave={handleSaveColumnName}
+          columnIndex={props.columnIndex}
+        />
+      )}
+      {!renameColumn && (
+        <div className={!props.isHidden ? "draggable-header" : "hidden-header"}>
+          {props.children}
+        </div>
+      )}
+      {props.displayColumnActions && (
+        <div className="column-menu">
+          <TableColumnMenuPopup
+            getColumnMenu={props.getColumnMenu}
+            columnIndex={props.columnIndex}
+            editColumnName={() => toggleRenameColumn(true)}
+          />
+        </div>
+      )}
     </React.Fragment>
   );
 };
