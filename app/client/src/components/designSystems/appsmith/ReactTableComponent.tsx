@@ -2,7 +2,7 @@ import React from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
 
 interface ReactTableComponentState {
@@ -44,6 +44,7 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps {
   widgetId: string;
+  searchKey: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isLoading: boolean;
@@ -57,7 +58,7 @@ interface ReactTableComponentProps {
   onRowClick: (rowData: object, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string) => void;
   updatePageNo: Function;
-  updateHiddenColumns: Function;
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   resetSelectedRowIndex: Function;
   nextPageClick: Function;
   prevPageClick: Function;
@@ -78,6 +79,7 @@ interface ReactTableComponentProps {
   updateColumnName: Function;
   handleResizeColumn: Function;
   handleReorderColumn: Function;
+  searchTableData: (searchKey: any) => void;
 }
 
 export class ReactTableComponent extends React.Component<
@@ -472,7 +474,10 @@ export class ReactTableComponent extends React.Component<
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
         widgetId={this.props.widgetId}
+        searchKey={this.props.searchKey}
         columns={columns}
+        hiddenColumns={this.props.hiddenColumns}
+        updateHiddenColumns={this.props.updateHiddenColumns}
         data={this.props.tableData}
         showMenu={this.showMenu}
         displayColumnActions={this.props.renderMode === RenderModes.CANVAS}
@@ -482,7 +487,7 @@ export class ReactTableComponent extends React.Component<
         columnAction={this.state.action}
         onColumnNameChange={this.onColumnNameChange}
         handleColumnNameUpdate={this.handleColumnNameUpdate}
-        handleResizeColumn={_.debounce(this.handleResizeColumn, 300)}
+        handleResizeColumn={debounce(this.handleResizeColumn, 300)}
         selectTableRow={this.selectTableRow}
         pageNo={this.props.pageNo - 1}
         updatePageNo={this.props.updatePageNo}
@@ -501,6 +506,7 @@ export class ReactTableComponent extends React.Component<
         enableDrag={() => {
           this.props.disableDrag(false);
         }}
+        searchTableData={debounce(this.props.searchTableData, 500)}
       />
     );
   }
