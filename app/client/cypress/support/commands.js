@@ -539,6 +539,18 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(innercss).should("have.text", text);
 });
 
+Cypress.Commands.add("EvaluateDataType", dataType => {
+  cy.get(commonlocators.evaluatedType)
+    .should("be.visible")
+    .contains(dataType);
+});
+
+Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.get(commonlocators.evaluatedCurrentValue)
+    .should("be.visible")
+    .contains(currentValue);
+});
+
 Cypress.Commands.add("PublishtheApp", () => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");

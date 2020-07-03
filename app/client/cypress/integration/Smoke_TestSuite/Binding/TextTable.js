@@ -21,6 +21,8 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "0").then(tabData => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.EvaluateDataType("string");
+      cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "0").then(tabDataP => {
@@ -43,6 +45,8 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("2", "1").then(tabData => {
       const tabValue = tabData;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.EvaluateDataType("string");
+      cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(2);
       cy.readTabledataPublish("2", "1").then(tabDataP => {
@@ -63,6 +67,8 @@ describe("Text-Table Binding Functionality", function() {
       .then(listing => {
         const listingCount = listing.length.toString();
         cy.get(commonlocators.TextInside).should("have.text", listingCount);
+        cy.EvaluateDataType("string");
+        cy.EvaluateCurrentValue(listingCount);
         cy.PublishtheApp();
         cy.pageNo();
         cy.get(publish.tableLength)
@@ -93,6 +99,8 @@ describe("Text-Table Binding Functionality", function() {
     cy.readTabledata("1", "2").then(tabData => {
       const tabValue = `\"${tabData}\"`;
       cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.EvaluateDataType("string");
+      cy.EvaluateCurrentValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
       cy.readTabledataPublish("1", "2").then(tabDataP => {
