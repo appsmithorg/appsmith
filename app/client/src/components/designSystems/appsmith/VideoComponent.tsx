@@ -14,10 +14,9 @@ const PlayerWrapper = styled.div`
   height: 400px;
 `;
 
-const YoutubeIcon = styled(ControlIcons.OPEN_YOUTUBE as AnyStyledComponent)`
+const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
   position: relative;
   top: 10px;
-  left: -13px;
   &:hover {
     svg {
       path {
@@ -57,7 +56,7 @@ const VideoComponent = (props: VideoComponentProps) => {
           },
         }}
       >
-        <YoutubeIcon width="80" height="52" color="black" />
+        <PlayIcon width="80" height="52" color="black" />
         <PlayerWrapper>
           <ReactPlayer
             playing={true}
