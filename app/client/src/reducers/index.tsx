@@ -27,7 +27,6 @@ import { ImportedCollectionsReduxState } from "reducers/uiReducers/importedColle
 import { ProvidersReduxState } from "reducers/uiReducers/providerReducer";
 import { MetaState } from "./entityReducers/metaReducer";
 import { ImportReduxState } from "reducers/uiReducers/importReducer";
-import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 
@@ -64,7 +63,6 @@ export interface AppState {
     canvasWidgets: CanvasWidgetsReduxState;
     queryData: QueryDataState;
     actions: ActionDataState;
-    actionDrafts: ActionDraftsState;
     propertyConfig: PropertyPaneConfigState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;

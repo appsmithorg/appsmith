@@ -6,24 +6,26 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { Icon, InputGroup } from "@blueprintjs/core";
-import {
-  TableWrapper,
-  PaginationWrapper,
-  PaginationItemWrapper,
-} from "./TableStyledWrappers";
+import { InputGroup } from "@blueprintjs/core";
+import { TableWrapper } from "./TableStyledWrappers";
 import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
 import { TableColumnMenuPopup } from "./TableColumnMenu";
+import TableHeader from "./TableHeader";
+import { Classes } from "@blueprintjs/core";
 
 interface TableProps {
   width: number;
   height: number;
   pageSize: number;
   widgetId: string;
+  searchKey: string;
+  isLoading: boolean;
   columns: ReactTableColumnProps[];
+  hiddenColumns?: string[];
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
   showMenu: (columnIndex: number) => void;
   displayColumnActions: boolean;
@@ -47,6 +49,7 @@ interface TableProps {
   selectedRowIndex: number;
   disableDrag: () => void;
   enableDrag: () => void;
+  searchTableData: (searchKey: any) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -62,6 +65,9 @@ export const Table = (props: TableProps) => {
 
   const pageCount = Math.ceil(data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+  // const filteredColumns = columns.filter((column: ReactTableColumnProps) => {
+  //   return !column.isHidden;
+  // });
   const {
     getTableProps,
     getTableBodyProps,
@@ -100,7 +106,24 @@ export const Table = (props: TableProps) => {
       height={props.height}
       id={`table${props.widgetId}`}
     >
-      <div className="tableWrap">
+      <TableHeader
+        searchTableData={props.searchTableData}
+        searchKey={props.searchKey}
+        updatePageNo={props.updatePageNo}
+        nextPageClick={props.nextPageClick}
+        prevPageClick={props.prevPageClick}
+        pageNo={props.pageNo}
+        pageCount={pageCount}
+        currentPageIndex={currentPageIndex}
+        pageOptions={pageOptions}
+        serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+        columns={props.columns.filter((column: ReactTableColumnProps) => {
+          return column.accessor !== "actions";
+        })}
+        hiddenColumns={props.hiddenColumns}
+        updateHiddenColumns={props.updateHiddenColumns}
+      />
+      <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
           <div onMouseOver={props.disableDrag} onMouseLeave={props.enableDrag}>
             {headerGroups.map((headerGroup: any, index: number) => (
@@ -220,66 +243,6 @@ export const Table = (props: TableProps) => {
           </div>
         </div>
       </div>
-      {props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <PaginationItemWrapper
-            disabled={false}
-            onClick={() => {
-              props.prevPageClick();
-            }}
-          >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-          <PaginationItemWrapper selected className="page-item">
-            {props.pageNo + 1}
-          </PaginationItemWrapper>
-          <PaginationItemWrapper
-            disabled={false}
-            onClick={() => {
-              props.nextPageClick();
-            }}
-          >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
-      {!props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <PaginationItemWrapper
-            disabled={currentPageIndex === 0}
-            onClick={() => {
-              const pageNo = currentPageIndex > 0 ? currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1);
-            }}
-          >
-            <Icon icon="chevron-left" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-          {pageOptions.map((pageNumber: number, index: number) => {
-            return (
-              <PaginationItemWrapper
-                key={index}
-                selected={pageNumber === currentPageIndex}
-                onClick={() => {
-                  props.updatePageNo(pageNumber + 1);
-                }}
-                className="page-item"
-              >
-                {index + 1}
-              </PaginationItemWrapper>
-            );
-          })}
-          <PaginationItemWrapper
-            disabled={currentPageIndex === pageCount - 1}
-            onClick={() => {
-              const pageNo =
-                currentPageIndex < pageCount - 1 ? currentPageIndex + 1 : 0;
-              props.updatePageNo(pageNo + 1);
-            }}
-          >
-            <Icon icon="chevron-right" iconSize={16} color="#A1ACB3" />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
     </TableWrapper>
   );
 };
@@ -294,7 +257,7 @@ const renderEmptyRows = (
   const rows: string[] = new Array(rowCount).fill("");
   const tableColumns = columns.length
     ? columns
-    : new Array(3).fill({ width: tableWidth / 3 });
+    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
   return (
     <React.Fragment>
       {rows.map((row: string, index: number) => {

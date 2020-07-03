@@ -177,15 +177,14 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .click({ force: true });
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
-  cy.wait("@postSave");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.wait("@postexe");
   cy.get(apiwidget.EditApiName).should("be.visible");
   cy.get(apiwidget.EditApiName).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
-    .should("have.value", apiname);
+    .should("have.value", apiname)
+    .blur();
   //cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
@@ -216,13 +215,14 @@ Cypress.Commands.add("EditApiName", apiname => {
 });
 
 Cypress.Commands.add("WaitAutoSave", () => {
+  // wait for save query to trigger
+  cy.wait(200);
   cy.wait("@saveQuery");
   //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
-  // cy.wait('@postTrack');
   cy.wait("@postExecute");
 });
 
@@ -258,7 +258,7 @@ Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
     .first()
     .click({ force: true })
     .type(datasource);
-  /*  
+  /*
   cy.xpath(apiwidget.autoSuggest)
     .first()
     .click({ force: true });
@@ -986,16 +986,9 @@ Cypress.Commands.add("fillPostgresDatasourceForm", () => {
   );
 });
 
-Cypress.Commands.add("runSaveDeleteQuery", () => {
+Cypress.Commands.add("runAndDeleteQuery", () => {
   cy.get(queryEditor.runQuery).click();
   cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-
-  cy.get(queryEditor.saveQuery).click();
-  cy.wait("@saveQuery").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -1024,7 +1017,9 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.editPropCrossButton).click();
 });
 
-Cypress.Commands.add("createApi", (url, parameters) => {
+Cypress.Commands.add("createAndFillApi", (url, parameters) => {
+  cy.NavigateToApiEditor();
+  cy.testCreateApiButton();
   cy.get("@createNewApi").then(response => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);
@@ -1138,10 +1133,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
-  cy.route("POST", "/v1/t").as("postSave");
   cy.route("PUT", "/api/v1/actions/*").as("putActions");
   cy.route("POST", "/track/*").as("postTrack");
-  cy.route("POST", "/v1/m").as("postexe");
   cy.route("POST", "/api/v1/actions/execute").as("postExecute");
   cy.route("POST", "/api/v1/actions").as("postaction");
 

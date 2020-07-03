@@ -22,16 +22,6 @@ export const deleteQuerySuccess = (payload: { id: string }) => {
   };
 };
 
-export const executeQuery = (payload: {
-  action: RestAction;
-  actionId: string;
-}) => {
-  return {
-    type: ReduxActionTypes.EXECUTE_QUERY_REQUEST,
-    payload,
-  };
-};
-
 export const initQueryPane = (
   pluginType: string,
   urlId?: string,
