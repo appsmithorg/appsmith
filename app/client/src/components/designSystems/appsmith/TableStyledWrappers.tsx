@@ -255,3 +255,10 @@ export const CellWrapper = styled.div<{ isHidden: boolean }>`
     }
   }
 `;
+
+export const TableHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+`;
