@@ -26,7 +26,7 @@ public class CommonConfig {
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
     @Value("${oauth2.allowed-domains}")
-    private static String allowedDomainList;
+    private String allowedDomainList;
 
     private List<String> domainList;
 

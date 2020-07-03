@@ -15,10 +15,10 @@ import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
 public class RollbarConfig {
 
     @Value("${com.rollbar.access-token}")
-    private static String rollbarAccessToken;
+    private String rollbarAccessToken;
 
     @Value("${rollbar.env:}")
-    private static String rollbarEnv;
+    private String rollbarEnv;
 
     final Environment env;
 

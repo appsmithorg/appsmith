@@ -43,12 +43,6 @@ import java.util.regex.Pattern;
 public class RapidApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
-    @Value("${rapidapi.key.name}")
-    private static String rapidApiKeyName;
-
-    @Value("${rapidapi.key.value}")
-    private static String rapidApiKeyValue;
-
     private static final String JSON_TYPE = "apipayload";
 
     public RapidApiPlugin(PluginWrapper wrapper) {
@@ -58,6 +52,12 @@ public class RapidApiPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class RapidApiPluginExecutor implements PluginExecutor {
+
+        @Value("${rapidapi.key.name}")
+        private String rapidApiKeyName;
+
+        @Value("${rapidapi.key.value}")
+        private String rapidApiKeyValue;
 
         @Override
         public Mono<Object> execute(Object connection,

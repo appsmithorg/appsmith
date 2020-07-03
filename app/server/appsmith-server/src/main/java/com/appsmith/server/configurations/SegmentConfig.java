@@ -11,10 +11,11 @@ import org.springframework.context.annotation.Configuration;
 public class SegmentConfig {
 
     @Value("${segment.writeKey}")
-    private static String writeKey;
+    private String writeKey;
 
     @Bean
     public Analytics analyticsRunner() {
         return Analytics.builder(writeKey).build();
     }
+
 }
