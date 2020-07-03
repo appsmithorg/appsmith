@@ -211,7 +211,7 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
 `;
 
 export const ActionWrapper = styled.div`
-  margin: 10px 5px 0 0;
+  margin: 0 5px 0 0;
   &&&&&& {
     .bp3-button span {
       font-weight: 400;
