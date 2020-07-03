@@ -70,6 +70,8 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
+    private static final String MISSING_VALUE_SENTINEL = "missing_value_sentinel";
+
     private final CommonConfig commonConfig;
 
     /**
@@ -114,7 +116,7 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
                                                     String clientRegistrationId) {
         return this.findByRegistrationId(exchange, clientRegistrationId)
                 .flatMap(clientRegistration -> {
-                    if ("missing_value_sentinel".equals(clientRegistration.getClientId())) {
+                    if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
                         return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
                     } else {
                         return Mono.just(authorizationRequest(exchange, clientRegistration));
