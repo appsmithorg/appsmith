@@ -58,7 +58,7 @@ interface ReactTableComponentProps {
   onRowClick: (rowData: object, rowIndex: number) => void;
   onCommandClick: (dynamicTrigger: string) => void;
   updatePageNo: Function;
-  updateHiddenColumns: Function;
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   resetSelectedRowIndex: Function;
   nextPageClick: Function;
   prevPageClick: Function;
@@ -476,6 +476,8 @@ export class ReactTableComponent extends React.Component<
         widgetId={this.props.widgetId}
         searchKey={this.props.searchKey}
         columns={columns}
+        hiddenColumns={this.props.hiddenColumns}
+        updateHiddenColumns={this.props.updateHiddenColumns}
         data={this.props.tableData}
         showMenu={this.showMenu}
         displayColumnActions={this.props.renderMode === RenderModes.CANVAS}

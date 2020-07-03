@@ -168,6 +168,7 @@ export const PaginationWrapper = styled.div`
   width: 100%;
   justify-content: flex-end;
   align-items: center;
+  padding: 14px 20px;
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -260,5 +261,10 @@ export const TableHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
-  padding: 14px 20px;
+`;
+
+export const CommonFunctionsMenuWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;
