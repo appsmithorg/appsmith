@@ -96,6 +96,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8,
       label: "Data",
       widgetName: "Table",
+      searchKey: "",
       tableData: [
         {
           id: 2381224,

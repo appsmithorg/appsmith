@@ -164,11 +164,11 @@ export const IconOptionWrapper = styled.div`
 
 export const PaginationWrapper = styled.div`
   box-sizing: border-box;
-  padding: 10px;
   display: flex;
   width: 100%;
   justify-content: flex-end;
   align-items: center;
+  padding: 14px 20px;
 `;
 
 export const PaginationItemWrapper = styled.div<{
@@ -185,7 +185,7 @@ export const PaginationItemWrapper = styled.div<{
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 0 0 8px;
+  margin: 0 4px;
   pointer-events: ${props => props.disabled && "none"};
   cursor: pointer;
   &:hover {
@@ -255,4 +255,21 @@ export const TableHeaderWrapper = styled.div`
   align-items: center;
   width: 100%;
   border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
+`;
+
+export const CommonFunctionsMenuWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+`;
+
+export const RowWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 20px;
+  color: #4e5d78;
+  margin: 0 4px;
+  white-space: nowrap;
 `;

@@ -11,6 +11,7 @@ import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { isString } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
+import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -330,7 +331,10 @@ export const renderCell = (
     case "currency":
       if (!isNaN(value)) {
         return (
-          <CellWrapper isHidden={isHidden}>{`${format}${value}`}</CellWrapper>
+          <AutoToolTipComponent
+            title={`${format}${value}`}
+            isHidden={isHidden}
+          >{`${format}${value}`}</AutoToolTipComponent>
         );
       } else {
         return <CellWrapper isHidden={isHidden}>Invalid Value</CellWrapper>;
@@ -345,9 +349,12 @@ export const renderCell = (
       }
       if (isValidDate) {
         return (
-          <CellWrapper isHidden={isHidden}>
+          <AutoToolTipComponent
+            title={moment(value).format(format)}
+            isHidden={isHidden}
+          >
             {moment(value).format(format)}
-          </CellWrapper>
+          </AutoToolTipComponent>
         );
       } else {
         return <CellWrapper isHidden={isHidden}>Invalid Date</CellWrapper>;
@@ -371,10 +378,18 @@ export const renderCell = (
       }
     case "text":
       const text = isString(value) ? value : JSON.stringify(value);
-      return <CellWrapper isHidden={isHidden}>{text}</CellWrapper>;
+      return (
+        <AutoToolTipComponent title={text} isHidden={isHidden}>
+          {text}
+        </AutoToolTipComponent>
+      );
     default:
       const data = isString(value) ? value : JSON.stringify(value);
-      return <CellWrapper isHidden={isHidden}>{data}</CellWrapper>;
+      return (
+        <AutoToolTipComponent title={data} isHidden={isHidden}>
+          {data}
+        </AutoToolTipComponent>
+      );
   }
 };
 
