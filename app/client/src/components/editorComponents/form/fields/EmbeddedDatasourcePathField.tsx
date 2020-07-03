@@ -27,6 +27,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 
 type ReduxStateProps = {
+  orgId: string;
   datasource: Datasource | EmbeddedDatasource;
   datasourceList: Datasource[];
   apiName: string;
@@ -47,13 +48,13 @@ const fullPathRegexExp = /(https?:\/{2}\S+)(\/\S*?)$/;
 
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, pluginId, datasourceList } = this.props;
+    const { datasource, pluginId, orgId, datasourceList } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
       if ("id" in datasource && datasource.id) {
         this.props.updateDatasource({
-          ...DEFAULT_DATASOURCE(pluginId),
+          ...DEFAULT_DATASOURCE(pluginId, orgId),
           datasourceConfiguration: {
             ...datasource.datasourceConfiguration,
             url: datasourceUrl,
@@ -68,7 +69,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           this.props.updateDatasource(matchesExistingDatasource);
         } else {
           this.props.updateDatasource({
-            ...DEFAULT_DATASOURCE(pluginId),
+            ...DEFAULT_DATASOURCE(pluginId, orgId),
             datasourceConfiguration: {
               ...datasource.datasourceConfiguration,
               url: datasourceUrl,
@@ -249,6 +250,7 @@ const mapStateToProps = (
   ownProps: { pluginId: string },
 ): ReduxStateProps => {
   return {
+    orgId: state.ui.orgs.currentOrgId,
     apiName: apiFormValueSelector(state, "name"),
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
