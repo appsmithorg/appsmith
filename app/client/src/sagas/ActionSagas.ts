@@ -33,7 +33,7 @@ import {
 } from "actions/actionActions";
 import {
   isDynamicValue,
-  removeBindingsFromObject,
+  removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
@@ -215,7 +215,7 @@ function* moveActionSaga(
   }>,
 ) {
   const actionObject: RestAction = yield select(getAction, action.payload.id);
-  const withoutBindings = removeBindingsFromObject(actionObject);
+  const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
       action: {
@@ -258,7 +258,7 @@ function* copyActionSaga(
 ) {
   let actionObject: RestAction = yield select(getAction, action.payload.id);
   if (action.payload.destinationPageId !== actionObject.pageId) {
-    actionObject = removeBindingsFromObject(actionObject);
+    actionObject = removeBindingsFromActionObject(actionObject);
   }
   try {
     const copyAction = {
@@ -400,7 +400,6 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
     value,
     propertyName,
   );
-  console.log({ effects });
   yield all(
     Object.keys(effects).map(field =>
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),

@@ -40,7 +40,9 @@ export default class RealmExecutor implements JSExecutor {
           safeObject.actionPaths.forEach(path => {
             const action = _.get(safeObject, path);
             const entity = _.get(safeObject, path.split(".")[0])
-            _.set(safeObject, path, pusher.bind(safeObject, action.bind(entity)))
+            if(action) {
+               _.set(safeObject, path, pusher.bind(safeObject, action.bind(entity)))
+            }
           })
         }
         return safeObject

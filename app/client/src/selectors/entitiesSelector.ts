@@ -5,12 +5,12 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { API_CONSTANT } from "constants/ApiEditorConstants";
+import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
 import { Page } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
-import { Action, RestAction } from "entities/Action";
-import _ from "lodash";
+import { Action } from "entities/Action";
+import { find } from "lodash";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -126,26 +126,12 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
-export const getApiActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === API_CONSTANT;
-  });
-};
-
 export const getQueryName = (state: AppState, actionId: string): string => {
   const action = state.entities.actions.find((action: ActionData) => {
     return action.config.id === actionId;
   });
 
   return action?.config.name ?? "";
-};
-
-export const getPageName = (state: AppState, pageId: string): string => {
-  const page = state.entities.pageList.pages.find((page: Page) => {
-    return page.pageId === pageId;
-  });
-
-  return page?.pageName ?? "";
 };
 
 export const getQueryActions = (state: AppState): ActionDataState => {
@@ -182,7 +168,7 @@ export const getAction = (
   state: AppState,
   actionId: string,
 ): Action | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
+  const action = find(state.entities.actions, a => a.config.id === actionId);
   return action ? action.config : undefined;
 };
 

@@ -109,7 +109,6 @@ function* syncApiParamsSaga(
         const keyValue = p.split("=");
         return { key: keyValue[0], value: keyValue[1] || "" };
       });
-      console.log({ params });
       yield put(
         autofill(
           API_EDITOR_FORM_NAME,

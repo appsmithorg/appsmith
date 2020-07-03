@@ -20,9 +20,9 @@ import equal from "fast-deep-equal/es6";
 import WidgetFactory from "utils/WidgetFactory";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
+import { Action } from "entities/Action";
 
-export const removeBindingsFromObject = (obj: object) => {
-  // TODO (hetu) use dynamicBindingsList
+export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
   const withBindings = string.replace(DATA_BIND_REGEX_GLOBAL, "{{ }}");
   return JSON.parse(withBindings);

@@ -65,6 +65,7 @@ import { AppState } from "reducers";
 import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { ToastType } from "react-toastify";
+import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -363,7 +364,7 @@ function* runActionSaga(
 
       const pageName = yield select(getCurrentPageNameByActionId, actionId);
       const eventName =
-        actionObject.pluginType === "API" ? "RUN_API" : "RUN_QUERY";
+        actionObject.pluginType === PLUGIN_TYPE_API ? "RUN_API" : "RUN_QUERY";
 
       AnalyticsUtil.logEvent(eventName, {
         actionId,
