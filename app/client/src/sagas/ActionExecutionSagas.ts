@@ -45,6 +45,7 @@ import {
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
+  updateAction,
 } from "actions/actionActions";
 import { Action, RestAction } from "entities/Action";
 import ActionAPI, {
@@ -333,9 +334,13 @@ function* runActionSaga(
     const isSaving = yield select(isActionSaving(actionId));
     const isDirty = yield select(isActionDirty(actionId));
     if (isSaving || isDirty) {
+      if (isDirty && !isSaving) {
+        const actionObject = yield select(getAction, actionId);
+        yield put(updateAction({ data: actionObject }));
+      }
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    const actionObject: PageAction = yield select(getAction, actionId);
+    const actionObject = yield select(getAction, actionId);
     const action: ExecuteActionRequest["action"] = { id: actionId };
     const jsonPathKeys = actionObject.jsonPathKeys;
 

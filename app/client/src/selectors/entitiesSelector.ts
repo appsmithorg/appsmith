@@ -9,7 +9,7 @@ import { API_CONSTANT } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
 import { Page } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
-import { RestAction } from "entities/Action";
+import { Action, RestAction } from "entities/Action";
 import _ from "lodash";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
@@ -181,7 +181,7 @@ export const getActionResponses = createSelector(getActions, actions => {
 export const getAction = (
   state: AppState,
   actionId: string,
-): RestAction | undefined => {
+): Action | undefined => {
   const action = _.find(state.entities.actions, a => a.config.id === actionId);
   return action ? action.config : undefined;
 };
