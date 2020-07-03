@@ -12,9 +12,7 @@ export type HotjarConfig = {
 
 type Milliseconds = number;
 
-export enum FeatureFlagsEnum {
-  LightningMenu = "lightningmenu",
-}
+export enum FeatureFlagsEnum {}
 
 export type FeatureFlags = Record<FeatureFlagsEnum, boolean>;
 
@@ -28,18 +26,34 @@ export type FeatureFlagConfig = {
 export type AppsmithUIConfigs = {
   sentry: {
     enabled: boolean;
-    config?: SentryConfig;
+    apiKey: string;
   };
   hotjar: {
     enabled: boolean;
-    config?: HotjarConfig;
+    id: string;
+    sv: string;
   };
-  featureFlag: FeatureFlagConfig;
   segment: {
     enabled: boolean;
-    key: string;
+    apiKey: string;
   };
-  apiUrl: string;
-  baseUrl: string;
+  algolia: {
+    enabled: boolean;
+    apiId: string;
+    apiKey: string;
+    indexName: string;
+  };
+
+  google: {
+    enabled: boolean;
+    apiKey: string;
+  };
+
+  enableRapidAPI: boolean;
+  enableGoogleOAuth: boolean;
+  enableGithubOAuth: boolean;
+  enableMixpanel: boolean;
+
+  featureFlag?: FeatureFlagConfig;
   logLevel: LogLevelDesc;
 };

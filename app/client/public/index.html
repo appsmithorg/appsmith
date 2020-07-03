@@ -41,29 +41,33 @@
       }
     };
     registerPageServiceWorker();
+  </script>
+  <script type ="text/javascript">
     const parseConfig = (config) => {
-      if(config.trim().length === 0 || config.trim().indexOf("$") === 0 || config.trim().indexOf("__") === 0) {
-        return "";
-      }
-      return config;
+      return config.trim();
     }
+    const LOG_LEVELS = ["debug", "error"];
+    const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
+    window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
     window.APPSMITH_FEATURE_CONFIGS =  {
-      sentry: parseConfig("__SENTRY_DSN__"),
+      sentry: parseConfig("__APPSMITH_SENTRY_DSN__"),
       hotjar: {
-        id: parseConfig("__HOTJAR_HJID__"),
-        sv: parseConfig("__HOTJAR_HJSV__"),
+        id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
+        sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),
       },
-      enableGoogleOAuth: parseConfig("__GOOGLE_OAUTH_CLIENT_ID__").trim().length > 0,
-      enableGithubOAuth: parseConfig("__GITHUB_OAUTH_CLIENT_ID__").trim().length > 0,
-      enableRapidAPI: parseConfig("__RAPID_API_KEY__").trim().length > 0,
-      segment: parseConfig("__SEGMENT_KEY__"),
-      optimizely: parseConfig("__OPTIMIZELY_KEY__"),
-      enableMixpanel: parseConfig("__SEGMENT_KEY__").trim().length > 0,
+      enableGoogleOAuth: parseConfig("__APPSMITH_GOOGLE_OAUTH_CLIENT_ID__").length > 0,
+      enableGithubOAuth: parseConfig("__APPSMITH_GITHUB_OAUTH_CLIENT_ID__").length > 0,
+      enableRapidAPI: parseConfig("__APPSMITH_RAPID_API_KEY__").length > 0,
+      segment: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+      optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
+      enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,
       algolia: {
-        apiId: parseConfig("__ALGOLIA_API_ID__"),
-        apiKey: parseConfig("__ALGOLIA_API_KEY__"),
-        indexName: parseConfig("__ALGOLIA_SEARCH_INDEX_NAME__"),
+        apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
+        apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
+        indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
       },
+      logLevel:  CONFIG_LOG_LEVEL_INDEX > -1 ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX] : LOG_LEVELS[1],
+      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
     };
   </script>
   <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>

@@ -7,7 +7,6 @@ import {
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "constants/forms";
-import { getAppsmithConfigs } from "configs";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import {
@@ -88,8 +87,6 @@ export const Login = (props: LoginFormProps) => {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
 
-  const { baseUrl, apiUrl } = getAppsmithConfigs();
-
   return (
     <AuthCardContainer>
       {showError && (
@@ -110,10 +107,7 @@ export const Login = (props: LoginFormProps) => {
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm
-          method="POST"
-          action={baseUrl + apiUrl + "v1/" + LOGIN_SUBMIT_PATH}
-        >
+        <SpacedSubmitForm method="POST" action={"/api/v1/" + LOGIN_SUBMIT_PATH}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}

@@ -50,7 +50,7 @@ case "${unameOut}" in
                 echo "
     Starting nginx for Linux...
     "
-                envsubst ${vars_to_substitute} < ./docker/templates/nginx-linux.conf.template > ./docker/nginx.conf &&
+                cat ./docker/templates/nginx-linux.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z_]*\)}||g' > ./docker/nginx.conf  &&
                 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf -v `pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem -v `pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem nginx:latest \
                 && echo "
     nginx is listening on port 443 and forwarding to port 3000
@@ -61,7 +61,7 @@ case "${unameOut}" in
                 echo "
     Starting nginx for MacOS...
     "
-                envsubst  ${vars_to_substitute} < ./docker/templates/nginx-mac.conf.template > ./docker/nginx.conf &&
+                cat ./docker/templates/nginx-mac.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z_]*\)}||g' > ./docker/nginx.conf  &&
                 docker run --name wildcard-nginx -d -p 80:80 -p 443:443 -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf -v `pwd`/docker/_wildcard.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem -v `pwd`/docker/_wildcard.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem nginx:latest \
                 && echo "
     nginx is listening on port 443 and forwarding to port 3000
