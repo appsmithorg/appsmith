@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { Icon, NumericInput } from "@blueprintjs/core";
+import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import {
   RowWrapper,
   PaginationWrapper,
@@ -8,9 +11,6 @@ import {
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
-import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import { Colors } from "constants/Colors";
 
 const PageNumberInputWrapper = styled(NumericInput)`
