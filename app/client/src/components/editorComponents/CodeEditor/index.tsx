@@ -155,7 +155,7 @@ class CodeEditor extends Component<Props, State> {
   componentDidUpdate(prevProps: Props): void {
     this.editor.refresh();
     if (!this.state.isFocused) {
-      const currentMode = this.editor.getOption("mode");
+      // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       let inputValue = this.props.input.value;
       // Safe update of value of the editor when value updated outside the editor
@@ -170,10 +170,11 @@ class CodeEditor extends Component<Props, State> {
       if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
         this.editor.setValue(inputValue);
       }
+      this.updateMarkings();
 
-      if (currentMode !== this.props.mode) {
-        this.editor.setOption("mode", this.props?.mode);
-      }
+      // if (currentMode !== this.props.mode) {
+      //   this.editor.setOption("mode", this.props?.mode);
+      // }
     } else {
       // Update the dynamic bindings for autocomplete
       if (prevProps.dynamicData !== this.props.dynamicData) {
