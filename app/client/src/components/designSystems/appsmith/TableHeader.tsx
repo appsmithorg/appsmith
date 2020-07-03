@@ -3,8 +3,12 @@ import {
   PaginationWrapper,
   TableHeaderWrapper,
   PaginationItemWrapper,
+  CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import { Icon } from "@blueprintjs/core";
+import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 
 interface TableHeaderProps {
   updatePageNo: Function;
@@ -14,12 +18,29 @@ interface TableHeaderProps {
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
+  columns: ReactTableColumnProps[];
+  hiddenColumns?: string[];
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
+  searchKey: string;
+  searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
   return (
     <TableHeaderWrapper>
+      <SearchComponent
+        value={props.searchKey}
+        placeholder="Search..."
+        onSearch={props.searchTableData}
+      />
+      <CommonFunctionsMenuWrapper>
+        <TableColumnsVisibility
+          columns={props.columns}
+          hiddenColumns={props.hiddenColumns}
+          updateHiddenColumns={props.updateHiddenColumns}
+        />
+      </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper

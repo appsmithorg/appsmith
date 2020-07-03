@@ -21,8 +21,11 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
+  searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
+  hiddenColumns?: string[];
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
   showMenu: (columnIndex: number) => void;
   displayColumnActions: boolean;
@@ -46,6 +49,7 @@ interface TableProps {
   selectedRowIndex: number;
   disableDrag: () => void;
   enableDrag: () => void;
+  searchTableData: (searchKey: any) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -61,6 +65,9 @@ export const Table = (props: TableProps) => {
 
   const pageCount = Math.ceil(data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+  // const filteredColumns = columns.filter((column: ReactTableColumnProps) => {
+  //   return !column.isHidden;
+  // });
   const {
     getTableProps,
     getTableBodyProps,
@@ -100,6 +107,8 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        searchTableData={props.searchTableData}
+        searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}
         nextPageClick={props.nextPageClick}
         prevPageClick={props.prevPageClick}
@@ -108,6 +117,11 @@ export const Table = (props: TableProps) => {
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+        columns={props.columns.filter((column: ReactTableColumnProps) => {
+          return column.accessor !== "actions";
+        })}
+        hiddenColumns={props.hiddenColumns}
+        updateHiddenColumns={props.updateHiddenColumns}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
@@ -243,7 +257,7 @@ const renderEmptyRows = (
   const rows: string[] = new Array(rowCount).fill("");
   const tableColumns = columns.length
     ? columns
-    : new Array(3).fill({ width: tableWidth / 3 });
+    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
   return (
     <React.Fragment>
       {rows.map((row: string, index: number) => {
