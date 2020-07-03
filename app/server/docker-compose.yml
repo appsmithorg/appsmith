@@ -7,7 +7,6 @@ services:
     environment:
       APPSMITH_MONGODB_URI: "mongodb://mongo:27017/mobtools"
       APPSMITH_REDIS_URL: "redis://redis:6379"
-      APPSMITH_ACL_HOST: "http://opa:8181/v1/data"
     ports:
       - "8080:8080"
     links:
