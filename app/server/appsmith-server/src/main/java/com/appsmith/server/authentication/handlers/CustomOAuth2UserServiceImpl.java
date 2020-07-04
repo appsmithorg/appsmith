@@ -59,6 +59,13 @@ public class CustomOAuth2UserServiceImpl extends DefaultReactiveOAuth2UserServic
                     newUser.setIsEnabled(true);
 
                     return userService.create(newUser);
-                }));
+                }))
+                .flatMap(user -> {
+                    if (!user.getIsEnabled()) {
+                        user.setIsEnabled(true);
+                        return repository.save(user);
+                    }
+                    return Mono.just(user);
+                });
     }
 }
