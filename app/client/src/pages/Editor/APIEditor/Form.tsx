@@ -131,7 +131,6 @@ interface APIFormProps {
     pathname: string;
   };
   dispatch: any;
-  datasourceFieldText: string;
   apiName: string;
 }
 
@@ -162,7 +161,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     location,
     dispatch,
-    apiId,
   } = props;
   useEffect(() => {
     dispatch({

@@ -27,7 +27,6 @@ interface ReduxStateProps {
   actions: ActionDataState;
   isRunning: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
-  allowSave: boolean;
   isCreating: boolean;
   apiName: string;
   currentApplication: UserApplication;
@@ -37,7 +36,6 @@ interface ReduxStateProps {
   pluginId: any;
   apiAction: RestAction | ActionData | RapidApiAction | undefined;
   paginationType: PaginationType;
-  datasourceFieldText: string;
 }
 interface ReduxActionProps {
   submitForm: (name: string) => void;
@@ -58,19 +56,6 @@ type Props = ReduxActionProps &
 class ApiEditor extends React.Component<Props> {
   handleSubmit = (values: RestAction) => {
     this.props.updateAction(values);
-  };
-
-  handleSaveClick = () => {
-    const pageName = getPageName(
-      this.props.pages,
-      this.props.match.params.pageId,
-    );
-    AnalyticsUtil.logEvent("SAVE_API_CLICK", {
-      apiName: this.props.apiName,
-      apiID: this.props.match.params.apiId,
-      pageName: pageName,
-    });
-    this.props.submitForm(API_EDITOR_FORM_NAME);
   };
 
   handleDeleteClick = () => {
@@ -116,22 +101,11 @@ class ApiEditor extends React.Component<Props> {
     return plugin.uiComponent;
   };
 
-  getAction = (apiId: string, actions: ActionDataState) => {
-    const action = _.find(actions, a => a.config.id === apiId);
-    if (action) {
-      return action.config;
-    } else {
-      return undefined;
-    }
-  };
-
   onChangeHandler = _.debounce((changedValue: any) => {
-    if (this.props.allowSave) {
-      this.handleSubmit({
-        ...changedValue,
-        cacheResponse: undefined,
-      });
-    }
+    this.handleSubmit({
+      ...changedValue,
+      cacheResponse: undefined,
+    });
   }, 500);
 
   render() {
@@ -185,7 +159,6 @@ class ApiEditor extends React.Component<Props> {
                 onSubmit={this.handleSubmit}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
-                datasourceFieldText={this.props.datasourceFieldText}
                 appName={
                   this.props.currentApplication
                     ? this.props.currentApplication.name
@@ -226,17 +199,10 @@ class ApiEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const formData = getFormValues(API_EDITOR_FORM_NAME)(state) as RestAction;
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-
   const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
-  const allowSave = true;
-  const datasourceFieldText =
-    state.ui.apiPane.datasourceFieldText[formData?.id ?? ""] || "";
-
   return {
-    datasourceFieldText,
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
@@ -249,7 +215,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isRunning,
     isDeleting,
     isCreating,
-    allowSave,
   };
 };
 

@@ -220,6 +220,7 @@ function* moveActionSaga(
     const response = yield ActionAPI.moveAction({
       action: {
         ...withoutBindings,
+        pageId: action.payload.originalPageId,
         name: action.payload.name,
       },
       destinationPageId: action.payload.destinationPageId,
