@@ -1,12 +1,5 @@
-import _, { take } from "lodash";
-import {
-  all,
-  select,
-  put,
-  takeEvery,
-  call,
-  takeLatest,
-} from "redux-saga/effects";
+import { take } from "lodash";
+import { all, select, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -15,7 +8,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
   QUERIES_EDITOR_URL,
@@ -26,20 +19,19 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { change, initialize } from "redux-form";
+import { initialize } from "redux-form";
 import { AppState } from "reducers";
-import ActionAPI, { Property } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { changeQuery, deleteQuerySuccess } from "actions/queryPaneActions";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GenericApiResponse } from "api/ApiResponses";
 import { validateResponse } from "./ErrorSagas";
 import { getAction, getQueryName } from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
-import { updateAction } from "actions/actionActions";
+import { setActionProperty } from "actions/actionActions";
 
 const getActions = (state: AppState) =>
   state.entities.actions.map(a => a.config);
@@ -104,49 +96,20 @@ function* changeQuerySaga(
   history.push(URL);
 }
 
-function* saveQueryAction() {
-  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
-  if (!values.id) return;
-  yield put(
-    updateAction({
-      data: values,
-    }),
-  );
-}
-
-function* updateDynamicBindingsSaga(
-  actionPayload: ReduxActionWithMeta<string, { field: string }>,
-) {
-  const field = actionPayload.meta.field.replace("actionConfiguration.", "");
-  if (field === "dynamicBindingPathList") return;
-  const value = actionPayload.payload;
-  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
-  if (!values.id) return;
-
-  const isDynamic = isDynamicValue(value);
-  let dynamicBindings: Property[] = values.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: field });
-
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter(d => d.key !== field);
-  }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: field });
-  }
-  yield put(
-    change(QUERY_EDITOR_FORM_NAME, "dynamicBindingPathList", dynamicBindings),
-  );
-}
-
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { form } = actionPayload.meta;
+  const { form, field } = actionPayload.meta;
+  if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
-  yield all([
-    call(updateDynamicBindingsSaga, actionPayload),
-    call(saveQueryAction),
-  ]);
+  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  yield put(
+    setActionProperty({
+      actionId: values.id,
+      propertyName: field,
+      value: actionPayload.payload,
+    }),
+  );
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {

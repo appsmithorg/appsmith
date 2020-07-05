@@ -115,7 +115,6 @@ const HeadersSection = styled.div`
 
 interface APIFormProps {
   pluginId: string;
-  onSubmit: FormSubmitHandler<RestAction>;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
   isRunning: boolean;

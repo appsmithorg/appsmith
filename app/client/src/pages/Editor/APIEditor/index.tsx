@@ -1,14 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getFormValues, submit } from "redux-form";
+import { submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
 import ApiHomeScreen from "./ApiHomeScreen";
-import { runAction, deleteAction, updateAction } from "actions/actionActions";
+import { runAction, deleteAction } from "actions/actionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
 import {
   ActionData,
   ActionDataState,
@@ -41,7 +40,6 @@ interface ReduxActionProps {
   submitForm: (name: string) => void;
   runAction: (id: string, paginationField?: PaginationField) => void;
   deleteAction: (id: string, name: string) => void;
-  updateAction: (data: RestAction) => void;
 }
 
 function getPageName(pages: any, pageId: string) {
@@ -54,10 +52,6 @@ type Props = ReduxActionProps &
   RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
 
 class ApiEditor extends React.Component<Props> {
-  handleSubmit = (values: RestAction) => {
-    this.props.updateAction(values);
-  };
-
   handleDeleteClick = () => {
     const pageName = getPageName(
       this.props.pages,
@@ -100,13 +94,6 @@ class ApiEditor extends React.Component<Props> {
     if (!plugin) return undefined;
     return plugin.uiComponent;
   };
-
-  onChangeHandler = _.debounce((changedValue: any) => {
-    this.handleSubmit({
-      ...changedValue,
-      cacheResponse: undefined,
-    });
-  }, 500);
 
   render() {
     const {
@@ -156,7 +143,6 @@ class ApiEditor extends React.Component<Props> {
                 paginationType={paginationType}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
-                onSubmit={this.handleSubmit}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -165,7 +151,6 @@ class ApiEditor extends React.Component<Props> {
                     : ""
                 }
                 apiName={this.props.apiName}
-                onChange={this.onChangeHandler}
                 location={this.props.location}
               />
             )}
@@ -177,7 +162,6 @@ class ApiEditor extends React.Component<Props> {
                 paginationType={paginationType}
                 isRunning={isRunning[apiId]}
                 isDeleting={isDeleting[apiId]}
-                onSubmit={this.handleSubmit}
                 onDeleteClick={this.handleDeleteClick}
                 onRunClick={this.handleRunClick}
                 appName={
@@ -185,7 +169,6 @@ class ApiEditor extends React.Component<Props> {
                     ? this.props.currentApplication.name
                     : ""
                 }
-                onChange={this.onChangeHandler}
                 location={this.props.location}
               />
             )}
@@ -224,7 +207,6 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
     dispatch(runAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
-  updateAction: (data: RestAction) => dispatch(updateAction({ data })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);

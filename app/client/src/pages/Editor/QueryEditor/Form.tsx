@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  FormSubmitHandler,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover } from "@blueprintjs/core";
@@ -201,13 +196,9 @@ const StyledCheckbox = styled(CheckboxField)`
 
 type QueryFormProps = {
   onDeleteClick: () => void;
-  onSaveClick: () => void;
   onRunClick: () => void;
   createTemplate: (template: any) => void;
-  onSubmit: FormSubmitHandler<RestAction>;
   isDeleting: boolean;
-  allowSave: boolean;
-  isSaving: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;

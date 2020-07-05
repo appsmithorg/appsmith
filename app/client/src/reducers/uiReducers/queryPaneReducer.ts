@@ -58,12 +58,12 @@ const queryPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
     state: QueryPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.data.id]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (

@@ -295,7 +295,7 @@ function* formValueChangeSaga(
 ) {
   const { form, field } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
-  if (field === "dynamicBindingPathList") return;
+  if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
   if (

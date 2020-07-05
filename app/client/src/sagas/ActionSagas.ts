@@ -10,6 +10,7 @@ import {
   select,
   takeEvery,
   takeLatest,
+  debounce,
 } from "redux-saga/effects";
 import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
@@ -28,6 +29,7 @@ import {
   moveActionError,
   moveActionSuccess,
   SetActionPropertyPayload,
+  updateAction,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/actionActions";
@@ -48,6 +50,7 @@ import {
   getCurrentPageNameByActionId,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
+import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -123,18 +126,14 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ data: RestAction }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
-    const isApi = actionPayload.payload.data.pluginType === "API";
-    const isDB = actionPayload.payload.data.pluginType === "DB";
-
-    const { data } = actionPayload.payload;
-    let action = data;
+    let action: Action = yield select(getAction, actionPayload.payload.id);
+    const isApi = action.pluginType === "API";
+    const isDB = action.pluginType === "DB";
 
     if (isApi) {
-      action = transformRestAction(data);
+      action = transformRestAction(action);
     }
     if (isApi || isDB) {
       action = _.omit(action, "name") as RestAction;
@@ -155,22 +154,20 @@ export function* updateActionSaga(
           queryName: action.name,
           pageName,
         });
+      } else if (action.pluginType === PLUGIN_TYPE_API) {
+        AnalyticsUtil.logEvent("SAVE_API", {
+          apiId: response.data.id,
+          apiName: response.data.name,
+          pageName: pageName,
+        });
       }
 
-      AnalyticsUtil.logEvent("SAVE_API", {
-        apiId: response.data.id,
-        apiName: response.data.name,
-        pageName: pageName,
-      });
       yield put(updateActionSuccess({ data: response.data }));
-      // if (actionPayload.payload.data.pluginType !== "DB") {
-      //   yield put(runApiAction(data.id));
-      // }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.data.id },
+      payload: { error, id: actionPayload.payload.id },
     });
   }
 }
@@ -406,6 +403,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
       put(updateActionProperty({ id: actionId, field, value: effects[field] })),
     ),
   );
+  yield put(updateAction({ id: actionId }));
 }
 
 export function* watchActionSagas() {
@@ -413,7 +411,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
-    takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
+    debounce(500, ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
