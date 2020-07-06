@@ -6,8 +6,6 @@ import com.appsmith.server.authentication.handlers.CustomServerOAuth2Authorizati
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,6 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
-import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -134,7 +131,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/resetPassword"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL ),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"))
                 .permitAll()
