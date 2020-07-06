@@ -390,6 +390,7 @@ function getDynamicBindingsChangesSaga(
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   const { actionId, value, propertyName } = action.payload;
   if (!actionId) return;
+  if (propertyName === "name") return;
   const actionObj = yield select(getAction, actionId);
   const effects: Record<string, any> = {};
   // Value change effect
