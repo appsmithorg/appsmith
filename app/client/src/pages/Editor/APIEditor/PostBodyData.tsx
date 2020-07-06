@@ -1,13 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { formValueSelector, change } from "redux-form";
+import { change, formValueSelector } from "redux-form";
 import Select from "react-select";
 import {
-  POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMATS,
   CONTENT_TYPE,
+  POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_OPTIONS_NO_MULTI_PART,
+  POST_BODY_FORMATS,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -16,6 +16,11 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import FIELD_VALUES from "constants/FieldExpectedValue";
+import {
+  EditorModes,
+  EditorSize,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 const DropDownContainer = styled.div`
   width: 300px;
@@ -115,8 +120,9 @@ const PostBodyData = (props: Props) => {
               name="actionConfiguration.body"
               expected={FIELD_VALUES.API_ACTION.body}
               showLineNumbers
-              allowTabIndent
-              singleLine={false}
+              tabBehaviour={TabBehaviour.INDENT}
+              size={EditorSize.EXTENDED}
+              mode={EditorModes.JSON_WITH_BINDING}
               placeholder={
                 '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
               }
@@ -149,8 +155,8 @@ const PostBodyData = (props: Props) => {
             <DynamicTextField
               name="actionConfiguration.body"
               height={300}
-              allowTabIndent
-              singleLine={false}
+              tabBehaviour={TabBehaviour.INDENT}
+              size={EditorSize.EXTENDED}
               dataTreePath={`${dataTreePath}.body`}
             />
           </JSONEditorFieldWrapper>
