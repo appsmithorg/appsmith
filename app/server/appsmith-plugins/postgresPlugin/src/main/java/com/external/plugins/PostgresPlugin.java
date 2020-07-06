@@ -27,6 +27,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,11 +91,12 @@ public class PostgresPlugin extends BasePlugin {
 
                         for (int i = 1; i <= colCount; i++) {
                             Object value;
+                            final String typeName = metaData.getColumnTypeName(i);
 
-                            if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                            if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                            } else if ("timestamp".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                            } else if ("timestamp".equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE_TIME.format(
                                         LocalDateTime.of(
                                                 resultSet.getDate(i).toLocalDate(),
@@ -102,16 +104,13 @@ public class PostgresPlugin extends BasePlugin {
                                         )
                                 ) + "Z";
 
-                            } else if ("timestamptz".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
-                                value = DateTimeFormatter.ISO_INSTANT.format(resultSet.getDate(i).toInstant());
-
-                            } else if ("time".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
-                                value = DateTimeFormatter.ISO_TIME.format(resultSet.getTime(i).toLocalTime());
-
-                            } else if ("timetz".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
-                                value = DateTimeFormatter.ISO_TIME.format(
-                                        resultSet.getTime(i).toLocalTime()
+                            } else if ("timestamptz".equalsIgnoreCase(typeName)) {
+                                value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                        resultSet.getObject(i, OffsetDateTime.class)
                                 );
+
+                            } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                                value = resultSet.getString(i);
 
                             } else {
                                 value = resultSet.getObject(i);
