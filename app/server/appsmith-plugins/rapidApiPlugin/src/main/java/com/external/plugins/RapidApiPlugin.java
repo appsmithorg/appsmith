@@ -15,7 +15,6 @@ import org.bson.internal.Base64;
 import org.json.JSONObject;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -53,18 +52,15 @@ public class RapidApiPlugin extends BasePlugin {
     @Extension
     public static class RapidApiPluginExecutor implements PluginExecutor {
 
-        @Value("${rapidapi.key.name}")
-        private String rapidApiKeyName;
-
-        @Value("${rapidapi.key.value}")
-        private String rapidApiKeyValue;
+        private static final String RAPID_API_KEY_NAME = "X-RapidAPI-Key";
+        private static final String RAPID_API_KEY_VALUE = System.getenv("APPSMITH_RAPID_API_KEY_VALUE");
 
         @Override
         public Mono<Object> execute(Object connection,
                                     DatasourceConfiguration datasourceConfiguration,
                                     ActionConfiguration actionConfiguration) {
 
-            if (StringUtils.isEmpty(rapidApiKeyValue)) {
+            if (StringUtils.isEmpty(RAPID_API_KEY_VALUE)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."));
             }
 
@@ -88,7 +84,7 @@ public class RapidApiPlugin extends BasePlugin {
             }
 
             // Add the rapid api headers
-            webClientBuilder.defaultHeader(rapidApiKeyName, rapidApiKeyValue);
+            webClientBuilder.defaultHeader(RAPID_API_KEY_NAME, RAPID_API_KEY_VALUE);
 
             //If route parameters exist, update the URL by replacing the key surrounded by '{' and '}'
             if (actionConfiguration.getRouteParameters() != null && !actionConfiguration.getRouteParameters().isEmpty()) {
@@ -269,7 +265,7 @@ public class RapidApiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return StringUtils.isEmpty(rapidApiKeyValue)
+            return StringUtils.isEmpty(RAPID_API_KEY_VALUE)
                     ? Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "RapidAPI Key value not set."))
                     : Mono.just(new DatasourceTestResult());
         }
