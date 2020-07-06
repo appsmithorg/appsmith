@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  FormSubmitHandler,
-  formValueSelector,
-  InjectedFormProps,
-  reduxForm,
-} from "redux-form";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
 import { Icon, Popover } from "@blueprintjs/core";
@@ -201,13 +196,9 @@ const StyledCheckbox = styled(CheckboxField)`
 
 type QueryFormProps = {
   onDeleteClick: () => void;
-  onSaveClick: () => void;
   onRunClick: () => void;
   createTemplate: (template: any) => void;
-  onSubmit: FormSubmitHandler<RestAction>;
   isDeleting: boolean;
-  allowSave: boolean;
-  isSaving: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
@@ -215,7 +206,7 @@ type QueryFormProps = {
     body: Record<string, any>[];
   };
   applicationId: string;
-  selectedPluginPackage: string;
+  selectedPluginPackage: string | undefined;
   runErrorMessage: string | undefined;
   pageId: string;
   location: {
@@ -252,7 +243,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const [showTemplateMenu, setMenuVisibility] = useState(true);
 
   const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
-  const isNewQuery = props.location.state?.newQuery ?? false;
+  const isNewQuery = props.location.state?.new ?? false;
   let queryOutput: {
     body: Record<string, any>[];
   } = { body: [] };
@@ -411,7 +402,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </a>
           )}
         </div>
-        {isNewQuery && showTemplateMenu ? (
+        {isNewQuery && showTemplateMenu && selectedPluginPackage ? (
           <TemplateMenu
             createTemplate={templateString => {
               setMenuVisibility(false);

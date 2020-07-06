@@ -8,20 +8,6 @@ export const createQueryRequest = (payload: Partial<RestAction>) => {
   };
 };
 
-export const deleteQuery = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.DELETE_QUERY_INIT,
-    payload,
-  };
-};
-
-export const deleteQuerySuccess = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.DELETE_QUERY_SUCCESS,
-    payload,
-  };
-};
-
 export const initQueryPane = (
   pluginType: string,
   urlId?: string,

@@ -102,10 +102,6 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
-  [ReduxActionTypes.DELETE_QUERY_SUCCESS]: (
-    state: ActionDataState,
-    action: ReduxAction<{ id: string }>,
-  ): ActionDataState => state.filter(a => a.config.id !== action.payload.id),
   [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,

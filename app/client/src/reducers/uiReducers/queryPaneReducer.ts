@@ -58,12 +58,12 @@ const queryPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
     state: QueryPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.data.id]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
@@ -86,7 +86,7 @@ const queryPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
-  [ReduxActionTypes.DELETE_QUERY_INIT]: (
+  [ReduxActionTypes.DELETE_ACTION_INIT]: (
     state: QueryPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -96,7 +96,7 @@ const queryPaneReducer = createReducer(initialState, {
       [action.payload.id]: true,
     },
   }),
-  [ReduxActionTypes.DELETE_QUERY_SUCCESS]: (
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: (
     state: QueryPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -106,7 +106,7 @@ const queryPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
-  [ReduxActionErrorTypes.DELETE_QUERY_ERROR]: (
+  [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: (
     state: QueryPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({

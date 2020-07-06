@@ -7,7 +7,7 @@ import { PropertySection } from "reducers/entityReducers/propertyPaneConfigReduc
 import { WidgetProps } from "widgets/BaseWidget";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { evaluateDataTree } from "selectors/dataTreeSelectors";
+import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
 import * as log from "loglevel";
 
 const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
@@ -37,7 +37,7 @@ export const getCurrentWidgetProperties = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  evaluateDataTree(false),
+  evaluateDataTreeWithoutFunctions,
   (
     widget: WidgetProps | undefined,
     evaluatedTree: DataTree,
