@@ -1,5 +1,5 @@
-import React from "react";
-import { Editor } from "@tinymce/tinymce-react";
+import React, { useEffect } from "react";
+import { debounce } from "lodash";
 import styled from "styled-components";
 const StyledRTEditor = styled.div`
   && {
@@ -22,26 +22,52 @@ export interface RichtextEditorComponentProps {
 export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
+  useEffect(() => {
+    let editorInstance: any;
+    const onChange = debounce(props.onValueChange, 200);
+    (window as any).tinyMCE.init({
+      height: "100%",
+      selector: `textarea#${props.widgetId}`,
+      menubar: false,
+      branding: false,
+      resize: false,
+      setup: function(editor: any) {
+        editorInstance = editor;
+        editor.setContent(props.defaultValue);
+        editor
+          .on("Change", () => {
+            // console.log("change: ", editor.getContent())
+            onChange(editor.getContent());
+          })
+          .on("Undo", () => {
+            // console.log("change: ", editor.getContent())
+            onChange(editor.getContent());
+          })
+          .on("Redo", () => {
+            // console.log("change: ", editor.getContent())
+            onChange(editor.getContent());
+          })
+          .on("KeyUp", () => {
+            // console.log("change: ", editor.getContent())
+            onChange(editor.getContent());
+          });
+      },
+      plugins: [
+        "advlist autolink lists link image charmap print preview anchor",
+        "searchreplace visualblocks code fullscreen",
+        "insertdatetime media table paste code help",
+      ],
+      toolbar:
+        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+    });
+
+    return () => {
+      editorInstance.destroy();
+    };
+  }, []);
   return (
     <StyledRTEditor>
-      <Editor
-        value={props.defaultValue}
-        disabled={props.isDisabled}
-        init={{
-          height: "100%",
-          menubar: false,
-          branding: false,
-          resize: false,
-          plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table paste code help",
-          ],
-          toolbar:
-            "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
-        }}
-        onEditorChange={(content: any) => props.onValueChange(content)}
-      />
+      <textarea id={props.widgetId}></textarea>
     </StyledRTEditor>
   );
 };
