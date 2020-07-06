@@ -43,6 +43,12 @@ import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { signupFormSubmitHandler, SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
+import { getAppsmithConfigs } from "configs";
+const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
+const SocialLoginList: string[] = [];
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
+
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
   if (!values.password || isEmptyString(values.password)) {
@@ -128,11 +134,8 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
             />
           </FormActions>
         </SpacedForm>
-        <Divider />
-        <ThirdPartyAuth
-          logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
-          type={"SIGNUP"}
-        />
+        {SocialLoginList.length > 0 && <Divider />}
+        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
       </AuthCardBody>
 
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
