@@ -111,10 +111,10 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    @WithMockAppsmithUser
     public void createNewUserFormSignupNullPassword() {
         User newUser = new User();
-        newUser.setEmail("new-user-email@email.com");
+        newUser.setEmail("new-user-email-with-null-password@email.com");
 
         Mono<User> userMono = userService.create(newUser);
 
@@ -247,6 +247,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void confirmInviteTokenFlow() {
         User newUser = new User();
         newUser.setEmail("newEmail@newEmail.com");
@@ -270,6 +271,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void signUpIfAlreadyInvited() {
         User newUser = new User();
         newUser.setEmail("alreadyInvited@alreadyInvited.com");
