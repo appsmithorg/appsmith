@@ -95,7 +95,7 @@ function* formValueChangeSaga(
   const { form, field } = actionPayload.meta;
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
   yield put(
     setActionProperty({
       actionId: values.id,

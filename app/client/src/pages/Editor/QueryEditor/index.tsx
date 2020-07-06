@@ -47,22 +47,12 @@ type ReduxStateProps = {
   pluginIds: Array<string> | undefined;
   executedQueryData: any;
   selectedPluginPackage: string | undefined;
-  initialValues: QueryAction;
   isCreating: boolean;
-};
-
-type QueryPageProps = {
-  submitForm: (name: string) => void;
-  createAction: (values: QueryAction) => void;
-  updateAction: (data: QueryAction) => void;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 
-type Props = QueryPageProps &
-  StateAndRouteProps &
-  ReduxDispatchProps &
-  ReduxStateProps;
+type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 
 class QueryEditor extends React.Component<Props> {
   handleDeleteClick = () => {
@@ -148,9 +138,6 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const initialValues = getFormInitialValues(QUERY_EDITOR_FORM_NAME)(
-    state,
-  ) as QueryAction;
   const datasourceId = _.get(formData, "datasource.id");
   const selectedPluginPackage = getPluginPackageFromDatasourceId(
     state,
@@ -166,7 +153,6 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     queryPane: state.ui.queryPane,
     formData,
     selectedPluginPackage,
-    initialValues,
     isCreating: state.ui.queryPane.isCreating,
   };
 };
