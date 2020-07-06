@@ -48,6 +48,8 @@ import {
   AuthCardBody,
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "configs";
+const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -71,6 +73,10 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
   LoginFormValues,
   { emailValue: string }
 >;
+
+const SocialLoginList: string[] = [];
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 
 export const Login = (props: LoginFormProps) => {
   const { error, valid } = props;
@@ -146,11 +152,8 @@ export const Login = (props: LoginFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        <Divider />
-        <ThirdPartyAuth
-          type={"SIGNIN"}
-          logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
-        />
+        {SocialLoginList.length > 0 && <Divider />}
+        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
       </AuthCardBody>
       <AuthCardNavLink to={SIGN_UP_URL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
