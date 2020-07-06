@@ -112,6 +112,9 @@ public class PostgresPlugin extends BasePlugin {
                             } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                                 value = resultSet.getString(i);
 
+                            } else if ("interval".equalsIgnoreCase(typeName)) {
+                                value = resultSet.getObject(i).toString();
+
                             } else {
                                 value = resultSet.getObject(i);
 

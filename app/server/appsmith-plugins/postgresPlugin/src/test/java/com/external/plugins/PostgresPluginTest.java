@@ -85,22 +85,29 @@ public class PostgresPluginTest {
                         "    time1 TIME NOT NULL,\n" +
                         "    time_tz TIME WITH TIME ZONE NOT NULL,\n" +
                         "    created_on TIMESTAMP NOT NULL,\n" +
-                        "    created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL\n" +
+                        "    created_on_tz TIMESTAMP WITH TIME ZONE NOT NULL,\n" +
+                        "    interval1 INTERVAL HOUR NOT NULL\n" +
                         ")");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
                         "INSERT INTO users VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31', '18:32:45'," +
-                                " '04:05:06 PST', TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET')");
+                                "1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31'," +
+                                " '18:32:45', '04:05:06 PST'," +
+                                " TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'," +
+                                " '1.2 years 3 months 2 hours'" +
+                                ")");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
                         "INSERT INTO users VALUES (" +
-                                "2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31', '15:45:30'," +
-                                " '04:05:06 PST', TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET')");
+                                "2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31'," +
+                                " '15:45:30', '04:05:06 PST'," +
+                                " TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET'," +
+                                " '2 years'" +
+                                ")");
             }
 
     } catch (SQLException throwables) {
@@ -164,6 +171,7 @@ public class PostgresPluginTest {
                     assertEquals("04:05:06-08", node.get("time_tz").asText());
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
+                    assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
                 })
                 .verifyComplete();
     }
