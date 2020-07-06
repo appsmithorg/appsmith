@@ -49,6 +49,8 @@ public enum AppsmithError {
     DATASOURCE_HAS_ACTIONS(409, 4030, "Cannot delete datasource since it has {0} action(s) using it."),
     ORGANIZATION_ID_NOT_GIVEN(400, 4031, "Missing organization id. Please enter one."),
     INVALID_CURL_METHOD(400, 4032, "Invalid method in cURL command: {0}."),
+    OAUTH_NOT_AVAILABLE(500, 5006, "Login with {0} is not supported."),
+    MARKETPLACE_NOT_CONFIGURED(500, 5007, "Marketplace is not configured."),
     ;
 
 
