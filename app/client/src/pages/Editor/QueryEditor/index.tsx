@@ -12,8 +12,8 @@ import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
-import { updateAction } from "actions/actionActions";
-import { deleteQuery, executeQuery } from "actions/queryPaneActions";
+import { runAction, updateAction } from "actions/actionActions";
+import { deleteQuery } from "actions/queryPaneActions";
 import { AppState } from "reducers";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -32,7 +32,6 @@ import {
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { QueryAction, RestAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
-import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -46,7 +45,6 @@ type QueryPageProps = {
   queryPane: QueryPaneReduxState;
   formData: RestAction;
   isCreating: boolean;
-  actionDrafts: ActionDraftsState;
   initialValues: RestAction;
   pluginIds: Array<string> | undefined;
   submitForm: (name: string) => void;
@@ -97,7 +95,6 @@ class QueryEditor extends React.Component<Props> {
       pluginIds,
       executedQueryData,
       selectedPluginPackage,
-      actionDrafts,
       isCreating,
       runErrorMessage,
     } = this.props;
@@ -130,7 +127,7 @@ class QueryEditor extends React.Component<Props> {
             location={this.props.location}
             applicationId={applicationId}
             pageId={pageId}
-            allowSave={queryId in actionDrafts}
+            allowSave={true}
             isSaving={isSaving[queryId]}
             isRunning={isRunning[queryId]}
             isDeleting={isDeleting[queryId]}
@@ -175,7 +172,6 @@ const mapStateToProps = (state: AppState): any => {
   return {
     plugins: getPlugins(state),
     runErrorMessage,
-    actionDrafts: state.entities.actionDrafts,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDataSources(state),
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
@@ -193,7 +189,7 @@ const mapDispatchToProps = (dispatch: any): any => ({
   updateAction: (data: RestAction) => dispatch(updateAction({ data })),
   deleteAction: (id: string) => dispatch(deleteQuery({ id })),
   runAction: (action: RestAction, actionId: string) =>
-    dispatch(executeQuery({ action, actionId })),
+    dispatch(runAction(actionId)),
   createTemplate: (template: any) => {
     dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
   },

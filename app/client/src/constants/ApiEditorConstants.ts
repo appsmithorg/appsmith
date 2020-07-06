@@ -25,7 +25,7 @@ export const DEFAULT_API_ACTION: Partial<RestAction> = {
   },
 };
 
-export const API_CONSTANT = "API";
+export const PLUGIN_TYPE_API = "API";
 export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE = "content-type";
 

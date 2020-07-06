@@ -21,7 +21,6 @@ import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
-import NotificationIcon from "components/designSystems/appsmith/NotificationIcon";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -165,11 +164,6 @@ const ItemContainer = styled.div<{
   }
 `;
 
-const DraftIconIndicator = styled(NotificationIcon)<{ isHidden: boolean }>`
-  margin: 0 5px;
-  opacity: ${({ isHidden }) => (isHidden ? 0 : 1)};
-`;
-
 const StyledAddButton = styled(Button)<IIconProps>`
   &&& {
     outline: none;
@@ -192,7 +186,6 @@ type EditorSidebarComponentProps = {
   isLoading: boolean;
   list: Array<Item>;
   selectedItemId?: string;
-  draftIds: string[];
   itemRender: (item: any) => JSX.Element;
   onItemCreateClick: (pageId: string) => void;
   onItemSelected: (itemId: string, itemPageId: string) => void;
@@ -306,7 +299,6 @@ class EditorSidebar extends React.Component<Props, State> {
       isLoading,
       itemRender,
       selectedItemId,
-      draftIds,
       location,
       createButtonTitle,
     } = this.props;
@@ -404,11 +396,6 @@ class EditorSidebar extends React.Component<Props, State> {
                                         {this.state.itemDragging !==
                                           item.id && (
                                           <React.Fragment>
-                                            <DraftIconIndicator
-                                              isHidden={
-                                                draftIds.indexOf(item.id) === -1
-                                              }
-                                            />
                                             <TreeDropdown
                                               defaultText=""
                                               onSelect={() => {

@@ -3,7 +3,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
 
-const TabsWrapper = styled.div<{ overflow?: boolean }>`
+const TabsWrapper = styled.div<{ shouldOverflow?: boolean }>`
   height: 100%;
   .react-tabs {
     height: 100%;
@@ -16,7 +16,7 @@ const TabsWrapper = styled.div<{ overflow?: boolean }>`
     border-bottom-color: #d0d7dd;
     color: #a3b3bf;
     ${props =>
-      props.overflow &&
+      props.shouldOverflow &&
       `
       overflow-y: hidden;
       overflow-x: auto;
@@ -51,7 +51,7 @@ type TabbedViewComponentType = {
 
 export const BaseTabbedView = (props: TabbedViewComponentType) => {
   return (
-    <TabsWrapper overflow={props.overflow}>
+    <TabsWrapper shouldOverflow={props.overflow}>
       <Tabs
         selectedIndex={props.selectedIndex}
         onSelect={(index: number) => {

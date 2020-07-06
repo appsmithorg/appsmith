@@ -5,7 +5,13 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
+import CodeEditor from "components/editorComponents/CodeEditor";
+import {
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -67,7 +73,7 @@ function DataControlComponent(props: RenderComponentProps) {
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <DynamicAutocompleteInput
+        <CodeEditor
           expected={"string"}
           input={{
             value: item.seriesName,
@@ -82,8 +88,10 @@ function DataControlComponent(props: RenderComponentProps) {
             },
           }}
           evaluatedValue={evaluated?.seriesName}
-          theme={"DARK"}
-          singleLine={false}
+          theme={EditorTheme.DARK}
+          size={EditorSize.EXTENDED}
+          mode={EditorModes.TEXT_WITH_BINDING}
+          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
         />
         {length > 1 && (
@@ -99,7 +107,7 @@ function DataControlComponent(props: RenderComponentProps) {
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
-        <DynamicAutocompleteInput
+        <CodeEditor
           expected={`Array<x:string, y:number>`}
           input={{
             value: item.data,
@@ -118,8 +126,10 @@ function DataControlComponent(props: RenderComponentProps) {
             error: isValid ? "" : "There is an error",
             touched: true,
           }}
-          theme={"DARK"}
-          singleLine={false}
+          theme={EditorTheme.DARK}
+          size={EditorSize.EXTENDED}
+          mode={EditorModes.JSON_WITH_BINDING}
+          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
         />
       </StyledDynamicInput>

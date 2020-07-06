@@ -6,6 +6,7 @@ import {
 } from "constants/ReduxActionConstants";
 import _ from "lodash";
 import { RestAction } from "entities/Action";
+import { ActionResponse } from "api/ActionAPI";
 
 const initialState: QueryPaneReduxState = {
   isFetching: false,
@@ -42,7 +43,7 @@ const queryPaneReducer = createReducer(initialState, {
       isCreating: false,
     };
   },
-  [ReduxActionTypes.CREATE_ACTION_ERROR]: (state: QueryPaneReduxState) => {
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (state: QueryPaneReduxState) => {
     return {
       ...state,
       isCreating: false,
@@ -115,15 +116,15 @@ const queryPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
-  [ReduxActionTypes.EXECUTE_QUERY_REQUEST]: (
+  [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: any,
-    action: ReduxAction<{ action: RestAction; actionId: string }>,
+    action: ReduxAction<{ id: string }>,
   ) => {
     return {
       ...state,
       isRunning: {
         ...state.isRunning,
-        [action.payload.actionId]: true,
+        [action.payload.id]: true,
       },
       runQuerySuccessData: [],
     };
@@ -133,40 +134,39 @@ const queryPaneReducer = createReducer(initialState, {
     runQuerySuccessData: [],
   }),
 
-  [ReduxActionTypes.RUN_QUERY_SUCCESS]: (
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: any,
-    action: ReduxAction<{ actionId: string; data: object }>,
+    action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
-    const { actionId } = action.payload;
-
-    return {
-      ...state,
-      isRunning: {
-        ...state.isRunning,
-        [action.payload.actionId]: false,
-      },
-      runQuerySuccessData: {
-        ...state.runQuerySuccessData,
-        [action.payload.actionId]: action.payload.data,
-      },
-      runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
-    };
-  },
-  [ReduxActionErrorTypes.RUN_QUERY_ERROR]: (
-    state: any,
-    action: ReduxAction<{ actionId: string; message: string }>,
-  ) => {
-    const { actionId, message } = action.payload;
-
+    const actionId = Object.keys(action.payload)[0];
     return {
       ...state,
       isRunning: {
         ...state.isRunning,
         [actionId]: false,
       },
+      runQuerySuccessData: {
+        ...state.runQuerySuccessData,
+        ...action.payload,
+      },
+      runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
+    };
+  },
+  [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
+    state: any,
+    action: ReduxAction<{ id: string; error: Error }>,
+  ) => {
+    const { id, error } = action.payload;
+
+    return {
+      ...state,
+      isRunning: {
+        ...state.isRunning,
+        [id]: false,
+      },
       runErrorMessage: {
         ...state.runError,
-        [actionId]: message,
+        [id]: error.message,
       },
     };
   },
