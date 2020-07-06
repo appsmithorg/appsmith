@@ -33,7 +33,7 @@ class FormButtonWidget extends BaseWidget<
       disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
       buttonStyle: VALIDATION_TYPES.TEXT,
       buttonType: VALIDATION_TYPES.TEXT,
-      onClick: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onClick: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

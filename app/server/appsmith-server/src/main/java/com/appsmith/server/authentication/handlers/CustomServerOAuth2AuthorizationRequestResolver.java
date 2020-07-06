@@ -2,6 +2,8 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -68,6 +70,8 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
 
     private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
+    private static final String MISSING_VALUE_SENTINEL = "missing_value_sentinel";
+
     private final CommonConfig commonConfig;
 
     /**
@@ -111,7 +115,13 @@ public class CustomServerOAuth2AuthorizationRequestResolver implements ServerOAu
     public Mono<OAuth2AuthorizationRequest> resolve(ServerWebExchange exchange,
                                                     String clientRegistrationId) {
         return this.findByRegistrationId(exchange, clientRegistrationId)
-                .map(clientRegistration -> authorizationRequest(exchange, clientRegistration));
+                .flatMap(clientRegistration -> {
+                    if (MISSING_VALUE_SENTINEL.equals(clientRegistration.getClientId())) {
+                        return Mono.error(new AppsmithException(AppsmithError.OAUTH_NOT_AVAILABLE, clientRegistrationId));
+                    } else {
+                        return Mono.just(authorizationRequest(exchange, clientRegistration));
+                    }
+                });
     }
 
     private Mono<ClientRegistration> findByRegistrationId(ServerWebExchange exchange, String clientRegistration) {

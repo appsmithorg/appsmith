@@ -49,10 +49,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
-      columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
-      onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
       searchKey: VALIDATION_TYPES.TEXT,
+      // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
+      // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
   static getDerivedPropertiesMap() {

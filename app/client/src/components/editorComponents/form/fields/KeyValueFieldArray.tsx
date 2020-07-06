@@ -30,7 +30,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
   }, [props.fields, props.pushFields]);
   return (
     <React.Fragment>
-      {typeof props.fields.getAll() === "object" && (
+      {props.fields.length && (
         <React.Fragment>
           {props.fields.map((field: any, index: number) => {
             const otherProps: Record<string, any> = {};

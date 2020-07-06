@@ -64,6 +64,16 @@ const PropertyControl = (props: Props) => {
       widgetProperties: widgetProperties,
       expected: FIELD_EXPECTED_VALUE[widgetProperties.type][propertyName],
     };
+    if (
+      widgetProperties.dynamicTriggers &&
+      widgetProperties.dynamicTriggers[propertyName]
+    ) {
+      config.isValid = true;
+      config.validationMessage = "";
+      config.dataTreePath = "";
+      config.evaluatedValue = "";
+      config.expected = "";
+    }
     const isDynamic: boolean = _.get(
       widgetProperties,
       ["dynamicProperties", propertyName],

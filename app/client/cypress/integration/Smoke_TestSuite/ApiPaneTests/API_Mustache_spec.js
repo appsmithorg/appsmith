@@ -15,12 +15,7 @@ describe("Moustache test Functionality", function() {
     cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("TestAPINew");
     cy.log("Creation of API Action successful");
-    cy.EnterSourceDetailsWithHeader(
-      testdata.baseUrl2,
-      testdata.moustacheMethod,
-      testdata.headerKey,
-      testdata.headerValue,
-    );
+    cy.enterDatasourceAndPath(testdata.baseUrl2, testdata.moustacheMethod);
     cy.RunAPI();
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.log("Response code check successful");
