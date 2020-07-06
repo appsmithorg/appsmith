@@ -170,16 +170,10 @@ public class LayoutServiceTest {
                 .findByName(page.getName())
                 .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
-                            log.debug("*** Created a new app: {} for page: {}", application, page);
-                            log.debug("** Got applicationId: {}", application.getId());
                             page.setApplicationId(application.getId());
                             return page;
                         })
-                        .flatMap(applicationPageService::createPage))
-                .map(pg -> {
-                    log.debug("Found the page: {}", pg);
-                    return pg;
-                });
+                        .flatMap(applicationPageService::createPage));
         return pageMono;
     }
 
@@ -201,20 +195,17 @@ public class LayoutServiceTest {
 
         Application app = new Application();
         app.setName("newApplication-updateLayoutInvalidPageId-Test");
-        Mono<Page> pageMono = createPage(app, testPage);
+        Page page = createPage(app, testPage).block();
 
-        Mono<Layout> startLayoutMono = pageMono
-                .switchIfEmpty(Mono.error(new Exception("No page found")))
-                .flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
+        Layout startLayout = layoutService.createLayout(page.getId(), testLayout).block();
 
-        Mono<Layout> updatedLayoutMono = startLayoutMono.flatMap(startLayout ->
-                layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout)
-        );
+        Mono<Layout> updatedLayoutMono = layoutActionService.updateLayout("random-impossible-id-page", startLayout.getId(), updateLayout);
 
         StepVerifier
                 .create(updatedLayoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
+                        throwable.getMessage().equals(AppsmithError.ACL_NO_RESOURCE_FOUND
+                                .getMessage(FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, "random-impossible-id-page" + ", " + startLayout.getId())))
                 .verify();
     }
 
