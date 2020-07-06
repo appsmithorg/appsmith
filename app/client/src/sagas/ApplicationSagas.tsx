@@ -83,10 +83,6 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
       });
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: response.data.user,
-      });
     }
   } catch (error) {
     yield put({

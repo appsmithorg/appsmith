@@ -78,7 +78,6 @@ import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Action, RestAction } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { getActions } from "selectors/entitiesSelector";
 
 export const getAction = (
   state: AppState,

@@ -1,15 +1,18 @@
 import React from "react";
+import { useHistory, Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getOrgs, getCurrentOrg } from "selectors/organizationSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown from "./CustomizedDropdown";
 import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
-import { Org } from "constants/orgConstants";
 import { User } from "constants/userConstants";
 import Logo from "assets/images/appsmith_logo.png";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { useEffect } from "react";
+import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
+import Button from "components/editorComponents/Button";
 
 const StyledPageHeader = styled(StyledHeader)`
   width: 100%;
@@ -28,31 +31,47 @@ const LogoContainer = styled.div`
 `;
 
 type PageHeaderProps = {
-  orgs?: Org[];
-  currentOrg?: Org;
   user?: User;
+  fetchCurrentUser: () => void;
 };
 
 export const PageHeader = (props: PageHeaderProps) => {
-  const { user } = props;
+  const { user, fetchCurrentUser } = props;
+  const history = useHistory();
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
   return (
     <StyledPageHeader>
       <LogoContainer>
-        <a href="/applications">
+        <Link to={APPLICATIONS_URL}>
           <img className="logoimg" src={Logo} alt="Appsmith Logo" />
-        </a>
+        </Link>
       </LogoContainer>
       <StyledDropDownContainer>
-        {user && <CustomizedDropdown {...DropdownProps(user, user.username)} />}
+        {user && user.username !== "anonymousUser" ? (
+          <CustomizedDropdown {...DropdownProps(user, user.username)} />
+        ) : (
+          <Button
+            filled
+            text="Sign In"
+            intent={"primary"}
+            size="small"
+            onClick={() => history.push(AUTH_LOGIN_URL)}
+          />
+        )}
       </StyledDropDownContainer>
     </StyledPageHeader>
   );
 };
 
 const mapStateToProps = (state: AppState) => ({
-  currentOrg: getCurrentOrg(state),
   user: getCurrentUser(state),
-  orgs: getOrgs(state),
 });
 
-export default connect(mapStateToProps, null)(PageHeader);
+const mapDispatchToProps = (dispatch: any) => ({
+  fetchCurrentUser: () => dispatch({ type: ReduxActionTypes.FETCH_USER_INIT }),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(PageHeader);
