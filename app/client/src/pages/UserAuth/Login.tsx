@@ -24,8 +24,6 @@ import {
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
-  PRIVACY_POLICY_LINK,
-  TERMS_AND_CONDITIONS_LINK,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
@@ -49,6 +47,7 @@ import {
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "configs";
+import { TncPPLinks } from "./SignUp";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -159,8 +158,7 @@ export const Login = (props: LoginFormProps) => {
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
-        <Link to="#">{PRIVACY_POLICY_LINK}</Link>
-        <Link to="#">{TERMS_AND_CONDITIONS_LINK}</Link>
+        <TncPPLinks></TncPPLinks>
       </AuthCardFooter>
     </AuthCardContainer>
   );

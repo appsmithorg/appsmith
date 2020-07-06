@@ -53,6 +53,7 @@ export type AppsmithUIConfigs = {
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
   enableMixpanel: boolean;
+  enableTNCPP: boolean;
 
   featureFlag?: FeatureFlagConfig;
   logLevel: LogLevelDesc;

@@ -14,6 +14,7 @@ declare global {
       optimizely: string;
       enableMixpanel: boolean;
       google: string;
+      enableTNCPP: boolean;
       algolia: {
         apiId: string;
         apiKey: string;
@@ -75,5 +76,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableMixpanel: APPSMITH_FEATURE_CONFIGS.enableMixpanel,
     featureFlag: getFeatureFlags(APPSMITH_FEATURE_CONFIGS.optimizely),
     logLevel: "debug",
+    enableTNCPP: APPSMITH_FEATURE_CONFIGS.enableTNCPP,
   };
 };

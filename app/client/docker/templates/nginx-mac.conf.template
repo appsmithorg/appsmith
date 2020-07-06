@@ -31,6 +31,7 @@ server {
         sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY}';
         sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
         sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
+        sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
     }
 
     location /f {
@@ -93,6 +94,7 @@ server {
         sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY}';
         sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
         sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
+        sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
     }
 
     
