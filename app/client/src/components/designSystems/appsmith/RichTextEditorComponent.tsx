@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 const StyledRTEditor = styled.div`
@@ -22,8 +22,15 @@ export interface RichtextEditorComponentProps {
 export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
+  const [editorInstance, setEditorInstance] = useState(null as any);
   useEffect(() => {
-    let editorInstance: any;
+    if (editorInstance !== null) {
+      editorInstance.mode.set(
+        props.isDisabled === true ? "readonly" : "design",
+      );
+    }
+  }, [props.isDisabled]);
+  useEffect(() => {
     const onChange = debounce(props.onValueChange, 200);
     (window as any).tinyMCE.init({
       height: "100%",
@@ -31,8 +38,9 @@ export const RichtextEditorComponent = (
       menubar: false,
       branding: false,
       resize: false,
-      setup: function(editor: any) {
-        editorInstance = editor;
+      setup: (editor: any) => {
+        setEditorInstance(editor);
+        editor.mode.set(props.isDisabled === true ? "readonly" : "design");
         editor.setContent(props.defaultValue);
         editor
           .on("Change", () => {
@@ -62,7 +70,7 @@ export const RichtextEditorComponent = (
     });
 
     return () => {
-      editorInstance.destroy();
+      editorInstance !== null && editorInstance.destroy();
     };
   }, []);
   return (
