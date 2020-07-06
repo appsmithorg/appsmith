@@ -36,6 +36,7 @@ public enum AppsmithError {
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
+    ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),

@@ -100,7 +100,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findOnLoadActionsInPage(dynamicBindingNames, pageId);
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
                     Page page = tuple.getT1();
