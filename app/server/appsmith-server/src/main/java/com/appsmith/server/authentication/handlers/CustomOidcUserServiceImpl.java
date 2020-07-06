@@ -66,6 +66,13 @@ public class CustomOidcUserServiceImpl extends OidcReactiveOAuth2UserService
                     newUser.setIsEnabled(true);
 
                     return userService.create(newUser);
-                }));
+                }))
+                .flatMap(user -> {
+                    if (!user.getIsEnabled()) {
+                        user.setIsEnabled(true);
+                        return repository.save(user);
+                    }
+                    return Mono.just(user);
+                });
     }
 }
