@@ -58,7 +58,7 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const updateAction = (payload: { data: RestAction }) => {
+export const updateAction = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.UPDATE_ACTION_INIT,
     payload,
