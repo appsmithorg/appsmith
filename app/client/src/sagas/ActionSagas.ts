@@ -39,7 +39,10 @@ import {
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
@@ -51,6 +54,8 @@ import {
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
+import history from "utils/history";
+import { API_EDITOR_URL, QUERIES_EDITOR_URL } from "constants/routes";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -178,6 +183,11 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
+    const action = yield select(getAction, id);
+
+    const isApi = action.pluginType === PLUGIN_TYPE_API;
+    const isQuery = action.pluginType === QUERY_CONSTANT;
+
     const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
       id,
     );
@@ -187,13 +197,29 @@ export function* deleteActionSaga(
         message: `${response.data.name} Action deleted`,
         type: ToastType.SUCCESS,
       });
-      const pageName = yield select(getCurrentPageNameByActionId, id);
-      AnalyticsUtil.logEvent("DELETE_API", {
-        apiName: name,
-        pageName: pageName,
-        apiID: id,
-      });
+      if (isApi) {
+        const pageName = yield select(getCurrentPageNameByActionId, id);
+        AnalyticsUtil.logEvent("DELETE_API", {
+          apiName: name,
+          pageName,
+          apiID: id,
+        });
+      }
+      if (isQuery) {
+        AnalyticsUtil.logEvent("DELETE_QUERY", {
+          queryName: action.name,
+        });
+      }
+
       yield put(deleteActionSuccess({ id }));
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      if (isApi) {
+        history.push(API_EDITOR_URL(applicationId, pageId));
+      }
+      if (isQuery) {
+        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
+      }
     }
   } catch (error) {
     yield put({

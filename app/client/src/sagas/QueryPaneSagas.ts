@@ -1,11 +1,10 @@
 import { take } from "lodash";
-import { all, select, put, takeEvery, takeLatest } from "redux-saga/effects";
+import { all, select, put, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionWithMeta,
   ReduxFormActionTypes,
-  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -21,15 +20,9 @@ import {
 } from "selectors/editorSelectors";
 import { initialize } from "redux-form";
 import { AppState } from "reducers";
-import ActionAPI from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { changeQuery, deleteQuerySuccess } from "actions/queryPaneActions";
-import { AppToaster } from "components/editorComponents/ToastComponent";
-import { ToastType } from "react-toastify";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { GenericApiResponse } from "api/ApiResponses";
-import { validateResponse } from "./ErrorSagas";
-import { getAction, getQueryName } from "selectors/entitiesSelector";
+import { changeQuery } from "actions/queryPaneActions";
+import { getAction } from "selectors/entitiesSelector";
 import { RestAction } from "entities/Action";
 import { setActionProperty } from "actions/actionActions";
 
@@ -126,17 +119,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-function* handleQueryDeletedSaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  history.push(QUERIES_EDITOR_URL(applicationId, pageId));
-  yield put({
-    type: ReduxActionTypes.DELETE_API_DRAFT,
-    payload: { id },
-  });
-}
-
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action = yield select(getAction, id);
@@ -153,37 +135,9 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
-function* deleteQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
-  try {
-    const id = actionPayload.payload.id;
-    const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
-      id,
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      const queryName = yield select(getQueryName, id);
-      AnalyticsUtil.logEvent("DELETE_QUERY", {
-        queryName,
-      });
-      AppToaster.show({
-        message: `${response.data.name} Action deleted`,
-        type: ToastType.SUCCESS,
-      });
-      yield put(deleteQuerySuccess({ id }));
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DELETE_QUERY_ERROR,
-      payload: { error, id: actionPayload.payload.id },
-    });
-  }
-}
-
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
-    takeLatest(ReduxActionTypes.DELETE_QUERY_INIT, deleteQuerySaga),
-    takeEvery(ReduxActionTypes.DELETE_QUERY_SUCCESS, handleQueryDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),

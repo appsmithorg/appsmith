@@ -206,7 +206,7 @@ type QueryFormProps = {
     body: Record<string, any>[];
   };
   applicationId: string;
-  selectedPluginPackage: string;
+  selectedPluginPackage: string | undefined;
   runErrorMessage: string | undefined;
   pageId: string;
   location: {
@@ -402,7 +402,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </a>
           )}
         </div>
-        {isNewQuery && showTemplateMenu ? (
+        {isNewQuery && showTemplateMenu && selectedPluginPackage ? (
           <TemplateMenu
             createTemplate={templateString => {
               setMenuVisibility(false);

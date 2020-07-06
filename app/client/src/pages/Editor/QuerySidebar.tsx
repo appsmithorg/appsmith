@@ -15,12 +15,9 @@ import {
   createActionRequest,
   moveActionRequest,
   copyActionRequest,
+  deleteAction,
 } from "actions/actionActions";
-import {
-  deleteQuery,
-  changeQuery,
-  initQueryPane,
-} from "actions/queryPaneActions";
+import { changeQuery, initQueryPane } from "actions/queryPaneActions";
 import { getQueryActions, getPlugins } from "selectors/entitiesSelector";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getDataSources } from "selectors/editorSelectors";
@@ -74,7 +71,7 @@ interface ReduxDispatchProps {
     originalPageId: string,
   ) => void;
   copyAction: (id: string, pageId: string, name: string) => void;
-  deleteAction: (id: string) => void;
+  deleteAction: (id: string, name: string) => void;
 }
 
 type Props = ReduxStateProps &
@@ -85,31 +82,6 @@ class QuerySidebar extends React.Component<Props> {
   componentDidMount(): void {
     this.props.initQueryPane(QUERY_CONSTANT, this.props.match.params.queryId);
   }
-
-  handleCreateNew = () => {
-    const { actions } = this.props;
-    const { pageId } = this.props.match.params;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newName = getNextEntityName("Query", pageApiNames);
-    this.props.createAction({ name: newName, pageId });
-  };
-
-  handleCreateNewQuery = (dataSourceId: string, pageId: string) => {
-    const { actions } = this.props;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newQueryName = getNextEntityName("Query", pageApiNames);
-    this.props.createAction({
-      name: newQueryName,
-      pageId,
-      datasource: {
-        id: dataSourceId,
-      },
-    });
-  };
 
   handleCreateNewQueryClick = (selectedPageId: string) => {
     const { history } = this.props;
@@ -151,8 +123,8 @@ class QuerySidebar extends React.Component<Props> {
     this.props.copyAction(itemId, destinationPageId, name);
   };
 
-  handleDelete = (itemId: string) => {
-    this.props.deleteAction(itemId);
+  handleDelete = (itemId: string, itemName: string) => {
+    this.props.deleteAction(itemId, itemName);
   };
 
   renderItem = (query: RestAction) => {
@@ -222,7 +194,8 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
     ),
   copyAction: (id: string, destinationPageId: string, name: string) =>
     dispatch(copyActionRequest({ id, destinationPageId, name })),
-  deleteAction: (id: string) => dispatch(deleteQuery({ id })),
+  deleteAction: (id: string, name: string) =>
+    dispatch(deleteAction({ id, name })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuerySidebar);
