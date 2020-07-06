@@ -30,6 +30,12 @@ export const RichtextEditorComponent = (
       );
     }
   }, [props.isDisabled]);
+
+  useEffect(() => {
+    if (editorInstance !== null) {
+      editorInstance.setContent(props.defaultValue, { format: "html" });
+    }
+  }, [props.defaultValue]);
   useEffect(() => {
     const onChange = debounce(props.onValueChange, 200);
     (window as any).tinyMCE.init({
@@ -39,26 +45,26 @@ export const RichtextEditorComponent = (
       branding: false,
       resize: false,
       setup: (editor: any) => {
-        setEditorInstance(editor);
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        editor.setContent(props.defaultValue);
+        // Without timeout default value is not set on browser refresh.
+        setTimeout(() => {
+          editor.setContent(props.defaultValue, { format: "html" });
+        }, 300);
         editor
           .on("Change", () => {
-            // console.log("change: ", editor.getContent())
             onChange(editor.getContent());
           })
           .on("Undo", () => {
-            // console.log("change: ", editor.getContent())
             onChange(editor.getContent());
           })
           .on("Redo", () => {
-            // console.log("change: ", editor.getContent())
             onChange(editor.getContent());
           })
           .on("KeyUp", () => {
             // console.log("change: ", editor.getContent())
             onChange(editor.getContent());
           });
+        setEditorInstance(editor);
       },
       plugins: [
         "advlist autolink lists link image charmap print preview anchor",
