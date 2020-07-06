@@ -26,8 +26,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,16 +95,22 @@ public class PostgresPlugin extends BasePlugin {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
                             } else if ("timestamp".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
-                                value = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(
-                                        Instant.ofEpochMilli(resultSet.getDate(i).getTime()).atOffset(ZoneOffset.UTC).toLocalDateTime()
-                                );
+                                value = DateTimeFormatter.ISO_DATE_TIME.format(
+                                        LocalDateTime.of(
+                                                resultSet.getDate(i).toLocalDate(),
+                                                resultSet.getTime(i).toLocalTime()
+                                        )
+                                ) + "Z";
 
                             } else if ("timestamptz".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
                                 value = DateTimeFormatter.ISO_INSTANT.format(resultSet.getDate(i).toInstant());
 
                             } else if ("time".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
-                                value = DateTimeFormatter.ISO_LOCAL_TIME.format(
-                                        Instant.ofEpochMilli(resultSet.getTime(i).getTime()).atOffset(ZoneOffset.UTC).toLocalDateTime()
+                                value = DateTimeFormatter.ISO_TIME.format(resultSet.getTime(i).toLocalTime());
+
+                            } else if ("timetz".equalsIgnoreCase(metaData.getColumnTypeName(i))) {
+                                value = DateTimeFormatter.ISO_TIME.format(
+                                        resultSet.getTime(i).toLocalTime()
                                 );
 
                             } else {

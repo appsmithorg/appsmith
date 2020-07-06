@@ -83,21 +83,26 @@ public class PostgresPluginTest {
                         "    email VARCHAR (355) UNIQUE NOT NULL,\n" +
                         "    dob DATE NOT NULL,\n" +
                         "    time1 TIME NOT NULL,\n" +
+                        "    time_tz TIME WITH TIME ZONE NOT NULL,\n" +
                         "    created_on TIMESTAMP NOT NULL\n" +
                         ")");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO users VALUES (1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31', '18:30:45', '2018-11-30 23:59:59')");
+                        "INSERT INTO users VALUES (" +
+                                "1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31', '18:32:45'," +
+                                " '04:05:06 PST', TIMESTAMP '2018-11-30 20:45:15')");
             }
 
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO users VALUES (2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31', '15:45:30', '2019-11-30 23:59:59')");
+                        "INSERT INTO users VALUES (" +
+                                "2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31', '15:45:30'," +
+                                " '04:05:06 PST', '2019-11-30 23:59:59')");
             }
 
-        } catch (SQLException throwables) {
+    } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
@@ -154,8 +159,9 @@ public class PostgresPluginTest {
 
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertEquals("2018-12-31", node.get("dob").asText());
-                    assertEquals("18:30:45", node.get("time1").asText());
-                    assertEquals("2018-11-30T23:59:59Z", node.get("created_on").asText());
+                    assertEquals("18:32:45", node.get("time1").asText());
+                    assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
+                    assertEquals("04:05:06", node.get("time_tz").asText());
                 })
                 .verifyComplete();
     }
