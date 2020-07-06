@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://appsmith.com">
-    <img src="https://github.com/appsmithOrg/appsmith/blob/master/static/appsmith_symbol_primary.png" alt="Appsmith.com logo" height="160"><h1>Appsmith</h1>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo.png" alt="Appsmith.com logo" height="160"><h1>Appsmith</h1>
     </a>
   <br>
   <p>
