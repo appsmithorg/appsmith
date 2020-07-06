@@ -272,7 +272,7 @@ public class UserServiceTest {
 
     @Test
     @WithMockAppsmithUser
-    public void signUpIfAlreadyInvited() {
+    public void signUpViaFormLoginIfAlreadyInvited() {
         User newUser = new User();
         newUser.setEmail("alreadyInvited@alreadyInvited.com");
         newUser.setIsEnabled(false);
@@ -289,6 +289,32 @@ public class UserServiceTest {
         StepVerifier.create(userMono)
                 .assertNext(user -> {
                     assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaGoogleIfAlreadyInvited() {
+        User newUser = new User();
+        newUser.setEmail("alreadyInvited@google-gmail.com");
+        newUser.setIsEnabled(false);
+
+        userRepository.save(newUser).block();
+
+        User signupUser = new User();
+        signupUser.setEmail(newUser.getEmail());
+        signupUser.setPassword("password");
+        signupUser.setSource(LoginSource.GOOGLE);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.GOOGLE));
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
