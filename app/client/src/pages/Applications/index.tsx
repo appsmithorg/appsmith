@@ -26,9 +26,7 @@ import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
   CustomizedDropdownProps,
@@ -107,7 +105,6 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
 
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  fetchApplications: () => void;
   createApplication: (appName: string) => void;
   isCreatingApplication: boolean;
   isFetchingApplications: boolean;
@@ -319,8 +316,6 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchApplications: () =>
-    dispatch({ type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT }),
   getAllApplication: () =>
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
   createApplication: (appName: string) => {
