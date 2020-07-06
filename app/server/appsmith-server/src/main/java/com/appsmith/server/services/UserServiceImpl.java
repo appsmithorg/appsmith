@@ -480,7 +480,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
         final String finalOriginHeader = originHeader;
 
-        // If the user doesn't exist, create the user. If the user exists
+        // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.getIsEnabled()) {
