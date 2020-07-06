@@ -25,7 +25,6 @@ export const RichtextEditorComponent = (
   return (
     <StyledRTEditor>
       <Editor
-        apiKey="joninoujfadq0q38n0us4tu89d2pawl1jxk4q09vcvxyfqrl"
         value={props.defaultValue}
         disabled={props.isDisabled}
         init={{
