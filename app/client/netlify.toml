@@ -6,13 +6,31 @@
 #    REACT_APP_OAUTH2_GOOGLE_CLIENT_ID=
 #    REACT_APP_OAUTH2_GITHUB_CLIENT_ID=
 #    REACT_APP_SEGMENT_KEY=
-#    REACT_APP_RAPID_API_KEY_VALUE=
+#    REACT_APP_MARKETPLACE_URL=
 #    REACT_APP_OPTIMIZELY_KEY=
 #    REACT_APP_ALGOLIA_API_ID=
 #    REACT_APP_ALGOLIA_API_KEY=
 #    REACT_APP_ALGOLIA_SEARCH_INDEX_NAME=
     REACT_APP_CLIENT_LOG_LEVEL="debug"
 #    REACT_APP_GOOGLE_MAPS_API_KEY=
+
+context.production]
+  [context.production.environment]
+    REACT_APP_ENVIRONMENT = "PRODUCTION"
+    REACT_APP_BASE_URL = "https://api.appsmith.com"
+    APP_HOST = "app.appsmith.com"
+
+[context.release]
+  [context.release.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    APP_HOST = "release.app.appsmith.com"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    REACT_APP_ENVIRONMENT = "STAGING"
+    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
+    # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
 
 
 [[headers]]

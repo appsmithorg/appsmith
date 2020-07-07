@@ -1,4 +1,3 @@
-#### TODO: Please change the backend endpoint from release-api.appsmith.com --> https://release-api.appsmith.com when merged into release
 server {
     listen 80;
     server_name dev.appsmith.com;
@@ -23,7 +22,7 @@ server {
         sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-        sub_filter __APPSMITH_RAPID_API_KEY_VALUE__ '${APPSMITH_RAPID_API_KEY_VALUE}';
+        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
         sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';
@@ -86,7 +85,7 @@ server {
         sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
         sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
-        sub_filter __APPSMITH_RAPID_API_KEY_VALUE__ '${APPSMITH_RAPID_API_KEY_VALUE}';
+        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
         sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';

@@ -58,8 +58,8 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
       : false,
-    enableRapidAPI: process.env.REACT_APP_RAPID_API_KEY_VALUE
-      ? process.env.REACT_APP_RAPID_API_KEY_VALUE.length > 0
+    enableRapidAPI: process.env.REACT_APP_MARKETPLACE_URL
+      ? process.env.REACT_APP_MARKETPLACE_URL.length > 0
       : false,
   };
 };
