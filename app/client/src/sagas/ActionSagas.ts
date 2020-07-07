@@ -60,6 +60,7 @@ import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { initialize } from "redux-form";
 import { changeApi } from "actions/apiPaneActions";
+import { changeQuery } from "actions/queryPaneActions";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -444,24 +445,10 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isQuery = action.pluginType === QUERY_CONSTANT;
 
   if (isApi) {
-    const { values }: { values: RestAction } = yield select(
-      getFormData,
-      API_EDITOR_FORM_NAME,
-    );
-    if (values?.id === id) {
-      yield put(initialize(API_EDITOR_FORM_NAME, action));
-    } else {
-      yield put(changeApi(id));
-    }
+    yield put(changeApi(id));
   }
   if (isQuery) {
-    const { values }: { values: RestAction } = yield select(
-      getFormData,
-      QUERY_EDITOR_FORM_NAME,
-    );
-    if (values?.id === id) {
-      yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
-    }
+    yield put(changeQuery(id));
   }
 }
 
@@ -481,5 +468,7 @@ export function* watchActionSagas() {
     ),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionErrorTypes.MOVE_ACTION_ERROR, handleMoveOrCopySaga),
+    takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
   ]);
 }

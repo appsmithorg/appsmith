@@ -58,12 +58,10 @@ function* initQueryPaneSaga(
 
   if (isCreating) return;
 
-  yield put(changeQuery(id, QUERY_CONSTANT));
+  yield put(changeQuery(id));
 }
 
-function* changeQuerySaga(
-  actionPayload: ReduxAction<{ id: string; pluginType: string }>,
-) {
+function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   // Typescript says Element does not have blur function but it does;
   document.activeElement &&
