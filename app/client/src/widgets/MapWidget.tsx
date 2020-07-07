@@ -6,7 +6,26 @@ import { WidgetPropertyValidationType } from "utils/ValidationFactory";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { EventType } from "constants/ActionConstants";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { getAppsmithConfigs } from "configs";
+import styled from "styled-components";
 
+const { google } = getAppsmithConfigs();
+
+const DisabledContainer = styled.div`
+  background-color: white;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  h1 {
+    margin-top: 15%;
+    margin-bottom: 10%;
+    color: #7c7c7c;
+  }
+  p {
+    color: #0a0b0e;
+  }
+`;
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
     return {
@@ -116,26 +135,46 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <MapComponent
-        widgetId={this.props.widgetId}
-        isVisible={this.props.isVisible}
-        zoomLevel={this.props.zoomLevel}
-        allowZoom={this.props.allowZoom}
-        center={this.props.center || this.props.mapCenter}
-        enableCreateMarker
-        selectedMarker={this.props.selectedMarker}
-        updateCenter={this.updateCenter}
-        isDisabled={this.props.isDisabled}
-        enableSearch={this.props.enableSearch}
-        enablePickLocation={this.props.enablePickLocation}
-        saveMarker={this.onCreateMarker}
-        updateMarker={this.updateMarker}
-        selectMarker={this.onMarkerClick}
-        markers={this.props.markers || []}
-        disableDrag={() => {
-          this.disableDrag(false);
-        }}
-      />
+      <>
+        {!google.enabled && (
+          <DisabledContainer>
+            <h1>{"Map Widget disabled"}</h1>
+            <p>
+              {"Map widget requires a Google Maps "}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+              >
+                API Key
+              </a>
+            </p>
+            <p>{"Refer our Docs to configure API Keys"}</p>
+          </DisabledContainer>
+        )}
+        {google.enabled && (
+          <MapComponent
+            widgetId={this.props.widgetId}
+            isVisible={this.props.isVisible}
+            zoomLevel={this.props.zoomLevel}
+            allowZoom={this.props.allowZoom}
+            center={this.props.center || this.props.mapCenter}
+            enableCreateMarker
+            selectedMarker={this.props.selectedMarker}
+            updateCenter={this.updateCenter}
+            isDisabled={this.props.isDisabled}
+            enableSearch={this.props.enableSearch}
+            enablePickLocation={this.props.enablePickLocation}
+            saveMarker={this.onCreateMarker}
+            updateMarker={this.updateMarker}
+            selectMarker={this.onMarkerClick}
+            markers={this.props.markers || []}
+            disableDrag={() => {
+              this.disableDrag(false);
+            }}
+          />
+        )}
+      </>
     );
   }
 

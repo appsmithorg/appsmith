@@ -43,6 +43,30 @@ import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 import { signupFormSubmitHandler, SignupFormValues } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
+import { getAppsmithConfigs } from "configs";
+const {
+  enableGithubOAuth,
+  enableGoogleOAuth,
+  enableTNCPP,
+} = getAppsmithConfigs();
+const SocialLoginList: string[] = [];
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
+
+export const TncPPLinks = () => {
+  if (!enableTNCPP) return null;
+  return (
+    <>
+      <Link target="_blank" to="/privacy-policy.html">
+        {PRIVACY_POLICY_LINK}
+      </Link>
+      <Link target="_blank" to="/terms-and-conditions.html">
+        {TERMS_AND_CONDITIONS_LINK}
+      </Link>
+    </>
+  );
+};
+
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
   if (!values.password || isEmptyString(values.password)) {
@@ -128,20 +152,15 @@ export const SignUp = (props: InjectedFormProps<SignupFormValues>) => {
             />
           </FormActions>
         </SpacedForm>
-        <Divider />
-        <ThirdPartyAuth
-          logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
-          type={"SIGNUP"}
-        />
+        {SocialLoginList.length > 0 && <Divider />}
+        <ThirdPartyAuth type={"SIGNUP"} logins={SocialLoginList} />
       </AuthCardBody>
-
+      <AuthCardFooter>
+        <TncPPLinks></TncPPLinks>
+      </AuthCardFooter>
       <AuthCardNavLink to={AUTH_LOGIN_URL}>
         {SIGNUP_PAGE_LOGIN_LINK_TEXT}
       </AuthCardNavLink>
-      <AuthCardFooter>
-        <Link to="#">{PRIVACY_POLICY_LINK}</Link>
-        <Link to="#">{TERMS_AND_CONDITIONS_LINK}</Link>
-      </AuthCardFooter>
     </AuthCardContainer>
   );
 };
