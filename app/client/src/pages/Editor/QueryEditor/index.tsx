@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { getFormValues, getFormInitialValues, change } from "redux-form";
+import { getFormValues, change } from "redux-form";
 import _ from "lodash";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
@@ -25,11 +25,17 @@ import {
 } from "constants/QueryEditorConstants";
 import { QueryAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
+import Spinner from "components/editorComponents/Spinner";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 
 const EmptyStateContainer = styled.div`
   display: flex;
   height: 100%;
   font-size: 20px;
+`;
+
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
 `;
 
 type ReduxDispatchProps = {
@@ -48,6 +54,8 @@ type ReduxStateProps = {
   executedQueryData: any;
   selectedPluginPackage: string | undefined;
   isCreating: boolean;
+  isMoving: boolean;
+  isCopying: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -78,6 +86,8 @@ class QueryEditor extends React.Component<Props> {
       executedQueryData,
       selectedPluginPackage,
       isCreating,
+      isMoving,
+      isCopying,
       runErrorMessage,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
@@ -85,6 +95,14 @@ class QueryEditor extends React.Component<Props> {
     if (!pluginIds?.length) {
       return (
         <EmptyStateContainer>{"Plugin is not installed"}</EmptyStateContainer>
+      );
+    }
+
+    if (isCreating || isCopying || isMoving) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
       );
     }
     const { isRunning, isDeleting } = queryPane;
@@ -153,7 +171,9 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     queryPane: state.ui.queryPane,
     formData,
     selectedPluginPackage,
-    isCreating: state.ui.queryPane.isCreating,
+    isCreating: state.ui.apiPane.isCreating,
+    isMoving: state.ui.apiPane.isMoving,
+    isCopying: state.ui.apiPane.isCopying,
   };
 };
 

@@ -7,7 +7,7 @@ import {
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
   QUERIES_EDITOR_URL,
@@ -121,27 +121,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const pluginType = action?.pluginType ?? "";
-
-  if (pluginType === "DB") {
-    const { values }: { values: RestAction } = yield select(
-      getFormData,
-      QUERY_EDITOR_FORM_NAME,
-    );
-    if (values.id === id) {
-      yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
-    }
-  }
-}
-
 export default function* root() {
   yield all([
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleQueryCreatedSaga),
-    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.QUERY_PANE_CHANGE, changeQuerySaga),
     takeEvery(ReduxActionTypes.INIT_QUERY_PANE, initQueryPaneSaga),
     // Intercepting the redux-form change actionType

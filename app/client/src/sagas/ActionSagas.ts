@@ -56,6 +56,10 @@ import {
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import { API_EDITOR_URL, QUERIES_EDITOR_URL } from "constants/routes";
+import { getFormData } from "selectors/formSelectors";
+import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { initialize } from "redux-form";
+import { changeApi } from "actions/apiPaneActions";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -433,6 +437,34 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   yield put(updateAction({ id: actionId }));
 }
 
+function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
+  const { id } = actionPayload.payload;
+  const action = yield select(getAction, id);
+  const isApi = action.pluginType === PLUGIN_TYPE_API;
+  const isQuery = action.pluginType === QUERY_CONSTANT;
+
+  if (isApi) {
+    const { values }: { values: RestAction } = yield select(
+      getFormData,
+      API_EDITOR_FORM_NAME,
+    );
+    if (values?.id === id) {
+      yield put(initialize(API_EDITOR_FORM_NAME, action));
+    } else {
+      yield put(changeApi(id));
+    }
+  }
+  if (isQuery) {
+    const { values }: { values: RestAction } = yield select(
+      getFormData,
+      QUERY_EDITOR_FORM_NAME,
+    );
+    if (values?.id === id) {
+      yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
+    }
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -447,5 +479,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
       fetchActionsForPageSaga,
     ),
+    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
   ]);
 }

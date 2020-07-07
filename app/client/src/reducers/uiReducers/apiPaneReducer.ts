@@ -11,6 +11,8 @@ const initialState: ApiPaneReduxState = {
   lastUsed: "",
   isCreating: false,
   isFetching: false,
+  isMoving: false,
+  isCopying: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
@@ -26,6 +28,8 @@ export interface ApiPaneReduxState {
   lastUsed: string;
   isCreating: boolean;
   isFetching: boolean;
+  isMoving: boolean;
+  isCopying: boolean;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
@@ -174,6 +178,30 @@ const apiPaneReducer = createReducer(initialState, {
       ...state.isDeleting,
       [action.payload.id]: false,
     },
+  }),
+  [ReduxActionTypes.MOVE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: true,
+  }),
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionTypes.COPY_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: true,
+  }),
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
+  }),
+  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
   }),
   [ReduxActionTypes.API_PANE_CHANGE_API]: (
     state: ApiPaneReduxState,
