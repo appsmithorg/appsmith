@@ -16,7 +16,8 @@ import { theme } from "constants/DefaultTheme";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { LayersContext } from "constants/Layers";
 import { HelpIcons } from "icons/HelpIcons";
-
+import { getAppsmithConfigs } from "configs";
+const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.div<{
   highlight: boolean;
   layer: number;
@@ -35,7 +36,6 @@ const HelpButton = styled.div<{
     border: 0;
     cursor: pointer;
     font-size: 20px;
-    // box-shadow: 2px 4px 5px #888888;
 
     svg {
       width: 25px;
@@ -77,16 +77,18 @@ export function HelpModal() {
       >
         <DocumentationSearch hitsPerPage={5} />
       </ModalComponent>
-      <HelpButton
-        className="t--helpGlobalButton"
-        highlight={!helpModalOpen}
-        layer={layers.help}
-        onClick={() => {
-          dispatch(setHelpModalVisibility(!helpModalOpen));
-        }}
-      >
-        <HelpIcon />
-      </HelpButton>
+      {algolia.enabled && (
+        <HelpButton
+          className="t--helpGlobalButton"
+          highlight={!helpModalOpen}
+          layer={layers.help}
+          onClick={() => {
+            dispatch(setHelpModalVisibility(!helpModalOpen));
+          }}
+        >
+          <HelpIcon />
+        </HelpButton>
+      )}
     </>
   );
 }
