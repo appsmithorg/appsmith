@@ -38,7 +38,6 @@ import { BaseTextInput } from "components/designSystems/appsmith/TextInputCompon
 import { API_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import Spinner from "components/editorComponents/Spinner";
-// import PostmanLogo from "assets/images/Postman-logo.svg";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { Plugin } from "api/PluginApi";
@@ -371,7 +370,6 @@ type ApiHomeScreenProps = {
     push: (data: string) => void;
   };
   isFetchingProviders: boolean;
-  isCreatingApi: boolean;
   providersTotal: number;
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string) => void;
@@ -659,14 +657,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         </StyledContainer> */}
       </React.Fragment>
     );
-
-    if (this.props.isCreatingApi) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
 
     return (
       <React.Fragment>

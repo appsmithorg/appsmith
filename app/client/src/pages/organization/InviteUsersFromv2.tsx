@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
+import { useLocation } from "react-router-dom";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -124,7 +125,12 @@ const InviteUsersForm = (props: any) => {
     fetchUser,
     fetchAllRoles,
     valid,
+    onCancel,
   } = props;
+
+  const currentPath = useLocation().pathname;
+  const pathRegex = /(?:\/org\/)\w+(?:\/settings)/;
+
   useEffect(() => {
     fetchUser(props.orgId);
     fetchAllRoles(props.orgId);
@@ -184,7 +190,9 @@ const InviteUsersForm = (props: any) => {
         filled
         intent="primary"
         onClick={() => {
-          history.push(`/org/${props.orgId}/settings`);
+          pathRegex.test(currentPath)
+            ? onCancel()
+            : history.push(`/org/${props.orgId}/settings`);
         }}
       />
     </StyledForm>

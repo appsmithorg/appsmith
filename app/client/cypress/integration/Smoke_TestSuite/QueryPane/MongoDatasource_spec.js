@@ -29,7 +29,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       .focus()
       .type(`{"find": "planets"}`, { parseSpecialCharSequences: false });
 
-    cy.runSaveDeleteQuery();
+    cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
     cy.get("@createDatasource").then(httpResponse => {

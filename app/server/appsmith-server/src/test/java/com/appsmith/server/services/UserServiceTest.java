@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -110,10 +111,10 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    @WithMockAppsmithUser
     public void createNewUserFormSignupNullPassword() {
         User newUser = new User();
-        newUser.setEmail("new-user-email@email.com");
+        newUser.setEmail("new-user-email-with-null-password@email.com");
 
         Mono<User> userMono = userService.create(newUser);
 
@@ -246,6 +247,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void confirmInviteTokenFlow() {
         User newUser = new User();
         newUser.setEmail("newEmail@newEmail.com");
@@ -266,6 +268,56 @@ public class UserServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaFormLoginIfAlreadyInvited() {
+        User newUser = new User();
+        newUser.setEmail("alreadyInvited@alreadyInvited.com");
+        newUser.setIsEnabled(false);
+
+        userRepository.save(newUser).block();
+
+        User signupUser = new User();
+        signupUser.setEmail(newUser.getEmail());
+        signupUser.setPassword("password");
+        signupUser.setSource(LoginSource.FORM);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaGoogleIfAlreadyInvited() {
+        User newUser = new User();
+        newUser.setEmail("alreadyInvited@google-gmail.com");
+        newUser.setIsEnabled(false);
+
+        userRepository.save(newUser).block();
+
+        User signupUser = new User();
+        signupUser.setEmail(newUser.getEmail());
+        signupUser.setPassword("password");
+        signupUser.setSource(LoginSource.GOOGLE);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.GOOGLE));
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
     }
 }
 

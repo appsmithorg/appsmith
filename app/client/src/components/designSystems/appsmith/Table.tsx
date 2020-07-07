@@ -21,7 +21,7 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
-  searchValue: string;
+  searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
@@ -49,7 +49,7 @@ interface TableProps {
   selectedRowIndex: number;
   disableDrag: () => void;
   enableDrag: () => void;
-  searchTableData: (searchValue: any) => void;
+  searchTableData: (searchKey: any) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -109,7 +109,7 @@ export const Table = (props: TableProps) => {
       <TableHeader
         tableData={props.data}
         searchTableData={props.searchTableData}
-        searchValue={props.searchValue}
+        searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}
         nextPageClick={props.nextPageClick}
         prevPageClick={props.prevPageClick}

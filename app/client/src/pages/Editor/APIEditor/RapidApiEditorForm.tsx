@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import {
-  reduxForm,
-  InjectedFormProps,
-  FormSubmitHandler,
-  formValueSelector,
-} from "redux-form";
+import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -97,7 +92,6 @@ const TabbedViewContainer = styled.div`
 `;
 
 interface APIFormProps {
-  onSubmit: FormSubmitHandler<RestAction>;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
   isRunning: boolean;

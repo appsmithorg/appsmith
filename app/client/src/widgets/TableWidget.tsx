@@ -13,7 +13,6 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-import { Classes } from "@blueprintjs/core";
 
 // const ROW_HEIGHT = 37;
 // const TABLE_HEADER_HEIGHT = 39;
@@ -50,9 +49,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevPageKey: VALIDATION_TYPES.TEXT,
       label: VALIDATION_TYPES.TEXT,
       selectedRowIndex: VALIDATION_TYPES.NUMBER,
-      columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
-      onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      searchKey: VALIDATION_TYPES.TEXT,
+      // columnActions: VALIDATION_TYPES.ARRAY_ACTION_SELECTOR,
+      // onRowSelected: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onPageChange: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
   static getDerivedPropertiesMap() {
@@ -66,6 +66,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageNo: 1,
       pageSize: undefined,
       selectedRowIndex: -1,
+      searchKey: "",
     };
   }
 
@@ -73,18 +74,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       onRowSelected: true,
       onPageChange: true,
+      onSearch: true,
     };
   }
 
   searchTableData = (tableData: object[]) => {
-    const searchValue =
-      this.props.searchValue !== undefined
-        ? this.props.searchValue.toString()
+    const searchKey =
+      this.props.searchKey !== undefined
+        ? this.props.searchKey.toString().toUpperCase()
         : "";
     return tableData.filter((item: object) => {
       return Object.values(item)
         .join(", ")
-        .includes(searchValue);
+        .toUpperCase()
+        .includes(searchKey);
     });
   };
 
@@ -128,7 +131,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={filteredTableData}
           isLoading={this.props.isLoading}
           widgetId={this.props.widgetId}
-          searchValue={this.props.searchValue}
+          searchKey={this.props.searchKey}
           renderMode={this.props.renderMode}
           hiddenColumns={hiddenColumns}
           columnActions={this.props.columnActions}
@@ -215,9 +218,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     */
   }
 
-  handleSearchTable = (searchValue: any) => {
+  handleSearchTable = (searchKey: any) => {
     const { onSearch } = this.props;
-    super.updateWidgetMetaProperty("searchValue", searchValue);
+    super.updateWidgetMetaProperty("searchKey", searchKey);
     if (onSearch) {
       super.executeAction({
         dynamicString: onSearch,
@@ -299,12 +302,12 @@ export interface TableWidgetProps extends WidgetProps {
   nextPageKey?: string;
   prevPageKey?: string;
   label: string;
-  searchValue: string;
+  searchKey: string;
   tableData: object[];
   onPageChange?: string;
   pageSize: number;
   onRowSelected?: string;
-  onSearch?: string;
+  onSearch: string;
   selectedRowIndex?: number;
   columnActions?: ColumnAction[];
   serverSidePaginationEnabled?: boolean;

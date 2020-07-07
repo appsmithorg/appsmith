@@ -8,5 +8,5 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 public class MarketplaceConfig {
     @Value("${marketplace.base-url}")
-    String base_url;
+    String baseUrl;
 }

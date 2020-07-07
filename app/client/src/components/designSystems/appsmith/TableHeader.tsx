@@ -36,9 +36,9 @@ const PageNumberInput = (props: {
 }) => {
   return (
     <PageNumberInputWrapper
-      value={props.pageNo}
+      value={props.pageNo || 0}
       min={1}
-      max={props.pageCount}
+      max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur={true}
       onValueChange={(value: number) => {
@@ -66,9 +66,9 @@ interface TableHeaderProps {
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
-  searchValue: string;
   widgetId: string;
-  searchTableData: (searchValue: any) => void;
+  searchKey: string;
+  searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
 }
 
@@ -76,7 +76,7 @@ const TableHeader = (props: TableHeaderProps) => {
   return (
     <TableHeaderWrapper>
       <SearchComponent
-        value={props.searchValue}
+        value={props.searchKey}
         placeholder="Search..."
         onSearch={props.searchTableData}
       />

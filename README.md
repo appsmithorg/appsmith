@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://appsmith.com">
-    <img src="https://github.com/getappsmith/appsmith/blob/master/static/appsmith_symbol_primary.png" alt="Appsmith.com logo" height="160"><h1>Appsmith</h1>
+    <img src="https://github.com/appsmithOrg/appsmith/blob/release/static/logo.png" alt="Appsmith.com logo" height="160"><h1>Appsmith</h1>
     </a>
   <br>
   <p>
@@ -10,7 +10,7 @@
   </p>
   <p>
 
-[![GitHub release](https://img.shields.io/github/release/getappsmith/appsmith/all?logo=GitHub)](https://github.com/getappsmith/appsmith/releases/latest) 
+[![GitHub release](https://img.shields.io/github/release/getappsmith/appsmith/all?logo=GitHub)](https://github.com/appsmithorg/appsmith/releases/latest) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fappsmith.com&logo=Appsmith)](https://appsmith.com)
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-violet?logo=discord)](https://discord.gg/rBTTVJp)
 [![Docs](https://img.shields.io/badge/docs-v1.x-brightgreen.svg?style=flat)](https://docs.appsmith.com)
@@ -25,7 +25,7 @@
 Appsmith is a fast, easy and secure way to build and maintain internal tools. Appsmith helps you build custom UI [**without HTML/CSS**], connect to your **APIs / databases** and securely share your applications. 
 The user interface is designed to make config customisation easy while allowing you to write code whenever logic is involved.
 
-![UI Builder Demo](https://github.com/getappsmith/appsmith/blob/readme/static/demo.gif)
+![UI Builder Demo](https://github.com/appsmithOrg/appsmith/blob/readme/static/demo.gif)
 
 ------------------
 
@@ -52,7 +52,7 @@ If you have encountered a bug or need to get in touch with us, you can contact u
 
 * Documentation: [Documentation](https://docs.appsmith.com)
 * Support & feedback: [Discord](https://discord.gg/rBTTVJp)
-* Issue & bug tracking: [GitHub issues](https://github.com/getappsmith/appsmith/issues)
+* Issue & bug tracking: [GitHub issues](https://github.com/appsmithOrg/appsmith/issues)
 
 We are committed to fostering an open and welcoming environment in the community. Please see the [Code of Conduct](CODE_OF_CONDUCT.md).
 

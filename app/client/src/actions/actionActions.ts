@@ -5,6 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { Action, RestAction } from "entities/Action";
+import { batchAction } from "actions/batchActions";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -47,17 +48,17 @@ export const fetchActionsForPageSuccess = (actions: RestAction[]) => {
   };
 };
 
-export const runApiAction = (id: string, paginationField?: PaginationField) => {
+export const runAction = (id: string, paginationField?: PaginationField) => {
   return {
-    type: ReduxActionTypes.RUN_API_REQUEST,
+    type: ReduxActionTypes.RUN_ACTION_REQUEST,
     payload: {
-      id: id,
-      paginationField: paginationField,
+      id,
+      paginationField,
     },
   };
 };
 
-export const updateAction = (payload: { data: RestAction }) => {
+export const updateAction = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.UPDATE_ACTION_INIT,
     payload,
@@ -163,24 +164,35 @@ export const saveApiName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const updateApiNameDraft = (payload: {
-  id: string;
-  draft?: {
-    value: string;
-    validation: {
-      isValid: boolean;
-      validationMessage: string;
-    };
-  };
-}) => ({
-  type: ReduxActionTypes.UPDATE_API_NAME_DRAFT,
-  payload: payload,
+export type SetActionPropertyPayload = {
+  actionId: string;
+  propertyName: string;
+  value: string;
+};
+
+export const setActionProperty = (payload: SetActionPropertyPayload) => ({
+  type: ReduxActionTypes.SET_ACTION_PROPERTY,
+  payload,
 });
+
+export type UpdateActionPropertyActionPayload = {
+  id: string;
+  field: string;
+  value: any;
+};
+
+export const updateActionProperty = (
+  payload: UpdateActionPropertyActionPayload,
+) =>
+  batchAction({
+    type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
+    payload,
+  });
 
 export default {
   createAction: createActionRequest,
   fetchActions,
-  runAction: runApiAction,
+  runAction: runAction,
   deleteAction,
   deleteActionSuccess,
   updateAction,

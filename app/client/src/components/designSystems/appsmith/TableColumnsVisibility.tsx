@@ -14,9 +14,9 @@ import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTa
 import Button from "components/editorComponents/Button";
 
 const TableIconWrapper = styled.div<{ selected: boolean }>`
-  background: ${props => (props.selected ? "#EBEFF2" : "transparent")};
+  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
   box-shadow: ${props =>
-    props.selected ? "inset 0px 4px 0px #29CCA3" : "none"};
+    props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
   width: 48px;
   height: 60px;
   display: flex;
@@ -41,7 +41,7 @@ const OptionWrapper = styled.div<{ selected: boolean }>`
   height: 32px;
   box-sizing: border-box;
   padding: 8px;
-  color: #2e3d49;
+  color: ${Colors.OXFORD_BLUE};
   opacity: ${props => (props.selected ? 1 : 0.7)};
   min-width: 200px;
   cursor: pointer;
@@ -96,7 +96,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
         <IconWrapper
           width={20}
           height={20}
-          color={selected ? "#2E3D49" : "#A3B3BF"}
+          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
         >
           <VisibilityIcon />
         </IconWrapper>
@@ -115,7 +115,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             }}
           >
             <div className="option-title">{option.Header}</div>
-            <Icon icon="eye-open" iconSize={20} color="#2E3D49" />
+            <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
           </OptionWrapper>
         ))}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>
