@@ -70,10 +70,11 @@ const PropertyControl = (props: Props) => {
     ) {
       config.isValid = true;
       config.validationMessage = "";
-      config.dataTreePath = "";
-      config.evaluatedValue = "";
-      config.expected = "";
+      delete config.dataTreePath;
+      delete config.evaluatedValue;
+      delete config.expected;
     }
+
     const isDynamic: boolean = _.get(
       widgetProperties,
       ["dynamicProperties", propertyName],
