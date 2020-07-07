@@ -45,6 +45,8 @@
   </script>
   <script type="text/javascript">
     const parseConfig = (config) => {
+      if(config.indexOf("__") === 0 || config.indexOf("$") === 0)
+        return "";
       return config.trim();
     }
     const LOG_LEVELS = ["debug", "error"];
