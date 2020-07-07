@@ -1,24 +1,27 @@
 [build]
   [build.environment]
-#    REACT_APP_SENTRY_DSN=
-#    REACT_APP_HOTJAR_HJID=
-#    REACT_APP_HOTJAR_HJSV=
-#    REACT_APP_OAUTH2_GOOGLE_CLIENT_ID=
-#    REACT_APP_OAUTH2_GITHUB_CLIENT_ID=
-#    REACT_APP_SEGMENT_KEY=
-#    REACT_APP_MARKETPLACE_URL=
-#    REACT_APP_OPTIMIZELY_KEY=
-#    REACT_APP_ALGOLIA_API_ID=
-#    REACT_APP_ALGOLIA_API_KEY=
-#    REACT_APP_ALGOLIA_SEARCH_INDEX_NAME=
-    REACT_APP_CLIENT_LOG_LEVEL="debug"
-#    REACT_APP_GOOGLE_MAPS_API_KEY=
+    REACT_APP_SENTRY_DSN = "https://e5ddde2bbf98433eb0dfc0ed47241d28@o296332.ingest.sentry.io/4113637"
+    REACT_APP_HOTJAR_HJID = "1888019"
+    REACT_APP_HOTJAR_HJSV = "6"
+    REACT_APP_OAUTH2_GOOGLE_CLIENT_ID = "enabled"
+    REACT_APP_OAUTH2_GITHUB_CLIENT_ID = "enabled"
+    REACT_APP_SEGMENT_KEY = "9OnZ6LnDztuZZo4zXfoutEEBB2wftHUH"
+    REACT_APP_MARKETPLACE_URL = "https://release-marketplace.appsmith.com"
+    REACT_APP_OPTIMIZELY_KEY = "Jq3K2kVdvuvxecHyHbVYcj"
+    REACT_APP_ALGOLIA_API_ID = "AZ2Z9CJSJ0"
+    REACT_APP_ALGOLIA_API_KEY = "d113611dccb80ac14aaa72a6e3ac6d10"
+    REACT_APP_ALGOLIA_SEARCH_INDEX_NAME = "test_appsmith"
+    REACT_APP_CLIENT_LOG_LEVEL = "debug"
+    REACT_APP_GOOGLE_MAPS_API_KEY = "AIzaSyBOQFulljufGt3VDhBAwNjZN09KEFufVyg"
+    REACT_APP_TNC_PP = "true"
 
 [context.production]
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
     REACT_APP_BASE_URL = "https://api.appsmith.com"
     APP_HOST = "app.appsmith.com"
+    REACT_APP_SENTRY_DSN = "https://78e9c79f210f4f83ab6d96e097f47b6f@o296332.ingest.sentry.io/1546547"
+    REACT_APP_CLIENT_LOG_LEVEL = "error"
 
 [context.release]
   [context.release.environment]
