@@ -81,6 +81,7 @@ public class PostgresPluginTest {
                         "    username VARCHAR (50) UNIQUE NOT NULL,\n" +
                         "    password VARCHAR (50) NOT NULL,\n" +
                         "    email VARCHAR (355) UNIQUE NOT NULL,\n" +
+                        "    spouse_dob DATE,\n" +
                         "    dob DATE NOT NULL,\n" +
                         "    time1 TIME NOT NULL,\n" +
                         "    time_tz TIME WITH TIME ZONE NOT NULL,\n" +
@@ -93,7 +94,7 @@ public class PostgresPluginTest {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
                         "INSERT INTO users VALUES (" +
-                                "1, 'Jack', 'jill', 'jack@exemplars.com', '2018-12-31'," +
+                                "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31'," +
                                 " '18:32:45', '04:05:06 PST'," +
                                 " TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'," +
                                 " '1.2 years 3 months 2 hours'" +
@@ -103,7 +104,7 @@ public class PostgresPluginTest {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
                         "INSERT INTO users VALUES (" +
-                                "2, 'Jill', 'jack', 'jill@exemplars.com', '2019-12-31'," +
+                                "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31'," +
                                 " '15:45:30', '04:05:06 PST'," +
                                 " TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET'," +
                                 " '2 years'" +
@@ -172,6 +173,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T20:45:15Z", node.get("created_on").asText());
                     assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
                     assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
+                    assertTrue(node.get("spouse_dob").isNull());
                 })
                 .verifyComplete();
     }

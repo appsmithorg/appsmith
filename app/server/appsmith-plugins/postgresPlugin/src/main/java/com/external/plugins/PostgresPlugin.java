@@ -93,7 +93,10 @@ public class PostgresPlugin extends BasePlugin {
                             Object value;
                             final String typeName = metaData.getColumnTypeName(i);
 
-                            if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                            if (resultSet.getObject(i) == null) {
+                                value = null;
+
+                            } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                 value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
                             } else if ("timestamp".equalsIgnoreCase(typeName)) {
