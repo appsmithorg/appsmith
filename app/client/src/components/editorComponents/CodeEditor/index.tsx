@@ -282,8 +282,6 @@ class CodeEditor extends Component<Props, State> {
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
 
-    console.log({ props: this.props, showEvaluatedValue });
-
     return (
       <DynamicAutocompleteInputWrapper
         theme={this.props.theme}
