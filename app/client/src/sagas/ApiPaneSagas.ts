@@ -22,7 +22,6 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
   getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
@@ -351,24 +350,6 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
   }
 }
 
-function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const pluginType = action?.pluginType ?? "";
-
-  if (pluginType === "API") {
-    const { values }: { values: RestAction } = yield select(
-      getFormData,
-      API_EDITOR_FORM_NAME,
-    );
-    if (values.id === id) {
-      yield put(initialize(API_EDITOR_FORM_NAME, _.omit(action, "name")));
-    } else {
-      yield put(changeApi(id));
-    }
-  }
-}
-
 function* handleCreateNewApiActionSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
@@ -459,8 +440,6 @@ export default function* root() {
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionErrorTypes.SAVE_API_NAME_ERROR,

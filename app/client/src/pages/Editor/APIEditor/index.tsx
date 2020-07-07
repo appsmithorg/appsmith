@@ -21,12 +21,21 @@ import { getActionById, getCurrentPageName } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { RapidApiAction, RestAction, PaginationType } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
+import Spinner from "components/editorComponents/Spinner";
+import styled from "styled-components";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+
+const LoadingContainer = styled(CenteredWrapper)`
+  height: 50%;
+`;
 
 interface ReduxStateProps {
   actions: ActionDataState;
   isRunning: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isCreating: boolean;
+  isMoving: boolean;
+  isCopying: boolean;
   apiName: string;
   currentApplication: UserApplication;
   currentPageName: string | undefined;
@@ -105,8 +114,17 @@ class ApiEditor extends React.Component<Props> {
       isRunning,
       isDeleting,
       isCreating,
+      isCopying,
+      isMoving,
       paginationType,
     } = this.props;
+    if (isCreating || isCopying || isMoving) {
+      return (
+        <LoadingContainer>
+          <Spinner size={30} />
+        </LoadingContainer>
+      );
+    }
 
     let formUiComponent: string | undefined;
     if (apiId) {
@@ -124,7 +142,6 @@ class ApiEditor extends React.Component<Props> {
         history={this.props.history}
         location={this.props.location}
         match={this.props.match}
-        isCreatingApi={isCreating}
       />
     );
 
@@ -184,7 +201,13 @@ class ApiEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);
   const apiName = getApiName(state, props.match.params.apiId);
-  const { isDeleting, isRunning, isCreating } = state.ui.apiPane;
+  const {
+    isDeleting,
+    isRunning,
+    isCreating,
+    isMoving,
+    isCopying,
+  } = state.ui.apiPane;
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),
@@ -198,6 +221,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isRunning,
     isDeleting,
     isCreating,
+    isMoving,
+    isCopying,
   };
 };
 

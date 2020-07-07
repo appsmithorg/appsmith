@@ -370,7 +370,6 @@ type ApiHomeScreenProps = {
     push: (data: string) => void;
   };
   isFetchingProviders: boolean;
-  isCreatingApi: boolean;
   providersTotal: number;
   isSwitchingCategory: boolean;
   createNewApiAction: (pageId: string) => void;
@@ -658,14 +657,6 @@ class ApiHomeScreen extends React.Component<Props, ApiHomeScreenState> {
         </StyledContainer> */}
       </React.Fragment>
     );
-
-    if (this.props.isCreatingApi) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
 
     return (
       <React.Fragment>

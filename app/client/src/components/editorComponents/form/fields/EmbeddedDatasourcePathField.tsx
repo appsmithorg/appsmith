@@ -31,7 +31,6 @@ type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedDatasource;
   datasourceList: Datasource[];
-  apiName: string;
 };
 
 type ReduxDispatchProps = {
@@ -228,7 +227,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
-      dataTreePath: `${this.props.apiName}.config.path`,
     };
     if (datasource && !("id" in datasource) && !!displayValue) {
       props.rightIcon = <StoreAsDatasource />;
@@ -250,7 +248,6 @@ const mapStateToProps = (
 ): ReduxStateProps => {
   return {
     orgId: state.ui.orgs.currentOrgId,
-    apiName: apiFormValueSelector(state, "name"),
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
       d => d.pluginId === ownProps.pluginId && d.isValid,
