@@ -9,14 +9,14 @@ import { BASE_URL } from "constants/routes";
 const Wrapper = styled.div`
   text-align: center;
   margin-top: 5%;
-  .boldText {
-    font-weight: 800;
+  .bold-text {
+    font-weight: ${props => props.theme.fontWeights[3]};
     font-size: 24px;
   }
-  .pageUnavailableImg {
+  .page-unavailable-img {
     width: 35%;
   }
-  .buttonPosition {
+  .button-position {
     margin: auto;
   }
 `;
@@ -30,10 +30,10 @@ class PageNotFound extends React.PureComponent<RouterProps> {
           <img
             src={PageUnavailableImage}
             alt="Page Unavailable"
-            className="pageUnavailableImg"
+            className="page-unavailable-img"
           ></img>
           <div>
-            <p className="boldText">Page not found</p>
+            <p className="bold-text">Page not found</p>
             <p>
               Either this page doesn't exist, or you don't have access to <br />
               this page.
@@ -45,7 +45,7 @@ class PageNotFound extends React.PureComponent<RouterProps> {
               icon="arrow-right"
               iconAlignment="right"
               size="small"
-              className="buttonPosition"
+              className="button-position"
               onClick={() => this.props.history.push(BASE_URL)}
             />
           </div>

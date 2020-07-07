@@ -7,7 +7,7 @@ import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import CustomizedDropdown from "./CustomizedDropdown";
 import DropdownProps from "./CustomizedDropdown/HeaderDropdownData";
 import { AppState } from "reducers";
-import { User } from "constants/userConstants";
+import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import Logo from "assets/images/appsmith_logo.png";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { useEffect } from "react";
@@ -50,7 +50,7 @@ export const PageHeader = (props: PageHeaderProps) => {
         </Link>
       </LogoContainer>
       <StyledDropDownContainer>
-        {user && user.username !== "anonymousUser" ? (
+        {user && user.username !== ANONYMOUS_USERNAME ? (
           <CustomizedDropdown {...DropdownProps(user, user.username)} />
         ) : (
           <Button
