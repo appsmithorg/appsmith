@@ -21,7 +21,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
-    onDateSelected: "Function Call",
+    // onDateSelected: "Function Call",
   },
   TABLE_WIDGET: {
     tableData: "Array<Object>",
@@ -30,8 +30,8 @@ const FIELD_VALUES: Record<
     exportPDF: "boolean",
     exportExcel: "boolean",
     exportCsv: "boolean",
-    onRowSelected: "Function Call",
-    onPageChange: "Function Call",
+    // onRowSelected: "Function Call",
+    // onPageChange: "Function Call",
   },
   IMAGE_WIDGET: {
     image: "string",
@@ -43,7 +43,7 @@ const FIELD_VALUES: Record<
     defaultOptionValue: "string",
     isRequired: "boolean",
     isVisible: "boolean",
-    onSelectionChange: "Function Call",
+    // onSelectionChange: "Function Call",
   },
   TABS_WIDGET: {
     tabs: "Array<{ label: string, id: string }>",
@@ -70,7 +70,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isVisible: "boolean",
     isDisabled: "boolean",
-    onTextChanged: "Function Call",
+    // onTextChanged: "Function Call",
   },
   DROP_DOWN_WIDGET: {
     label: "string",
@@ -79,7 +79,7 @@ const FIELD_VALUES: Record<
     defaultOptionValue: "string",
     isRequired: "boolean",
     isVisible: "boolean",
-    onOptionChange: "Function Call",
+    // onOptionChange: "Function Call",
   },
   FORM_BUTTON_WIDGET: {
     text: "string",
@@ -87,7 +87,7 @@ const FIELD_VALUES: Record<
     disabledWhenInvalid: "boolean",
     resetFormOnClick: "boolean",
     isVisible: "boolean",
-    onClick: "Function Call",
+    // onClick: "Function Call",
   },
   MAP_WIDGET: {
     defaultMarkers: "Array<{ lat: number, long: number }>",
@@ -95,20 +95,20 @@ const FIELD_VALUES: Record<
     enablePickLocation: "boolean",
     enableCreateMarker: "boolean",
     isVisible: "boolean",
-    onMarkerClick: "Function Call",
-    onCreateMarker: "Function Call",
+    // onMarkerClick: "Function Call",
+    // onCreateMarker: "Function Call",
   },
   BUTTON_WIDGET: {
     text: "string",
     buttonStyle: "PRIMARY_BUTTON | SECONDARY_BUTTON | DANGER_BUTTON",
     isVisible: "boolean",
-    onClick: "Function Call",
+    // onClick: "Function Call",
   },
   RICH_TEXT_EDITOR_WIDGET: {
     defaultText: "string",
     isVisible: "boolean",
     isDisabled: "boolean",
-    onTextChange: "Function Call",
+    // onTextChange: "Function Call",
   },
   FILE_PICKER_WIDGET: {
     label: "string",
@@ -119,7 +119,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isVisible: "boolean",
     uploadedFileUrls: "string",
-    onFilesSelected: "Function Call",
+    // onFilesSelected: "Function Call",
   },
   CHECKBOX_WIDGET: {
     label: "string",
@@ -127,7 +127,7 @@ const FIELD_VALUES: Record<
     isRequired: "boolean",
     isDisabled: "boolean",
     isVisible: "boolean",
-    onCheckChange: "Function Call",
+    // onCheckChange: "Function Call",
   },
   FORM_WIDGET: {
     backgroundColor: "string",
