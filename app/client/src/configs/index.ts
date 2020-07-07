@@ -131,11 +131,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: segment.value,
     },
     algolia: {
-      enabled:
-        algoliaAPIID.enabled && algoliaAPIID.enabled && algoliaIndex.enabled,
-      apiId: algoliaAPIID.value,
-      apiKey: algoliaAPIKey.value,
-      indexName: algoliaIndex.value,
+      enabled: true,
+      apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
+      apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
+      indexName: algoliaIndex.value || "test_appsmith",
     },
     google: {
       enabled: google.enabled,
