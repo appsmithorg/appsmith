@@ -305,7 +305,7 @@ function* formValueChangeSaga(
 ) {
   const { form, field } = actionPayload.meta;
   if (form !== API_EDITOR_FORM_NAME) return;
-  if (field === "dynamicBindingPathList") return;
+  if (field === "dynamicBindingPathList" || field === "name") return;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   if (!values.id) return;
   if (
@@ -349,12 +349,6 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
       }),
     );
   }
-}
-
-function* handleActionDeletedSaga() {
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  history.push(API_EDITOR_URL(applicationId, pageId));
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -465,7 +459,6 @@ export default function* root() {
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.DELETE_ACTION_SUCCESS, handleActionDeletedSaga),
     takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),

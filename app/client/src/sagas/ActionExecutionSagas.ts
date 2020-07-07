@@ -19,7 +19,10 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { evaluateDataTree } from "selectors/dataTreeSelectors";
+import {
+  evaluateDataTreeWithFunctions,
+  evaluateDataTreeWithoutFunctions,
+} from "selectors/dataTreeSelectors";
 import {
   getDynamicBindings,
   getDynamicValue,
@@ -130,7 +133,7 @@ const isErrorResponse = (response: ActionApiResponse) => {
 
 export function* evaluateDynamicBoundValueSaga(path: string): any {
   log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTree(false));
+  const tree = yield select(evaluateDataTreeWithoutFunctions);
   const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
   return dynamicResult.result;
 }
@@ -311,7 +314,7 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   const { dynamicString, event, responseData } = action.payload;
   log.debug("Evaluating data tree to get action trigger");
   log.debug({ dynamicString });
-  const tree = yield select(evaluateDataTree(true));
+  const tree = yield select(evaluateDataTreeWithFunctions);
   log.debug({ tree });
   const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
   log.debug({ triggers });
@@ -336,8 +339,7 @@ function* runActionSaga(
     const isDirty = yield select(isActionDirty(actionId));
     if (isSaving || isDirty) {
       if (isDirty && !isSaving) {
-        const actionObject = yield select(getAction, actionId);
-        yield put(updateAction({ data: actionObject }));
+        yield put(updateAction({ id: actionId }));
       }
       yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }

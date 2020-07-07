@@ -113,12 +113,12 @@ const apiPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.data.id]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (

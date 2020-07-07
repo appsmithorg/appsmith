@@ -35,7 +35,7 @@ const PageNumberInput = (props: {
 }) => {
   return (
     <PageNumberInputWrapper
-      value={props.pageNo}
+      value={props.pageNo || 0}
       min={1}
       max={props.pageCount || 1}
       buttonPosition="none"

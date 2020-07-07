@@ -1,19 +1,13 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import {
-  submit,
-  getFormValues,
-  getFormInitialValues,
-  change,
-} from "redux-form";
+import { getFormValues, getFormInitialValues, change } from "redux-form";
 import _ from "lodash";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
 import QueryHomeScreen from "./QueryHomeScreen";
-import { runAction, updateAction } from "actions/actionActions";
-import { deleteQuery } from "actions/queryPaneActions";
+import { deleteAction, runAction } from "actions/actionActions";
 import { AppState } from "reducers";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
@@ -29,8 +23,7 @@ import {
   PLUGIN_PACKAGE_DBS,
   QUERY_BODY_FIELD,
 } from "constants/QueryEditorConstants";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { QueryAction, RestAction } from "entities/Action";
+import { QueryAction } from "entities/Action";
 import { getPluginImage } from "pages/Editor/QueryEditor/helpers";
 
 const EmptyStateContainer = styled.div`
@@ -39,49 +32,38 @@ const EmptyStateContainer = styled.div`
   font-size: 20px;
 `;
 
-type QueryPageProps = {
+type ReduxDispatchProps = {
+  runAction: (actionId: string) => void;
+  deleteAction: (id: string, name: string) => void;
+  createTemplate: (template: string) => void;
+};
+
+type ReduxStateProps = {
   plugins: Plugin[];
   dataSources: Datasource[];
   queryPane: QueryPaneReduxState;
-  formData: RestAction;
-  isCreating: boolean;
-  initialValues: RestAction;
-  pluginIds: Array<string> | undefined;
-  submitForm: (name: string) => void;
-  createAction: (values: RestAction) => void;
-  runAction: (action: RestAction, actionId: string) => void;
+  formData: QueryAction;
   runErrorMessage: Record<string, string>;
-  deleteAction: (id: string) => void;
-  updateAction: (data: RestAction) => void;
-  createTemplate: (template: string) => void;
+  pluginIds: Array<string> | undefined;
   executedQueryData: any;
-  selectedPluginPackage: string;
+  selectedPluginPackage: string | undefined;
+  isCreating: boolean;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 
-type Props = QueryPageProps & StateAndRouteProps;
+type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 
 class QueryEditor extends React.Component<Props> {
-  handleSubmit = () => {
-    const { formData } = this.props;
-    this.props.updateAction(formData);
-  };
-
-  handleSaveClick = () => {
-    this.props.submitForm(QUERY_EDITOR_FORM_NAME);
-  };
-
   handleDeleteClick = () => {
     const { queryId } = this.props.match.params;
-    this.props.deleteAction(queryId);
+    const { formData } = this.props;
+    this.props.deleteAction(queryId, formData.name);
   };
 
   handleRunClick = () => {
-    const { formData, match } = this.props;
-    const payload = { ...formData };
-
-    this.props.runAction(payload, match.params.queryId);
+    const { match } = this.props;
+    this.props.runAction(match.params.queryId);
   };
 
   render() {
@@ -105,7 +87,7 @@ class QueryEditor extends React.Component<Props> {
         <EmptyStateContainer>{"Plugin is not installed"}</EmptyStateContainer>
       );
     }
-    const { isSaving, isRunning, isDeleting } = queryPane;
+    const { isRunning, isDeleting } = queryPane;
 
     const validDataSources: Array<Datasource> = [];
     dataSources.forEach(dataSource => {
@@ -127,12 +109,8 @@ class QueryEditor extends React.Component<Props> {
             location={this.props.location}
             applicationId={applicationId}
             pageId={pageId}
-            allowSave={true}
-            isSaving={isSaving[queryId]}
             isRunning={isRunning[queryId]}
             isDeleting={isDeleting[queryId]}
-            onSubmit={this.handleSubmit}
-            onSaveClick={this.handleSaveClick}
             onDeleteClick={this.handleDeleteClick}
             onRunClick={this.handleRunClick}
             dataSources={dataSources}
@@ -157,12 +135,9 @@ class QueryEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState): any => {
+const mapStateToProps = (state: AppState): ReduxStateProps => {
   const { runErrorMessage } = state.ui.queryPane;
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
-  const initialValues = getFormInitialValues(QUERY_EDITOR_FORM_NAME)(
-    state,
-  ) as RestAction;
   const datasourceId = _.get(formData, "datasource.id");
   const selectedPluginPackage = getPluginPackageFromDatasourceId(
     state,
@@ -176,20 +151,16 @@ const mapStateToProps = (state: AppState): any => {
     dataSources: getDataSources(state),
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
-    currentApplication: getCurrentApplication(state),
-    formData: getFormValues(QUERY_EDITOR_FORM_NAME)(state) as RestAction,
+    formData,
     selectedPluginPackage,
-    initialValues,
     isCreating: state.ui.queryPane.isCreating,
   };
 };
 
-const mapDispatchToProps = (dispatch: any): any => ({
-  submitForm: (name: string) => dispatch(submit(name)),
-  updateAction: (data: RestAction) => dispatch(updateAction({ data })),
-  deleteAction: (id: string) => dispatch(deleteQuery({ id })),
-  runAction: (action: RestAction, actionId: string) =>
-    dispatch(runAction(actionId)),
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  deleteAction: (id: string, name: string) =>
+    dispatch(deleteAction({ id, name })),
+  runAction: (actionId: string) => dispatch(runAction(actionId)),
   createTemplate: (template: any) => {
     dispatch(change(QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template));
   },

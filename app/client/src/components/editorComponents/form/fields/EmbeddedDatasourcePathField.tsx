@@ -25,6 +25,7 @@ import {
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import { urlGroupsRegexExp } from "constants/ActionConstants";
 
 type ReduxStateProps = {
   orgId: string;
@@ -43,8 +44,6 @@ type Props = EditorProps &
     input: Partial<WrappedFieldInputProps>;
     pluginId: string;
   };
-
-const fullPathRegexExp = /(https?:\/{2}\S+)(\/\S*?)$/;
 
 class EmbeddedDatasourcePathComponent extends React.Component<Props> {
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
@@ -110,9 +109,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     let datasourceUrl = "";
     let path = "";
-    const isFullPath = fullPathRegexExp.test(value);
+    const isFullPath = urlGroupsRegexExp.test(value);
     if (isFullPath) {
-      const matches = value.match(fullPathRegexExp);
+      const matches = value.match(urlGroupsRegexExp);
       if (matches && matches.length) {
         datasourceUrl = `${matches[1]}`;
         path = matches[2];

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -45,12 +48,30 @@ public class PageServiceTest {
     @Autowired
     OrganizationService organizationService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    Application application = null;
+
+    String applicationId = null;
+
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
 
+    }
 
+    public void setupTestApplication() {
+        if (application == null) {
+            User apiUser = userService.findByEmail("api_user").block();
+            String orgId = apiUser.getOrganizationIds().iterator().next();
+
+            Application newApp = new Application();
+            newApp.setName(UUID.randomUUID().toString());
+            application = applicationPageService.createApplication(newApp, orgId).block();
+            applicationId = application.getId();
+        }
     }
 
     @Test
@@ -92,19 +113,10 @@ public class PageServiceTest {
 
         Page testPage = new Page();
         testPage.setName("PageServiceTest TestApp");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
 
-        User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
-
-        Application newApp = new Application();
-        newApp.setName("Valid Page Creation Test Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(newApp, orgId);
-        Mono<Page> pageMono = applicationMono
-                .map(application -> {
-                    testPage.setApplicationId(application.getId());
-                    return testPage;
-                })
-                .flatMap(applicationPageService::createPage);
+        Mono<Page> pageMono = applicationPageService.createPage(testPage);
 
         Object parsedJson = new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT);
         StepVerifier
@@ -136,19 +148,10 @@ public class PageServiceTest {
 
         Page testPage = new Page();
         testPage.setName("Before Page Name Change");
+        setupTestApplication();
+        testPage.setApplicationId(application.getId());
 
-        User apiUser = userService.findByEmail("api_user").block();
-        String orgId = apiUser.getOrganizationIds().iterator().next();
-
-        Application newApp = new Application();
-        newApp.setName("Valid Change Page Name Test Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(newApp, orgId);
-        Mono<Page> pageMono = applicationMono
-                .map(application -> {
-                    testPage.setApplicationId(application.getId());
-                    return testPage;
-                })
-                .flatMap(applicationPageService::createPage)
+        Mono<Page> pageMono = applicationPageService.createPage(testPage)
                 .flatMap(page -> {
                     Page newPage = new Page();
                     newPage.setId(page.getId());
