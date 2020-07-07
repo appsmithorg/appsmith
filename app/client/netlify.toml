@@ -14,7 +14,7 @@
     REACT_APP_CLIENT_LOG_LEVEL="debug"
 #    REACT_APP_GOOGLE_MAPS_API_KEY=
 
-context.production]
+[context.production]
   [context.production.environment]
     REACT_APP_ENVIRONMENT = "PRODUCTION"
     REACT_APP_BASE_URL = "https://api.appsmith.com"
