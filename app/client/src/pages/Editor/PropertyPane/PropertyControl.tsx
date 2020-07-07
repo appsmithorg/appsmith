@@ -74,7 +74,7 @@ const PropertyControl = (props: Props) => {
       delete config.evaluatedValue;
       delete config.expected;
     }
-    console.log({ config });
+
     const isDynamic: boolean = _.get(
       widgetProperties,
       ["dynamicProperties", propertyName],
