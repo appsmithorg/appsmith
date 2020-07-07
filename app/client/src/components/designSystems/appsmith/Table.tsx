@@ -21,7 +21,6 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
-  columnOrder: string;
   searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
@@ -59,8 +58,16 @@ export const Table = (props: TableProps) => {
   );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const columns = React.useMemo(() => props.columns, [props.columnOrder]);
-  const data = React.useMemo(() => props.data, [currentPageIndex]);
+  const columnIds = props.columns
+    .map((column: ReactTableColumnProps) => {
+      return column.accessor;
+    })
+    .join(",");
+  const columns = React.useMemo(() => props.columns, [columnIds]);
+  const data = React.useMemo(() => props.data, [
+    currentPageIndex,
+    JSON.stringify(props.data),
+  ]);
   const {
     getTableProps,
     getTableBodyProps,

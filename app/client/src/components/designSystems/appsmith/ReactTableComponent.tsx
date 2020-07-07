@@ -395,9 +395,6 @@ export class ReactTableComponent extends React.Component<
 
   render() {
     const columns = this.getTableColumns();
-    const columnOrder = (this.props.columnOrder || [])
-      .concat(this.props.columnActions?.length ? ["actions"] : [])
-      .join(",");
     return (
       <Table
         isLoading={this.props.isLoading}
@@ -407,7 +404,6 @@ export class ReactTableComponent extends React.Component<
         widgetId={this.props.widgetId}
         searchKey={this.props.searchKey}
         columns={columns}
-        columnOrder={columnOrder}
         hiddenColumns={this.props.hiddenColumns}
         updateHiddenColumns={this.props.updateHiddenColumns}
         data={this.props.tableData}
