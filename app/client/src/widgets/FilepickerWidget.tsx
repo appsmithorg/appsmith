@@ -42,7 +42,7 @@ class FilePickerWidget extends BaseWidget<
       allowedFileTypes: VALIDATION_TYPES.ARRAY,
       files: VALIDATION_TYPES.ARRAY,
       isRequired: VALIDATION_TYPES.BOOLEAN,
-      onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

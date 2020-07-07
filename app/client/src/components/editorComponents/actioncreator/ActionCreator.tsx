@@ -33,7 +33,8 @@ const ALERT_STYLE_OPTIONS = [
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
 const ACTION_TRIGGER_REGEX = /^{{([\s\S]*?)\(([\s\S]*?)\)}}$/g;
-const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
+//Old Regex:: /\(\) => ([\s\S]*?)(\([\s\S]*?\))/g;
+const ACTION_ANONYMOUS_FUNC_REGEX = /\(\) => (({[\s\S]*?})|([\s\S]*?)(\([\s\S]*?\)))/g;
 const IS_URL_OR_MODAL = /^'.*'$/;
 const modalSetter = (changeValue: any, currentValue: string) => {
   const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
@@ -422,10 +423,10 @@ function getFieldFromValue(
       const errorArg = args[1];
       let sucesssValue;
       if (successArg && successArg.length > 0) {
-        sucesssValue = successArg[1] + successArg[2];
+        sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
       }
       const successFields = getFieldFromValue(
-        `{{${sucesssValue}}}`,
+        sucesssValue,
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -446,10 +447,10 @@ function getFieldFromValue(
 
       let errorValue;
       if (errorArg && errorArg.length > 0) {
-        errorValue = errorArg[1] + errorArg[2];
+        errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
       }
       const errorFields = getFieldFromValue(
-        `{{${errorValue}}}`,
+        errorValue,
         (changeValue: string) => {
           const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
           const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
@@ -691,11 +692,10 @@ function Fields(props: {
                     depth={props.depth + 1}
                     maxDepth={props.maxDepth}
                     onValueChange={(value: any) => {
-                      props.onValueChange(
-                        selectorField.getParentValue(
-                          value.substring(2, value.length - 2),
-                        ),
+                      const parentValue = selectorField.getParentValue(
+                        value.substring(2, value.length - 2),
                       );
+                      props.onValueChange(parentValue);
                     }}
                   />
                 </li>
@@ -736,11 +736,10 @@ function Fields(props: {
             depth={props.depth + 1}
             maxDepth={props.maxDepth}
             onValueChange={(value: any) => {
-              props.onValueChange(
-                selectorField.getParentValue(
-                  value.substring(2, value.length - 2),
-                ),
+              const parentValue = selectorField.getParentValue(
+                value.substring(2, value.length - 2),
               );
+              props.onValueChange(parentValue);
             }}
           />
         );

@@ -36,8 +36,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
-      onMarkerClick: VALIDATION_TYPES.ACTION_SELECTOR,
-      onCreateMarker: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onMarkerClick: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onCreateMarker: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

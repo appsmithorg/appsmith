@@ -100,7 +100,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         Mono<List<HashSet<DslActionDTO>>> onLoadActionsMono = findOnLoadActionsInPage(dynamicBindingNames, pageId);
 
         return pageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId)))
                 .zipWith(onLoadActionsMono)
                 .map(tuple -> {
                     Page page = tuple.getT1();
@@ -217,30 +218,23 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
                 .flatMap(savedAction -> pageService
                         .findById(oldPageId, MANAGE_PAGES)
-                        .map(page -> {
+                        .flatMap(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
                             }
 
-                            return page.getLayouts()
-                                    .stream()
-                                    /*
-                                     * subscribe() is being used here because within a stream, the master subscriber provided
-                                     * by spring framework does not get attached here leading to the updateLayout mono not
-                                     * emitting. The same is true for the updateLayout call for the new page.
-                                     */
-                                    .map(layout -> updateLayout(oldPageId, layout.getId(), layout).subscribe())
+                            return Flux.fromIterable(page.getLayouts())
+                                    .flatMap(layout -> updateLayout(oldPageId, layout.getId(), layout))
                                     .collect(toSet());
                         })
                         .then(pageService.findById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES))
-                        .map(page -> {
+                        .flatMap(page -> {
                             if (page.getLayouts() == null) {
                                 return Mono.empty();
                             }
 
-                            return page.getLayouts()
-                                    .stream()
-                                    .map(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout).subscribe())
+                            return Flux.fromIterable(page.getLayouts())
+                                    .flatMap(layout -> updateLayout(actionMoveDTO.getDestinationPageId(), layout.getId(), layout))
                                     .collect(toSet());
                         })
                         .thenReturn(savedAction));

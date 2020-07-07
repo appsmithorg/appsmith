@@ -9,14 +9,12 @@ import pageListReducer from "./pageListReducer";
 import jsExecutionsReducer from "./jsExecutionsReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import metaReducer from "./metaReducer";
-import actionDraftsReducer from "reducers/entityReducers/actionDraftsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
   queryData: queryDataReducer,
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
-  actionDrafts: actionDraftsReducer,
   propertyConfig: propertyPaneConfigReducer,
   datasources: datasourceReducer,
   pageList: pageListReducer,

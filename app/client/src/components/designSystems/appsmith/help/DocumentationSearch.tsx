@@ -6,6 +6,7 @@ import {
   SearchBox,
   Highlight,
   Configure,
+  PoweredBy,
 } from "react-instantsearch-dom";
 
 import "instantsearch.css/themes/algolia.css";
@@ -98,6 +99,8 @@ const SearchContainer = styled.div`
 
   .ais-SearchBox-form {
     height: 100%;
+    background-color: #fff;
+    border-radius: 2px;
   }
 
   [class^="ais-"] {
@@ -113,6 +116,7 @@ const SearchContainer = styled.div`
   }
   .ais-SearchBox-input {
     height: 100%;
+    width: 188px;
     padding: 4px 27px;
     padding-right: 14px;
     border-radius: 2px;
@@ -156,6 +160,9 @@ const SearchContainer = styled.div`
     position: relative;
   }
 
+  .ais-SearchBox-reset {
+    right: 51px;
+  }
   .ais-SearchBox-resetIcon {
     width: 10px;
     height: 10px;
@@ -196,6 +203,17 @@ const SearchContainer = styled.div`
   }
   .ais-SearchBox-submit {
     left: 4px;
+  }
+`;
+
+const StyledPoweredBy = styled(PoweredBy)`
+  position: absolute;
+  right: 21px;
+  bottom: 23px;
+  z-index: 1;
+
+  .ais-PoweredBy-text {
+    display: none;
   }
 `;
 
@@ -260,8 +278,8 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
                 Documentation
               </span>
             </h3>
-
-            <SearchBox defaultRefinement={defaultRefinement} />
+            <StyledPoweredBy></StyledPoweredBy>
+            <SearchBox defaultRefinement={defaultRefinement}></SearchBox>
           </Header>
 
           <Hits hitComponent={Hit as any} />

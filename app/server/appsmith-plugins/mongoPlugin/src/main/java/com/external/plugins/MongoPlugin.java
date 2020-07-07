@@ -28,10 +28,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +124,8 @@ public class MongoPlugin extends BasePlugin {
                     //The json contains key "cursor" when find command was issued and there are 1 or more results. In case
                     //there are no results for find, this key is not present in the result json.
                     if (outputJson.has("cursor")) {
-                        JSONArray outputResult = outputJson.getJSONObject("cursor").getJSONArray("firstBatch");
+                        JSONArray outputResult = (JSONArray) cleanUp(
+                                outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
                         result.setBody(objectMapper.readTree(outputResult.toString()));
                     }
 
@@ -329,6 +334,46 @@ public class MongoPlugin extends BasePlugin {
             return URLEncoder.encode(text, StandardCharsets.UTF_8);
         }
 
+    }
+
+    private static Object cleanUp(Object object) {
+        if (object instanceof JSONObject) {
+            JSONObject jsonObject = (JSONObject) object;
+            final boolean isSingleKey = jsonObject.keySet().size() == 1;
+
+            if (isSingleKey && "$numberLong".equals(jsonObject.keys().next())) {
+                return jsonObject.getBigInteger("$numberLong");
+
+            } else if (isSingleKey && "$oid".equals(jsonObject.keys().next())) {
+                return jsonObject.getString("$oid");
+
+            } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
+                return DateTimeFormatter.ISO_INSTANT.format(
+                        Instant.ofEpochMilli(jsonObject.getLong("$date"))
+                );
+
+            } else if (isSingleKey && "$numberDecimal".equals(jsonObject.keys().next())) {
+                return new BigDecimal(jsonObject.getString("$numberDecimal"));
+
+            } else {
+                for (String key : new HashSet<>(jsonObject.keySet())) {
+                    jsonObject.put(key, cleanUp(jsonObject.get(key)));
+                }
+
+            }
+
+        } else if (object instanceof JSONArray) {
+            Collection<Object> cleaned = new ArrayList<>();
+
+            for (Object child : (JSONArray) object) {
+                cleaned.add(cleanUp(child));
+            }
+
+            return new JSONArray(cleaned);
+
+        }
+
+        return object;
     }
 
 }
