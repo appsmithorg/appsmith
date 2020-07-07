@@ -65,10 +65,13 @@ export const evaluateDataTree = (withFunctions?: boolean) =>
     },
   );
 
+export const evaluateDataTreeWithFunctions = evaluateDataTree(true);
+export const evaluateDataTreeWithoutFunctions = evaluateDataTree(true);
+
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
-  evaluateDataTree(false),
+  evaluateDataTreeWithoutFunctions,
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
     log.debug("Evaluating data tree to get autocomplete values");

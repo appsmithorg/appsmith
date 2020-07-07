@@ -61,3 +61,8 @@ export interface ExecuteErrorPayload {
   actionId: string;
   error: any;
 }
+
+// Group 1 = datasource (https://www.domain.com)
+// Group 2 = path (/nested/path)
+// Group 3 = params (?param=123&param2=12)
+export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;

@@ -120,7 +120,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Page> getPage(String pageId, Boolean viewMode) {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return pageService.findById(pageId, permission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
@@ -147,9 +147,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return applicationService
                 .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", applicationName)))
                 .flatMap(application -> pageService.findByNameAndApplicationId(pageName, application.getId(), pagePermission))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, pageName)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by page name", pageName)))
                 .map(page -> {
                     List<Layout> layoutList = page.getLayouts();
                     // Set the view mode for all the layouts in the page. This ensures that we send the correct DSL
@@ -164,7 +164,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         return pageService.findById(pageId, AclPermission.MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, pageId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 // Check if the page actually belongs to the application.
                 .flatMap(page -> {
                     if (page.getApplicationId().equals(applicationId)) {

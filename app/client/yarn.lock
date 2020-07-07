@@ -1925,12 +1925,6 @@
     "@svgr/plugin-svgo" "^4.3.1"
     loader-utils "^1.2.3"
 
-"@tinymce/tinymce-react@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@tinymce/tinymce-react/-/tinymce-react-3.5.0.tgz#5017be56aeab1077f09d3f74a386883e5524a33f"
-  dependencies:
-    prop-types "^15.6.2"
-
 "@types/algoliasearch-helper@*":
   version "2.26.1"
   resolved "https://registry.yarnpkg.com/@types/algoliasearch-helper/-/algoliasearch-helper-2.26.1.tgz#60cf377e7cb4bd9a55f7eba35182792763230a24"

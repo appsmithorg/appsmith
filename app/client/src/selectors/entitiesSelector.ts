@@ -5,9 +5,7 @@ import {
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
-import { Page } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
 import { Action } from "entities/Action";
 import { find } from "lodash";
