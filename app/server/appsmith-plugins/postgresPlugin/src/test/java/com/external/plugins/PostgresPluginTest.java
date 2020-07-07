@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -19,10 +20,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -174,6 +177,27 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
                     assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
                     assertTrue(node.get("spouse_dob").isNull());
+
+                    // Check the order of the columns.
+                    assertArrayEquals(
+                            new String[]{
+                                    "id",
+                                    "username",
+                                    "password",
+                                    "email",
+                                    "spouse_dob",
+                                    "dob",
+                                    "time1",
+                                    "time_tz",
+                                    "created_on",
+                                    "created_on_tz",
+                                    "interval1",
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray()
+                    );
                 })
                 .verifyComplete();
     }

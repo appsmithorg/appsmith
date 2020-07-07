@@ -30,8 +30,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -87,7 +87,8 @@ public class PostgresPlugin extends BasePlugin {
                     int colCount = metaData.getColumnCount();
 
                     while (resultSet.next()) {
-                        Map<String, Object> row = new HashMap<>(colCount);
+                        // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+                        Map<String, Object> row = new LinkedHashMap<>(colCount);
 
                         for (int i = 1; i <= colCount; i++) {
                             Object value;
