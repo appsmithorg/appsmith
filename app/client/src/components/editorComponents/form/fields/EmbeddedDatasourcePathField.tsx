@@ -228,7 +228,6 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       marking: [bindingMarker, this.handleDatasourceHighlight()],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
-      dataTreePath: `${this.props.apiName}.config.path`,
     };
     if (datasource && !("id" in datasource) && !!displayValue) {
       props.rightIcon = <StoreAsDatasource />;
