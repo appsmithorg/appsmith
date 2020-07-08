@@ -1,3 +1,5 @@
+export const ANONYMOUS_USERNAME = "anonymousUser";
+
 export type User = {
   id: string;
   email: string;

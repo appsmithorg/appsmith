@@ -9,6 +9,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -53,6 +55,9 @@ public class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     Mono<User> userMono;
 
@@ -318,6 +323,48 @@ public class UserServiceTest {
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void signUpAfterBeingInvitedToAppsmithOrganization() {
+        Organization organization = new Organization();
+        organization.setName("SignUp after adding user to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
+        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
+
+        organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail(newUserEmail);
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                }).block();
+
+        // Now Sign Up as the new user
+        User signUpUser = new User();
+        signUpUser.setEmail(newUserEmail);
+        signUpUser.setPassword("123456");
+
+        Mono<User> invitedUserSignUpMono =
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+
+        StepVerifier.create(invitedUserSignUpMono)
+                .assertNext(user -> {
+                    assertThat(user.getIsEnabled().equals(true));
+                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
+                })
+                .verifyComplete();
+
     }
 }
 
