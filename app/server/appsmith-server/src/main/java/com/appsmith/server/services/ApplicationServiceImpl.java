@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -238,6 +239,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
         return repository
                 .findById(id, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
                 .flatMap(application -> {
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
                     return repository.save(application);
