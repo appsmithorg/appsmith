@@ -480,24 +480,27 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
         final User user = user1;
         final String finalOriginHeader = originHeader;
-        log.debug("user before repo.find is : {}", user);
+
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.getIsEnabled()) {
-                        log.debug("user received for creation when already invited is : {}", user);
                         // First enable the user
                         savedUser.setIsEnabled(true);
+
                         // In case of form login, store the password
                         if (LoginSource.FORM.equals(user.getSource())) {
                             if (user.getPassword() == null || user.getPassword().isBlank()) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
                             }
-                            log.debug("Going to encode password : {}", user.getPassword());
-//                            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-//                            user.setPassword();
+
+                            /**
+                             * At this point, the user's password is encoded (not sure why). So no need to
+                             * double encode the password while setting it. Set it directly.
+                             * TODO : Figure out why after entering this flatMap that the password stored in the
+                             * user changes from simple string to encoded string.
+                             */
                             savedUser.setPassword(user.getPassword());
-                            log.debug("Password saved is : {}", savedUser.getPassword());
                         }
                         return repository.save(savedUser);
                     }

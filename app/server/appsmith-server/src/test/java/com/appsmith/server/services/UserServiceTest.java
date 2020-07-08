@@ -9,6 +9,7 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
@@ -327,29 +328,40 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void signUpAfterBeingInvitedToAppsmithOrganization() {
+        Organization organization = new Organization();
+        organization.setName("SignUp after adding user to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
         String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
-        InviteUser inviteUser = new InviteUser();
-        inviteUser.setEmail(newUserEmail);
-        inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new Exception("No such app")));
+        organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail(newUserEmail);
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
 
-        // Invite the user to the application
-        applicationMono.flatMap(application -> userService
-                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).block();
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                }).block();
 
         // Now Sign Up as the new user
         User signUpUser = new User();
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono = userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+        Mono<User> invitedUserSignUpMono =
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
                     assertThat(user.getIsEnabled().equals(true));
-                    assertThat(user.getPassword().equals(passwordEncoder.encode("123456")));
+                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
                 })
                 .verifyComplete();
 
