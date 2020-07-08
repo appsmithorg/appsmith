@@ -1,18 +1,22 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +30,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +55,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
     private final UserService userService;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -62,12 +67,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PageRepository pageRepository,
                                   SessionUserService sessionUserService,
                                   OrganizationService organizationService,
-                                  UserService userService) {
+                                  UserService userService,
+                                  PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.userService = userService;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -241,8 +248,52 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .findById(id, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
                 .flatMap(application -> {
+
+                    if (application.getIsPublic().equals(applicationAccessDTO.getPublicAccess())) {
+                        // No change. The required public access is the same as current public access. Do nothing
+                        return Mono.just(application);
+                    }
+
+                    if (application.getIsPublic() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
-                    return repository.save(application);
+                    return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+    }
+
+    private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
+        AclPermission permission = READ_APPLICATIONS;
+
+        User user = new User();
+        user.setName("anonymousUser");
+        user.setEmail("anonymousUser");
+        user.setIsAnonymous(true);
+
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(permission), user);
+        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap, user);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap, user);
+
+        Flux<Page> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+
+        Flux<Action> updatedActionsFlux = updatedPagesFlux
+                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
+
+        return updatedActionsFlux
+                .collectList()
+                .thenReturn(application)
+                .flatMap(app -> {
+                    Application updatedApplication;
+
+                    if (isPublic) {
+                        updatedApplication = (Application) policyUtils.addPoliciesToExistingObject(applicationPolicyMap, (Application) application);
+                    } else {
+                        updatedApplication = (Application) policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, (Application) application);
+                    }
+
+                    return repository.save(updatedApplication);
+                });
+
     }
 }
