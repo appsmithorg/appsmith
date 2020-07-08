@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     OrganizationService organizationService;
+
+    @Autowired
+    PageRepository pageRepository;
 
     String orgId;
 
@@ -338,20 +342,40 @@ public class ApplicationServiceTest {
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
                 .build();
-        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
 
-        Mono<Application> publicAppMono = createApplication
-                .flatMap(application1 -> {
-                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
-                    applicationAccessDTO.setPublicAccess(true);
-                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Mono<Application> publicAppMono = applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .cache();
+
+        Mono<Page> pageMono = publicAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return pageRepository.findById(pageId);
                 });
 
         StepVerifier
-                .create(publicAppMono)
-                .assertNext(publicApp -> {
+                .create(Mono.zip(publicAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application publicApp = tuple.getT1();
+                    Page page = tuple.getT2();
+
                     assertThat(publicApp.getIsPublic()).isTrue();
                     assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
     }
@@ -368,6 +392,14 @@ public class ApplicationServiceTest {
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
                 .users(Set.of("api_user"))
                 .build();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
         Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
@@ -379,13 +411,26 @@ public class ApplicationServiceTest {
                 .flatMap(application1 -> {
                     applicationAccessDTO.setPublicAccess(false);
                     return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                })
+                .cache();
+
+        Mono<Page> pageMono = privateAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return pageRepository.findById(pageId);
                 });
 
         StepVerifier
-                .create(privateAppMono)
-                .assertNext(app -> {
+                .create(Mono.zip(privateAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application app = tuple.getT1();
+                    Page page = tuple.getT2();
+
                     assertThat(app.getIsPublic()).isFalse();
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
                 })
                 .verifyComplete();
     }
