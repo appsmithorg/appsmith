@@ -6,10 +6,7 @@ import { ReactComponent as DownloadIcon } from "assets/icons/control/download-ta
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import moment from "moment";
 
-const TableIconWrapper = styled.div<{ selected: boolean }>`
-  background: ${props => (props.selected ? "#EBEFF2" : "transparent")};
-  box-shadow: ${props =>
-    props.selected ? "inset 0px 4px 0px #29CCA3" : "none"};
+const TableIconWrapper = styled.div`
   width: 48px;
   height: 60px;
   display: flex;
@@ -120,7 +117,6 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
 
   return (
     <TableIconWrapper
-      selected={false}
       onClick={() => {
         downloadTableData();
       }}
