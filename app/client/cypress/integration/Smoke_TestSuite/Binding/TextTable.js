@@ -59,7 +59,6 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor)
       .first()
       .click();
-    cy.pageNo();
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{Table1.pageSize}}");
     cy.get(commonlocators.TableRow)
@@ -70,7 +69,6 @@ describe("Text-Table Binding Functionality", function() {
         cy.EvaluateDataType("string");
         cy.EvaluateCurrentValue(listingCount);
         cy.PublishtheApp();
-        cy.pageNo();
         cy.get(publish.tableLength)
           .find(".tr")
           .then(listing => {
