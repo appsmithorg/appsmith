@@ -473,12 +473,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<User> createUserAndSendEmail(User user1, String originHeader) {
+    public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+        
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = DEFAULT_ORIGIN_HEADER;
         }
-        final User user = user1;
+
         final String finalOriginHeader = originHeader;
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
