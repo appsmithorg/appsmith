@@ -26,9 +26,7 @@ import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
   CustomizedDropdownProps,

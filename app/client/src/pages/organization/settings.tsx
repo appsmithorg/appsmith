@@ -92,15 +92,15 @@ export const OrgSettings = (props: PageProps) => {
     getAllApplication,
   } = props;
 
-  const userTableData = props.allUsers.map(user => ({
-    ...user,
-    roles: props.allRole,
-    isCurrentUser: user.username === props.currentUser?.username,
-  }));
-  const data = React.useMemo(() => userTableData, [
-    props.allUsers,
-    props.allRole,
-  ]);
+  const data = React.useMemo(
+    () =>
+      props.allUsers.map(user => ({
+        ...user,
+        roles: props.allRole,
+        isCurrentUser: user.username === props.currentUser?.username,
+      })),
+    [props.allUsers, props.allRole, props.currentUser],
+  );
 
   const RoleNameCell = (cellProps: any) => {
     const {
@@ -178,7 +178,7 @@ export const OrgSettings = (props: PageProps) => {
         },
       },
     ];
-  }, [props.allUsers, props.allRole]);
+  }, [orgId, deleteOrgUser]);
 
   const currentOrg = allOrgs.find(org => org.organization.id === orgId);
   const currentOrgName = currentOrg?.organization.name ?? "";

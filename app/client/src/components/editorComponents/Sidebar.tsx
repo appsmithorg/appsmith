@@ -18,9 +18,7 @@ import {
 } from "constants/routes";
 
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
-import QuerySidebar from "pages/Editor/QuerySidebar";
 import DataSourceSidebar from "pages/Editor/DataSourceSidebar";
-import ApiSidebar from "pages/Editor/ApiSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
 import ExplorerSidebar from "pages/Editor/Explorer";
 import AppRoute from "pages/common/AppRoute";

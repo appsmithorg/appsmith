@@ -4,7 +4,8 @@ import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
 import { Popover, PopoverInteractionKind } from "@blueprintjs/core";
-import { CurrentValueViewer } from "components/editorComponents/EvaluatedValuePopup";
+import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
 
@@ -141,7 +142,7 @@ export const EntityProperty = (props: EntityPropertyProps) => {
           <StyledPopoverContent>
             {!isString && (
               <CurrentValueViewer
-                theme="DARK"
+                theme={EditorTheme.DARK}
                 evaluatedValue={props.value}
                 hideLabel
               />

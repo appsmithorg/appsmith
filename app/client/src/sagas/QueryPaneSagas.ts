@@ -82,7 +82,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
   yield put(initialize(QUERY_EDITOR_FORM_NAME, action));
   history.push(URL);
 }

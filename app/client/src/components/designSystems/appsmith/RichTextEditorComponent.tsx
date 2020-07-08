@@ -23,6 +23,7 @@ export const RichtextEditorComponent = (
   props: RichtextEditorComponentProps,
 ) => {
   const [editorInstance, setEditorInstance] = useState(null as any);
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (editorInstance !== null) {
       editorInstance.mode.set(
