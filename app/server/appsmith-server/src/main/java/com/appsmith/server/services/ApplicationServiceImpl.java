@@ -32,7 +32,6 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -267,8 +266,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         AclPermission permission = READ_APPLICATIONS;
 
         User user = new User();
-        user.setName("anonymousUser");
-        user.setEmail("anonymousUser");
+        user.setName(FieldName.ANONYMOUS_USER);
+        user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
         Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(permission), user);
