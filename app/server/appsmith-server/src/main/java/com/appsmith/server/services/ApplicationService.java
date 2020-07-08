@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import reactor.core.publisher.Mono;
 
@@ -22,4 +23,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> archive(Application application);
 
     Mono<UserHomepageDTO> getAllApplications();
+
+    Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
 }
