@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { getActionDrafts, getActionsForCurrentPage } from "./entitiesSelector";
+import { getActionsForCurrentPage } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEvaluatedDataTree } from "utils/DynamicBindingUtils";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -40,16 +40,14 @@ import { getPageList } from "./appViewSelectors";
 export const getUnevaluatedDataTree = (withFunctions?: boolean) =>
   createSelector(
     getActionsForCurrentPage,
-    getActionDrafts,
     getWidgets,
     getWidgetsMeta,
     getPageList,
-    (actions, actionDrafts, widgets, widgetsMeta, pageListPayload) => {
+    (actions, widgets, widgetsMeta, pageListPayload) => {
       const pageList = pageListPayload || [];
       return DataTreeFactory.create(
         {
           actions,
-          actionDrafts,
           widgets,
           widgetsMeta,
           pageList,
@@ -67,10 +65,13 @@ export const evaluateDataTree = (withFunctions?: boolean) =>
     },
   );
 
+export const evaluateDataTreeWithFunctions = evaluateDataTree(true);
+export const evaluateDataTreeWithoutFunctions = evaluateDataTree(true);
+
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
-  evaluateDataTree(false),
+  evaluateDataTreeWithoutFunctions,
   getActionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
     log.debug("Evaluating data tree to get autocomplete values");

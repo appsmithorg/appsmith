@@ -1,9 +1,12 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
-export const changeApi = (id: string): ReduxAction<{ id: string }> => {
+export const changeApi = (
+  id: string,
+  newApi?: boolean,
+): ReduxAction<{ id: string; newApi?: boolean }> => {
   return {
     type: ReduxActionTypes.API_PANE_CHANGE_API,
-    payload: { id },
+    payload: { id, newApi },
   };
 };
 

@@ -10,7 +10,7 @@ import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import _ from "lodash";
@@ -201,7 +201,7 @@ const ApiResponseView = (props: Props) => {
               </div>
             </FailedMessageContainer>
           )}
-          <CodeEditor
+          <ReadOnlyEditor
             input={{
               value: response.body
                 ? JSON.stringify(response.body, null, 2)

@@ -10,24 +10,10 @@ import {
   select,
   takeEvery,
   takeLatest,
+  debounce,
 } from "redux-saga/effects";
-import {
-  EventType,
-  ExecuteActionPayload,
-  ExecuteActionPayloadEvent,
-  PageAction,
-} from "constants/ActionConstants";
-import ActionAPI, {
-  ActionApiResponse,
-  ActionCreateUpdateResponse,
-  ActionResponse,
-  ExecuteActionRequest,
-  PaginationField,
-  Property,
-} from "api/ActionAPI";
-import { AppState } from "reducers";
+import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
 import _ from "lodash";
-import { mapToPropList } from "utils/AppsmithUtils";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
@@ -37,366 +23,41 @@ import {
   copyActionSuccess,
   createActionSuccess,
   deleteActionSuccess,
-  executeApiActionRequest,
-  executeApiActionSuccess,
+  fetchActionsForPage,
   fetchActionsForPageSuccess,
   FetchActionsPayload,
   moveActionError,
   moveActionSuccess,
+  SetActionPropertyPayload,
+  updateAction,
+  updateActionProperty,
   updateActionSuccess,
-  fetchActionsForPage,
 } from "actions/actionActions";
 import {
-  getDynamicBindings,
-  getDynamicValue,
   isDynamicValue,
-  removeBindingsFromObject,
+  removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
-import { getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { executeAction, executeActionError } from "actions/widgetActions";
-import { evaluateDataTree } from "selectors/dataTreeSelectors";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
-  ActionDescription,
-  RunActionPayload,
-} from "entities/DataTree/dataTreeFactory";
-import {
   getCurrentApplicationId,
-  getPageList,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import history from "utils/history";
-import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
 import { ToastType } from "react-toastify";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import * as log from "loglevel";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { Action, RestAction } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { getActions } from "selectors/entitiesSelector";
-
-export const getAction = (
-  state: AppState,
-  actionId: string,
-): RestAction | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
-  return action ? action.config : undefined;
-};
-
-export const getActionTimeout = (
-  state: AppState,
-  actionId: string,
-): number | undefined => {
-  const action = _.find(state.entities.actions, a => a.config.id === actionId);
-  if (action) {
-    const timeout = action.config.actionConfiguration.timeoutInMillisecond;
-    if (timeout) {
-      // Extra timeout padding to account for network calls
-      return timeout + 5000;
-    }
-    return undefined;
-  }
-  return undefined;
-};
-
-const createActionSuccessResponse = (
-  response: ActionApiResponse,
-): ActionResponse => ({
-  ...response.data,
-  ...response.clientMeta,
-});
-
-const isErrorResponse = (response: ActionApiResponse) => {
-  return (
-    (response.responseMeta && response.responseMeta.error) ||
-    !response.data.isExecutionSuccess
-  );
-};
-
-function getCurrentPageNameByActionId(
-  state: AppState,
-  actionId: string,
-): string {
-  const action = state.entities.actions.find(action => {
-    return action.config.id === actionId;
-  });
-  const pageId = action ? action.config.pageId : "";
-  return getPageNameByPageId(state, pageId);
-}
-
-function getPageNameByPageId(state: AppState, pageId: string): string {
-  const page = state.entities.pageList.pages.find(
-    page => page.pageId === pageId,
-  );
-  return page ? page.pageName : "";
-}
-
-const createActionErrorResponse = (
-  response: ActionApiResponse,
-): ActionResponse => ({
-  body: response.responseMeta.error || { error: "Error" },
-  statusCode: response.responseMeta.error
-    ? response.responseMeta.error.code.toString()
-    : "Error",
-  headers: {},
-  request: {
-    headers: {},
-    body: {},
-    httpMethod: "",
-    url: "",
-  },
-  duration: "0",
-  size: "0",
-});
-
-export function* evaluateDynamicBoundValueSaga(path: string): any {
-  log.debug("Evaluating data tree to get action binding value");
-  const tree = yield select(evaluateDataTree(true));
-  const dynamicResult = getDynamicValue(`{{${path}}}`, tree);
-  return dynamicResult.result;
-}
-
-export function* getActionParams(jsonPathKeys: string[] | undefined) {
-  if (_.isNil(jsonPathKeys)) return [];
-  const values: any = yield all(
-    jsonPathKeys.map((jsonPath: string) => {
-      return call(evaluateDynamicBoundValueSaga, jsonPath);
-    }),
-  );
-  const dynamicBindings: Record<string, string> = {};
-  jsonPathKeys.forEach((key, i) => {
-    let value = values[i];
-    if (typeof value === "object") value = JSON.stringify(value);
-    dynamicBindings[key] = value;
-  });
-  return mapToPropList(dynamicBindings);
-}
-
-// function* executeJSActionSaga(jsAction: ExecuteJSActionPayload) {
-//   const tree = yield select(getParsedDataTree);
-//   const result = JSExecutionManagerSingleton.evaluateSync(
-//     jsAction.jsFunction,
-//     tree,
-//   );
-//
-//   yield put({
-//     type: ReduxActionTypes.SAVE_JS_EXECUTION_RECORD,
-//     payload: {
-//       [jsAction.jsFunctionId]: result,
-//     },
-//   });
-// }
-
-export function* executeActionSaga(
-  apiAction: RunActionPayload,
-  event: ExecuteActionPayloadEvent,
-) {
-  const { actionId, onSuccess, onError } = apiAction;
-  try {
-    yield put(executeApiActionRequest({ id: apiAction.actionId }));
-    const api: RestAction = yield select(getAction, actionId);
-    const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
-    const pagination =
-      event.type === EventType.ON_NEXT_PAGE
-        ? "NEXT"
-        : event.type === EventType.ON_PREV_PAGE
-        ? "PREV"
-        : undefined;
-    const executeActionRequest: ExecuteActionRequest = {
-      action: { id: actionId },
-      params,
-      paginationField: pagination,
-    };
-    const timeout = yield select(getActionTimeout, actionId);
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
-      executeActionRequest,
-      timeout,
-    );
-    if (isErrorResponse(response)) {
-      const payload = createActionErrorResponse(response);
-      if (_.isNil(response.responseMeta.error)) {
-        AppToaster.show({
-          message: api.name + " execution failed",
-          type: "error",
-        });
-      }
-      if (onError) {
-        yield put(
-          executeAction({
-            dynamicString: onError,
-            event: {
-              ...event,
-              type: EventType.ON_ERROR,
-            },
-            responseData: payload,
-          }),
-        );
-      } else {
-        if (event.callback) {
-          event.callback({ success: false });
-        }
-      }
-      yield put(
-        executeActionError({
-          actionId,
-          error: response.responseMeta.error,
-        }),
-      );
-    } else {
-      const payload = createActionSuccessResponse(response);
-      yield put(
-        executeApiActionSuccess({
-          id: apiAction.actionId,
-          response: payload,
-        }),
-      );
-      if (onSuccess) {
-        yield put(
-          executeAction({
-            dynamicString: onSuccess,
-            event: {
-              ...event,
-              type: EventType.ON_SUCCESS,
-            },
-            responseData: payload,
-          }),
-        );
-      } else {
-        if (event.callback) {
-          event.callback({ success: true });
-        }
-      }
-    }
-    return response;
-  } catch (error) {
-    yield put(
-      executeActionError({
-        actionId: actionId,
-        error,
-      }),
-    );
-    if (onError) {
-      yield put(
-        executeAction({
-          dynamicString: `{{${onError}}}`,
-          event: {
-            ...event,
-            type: EventType.ON_ERROR,
-          },
-          responseData: {},
-        }),
-      );
-    } else {
-      if (event.callback) {
-        event.callback({ success: false });
-      }
-    }
-  }
-}
-
-function* navigateActionSaga(
-  action: { pageNameOrUrl: string; params: Record<string, string> },
-  event: ExecuteActionPayloadEvent,
-) {
-  const pageList = yield select(getPageList);
-  const applicationId = yield select(getCurrentApplicationId);
-  const page = _.find(pageList, { pageName: action.pageNameOrUrl });
-  if (page) {
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      pageName: action.pageNameOrUrl,
-      pageParams: action.params,
-    });
-    // TODO need to make this check via RENDER_MODE;
-    const path =
-      history.location.pathname.indexOf("/edit") !== -1
-        ? BUILDER_PAGE_URL(applicationId, page.pageId, action.params)
-        : getApplicationViewerPageURL(
-            applicationId,
-            page.pageId,
-            action.params,
-          );
-    history.push(path);
-    if (event.callback) event.callback({ success: true });
-  } else {
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: action.pageNameOrUrl,
-    });
-    // Add a default protocol if it doesn't exist.
-    let url = action.pageNameOrUrl;
-    if (url.indexOf("://") === -1) {
-      url = "https://" + url;
-    }
-    window.location.assign(url);
-  }
-}
-
-export function* executeActionTriggers(
-  trigger: ActionDescription<any>,
-  event: ExecuteActionPayloadEvent,
-) {
-  try {
-    switch (trigger.type) {
-      case "RUN_ACTION":
-        yield call(executeActionSaga, trigger.payload, event);
-        break;
-      case "NAVIGATE_TO":
-        yield call(navigateActionSaga, trigger.payload, event);
-        break;
-      case "SHOW_ALERT":
-        AppToaster.show({
-          message: trigger.payload.message,
-          type: trigger.payload.style,
-        });
-        if (event.callback) event.callback({ success: true });
-        break;
-      case "SHOW_MODAL_BY_NAME":
-        yield put(trigger);
-        if (event.callback) event.callback({ success: true });
-        break;
-      case "CLOSE_MODAL":
-        yield put(trigger);
-        if (event.callback) event.callback({ success: true });
-        break;
-      default:
-        yield put(
-          executeActionError({
-            error: "Trigger type unknown",
-            actionId: "",
-          }),
-        );
-    }
-  } catch (e) {
-    yield put(
-      executeActionError({
-        error: "Failed to execute action",
-        actionId: "",
-      }),
-    );
-    if (event.callback) event.callback({ success: false });
-  }
-}
-
-export function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
-  const { dynamicString, event, responseData } = action.payload;
-  log.debug("Evaluating data tree to get action trigger");
-  log.debug({ dynamicString });
-  const tree = yield select(evaluateDataTree(true));
-  log.debug({ tree });
-  const { triggers } = getDynamicValue(dynamicString, tree, responseData, true);
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map(trigger => call(executeActionTriggers, trigger, event)),
-    );
-  } else {
-    if (event.callback) event.callback({ success: true });
-  }
-}
+import {
+  getAction,
+  getCurrentPageNameByActionId,
+  getPageNameByPageId,
+} from "selectors/entitiesSelector";
+import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
+import history from "utils/history";
+import { API_EDITOR_URL, QUERIES_EDITOR_URL } from "constants/routes";
+import { changeApi } from "actions/apiPaneActions";
+import { changeQuery } from "actions/queryPaneActions";
 
 export function* createActionSaga(actionPayload: ReduxAction<RestAction>) {
   try {
@@ -472,18 +133,14 @@ export function* fetchActionsForPageSaga(
   }
 }
 
-export function* updateActionSaga(
-  actionPayload: ReduxAction<{ data: RestAction }>,
-) {
+export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
-    const isApi = actionPayload.payload.data.pluginType === "API";
-    const isDB = actionPayload.payload.data.pluginType === "DB";
-
-    const { data } = actionPayload.payload;
-    let action = data;
+    let action: Action = yield select(getAction, actionPayload.payload.id);
+    const isApi = action.pluginType === "API";
+    const isDB = action.pluginType === "DB";
 
     if (isApi) {
-      action = transformRestAction(data);
+      action = transformRestAction(action);
     }
     if (isApi || isDB) {
       action = _.omit(action, "name") as RestAction;
@@ -504,22 +161,20 @@ export function* updateActionSaga(
           queryName: action.name,
           pageName,
         });
+      } else if (action.pluginType === PLUGIN_TYPE_API) {
+        AnalyticsUtil.logEvent("SAVE_API", {
+          apiId: response.data.id,
+          apiName: response.data.name,
+          pageName: pageName,
+        });
       }
 
-      AnalyticsUtil.logEvent("SAVE_API", {
-        apiId: response.data.id,
-        apiName: response.data.name,
-        pageName: pageName,
-      });
       yield put(updateActionSuccess({ data: response.data }));
-      // if (actionPayload.payload.data.pluginType !== "DB") {
-      //   yield put(runApiAction(data.id));
-      // }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.data.id },
+      payload: { error, id: actionPayload.payload.id },
     });
   }
 }
@@ -530,6 +185,11 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
+    const action = yield select(getAction, id);
+
+    const isApi = action.pluginType === PLUGIN_TYPE_API;
+    const isQuery = action.pluginType === QUERY_CONSTANT;
+
     const response: GenericApiResponse<RestAction> = yield ActionAPI.deleteAction(
       id,
     );
@@ -539,139 +199,35 @@ export function* deleteActionSaga(
         message: `${response.data.name} Action deleted`,
         type: ToastType.SUCCESS,
       });
-      const pageName = yield select(getCurrentPageNameByActionId, id);
-      AnalyticsUtil.logEvent("DELETE_API", {
-        apiName: name,
-        pageName: pageName,
-        apiID: id,
-      });
+      if (isApi) {
+        const pageName = yield select(getCurrentPageNameByActionId, id);
+        AnalyticsUtil.logEvent("DELETE_API", {
+          apiName: name,
+          pageName,
+          apiID: id,
+        });
+      }
+      if (isQuery) {
+        AnalyticsUtil.logEvent("DELETE_QUERY", {
+          queryName: action.name,
+        });
+      }
+
       yield put(deleteActionSuccess({ id }));
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+      if (isApi) {
+        history.push(API_EDITOR_URL(applicationId, pageId));
+      }
+      if (isQuery) {
+        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
+      }
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
       payload: { error, id: actionPayload.payload.id },
     });
-  }
-}
-
-export function extractBindingsFromAction(action: Action) {
-  const bindings: string[] = [];
-  action.dynamicBindingPathList.forEach(a => {
-    const value = _.get(action, a.key);
-    if (isDynamicValue(value)) {
-      const { jsSnippets } = getDynamicBindings(value);
-      bindings.push(...jsSnippets.filter(jsSnippet => !!jsSnippet));
-    }
-  });
-  return bindings;
-}
-
-export function* runApiActionSaga(
-  reduxAction: ReduxAction<{
-    id: string;
-    paginationField: PaginationField;
-  }>,
-) {
-  try {
-    const {
-      values,
-      dirty,
-      valid,
-    }: {
-      values: RestAction;
-      dirty: boolean;
-      valid: boolean;
-    } = yield select(getFormData, API_EDITOR_FORM_NAME);
-    const actionObject: PageAction = yield select(getAction, values.id);
-    let action: ExecuteActionRequest["action"] = { id: values.id };
-    let jsonPathKeys = actionObject.jsonPathKeys;
-    if (!valid) {
-      console.error("Form error");
-      return;
-    }
-    if (dirty) {
-      action = _.omit(transformRestAction(values), "id") as RestAction;
-      jsonPathKeys = extractBindingsFromAction(action as RestAction);
-    }
-    const { paginationField } = reduxAction.payload;
-
-    const params = yield call(getActionParams, jsonPathKeys);
-    const timeout = yield select(getActionTimeout, values.id);
-    const response: ActionApiResponse = yield ActionAPI.executeAction(
-      {
-        action,
-        params,
-        paginationField,
-      },
-      timeout,
-    );
-    let payload = createActionSuccessResponse(response);
-    if (response.responseMeta && response.responseMeta.error) {
-      payload = createActionErrorResponse(response);
-    }
-    const id = values.id || "DRY_RUN";
-
-    const pageName = yield select(getCurrentPageNameByActionId, values.id);
-
-    AnalyticsUtil.logEvent("RUN_API", {
-      apiId: values.id,
-      apiName: values.name,
-      pageName: pageName,
-      responseTime: response.clientMeta.duration,
-      apiType: "INTERNAL",
-    });
-
-    yield put({
-      type: ReduxActionTypes.RUN_API_SUCCESS,
-      payload: { [id]: payload },
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.RUN_API_ERROR,
-      payload: { error, id: reduxAction.payload.id },
-    });
-  }
-}
-
-function* executePageLoadAction(pageAction: PageAction) {
-  yield put(executeApiActionRequest({ id: pageAction.id }));
-  const params: Property[] = yield call(
-    getActionParams,
-    pageAction.jsonPathKeys,
-  );
-  const executeActionRequest: ExecuteActionRequest = {
-    action: { id: pageAction.id },
-    params,
-  };
-  const response: ActionApiResponse = yield ActionAPI.executeAction(
-    executeActionRequest,
-    pageAction.timeoutInMillisecond,
-  );
-
-  if (isErrorResponse(response)) {
-    yield put(
-      executeActionError({
-        actionId: pageAction.id,
-        error: response.responseMeta.error,
-      }),
-    );
-  } else {
-    const payload = createActionSuccessResponse(response);
-    yield put(
-      executeApiActionSuccess({
-        id: pageAction.id,
-        response: payload,
-      }),
-    );
-  }
-}
-
-function* executePageLoadActionsSaga(action: ReduxAction<PageAction[][]>) {
-  const pageActions = action.payload;
-  for (const actionSet of pageActions) {
-    // Load all sets in parallel
-    yield* yield all(actionSet.map(a => call(executePageLoadAction, a)));
   }
 }
 
@@ -683,16 +239,13 @@ function* moveActionSaga(
     name: string;
   }>,
 ) {
-  const drafts = yield select(state => state.ui.apiPane.drafts);
-  const dirty = action.payload.id in drafts;
-  const actionObject: RestAction = dirty
-    ? drafts[action.payload.id]
-    : yield select(getAction, action.payload.id);
-  const withoutBindings = removeBindingsFromObject(actionObject);
+  const actionObject: RestAction = yield select(getAction, action.payload.id);
+  const withoutBindings = removeBindingsFromActionObject(actionObject);
   try {
     const response = yield ActionAPI.moveAction({
       action: {
         ...withoutBindings,
+        pageId: action.payload.originalPageId,
         name: action.payload.name,
       },
       destinationPageId: action.payload.destinationPageId,
@@ -729,13 +282,9 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const drafts = yield select(state => state.ui.apiPane.drafts);
-  const dirty = action.payload.id in drafts;
-  let actionObject = dirty
-    ? drafts[action.payload.id]
-    : yield select(getAction, action.payload.id);
+  let actionObject: RestAction = yield select(getAction, action.payload.id);
   if (action.payload.destinationPageId !== actionObject.pageId) {
-    actionObject = removeBindingsFromObject(actionObject);
+    actionObject = removeBindingsFromActionObject(actionObject);
   }
   try {
     const copyAction = {
@@ -842,24 +391,81 @@ function* saveApiNameSaga(action: ReduxAction<{ id: string; name: string }>) {
   }
 }
 
+function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: string,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  const isDynamic = isDynamicValue(value);
+  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
+  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+  if (!isDynamic && fieldExists) {
+    dynamicBindings = dynamicBindings.filter(d => d.key !== bindingField);
+  }
+  if (isDynamic && !fieldExists) {
+    dynamicBindings.push({ key: bindingField });
+  }
+  if (dynamicBindings !== action.dynamicBindingPathList) {
+    return dynamicBindings;
+  }
+  return action.dynamicBindingPathList;
+}
+
+function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
+  const { actionId, value, propertyName } = action.payload;
+  if (!actionId) return;
+  if (propertyName === "name") return;
+  const actionObj = yield select(getAction, actionId);
+  const effects: Record<string, any> = {};
+  // Value change effect
+  effects[propertyName] = value;
+  // Bindings change effect
+  effects.dynamicBindingPathList = getDynamicBindingsChangesSaga(
+    actionObj,
+    value,
+    propertyName,
+  );
+  yield all(
+    Object.keys(effects).map(field =>
+      put(updateActionProperty({ id: actionId, field, value: effects[field] })),
+    ),
+  );
+  yield put(updateAction({ id: actionId }));
+}
+
+function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
+  const { id } = actionPayload.payload;
+  const action = yield select(getAction, id);
+  const isApi = action.pluginType === PLUGIN_TYPE_API;
+  const isQuery = action.pluginType === QUERY_CONSTANT;
+
+  if (isApi) {
+    yield put(changeApi(id));
+  }
+  if (isQuery) {
+    yield put(changeQuery(id));
+  }
+}
+
 export function* watchActionSagas() {
   yield all([
+    takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
-    takeLatest(ReduxActionTypes.RUN_API_REQUEST, runApiActionSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
-    takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
+    debounce(500, ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
     takeLatest(ReduxActionTypes.SAVE_API_NAME, saveApiNameSaga),
-    takeLatest(
-      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-      executePageLoadActionsSaga,
-    ),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
     takeLatest(
       ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
       fetchActionsForPageSaga,
     ),
+    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
+    takeEvery(ReduxActionErrorTypes.MOVE_ACTION_ERROR, handleMoveOrCopySaga),
+    takeEvery(ReduxActionErrorTypes.COPY_ACTION_ERROR, handleMoveOrCopySaga),
   ]);
 }

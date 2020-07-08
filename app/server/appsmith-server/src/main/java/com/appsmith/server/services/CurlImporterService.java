@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,13 @@ public class CurlImporterService extends BaseApiImporter {
 
     @Override
     public Mono<Action> importAction(Object input, String pageId, String name, String orgId) {
-        Action action = curlToAction((String) input, pageId, name);
+        Action action;
+
+        try {
+            action = curlToAction((String) input, pageId, name);
+        } catch (AppsmithException e) {
+            return Mono.error(e);
+        }
 
         if (action == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
@@ -56,19 +63,21 @@ public class CurlImporterService extends BaseApiImporter {
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
-        return pluginService.findByPackageName(RESTAPI_PLUGIN)
-                .flatMap(plugin -> {
-                    final Datasource datasource = action.getDatasource();
+        return Mono.zip(Mono.just(action), pluginService.findByPackageName(RESTAPI_PLUGIN))
+                .flatMap(tuple -> {
+                    final Action action1 = tuple.getT1();
+                    final Plugin plugin = tuple.getT2();
+                    final Datasource datasource = action1.getDatasource();
                     final DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setOrganizationId(orgId);
-                    return Mono.just(action);
+                    return Mono.just(action1);
                 })
                 .flatMap(actionService::create);
     }
 
-    public Action curlToAction(String command, String pageId, String name) {
+    public Action curlToAction(String command, String pageId, String name) throws AppsmithException {
         Action action = curlToAction(command);
         if (action != null) {
             action.setPageId(pageId);
@@ -77,7 +86,7 @@ public class CurlImporterService extends BaseApiImporter {
         return action;
     }
 
-    public Action curlToAction(String command) {
+    public Action curlToAction(String command) throws AppsmithException {
         // Three stages of parsing the cURL command:
         // 1. lex: Split the string into tokens, respecting the quoting semantics of a POSIX-compliant shell.
         // 2. normalize: Normalize all the command line arguments of a curl command, into their long-form versions.
@@ -238,7 +247,7 @@ public class CurlImporterService extends BaseApiImporter {
         return normalizedTokens;
     }
 
-    public Action parse(List<String> tokens) {
+    public Action parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
         if (!"curl".equals(tokens.get(0))) {
@@ -267,7 +276,11 @@ public class CurlImporterService extends BaseApiImporter {
 
             if (ARG_REQUEST.equals(state)) {
                 // The `token` is next to `--request`.
-                actionConfiguration.setHttpMethod(HttpMethod.valueOf(token.toUpperCase()));
+                final HttpMethod method = HttpMethod.resolve(token.toUpperCase());
+                if (method == null) {
+                    throw new AppsmithException(AppsmithError.INVALID_CURL_METHOD, token);
+                }
+                actionConfiguration.setHttpMethod(method);
 
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.

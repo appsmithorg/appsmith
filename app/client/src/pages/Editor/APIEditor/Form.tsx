@@ -17,7 +17,6 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField } from "api/ActionAPI";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import DatasourcesField from "components/editorComponents/form/fields/DatasourcesField";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import Pagination from "./Pagination";
@@ -28,6 +27,7 @@ import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleH
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
+import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
@@ -115,7 +115,6 @@ const HeadersSection = styled.div`
 
 interface APIFormProps {
   pluginId: string;
-  onSubmit: FormSubmitHandler<RestAction>;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
   isRunning: boolean;
@@ -131,7 +130,6 @@ interface APIFormProps {
     pathname: string;
   };
   dispatch: any;
-  datasourceFieldText: string;
   apiName: string;
 }
 
@@ -162,7 +160,6 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
     actionName,
     location,
     dispatch,
-    apiId,
   } = props;
   useEffect(() => {
     dispatch({
@@ -210,12 +207,9 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
             options={HTTP_METHOD_OPTIONS}
           />
           <DatasourceWrapper className="t--dataSourceField">
-            <DatasourcesField
-              key={apiId}
-              name="datasource"
+            <EmbeddedDatasourcePathField
+              name="actionConfiguration.path"
               pluginId={pluginId}
-              datasourceFieldText={props.datasourceFieldText}
-              appName={props.appName}
             />
           </DatasourceWrapper>
         </FormRow>
@@ -246,14 +240,14 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         label="Headers"
                         actionConfig={actionConfigurationHeaders}
                         placeholder="Value"
-                        dataTreePath={`${actionName}.config.actionConfiguration.headers`}
+                        dataTreePath={`${actionName}.config.headers`}
                         pushFields
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
                       name="actionConfiguration.queryParameters"
                       label="Params"
-                      dataTreePath={`${actionName}.config.actionConfiguration.queryParameters`}
+                      dataTreePath={`${actionName}.config.queryParameters`}
                       pushFields
                     />
                     {allowPostBody && (
@@ -261,7 +255,7 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                         actionConfigurationHeaders={actionConfigurationHeaders}
                         actionConfiguration={actionConfigurationBody}
                         change={props.change}
-                        dataTreePath={`${actionName}.config.actionConfiguration`}
+                        dataTreePath={`${actionName}.config`}
                       />
                     )}
                   </RequestParamsWrapper>

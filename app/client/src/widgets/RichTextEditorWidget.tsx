@@ -26,7 +26,7 @@ class RichTextEditorWidget extends BaseWidget<
       defaultValue: VALIDATION_TYPES.TEXT,
       isDisabled: VALIDATION_TYPES.BOOLEAN,
       isVisible: VALIDATION_TYPES.BOOLEAN,
-      onTextChange: VALIDATION_TYPES.ACTION_SELECTOR,
+      // onTextChange: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 

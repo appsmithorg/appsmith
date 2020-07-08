@@ -117,13 +117,24 @@ export const QUERIES_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   queryId = ":queryId",
-): string => `${QUERIES_EDITOR_URL(applicationId, pageId)}/${queryId}`;
+  params = {},
+): string => {
+  const queryparams = convertToQueryParams(params);
+  return `${QUERIES_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${queryId}${queryparams}`;
+};
 
 export const API_EDITOR_ID_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
   apiId = ":apiId",
-): string => `${API_EDITOR_URL(applicationId, pageId)}/${apiId}`;
+  params = {},
+): string => {
+  const queryParams = convertToQueryParams(params);
+  return `${API_EDITOR_URL(applicationId, pageId)}/${apiId}${queryParams}`;
+};
 
 export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
   applicationId = ":applicationId",

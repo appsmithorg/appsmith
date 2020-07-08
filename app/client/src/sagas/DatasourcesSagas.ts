@@ -190,7 +190,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     if (isValidResponse) {
       const responseData = response.data;
 
-      if (responseData.invalids.length) {
+      if (responseData.invalids && responseData.invalids.length) {
         AppToaster.show({
           message: responseData.invalids[0],
           type: ToastType.ERROR,

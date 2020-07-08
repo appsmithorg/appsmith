@@ -1,28 +1,20 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  reduxForm,
-  InjectedFormProps,
-  Field,
-  FormSubmitHandler,
-  formValueSelector,
-} from "redux-form";
+import React, { useEffect, useRef, useState } from "react";
+import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import styled, { createGlobalStyle } from "styled-components";
-import { Popover, Icon } from "@blueprintjs/core";
+import { Icon, Popover } from "@blueprintjs/core";
 import {
   components,
   MenuListComponentProps,
-  SingleValueProps,
-  OptionTypeBase,
   OptionProps,
+  OptionTypeBase,
+  SingleValueProps,
 } from "react-select";
 import history from "utils/history";
-import DynamicAutocompleteInput from "components/editorComponents/DynamicAutocompleteInput";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
 import Button from "components/editorComponents/Button";
 import FormRow from "components/editorComponents/FormRow";
-import TextField from "components/editorComponents/form/fields/TextField";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { Datasource } from "api/DatasourcesApi";
@@ -35,6 +27,8 @@ import { RestAction } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const QueryFormContainer = styled.div`
   font-size: 20px;
@@ -202,13 +196,9 @@ const StyledCheckbox = styled(CheckboxField)`
 
 type QueryFormProps = {
   onDeleteClick: () => void;
-  onSaveClick: () => void;
   onRunClick: () => void;
   createTemplate: (template: any) => void;
-  onSubmit: FormSubmitHandler<RestAction>;
   isDeleting: boolean;
-  allowSave: boolean;
-  isSaving: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
@@ -216,7 +206,7 @@ type QueryFormProps = {
     body: Record<string, any>[];
   };
   applicationId: string;
-  selectedPluginPackage: string;
+  selectedPluginPackage: string | undefined;
   runErrorMessage: string | undefined;
   pageId: string;
   location: {
@@ -236,11 +226,8 @@ type Props = StateAndRouteProps &
 const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const {
     handleSubmit,
-    allowSave,
     isDeleting,
-    isSaving,
     isRunning,
-    onSaveClick,
     onRunClick,
     onDeleteClick,
     DATASOURCES_OPTIONS,
@@ -256,7 +243,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const [showTemplateMenu, setMenuVisibility] = useState(true);
 
   const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
-  const isNewQuery = props.location.state?.newQuery ?? false;
+  const isNewQuery = props.location.state?.new ?? false;
   let queryOutput: {
     body: Record<string, any>[];
   } = { body: [] };
@@ -415,7 +402,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             </a>
           )}
         </div>
-        {isNewQuery && showTemplateMenu ? (
+        {isNewQuery && showTemplateMenu && selectedPluginPackage ? (
           <TemplateMenu
             createTemplate={templateString => {
               setMenuVisibility(false);
@@ -424,21 +411,18 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             selectedPluginPackage={selectedPluginPackage}
           />
         ) : isSQL ? (
-          <Field
+          <DynamicTextField
             name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
-            component={DynamicAutocompleteInput}
+            dataTreePath={`${props.actionName}.config.body`}
             className="textAreaStyles"
-            mode="sql-js"
-            baseMode="text/x-sql"
+            mode={EditorModes.SQL_WITH_BINDING}
           />
         ) : (
-          <Field
+          <DynamicTextField
             name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.actionConfiguration.body`}
-            component={DynamicAutocompleteInput}
+            dataTreePath={`${props.actionName}.config.body`}
             className="textAreaStyles"
-            mode="js-js"
+            mode={EditorModes.JSON_WITH_BINDING}
           />
         )}
         <StyledCheckbox
