@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -53,6 +54,9 @@ public class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     Mono<User> userMono;
 
@@ -318,6 +322,37 @@ public class UserServiceTest {
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void signUpAfterBeingInvitedToAppsmithOrganization() {
+        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
+        InviteUser inviteUser = new InviteUser();
+        inviteUser.setEmail(newUserEmail);
+        inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
+
+        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new Exception("No such app")));
+
+        // Invite the user to the application
+        applicationMono.flatMap(application -> userService
+                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).block();
+
+        // Now Sign Up as the new user
+        User signUpUser = new User();
+        signUpUser.setEmail(newUserEmail);
+        signUpUser.setPassword("123456");
+
+        Mono<User> invitedUserSignUpMono = userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+
+        StepVerifier.create(invitedUserSignUpMono)
+                .assertNext(user -> {
+                    assertThat(user.getIsEnabled().equals(true));
+                    assertThat(user.getPassword().equals(passwordEncoder.encode("123456")));
+                })
+                .verifyComplete();
+
     }
 }
 

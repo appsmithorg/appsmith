@@ -473,17 +473,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return
      */
     @Override
-    public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<User> createUserAndSendEmail(User user1, String originHeader) {
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = DEFAULT_ORIGIN_HEADER;
         }
+        final User user = user1;
         final String finalOriginHeader = originHeader;
-
+        log.debug("user before repo.find is : {}", user);
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository.findByEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.getIsEnabled()) {
+                        log.debug("user received for creation when already invited is : {}", user);
                         // First enable the user
                         savedUser.setIsEnabled(true);
                         // In case of form login, store the password
@@ -491,7 +493,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             if (user.getPassword() == null || user.getPassword().isBlank()) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
                             }
-                            savedUser.setPassword(this.passwordEncoder.encode(user.getPassword()));
+                            log.debug("Going to encode password : {}", user.getPassword());
+//                            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+//                            user.setPassword();
+                            savedUser.setPassword(user.getPassword());
+                            log.debug("Password saved is : {}", savedUser.getPassword());
                         }
                         return repository.save(savedUser);
                     }
