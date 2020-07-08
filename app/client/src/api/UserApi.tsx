@@ -65,6 +65,7 @@ class UserApi extends Api {
   static switchUserOrgURL = `${UserApi.usersURL}/switchOrganization`;
   static addOrgURL = `${UserApi.usersURL}/addOrganization`;
   static logoutURL = "v1/logout";
+  static currentUserURL = "v1/users/me";
 
   static createUser(
     request: CreateUserRequest,
@@ -74,6 +75,10 @@ class UserApi extends Api {
 
   static fetchUser(request: FetchUserRequest): AxiosPromise<FetchUserResponse> {
     return Api.get(UserApi.usersURL + "/" + request.id);
+  }
+
+  static getCurrentUser(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.currentUserURL);
   }
 
   static forgotPassword(

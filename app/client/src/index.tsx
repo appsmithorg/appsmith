@@ -23,6 +23,7 @@ import {
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   USERS_URL,
+  PAGE_NOT_FOUND_URL,
 } from "constants/routes";
 import { LayersContext, Layers } from "constants/Layers";
 
@@ -119,6 +120,11 @@ ReactDOM.render(
                 name={"AppViewer"}
                 routeProtected
                 logDisable
+              />
+              <AppRoute
+                path={PAGE_NOT_FOUND_URL}
+                component={PageNotFound}
+                name={"PageNotFound"}
               />
               <AppRoute component={PageNotFound} name={"PageNotFound"} />
             </Switch>
