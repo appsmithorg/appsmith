@@ -12,6 +12,7 @@ import { isString } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import TableColumnMenuPopup from "./TableColumnMenu";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -444,7 +445,7 @@ const TableAction = (props: {
   );
 };
 
-export const RenameColumn = (props: {
+const RenameColumn = (props: {
   value: any;
   columnIndex: number;
   handleSave: (columnIndex: number, value: any) => void;
@@ -463,6 +464,7 @@ export const RenameColumn = (props: {
   };
   return (
     <InputGroup
+      autoFocus
       type="text"
       className="input-group"
       placeholder="Enter Column Name"
@@ -471,5 +473,99 @@ export const RenameColumn = (props: {
       onKeyPress={e => onKeyPress(e.key)}
       onBlur={e => handleColumnNameUpdate()}
     />
+  );
+};
+
+export const renderEmptyRows = (
+  rowCount: number,
+  columns: any,
+  tableWidth: number,
+) => {
+  const rows: string[] = new Array(rowCount).fill("");
+  const tableColumns = columns.length
+    ? columns
+    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+  return (
+    <React.Fragment>
+      {rows.map((row: string, index: number) => {
+        return (
+          <div
+            className="tr"
+            key={index}
+            style={{
+              display: "flex",
+              flex: "1 0 auto",
+            }}
+          >
+            {tableColumns.map((column: any, colIndex: number) => {
+              return (
+                <div
+                  key={colIndex}
+                  className="td"
+                  style={{
+                    width: column.width + "px",
+                    boxSizing: "border-box",
+                    flex: `${column.width} 0 auto`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+    </React.Fragment>
+  );
+};
+
+export const RenderColumnHeader = (props: {
+  columnName: string;
+  columnIndex: number;
+  isHidden: boolean;
+  displayColumnActions: boolean;
+  handleColumnNameUpdate: (columnIndex: number, name: string) => void;
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  handleResizeColumn: Function;
+  column: any;
+}) => {
+  const { column } = props;
+  const [renameColumn, toggleRenameColumn] = React.useState(false);
+  const handleSaveColumnName = (columnIndex: number, columName: string) => {
+    props.handleColumnNameUpdate(columnIndex, columName);
+    toggleRenameColumn(false);
+  };
+  if (column.isResizing) {
+    props.handleResizeColumn(
+      props.columnIndex,
+      column.getHeaderProps().style.width,
+    );
+  }
+  return (
+    <div {...column.getHeaderProps()} className="th header-reorder">
+      {renameColumn && (
+        <RenameColumn
+          value={props.columnName}
+          handleSave={handleSaveColumnName}
+          columnIndex={props.columnIndex}
+        />
+      )}
+      {!renameColumn && (
+        <div className={!props.isHidden ? "draggable-header" : "hidden-header"}>
+          {column.render("Header")}
+        </div>
+      )}
+      {props.displayColumnActions && (
+        <div className="column-menu">
+          <TableColumnMenuPopup
+            getColumnMenu={props.getColumnMenu}
+            columnIndex={props.columnIndex}
+            editColumnName={() => toggleRenameColumn(true)}
+          />
+        </div>
+      )}
+      <div
+        {...column.getResizerProps()}
+        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+      />
+    </div>
   );
 };

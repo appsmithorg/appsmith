@@ -22,7 +22,7 @@ interface TableColumnMenuPopup {
   editColumnName: () => void;
 }
 
-export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
+const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
   const columnMenuOptions = props.getColumnMenu(props.columnIndex);
   return (
     <Popover
@@ -90,3 +90,5 @@ export const TableColumnMenuPopup = (props: TableColumnMenuPopup) => {
     </Popover>
   );
 };
+
+export default TableColumnMenuPopup;

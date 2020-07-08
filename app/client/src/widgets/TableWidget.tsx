@@ -2,7 +2,6 @@ import React, { Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-// import { forIn } from "lodash";
 import ReactTableComponent from "components/designSystems/appsmith/ReactTableComponent";
 
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -13,32 +12,6 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
-
-// const ROW_HEIGHT = 37;
-// const TABLE_HEADER_HEIGHT = 39;
-// const TABLE_FOOTER_HEIGHT = 48;
-// const TABLE_EXPORT_HEIGHT = 43;
-
-// function constructColumns(
-//   data: object[],
-//   hiddenColumns?: string[],
-// ): ColumnModel[] | ColumnDirTypecast[] {
-//   let cols: ColumnModel[] | ColumnDirTypecast[] = [];
-//   const listItemWithAllProperties = {};
-//   data.forEach(dataItem => {
-//     Object.assign(listItemWithAllProperties, dataItem);
-//   });
-//   forIn(listItemWithAllProperties, (value: any, key: string) => {
-//     cols.push({
-//       field: key,
-//       visible: !hiddenColumns?.includes(key),
-//     });
-//   });
-//   cols = (cols as any[]).filter(col => col.field !== "_color") as
-//     | ColumnModel[]
-//     | ColumnDirTypecast[];
-//   return cols;
-// }
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -93,7 +66,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
-    // const columns = constructColumns(tableData, hiddenColumns);
     const filteredTableData = this.searchTableData(tableData);
 
     const serverSidePaginationEnabled = (this.props
@@ -106,17 +78,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-
-    // const exportHeight =
-    //   this.props.exportCsv || this.props.exportPDF || this.props.exportCsv
-    //     ? TABLE_EXPORT_HEIGHT
-    //     : 0;
-    // const tableHeaderHeight =
-    //   this.props.tableData.length === 0 ? 2 : TABLE_HEADER_HEIGHT;
-    // const tableContentHeight =
-    //   componentHeight - TABLE_FOOTER_HEIGHT - tableHeaderHeight - exportHeight;
-    // Use below code to calculate page size for old table component
-    //  const pageSize = Math.floor(tableContentHeight / ROW_HEIGHT);
     const pageSize = Math.floor((componentHeight - 104) / 52);
 
     if (pageSize !== this.props.pageSize) {
@@ -179,43 +140,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         />
       </Suspense>
     );
-    // */
-    /*
-    return (
-      <Suspense fallback={<Skeleton />}>
-        <TableComponent
-          id={this.props.widgetName}
-          data={this.props.tableData}
-          columns={columns}
-          isLoading={this.props.isLoading}
-          height={componentHeight}
-          contentHeight={tableContentHeight}
-          width={componentWidth}
-          disableDrag={(disable: boolean) => {
-            this.disableDrag(disable);
-          }}
-          pageSize={pageSize}
-          rowHeight={ROW_HEIGHT}
-          columnActions={this.props.columnActions}
-          onCommandClick={this.onCommandClick}
-          onRowClick={this.handleRowClick}
-          selectedRowIndex={this.props.selectedRowIndex || -1}
-          serverSidePaginationEnabled={serverSidePaginationEnabled}
-          pageNo={pageNo}
-          nextPageClick={this.handleNextPageClick}
-          prevPageClick={this.handlePrevPageClick}
-          updatePageNo={(pageNo: number) => {
-            super.updateWidgetMetaProperty("pageNo", pageNo);
-          }}
-          updateHiddenColumns={this.updateHiddenColumns}
-          resetSelectedRowIndex={this.resetSelectedRowIndex}
-          exportCsv={this.props.exportCsv}
-          exportPDF={this.props.exportPDF}
-          exportExcel={this.props.exportExcel}
-        />
-      </Suspense>
-    );
-    */
   }
 
   handleSearchTable = (searchKey: any) => {

@@ -11,8 +11,7 @@ import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
-import { TableColumnMenuPopup } from "./TableColumnMenu";
-import { RenameColumn } from "./TableUtilities";
+import { RenderColumnHeader, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
@@ -58,16 +57,7 @@ export const Table = (props: TableProps) => {
   );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const columnIds = props.columns
-    .map((column: ReactTableColumnProps) => {
-      return column.accessor;
-    })
-    .join(",");
-  const columns = React.useMemo(() => props.columns, [columnIds]);
-  const data = React.useMemo(() => props.data, [
-    currentPageIndex,
-    JSON.stringify(props.data),
-  ]);
+  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -77,7 +67,7 @@ export const Table = (props: TableProps) => {
     pageOptions,
   } = useTable(
     {
-      columns,
+      columns: props.columns,
       data,
       defaultColumn,
       initialState: {
@@ -133,39 +123,22 @@ export const Table = (props: TableProps) => {
                 key={index}
               >
                 {headerGroup.headers.map((column: any, columnIndex: number) => {
-                  if (column.isResizing) {
-                    props.handleResizeColumn(
-                      columnIndex,
-                      column.getHeaderProps().style.width,
-                    );
-                  }
                   return (
-                    <div
-                      {...column.getHeaderProps()}
-                      className="th header-reorder"
+                    <RenderColumnHeader
                       key={columnIndex}
-                    >
-                      <RenderColumn
-                        columnName={
-                          props.columnNameMap && props.columnNameMap[column.id]
-                            ? props.columnNameMap[column.id]
-                            : column.id
-                        }
-                        columnIndex={columnIndex}
-                        isHidden={column.isHidden}
-                        displayColumnActions={props.displayColumnActions}
-                        handleColumnNameUpdate={props.handleColumnNameUpdate}
-                        getColumnMenu={props.getColumnMenu}
-                      >
-                        {column.render("Header")}
-                      </RenderColumn>
-                      <div
-                        {...column.getResizerProps()}
-                        className={`resizer ${
-                          column.isResizing ? "isResizing" : ""
-                        }`}
-                      />
-                    </div>
+                      column={column}
+                      columnName={
+                        props.columnNameMap && props.columnNameMap[column.id]
+                          ? props.columnNameMap[column.id]
+                          : column.id
+                      }
+                      columnIndex={columnIndex}
+                      isHidden={column.isHidden}
+                      displayColumnActions={props.displayColumnActions}
+                      handleColumnNameUpdate={props.handleColumnNameUpdate}
+                      getColumnMenu={props.getColumnMenu}
+                      handleResizeColumn={props.handleResizeColumn}
+                    />
                   );
                 })}
               </div>
@@ -219,85 +192,3 @@ export const Table = (props: TableProps) => {
 };
 
 export default Table;
-
-const renderEmptyRows = (
-  rowCount: number,
-  columns: any,
-  tableWidth: number,
-) => {
-  const rows: string[] = new Array(rowCount).fill("");
-  const tableColumns = columns.length
-    ? columns
-    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
-  return (
-    <React.Fragment>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  key={colIndex}
-                  className="td"
-                  style={{
-                    width: column.width + "px",
-                    boxSizing: "border-box",
-                    flex: `${column.width} 0 auto`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </React.Fragment>
-  );
-};
-
-const RenderColumn = (props: {
-  columnName: string;
-  columnIndex: number;
-  isHidden: boolean;
-  displayColumnActions: boolean;
-  handleColumnNameUpdate: (columnIndex: number, name: string) => void;
-  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
-  children: React.ReactNode;
-}) => {
-  const [renameColumn, toggleRenameColumn] = React.useState(false);
-  const handleSaveColumnName = (columnIndex: number, columName: string) => {
-    props.handleColumnNameUpdate(columnIndex, columName);
-    toggleRenameColumn(false);
-  };
-  return (
-    <React.Fragment>
-      {renameColumn && (
-        <RenameColumn
-          value={props.columnName}
-          handleSave={handleSaveColumnName}
-          columnIndex={props.columnIndex}
-        />
-      )}
-      {!renameColumn && (
-        <div className={!props.isHidden ? "draggable-header" : "hidden-header"}>
-          {props.children}
-        </div>
-      )}
-      {props.displayColumnActions && (
-        <div className="column-menu">
-          <TableColumnMenuPopup
-            getColumnMenu={props.getColumnMenu}
-            columnIndex={props.columnIndex}
-            editColumnName={() => toggleRenameColumn(true)}
-          />
-        </div>
-      )}
-    </React.Fragment>
-  );
-};
