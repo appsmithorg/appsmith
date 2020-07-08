@@ -243,7 +243,8 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   const [showTemplateMenu, setMenuVisibility] = useState(true);
 
   const isSQL = selectedPluginPackage === PLUGIN_PACKAGE_POSTGRES;
-  const isNewQuery = props.location.state?.new ?? false;
+  const isNewQuery =
+    new URLSearchParams(window.location.search).get("new") === "true";
   let queryOutput: {
     body: Record<string, any>[];
   } = { body: [] };

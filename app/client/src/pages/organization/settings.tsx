@@ -23,6 +23,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { useTable, useFlexLayout } from "react-table";
+
 type OrgProps = {
   allOrgs: Organization[];
   changeOrgName: (value: string) => void;
@@ -51,6 +52,8 @@ type DropdownProps = {
   activeItem: string;
   userRoles: object;
   username: string;
+  changeOrgUserRole: (orgId: string, role: string, username: string) => void;
+  orgId: string;
 };
 
 const StyledDropDown = styled.div`
@@ -79,6 +82,90 @@ const StyledMenu = styled(Menu)`
   }
 `;
 
+const RoleNameCell = (props: any) => {
+  const {
+    roleName,
+    roles,
+    username,
+    isCurrentUser,
+    isChangingRole,
+  } = props.cellProps.row.original;
+
+  if (isCurrentUser) {
+    return <div>{roleName}</div>;
+  }
+
+  return (
+    <Popover
+      content={
+        <Dropdown
+          activeItem={roleName}
+          userRoles={roles}
+          username={username}
+          changeOrgUserRole={props.changeOrgUserRole}
+          orgId={props.orgId}
+        />
+      }
+      position={Position.BOTTOM_LEFT}
+    >
+      <StyledDropDown>
+        {roleName}
+        <Icon icon="chevron-down" />
+        {isChangingRole ? <Spinner size={20} /> : undefined}
+      </StyledDropDown>
+    </Popover>
+  );
+};
+
+const DeleteActionCell = (props: any) => {
+  const { username, isCurrentUser, isDeleting } = props.cellProps.row.original;
+
+  return (
+    !isCurrentUser &&
+    (isDeleting ? (
+      <Spinner size={20} />
+    ) : (
+      <FormIcons.DELETE_ICON
+        height={20}
+        width={20}
+        color={"grey"}
+        background={"grey"}
+        onClick={() => props.deleteOrgUser(props.orgId, username)}
+        style={{ alignSelf: "center", cursor: "pointer" }}
+      />
+    ))
+  );
+};
+
+const Dropdown = (props: DropdownProps) => {
+  return (
+    <StyledMenu>
+      {Object.entries(props.userRoles).map((role, index) => {
+        const MenuContent = (
+          <div>
+            <span>
+              <b>{role[0]}</b>
+            </span>
+            <div>{role[1]}</div>
+          </div>
+        );
+
+        return (
+          <MenuItem
+            multiline
+            key={index}
+            onClick={() =>
+              props.changeOrgUserRole(props.orgId, role[0], props.username)
+            }
+            active={props.activeItem === role[0]}
+            text={MenuContent}
+          />
+        );
+      })}
+    </StyledMenu>
+  );
+};
+
 export const OrgSettings = (props: PageProps) => {
   const {
     match: {
@@ -97,43 +184,7 @@ export const OrgSettings = (props: PageProps) => {
     roles: props.allRole,
     isCurrentUser: user.username === props.currentUser?.username,
   }));
-  const data = React.useMemo(() => userTableData, [
-    props.allUsers,
-    props.allRole,
-  ]);
-
-  const RoleNameCell = (cellProps: any) => {
-    const {
-      roleName,
-      roles,
-      username,
-      isCurrentUser,
-      isChangingRole,
-    } = cellProps.row.original;
-
-    if (isCurrentUser) {
-      return <div>{roleName}</div>;
-    }
-
-    return (
-      <Popover
-        content={
-          <Dropdown
-            activeItem={roleName}
-            userRoles={roles}
-            username={username}
-          />
-        }
-        position={Position.BOTTOM_LEFT}
-      >
-        <StyledDropDown>
-          {roleName}
-          <Icon icon="chevron-down" />
-          {isChangingRole ? <Spinner size={20} /> : undefined}
-        </StyledDropDown>
-      </Popover>
-    );
-  };
+  const data = React.useMemo(() => userTableData, [userTableData]);
 
   const columns = React.useMemo(() => {
     return [
@@ -148,37 +199,19 @@ export const OrgSettings = (props: PageProps) => {
       {
         Header: "Role",
         accessor: "roleName",
-        Cell: RoleNameCell,
+        Cell: (cellProps: any) => {
+          return RoleNameCell({ cellProps, changeOrgUserRole, orgId });
+        },
       },
       {
         Header: "Delete",
         accessor: "delete",
         Cell: (cellProps: any) => {
-          const {
-            username,
-            isCurrentUser,
-            isDeleting,
-          } = cellProps.row.original;
-
-          return (
-            !isCurrentUser &&
-            (isDeleting ? (
-              <Spinner size={20} />
-            ) : (
-              <FormIcons.DELETE_ICON
-                height={20}
-                width={20}
-                color={"grey"}
-                background={"grey"}
-                onClick={() => deleteOrgUser(orgId, username)}
-                style={{ alignSelf: "center", cursor: "pointer" }}
-              />
-            ))
-          );
+          return DeleteActionCell({ cellProps, deleteOrgUser, orgId });
         },
       },
     ];
-  }, [props.allUsers, props.allRole]);
+  }, [orgId, deleteOrgUser, changeOrgUserRole]);
 
   const currentOrg = allOrgs.find(org => org.organization.id === orgId);
   const currentOrgName = currentOrg?.organization.name ?? "";
@@ -202,33 +235,6 @@ export const OrgSettings = (props: PageProps) => {
     fetchAllRoles(orgId);
     getAllApplication();
   }, [orgId, fetchUser, fetchAllRoles, getAllApplication]);
-
-  const Dropdown = (props: DropdownProps) => {
-    return (
-      <StyledMenu>
-        {Object.entries(props.userRoles).map((role, index) => {
-          const MenuContent = (
-            <div>
-              <span>
-                <b>{role[0]}</b>
-              </span>
-              <div>{role[1]}</div>
-            </div>
-          );
-
-          return (
-            <MenuItem
-              multiline
-              key={index}
-              onClick={() => changeOrgUserRole(orgId, role[0], props.username)}
-              active={props.activeItem === role[0]}
-              text={MenuContent}
-            />
-          );
-        })}
-      </StyledMenu>
-    );
-  };
 
   return (
     <React.Fragment>

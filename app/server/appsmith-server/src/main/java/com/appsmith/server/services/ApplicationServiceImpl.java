@@ -8,6 +8,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -34,6 +36,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
@@ -229,6 +232,17 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                 userHomepageDTO.setOrganizationApplications(organizationApplicationsDTOS);
                                 return userHomepageDTO;
                             });
+                });
+    }
+
+    @Override
+    public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
+        return repository
+                .findById(id, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
+                .flatMap(application -> {
+                    application.setIsPublic(applicationAccessDTO.getPublicAccess());
+                    return repository.save(application);
                 });
     }
 }
