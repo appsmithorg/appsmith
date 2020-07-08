@@ -136,7 +136,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationId(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application id", applicationId)))
                 .cache();
 
         Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
@@ -178,6 +178,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     private Flux<PageNameIdDTO> findNamesByApplication(Application application) {
         List<ApplicationPage> pages = application.getPages();
         return repository.findByApplicationId(application.getId(), AclPermission.READ_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + "by application name", application.getName())))
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
                     pageNameIdDTO.setId(page.getId());

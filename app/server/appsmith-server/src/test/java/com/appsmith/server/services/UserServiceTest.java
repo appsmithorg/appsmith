@@ -6,8 +6,10 @@ import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.InviteUserDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
@@ -17,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -52,6 +55,9 @@ public class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     Mono<User> userMono;
 
@@ -110,10 +116,10 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "anonymousUser", roles = {"ANONYMOUS"})
+    @WithMockAppsmithUser
     public void createNewUserFormSignupNullPassword() {
         User newUser = new User();
-        newUser.setEmail("new-user-email@email.com");
+        newUser.setEmail("new-user-email-with-null-password@email.com");
 
         Mono<User> userMono = userService.create(newUser);
 
@@ -246,6 +252,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithMockAppsmithUser
     public void confirmInviteTokenFlow() {
         User newUser = new User();
         newUser.setEmail("newEmail@newEmail.com");
@@ -263,6 +270,98 @@ public class UserServiceTest {
                 .assertNext(user -> {
                     assertThat(user).isNotNull();
                     assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaFormLoginIfAlreadyInvited() {
+        User newUser = new User();
+        newUser.setEmail("alreadyInvited@alreadyInvited.com");
+        newUser.setIsEnabled(false);
+
+        userRepository.save(newUser).block();
+
+        User signupUser = new User();
+        signupUser.setEmail(newUser.getEmail());
+        signupUser.setPassword("password");
+        signupUser.setSource(LoginSource.FORM);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockAppsmithUser
+    public void signUpViaGoogleIfAlreadyInvited() {
+        User newUser = new User();
+        newUser.setEmail("alreadyInvited@google-gmail.com");
+        newUser.setIsEnabled(false);
+
+        userRepository.save(newUser).block();
+
+        User signupUser = new User();
+        signupUser.setEmail(newUser.getEmail());
+        signupUser.setPassword("password");
+        signupUser.setSource(LoginSource.GOOGLE);
+
+        Mono<User> userMono = userService.create(signupUser);
+
+        StepVerifier.create(userMono)
+                .assertNext(user -> {
+                    assertThat(user.getEmail().equals(newUser.getEmail()));
+                    assertThat(user.getSource().equals(LoginSource.GOOGLE));
+                    assertThat(user.getIsEnabled()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void signUpAfterBeingInvitedToAppsmithOrganization() {
+        Organization organization = new Organization();
+        organization.setName("SignUp after adding user to Test Organization");
+        organization.setDomain("example.com");
+        organization.setWebsite("https://example.com");
+
+        Mono<Organization> organizationMono = organizationService
+                .create(organization)
+                .cache();
+
+        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
+
+        organizationMono
+                .flatMap(organization1 -> {
+                    // Add user to organization
+                    InviteUserDTO inviteUserDTO = new InviteUserDTO();
+                    inviteUserDTO.setEmail(newUserEmail);
+                    inviteUserDTO.setOrgId(organization1.getId());
+                    inviteUserDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUser(inviteUserDTO, "http://localhost:8080");
+                }).block();
+
+        // Now Sign Up as the new user
+        User signUpUser = new User();
+        signUpUser.setEmail(newUserEmail);
+        signUpUser.setPassword("123456");
+
+        Mono<User> invitedUserSignUpMono =
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+
+        StepVerifier.create(invitedUserSignUpMono)
+                .assertNext(user -> {
+                    assertThat(user.getIsEnabled().equals(true));
+                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
                 })
                 .verifyComplete();
 

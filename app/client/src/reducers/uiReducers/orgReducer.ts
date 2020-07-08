@@ -104,7 +104,7 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      if (user.username == action.payload.username) {
+      if (user.username === action.payload.username) {
         return {
           ...user,
           isChangingRole: true,
@@ -119,7 +119,7 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      if (user.username == action.payload.username) {
+      if (user.username === action.payload.username) {
         return {
           ...user,
           isDeleting: true,

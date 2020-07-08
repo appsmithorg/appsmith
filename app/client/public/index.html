@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet" />    
+  <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet" />
   <title>Appsmith</title>
   <style>
     #loader {
@@ -12,11 +12,13 @@
       left: 0;
       top: 0;
       height: 4px;
-      background:#D36500;
+      background: #D36500;
       transition: all ease-in 0.3s;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.4.0/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
+
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="loader" style="width: 30vw;"></div>
@@ -41,7 +43,37 @@
       }
     };
     registerPageServiceWorker();
-
+  </script>
+  <script type="text/javascript">
+    const parseConfig = (config) => {
+      if(config.indexOf("__") === 0 || config.indexOf("$") === 0)
+        return "";
+      return config.trim();
+    }
+    const LOG_LEVELS = ["debug", "error"];
+    const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
+    window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
+    window.APPSMITH_FEATURE_CONFIGS = {
+      sentry: parseConfig("__APPSMITH_SENTRY_DSN__"),
+      hotjar: {
+        id: parseConfig("__APPSMITH_HOTJAR_HJID__"),
+        sv: parseConfig("__APPSMITH_HOTJAR_HJSV__"),
+      },
+      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__").length > 0,
+      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__").length > 0,
+      enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_URL__").length > 0,
+      segment: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+      optimizely: parseConfig("__APPSMITH_OPTIMIZELY_KEY__"),
+      enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__").length > 0,
+      algolia: {
+        apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
+        apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
+        indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
+      },
+      logLevel: CONFIG_LOG_LEVEL_INDEX > -1 ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX] : LOG_LEVELS[1],
+      google: parseConfig("__APPSMITH_GOOGLE_MAPS_API_KEY__"),
+      enableTNCPP: parseConfig("__APPSMITH_TNC_PP__").length > 0
+    };
   </script>
   <script rel="prefetch" type="text/javascript" src="/shims/realms-shim.umd.min.js"></script>
 </body>

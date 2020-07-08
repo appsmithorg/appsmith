@@ -3,7 +3,6 @@ package com.appsmith.server.exceptions;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.rollbar.notifier.Rollbar;
-import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,19 @@ import reactor.core.publisher.Mono;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    private final Analytics analytics;
+
     private final Rollbar rollbar;
 
     @Autowired
-    public GlobalExceptionHandler(Analytics analytics, Rollbar rollbar) {
-        this.analytics = analytics;
+    public GlobalExceptionHandler(@Autowired(required = false) Rollbar rollbar) {
         this.rollbar = rollbar;
+    }
+
+    private void doLog(Throwable error) {
+        log.error("", error);
+        if (rollbar != null) {
+            rollbar.log(error);
+        }
     }
 
     /**
@@ -45,8 +50,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public Mono<ResponseDTO<ErrorDTO>> catchAppsmithException(AppsmithException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(e.getHttpStatus()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage())));
     }
 
@@ -55,8 +59,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchDuplicateKeyException(org.springframework.dao.DuplicateKeyException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.DUPLICATE_KEY;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage(e.getMessage()))));
     }
@@ -66,8 +69,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchTimeoutException(java.util.concurrent.TimeoutException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.PLUGIN_EXECUTION_TIMEOUT;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
     }
@@ -77,8 +79,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchServerWebInputException(ServerWebInputException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage(e.getReason()))));
     }
@@ -88,8 +89,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchPluginException(AppsmithPluginException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 e.getLocalizedMessage())));
     }
@@ -99,8 +99,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchAccessDeniedException(AccessDeniedException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.UNAUTHORIZED_ACCESS;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
     }
@@ -118,8 +117,7 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchException(Exception e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        log.error("", e);
-        rollbar.log(e);
+        doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
                 appsmithError.getMessage())));
     }

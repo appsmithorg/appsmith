@@ -35,7 +35,7 @@ const Table = (props: TableProps) => {
     }
 
     return [];
-  }, [props.data]);
+  }, [data]);
 
   const {
     getTableProps,

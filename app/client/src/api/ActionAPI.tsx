@@ -167,7 +167,9 @@ class ActionAPI extends API {
   }
 
   static moveAction(moveRequest: MoveActionRequest) {
-    return API.put(ActionAPI.url + "/move", moveRequest);
+    return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
+      timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+    });
   }
 
   static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
