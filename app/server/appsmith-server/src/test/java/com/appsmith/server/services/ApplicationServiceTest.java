@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -206,11 +207,14 @@ public class ApplicationServiceTest {
                 .block();
 
         assertThat(applicationList.size() > 0);
-        applicationList.forEach(t -> {
-            assertThat(t.getId()).isNotNull();
-            assertThat(t.getPolicies()).isNotEmpty();
-            assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
-        });
+        applicationList
+                .stream()
+                .filter(t -> t.getName().equals("validGetApplications-Test"))
+                .forEach(t -> {
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getPolicies()).isNotEmpty();
+                    assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
+                });
     }
 
     /* Tests for Update Application Flow */
@@ -320,6 +324,70 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMakeApplicationPublic() {
+        Application application = new Application();
+        application.setName("validMakeApplicationPublic-Test");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+
+        Mono<Application> publicAppMono = createApplication
+                .flatMap(application1 -> {
+                    ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                });
+
+        StepVerifier
+                .create(publicAppMono)
+                .assertNext(publicApp -> {
+                    assertThat(publicApp.getIsPublic()).isTrue();
+                    assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMakeApplicationPrivate() {
+        Application application = new Application();
+        application.setName("validMakeApplicationPrivate-Test");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        Mono<Application> privateAppMono = createApplication
+                .flatMap(application1 -> {
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                })
+                .flatMap(application1 -> {
+                    applicationAccessDTO.setPublicAccess(false);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                });
+
+        StepVerifier
+                .create(privateAppMono)
+                .assertNext(app -> {
+                    assertThat(app.getIsPublic()).isFalse();
+                    assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                })
+                .verifyComplete();
     }
 
 }
