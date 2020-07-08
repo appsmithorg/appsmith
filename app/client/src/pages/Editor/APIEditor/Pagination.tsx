@@ -86,7 +86,6 @@ export default function Pagination(props: PaginationProps) {
           <StyledDynamicTextField
             className="t--apiFormPaginationPrev"
             name="actionConfiguration.prev"
-            singleLine
           />
           <TestButton
             className="t--apiFormPaginationPrevTest"
@@ -103,7 +102,6 @@ export default function Pagination(props: PaginationProps) {
           <StyledDynamicTextField
             className="t--apiFormPaginationNext"
             name="actionConfiguration.next"
-            singleLine
           />
           <TestButton
             className="t--apiFormPaginationNextTest"

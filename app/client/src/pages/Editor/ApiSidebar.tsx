@@ -24,7 +24,6 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Page } from "constants/ReduxActionConstants";
 import { RestAction } from "entities/Action";
-import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 
 const HTTPMethod = styled.span<{ method?: string }>`
   flex: 1;
@@ -51,6 +50,7 @@ const ActionItem = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
+  max-width: 90%;
 `;
 
 const ActionName = styled.span`
@@ -59,12 +59,10 @@ const ActionName = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
 `;
 
 interface ReduxStateProps {
   actions: ActionDataState;
-  actionDrafts: ActionDraftsState;
   apiPane: ApiPaneReduxState;
   pages: Page[];
 }
@@ -90,16 +88,6 @@ type Props = ReduxStateProps &
 class ApiSidebar extends React.Component<Props> {
   componentDidMount(): void {
     this.props.initApiPane(this.props.match.params.apiId);
-  }
-
-  shouldComponentUpdate(nextProps: Readonly<Props>): boolean {
-    if (
-      Object.keys(nextProps.actionDrafts) !==
-      Object.keys(this.props.actionDrafts)
-    ) {
-      return true;
-    }
-    return nextProps.actions !== this.props.actions;
   }
 
   handleApiChange = (actionId: string) => {
@@ -197,20 +185,20 @@ class ApiSidebar extends React.Component<Props> {
 
   render() {
     const {
-      actionDrafts,
       apiPane: { isFetching },
       match: {
         params: { apiId },
       },
       actions,
     } = this.props;
-    const data = actions.map(a => a.config).filter(a => a.pluginType === "API");
+    const data = actions
+      .filter(a => a.config?.pluginType === "API")
+      .map(a => a.config);
     return (
       <EditorSidebar
         isLoading={isFetching}
         list={data}
         selectedItemId={apiId}
-        draftIds={Object.keys(actionDrafts)}
         itemRender={this.renderItem}
         onItemCreateClick={this.handleCreateNewApiClick}
         onItemSelected={this.handleApiChange}
@@ -225,7 +213,6 @@ class ApiSidebar extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   actions: state.entities.actions,
-  actionDrafts: state.entities.actionDrafts,
   apiPane: state.ui.apiPane,
   pages: state.entities.pageList.pages,
 });

@@ -1,11 +1,6 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import {
-  reduxForm,
-  InjectedFormProps,
-  FormSubmitHandler,
-  formValueSelector,
-} from "redux-form";
+import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
 import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -97,7 +92,6 @@ const TabbedViewContainer = styled.div`
 `;
 
 interface APIFormProps {
-  onSubmit: FormSubmitHandler<RestAction>;
   onRunClick: (paginationField?: PaginationField) => void;
   onDeleteClick: () => void;
   isRunning: boolean;
@@ -143,6 +137,7 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
   const postbodyResponsePresent =
     templateId &&
     actionConfiguration &&
+    actionConfigurationBodyFormData &&
     actionConfigurationBodyFormData.length > 0;
 
   // let credentialStepsData;
@@ -211,7 +206,6 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
           <DynamicTextField
             placeholder="Provider name"
             name="provider.name"
-            singleLine
             leftImage={providerImage}
             disabled={true}
             showLightningMenu={false}
@@ -220,7 +214,6 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
             placeholder="v1/method"
             name="actionConfiguration.path"
             leftIcon={FormIcons.SLASH_ICON}
-            singleLine
             disabled={true}
             showLightningMenu={false}
           />

@@ -8,30 +8,6 @@ export const createQueryRequest = (payload: Partial<RestAction>) => {
   };
 };
 
-export const deleteQuery = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.DELETE_QUERY_INIT,
-    payload,
-  };
-};
-
-export const deleteQuerySuccess = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.DELETE_QUERY_SUCCESS,
-    payload,
-  };
-};
-
-export const executeQuery = (payload: {
-  action: RestAction;
-  actionId: string;
-}) => {
-  return {
-    type: ReduxActionTypes.EXECUTE_QUERY_REQUEST,
-    payload,
-  };
-};
-
 export const initQueryPane = (
   pluginType: string,
   urlId?: string,
@@ -42,12 +18,9 @@ export const initQueryPane = (
   };
 };
 
-export const changeQuery = (
-  id: string,
-  pluginType: string,
-): ReduxAction<{ id: string; pluginType: string }> => {
+export const changeQuery = (id: string): ReduxAction<{ id: string }> => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
-    payload: { id, pluginType },
+    payload: { id },
   };
 };

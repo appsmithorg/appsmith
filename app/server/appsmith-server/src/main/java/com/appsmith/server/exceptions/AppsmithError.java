@@ -36,6 +36,7 @@ public enum AppsmithError {
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access"),
     INVALID_DATASOURCE_NAME(400, 4026, "Invalid datasource name. Check again."),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} with id {1}"),
+    ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} with id {1}. Either the asset doesn't exist or you don't have required permissions"),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}"),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import."),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request"),
@@ -48,6 +49,9 @@ public enum AppsmithError {
     MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later"),
     DATASOURCE_HAS_ACTIONS(409, 4030, "Cannot delete datasource since it has {0} action(s) using it."),
     ORGANIZATION_ID_NOT_GIVEN(400, 4031, "Missing organization id. Please enter one."),
+    INVALID_CURL_METHOD(400, 4032, "Invalid method in cURL command: {0}."),
+    OAUTH_NOT_AVAILABLE(500, 5006, "Login with {0} is not supported."),
+    MARKETPLACE_NOT_CONFIGURED(500, 5007, "Marketplace is not configured."),
     ;
 
 

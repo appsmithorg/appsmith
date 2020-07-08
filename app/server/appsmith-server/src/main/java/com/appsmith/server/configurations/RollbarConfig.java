@@ -1,8 +1,9 @@
 package com.appsmith.server.configurations;
 
 import com.rollbar.notifier.Rollbar;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.rollbar.notifier.config.ConfigBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -10,24 +11,35 @@ import org.springframework.core.env.Environment;
 import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
 
 @Configuration
+@ConditionalOnExpression(value="!'${com.rollbar.access-token:}'.isEmpty()")
 public class RollbarConfig {
 
     @Value("${com.rollbar.access-token}")
-    String rollbarAccessToken;
+    private String rollbarAccessToken;
 
-    // Allow being able to disable Rollbar in dev/test environments.
-    // If the `rollbar.enabled` property is not set, it defaults to `true` (by the `:true` part below).
-    @Value("#{new Boolean('${rollbar.enabled:true}'.trim())}")
-    boolean rollbarEnabled;
+    @Value("${rollbar.env:}")
+    private String rollbarEnv;
 
-    @Autowired
-    Environment env;
+    final Environment env;
+
+    public RollbarConfig(Environment env) {
+        this.env = env;
+    }
 
     @Bean
     Rollbar rollbarConfiguration() {
-        return Rollbar.init(withAccessToken(rollbarAccessToken)
-                .enabled(rollbarEnabled)
-                .environment(env.getActiveProfiles()[0])
-                .build());
+        // The Rollbar env, if not set, defaults to being the first Spring profile.
+        String environment = rollbarEnv;
+        if ((environment == null || environment.isEmpty()) && env.getActiveProfiles().length > 0) {
+            environment = env.getActiveProfiles()[0];
+        }
+
+        ConfigBuilder builder = withAccessToken(rollbarAccessToken);
+
+        if (environment != null) {
+            builder = builder.environment(environment);
+        }
+
+        return Rollbar.init(builder.build());
     }
 }

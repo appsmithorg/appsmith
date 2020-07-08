@@ -1,8 +1,6 @@
 import { GoogleOAuthURL, GithubOAuthURL } from "constants/ApiConstants";
 import GithubLogo from "assets/images/Github.png";
 import GoogleLogo from "assets/images/Google.png";
-import { getAppsmithConfigs } from "configs";
-const { baseUrl } = getAppsmithConfigs();
 export type SocialLoginButtonProps = {
   url: string;
   name: string;
@@ -10,13 +8,13 @@ export type SocialLoginButtonProps = {
 };
 
 export const GoogleSocialLoginButtonProps: SocialLoginButtonProps = {
-  url: baseUrl + GoogleOAuthURL,
+  url: GoogleOAuthURL,
   name: "Google",
   logo: GoogleLogo,
 };
 
 export const GithubSocialLoginButtonProps: SocialLoginButtonProps = {
-  url: baseUrl + GithubOAuthURL,
+  url: GithubOAuthURL,
   name: "Github",
   logo: GithubLogo,
 };

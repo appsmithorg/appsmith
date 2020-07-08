@@ -219,56 +219,50 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       <QueryHomePage>
         <p style={{ fontSize: "14px" }}>Create Query</p>
         <CardsWrapper>
-          {dataSources.length > 0 && (
-            <>
-              <DatasourceCardsContainer>
+          <DatasourceCardsContainer>
+            <Card
+              interactive={false}
+              className="eachDatasourceCard"
+              onClick={() => {
+                if (validDataSources.length) {
+                  this.handleCreateNewQuery(
+                    validDataSources[0].id,
+                    queryParams,
+                  );
+                } else {
+                  history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
+                }
+              }}
+            >
+              <Icon icon="plus" iconSize={25} className="addIcon" />
+              <p className="createText">Blank Query</p>
+            </Card>
+            {validDataSources.map(dataSource => {
+              return (
                 <Card
                   interactive={false}
                   className="eachDatasourceCard"
-                  onClick={() => {
-                    if (validDataSources.length) {
-                      this.handleCreateNewQuery(
-                        validDataSources[0].id,
-                        queryParams,
-                      );
-                    } else {
-                      history.push(
-                        DATA_SOURCES_EDITOR_URL(applicationId, pageId),
-                      );
-                    }
-                  }}
+                  key={dataSource.id}
+                  onClick={() =>
+                    this.handleCreateNewQuery(dataSource.id, queryParams)
+                  }
                 >
-                  <Icon icon="plus" iconSize={25} className="addIcon" />
-                  <p className="createText">Blank Query</p>
-                </Card>
-                {validDataSources.map(dataSource => {
-                  return (
-                    <Card
-                      interactive={false}
-                      className="eachDatasourceCard"
-                      key={dataSource.id}
-                      onClick={() =>
-                        this.handleCreateNewQuery(dataSource.id, queryParams)
-                      }
-                    >
-                      <img
-                        src={this.getImageSrc(dataSource)}
-                        className="dataSourceImage"
-                        alt="Datasource"
-                      />
+                  <img
+                    src={this.getImageSrc(dataSource)}
+                    className="dataSourceImage"
+                    alt="Datasource"
+                  />
 
-                      <p
-                        className="textBtn t--datasource-name"
-                        title={dataSource.name}
-                      >
-                        {dataSource.name}
-                      </p>
-                    </Card>
-                  );
-                })}
-              </DatasourceCardsContainer>
-            </>
-          )}
+                  <p
+                    className="textBtn t--datasource-name"
+                    title={dataSource.name}
+                  >
+                    {dataSource.name}
+                  </p>
+                </Card>
+              );
+            })}
+          </DatasourceCardsContainer>
         </CardsWrapper>
       </QueryHomePage>
     );
