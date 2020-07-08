@@ -13,7 +13,7 @@ import { ReactComponent as VisibilityIcon } from "assets/icons/control/columns-v
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import Button from "components/editorComponents/Button";
 
-const TableIconWrapper = styled.div<{ selected: boolean }>`
+const TableIconWrapper = styled.div<{ selected: boolean; disabled: boolean }>`
   background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
@@ -22,6 +22,8 @@ const TableIconWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: ${props => (props.disabled ? 0.6 : 1)};
+  cursor: ${props => !props.disabled && "pointer"};
 `;
 
 const DropDownWrapper = styled.div`
@@ -76,6 +78,21 @@ interface TableColumnsVisibilityProps {
 
 const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
   const [selected, selectMenu] = React.useState(false);
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled selected={false}>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <VisibilityIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
+  const columns = props.columns.sort(
+    (a: ReactTableColumnProps, b: ReactTableColumnProps) => {
+      return a.accessor > b.accessor ? 1 : b.accessor > a.accessor ? -1 : 0;
+    },
+  );
+  console.log("columns", columns);
   return (
     <Popover
       minimal
@@ -89,7 +106,8 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
     >
       <TableIconWrapper
         selected={selected}
-        onClick={() => {
+        disabled={false}
+        onClick={e => {
           selectMenu(true);
         }}
       >
@@ -102,7 +120,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
         </IconWrapper>
       </TableIconWrapper>
       <DropDownWrapper>
-        {props.columns.map((option: ReactTableColumnProps, index: number) => (
+        {columns.map((option: ReactTableColumnProps, index: number) => (
           <OptionWrapper
             selected={!option.isHidden}
             key={index}
@@ -110,12 +128,18 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
               const hiddenColumns = props.hiddenColumns || [];
               if (!option.isHidden) {
                 hiddenColumns.push(option.accessor);
+              } else {
+                hiddenColumns.splice(hiddenColumns.indexOf(option.accessor), 1);
               }
               props.updateHiddenColumns(hiddenColumns);
             }}
           >
             <div className="option-title">{option.Header}</div>
-            <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+            {option.isHidden ? (
+              <VisibilityIcon />
+            ) : (
+              <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+            )}
           </OptionWrapper>
         ))}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>
