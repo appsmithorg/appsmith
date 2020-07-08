@@ -108,6 +108,7 @@ export const Table = (props: TableProps) => {
     >
       <TableHeader
         tableData={props.data}
+        tableColumns={props.columns}
         searchTableData={props.searchTableData}
         searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}

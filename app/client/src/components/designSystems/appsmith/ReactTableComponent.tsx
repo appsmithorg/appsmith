@@ -14,6 +14,12 @@ interface ReactTableComponentState {
   isLoading: boolean;
 }
 
+export interface TableColumnMetaProps {
+  isHidden: boolean;
+  format?: string;
+  type: string;
+}
+
 export interface ReactTableColumnProps {
   Header: string;
   accessor: string;
@@ -21,6 +27,7 @@ export interface ReactTableColumnProps {
   minWidth: number;
   draggable: boolean;
   isHidden?: boolean;
+  metaProperties?: TableColumnMetaProps;
   Cell: (props: any) => JSX.Element;
 }
 
@@ -236,6 +243,11 @@ export class ReactTableComponent extends React.Component<
           minWidth: 60,
           draggable: true,
           isHidden: false,
+          metaProperties: {
+            isHidden: isHidden,
+            type: columnType.type,
+            format: columnType.format,
+          },
           Cell: (props: any) => {
             return renderCell(
               props.cell.value,

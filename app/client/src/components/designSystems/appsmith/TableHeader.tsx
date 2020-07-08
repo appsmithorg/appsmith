@@ -60,6 +60,7 @@ interface TableHeaderProps {
   prevPageClick: () => void;
   pageNo: number;
   tableData: object[];
+  tableColumns: ReactTableColumnProps[];
   pageCount: number;
   currentPageIndex: number;
   pageOptions: number[];
@@ -86,7 +87,11 @@ const TableHeader = (props: TableHeaderProps) => {
           hiddenColumns={props.hiddenColumns}
           updateHiddenColumns={props.updateHiddenColumns}
         />
-        <TableDataDownload data={props.tableData} widgetId={props.widgetId} />
+        <TableDataDownload
+          data={props.tableData}
+          columns={props.tableColumns}
+          widgetId={props.widgetId}
+        />
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>

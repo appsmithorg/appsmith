@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  Popover,
-  Classes,
-  PopoverInteractionKind,
-  Position,
-} from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
-import Button from "components/editorComponents/Button";
+import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
+import moment from "moment";
 
 const TableIconWrapper = styled.div<{ selected: boolean }>`
   background: ${props => (props.selected ? "#EBEFF2" : "transparent")};
@@ -21,78 +16,123 @@ const TableIconWrapper = styled.div<{ selected: boolean }>`
   align-items: center;
   justify-content: center;
 `;
-
-const DropDownWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: white;
-  z-index: 1;
-  border-radius: 4px;
-  border: 1px solid ${Colors.ATHENS_GRAY};
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: flex-end;
-  align-items; center;
-  height: 40px;
-  box-sizing: border-box;
-  min-width: 224px;
-  padding: 5px 15px;
-  background: ${Colors.WHITE};
-  box-shadow: 0px -1px 2px rgba(67, 70, 74, 0.12);
-  margin-top: 10px;
-`;
-
 interface TableDataDownloadProps {
   data: object[];
+  columns: ReactTableColumnProps[];
   widgetId: string;
 }
 
 const TableDataDownload = (props: TableDataDownloadProps) => {
-  const [selected, selectMenu] = React.useState(false);
+  const [selected, toggleButtonClick] = React.useState(false);
   const downloadTableData = () => {
-    console.log("button click", props.data);
+    toggleButtonClick(true);
+    const csvData = [];
+    csvData.push(
+      props.columns
+        .map((column: ReactTableColumnProps) => {
+          if (column.metaProperties && !column.metaProperties.isHidden) {
+            return column.Header;
+          }
+        })
+        .filter(i => !!i),
+    );
+    for (let row = 0; row < props.data.length; row++) {
+      const data: { [key: string]: any } = props.data[row];
+      const csvDataRow = [];
+      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
+        const column = props.columns[colIndex];
+        const value = data[column.accessor];
+        if (column.metaProperties) {
+          const type = column.metaProperties.type;
+          const format = column.metaProperties.format;
+          switch (type) {
+            case "currency":
+              if (!isNaN(value)) {
+                csvDataRow.push(`${format}${value ? value : ""}`);
+              } else {
+                csvDataRow.push("Invalid Value");
+              }
+              break;
+            case "date":
+              let isValidDate = true;
+              if (isNaN(value)) {
+                const dateTime = Date.parse(value);
+                if (isNaN(dateTime)) {
+                  isValidDate = false;
+                }
+              }
+              if (isValidDate) {
+                csvDataRow.push(moment(value).format(format));
+              } else {
+                csvDataRow.push("Invalid Value");
+              }
+              break;
+            case "time":
+              let isValidTime = true;
+              if (isNaN(value)) {
+                const time = Date.parse(value);
+                if (isNaN(time)) {
+                  isValidTime = false;
+                }
+              }
+              if (isValidTime) {
+                csvDataRow.push(moment(value).format("HH:mm"));
+              } else {
+                csvDataRow.push("Invalid Value");
+              }
+              break;
+            default:
+              csvDataRow.push(value ? value : "");
+              break;
+          }
+        }
+      }
+      csvData.push(csvDataRow);
+    }
+    let csvContent = "";
+    csvData.forEach(function(infoArray, index) {
+      const dataString = infoArray.join(";");
+      csvContent += index < csvData.length ? dataString + "\n" : dataString;
+    });
+    const fileName = `table-${props.widgetId}.csv`;
+    const anchor = document.createElement("a");
+    const mimeType = "application/octet-stream";
+    if (navigator.msSaveBlob) {
+      navigator.msSaveBlob(
+        new Blob([csvContent], {
+          type: mimeType,
+        }),
+        fileName,
+      );
+    } else if (URL && "download" in anchor) {
+      anchor.href = URL.createObjectURL(
+        new Blob([csvContent], {
+          type: mimeType,
+        }),
+      );
+      anchor.setAttribute("download", fileName);
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    }
+    toggleButtonClick(false);
   };
 
   return (
-    <Popover
-      minimal
-      usePortal
-      enforceFocus={false}
-      interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
-      onClose={() => {
-        selectMenu(false);
+    <TableIconWrapper
+      selected={false}
+      onClick={() => {
+        downloadTableData();
       }}
     >
-      <TableIconWrapper
-        selected={selected}
-        onClick={() => {
-          selectMenu(true);
-        }}
+      <IconWrapper
+        width={20}
+        height={20}
+        color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? "#2E3D49" : "#A3B3BF"}
-        >
-          <DownloadIcon />
-        </IconWrapper>
-      </TableIconWrapper>
-      <DropDownWrapper>
-        <ButtonWrapper className={Classes.POPOVER_DISMISS}>
-          <Button
-            intent="primary"
-            text="Download CSV"
-            filled
-            size="small"
-            onClick={downloadTableData}
-          />
-        </ButtonWrapper>
-      </DropDownWrapper>
-    </Popover>
+        <DownloadIcon />
+      </IconWrapper>
+    </TableIconWrapper>
   );
 };
 
