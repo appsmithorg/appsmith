@@ -60,8 +60,8 @@ jobs:
       run: |
         REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}}  GIT_SHA=${GITHUB_SHA} yarn build
 
-    # - name: Run the jest tests
-    #   run: yarn run test:unit
+    - name: Run the jest tests
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
     
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub with commit tag
