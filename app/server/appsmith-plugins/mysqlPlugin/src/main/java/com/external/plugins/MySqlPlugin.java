@@ -5,18 +5,17 @@ import com.appsmith.external.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.sql.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
@@ -31,15 +30,78 @@ public class MySqlPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    public static class PostgresPluginExecutor implements PluginExecutor {
+    @Slf4j
+    @Extension
+    public static class MySqlPluginExecutor implements PluginExecutor {
 
         private Mono<Object> pluginErrorMono(Object... args) {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, args));
         }
 
         @Override
-        public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-            return null;
+        public Mono<Object> execute(Object connection, DatasourceConfiguration datasourceConfiguration,
+                                    ActionConfiguration actionConfiguration) {
+
+            Connection conn = (Connection) connection;
+
+            String query = actionConfiguration.getBody();
+
+            if (query == null) {
+                return pluginErrorMono("Missing required parameter: Query.");
+            }
+
+            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+            Statement statement = null;
+            ResultSet resultSet = null;
+            try {
+                statement = conn.createStatement();
+                boolean isResultSet = statement.execute(query);
+
+                if (isResultSet) {
+                    resultSet = statement.getResultSet();
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int colCount = metaData.getColumnCount();
+                    while (resultSet.next()) {
+                        Map<String, Object> row = new HashMap<>(colCount);
+                        for (int i = 1; i <= colCount; i++) {
+                            row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                        }
+                        rowsList.add(row);
+                    }
+
+                } else {
+                    rowsList.add(Map.of("affectedRows", statement.getUpdateCount()));
+
+                }
+
+            } catch (SQLException e) {
+                return pluginErrorMono(e.getMessage());
+
+            } finally {
+                if (resultSet != null) {
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing MySql ResultSet", e);
+                    }
+                }
+
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing MySql Statement", e);
+                    }
+                }
+
+            }
+
+            ActionExecutionResult result = new ActionExecutionResult();
+            result.setBody(objectMapper.valueToTree(rowsList));
+            result.setIsExecutionSuccess(true);
+            log.debug("In the MySqlPlugin, got action execution result: " + result.toString());
+            return Mono.just(result);
         }
 
         @Override
@@ -47,7 +109,7 @@ public class MySqlPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return pluginErrorMono("Error loading Postgres JDBC Driver class.");
+                return pluginErrorMono("Error loading MySql JDBC Driver class.");
             }
 
             String url;
@@ -81,7 +143,6 @@ public class MySqlPlugin extends BasePlugin {
                 url = urlBuilder.toString();
 
             }
-
             try {
                 Connection connection = DriverManager.getConnection(url, properties);
                 connection.setReadOnly(
