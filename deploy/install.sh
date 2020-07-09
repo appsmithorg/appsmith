@@ -5,18 +5,37 @@ osInfo[/etc/debian_version]="apt-get"
 osInfo[/etc/centos-release]="yum"
 osInfo[/etc/redhat-release]="yum"
 
-read -p 'install_dir [deploy]: ' install_dir
+read -p 'Installation Directory [appsmith]: ' install_dir
 install_dir=${install_dir:-deploy}
 mkdir -p $PWD/$install_dir
 install_dir=$PWD/$install_dir
-read -p 'mongo_host [mongo]: ' mongo_host
-mongo_host=${mongo_host:-mongo}
-read -p 'mongo_root_user: ' mongo_root_user
-read -sp 'mongo_root_pass: ' mongo_root_password
+echo "Appsmith needs a mongodb instance to run"
+echo "1) Automatically setup mongo db on this instance (recommended)"
+echo "2) Connect to an external mongo db"
+read -p 'Enter option number [1]: ' mongo_option
+mongo_option=${mongo_option:-1}
+mongo_host=mongo
+mongo_database=appsmith
+do
+    if [[ mongo_option -eq 1 ]];then
+        read -p 'Enter your mongo db host: ' mongo_host
+	read -p 'Enter the mongo root user: ' mongo_root_user
+	read -sp 'Enter the mongo password: ' mongo_root_password
+	read -p 'Enter your mongo database name: ' mongo_database
+    else
+        read -p 'Set the mongo root user: ' mongo_root_user
+	read -sp 'Set the mongo password: ' mongo_root_password
+    fi
+done
 echo ""
-read -p 'mongo_database [appsmith]: ' mongo_database
-mongo_database=${mongo_database:-appsmith}
-read -p 'custom_domain: ' custom_domain
+echo "Would you like to setup a custom domain to access appsmith?"
+read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
+setup_domain=${setup_domain:-Y}
+do
+    if [[ setup_domain -eq Y ]];then
+	read -p 'custom_domain: ' custom_domain
+    fi
+done
 
 #mkdir template
 #cd template
