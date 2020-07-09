@@ -78,7 +78,8 @@ jobs:
 
   ui-test:
     needs: build
-
+    runs-on: ubuntu-latest
+    
     steps:
     - name: Download the react build artifact
       uses: actions/download-artifact@v1
