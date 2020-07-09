@@ -56,13 +56,40 @@ jobs:
         fi
         echo ::set-output name=REACT_APP_ENVIRONMENT::${REACT_APP_ENVIRONMENT}
 
-    - name: Build the code for automation
-      run: |
-        REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}}  GIT_SHA=${GITHUB_SHA} yarn build
-
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
-   
+     
+    # - name: Build the code for automation
+    #   run: |
+    #     REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}}  GIT_SHA=${GITHUB_SHA} yarn build
+
+    # TODO: This is a hard-coded build to speed up the CI while testing the rest of the steps. REMOVE LATER!
+    - name: Build the code for automation
+      run: |
+        mkdir -p build 
+        cat "test" > build/react_bundle.js
+
+    # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+    - name: Upload react build bundle
+      uses: actions/upload-artifact@v1
+      with:
+        name: react-build
+        path: build
+
+  ui-test:
+    needs: build
+
+    steps:
+    - name: Download the react build artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: react-bundle
+    
+    - name: List the files
+      run: |
+        ls -al
+        ls -al react-bundle
+
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
