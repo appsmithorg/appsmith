@@ -68,15 +68,15 @@ jobs:
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
-        docker build -t appsmith/appsmith-server-ee:${{steps.vars.outputs.tag}} .
+        docker build -t appsmith/appsmith-server:${{steps.vars.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-server-ee
+        docker push appsmith/appsmith-server
 
     # Build master Docker image and push to Docker Hub
     - name: Push master image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master'
       run: |
-        docker build -t appsmith/appsmith-server-ee:${GITHUB_SHA} .
-        docker build -t appsmith/appsmith-server-ee:latest .
+        docker build -t appsmith/appsmith-server:${GITHUB_SHA} .
+        docker build -t appsmith/appsmith-server:latest .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-        docker push appsmith/appsmith-server-ee
+        docker push appsmith/appsmith-server
