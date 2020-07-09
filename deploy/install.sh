@@ -28,12 +28,11 @@ do
     fi
 done
 echo ""
-echo "Would you like to setup a custom domain to access appsmith?"
 read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 do
     if [[ setup_domain -eq Y ]];then
-	read -p 'custom_domain: ' custom_domain
+	read -p 'Enter your domain URL (https://example.com): ' custom_domain
     fi
 done
 
