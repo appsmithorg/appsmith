@@ -48,7 +48,7 @@ read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' se
 setup_domain=${setup_domain:-Y}
 
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
-	read -p 'Enter your domain URL (example.com): ' custom_domain
+	read -p 'Enter your domain name (example.com): ' custom_domain
 fi
 
 #mkdir template
@@ -174,6 +174,7 @@ do
             echo "You choose not to replae existing file: $install_dir$f"
 	    rm -rf ${fileInfo[$f]}
 	    echo "File ${fileInfo[$f]} removed from source directory."
+        echo ""
         fi
     else
         mv -f ${fileInfo[$f]} $install_dir$f
