@@ -61,13 +61,13 @@ fi
 #cd ..
 
 # Role - Base
-echo "Stopping any automatic update scripts"
+echo "Stopping automatic update scripts"
 pkill --full /usr/bin/unattended-upgrade > /dev/null 2>&1
 
 echo "Updating apt"
 sudo ${package_manager} -y update --quiet > /dev/null 2>&1
 
-echo "Upgrading all packages to the latest version"
+echo "Upgrading packages to the latest version"
 sudo ${package_manager} -y upgrade --quiet > /dev/null 2>&1
 
 echo "Installing ntp"
@@ -77,7 +77,7 @@ echo "Installing the boto package"
 pip3 install boto3 > /dev/null 2>&1
 
 # Role - Docker
-echo "Installing Docker along with it's dependencies"
+echo "Installing Docker & it's dependencies"
 sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools > /dev/null 2>&1
 
 if [[ $package_manager -eq apt-get ]];then
