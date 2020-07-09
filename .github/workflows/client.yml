@@ -18,7 +18,10 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-  
+    defaults:
+      run:
+        working-directory: app/client
+
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
@@ -79,17 +82,20 @@ jobs:
   ui-test:
     needs: build
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: app/client
+        
     steps:
     - name: Download the react build artifact
       uses: actions/download-artifact@v1
       with:
-        name: react-bundle
+        name: react-build
     
     - name: List the files
       run: |
         ls -al
-        ls -al react-bundle
+        ls -al react-build
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
