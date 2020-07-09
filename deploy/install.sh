@@ -1,4 +1,8 @@
 #!/bin/bash
+set -o errexit
+
+echo "" > appsmith_deploy.log
+
 declare -A osInfo;
 
 osInfo[/etc/debian_version]="apt-get"
@@ -18,8 +22,9 @@ do
 done
 
 if [[ $desired_os -eq 0 ]];then
-	echo "Desired OS(Ubuntu | RedHat | CentOS) is not found. Please run this script on Ubuntu | RedHat | CentOS"
-    echo "Exiting Script..."
+    echo "This script is currently meant to install Appsmith on Ubuntu | RHEL | CentOS machines."
+    echo "Please contact hello@appsmith.com with your OS details if you wish to extend this support"
+    echo "Exiting for now. Bye!"
 	exit
 fi
 
@@ -62,49 +67,49 @@ fi
 
 # Role - Base
 echo "Stopping automatic update scripts"
-pkill --full /usr/bin/unattended-upgrade > /dev/null 2>&1
+pkill --full /usr/bin/unattended-upgrade >> appsmith_deploy.log
 
 echo "Updating apt"
-sudo ${package_manager} -y update --quiet > /dev/null 2>&1
+sudo ${package_manager} -y update --quiet >> appsmith_deploy.log
 
 echo "Upgrading packages to the latest version"
-sudo ${package_manager} -y upgrade --quiet > /dev/null 2>&1
+sudo ${package_manager} -y upgrade --quiet >> appsmith_deploy.log
 
 echo "Installing ntp"
-sudo ${package_manager} -y install bc python3-pip --quiet > /dev/null 2>&1
+sudo ${package_manager} -y install bc python3-pip --quiet >> appsmith_deploy.log
 
 echo "Installing the boto package"
-pip3 install boto3 > /dev/null 2>&1
+pip3 install boto3 >> appsmith_deploy.log
 
 # Role - Docker
 echo "Installing Docker & it's dependencies"
-sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools > /dev/null 2>&1
+sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools >> appsmith_deploy.log
 
 if [[ $package_manager -eq apt-get ]];then
     echo "++++++++++++++++++++++++"
     echo "Setting up docker repos"
-    sudo $package_manager update  --quiet > /dev/null 2>&1
+    sudo $package_manager update  --quiet >> appsmith_deploy.log
 
-    sudo apt-get  -y --quiet install apt-transport-https ca-certificates curl gnupg-agent software-properties-common > /dev/null 2>&1
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - > /dev/null 2>&1
+    sudo apt-get  -y --quiet install apt-transport-https ca-certificates curl gnupg-agent software-properties-common >> appsmith_deploy.log
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - >> appsmith_deploy.log
     sudo add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) \
-    stable" > /dev/null 2>&1
+    stable" >> appsmith_deploy.log
 else
-    sudo yum install -y yum-utils > /dev/null 2>&1
-    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo > /dev/null 2>&1
+    sudo yum install -y yum-utils >> appsmith_deploy.log
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >> appsmith_deploy.log
 fi
 
-sudo ${package_manager} -y update --quiet > /dev/null 2>&1
+sudo ${package_manager} -y update --quiet >> appsmith_deploy.log
 echo "++++++++++Installing docker+++++++++++"
-sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet > /dev/null 2>&1
+sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet >> appsmith_deploy.log
 
 echo "++++++++++Installing docker-compose++++++"
-sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose > /dev/null 2>&1
-sudo chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose >> appsmith_deploy.log
+sudo chmod +x /usr/local/bin/docker-compose >> appsmith_deploy.log
 
-pip3 install docker > /dev/null 2>&1
+pip3 install docker >> appsmith_deploy.log
 
 
 # Role - folders
