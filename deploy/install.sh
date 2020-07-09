@@ -79,9 +79,6 @@ sudo ${package_manager} -y install bc python3-pip --quiet > /dev/null 2>&1
 echo "Installing the boto package"
 pip3 install boto3 > /dev/null 2>&1
 
-echo "Updating apt"
-sudo ${package_manager} -y update --quiet > /dev/null 2>&1
-
 # Role - Docker
 echo "Installing Docker along with it's dependencies"
 sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools > /dev/null 2>&1
