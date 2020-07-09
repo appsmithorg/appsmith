@@ -158,17 +158,69 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Object connection) {
-
+            Connection conn = (Connection) connection;
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                log.error("Error closing MySQL Connection.", e);
+            }
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+
+            Set<String> invalids = new HashSet<>();
+
+            Boolean databaseNameMissing = datasourceConfiguration.getAuthentication().getDatabaseName().isEmpty();
+
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
+                if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                    invalids.add("Missing endpoint and url");
+                } else if (databaseNameMissing) {
+                    invalids.add("Having endpoints but missing DatabaseName");
+                }
+
+            }
+
+            if (datasourceConfiguration.getConnection() != null
+                    && datasourceConfiguration.getConnection().getMode() == null) {
+                invalids.add("Missing Connection Mode.");
+            }
+
+            if (datasourceConfiguration.getAuthentication() == null) {
+                invalids.add("Missing authentication details.");
+
+            } else {
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
+                    invalids.add("Missing username for authentication.");
+                }
+
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getPassword())) {
+                    invalids.add("Missing password for authentication.");
+                }
+
+            }
+
+            return invalids;
         }
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return null;
+            return datasourceCreate(datasourceConfiguration)
+                    .map(connection -> {
+                        try {
+                            if (connection != null) {
+                                ((Connection) connection).close();
+                            }
+                        } catch (SQLException e) {
+                            log.warn("Error closing MySQL connection that was made for testing.", e);
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
     }
 }

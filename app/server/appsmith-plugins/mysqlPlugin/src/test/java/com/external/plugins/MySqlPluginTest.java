@@ -8,7 +8,10 @@ import org.testcontainers.containers.MySQLContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -50,6 +53,21 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testConnectMySQLContainer() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(dsConnectionMono)
+                .assertNext(connection -> {
+                    java.sql.Connection conn = (Connection) connection;
+                    assertNotNull(conn);
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testExecute() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -67,6 +85,28 @@ public class MySqlPluginTest {
                     assertNotNull(result.getBody());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDataSource() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Set<String> output = null;
+
+        dsConfig.getAuthentication().setDatabaseName("");
+        output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertEquals(output.iterator().next(), "Having endpoints but missing DatabaseName");
+
+        dsConfig.setEndpoints(null);
+        output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertEquals(output.iterator().next(), "Missing endpoint and url");
+
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getAuthentication().setUsername(null);
+        dsConfig.getAuthentication().setPassword(null);
+        output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 4);
     }
 
 }
