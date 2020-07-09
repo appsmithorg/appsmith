@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>5.1.13.RELEASE</version>
+            <version>5.1.14.RELEASE</version>
         </dependency>
 
         <dependency>
