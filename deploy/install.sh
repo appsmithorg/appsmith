@@ -47,7 +47,7 @@ echo ""
 read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 
-if [$setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
 	read -p 'Enter your domain URL (https://example.com): ' custom_domain
 fi
 
