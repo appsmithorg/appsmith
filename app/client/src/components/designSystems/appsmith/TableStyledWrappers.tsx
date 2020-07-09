@@ -27,6 +27,9 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     .tbody {
       overflow: scroll;
       height: ${props => props.height - 5 - 102}px;
+      &.no-scroll {
+        overflow: hidden;
+      }
     }
     .tr {
       :nth-child(even) {
