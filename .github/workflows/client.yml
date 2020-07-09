@@ -67,7 +67,7 @@ jobs:
     - name: Build the code for automation
       run: |
         mkdir -p build 
-        cat "test" > build/react_bundle.js
+        touch build/react_bundle.js
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
@@ -79,7 +79,7 @@ jobs:
   ui-test:
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Download the react build artifact
       uses: actions/download-artifact@v1
