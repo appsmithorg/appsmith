@@ -1,0 +1,35 @@
+/*!
+       * The buffer module from node.js, for the browser.
+       *
+       * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+       * @license  MIT
+       */
+
+/*! dontAppend && */
+
+/** !
+     * @license FusionCharts JavaScript Library
+     * Copyright InfoSoft Global Pvt. Ltd.
+     * License Information at <http://www.fusioncharts.com/license>
+     */
+
+/** !
+     * @license FusionCharts JavaScript Library - KDtree
+     * Copyright InfoSoft Global Pvt. Ltd.
+     * License Information at <http://www.fusioncharts.com/license>
+     *
+     * @version //? write(JSON.parse(require('fs').readFileSync('./package.json')).version);
+     */
+
+/**!
+* @license FusionCharts JavaScript Library
+* Copyright InfoSoft Global Pvt. Ltd.
+* License Information at <http://www.fusioncharts.com/license>
+*
+* @version 3.15.0-sr.1
+*
+* @attributions (infers respective third-party copyrights)
+* Raphael 2.1.0 (modified as 'Red Raphael') <http://raphaeljs.com/license.html>
+* JSON v2 <http://www.JSON.org/js.html>
+* Firebug Lite 1.3.0 <http://getfirebug.com/firebuglite>
+*/
