@@ -50,7 +50,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
-      if ("id" in datasource && datasource.id) {
+      if (datasource && "id" in datasource && datasource.id) {
         this.props.updateDatasource({
           ...DEFAULT_DATASOURCE(pluginId, orgId),
           datasourceConfiguration: {

@@ -4,11 +4,11 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { noop } from "lodash";
 import { useEntities } from "./hooks";
-import { getPageEntityGroups } from "./helpers";
+import { getPageEntityGroups, getDatasourceEntities } from "./helpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ExplorerTitle } from "./ExplorerTitle";
 import Entity from "./Entity";
-import { pageIcon } from "./ExplorerIcons";
+import { pageIcon, datasourceIcon } from "./ExplorerIcons";
 
 const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
@@ -23,11 +23,26 @@ const EntityExplorer = () => {
     apiId?: string;
     queryId?: string;
   }>();
-  const { pages, widgetTree, actions, currentPageId } = useEntities();
+  const {
+    pages,
+    widgetTree,
+    actions,
+    currentPageId,
+    dataSources,
+    plugins,
+  } = useEntities();
   const dispatch = useDispatch();
   return (
     <Wrapper>
       <ExplorerTitle isCollapsed onCollapseToggle={noop} />
+      <Entity
+        name="DataSources"
+        icon={datasourceIcon}
+        action={noop}
+        createFn={noop}
+      >
+        {getDatasourceEntities(dataSources, plugins, params)}
+      </Entity>
       <Entity name="Pages" icon={pageIcon} isDefaultExpanded action={noop}>
         {pages.map(page =>
           getPageEntityGroups(

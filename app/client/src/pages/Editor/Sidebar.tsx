@@ -40,16 +40,7 @@ const BottomBar = styled.div`
 
 const Sidebar = () => {
   const params = useParams<BuilderRouteParams>();
-  // const docsNavConfig = {
-  //   icon: MenuIcons.DOCS_ICON,
-  //   className: "t--nav-link-docs",
-  //   title: "Docs",
-  //   exact: true,
-  // };
-  // const [highlightDocs, setHighlightDocs] = useState(
-  //   !localStorage.getItem("hasSeenDocs"),
-  // );
-  // const [hasSeenDocs, setHasSeenDocs] = useLocalStorage("hasSeenDocs", false);
+
   return (
     <Wrapper>
       <NavBar>
@@ -64,21 +55,7 @@ const Sidebar = () => {
             />
           ))}
         </TopBar>
-        <BottomBar>
-          {/* <NavBarItem
-            width={20}
-            height={20}
-            key={docsNavConfig.title}
-            onClick={() => {
-              setHighlightDocs(false);
-              localStorage.setItem("hasSeenDocs", "true");
-            }}
-            {...docsNavConfig}
-            external
-            highlight={highlightDocs}
-            path={HelpBaseURL}
-          ></NavBarItem> */}
-        </BottomBar>
+        <BottomBar></BottomBar>
       </NavBar>
       <EditorSidebar />
     </Wrapper>

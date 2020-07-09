@@ -1,4 +1,4 @@
-import React, { useRef, MutableRefObject } from "react";
+import React, { useRef, MutableRefObject, memo } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
@@ -98,7 +98,8 @@ const transformedValue = (value: any) => {
   return `${value}`;
 };
 
-export const EntityProperty = (props: EntityPropertyProps) => {
+/* eslint-disable react/display-name */
+export const EntityProperty = memo((props: EntityPropertyProps) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
 
@@ -129,7 +130,7 @@ export const EntityProperty = (props: EntityPropertyProps) => {
           },
 
           preventOverflow: {
-            enabled: false,
+            enabled: true,
             boundariesElement: "viewport",
           },
           hide: {
@@ -163,6 +164,6 @@ export const EntityProperty = (props: EntityPropertyProps) => {
       {propertyValue}
     </Wrapper>
   );
-};
+});
 
 export default EntityProperty;

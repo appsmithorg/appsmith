@@ -24,6 +24,7 @@ import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { changeApi, initApiPane } from "actions/apiPaneActions";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -49,6 +50,8 @@ interface ReduxActionProps {
   submitForm: (name: string) => void;
   runAction: (id: string, paginationField?: PaginationField) => void;
   deleteAction: (id: string, name: string) => void;
+  changeAPIPage: (apiId: string) => void;
+  initApiPane: (apiId: string) => void;
 }
 
 function getPageName(pages: any, pageId: string) {
@@ -61,6 +64,9 @@ type Props = ReduxActionProps &
   RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
 
 class ApiEditor extends React.Component<Props> {
+  componentDidMount() {
+    this.props.initApiPane(this.props.match.params.apiId);
+  }
   handleDeleteClick = () => {
     const pageName = getPageName(
       this.props.pages,
@@ -73,6 +79,12 @@ class ApiEditor extends React.Component<Props> {
     });
     this.props.deleteAction(this.props.match.params.apiId, this.props.apiName);
   };
+
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
+      this.props.changeAPIPage(this.props.match.params.apiId);
+    }
+  }
 
   handleRunClick = (paginationField?: PaginationField) => {
     const pageName = getPageName(
@@ -232,6 +244,8 @@ const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
     dispatch(runAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
+  changeAPIPage: (actionId: string) => dispatch(changeApi(actionId)),
+  initApiPane: (urlId?: string) => dispatch(initApiPane(urlId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApiEditor);

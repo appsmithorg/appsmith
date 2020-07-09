@@ -20,7 +20,7 @@ const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
 
   position: relative;
   height: 30px;
-  font-size: ${props => props.theme.fontSizes[3]}px;
+  font-size: ${props => props.theme.fontSizes[2]}px;
   line-height: ${props => props.theme.lineHeights[2]}px;
   display: flex;
   justify-content: flex-start;

@@ -71,7 +71,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   const URL = QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
-  console.log("here", { URL });
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;

@@ -35,10 +35,19 @@ export const useEntities = () => {
   });
 
   const pages: Array<Page & { ENTITY_TYPE: ENTITY_TYPE }> = useSelector(
-    (state: AppState) =>
-      state.entities.pageList.pages.map(page => {
+    (state: AppState) => {
+      return state.entities.pageList.pages.map(page => {
         return { ...page, ENTITY_TYPE: ENTITY_TYPE.PAGE };
-      }),
+      });
+    },
   );
-  return { widgetTree, actions, pages, currentPageId };
+
+  const dataSources = useSelector((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  return { widgetTree, actions, pages, currentPageId, dataSources, plugins };
 };

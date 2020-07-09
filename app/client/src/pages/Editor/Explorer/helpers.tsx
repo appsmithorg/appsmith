@@ -9,11 +9,12 @@ import {
   apiIcon,
   widgetIcon,
   queryIcon,
+  getPluginIcon,
 } from "./ExplorerIcons";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import { PluginType, Action } from "entities/Action";
 import { generateReactKey } from "utils/generators";
-import { noop } from "lodash";
+import { noop, groupBy } from "lodash";
 import history from "utils/history";
 import { EXPLORER_URL } from "constants/routes";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
@@ -22,7 +23,6 @@ import {
   QUERIES_EDITOR_ID_URL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
-  getPathWithExplorerSidebar,
 } from "constants/routes";
 import {
   createNewApiAction,
@@ -30,6 +30,8 @@ import {
 } from "actions/apiPaneActions";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
+import { Datasource } from "api/DatasourcesApi";
+import { Plugin } from "api/PluginApi";
 
 type GroupConfig = {
   groupName: string;
@@ -51,6 +53,7 @@ type ExplorerURLParams = {
   pageId: string;
   apiId?: string;
   queryId?: string;
+  datasourceId?: string;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -252,8 +255,6 @@ const getActionGroups = (
             params?.pageId,
             params?.pageId,
           );
-          console.log({ path });
-          console.log(getPathWithExplorerSidebar(path));
           history.push(path);
         }}
         isDefaultExpanded={config?.isExpanded(params)}
@@ -337,4 +338,37 @@ export const getPageEntityGroups = (
     }
   });
   return getPageEntity(page, groups, isCurrentPage, params);
+};
+
+export const getDatasourceEntities = (
+  datasources: Datasource[],
+  plugins: Plugin[],
+  params: ExplorerURLParams,
+) => {
+  const pluginGroupNodes: ReactNode[] = [];
+  const pluginGroups = groupBy(datasources, "pluginId");
+  for (const [pluginId, datasources] of Object.entries(pluginGroups)) {
+    const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+    const pluginIcon = getPluginIcon(plugin);
+    pluginGroupNodes.push(
+      <Entity
+        key={plugin?.id}
+        icon={pluginIcon}
+        name={plugin?.name || "Unknown Plugin"}
+        action={noop}
+      >
+        {datasources.map((datasource: Datasource) => {
+          return (
+            <Entity
+              key={datasource.id}
+              icon={pluginIcon}
+              name={datasource.name}
+              action={noop}
+            />
+          );
+        })}
+      </Entity>,
+    );
+  }
+  return pluginGroupNodes;
 };
