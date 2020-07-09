@@ -66,12 +66,6 @@ jobs:
     #   run: |
     #     REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}}  GIT_SHA=${GITHUB_SHA} yarn build
 
-    # TODO: This is a hard-coded build to speed up the CI while testing the rest of the steps. REMOVE LATER!
-    - name: Build the code for automation
-      run: |
-        mkdir -p build 
-        echo "random text" > build/react_bundle.js
-
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
       uses: actions/upload-artifact@v1
@@ -87,10 +81,14 @@ jobs:
         working-directory: app/client
         
     steps:
+    # Checkout the code
+    - uses: actions/checkout@v2
+    
     - name: Download the react build artifact
       uses: actions/download-artifact@v1
       with:
         name: react-build
+        path: app/client
     
     - name: List the files
       shell: bash
