@@ -66,14 +66,14 @@ jobs:
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
-      id: vars
+      id: branch_name
       run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
     # Build release Docker image and push to Docker Hub
     - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
-        docker build -t appsmith/appsmith-editor:${{steps.vars.outputs.tag}} .
+        docker build -t appsmith/appsmith-editor:${{steps.branch_name.outputs.tag}} .
         echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
         docker push appsmith/appsmith-editor
     
