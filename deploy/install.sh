@@ -5,47 +5,6 @@ osInfo[/etc/debian_version]="apt-get"
 osInfo[/etc/centos-release]="yum"
 osInfo[/etc/redhat-release]="yum"
 
-read -p 'Installation Directory [appsmith]: ' install_dir
-install_dir=${install_dir:-appsmith}
-mkdir -p $PWD/$install_dir
-install_dir=$PWD/$install_dir
-echo "Appsmith needs a mongodb instance to run"
-echo "1) Automatically setup mongo db on this instance (recommended)"
-echo "2) Connect to an external mongo db"
-read -p 'Enter option number [1]: ' mongo_option
-mongo_option=${mongo_option:-1}
-mongo_host="mongo"
-mongo_database="appsmith"
-do
-    if [[ $mongo_option -eq 1 ]];then
-        read -p 'Enter your mongo db host: ' mongo_host
-        read -p 'Enter the mongo root user: ' mongo_root_user
-        read -sp 'Enter the mongo password: ' mongo_root_password
-        read -p 'Enter your mongo database name: ' mongo_database
-    else
-        read -p 'Set the mongo root user: ' mongo_root_user
-	    read -sp 'Set the mongo password: ' mongo_root_password
-    fi
-done
-echo ""
-read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
-setup_domain=${setup_domain:-Y}
-do
-    if [[ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ]];then
-	    read -p 'Enter your domain URL (https://example.com): ' custom_domain
-    fi
-done
-
-#mkdir template
-#cd template
-#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/docker-compose.yml.sh --output docker-compose.yml.sh
-#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/init-letsencrypt.sh.sh --output init-letsencrypt.sh.sh
-#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/mongo-init.js.sh --output mongo-init.js.sh
-#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/nginx_app.conf.sh --output nginx_app.conf.sh
-#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/nginx_app.conf.sh --output nginx_app.conf.sh
-#cd ..
-
-
 # Checking OS and assiging package manager
 desired_os=0
 echo "Assigning package manager"
@@ -59,9 +18,47 @@ do
 done
 
 if [[ $desired_os -eq 0 ]];then
-	echo "Desired OS(Ubuntu | RedHat | CentOS) is not found. Please run this script on Ubuntu | RedHat | CentOS.\nExiting now..."
+	echo "Desired OS(Ubuntu | RedHat | CentOS) is not found. Please run this script on Ubuntu | RedHat | CentOS"
+    echo "Exiting Script..."
 	exit
 fi
+
+read -p 'Installation Directory [appsmith]: ' install_dir
+install_dir=${install_dir:-appsmith}
+mkdir -p $PWD/$install_dir
+install_dir=$PWD/$install_dir
+echo "Appsmith needs a mongodb instance to run"
+echo "1) Automatically setup mongo db on this instance (recommended)"
+echo "2) Connect to an external mongo db"
+read -p 'Enter option number [1]: ' mongo_option
+mongo_option=${mongo_option:-1}
+if [[ $mongo_option -eq 2 ]];then
+    read -p 'Enter your mongo db host: ' mongo_host
+    read -p 'Enter the mongo root user: ' mongo_root_user
+    read -sp 'Enter the mongo password: ' mongo_root_password
+    read -p 'Enter your mongo database name: ' mongo_database
+elif [[ $mongo_option -eq 1 ]];then
+    mongo_host="mongo"
+    mongo_database="appsmith"
+    read -p 'Set the mongo root user: ' mongo_root_user
+	read -sp 'Set the mongo password: ' mongo_root_password
+fi
+echo ""
+read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
+setup_domain=${setup_domain:-Y}
+
+if [$setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+	read -p 'Enter your domain URL (https://example.com): ' custom_domain
+fi
+
+#mkdir template
+#cd template
+#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/docker-compose.yml.sh --output docker-compose.yml.sh
+#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/init-letsencrypt.sh.sh --output init-letsencrypt.sh.sh
+#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/mongo-init.js.sh --output mongo-init.js.sh
+#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/nginx_app.conf.sh --output nginx_app.conf.sh
+#curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/nginx_app.conf.sh --output nginx_app.conf.sh
+#cd ..
 
 # Role - Base
 echo "Stopping any automatic update scripts"
