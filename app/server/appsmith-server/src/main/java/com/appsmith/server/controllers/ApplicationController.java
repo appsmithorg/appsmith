@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -73,6 +74,13 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
         log.debug("Going to get all applications grouped by organization");
         return service.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+    }
+
+    @PutMapping("/{applicationId}/changeAccess")
+    public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String applicationId, @RequestBody ApplicationAccessDTO applicationAccessDTO) {
+        log.debug("Going to change access for application {} to {}", applicationId, applicationAccessDTO.getPublicAccess());
+        return service.changeViewAccess(applicationId, applicationAccessDTO)
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
 }

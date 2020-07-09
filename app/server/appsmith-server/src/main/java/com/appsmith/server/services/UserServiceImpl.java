@@ -474,10 +474,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+        
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = DEFAULT_ORIGIN_HEADER;
         }
+
         final String finalOriginHeader = originHeader;
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
@@ -486,12 +488,20 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     if (!savedUser.getIsEnabled()) {
                         // First enable the user
                         savedUser.setIsEnabled(true);
+
                         // In case of form login, store the password
                         if (LoginSource.FORM.equals(user.getSource())) {
                             if (user.getPassword() == null || user.getPassword().isBlank()) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_CREDENTIALS));
                             }
-                            savedUser.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+                            /**
+                             * At this point, the user's password is encoded (not sure why). So no need to
+                             * double encode the password while setting it. Set it directly.
+                             * TODO : Figure out why after entering this flatMap that the password stored in the
+                             * user changes from simple string to encoded string.
+                             */
+                            savedUser.setPassword(user.getPassword());
                         }
                         return repository.save(savedUser);
                     }
