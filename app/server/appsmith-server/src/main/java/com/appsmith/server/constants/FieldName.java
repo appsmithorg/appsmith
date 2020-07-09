@@ -48,4 +48,5 @@ public class FieldName {
             "        \"leftColumn\": 0,\n" +
             "        \"children\": []\n" +
             "}";
+    public static String ANONYMOUS_USER = "anonymousUser";
 }
