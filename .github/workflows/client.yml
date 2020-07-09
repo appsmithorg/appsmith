@@ -62,9 +62,15 @@ jobs:
 
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
-    
+   
+    # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+    # first 11 characters. This can be used to build images for several branches
+    - name: Get the version to tag the Docker image
+      id: vars
+      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
     # Build release Docker image and push to Docker Hub
-    - name: Push release image to Docker Hub with commit tag
+    - name: Push release image to Docker Hub
       if: success() && github.ref == 'refs/heads/release'
       run: |
         docker build -t appsmith/appsmith-editor:${{steps.vars.outputs.tag}} .
@@ -72,7 +78,7 @@ jobs:
         docker push appsmith/appsmith-editor
     
     # Build master Docker image and push to Docker Hub
-    - name: Push release image to Docker Hub with commit tag
+    - name: Push production image to Docker Hub with commit tag
       if: success() && github.ref == 'refs/heads/master'
       run: |
         docker build -t appsmith/appsmith-editor:${GITHUB_SHA} .
