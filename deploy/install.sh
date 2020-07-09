@@ -6,7 +6,7 @@ osInfo[/etc/centos-release]="yum"
 osInfo[/etc/redhat-release]="yum"
 
 read -p 'Installation Directory [appsmith]: ' install_dir
-install_dir=${install_dir:-deploy}
+install_dir=${install_dir:-appsmith}
 mkdir -p $PWD/$install_dir
 install_dir=$PWD/$install_dir
 echo "Appsmith needs a mongodb instance to run"
@@ -14,25 +14,25 @@ echo "1) Automatically setup mongo db on this instance (recommended)"
 echo "2) Connect to an external mongo db"
 read -p 'Enter option number [1]: ' mongo_option
 mongo_option=${mongo_option:-1}
-mongo_host=mongo
-mongo_database=appsmith
+mongo_host="mongo"
+mongo_database="appsmith"
 do
-    if [[ mongo_option -eq 1 ]];then
+    if [[ $mongo_option -eq 1 ]];then
         read -p 'Enter your mongo db host: ' mongo_host
-	read -p 'Enter the mongo root user: ' mongo_root_user
-	read -sp 'Enter the mongo password: ' mongo_root_password
-	read -p 'Enter your mongo database name: ' mongo_database
+        read -p 'Enter the mongo root user: ' mongo_root_user
+        read -sp 'Enter the mongo password: ' mongo_root_password
+        read -p 'Enter your mongo database name: ' mongo_database
     else
         read -p 'Set the mongo root user: ' mongo_root_user
-	read -sp 'Set the mongo password: ' mongo_root_password
+	    read -sp 'Set the mongo password: ' mongo_root_password
     fi
 done
 echo ""
 read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 do
-    if [[ setup_domain -eq Y ]];then
-	read -p 'Enter your domain URL (https://example.com): ' custom_domain
+    if [[ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ]];then
+	    read -p 'Enter your domain URL (https://example.com): ' custom_domain
     fi
 done
 
@@ -48,46 +48,46 @@ done
 
 # Checking OS and assiging package manager
 desired_os=0
-echo "Assiging package manager"
+echo "Assigning package manager"
 for f in ${!osInfo[@]}
 do
     if [[ -f $f ]];then
         package_manager=${osInfo[$f]}
-	echo $package_manager
-	desired_os=1
+        echo $package_manager
+        desired_os=1
     fi
 done
 
-if [[ desired_os -eq 0 ]];then
+if [[ $desired_os -eq 0 ]];then
 	echo "Desired OS(Ubuntu | RedHat | CentOS) is not found. Please run this script on Ubuntu | RedHat | CentOS.\nExiting now..."
 	exit
 fi
 
 # Role - Base
-echo "kill automatic updating script, if any"
+echo "Stopping any automatic update scripts"
 pkill --full /usr/bin/unattended-upgrade > /dev/null 2>&1
 
-echo "apt update"
+echo "Updating apt"
 sudo ${package_manager} -y update --quiet > /dev/null 2>&1
 
-echo "Upgrade all packages to the latest version"
+echo "Upgrading all packages to the latest version"
 sudo ${package_manager} -y upgrade --quiet > /dev/null 2>&1
 
-echo "Install ntp"
+echo "Installing ntp"
 sudo ${package_manager} -y install bc python3-pip --quiet > /dev/null 2>&1
 
-echo "Install the boto package"
+echo "Installing the boto package"
 pip3 install boto3 > /dev/null 2>&1
 
-echo "apt update"
+echo "Updating apt"
 sudo ${package_manager} -y update --quiet > /dev/null 2>&1
 
 # Role - Docker
-echo "Checking and installing Docker along with it's dependencies"
+echo "Installing Docker along with it's dependencies"
 sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools > /dev/null 2>&1
 
 if [[ $package_manager -eq apt-get ]];then
-    echo "++++++++++++++++++++"
+    echo "++++++++++++++++++++++++"
     echo "Setting up docker repos"
     sudo $package_manager update  --quiet > /dev/null 2>&1
 
@@ -106,7 +106,7 @@ sudo ${package_manager} -y update --quiet > /dev/null 2>&1
 echo "++++++++++Installing docker+++++++++++"
 sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet > /dev/null 2>&1
 
-echo "++++++++++Installing Docker-compose++++++"
+echo "++++++++++Installing docker-compose++++++"
 sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose > /dev/null 2>&1
 sudo chmod +x /usr/local/bin/docker-compose > /dev/null 2>&1
 
