@@ -75,7 +75,7 @@ jobs:
 
   ui-test:
     needs: build
-    runs-on: ubuntu-latest
+    container: appsmith/cypress-nginx
     defaults:
       run:
         working-directory: app/client
