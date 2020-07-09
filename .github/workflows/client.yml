@@ -95,7 +95,6 @@ jobs:
     - name: List the files
       run: |
         ls -al
-        ls -al react-build
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
