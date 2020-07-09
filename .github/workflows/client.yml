@@ -68,7 +68,7 @@ jobs:
 
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: react-build
         path: app/client/build/
@@ -85,7 +85,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Download the react build artifact
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: react-build
         path: app/client/react-build
