@@ -45,7 +45,7 @@ VALUES ('{{Dropdown1.selectedOptionValue}}', '{{Input2.text}}');`,
       "SELECT * FROM users where name like '%{{Input1.text}}%' ORDER BY id LIMIT 10",
     delete: `DELETE FROM users WHERE id={{Table1.selectedRow.id}}`,
     update: `UPDATE users
-Set status={{Dropdown1.selectedOptionValue}}
+Set status='{{Dropdown1.selectedOptionValue}}'
 WHERE id={{Table1.selectedRow.id}};`,
   },
 };
