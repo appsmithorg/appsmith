@@ -74,7 +74,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: react-build
-        path: build
+        path: ./build
 
   ui-test:
     needs: build
