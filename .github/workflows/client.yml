@@ -105,7 +105,7 @@ jobs:
         echo "${{ secrets.APPSMITH_SSL_KEY }}" > /etc/certificate/dev.appsmith.com-key.pem
         echo "Going to run the nginx server"
         nginx
-        curl -v "https://dev.appsmith.com"
+        curl -v -k "https://dev.appsmith.com"
     
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
