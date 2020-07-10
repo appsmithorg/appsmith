@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.models.*;
+import lombok.extern.log4j.Log4j;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -9,12 +10,14 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
 
+@Log4j
 public class MySqlPluginTest {
 
     MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
@@ -27,12 +30,15 @@ public class MySqlPluginTest {
     Integer port;
     String username, password;
 
+    DatasourceConfiguration dsConfig;
+
     @Before
     public void setUp() {
         address = mySQLContainer.getContainerIpAddress();
         port = mySQLContainer.getFirstMappedPort();
         username = mySQLContainer.getUsername();
         password = mySQLContainer.getPassword();
+        createDatasourceConfiguration();
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -46,7 +52,7 @@ public class MySqlPluginTest {
         endpoint.setHost(address);
         endpoint.setPort(port.longValue());
 
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         dsConfig.setEndpoints(List.of(endpoint));
         return dsConfig;
@@ -54,8 +60,6 @@ public class MySqlPluginTest {
 
     @Test
     public void testConnectMySQLContainer() {
-
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
 
         Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -69,7 +73,6 @@ public class MySqlPluginTest {
 
     @Test
     public void testExecute() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Object> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -89,7 +92,6 @@ public class MySqlPluginTest {
 
     @Test
     public void testValidateDataSource() {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Set<String> output = null;
 
         dsConfig.getAuthentication().setDatabaseName("");
@@ -107,6 +109,28 @@ public class MySqlPluginTest {
         dsConfig.getAuthentication().setPassword(null);
         output = pluginExecutor.validateDatasource(dsConfig);
         assertEquals(output.size(), 4);
+    }
+
+    /* checking that the connection is being closed after the datadourceDestroy method is being called
+    NOT : this test case will fail in case of a SQL Exception
+     */
+    @Test
+    public void testDatasourceDestroy() {
+
+        Mono<Object> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        StepVerifier.create(connectionMono)
+                .assertNext(connection -> {
+                    java.sql.Connection conn = (Connection) connection;
+                    pluginExecutor.datasourceDestroy(conn);
+                    try {
+                        assertEquals(conn.isClosed(), true);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .verifyComplete();
+
     }
 
 }
