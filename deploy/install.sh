@@ -31,7 +31,7 @@ install_docker() {
     sudo chmod +x /usr/local/bin/docker-compose
 }
 
-echo "\U1F44B  Thank you for trying out Appsmith! "
+echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo "" > appsmith_deploy.log
 
 declare -A osInfo;
