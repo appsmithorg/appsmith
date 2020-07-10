@@ -3,7 +3,9 @@ import styled from "styled-components";
 import { Icon, NumericInput } from "@blueprintjs/core";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import TableFilters from "components/designSystems/appsmith/TableFilters";
+import TableFilters, {
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableFilters";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import {
   RowWrapper,
@@ -68,6 +70,8 @@ interface TableHeaderProps {
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
+  filter?: ReactTableFilter;
+  applyFilter: (filter: ReactTableFilter) => void;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
@@ -79,7 +83,11 @@ const TableHeader = (props: TableHeaderProps) => {
         onSearch={props.searchTableData}
       />
       <CommonFunctionsMenuWrapper>
-        <TableFilters columns={props.columns} />
+        <TableFilters
+          columns={props.columns}
+          filter={props.filter}
+          applyFilter={props.applyFilter}
+        />
         <TableColumnsVisibility
           columns={props.columns}
           hiddenColumns={props.hiddenColumns}

@@ -13,6 +13,7 @@ import {
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
 import { TableColumnMenuPopup } from "./TableColumnMenu";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
@@ -50,6 +51,8 @@ interface TableProps {
   disableDrag: () => void;
   enableDrag: () => void;
   searchTableData: (searchKey: any) => void;
+  filter?: ReactTableFilter;
+  applyFilter: (filter: ReactTableFilter) => void;
 }
 
 export const Table = (props: TableProps) => {
@@ -122,6 +125,8 @@ export const Table = (props: TableProps) => {
         })}
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
+        filter={props.filter}
+        applyFilter={props.applyFilter}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">

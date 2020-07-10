@@ -4,6 +4,7 @@ import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
 import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 
 interface ReactTableComponentState {
   trigger: number;
@@ -80,6 +81,8 @@ interface ReactTableComponentProps {
   handleResizeColumn: Function;
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
+  filter?: ReactTableFilter;
+  applyFilter: (filter: ReactTableFilter) => void;
 }
 
 export class ReactTableComponent extends React.Component<
@@ -507,6 +510,8 @@ export class ReactTableComponent extends React.Component<
           this.props.disableDrag(false);
         }}
         searchTableData={debounce(this.props.searchTableData, 500)}
+        filter={this.props.filter}
+        applyFilter={this.props.applyFilter}
       />
     );
   }

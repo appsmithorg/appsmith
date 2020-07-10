@@ -13,6 +13,7 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
+import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
 
 // const ROW_HEIGHT = 37;
 // const TABLE_HEADER_HEIGHT = 39;
@@ -78,23 +79,32 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  searchTableData = (tableData: object[]) => {
+  searchAndFilterTableData = (tableData: object[]) => {
     const searchKey =
       this.props.searchKey !== undefined
         ? this.props.searchKey.toString().toUpperCase()
         : "";
-    return tableData.filter((item: object) => {
-      return Object.values(item)
-        .join(", ")
-        .toUpperCase()
-        .includes(searchKey);
+    const filter = this.props.filter;
+    return tableData.filter((item: { [key: string]: any }) => {
+      const isFiltered = true;
+      // if (filter) {
+      //   isFiltered = item[filter.column] === filter.value;
+      // }
+      // console.log("isFiltered", isFiltered, filter, item);
+      return (
+        isFiltered &&
+        Object.values(item)
+          .join(", ")
+          .toUpperCase()
+          .includes(searchKey)
+      );
     });
   };
 
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
     // const columns = constructColumns(tableData, hiddenColumns);
-    const filteredTableData = this.searchTableData(tableData);
+    const filteredTableData = this.searchAndFilterTableData(tableData);
 
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
@@ -176,6 +186,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.disableDrag(disable);
           }}
           searchTableData={this.handleSearchTable}
+          filter={this.props.filter}
+          applyFilter={(filter: ReactTableFilter) => {
+            super.updateWidgetProperty("filter", filter);
+          }}
         />
       </Suspense>
     );
@@ -316,6 +330,7 @@ export interface TableWidgetProps extends WidgetProps {
   columnNameMap?: { [key: string]: string };
   columnTypeMap?: { [key: string]: { type: string; format: string } };
   columnSizeMap?: { [key: string]: number };
+  filter?: ReactTableFilter;
 }
 
 export default TableWidget;
