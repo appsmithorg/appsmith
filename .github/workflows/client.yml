@@ -82,7 +82,7 @@ jobs:
         working-directory: app/client
         
     steps:
-    Checkout the code
+    # Checkout the code
     - uses: actions/checkout@v2
 
     - name: Download the react build artifact
