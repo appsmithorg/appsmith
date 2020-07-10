@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     PageRepository pageRepository;
+
+    @Autowired
+    private ApplicationFetcher applicationFetcher;
 
     String orgId;
 
@@ -281,7 +285,7 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllApplicationsForHome() {
-        Mono<UserHomepageDTO> allApplications = applicationService.getAllApplications();
+        Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
 
         StepVerifier
                 .create(allApplications)
@@ -311,7 +315,7 @@ public class ApplicationServiceTest {
         Mono<Organization> organizationMono = organizationService.create(organization);
 
         Mono<UserHomepageDTO> allApplications = organizationMono
-                .then(applicationService.getAllApplications());
+                .then(applicationFetcher.getAllApplications());
 
         StepVerifier
                 .create(allApplications)

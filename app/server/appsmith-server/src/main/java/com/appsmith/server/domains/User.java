@@ -118,4 +118,10 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     public OidcIdToken getIdToken() {
         return null;
     }
+
+    @Transient
+    @JsonIgnore
+    public boolean isAnonymous() {
+        return Boolean.TRUE.equals(isAnonymous);
+    }
 }

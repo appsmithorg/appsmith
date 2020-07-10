@@ -2,15 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
@@ -25,6 +21,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -33,10 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.util.function.Tuple2;
 
 import javax.validation.Validator;
 import java.net.URLEncoder;
@@ -58,7 +53,6 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 @Service
 public class UserServiceImpl extends BaseService<UserRepository, User, String> implements UserService {
 
-    private UserRepository repository;
     private final OrganizationService organizationService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -66,14 +60,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PasswordEncoder passwordEncoder;
     private final EmailSender emailSender;
     private final ApplicationRepository applicationRepository;
-    private final PolicyGenerator policyGenerator;
     private final PolicyUtils policyUtils;
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
-    private final DatasourceService datasourceService;
-    private final ApplicationService applicationService;
-    private final ActionService actionService;
-    private final PageService pageService;
+    private final ExamplesOrganizationCloner examplesOrganizationCloner;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -97,16 +87,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            PasswordEncoder passwordEncoder,
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
-                           PolicyGenerator policyGenerator,
                            PolicyUtils policyUtils,
                            OrganizationRepository organizationRepository,
                            UserOrganizationService userOrganizationService,
-                           DatasourceService datasourceService,
-                           ApplicationService applicationService,
-                           ActionService actionService,
-                           PageService pageService) {
+                           ExamplesOrganizationCloner examplesOrganizationCloner) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.repository = repository;
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
         this.sessionUserService = sessionUserService;
@@ -114,14 +99,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.applicationRepository = applicationRepository;
-        this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
-        this.datasourceService = datasourceService;
-        this.applicationService = applicationService;
-        this.actionService = actionService;
-        this.pageService = pageService;
+        this.examplesOrganizationCloner = examplesOrganizationCloner;
     }
 
     @Override
@@ -475,86 +456,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(savedUser -> {
                     // Creating the personal workspace and assigning the default groups to the new user
                     log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
-                    return organizationService.create(personalOrg, savedUser)
-                            .thenReturn(repository.findByEmail(savedUser.getUsername()));
-                })
-                .flatMap(this::cloneExamplesOrganization)
-                .flatMap(analyticsService::trackNewUser);
-    }
-
-    private Mono<User> cloneExamplesOrganization(Mono<User> userMono) {
-        Organization examplesOrg = new Organization();
-
-        return userMono
-                .flatMap(user -> {
-                    examplesOrg.setName(user.getName().split(" ", 2)[0]);
                     return Mono.zip(
-                            Mono.just(user),
-                            organizationService.create(examplesOrg, user),
-                            organizationService.findById("5e6f64390019e73639e99675")
+                            organizationService.create(personalOrg, savedUser),
+                            examplesOrganizationCloner.cloneExamplesOrganization(savedUserMono)
                     );
                 })
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final Organization clone = tuple.getT2();
-                    final Organization template = tuple.getT3();
-
-                    final Mono<Map<String, Datasource>> datasourceCloner = datasourceService
-                            .findAllByOrganizationId(template.getId())
-                            .flatMap(datasource -> {
-                                final String templateDatasourceId = datasource.getId();
-                                datasource.setId(null);
-                                datasource.setOrganizationId(clone.getId());
-                                return Mono.zip(
-                                        Mono.just(templateDatasourceId),
-                                        datasourceService.create(datasource)
-                                );
-                            })
-                            .collectMap(Tuple2::getT1, Tuple2::getT2);
-
-                    applicationService
-                            .findByOrganizationId(template.getId())
-                            .flatMap(application -> {
-                                final String templateApplicationId = application.getId();
-                                application.setId(null);
-                                application.setOrganizationId(clone.getId());
-                                return Mono.zip(
-                                        Mono.just(pageService.findByApplicationId(templateApplicationId)),
-                                        applicationService.create(application)
-                                );
-                            })
-                            .flatMap(tuple1 -> {
-                                final Flux<Page> pageFlux = tuple1.getT1();
-                                final Application newApplication = tuple1.getT2();
-                                return pageFlux
-                                        .flatMap(page -> {
-                                            final String templatePageId = page.getId();
-                                            page.setId(null);
-                                            page.setApplicationId(newApplication.getId());
-                                            return Mono.zip(
-                                                    Mono.just(actionService.findByPageId(templatePageId, AclPermission.READ_ACTIONS)),
-                                                    pageService.create(page),
-                                                    datasourceCloner
-                                            );
-                                        })
-                                        .flatMap(tuple2 -> {
-                                            final Flux<Action> actionFlux = tuple2.getT1();
-                                            final Page newPage = tuple2.getT2();
-                                            final Map<String, Datasource> newDatasourcesByTemplateId = tuple2.getT3();
-                                            return actionFlux
-                                                    .flatMap(action -> {
-                                                        action.setId(null);
-                                                        action.setPageId(newPage.getId());
-                                                        action.setOrganizationId(clone.getId());
-                                                        action.setCollectionId(null);
-                                                        action.setDatasource(newDatasourcesByTemplateId.get(action.getDatasource().getId()));
-                                                        return actionService.create(action);
-                                                    });
-                                        });
-                            });
-
-                    return repository.findByEmail(user.getUsername());
-                });
+                .then(repository.findByEmail(user.getUsername()))
+                .flatMap(analyticsService::trackNewUser);
     }
 
     /**
