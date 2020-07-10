@@ -1,6 +1,8 @@
 #!/bin/bash
 set -o errexit
 
+echo "" > appsmith_deploy.log
+
 is_command_present() {
   type "$1" >/dev/null 2>&1
 }
@@ -32,7 +34,7 @@ install_docker() {
 }
 
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
-echo "" > appsmith_deploy.log
+echo ""
 
 declare -A osInfo;
 
@@ -110,10 +112,7 @@ fi
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
 do
-  if [ -d "$install_dir/data/$directory_name" ]
-  then
-    echo "Directory already exists"
-  else
+  if [[ ! -d "$install_dir/data/$directory_name" ]];then
     mkdir -p "$install_dir/data/$directory_name"
   fi
 done
@@ -170,7 +169,11 @@ else
     echo "No domain found. Skipping generation of LetsEncrypt certificate."
 fi
 
+echo "Updating the container images"
+sudo docker-compose pull
+echo "Starting the Appsmith containers"
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+echo ""
 echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
 echo "              cd $install_dir && sudo docker-compose ps -a"
 echo -e "Peace out \U1F596"
