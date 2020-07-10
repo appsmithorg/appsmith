@@ -31,6 +31,7 @@ install_docker() {
     sudo chmod +x /usr/local/bin/docker-compose
 }
 
+echo "\U1F44B  Thank you for trying out Appsmith! "
 echo "" > appsmith_deploy.log
 
 declare -A osInfo;
@@ -136,7 +137,7 @@ fileInfo[/docker.env]="docker.env"
 for f in ${!fileInfo[@]}
 do
 
-    if [ -f $install_dir$f ]
+    if [ -f $install_dir/$f ]
     then
         echo "File already exist."
         read -p "File $f already exist. Would you like to replace it? [Y]: " value
