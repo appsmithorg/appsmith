@@ -163,7 +163,7 @@ echo ""
 
 #echo "Running init-letsencrypt.sh...."
 cd $install_dir
-if [ $custom_domain ];then
+if [[ -z $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
