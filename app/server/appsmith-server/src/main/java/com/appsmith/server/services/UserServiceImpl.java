@@ -456,9 +456,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(savedUser -> {
                     // Creating the personal workspace and assigning the default groups to the new user
                     log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
-                    return Mono.zip(
+                    return Mono.when(
                             organizationService.create(personalOrg, savedUser),
-                            examplesOrganizationCloner.cloneExamplesOrganization(savedUserMono)
+                            examplesOrganizationCloner.cloneExamplesOrganization(savedUser)
                     );
                 })
                 .then(repository.findByEmail(user.getUsername()))
@@ -477,7 +477,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<User> createUserAndSendEmail(User user, String originHeader) {
-        
+
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
             originHeader = DEFAULT_ORIGIN_HEADER;

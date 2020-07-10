@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -66,16 +65,22 @@ public class ExamplesOrganizationCloner {
         this.actionRepository = actionRepository;
     }
 
-    public Mono<Void> cloneExamplesOrganization(Mono<User> userMono) {
+    public Mono<Void> cloneExamplesOrganization(User user) {
         final String templateOrganizationId = "5e6f64390019e73639e99675";
 
-        return userMono
-                .zipWith(organizationRepository.findById(templateOrganizationId))
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final Organization organization = tuple.getT2();
+        return organizationRepository
+                .findById(templateOrganizationId)
+                .doOnSuccess(organization -> {
+                    if (organization == null) {
+                        log.error(
+                                "Template examples organization not found. Not creating a clone for user {}.",
+                                user.getEmail()
+                        );
+                    }
+                })
+                .flatMap(organization -> {
                     organization.setId(null);
-                    organization.setName(user.getName().split(" ", 2)[0]);
+                    organization.setName(user.getName().split(" ", 2)[0] + "'s Examples");
                     organization.setSlug(null);
                     return organizationService.create(organization, user);
                 })
