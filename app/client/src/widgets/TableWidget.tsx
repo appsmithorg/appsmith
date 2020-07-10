@@ -79,32 +79,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  searchAndFilterTableData = (tableData: object[]) => {
+  searchTableData = (tableData: object[]) => {
     const searchKey =
       this.props.searchKey !== undefined
         ? this.props.searchKey.toString().toUpperCase()
         : "";
-    const filter = this.props.filter;
-    return tableData.filter((item: { [key: string]: any }) => {
-      const isFiltered = true;
-      // if (filter) {
-      //   isFiltered = item[filter.column] === filter.value;
-      // }
-      // console.log("isFiltered", isFiltered, filter, item);
-      return (
-        isFiltered &&
-        Object.values(item)
-          .join(", ")
-          .toUpperCase()
-          .includes(searchKey)
-      );
+    return tableData.filter((item: object) => {
+      return Object.values(item)
+        .join(", ")
+        .toUpperCase()
+        .includes(searchKey);
     });
   };
 
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
     // const columns = constructColumns(tableData, hiddenColumns);
-    const filteredTableData = this.searchAndFilterTableData(tableData);
+    const filteredTableData = this.searchTableData(tableData);
 
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&

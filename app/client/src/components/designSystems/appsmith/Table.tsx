@@ -55,8 +55,31 @@ interface TableProps {
   applyFilter: (filter: ReactTableFilter) => void;
 }
 
+function compare(a: any, b: any, operator: string) {
+  switch (operator) {
+    case "is":
+      return a == b;
+    case "is_not":
+      return a != b;
+    default:
+      return true;
+  }
+}
+
 export const Table = (props: TableProps) => {
-  const { data, columns } = props;
+  const { columns } = props;
+  const data = React.useMemo(() => {
+    return props.data.filter((item: { [key: string]: any }) => {
+      return (
+        !props.filter ||
+        compare(
+          item[props.filter.column],
+          props.filter.value,
+          props.filter.operator,
+        )
+      );
+    });
+  }, [props.data]);
   const defaultColumn = React.useMemo(
     () => ({
       minWidth: 30,
@@ -66,7 +89,7 @@ export const Table = (props: TableProps) => {
     [],
   );
 
-  const pageCount = Math.ceil(data.length / props.pageSize);
+  const pageCount = Math.ceil(data.length / props.pageSize) || 1;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   // const filteredColumns = columns.filter((column: ReactTableColumnProps) => {
   //   return !column.isHidden;
