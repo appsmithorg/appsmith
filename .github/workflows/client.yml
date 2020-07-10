@@ -100,8 +100,8 @@ jobs:
         vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
         cat ./docker/templates/nginx-linux.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
         cp ./docker/nginx.conf /etc/nginx/conf.d/app.conf
-        cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
-        cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
+        cp ${{ secrets.APPSMITH_SSL_CERTIFICATE }} /etc/certificate/dev.appsmith.com.pem
+        cp ${{ secrets.APPSMITH_SSL_KEY }} /etc/certificate/dev.appsmith.com-key.pem
         echo "Going to run the nginx server"
         nginx
     
