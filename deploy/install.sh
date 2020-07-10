@@ -89,7 +89,7 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
 fi
 
 NGINX_SSL_CMNT=""
-if [ ! $custom_domain ];then
+if [[ -n $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
