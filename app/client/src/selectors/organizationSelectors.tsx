@@ -10,6 +10,9 @@ export const getCurrentOrgId = (state: AppState) => state.ui.orgs.currentOrgId;
 export const getOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };
+export const getOrg = (state: AppState) => {
+  return state.ui.orgs.orgDetails;
+};
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
 

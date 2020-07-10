@@ -92,7 +92,7 @@ export function* errorSaga(
   } = errorAction;
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
-  if (show && error && error.code !== 401) {
+  if (show && error && error.code !== 401 && error.code !== 404) {
     // error.code !== 401 IS A HACK!
     // TODO(abhinav): Figure out a generic way
     AppToaster.show({ message, type: ToastType.ERROR });

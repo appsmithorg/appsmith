@@ -15,6 +15,10 @@ const initialState: OrgReduxState = {
   currentOrgId: "",
   orgUsers: [],
   orgRoles: [],
+  orgDetails: {
+    id: "",
+    name: "",
+  },
 };
 
 const orgReducer = createReducer(initialState, {
@@ -162,13 +166,12 @@ const orgReducer = createReducer(initialState, {
     ...state,
     currentOrgId: action.payload.orgId,
   }),
-
-  [ReduxActionTypes.FETCH_ORGS_SUCCESS]: (
+  [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
     state: OrgReduxState,
-    action: ReduxAction<Org[]>,
+    action: ReduxAction<Org>,
   ) => ({
     ...state,
-    list: action.payload,
+    orgDetails: action.payload,
   }),
 });
 
@@ -183,6 +186,7 @@ export interface OrgReduxState {
   orgUsers: OrgUser[];
   orgRoles: any;
   currentOrgId: string;
+  orgDetails: Org;
 }
 
 export default orgReducer;
