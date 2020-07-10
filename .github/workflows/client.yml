@@ -83,7 +83,7 @@ jobs:
         
     steps:
     # Checkout the code
-    - uses: actions/checkout@v2
+    # - uses: actions/checkout@v2
 
     - name: Download the react build artifact
       uses: actions/download-artifact@v2
@@ -97,7 +97,9 @@ jobs:
         echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
         serve -s react-build -p 3000 &
         mkdir -p /var/www/appsmith /etc/certificate
-        cp ./docker/nginx-linux.conf /etc/nginx/conf.d/app.conf
+        vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
+        cat ./docker/templates/nginx-linux.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
+        cp ./docker/nginx.conf /etc/nginx/conf.d/app.conf
         cp $APPSMITH_SSL_CERTIFICATE /etc/certificate/dev.appsmith.com.pem
         cp $APPSMITH_SSL_KEY /etc/certificate/dev.appsmith.com-key.pem
         echo "Going to run the nginx server"
