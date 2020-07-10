@@ -91,7 +91,7 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
 fi
 
 NGINX_SSL_CMNT=""
-if [ ! $custom_domain ];then
+if [[ -n $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
@@ -162,7 +162,7 @@ echo ""
 
 #echo "Running init-letsencrypt.sh...."
 cd $install_dir
-if [ $custom_domain ];then
+if [[ -z $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
