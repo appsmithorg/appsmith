@@ -107,6 +107,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Flux<Application> findByOrganizationId(String organizationId) {
+        return repository.findByOrganizationId(organizationId, READ_APPLICATIONS);
+    }
+
+    @Override
     public Mono<Application> findByName(String name, AclPermission permission) {
         return repository.findByName(name, permission);
     }

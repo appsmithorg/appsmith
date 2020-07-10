@@ -30,4 +30,5 @@ public interface ActionService extends CrudService<Action, String> {
 
     Flux<Action> findByPageId(String pageId, AclPermission permission);
 
+    Flux<Action> findByOrganizationId(String organizationId);
 }

@@ -516,6 +516,11 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
+    public Flux<Action> findByOrganizationId(String organizationId) {
+        return repository.findByOrganizationId(organizationId);
+    }
+
+    @Override
     public Mono<Action> delete(String id) {
         Mono<Action> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "action", id)));
