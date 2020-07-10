@@ -56,6 +56,11 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
 	read -p 'Enter your domain name (example.com): ' custom_domain
 fi
 
+NGINX_SSL_CMNT=""
+if [ ! $custom_domain ];then
+    NGINX_SSL_CMNT="#"
+fi
+
 #mkdir template
 #cd template
 #curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/docker-compose.yml.sh --output docker-compose.yml.sh
@@ -66,31 +71,16 @@ fi
 #cd ..
 
 # Role - Base
-echo "Stopping automatic update scripts"
-pkill --full /usr/bin/unattended-upgrade
-
-echo "Updating apt"
-sudo ${package_manager} -y update --quiet
-
-echo "Upgrading packages to the latest version"
-sudo ${package_manager} -y upgrade --quiet
-
-echo "Installing ntp"
-sudo ${package_manager} -y install bc python3-pip --quiet
-
-echo "Installing the boto package"
-pip3 install boto3
+echo "Installing base dependency packages"
+sudo ${package_manager} -y install bc python3-pip curl --quiet
 
 # Role - Docker
-echo "Installing Docker & it's dependencies"
-sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools
-
 if [[ $package_manager -eq apt-get ]];then
     echo "++++++++++++++++++++++++"
     echo "Setting up docker repos"
     sudo $package_manager update  --quiet
 
-    sudo apt-get  -y --quiet install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+    sudo apt-get  -y --quiet install gnupg-agent
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -102,15 +92,14 @@ else
 fi
 
 sudo ${package_manager} -y update --quiet
-echo "++++++++++Installing docker+++++++++++"
+echo "Installing docker"
 sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
 
-echo "++++++++++Installing docker-compose++++++"
+echo "Installing docker-compose"
 sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
 pip3 install docker
-
 
 # Role - folders
 ubuntu="/etc/debian_version"
@@ -141,13 +130,7 @@ do
   fi
 done
 
-${package_manager} install -y moreutils --quiet
-public_ip=`ifdata -pa eth0`
-
-echo $public_ip
-
-echo "++++++++++++"
-echo "Building custom template"
+echo "Generating the configuration files from the templates"
 . ./template/nginx_app.conf.sh
 . ./template/docker-compose.yml.sh
 . ./template/mongo-init.js.sh

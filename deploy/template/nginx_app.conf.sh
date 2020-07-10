@@ -48,39 +48,37 @@ server {
     }
 }
 
-server {
-    listen 443 ssl;
-    server_name $custom_domain;
-
-    ssl_certificate /etc/letsencrypt/live/$custom_domain/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$custom_domain/privkey.pem;
-
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-Host \$host;
-
-    root /var/www/appsmith;
-    index index.html index.htm;
-
-    location / {
-        try_files \$uri /index.html =404;
-    }
-
-    location /f {
-       proxy_pass https://cdn.optimizely.com/;
-    }
-    
-    location /api {
-        proxy_pass http://appsmith-internal-server:8080;
-    }
-
-    location /oauth2 {
-        proxy_pass http://appsmith-internal-server:8080;
-    }
-
-}
-
-
+$NGINX_SSL_CMNTserver {
+$NGINX_SSL_CMNT    listen 443 ssl;
+$NGINX_SSL_CMNT    server_name $custom_domain;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    ssl_certificate /etc/letsencrypt/live/$custom_domain/fullchain.pem;
+$NGINX_SSL_CMNT    ssl_certificate_key /etc/letsencrypt/live/$custom_domain/privkey.pem;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    include /etc/letsencrypt/options-ssl-nginx.conf;
+$NGINX_SSL_CMNT    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    root /var/www/appsmith;
+$NGINX_SSL_CMNT    index index.html index.htm;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location / {
+$NGINX_SSL_CMNT        try_files \$uri /index.html =404;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location /f {
+$NGINX_SSL_CMNT       proxy_pass https://cdn.optimizely.com/;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT    
+$NGINX_SSL_CMNT    location /api {
+$NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location /oauth2 {
+$NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT}
 EOF
