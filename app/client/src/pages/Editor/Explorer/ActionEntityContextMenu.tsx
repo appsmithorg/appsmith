@@ -13,6 +13,7 @@ import {
   deleteAction,
 } from "actions/actionActions";
 import { noop } from "lodash";
+import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 
 //TODO(ABHINAV): show only on hover
 // modal should open on close
@@ -119,10 +120,12 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
         },
       ]}
       toggle={
-        <ControlIcons.MORE_HORIZONTAL_CONTROL
-          width={props.theme.fontSizes[4]}
-          height={props.theme.fontSizes[4]}
-        />
+        <EntityTogglesWrapper>
+          <ControlIcons.MORE_VERTICAL_CONTROL
+            width={props.theme.fontSizes[3]}
+            height={props.theme.fontSizes[3]}
+          />
+        </EntityTogglesWrapper>
       }
     />
   );

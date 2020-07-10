@@ -206,6 +206,7 @@ export const EDITOR_ROUTES = [
     title: "Explorer",
     className: "t--nav-link-entity-explorer",
     exact: false,
+    allowed: true,
   },
   {
     icon: MenuIcons.WIDGETS_ICON,
@@ -213,28 +214,6 @@ export const EDITOR_ROUTES = [
     title: "Widgets",
     className: "t--nav-link-widgets-editor",
     exact: true,
-  },
-  {
-    icon: MenuIcons.APIS_ICON,
-    path: API_EDITOR_URL,
-    className: "t--nav-link-api-editor",
-    title: "APIs",
-    exact: false,
-  },
-  {
-    icon: MenuIcons.QUERIES_ICON,
-    className: "t--nav-link-query-editor",
-    path: QUERIES_EDITOR_URL,
-    title: "Queries",
-    exact: false,
-  },
-  {
-    icon: MenuIcons.DATASOURCES_ICON,
-    className: "t--nav-link-datasource-editor",
-    path: DATA_SOURCES_EDITOR_URL,
-    title: "Datasources",
-    exact: false,
-    allowed: true,
   },
   {
     icon: MenuIcons.PAGES_ICON,

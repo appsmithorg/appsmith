@@ -8,6 +8,9 @@ import { ReactComponent as DataSourcesIcon } from "assets/icons/menu/data-source
 import { ReactComponent as QueriesIcon } from "assets/icons/menu/queries.svg";
 import { ReactComponent as HomepageIcon } from "assets/icons/menu/homepage.svg";
 import { ReactComponent as ExplorerIcon } from "assets/icons/menu/explorer.svg";
+import { ReactComponent as ApisColoredIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
+import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
@@ -57,6 +60,21 @@ export const MenuIcons: {
   DOCS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <Icon icon="help"></Icon>
+    </IconWrapper>
+  ),
+  WIDGETS_COLORED_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <WidgetsColoredIcon />
+    </IconWrapper>
+  ),
+  APIS_COLORED_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <ApisColoredIcon />
+    </IconWrapper>
+  ),
+  DATASOURCES_COLORED_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DataSourcesColoredIcon />
     </IconWrapper>
   ),
 };

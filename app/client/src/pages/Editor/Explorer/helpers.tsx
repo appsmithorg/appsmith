@@ -12,11 +12,12 @@ import {
   getPluginIcon,
 } from "./ExplorerIcons";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
+import DataSourceContextMenu from "./DataSourceContextMenu";
 import { PluginType, Action } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { noop, groupBy } from "lodash";
 import history from "utils/history";
-import { EXPLORER_URL } from "constants/routes";
+import { EXPLORER_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import {
   API_EDITOR_ID_URL,
@@ -32,6 +33,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
+import Divider from "components/editorComponents/Divider";
 
 type GroupConfig = {
   groupName: string;
@@ -302,20 +304,23 @@ const getPageEntity = (
   params: ExplorerURLParams,
 ) => {
   return (
-    <Entity
-      key={page.id}
-      icon={pageIcon}
-      name={page.name}
-      action={() =>
-        !isCurrentPage &&
-        params.applicationId &&
-        history.push(EXPLORER_URL(params.applicationId, page.id))
-      }
-      active={isCurrentPage}
-      isDefaultExpanded={isCurrentPage}
-    >
-      {groups}
-    </Entity>
+    <React.Fragment>
+      <Entity
+        key={page.id}
+        icon={pageIcon}
+        name={page.name}
+        action={() =>
+          !isCurrentPage &&
+          params.applicationId &&
+          history.push(EXPLORER_URL(params.applicationId, page.id))
+        }
+        active={isCurrentPage}
+        isDefaultExpanded={isCurrentPage}
+      >
+        {groups}
+      </Entity>
+      <Divider />
+    </React.Fragment>
   );
 };
 
@@ -350,11 +355,17 @@ export const getDatasourceEntities = (
   for (const [pluginId, datasources] of Object.entries(pluginGroups)) {
     const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
     const pluginIcon = getPluginIcon(plugin);
+    const currentGroup =
+      !!params.datasourceId &&
+      datasources
+        .map(datasource => datasource.id)
+        .indexOf(params.datasourceId) > -1;
     pluginGroupNodes.push(
       <Entity
         key={plugin?.id}
         icon={pluginIcon}
         name={plugin?.name || "Unknown Plugin"}
+        active={currentGroup}
         action={noop}
       >
         {datasources.map((datasource: Datasource) => {
@@ -363,7 +374,22 @@ export const getDatasourceEntities = (
               key={datasource.id}
               icon={pluginIcon}
               name={datasource.name}
-              action={noop}
+              active={params?.datasourceId === datasource.id}
+              action={() =>
+                history.push(
+                  DATA_SOURCES_EDITOR_ID_URL(
+                    params.applicationId,
+                    params.pageId,
+                    datasource.id,
+                  ),
+                )
+              }
+              contextMenu={
+                <DataSourceContextMenu
+                  datasourceId={datasource.id}
+                  className={EntityClassNames.ACTION_CONTEXT_MENU}
+                />
+              }
             />
           );
         })}

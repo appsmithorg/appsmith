@@ -2,7 +2,7 @@ import React, { ReactNode, useState, useEffect } from "react";
 import { Icon, Collapse, Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-
+import { CreateIcon } from "./ExplorerStyledComponents";
 enum EntityActionKind {
   SINGLE_CLICK,
   DOUBLE_CLICK,
@@ -32,9 +32,11 @@ const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
     position: absolute;
     right: 5px;
     z-index: 2;
+    svg {
+      margin-left: 2px;
+    }
   }
   &:hover {
-    background: ${Colors.MAKO};
     .${Classes.ICON} {
       color: ${props => (props.disabled ? Colors.MAKO : Colors.WHITE)};
     }
@@ -43,21 +45,23 @@ const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
     .${Classes.ICON}:first-of-type {
       margin-right: ${props => props.theme.spaces[2]}px;
       color: ${props =>
-        props.disabled ? props.theme.colors.paneBG : Colors.WHITE};
+        props.disabled ? props.theme.colors.paneBG : Colors.SLATE_GRAY};
+      &:hover {
+        color: ${props =>
+          props.disabled ? props.theme.colors.paneBG : Colors.WHITE};
+      }
     }
-    .${Classes.ICON}.add {
+    .add {
       position: absolute;
-      right: 10px;
+      right: 5px;
       top: 7px;
       z-index: 2;
+      margin-right: 0;
     }
   }
   cursor: pointer;
   & > div {
     margin-right: ${props => props.theme.spaces[3]}px;
-    & > svg path {
-      fill: ${props => (props.disabled ? Colors.SLATE_GRAY : Colors.WHITE)};
-    }
   }
 `;
 const StyledCollapse = styled(Collapse)`
@@ -76,7 +80,7 @@ const EntityName = styled.span`
 `;
 
 export type EntityProps = {
-  name: string;
+  name: ReactNode;
   children?: ReactNode;
   icon: ReactNode;
   disabled?: boolean;
@@ -122,8 +126,7 @@ export const Entity = (props: EntityProps) => {
 
   // Render the "add" button if a createFn is provided
   const createIconBtn = props.createFn && (
-    <Icon
-      icon="add"
+    <CreateIcon
       className="add"
       onClick={(e: any) => {
         props.createFn && props.createFn();

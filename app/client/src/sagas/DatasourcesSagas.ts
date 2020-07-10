@@ -101,8 +101,6 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxAction<{ id: string }>,
 ) {
   try {
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
     const id = actionPayload.payload.id;
     const response: GenericApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
@@ -126,7 +124,6 @@ export function* deleteDatasourceSaga(
           id: response.data.id,
         },
       });
-      history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     }
   } catch (error) {
     yield put({

@@ -9,7 +9,9 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ExplorerTitle } from "./ExplorerTitle";
 import Entity from "./Entity";
 import { pageIcon, datasourceIcon } from "./ExplorerIcons";
-
+import history from "utils/history";
+import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
+import Divider from "components/editorComponents/Divider";
 const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
   height: 100%;
@@ -39,10 +41,15 @@ const EntityExplorer = () => {
         name="DataSources"
         icon={datasourceIcon}
         action={noop}
-        createFn={noop}
+        createFn={() => {
+          history.push(
+            DATA_SOURCES_EDITOR_URL(params.applicationId, params.pageId),
+          );
+        }}
       >
         {getDatasourceEntities(dataSources, plugins, params)}
       </Entity>
+      <Divider />
       <Entity name="Pages" icon={pageIcon} isDefaultExpanded action={noop}>
         {pages.map(page =>
           getPageEntityGroups(

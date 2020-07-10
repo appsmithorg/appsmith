@@ -18,7 +18,6 @@ import {
 } from "constants/routes";
 
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
-import DataSourceSidebar from "pages/Editor/DataSourceSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
 import ExplorerSidebar from "pages/Editor/Explorer";
 import AppRoute from "pages/common/AppRoute";
@@ -108,13 +107,13 @@ export const Sidebar = () => {
         <AppRoute
           exact
           path={DATA_SOURCES_EDITOR_URL()}
-          component={DataSourceSidebar}
+          component={ExplorerSidebar}
           name="DataSourceSidebar"
         />
         <AppRoute
           exact
           path={DATA_SOURCES_EDITOR_ID_URL()}
-          component={DataSourceSidebar}
+          component={ExplorerSidebar}
           name="DataSourceSidebar"
         />
       </Switch>

@@ -26,31 +26,19 @@ export const pageIcon = (
   />
 );
 
-const WidgetIcon = MenuIcons.WIDGETS_ICON;
+const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
 export const widgetIcon = (
-  <WidgetIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
-    color={Colors.WHITE}
-  />
+  <WidgetIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
 );
 
-const ApiIcon = MenuIcons.APIS_ICON;
+const ApiIcon = MenuIcons.APIS_COLORED_ICON;
 export const apiIcon = (
-  <ApiIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
-    color={Colors.WHITE}
-  />
+  <ApiIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
 );
 
-const QueryIcon = MenuIcons.QUERIES_ICON;
+const QueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
 export const queryIcon = (
-  <QueryIcon
-    width={ENTITY_ICON_SIZE}
-    height={ENTITY_ICON_SIZE}
-    color={Colors.WHITE}
-  />
+  <QueryIcon width={ENTITY_ICON_SIZE} height={ENTITY_ICON_SIZE} keepColors />
 );
 
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
