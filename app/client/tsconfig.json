@@ -1,4 +1,5 @@
 {
+  "extends": "./tsConfig.path.json",
   "compilerOptions": {
     "target": "es5",
     "lib": [
@@ -24,7 +25,10 @@
     "jsx": "react",
     "downlevelIteration": true,
     "importHelpers": true,
-    "typeRoots" : ["./typings", "./node_modules/@types"],
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ],
     "sourceMap": true,
     "baseUrl": "./src"
   },
