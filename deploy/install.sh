@@ -67,49 +67,49 @@ fi
 
 # Role - Base
 echo "Stopping automatic update scripts"
-pkill --full /usr/bin/unattended-upgrade >> appsmith_deploy.log
+pkill --full /usr/bin/unattended-upgrade
 
 echo "Updating apt"
-sudo ${package_manager} -y update --quiet >> appsmith_deploy.log
+sudo ${package_manager} -y update --quiet
 
 echo "Upgrading packages to the latest version"
-sudo ${package_manager} -y upgrade --quiet >> appsmith_deploy.log
+sudo ${package_manager} -y upgrade --quiet
 
 echo "Installing ntp"
-sudo ${package_manager} -y install bc python3-pip --quiet >> appsmith_deploy.log
+sudo ${package_manager} -y install bc python3-pip --quiet
 
 echo "Installing the boto package"
-pip3 install boto3 >> appsmith_deploy.log
+pip3 install boto3
 
 # Role - Docker
 echo "Installing Docker & it's dependencies"
-sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools >> appsmith_deploy.log
+sudo ${package_manager} -y --quiet install apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools
 
 if [[ $package_manager -eq apt-get ]];then
     echo "++++++++++++++++++++++++"
     echo "Setting up docker repos"
-    sudo $package_manager update  --quiet >> appsmith_deploy.log
+    sudo $package_manager update  --quiet
 
-    sudo apt-get  -y --quiet install apt-transport-https ca-certificates curl gnupg-agent software-properties-common >> appsmith_deploy.log
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - >> appsmith_deploy.log
+    sudo apt-get  -y --quiet install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) \
-    stable" >> appsmith_deploy.log
+    stable"
 else
-    sudo yum install -y yum-utils >> appsmith_deploy.log
-    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >> appsmith_deploy.log
+    sudo yum install -y yum-utils
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 fi
 
-sudo ${package_manager} -y update --quiet >> appsmith_deploy.log
+sudo ${package_manager} -y update --quiet
 echo "++++++++++Installing docker+++++++++++"
-sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet >> appsmith_deploy.log
+sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
 
 echo "++++++++++Installing docker-compose++++++"
-sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose >> appsmith_deploy.log
-sudo chmod +x /usr/local/bin/docker-compose >> appsmith_deploy.log
+sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
-pip3 install docker >> appsmith_deploy.log
+pip3 install docker
 
 
 # Role - folders
