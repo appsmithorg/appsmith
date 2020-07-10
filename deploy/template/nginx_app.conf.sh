@@ -12,7 +12,7 @@ fi
 cat > nginx_app.conf  << EOF
 server {
     listen 80;
-    server_name $custom_domain ;
+$NGINX_SSL_CMNT    server_name $custom_domain ;
     client_max_body_size 10m;
 
     gzip on;
@@ -48,7 +48,7 @@ server {
     }
 }
 
-$NGINX_SSL_CMNTserver {
+$NGINX_SSL_CMNT server {
 $NGINX_SSL_CMNT    listen 443 ssl;
 $NGINX_SSL_CMNT    server_name $custom_domain;
 $NGINX_SSL_CMNT
@@ -80,5 +80,5 @@ $NGINX_SSL_CMNT    location /oauth2 {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT}
+$NGINX_SSL_CMNT }
 EOF

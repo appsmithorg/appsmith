@@ -1,6 +1,36 @@
 #!/bin/bash
 set -o errexit
 
+is_command_present() {
+  type "$1" >/dev/null 2>&1
+}
+
+install_docker() {
+    if [[ $package_manager -eq apt-get ]];then
+        echo "++++++++++++++++++++++++"
+        echo "Setting up docker repos"
+        sudo $package_manager update  --quiet
+
+        sudo apt-get  -y --quiet install gnupg-agent
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable"
+    else
+        sudo yum install -y yum-utils
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    fi
+
+    sudo ${package_manager} -y update --quiet
+    echo "Installing docker"
+    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
+
+    echo "Installing docker-compose"
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+}
+
 echo "" > appsmith_deploy.log
 
 declare -A osInfo;
@@ -11,12 +41,12 @@ osInfo[/etc/redhat-release]="yum"
 
 # Checking OS and assiging package manager
 desired_os=0
-echo "Assigning package manager"
+echo -e "\U1F575  Detecting your OS"
+echo ""
 for f in ${!osInfo[@]}
 do
     if [[ -f $f ]];then
         package_manager=${osInfo[$f]}
-        echo $package_manager
         desired_os=1
     fi
 done
@@ -24,8 +54,8 @@ done
 if [[ $desired_os -eq 0 ]];then
     echo "This script is currently meant to install Appsmith on Ubuntu | RHEL | CentOS machines."
     echo "Please contact hello@appsmith.com with your OS details if you wish to extend this support"
-    echo "Exiting for now. Bye!"
-	exit
+    echo -e "Exiting for now. Bye! \U1F44B"
+    exit
 fi
 
 read -p 'Installation Directory [appsmith]: ' install_dir
@@ -37,6 +67,7 @@ echo "1) Automatically setup mongo db on this instance (recommended)"
 echo "2) Connect to an external mongo db"
 read -p 'Enter option number [1]: ' mongo_option
 mongo_option=${mongo_option:-1}
+
 if [[ $mongo_option -eq 2 ]];then
     read -p 'Enter your mongo db host: ' mongo_host
     read -p 'Enter the mongo root user: ' mongo_root_user
@@ -70,54 +101,12 @@ fi
 #curl https://raw.githubusercontent.com/Nikhil-Nandagopal/test-rep/master/nginx_app.conf.sh --output nginx_app.conf.sh
 #cd ..
 
-# Role - Base
-echo "Installing base dependency packages"
-sudo ${package_manager} -y install bc python3-pip curl --quiet
-
 # Role - Docker
-if [[ $package_manager -eq apt-get ]];then
-    echo "++++++++++++++++++++++++"
-    echo "Setting up docker repos"
-    sudo $package_manager update  --quiet
-
-    sudo apt-get  -y --quiet install gnupg-agent
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo add-apt-repository \
-    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) \
-    stable"
-else
-    sudo yum install -y yum-utils
-    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+if ! is_command_present docker ;then
+    install_docker
 fi
 
-sudo ${package_manager} -y update --quiet
-echo "Installing docker"
-sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
-
-echo "Installing docker-compose"
-sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-
-# Role - folders
-ubuntu="/etc/debian_version"
-centos="/etc/centos-release"
-redhat="/etc/redhat-release"
-
-if [ -f $ubuntu ]
-then
-    user="ubuntu"
-    group="ubuntu"
-elif [ -f $centos ]
-then
-   user="centos"
-   group="centos"
-elif [ -f $redhat ]
-then
-   user="redhat"
-   group="redhat"
-fi
-
+# Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
 do
   if [ -d "$install_dir/data/$directory_name" ]
@@ -169,7 +158,7 @@ do
 done
 
 
-echo "++++++++++++++++++++"
+echo ""
 
 #echo "Running init-letsencrypt.sh...."
 cd $install_dir
@@ -177,7 +166,10 @@ if [ $custom_domain ];then
     echo "Running init-letsencrypt.sh...."
     sudo ./init-letsencrypt.sh
 else
-    echo "Skipping LE certificate."
+    echo "No domain found. Skipping generation of LetsEncrypt certificate."
 fi
 
 sudo docker-compose -f docker-compose.yml up -d --remove-orphans
+echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
+echo "              cd $install_dir && sudo docker-compose ps -a"
+echo -e "Peace out \U1F596"
