@@ -16,7 +16,7 @@ defaults:
     working-directory: app/client
 
 jobs:
-  🔨 build:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -69,7 +69,7 @@ jobs:
         name: build
         path: app/client/build/
 
-  🧪 ui-test:
+  ui-test:
     needs: build
     runs-on: ubuntu-latest
     container: appsmith/cypress-nginx
@@ -130,7 +130,7 @@ jobs:
         name: cypress-screenshots-${{ matrix.job }}
         path: app/client/cypress/screenshots/
 
-  📦 package:
+  package:
     needs: ui-test
     runs-on: ubuntu-latest
     defaults:
