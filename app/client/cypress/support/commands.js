@@ -538,9 +538,23 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(innercss).should("have.text", text);
 });
 
+Cypress.Commands.add("EvaluateDataType", dataType => {
+  cy.get(commonlocators.evaluatedType)
+    .should("be.visible")
+    .contains(dataType);
+});
+
+Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.get(commonlocators.evaluatedCurrentValue)
+    .should("be.visible")
+    .contains(currentValue);
+});
+
 Cypress.Commands.add("PublishtheApp", () => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  // Wait before publish
+  cy.wait(2000);
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
@@ -607,6 +621,7 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         parseSpecialCharSequences: false,
       });
   });
+  cy.wait(200);
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
@@ -1030,7 +1045,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
       });
   });
 
-  cy.get(ApiEditor.dataSourceField).click();
+  cy.get(ApiEditor.dataSourceField)
+    .click({ force: true })
+    .type(url, { parseSpecialCharSequences: false }, { force: true });
   cy.contains(url).click({
     force: true,
   });
@@ -1239,7 +1256,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
     .siblings("span")
     .invoke("text")
     .then(tabData => {
-      const respBody = tabData;
+      const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
       cy.get(pages.pagesIcon).click({ force: true });
