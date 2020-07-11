@@ -1,0 +1,30 @@
+#!/bin/sh
+
+if [ -f docker-compose.yml ]
+  then
+    echo "file docker-compose.yml already exists"
+  else
+    touch docker-compose.yml
+fi
+
+cat > docker.env  << EOF
+APPSMITH_MAIL_ENABLED=false
+# APPSMITH_MAIL_HOST=
+# APPSMITH_MAIL_PASSWORD=
+# APPSMITH_MAIL_PORT=
+# APPSMITH_MAIL_SMTP_AUTH=
+# APPSMITH_MAIL_SMTP_TLS_ENABLED=
+# APPSMITH_MAIL_USERNAME=
+# APPSMITH_MARKETPLACE_URL=
+APPSMITH_MONGODB_URI=mongodb://$mongo_root_user:$mongo_root_password@$mongo_host/appsmith?retryWrites=true
+# APPSMITH_OAUTH2_GITHUB_CLIENT_ID=
+# APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET=
+# APPSMITH_OAUTH2_GOOGLE_CLIENT_ID=
+# APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET=
+# APPSMITH_RAPID_API_KEY_VALUE=
+APPSMITH_REDIS_URL=redis://redis:6379
+# APPSMITH_ROLLBAR_ACCESS_TOKEN=
+# APPSMITH_ROLLBAR_ENV=
+# APPSMITH_SEGMENT_KEY=
+
+EOF
