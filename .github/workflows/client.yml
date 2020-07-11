@@ -92,7 +92,6 @@ jobs:
         path: app/client/react-build
     
     - name: Running the cypress test
-      shell: bash
       uses: cypress-io/github-action@v2
       with:
         browser: chrome
