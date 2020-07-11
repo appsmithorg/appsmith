@@ -24,11 +24,11 @@ done
 
 echo "Got the target: $target" 
 if [ "$target" == "ci" ]; then
-    ./setup-test.sh
-    until $(curl --output /dev/null --silent --head --fail http://dev.appsmith.com); do
-        printf '.'
-        sleep 1
-    done
+    # ./cypress/setup-test.sh
+    # until $(curl --output /dev/null --silent --head --fail http://dev.appsmith.com); do
+    #     printf '.'
+    #     sleep 1
+    # done
     # On the CI server run the tests in parallel
     # This requires the projectId and the record_key to be configured in your environment variables. By default this is defined on the CI server
     echo "Got the Build ID: $BUILD_ID"
