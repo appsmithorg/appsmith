@@ -128,8 +128,8 @@ jobs:
       if: failure()
       with:
         name: cypress-screenshots
-        path: cypress/screenshots
-        
+        path: app/client/cypress/screenshots/
+
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
