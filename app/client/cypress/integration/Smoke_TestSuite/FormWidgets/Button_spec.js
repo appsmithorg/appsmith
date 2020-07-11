@@ -26,6 +26,9 @@ describe("Button Widget Functionality", function() {
 
     //Changing the text on the Button
     cy.testCodeMirror(this.data.ButtonLabel);
+    cy.EvaluateDataType("string");
+    cy.EvaluateCurrentValue(this.data.ButtonLabel);
+
     cy.xpath(homePage.homePageID).contains("All changes saved");
 
     //Verify the Button name and label
