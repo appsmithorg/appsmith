@@ -20,3 +20,6 @@ echo "$APPSMITH_SSL_CERTIFICATE" > /etc/certificate/dev.appsmith.com.pem
 echo "$APPSMITH_SSL_KEY" > /etc/certificate/dev.appsmith.com-key.pem
 echo "Going to run the nginx server"
 nginx
+sleep 5
+echo "Checking if server is up"
+curl -v -k "https://dev.appsmith.com"

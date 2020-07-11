@@ -123,11 +123,13 @@ jobs:
       env:
         APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
         APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
-      run: |
-        ./cypress/setup-test.sh
-        curl -v -k "https://dev.appsmith.com"
+      run: ./cypress/setup-test.sh
     
     - name: Run the cypress test
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
       run: yarn run test:ci
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
