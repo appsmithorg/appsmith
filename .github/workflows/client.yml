@@ -107,16 +107,6 @@ jobs:
       with:
         name: react-build
         path: app/client/react-build
-    
-    # - name: Running the cypress test
-    #   uses: cypress-io/github-action@v2
-    #   with:
-    #     browser: chrome
-    #     headless: true
-    #     start: ls && /bin/sh ./cypress/setup-test.sh
-    #     wait-on: 'http://dev.appsmith.com'
-    #     working-directory: app/client
-    #     command: npm run test:ci
       
     - name: Setting up the cypress tests
       shell: bash
@@ -133,6 +123,13 @@ jobs:
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
       run: BUILD_ID=${GITHUB_SHA} yarn run test:ci
 
+    # Upload the screenshots as artifacts if there's a failure
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+        name: cypress-screenshots
+        path: cypress/screenshots
+        
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
