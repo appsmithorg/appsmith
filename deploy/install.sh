@@ -83,6 +83,28 @@ elif [[ $mongo_option -eq 1 ]];then
 	read -sp 'Set the mongo password: ' mongo_root_password
 fi
 echo ""
+
+echo "Appsmith needs password and salt to encrypt sensitive information. NOTE : If this isn't the first time installing appsmith, to ensure that you dont lose access to some of your previous data, enter the last salt and password entered/generated the first time"
+echo "1) Automatically generate password and salt (recommended)"
+echo "2) Set up your own salt and password"
+read -p 'Enter option number [1]: ' encryption_option
+encryption_option=${encryption_option:-1}
+
+if [[ $encryption_option -eq 2 ]];then
+    read -p 'Enter your encryption password: ' user_encryption_password
+    read -p 'Enter your encryption salt: ' user_encryption_salt
+elif [[ $mongo_option -eq 1 ]];then
+# Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+    user_encryption_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+    user_encryption_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+    output_password="Generated Password : ${user_encryption_password}"
+    output_salt="Generated Salt : ${user_encryption_salt}"
+    echo "Please note the following generated values in case you need to install again and protect losing access to sensitive data"
+    echo "${output_password}"
+    echo "${output_salt}"
+fi
+echo ""
+
 read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 
