@@ -30,7 +30,7 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 before(function() {
   cy.startServerAndRoutes();
   //cy.LogintoApp(loginData.username, loginData.password);
-  cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+  cy.LoginFromAPI(Cypress.env("username"), Cypress.env("password"));
   cy.visit("/applications");
   cy.wait("@applications").should(
     "have.nested.property",

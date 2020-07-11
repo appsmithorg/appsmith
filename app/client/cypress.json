@@ -14,7 +14,7 @@
   "viewportHeight": 900,
   "viewportWidth": 1400,
   "env": {
-    "username": "",
-    "password": ""
+    "username": "testowner@appsmith.com",
+    "password": "own3rT3st1ng"
   }
 }
