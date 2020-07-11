@@ -139,24 +139,14 @@ jobs:
     defaults:
       run:
         working-directory: app/client
-    
+    # Run this job only if all the previous steps are a success and the reference if the release or master branch
+    # if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release')
+    if: always()
+     
     steps:
     
     # Checkout the code
     - uses: actions/checkout@v2
-
-    # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-    - name: Cache npm dependencies
-      uses: actions/cache@v2
-      env:
-        cache-name: cache-yarn-dependencies
-      with:
-        # maven dependencies are stored in `~/.m2` on Linux/macOS
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
   
     - name: Download the react build artifact
       uses: actions/download-artifact@v2
