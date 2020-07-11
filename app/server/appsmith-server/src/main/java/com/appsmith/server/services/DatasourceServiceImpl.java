@@ -203,7 +203,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration().getAuthentication() != null) {
+        if (datasource.getDatasourceConfiguration() != null &&
+                datasource.getDatasourceConfiguration().getAuthentication() != null) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
             authentication.setUsername(encryptionService.encryptString(authentication.getUsername()));
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));

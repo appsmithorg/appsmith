@@ -80,7 +80,8 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     Datasource datasource1 = objects.getT1();
 
                     // If authentication exists for the datasource, decrypt the fields
-                    if (datasource1.getDatasourceConfiguration().getAuthentication() != null) {
+                    if (datasource1.getDatasourceConfiguration() != null &&
+                            datasource1.getDatasourceConfiguration().getAuthentication() != null) {
                         AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
                         authentication.setUsername(encryptionService.decryptString(authentication.getUsername()));
                         authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
