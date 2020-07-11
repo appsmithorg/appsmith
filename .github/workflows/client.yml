@@ -80,7 +80,10 @@ jobs:
     defaults:
       run:
         working-directory: app/client
-        
+    strategy:
+      matrix:
+        job: [0, 1, 2, 3]
+
     steps:
     # Checkout the code
     - uses: actions/checkout@v2
@@ -127,7 +130,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
-        name: cypress-screenshots
+        name: cypress-screenshots-${{ matrix.node-version }}
         path: app/client/cypress/screenshots/
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
