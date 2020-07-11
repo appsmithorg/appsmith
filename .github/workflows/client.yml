@@ -62,6 +62,9 @@ jobs:
     - name: Run the jest tests
       run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
+    - name: Create the bundle
+      run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn build
+
     # Upload the build artifact so that it can be used by the test & deploy job in the workflow
     - name: Upload react build bundle
       uses: actions/upload-artifact@v2
