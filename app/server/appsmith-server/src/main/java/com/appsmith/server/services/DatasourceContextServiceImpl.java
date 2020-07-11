@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
@@ -24,14 +25,17 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final EncryptionService encryptionService;
 
     @Autowired
     public DatasourceContextServiceImpl(DatasourceService datasourceService,
                                         PluginService pluginService,
-                                        PluginExecutorHelper pluginExecutorHelper) {
+                                        PluginExecutorHelper pluginExecutorHelper,
+                                        EncryptionService encryptionService) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
+        this.encryptionService = encryptionService;
         this.datasourceContextMap = new HashMap<>();
     }
 
@@ -74,6 +78,15 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 })
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
+
+                    // If authentication exists for the datasource, decrypt the fields
+                    if (datasource1.getDatasourceConfiguration().getAuthentication() != null) {
+                        AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
+                        authentication.setUsername(encryptionService.decryptString(authentication.getUsername()));
+                        authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
+                        datasource1.getDatasourceConfiguration().setAuthentication(authentication);
+                    }
+
                     PluginExecutor pluginExecutor = objects.getT2();
 
                     if (isStale) {
