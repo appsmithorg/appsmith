@@ -16,7 +16,7 @@ cp ./docker/nginx.conf /etc/nginx/conf.d/app.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
 touch /etc/certificate/dev.appsmith.com.pem /etc/certificate/dev.appsmith.com-key.pem
-echo "${{ secrets.APPSMITH_SSL_CERTIFICATE }}" > /etc/certificate/dev.appsmith.com.pem
-echo "${{ secrets.APPSMITH_SSL_KEY }}" > /etc/certificate/dev.appsmith.com-key.pem
+echo "$APPSMITH_SSL_CERTIFICATE" > /etc/certificate/dev.appsmith.com.pem
+echo "$APPSMITH_SSL_KEY" > /etc/certificate/dev.appsmith.com-key.pem
 echo "Going to run the nginx server"
 nginx

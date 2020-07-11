@@ -120,6 +120,9 @@ jobs:
       
     - name: Setting up the cypress tests
       shell: bash
+      env:
+        APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+        APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
       run: |
         ./cypress/setup-test.sh
         curl -v -k "https://dev.appsmith.com"
