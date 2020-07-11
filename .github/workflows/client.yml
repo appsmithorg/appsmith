@@ -123,6 +123,7 @@ jobs:
       env:
         APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
         APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+        CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
       run: ./cypress/setup-test.sh
     
     - name: Run the cypress test
@@ -130,7 +131,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
-      run: yarn run test:ci
+      run: BUILD_ID=${GITHUB_SHA} yarn run test:ci
 
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches

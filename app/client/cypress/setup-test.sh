@@ -23,3 +23,6 @@ nginx
 sleep 5
 echo "Checking if server is up"
 curl -v -k "https://dev.appsmith.com"
+
+DEBUG=cypress:* $(npm bin)/cypress version
+sed -i -e 's|api_url:.*$|api_url: "$CYPRESS_URL"|g' /builds/theappsmith/internal-tools-client/cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
