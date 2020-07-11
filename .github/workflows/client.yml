@@ -81,6 +81,7 @@ jobs:
       run:
         working-directory: app/client
     strategy:
+      fail-fast: false
       matrix:
         job: [0, 1, 2, 3]
 
