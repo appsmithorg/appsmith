@@ -113,7 +113,7 @@ jobs:
       with:
         browser: chrome
         headless: true
-        start: ./cypress/setup-test.sh
+        start: pwd && ls -al && ./cypress/setup-test.sh
         wait-on: 'http://dev.appsmith.com'
         working-directory: app/client
         command: npm run test:ci
