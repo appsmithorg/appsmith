@@ -85,22 +85,22 @@ jobs:
     # Checkout the code
     - uses: actions/checkout@v2
 
-    # # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
-    # - name: Cache npm dependencies
-    #   uses: actions/cache@v2
-    #   env:
-    #     cache-name: cache-yarn-dependencies
-    #   with:
-    #     # maven dependencies are stored in `~/.m2` on Linux/macOS
-    #     path: ~/.npm
-    #     key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
-    #     restore-keys: |
-    #         ${{ runner.OS }}-node-
-    #         ${{ runner.OS }}-
+    # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+    - name: Cache npm dependencies
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-yarn-dependencies
+      with:
+        # maven dependencies are stored in `~/.m2` on Linux/macOS
+        path: ~/.npm
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
 
-    # # Install all the dependencies
-    # - name: Install dependencies
-    #   run: yarn install
+    # Install all the dependencies
+    - name: Install dependencies
+      run: yarn install
   
     - name: Download the react build artifact
       uses: actions/download-artifact@v2
@@ -108,19 +108,25 @@ jobs:
         name: react-build
         path: app/client/react-build
     
-    - name: Running the cypress test
-      uses: cypress-io/github-action@v2
-      with:
-        browser: chrome
-        headless: true
-        start: ls && /bin/sh ./cypress/setup-test.sh
-        wait-on: 'http://dev.appsmith.com'
-        working-directory: app/client
-        command: npm run test:ci
-      # run: |
-      #   ./cypress/setup-test.sh
-      #   curl -v -k "https://dev.appsmith.com"
+    # - name: Running the cypress test
+    #   uses: cypress-io/github-action@v2
+    #   with:
+    #     browser: chrome
+    #     headless: true
+    #     start: ls && /bin/sh ./cypress/setup-test.sh
+    #     wait-on: 'http://dev.appsmith.com'
+    #     working-directory: app/client
+    #     command: npm run test:ci
+      
+    - name: Setting up the cypress tests
+      shell: bash
+      run: |
+        ./cypress/setup-test.sh
+        curl -v -k "https://dev.appsmith.com"
     
+    - name: Run the cypress test
+      run: yarn run test:ci
+
     # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
     # first 11 characters. This can be used to build images for several branches
     - name: Get the version to tag the Docker image
