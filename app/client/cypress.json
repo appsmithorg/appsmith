@@ -12,9 +12,5 @@
     "json": false
   },
   "viewportHeight": 900,
-  "viewportWidth": 1400,
-  "env": {
-    "username": "testowner@appsmith.com",
-    "password": "own3rT3st1ng"
-  }
+  "viewportWidth": 1400
 }
