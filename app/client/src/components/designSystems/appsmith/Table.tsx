@@ -58,11 +58,11 @@ export const Table = (props: TableProps) => {
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const emptyRowCount = pageCount * props.pageSize - props.data.length;
-  let tableData = props.data;
-  if (emptyRowCount) {
-    tableData = props.data.concat(new Array(emptyRowCount).fill({}));
-  }
-  const data = React.useMemo(() => tableData, [JSON.stringify(tableData)]);
+  // let tableData = props.data;
+  // if (emptyRowCount) {
+  //   tableData = props.data.concat(new Array(emptyRowCount).fill({}));
+  // }
+  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -149,7 +149,13 @@ export const Table = (props: TableProps) => {
               </div>
             ))}
             {headerGroups.length === 0 &&
-              renderEmptyRows(1, props.columns, props.width)}
+              renderEmptyRows(
+                1,
+                props.columns,
+                props.width,
+                subPage,
+                prepareRow,
+              )}
           </div>
           <div
             {...getTableBodyProps()}
@@ -177,8 +183,6 @@ export const Table = (props: TableProps) => {
                       <div
                         {...cell.getCellProps()}
                         className="td"
-                        data-rowindex={rowIndex}
-                        data-colindex={cellIndex}
                         key={cellIndex}
                       >
                         {cell.render("Cell")}
@@ -193,6 +197,8 @@ export const Table = (props: TableProps) => {
                 props.pageSize - subPage.length,
                 props.columns,
                 props.width,
+                subPage,
+                prepareRow,
               )}
           </div>
         </div>
