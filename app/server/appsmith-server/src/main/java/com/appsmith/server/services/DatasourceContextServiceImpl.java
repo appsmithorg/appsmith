@@ -55,7 +55,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
         } else if (datasourceContextMap.get(datasourceId) != null && !isStale) {
             log.debug("resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(datasourceId));
-
         }
 
         log.debug("Datasource context doesn't exist. Creating connection");
@@ -83,9 +82,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     if (datasource1.getDatasourceConfiguration() != null &&
                             datasource1.getDatasourceConfiguration().getAuthentication() != null) {
                         AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
-                        authentication.setUsername(encryptionService.decryptString(authentication.getUsername()));
-                        authentication.setPassword(encryptionService.decryptString(authentication.getPassword()));
-                        datasource1.getDatasourceConfiguration().setAuthentication(authentication);
+                        datasource1.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(authentication));
                     }
 
                     PluginExecutor pluginExecutor = objects.getT2();
@@ -104,7 +101,8 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     DatasourceContext datasourceContext = new DatasourceContext();
 
                     if (datasource1.getId() != null) {
-                        log.debug("Datasource context is stale. Destroying it and then making a new one.");
+                        // For this datasource, either the context doesn't exist, or the context is stale. Replace (or add)
+                        // with the new connection in the context map.
                         datasourceContextMap.put(datasourceId, datasourceContext);
                     }
 
@@ -146,5 +144,12 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
             datasourceContextMap.remove(datasourceId);
             return datasourceContext;
         }));
+    }
+
+    @Override
+    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
+        authenticationDTO.setUsername(encryptionService.decryptString(authenticationDTO.getUsername()));
+        authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
+        return authenticationDTO;
     }
 }
