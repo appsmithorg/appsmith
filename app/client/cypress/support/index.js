@@ -29,8 +29,6 @@ before(function() {
   cy.startServerAndRoutes();
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
-  cy.task("log", "Got the username from the environment as:");
-  cy.task("log", username);
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
   cy.wait("@applications").should(

@@ -26,3 +26,8 @@ sleep 5
 DEBUG=cypress:* $(npm bin)/cypress version
 sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
 cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
+
+# Going to pull the appsmith-server docker container and bring up the containers on this server
+docker-compose -f cypress-docker-compose.yml up -d
+sleep 10
+curl -v http://localhost:8080
