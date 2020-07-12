@@ -124,6 +124,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
+        CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+        CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
       run: BUILD_ID=${GITHUB_SHA} yarn run test:ci
 
     # Upload the screenshots as artifacts if there's a failure
@@ -142,7 +144,7 @@ jobs:
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
     # if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release')
     if: always()
-     
+
     steps:
     
     # Checkout the code
