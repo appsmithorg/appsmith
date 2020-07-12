@@ -7,6 +7,7 @@ import {
   updateDatasource,
   testDatasource,
   deleteDatasource,
+  switchDatasource,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import DatasourceHome from "./DatasourceHome";
@@ -38,6 +39,20 @@ type Props = ReduxStateProps &
   }>;
 
 class DataSourceEditor extends React.Component<Props> {
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.props.match.params.datasourceId &&
+      this.props.match.params.datasourceId !==
+        prevProps.match.params.datasourceId
+    ) {
+      this.props.switchDatasource(this.props.match.params.datasourceId);
+    }
+  }
+  componentDidMount() {
+    if (this.props.match.params.datasourceId) {
+      this.props.switchDatasource(this.props.match.params.datasourceId);
+    }
+  }
   handleSubmit = () => {
     this.props.submitForm(DATASOURCE_DB_FORM);
   };
@@ -126,6 +141,7 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+  switchDatasource: (id: string) => dispatch(switchDatasource(id)),
 });
 
 export interface DatasourcePaneFunctions {
@@ -133,6 +149,7 @@ export interface DatasourcePaneFunctions {
   updateDatasource: (data: Datasource) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
+  switchDatasource: (id: string) => void;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataSourceEditor);

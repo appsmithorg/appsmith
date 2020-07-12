@@ -13,7 +13,7 @@ import {
 } from "./ExplorerIcons";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import DataSourceContextMenu from "./DataSourceContextMenu";
-import { PluginType, Action } from "entities/Action";
+import { PluginType, Action, RestAction } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { noop, groupBy } from "lodash";
 import history from "utils/history";
@@ -34,7 +34,7 @@ import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 import Divider from "components/editorComponents/Divider";
-
+import { MethodTag } from "./ExplorerStyledComponents";
 type GroupConfig = {
   groupName: string;
   type: PluginType;
@@ -48,9 +48,10 @@ type GroupConfig = {
     pageId: string,
     selectedPageId: string,
   ) => string;
+  getNameNode: (name: string, method?: string) => ReactNode;
 };
 
-type ExplorerURLParams = {
+export type ExplorerURLParams = {
   applicationId: string;
   pageId: string;
   apiId?: string;
@@ -60,6 +61,7 @@ type ExplorerURLParams = {
 
 // When we have new action plugins, we can just add it to this map
 // There should be no other place where we refer to the PluginType in entity explorer.
+/*eslint-disable react/display-name */
 export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
   PluginType,
 ).map((type: string) => {
@@ -76,6 +78,14 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.apiId;
         },
+        getNameNode: (name: string, method?: string) => {
+          return (
+            <React.Fragment>
+              {method && <MethodTag type={method} />}
+              <span>{name}</span>
+            </React.Fragment>
+          );
+        },
         dispatchableCreateAction: createNewApiAction,
         generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
       };
@@ -89,6 +99,9 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
           `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`,
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.queryId;
+        },
+        getNameNode: (name: string, method?: string) => {
+          return <span>{name}</span>;
         },
         dispatchableCreateAction: createNewQueryAction,
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -206,6 +219,7 @@ const getWidgetEntity = (entity: any) => {
 // Agnostic of the type of action.
 const getActionEntity = (
   entity: any,
+  name: ReactNode,
   isCurrentAction: boolean,
   entityURL?: string,
   icon?: ReactNode,
@@ -214,7 +228,7 @@ const getActionEntity = (
     <Entity
       key={entity.config.id}
       icon={icon}
-      name={entity.config.name}
+      name={name}
       action={entityURL ? () => history.push(entityURL) : noop}
       isDefaultExpanded={isCurrentAction}
       active={isCurrentAction}
@@ -261,9 +275,13 @@ const getActionGroups = (
         }}
         isDefaultExpanded={config?.isExpanded(params)}
       >
-        {entries.map((action: { config: Action }) =>
+        {entries.map((action: { config: RestAction }) =>
           getActionEntity(
             action,
+            config?.getNameNode(
+              action.config.name,
+              action.config.actionConfiguration.httpMethod || undefined,
+            ),
             params?.apiId === action.config.id ||
               params?.queryId === action.config.id,
             config?.getURL(params.applicationId, page.id, action.config.id),
@@ -304,23 +322,20 @@ const getPageEntity = (
   params: ExplorerURLParams,
 ) => {
   return (
-    <React.Fragment>
-      <Entity
-        key={page.id}
-        icon={pageIcon}
-        name={page.name}
-        action={() =>
-          !isCurrentPage &&
-          params.applicationId &&
-          history.push(EXPLORER_URL(params.applicationId, page.id))
-        }
-        active={isCurrentPage}
-        isDefaultExpanded={isCurrentPage}
-      >
-        {groups}
-      </Entity>
-      <Divider />
-    </React.Fragment>
+    <Entity
+      key={page.id}
+      icon={pageIcon}
+      name={page.name}
+      action={() =>
+        !isCurrentPage &&
+        params.applicationId &&
+        history.push(EXPLORER_URL(params.applicationId, page.id))
+      }
+      active={isCurrentPage}
+      isDefaultExpanded={isCurrentPage}
+    >
+      {isCurrentPage && groups}
+    </Entity>
   );
 };
 
@@ -362,7 +377,7 @@ export const getDatasourceEntities = (
         .indexOf(params.datasourceId) > -1;
     pluginGroupNodes.push(
       <Entity
-        key={plugin?.id}
+        key={plugin?.name || "Unknown Plugin"}
         icon={pluginIcon}
         name={plugin?.name || "Unknown Plugin"}
         active={currentGroup}
@@ -373,7 +388,7 @@ export const getDatasourceEntities = (
             <Entity
               key={datasource.id}
               icon={pluginIcon}
-              name={datasource.name}
+              name={<span>{datasource.name}</span>}
               active={params?.datasourceId === datasource.id}
               action={() =>
                 history.push(

@@ -88,7 +88,10 @@ const WidgetsEditor = (props: EditorProps) => {
   return (
     <EditorContextProvider>
       <EditorWrapper onClick={handleWrapperClick}>
-        <CanvasContainer className={getCanvasClassName()}>
+        <CanvasContainer
+          key={props.currentPageId}
+          className={getCanvasClassName()}
+        >
           {node}
         </CanvasContainer>
       </EditorWrapper>

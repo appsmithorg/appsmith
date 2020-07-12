@@ -13,7 +13,8 @@ export enum EntityClassNames {
 }
 
 const Wrapper = styled.div`
-  padding: ${props => props.theme.spaces[1]}px 0;
+  margin: ${props => props.theme.spaces[1]}px 0
+    ${props => props.theme.spaces[1]}px ${props => props.theme.spaces[1]}px;
 `;
 const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
   background: ${props => (props.active ? Colors.SHARK : "none")};
@@ -43,7 +44,6 @@ const EntityItem = styled.div<{ disabled: boolean; active: boolean }>`
   }
   & {
     .${Classes.ICON}:first-of-type {
-      margin-right: ${props => props.theme.spaces[2]}px;
       color: ${props =>
         props.disabled ? props.theme.colors.paneBG : Colors.SLATE_GRAY};
       &:hover {
@@ -69,14 +69,32 @@ const StyledCollapse = styled(Collapse)`
     .${Classes.COLLAPSE_BODY} > div {
       padding-left: 4px;
       overflow: hidden;
+      &:before {
+        content: "";
+        width: 1px;
+        background: ${Colors.TROUT};
+        bottom: 10px;
+        left: 7px;
+        top: 10px;
+        position: absolute;
+      }
     }
   }
 `;
 
-const EntityName = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+const EntityName = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: calc(100% - 40px);
+  & > * {
+    margin-right: 4px;
+  }
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 export type EntityProps = {
@@ -144,8 +162,10 @@ export const Entity = (props: EntityProps) => {
         disabled={!!props.disabled}
       >
         {props.children && collapseIcon}
-        {props.icon}
-        <EntityName>{props.name}</EntityName>
+        <EntityName style={{ marginLeft: !props.children ? "16px" : "0" }}>
+          {props.icon}
+          {props.name}
+        </EntityName>
         {createIconBtn}
         {props.contextMenu}
       </EntityItem>

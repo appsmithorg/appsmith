@@ -1,4 +1,12 @@
-import { all, put, takeEvery, select, call, take } from "redux-saga/effects";
+import {
+  all,
+  put,
+  takeEvery,
+  select,
+  call,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import { change, initialize, getFormValues } from "redux-form";
 import _ from "lodash";
 import {
@@ -44,6 +52,7 @@ import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
 import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { AppState } from "reducers";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -353,6 +362,16 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   );
 }
 
+function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
+  const { datasourceId } = action.payload;
+  const datasource = yield select((state: AppState) =>
+    state.entities.datasources.list.find(
+      (datasource: Datasource) => datasource.id === datasourceId,
+    ),
+  );
+  yield put(changeDatasource(datasource));
+}
+
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
@@ -421,6 +440,7 @@ export function* watchDatasourcesSagas() {
     takeEvery(ReduxActionTypes.TEST_DATASOURCE_INIT, testDatasourceSaga),
     takeEvery(ReduxActionTypes.DELETE_DATASOURCE_INIT, deleteDatasourceSaga),
     takeEvery(ReduxActionTypes.CHANGE_DATASOURCE, changeDatasourceSaga),
+    takeLatest(ReduxActionTypes.SWITCH_DATASOURCE, switchDatasourceSaga),
     takeEvery(ReduxActionTypes.STORE_AS_DATASOURCE_INIT, storeAsDatasourceSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,

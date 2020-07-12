@@ -65,37 +65,6 @@ export const EXPLORER_URL = (
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`;
 
-export const EXPLORER_PATHS = (
-  applicationId = ":applicationId",
-  pageId = ":pageId",
-  apiId = ":apiId",
-  queryId = ":queryId",
-): string[] => {
-  const paths = [`${BUILDER_PAGE_URL(applicationId, pageId)}/explorer`];
-  paths.push(
-    `${QUERIES_EDITOR_ID_URL(applicationId, pageId, queryId)}/explorer`,
-  );
-  paths.push(`${API_EDITOR_ID_URL(applicationId, pageId, apiId)}/explorer`);
-  paths.push(
-    `${API_EDITOR_URL_WITH_SELECTED_PAGE_ID(
-      applicationId,
-      pageId,
-      pageId,
-    )}/explorer`,
-  );
-  paths.push(`${getCurlImportPageURL(applicationId, pageId)}/explorer`);
-  return paths;
-};
-
-export const getPathWithExplorerSidebar = (path?: string) => {
-  if (path) {
-    const url = new URL(path, window.location.href);
-    console.log({ url });
-    return `${url.pathname}/explorer${url.search}`;
-  }
-  return path;
-};
-
 export const DATA_SOURCES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",

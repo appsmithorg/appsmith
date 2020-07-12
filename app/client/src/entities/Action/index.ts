@@ -89,3 +89,9 @@ export interface RapidApiAction extends Action {
 export interface QueryAction extends Action {
   actionConfiguration: Partial<QueryActionConfig>;
 }
+
+export interface GenericAction {
+  isLoading: boolean;
+  config: RestAction | RapidApiAction | QueryAction;
+  data?: any;
+}

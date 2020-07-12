@@ -13,7 +13,6 @@ import {
   getCurlImportPageURL,
   API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   EXPLORER_URL,
-  EXPLORER_PATHS,
   getProviderTemplatesURL,
 } from "constants/routes";
 
@@ -63,15 +62,6 @@ export const Sidebar = () => {
           component={ExplorerSidebar}
           name="ExplorerSidebar"
         />
-        {EXPLORER_PATHS().map(path => (
-          <AppRoute
-            key={path}
-            exact
-            path={path}
-            component={ExplorerSidebar}
-            name="ExplorerSidebar"
-          />
-        ))}
 
         <AppRoute
           exact
@@ -108,13 +98,13 @@ export const Sidebar = () => {
           exact
           path={DATA_SOURCES_EDITOR_URL()}
           component={ExplorerSidebar}
-          name="DataSourceSidebar"
+          name="ExplorerSidebar"
         />
         <AppRoute
           exact
           path={DATA_SOURCES_EDITOR_ID_URL()}
           component={ExplorerSidebar}
-          name="DataSourceSidebar"
+          name="ExplorerSidebar"
         />
       </Switch>
     </SidebarWrapper>

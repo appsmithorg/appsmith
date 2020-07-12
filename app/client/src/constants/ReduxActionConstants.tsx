@@ -233,6 +233,7 @@ export const ReduxActionTypes: { [key: string]: string } = {
   UPDATE_API_NAME_DRAFT: "UPDATE_API_NAME_DRAFT",
   SET_ACTION_PROPERTY: "SET_ACTION_PROPERTY",
   UPDATE_ACTION_PROPERTY: "UPDATE_ACTION_PROPERTY",
+  SWITCH_DATASOURCE: "SWITCH_DATASOURCE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

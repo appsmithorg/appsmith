@@ -25,7 +25,6 @@ import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "configs";
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
-console.log({ algolia });
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
 
