@@ -106,6 +106,8 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
+else
+    setup_ssl="n"
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
