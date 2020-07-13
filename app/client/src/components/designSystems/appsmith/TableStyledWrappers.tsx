@@ -26,7 +26,7 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     }
     .tbody {
       overflow: scroll;
-      height: ${props => props.height - 5 - 102}px;
+      height: ${props => props.height - 5 - 113}px;
       &.no-scroll {
         overflow: hidden;
       }
