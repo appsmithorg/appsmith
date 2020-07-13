@@ -152,7 +152,6 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           draggable: true,
           isHidden: false,
           Cell: (props: any) => {
-            console.log("props.cell.row", props.cell.row);
             return renderCell(
               props.cell.value,
               props.cell.row.index,

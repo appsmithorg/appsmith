@@ -57,11 +57,6 @@ export const Table = (props: TableProps) => {
   );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const emptyRowCount = pageCount * props.pageSize - props.data.length;
-  // let tableData = props.data;
-  // if (emptyRowCount) {
-  //   tableData = props.data.concat(new Array(emptyRowCount).fill({}));
-  // }
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const {
     getTableProps,
