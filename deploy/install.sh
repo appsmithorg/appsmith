@@ -129,11 +129,11 @@ curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/te
 cd ..
 
 # Role - Docker
-if ! is_command_present docker ;then
-    install_docker
-elif [ $package_manager == "brew" ];then
+if [ $package_manager == "brew" ];then
     echo "Please follow below link to Install Docker Desktop on Mac:"
     echo "https://docs.docker.com/docker-for-mac/install/"
+elif ! is_command_present docker ;then
+    install_docker
 fi
 
 # Starting docker service
