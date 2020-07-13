@@ -106,14 +106,14 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
-#mkdir -p template
-#cd template
-#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-#cd ..
+mkdir -p template
+cd template
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+cd ..
 
 # Role - Docker
 if ! is_command_present docker ;then
