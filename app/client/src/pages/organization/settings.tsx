@@ -6,14 +6,14 @@ import { AppState } from "reducers";
 import {
   getAllUsers,
   getAllRoles,
-  getOrgs,
+  getCurrentOrg,
 } from "selectors/organizationSelectors";
 import PageSectionDivider from "pages/common/PageSectionDivider";
 import PageSectionHeader from "pages/common/PageSectionHeader";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import InviteUsersFormv2 from "pages/organization/InviteUsersFromv2";
 import Button from "components/editorComponents/Button";
-import { OrgUser, Organization } from "constants/orgConstants";
+import { OrgUser, Org } from "constants/orgConstants";
 import { Menu, MenuItem, Popover, Position } from "@blueprintjs/core";
 import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
@@ -25,9 +25,9 @@ import { User } from "constants/userConstants";
 import { useTable, useFlexLayout } from "react-table";
 
 type OrgProps = {
-  allOrgs: Organization[];
+  currentOrg: Org;
   changeOrgName: (value: string) => void;
-  getAllApplication: () => void;
+  fetchCurrentOrg: (orgId: string) => void;
   fetchUser: (orgId: string) => void;
   fetchAllRoles: (orgId: string) => void;
   deleteOrgUser: (orgId: string, username: string) => void;
@@ -173,10 +173,10 @@ export const OrgSettings = (props: PageProps) => {
     },
     deleteOrgUser,
     changeOrgUserRole,
-    allOrgs,
+    fetchCurrentOrg,
     fetchUser,
     fetchAllRoles,
-    getAllApplication,
+    currentOrg,
   } = props;
 
   const userTableData = props.allUsers.map(user => ({
@@ -213,8 +213,7 @@ export const OrgSettings = (props: PageProps) => {
     ];
   }, [orgId, deleteOrgUser, changeOrgUserRole]);
 
-  const currentOrg = allOrgs.find(org => org.organization.id === orgId);
-  const currentOrgName = currentOrg?.organization.name ?? "";
+  const currentOrgName = currentOrg?.name ?? "";
   const {
     getTableProps,
     getTableBodyProps,
@@ -233,8 +232,8 @@ export const OrgSettings = (props: PageProps) => {
   useEffect(() => {
     fetchUser(orgId);
     fetchAllRoles(orgId);
-    getAllApplication();
-  }, [orgId, fetchUser, fetchAllRoles, getAllApplication]);
+    fetchCurrentOrg(orgId);
+  }, [orgId, fetchUser, fetchAllRoles, fetchCurrentOrg]);
 
   return (
     <React.Fragment>
@@ -328,13 +327,18 @@ const mapStateToProps = (state: AppState) => ({
   allRole: getAllRoles(state),
   isFetchAllUsers: state.ui.orgs.loadingStates.isFetchAllUsers,
   isFetchAllRoles: state.ui.orgs.loadingStates.isFetchAllRoles,
-  allOrgs: getOrgs(state),
+  currentOrg: getCurrentOrg(state),
   currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () =>
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
+  fetchCurrentOrg: (orgId: string) =>
+    dispatch({
+      type: ReduxActionTypes.FETCH_CURRENT_ORG,
+      payload: {
+        orgId,
+      },
+    }),
   changeOrgName: (name: string) =>
     dispatch({
       type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,

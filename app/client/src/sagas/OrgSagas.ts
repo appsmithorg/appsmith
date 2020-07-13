@@ -48,26 +48,6 @@ export function* fetchRolesSaga() {
   }
 }
 
-export function* fetchOrgsSaga() {
-  try {
-    const response: FetchOrgsResponse = yield call(OrgApi.fetchOrgs);
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.FETCH_ORGS_SUCCESS,
-        payload: response.data,
-      });
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_ORGS_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
 export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   try {
     const request: FetchOrgRequest = action.payload;
@@ -241,6 +221,7 @@ export function* createOrgSaga(
 export default function* orgSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ORG_ROLES_INIT, fetchRolesSaga),
+    takeLatest(ReduxActionTypes.FETCH_CURRENT_ORG, fetchOrgSaga),
     takeLatest(ReduxActionTypes.SAVE_ORG_INIT, saveOrgSaga),
     takeLatest(ReduxActionTypes.CREATE_ORGANIZATION_INIT, createOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_ALL_USERS_INIT, fetchAllUsersSaga),
