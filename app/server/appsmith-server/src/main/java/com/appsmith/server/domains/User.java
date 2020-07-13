@@ -50,6 +50,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     private Set<String> organizationIds;
 
+    private String examplesOrganizationId;
+
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.
     private Set<String> groupIds = new HashSet<>();

@@ -190,6 +190,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    @Override
+    public Mono<Application> createApplication(Application application) {
+        return createApplication(application, application.getOrganizationId());
+    }
+
+    @Override
     public Mono<Application> createApplication(Application application, String orgId) {
         if (application.getName() == null || application.getName().trim().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));

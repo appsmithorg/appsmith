@@ -21,7 +21,6 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -63,7 +62,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final PolicyUtils policyUtils;
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -89,8 +87,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
                            OrganizationRepository organizationRepository,
-                           UserOrganizationService userOrganizationService,
-                           ExamplesOrganizationCloner examplesOrganizationCloner) {
+                           UserOrganizationService userOrganizationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.analyticsService = analyticsService;
@@ -102,7 +99,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.policyUtils = policyUtils;
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
-        this.examplesOrganizationCloner = examplesOrganizationCloner;
     }
 
     @Override
@@ -456,10 +452,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(savedUser -> {
                     // Creating the personal workspace and assigning the default groups to the new user
                     log.debug("Going to create organization: {} for user: {}", personalOrg, savedUser.getEmail());
-                    return Mono.when(
-                            organizationService.create(personalOrg, savedUser),
-                            examplesOrganizationCloner.cloneExamplesOrganization(savedUser)
-                    );
+                    return organizationService.create(personalOrg, savedUser);
                 })
                 .then(repository.findByEmail(user.getUsername()))
                 .flatMap(analyticsService::trackNewUser);
