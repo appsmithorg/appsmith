@@ -26,7 +26,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
@@ -103,12 +102,11 @@ public class ExamplesOrganizationCloner {
                 .flatMap(organization -> {
                     makePristine(organization);
                     organization.getUserRoles().clear();
-                    organization.setName(user.getName().split(" ", 2)[0] + "'s Examples");
+                    organization.setName(user.computeFirstName() + "'s Examples");
                     organization.setSlug(null);
                     return organizationService.create(organization, user);
                 })
                 .flatMap(newOrganization -> {
-                    log.info("Cloned organization id {} {}", newOrganization.getId(), Arrays.toString(newOrganization.getPolicies().toArray()));
                     User userUpdate = new User();
                     userUpdate.setExamplesOrganizationId(newOrganization.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
@@ -134,7 +132,6 @@ public class ExamplesOrganizationCloner {
                 .findByOrganizationId(fromOrganizationId)
                 .flatMap(application -> {
                     final String templateApplicationId = application.getId();
-                    log.info("Cloning application {} {}", application.getId(), application.getName());
                     makePristine(application);
                     application.setOrganizationId(toOrganizationId);
                     return Flux.combineLatest(
@@ -149,13 +146,11 @@ public class ExamplesOrganizationCloner {
                 })
                 .flatMap(page -> {
                     final String templatePageId = page.getId();
-                    log.info("Cloning page {} {}", page.getId(), page.getName());
                     makePristine(page);
                     return Flux.combineLatest(
                             actionRepository.findByPageId(templatePageId),
                             applicationPageService.createPage(page).cache(),
                             (action, savedPage) -> {
-                                log.info("Cloned page {} into new page {}", templatePageId, savedPage.getId());
                                 action.setPageId(savedPage.getId());
                                 return action;
                             }
@@ -165,7 +160,6 @@ public class ExamplesOrganizationCloner {
                 .flatMap(tuple -> {
                     final Action action = tuple.getT1();
                     final Map<String, Datasource> newDatasourcesByTemplateId = tuple.getT2();
-                    log.info("Cloning action {} {}", action.getId(), action.getName());
                     makePristine(action);
                     action.setOrganizationId(toOrganizationId);
                     action.setCollectionId(null);
@@ -187,7 +181,6 @@ public class ExamplesOrganizationCloner {
         return datasourceRepository
                 .findAllByOrganizationId(fromOrganizationId)
                 .flatMap(datasource -> {
-                    log.info("Clone datasource {} from org {} to org {}", datasource.getId(), fromOrganizationId, toOrganizationId);
                     final String templateDatasourceId = datasource.getId();
                     if (templateDatasourceId == null) {
                         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));

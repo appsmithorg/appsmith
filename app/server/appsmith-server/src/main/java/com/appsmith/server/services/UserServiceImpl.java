@@ -428,16 +428,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         Organization personalOrg = new Organization();
-        String firstName;
-        if (user.getName() != null) {
-            // Get the first word from the full name and assume that that's the user's first name
-            firstName = user.getName().split(" ")[0];
-        } else {
+        if (user.getName() == null) {
             user.setName(user.getEmail());
-            firstName = user.getEmail().split("@")[0];
         }
 
-        String personalOrganizationName = firstName + "'s Personal Organization";
+        String personalOrganizationName = user.computeFirstName() + "'s Personal Organization";
         personalOrg.setName(personalOrganizationName);
 
         // Set the permissions for the user
