@@ -6,10 +6,12 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     OrganizationService organizationService;
+
+    @Autowired
+    PageRepository pageRepository;
 
     String orgId;
 
@@ -206,11 +211,14 @@ public class ApplicationServiceTest {
                 .block();
 
         assertThat(applicationList.size() > 0);
-        applicationList.forEach(t -> {
-            assertThat(t.getId()).isNotNull();
-            assertThat(t.getPolicies()).isNotEmpty();
-            assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
-        });
+        applicationList
+                .stream()
+                .filter(t -> t.getName().equals("validGetApplications-Test"))
+                .forEach(t -> {
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getPolicies()).isNotEmpty();
+                    assertThat(t.getPolicies()).containsAll(Set.of(readAppPolicy));
+                });
     }
 
     /* Tests for Update Application Flow */
@@ -320,6 +328,111 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMakeApplicationPublic() {
+        Application application = new Application();
+        application.setName("validMakeApplicationPublic-Test");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Mono<Application> publicAppMono = applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .cache();
+
+        Mono<Page> pageMono = publicAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return pageRepository.findById(pageId);
+                });
+
+        StepVerifier
+                .create(Mono.zip(publicAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application publicApp = tuple.getT1();
+                    Page page = tuple.getT2();
+
+                    assertThat(publicApp.getIsPublic()).isTrue();
+                    assertThat(publicApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMakeApplicationPrivate() {
+        Application application = new Application();
+        application.setName("validMakeApplicationPrivate-Test");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        Mono<Application> createApplication = applicationPageService.createApplication(application, orgId);
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        Mono<Application> privateAppMono = createApplication
+                .flatMap(application1 -> {
+                    applicationAccessDTO.setPublicAccess(true);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                })
+                .flatMap(application1 -> {
+                    applicationAccessDTO.setPublicAccess(false);
+                    return applicationService.changeViewAccess(application1.getId(), applicationAccessDTO);
+                })
+                .cache();
+
+        Mono<Page> pageMono = privateAppMono
+                .flatMap(app -> {
+                    String pageId = app.getPages().get(0).getId();
+                    return pageRepository.findById(pageId);
+                });
+
+        StepVerifier
+                .create(Mono.zip(privateAppMono, pageMono))
+                .assertNext(tuple -> {
+                    Application app = tuple.getT1();
+                    Page page = tuple.getT2();
+
+                    assertThat(app.getIsPublic()).isFalse();
+                    assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    // Check the child page's policies
+                    assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
     }
 
 }

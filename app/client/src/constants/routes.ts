@@ -2,6 +2,7 @@ import { MenuIcons } from "icons/MenuIcons";
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
+export const PAGE_NOT_FOUND_URL = "/404";
 export const APPLICATIONS_URL = `/applications`;
 export const BUILDER_URL = "/applications/:applicationId/pages/:pageId/edit";
 export const USER_AUTH_URL = "/user";

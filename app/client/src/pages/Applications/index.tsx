@@ -26,9 +26,7 @@ import { PERMISSION_TYPE, isPermitted } from "./permissionHelpers";
 import { MenuIcons } from "icons/MenuIcons";
 import { DELETING_APPLICATION } from "constants/messages";
 import { AppToaster } from "components/editorComponents/ToastComponent";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import OrganizationListMockResponse from "mockResponses/OrganisationListResponse";
 import { User } from "constants/userConstants";
 import CustomizedDropdown, {
   CustomizedDropdownProps,
@@ -59,6 +57,8 @@ const ApplicationCardsWrapper = styled.div`
   font-size: ${props => props.theme.fontSizes[4]}px;
 `;
 
+const OrgSection = styled.div``
+ 
 const OrgName = styled.div`
   display: flex;
   font-size: ${props => props.theme.fontSizes[3]}px;
@@ -107,7 +107,6 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
 
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  fetchApplications: () => void;
   createApplication: (appName: string) => void;
   isCreatingApplication: boolean;
   isFetchingApplications: boolean;
@@ -218,7 +217,7 @@ class Applications extends Component<
             const { organization, applications } = organizationObject;
 
             return (
-              <>
+              <OrgSection className="t--org-section">
                 {!isPermitted(
                   organization.userPermissions,
                   PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -261,7 +260,7 @@ class Applications extends Component<
                     </StyledDialog>
                     <FormDialogComponent
                       trigger={
-                        <Button text="Share" intent={"primary"} filled />
+                        <Button text="Share" intent={"primary"} className="t--org-share-btn" filled />
                       }
                       Form={InviteUsersFormv2}
                       orgId={organization.id}
@@ -279,7 +278,7 @@ class Applications extends Component<
                         <Icon
                           icon="plus"
                           iconSize={70}
-                          className="createIcon"
+                          className="t--create-app-popup"
                         />
                         <div className="createnew">Create New</div>
                       </ApplicationAddCardWrapper>
@@ -301,7 +300,7 @@ class Applications extends Component<
                   })}
                   <PageSectionDivider />
                 </ApplicationCardsWrapper>
-              </>
+              </OrgSection>
             );
           })}
       </PageWrapper>
@@ -319,8 +318,6 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchApplications: () =>
-    dispatch({ type: ReduxActionTypes.FETCH_APPLICATION_LIST_INIT }),
   getAllApplication: () =>
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
   createApplication: (appName: string) => {
