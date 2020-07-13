@@ -9,11 +9,11 @@ import {
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ReactComponent as VisibilityIcon } from "assets/icons/control/columns-visibility.svg";
+import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import Button from "components/editorComponents/Button";
 
-const TableIconWrapper = styled.div<{ selected: boolean; disabled: boolean }>`
+const TableIconWrapper = styled.div<{ selected?: boolean; disabled?: boolean }>`
   background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
   box-shadow: ${props =>
     props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
@@ -76,11 +76,19 @@ interface TableColumnsVisibilityProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
 }
 
+const VisibilityIcon = (props: { visible?: boolean }) => {
+  return props.visible ? (
+    <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+  ) : (
+    <VisibleIcon />
+  );
+};
+
 const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
   const [selected, selectMenu] = React.useState(false);
   if (props.columns.length === 0) {
     return (
-      <TableIconWrapper disabled selected={false}>
+      <TableIconWrapper disabled>
         <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
           <VisibilityIcon />
         </IconWrapper>
@@ -92,7 +100,6 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
       return a.accessor > b.accessor ? 1 : b.accessor > a.accessor ? -1 : 0;
     },
   );
-  console.log("columns", columns);
   return (
     <Popover
       minimal
@@ -106,7 +113,6 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
     >
       <TableIconWrapper
         selected={selected}
-        disabled={false}
         onClick={e => {
           selectMenu(true);
         }}
@@ -135,11 +141,7 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
             }}
           >
             <div className="option-title">{option.Header}</div>
-            {option.isHidden ? (
-              <VisibilityIcon />
-            ) : (
-              <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
-            )}
+            <VisibilityIcon visible={!option.isHidden} />
           </OptionWrapper>
         ))}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>
