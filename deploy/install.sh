@@ -86,9 +86,11 @@ echo ""
 read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
+    echo "+++++++++++++++++++++++++++++++++"
     echo "Please update your DNS records with your domain registrar"
-    echo "You can read more about this in our Documentation https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
-    echo ""
+    echo "You can read more about this in our Documentation"
+    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+    echo "+++++++++++++++++++++++++++++++++"
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
@@ -185,3 +187,6 @@ echo ""
 echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
 echo "              cd $install_dir && sudo docker-compose ps -a"
 echo -e "Peace out \U1F596"
+echo ""
+echo "Need help troubleshooting?"
+echo "Join our discord server https://discord.com/invite/rBTTVJp"
