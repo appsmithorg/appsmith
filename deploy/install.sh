@@ -52,6 +52,7 @@ declare -A osInfo;
 osInfo[/etc/debian_version]="apt-get"
 osInfo[/etc/centos-release]="yum"
 osInfo[/etc/redhat-release]="yum"
+osInfo[/System/Library/CoreServices/SystemVersion.plist]="brew"
 
 # Checking OS and assiging package manager
 desired_os=0
@@ -128,10 +129,15 @@ cd ..
 # Role - Docker
 if ! is_command_present docker ;then
     install_docker
+elif [ $package_manager == "brew" ];then
+    echo "Please follow below link to Install Docker Desktop on Mac:"
+    echo "https://docs.docker.com/docker-for-mac/install/"
 fi
 
 # Starting docker service
-start_docker
+if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+    start_docker
+fi
 
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
