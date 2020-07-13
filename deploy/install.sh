@@ -29,16 +29,18 @@ install_docker() {
     sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet --nobest
 
     echo "Installing docker-compose"
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-
     if [ ! -f /usr/bin/docker-compose ];then
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
         sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
     fi
 
-    if [[ $package_manager == "yum" ]];then
-        echo "Starting docker engine..."
-        systemctl start docker.service
+}
+
+start_docker() {
+    if [ `systemctl is-active docker.service` == "inactive" ];then
+        echo "Starting docker"
+        `systemctl start docker.service`
     fi
 }
 
@@ -104,19 +106,24 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
-mkdir -p template
-cd template
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-cd ..
+#mkdir -p template
+#cd template
+#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
+#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
+#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
+#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
+#curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+#cd ..
 
 # Role - Docker
 if ! is_command_present docker ;then
     install_docker
+    start_docker
+else
+    echo "start_docker"
+    start_docker
 fi
+
 
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
