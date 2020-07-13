@@ -122,6 +122,7 @@ export const Table = (props: TableProps) => {
         })}
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
+        displayColumnActions={props.displayColumnActions}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
