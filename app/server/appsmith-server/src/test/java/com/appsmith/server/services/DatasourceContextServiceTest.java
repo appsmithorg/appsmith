@@ -83,7 +83,6 @@ public class DatasourceContextServiceTest {
                 .assertNext(savedDatasource -> {
                     AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
                     AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
-                    assertThat(decryptedAuthentication.getUsername()).isEqualTo(username);
                     assertThat(decryptedAuthentication.getPassword()).isEqualTo(password);
                 })
                 .verifyComplete();

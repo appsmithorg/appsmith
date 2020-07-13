@@ -206,7 +206,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         if (datasource.getDatasourceConfiguration() != null &&
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            authentication.setUsername(encryptionService.encryptString(authentication.getUsername()));
+            // Encrypt password before saving
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
             datasource.getDatasourceConfiguration().setAuthentication(authentication);
         }

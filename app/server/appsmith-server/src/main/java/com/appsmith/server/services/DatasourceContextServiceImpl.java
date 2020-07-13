@@ -148,7 +148,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
 
     @Override
     public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO) {
-        authenticationDTO.setUsername(encryptionService.decryptString(authenticationDTO.getUsername()));
         authenticationDTO.setPassword(encryptionService.decryptString(authenticationDTO.getPassword()));
         return authenticationDTO;
     }

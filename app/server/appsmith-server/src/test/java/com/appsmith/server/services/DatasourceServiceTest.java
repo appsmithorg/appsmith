@@ -448,7 +448,7 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(savedDatasource -> {
                     AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
-                    assertThat(authentication.getUsername()).isEqualTo(encryptionService.encryptString(username));
+                    assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
                 })
                 .verifyComplete();
