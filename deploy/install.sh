@@ -26,11 +26,22 @@ install_docker() {
 
     sudo ${package_manager} -y update --quiet
     echo "Installing docker"
-    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet
+    sudo ${package_manager} -y install docker-ce docker-ce-cli containerd.io --quiet --nobest
+   
+    if [ ! -f /usr/bin/docker-compose ];then
+        echo "Installing docker-compose"
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+    fi
 
-    echo "Installing docker-compose"
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+}
+
+start_docker() {
+    if [ `systemctl is-active docker.service` == "inactive" ];then
+        echo "Starting docker"
+        `systemctl start docker.service`
+    fi
 }
 
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
@@ -80,7 +91,7 @@ elif [[ $mongo_option -eq 1 ]];then
     mongo_host="mongo"
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
-	read -sp 'Set the mongo password: ' mongo_root_password
+    read -sp 'Set the mongo password: ' mongo_root_password
 fi
 echo ""
 
@@ -119,11 +130,21 @@ if [[ "$setup_encryption" = "true" ]];then
 fi
 echo ""
 
-read -p 'Would you like to setup a custom domain to access appsmith? [Y/n]: ' setup_domain
+read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
-
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
-	read -p 'Enter your domain name (example.com): ' custom_domain
+    echo "+++++++++++++++++++++++++++++++++"
+    echo "Please update your DNS records with your domain registrar"
+    echo "You can read more about this in our Documentation"
+    echo "https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
+    echo "+++++++++++++++++++++++++++++++++"
+    echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
+    read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
+    setup_ssl=${setup_ssl:-Y}
+fi
+
+if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
+	read -p 'Enter your domain / subdomain name (example.com / app.example.com): ' custom_domain
 fi
 
 NGINX_SSL_CMNT=""
@@ -145,6 +166,9 @@ cd ..
 if ! is_command_present docker ;then
     install_docker
 fi
+
+# Starting docker service
+start_docker
 
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
@@ -179,7 +203,6 @@ do
 
     if [ -f $install_dir/$f ]
     then
-        echo "File already exist."
         read -p "File $f already exist. Would you like to replace it? [Y]: " value
 
         if [ $value == "Y" -o $value == "y" -o $value == "yes" -o $value == "Yes" ]
@@ -218,3 +241,6 @@ echo ""
 echo "Your installation is complete. Please run the following command to ensure that all the containers are running without errors"
 echo "              cd $install_dir && sudo docker-compose ps -a"
 echo -e "Peace out \U1F596"
+echo ""
+echo "Need help troubleshooting?"
+echo "Join our discord server https://discord.com/invite/rBTTVJp"
