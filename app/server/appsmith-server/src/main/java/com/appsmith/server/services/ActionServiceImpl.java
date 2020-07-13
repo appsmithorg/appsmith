@@ -23,6 +23,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -513,6 +514,34 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     @Override
     public Flux<Action> findByPageId(String pageId, AclPermission permission) {
         return repository.findByPageId(pageId, permission);
+    }
+
+    @Override
+    public Mono<List<ActionViewDTO>> getActionsForViewMode(String applicationId) {
+        Sort sort = Sort.by(FieldName.NAME);
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+
+        return pageService
+                .findNamesByApplicationId(applicationId)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, "pages for application", applicationId))
+                )
+                .map(applicationPagesDTO -> applicationPagesDTO.getPages())
+                .flatMapMany(Flux::fromIterable)
+                .map(pageNameIdDTO -> pageNameIdDTO.getId())
+                .collectList()
+                .flatMapMany(pages -> repository.findAllActionsByNameAndPageIds(null, pages, READ_ACTIONS, sort))
+                .map(action -> {
+                    ActionViewDTO actionViewDTO = new ActionViewDTO();
+                    actionViewDTO.setId(action.getId());
+                    actionViewDTO.setName(action.getName());
+                    actionViewDTO.setJsonPathKeys(new HashSet<>());
+                    actionViewDTO.getJsonPathKeys().addAll(action.getJsonPathKeys());
+                    return actionViewDTO;
+                })
+                .collectList();
     }
 
     @Override
