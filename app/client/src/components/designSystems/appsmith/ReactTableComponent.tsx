@@ -51,6 +51,7 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps {
   widgetId: string;
+  widgetName: string;
   searchKey: string;
   isDisabled?: boolean;
   isVisible?: boolean;
@@ -486,6 +487,7 @@ export class ReactTableComponent extends React.Component<
         height={this.props.height}
         pageSize={this.state.pageSize || 1}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         searchKey={this.props.searchKey}
         columns={columns}
         hiddenColumns={this.props.hiddenColumns}

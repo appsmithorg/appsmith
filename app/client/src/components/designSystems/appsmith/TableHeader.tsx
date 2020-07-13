@@ -67,7 +67,7 @@ interface TableHeaderProps {
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
-  widgetId: string;
+  widgetName: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
@@ -90,7 +90,7 @@ const TableHeader = (props: TableHeaderProps) => {
         <TableDataDownload
           data={props.tableData}
           columns={props.tableColumns}
-          widgetId={props.widgetId}
+          widgetName={props.widgetName}
         />
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (

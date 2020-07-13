@@ -131,6 +131,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={filteredTableData}
           isLoading={this.props.isLoading}
           widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
           searchKey={this.props.searchKey}
           renderMode={this.props.renderMode}
           hiddenColumns={hiddenColumns}

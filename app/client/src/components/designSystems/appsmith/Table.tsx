@@ -21,6 +21,7 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
+  widgetName: string;
   searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
@@ -118,7 +119,7 @@ export const Table = (props: TableProps) => {
         pageCount={pageCount}
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
-        widgetId={props.widgetId}
+        widgetName={props.widgetName}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";

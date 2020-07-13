@@ -5,6 +5,7 @@ import {
   PopoverInteractionKind,
   Position,
   Icon,
+  Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
@@ -93,13 +94,20 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
           selectMenu(true);
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+        <Tooltip
+          autoFocus={false}
+          hoverOpenDelay={1000}
+          content="Hidden Fields"
+          position="top"
         >
-          <VisibilityIcon />
-        </IconWrapper>
+          <IconWrapper
+            width={20}
+            height={20}
+            color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+          >
+            <VisibilityIcon />
+          </IconWrapper>
+        </Tooltip>
       </TableIconWrapper>
       <DropDownWrapper>
         {props.columns.map((option: ReactTableColumnProps, index: number) => (

@@ -1,5 +1,6 @@
 import React from "react";
 import { IconWrapper } from "constants/IconConstants";
+import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
@@ -16,7 +17,7 @@ const TableIconWrapper = styled.div`
 interface TableDataDownloadProps {
   data: object[];
   columns: ReactTableColumnProps[];
-  widgetId: string;
+  widgetName: string;
 }
 
 const TableDataDownload = (props: TableDataDownloadProps) => {
@@ -39,7 +40,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
       for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
         const column = props.columns[colIndex];
         const value = data[column.accessor];
-        if (column.metaProperties) {
+        if (column.metaProperties && !column.metaProperties.isHidden) {
           const type = column.metaProperties.type;
           const format = column.metaProperties.format;
           switch (type) {
@@ -88,10 +89,10 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     }
     let csvContent = "";
     csvData.forEach(function(infoArray, index) {
-      const dataString = infoArray.join(";");
+      const dataString = infoArray.join(",");
       csvContent += index < csvData.length ? dataString + "\n" : dataString;
     });
-    const fileName = `table-${props.widgetId}.csv`;
+    const fileName = `${props.widgetName}.csv`;
     const anchor = document.createElement("a");
     const mimeType = "application/octet-stream";
     if (navigator.msSaveBlob) {
@@ -121,13 +122,20 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         downloadTableData();
       }}
     >
-      <IconWrapper
-        width={20}
-        height={20}
-        color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+      <Tooltip
+        autoFocus={false}
+        hoverOpenDelay={1000}
+        content="Download"
+        position="top"
       >
-        <DownloadIcon />
-      </IconWrapper>
+        <IconWrapper
+          width={20}
+          height={20}
+          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+        >
+          <DownloadIcon />
+        </IconWrapper>
+      </Tooltip>
     </TableIconWrapper>
   );
 };
