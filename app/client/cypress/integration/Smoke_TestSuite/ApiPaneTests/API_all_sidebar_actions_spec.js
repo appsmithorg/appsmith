@@ -10,8 +10,8 @@ describe("API Panel Test Functionality ", function() {
     cy.CopyAPIToHome("FirstAPI");
     cy.DeleteAPI("FirstAPI");
     //cy.MoveAPIToPage();
-    cy.CreateAPI("FirstAPI");
+    cy.CreateAPI("SecondApi");
     cy.log("Creation of FirstAPI Action successful");
-    cy.CreationOfUniqueAPIcheck("FirstAPI");
+    cy.CreationOfUniqueAPIcheck("SecondApi");
   });
 });
