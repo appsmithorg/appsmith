@@ -93,10 +93,10 @@ encryption_option=${encryption_option:-1}
 if [[ $encryption_option -eq 2 ]];then
     read -p 'Enter your encryption password: ' user_encryption_password
     read -p 'Enter your encryption salt: ' user_encryption_salt
-elif [[ $mongo_option -eq 1 ]];then
+elif [[ $encryption_option -eq 1 ]];then
 # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    user_encryption_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
-    user_encryption_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+    user_encryption_password=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+    user_encryption_salt=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
     output_password="Generated Password : ${user_encryption_password}"
     output_salt="Generated Salt : ${user_encryption_salt}"
     echo "Please note the following generated values in case you need to install again and protect losing access to sensitive data"
