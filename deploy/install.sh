@@ -118,11 +118,10 @@ cd ..
 # Role - Docker
 if ! is_command_present docker ;then
     install_docker
-    start_docker
-else
-    start_docker
 fi
 
+# Starting docker service
+start_docker
 
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
