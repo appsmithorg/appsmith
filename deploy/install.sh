@@ -120,7 +120,6 @@ if ! is_command_present docker ;then
     install_docker
     start_docker
 else
-    echo "start_docker"
     start_docker
 fi
 
