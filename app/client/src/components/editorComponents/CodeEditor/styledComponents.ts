@@ -230,6 +230,11 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     props.isActive && props.skin === Skin.DARK
       ? Colors.ALABASTER
       : "transparent"};
+  > span:first-of-type {
+    width: 30px;
+    position: absolute;
+    right: 0px;
+  }
   &:hover {
     border: ${props =>
       props.skin === Skin.DARK ? "1px solid " + Colors.ALABASTER : "none"};
