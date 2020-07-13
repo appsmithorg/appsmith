@@ -481,17 +481,14 @@ public class DatabaseChangelog {
     @ChangeSet(order = "017", id = "encrypt-password", author = "")
     public void encryptPassword(MongoTemplate mongoTemplate, EncryptionService encryptionService) {
         final List<Datasource> datasources = mongoTemplate.find(
-                query(where("datasourceConfiguration.authentication").exists(true)),
+                query(where("datasourceConfiguration.authentication.password").exists(true)),
                 Datasource.class
         );
 
         for (final Datasource datasource : datasources) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            if (authentication.getPassword() != null) {
-                authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
-                datasource.getDatasourceConfiguration().setAuthentication(authentication);
-                mongoTemplate.save(datasource);
-            }
+            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            mongoTemplate.save(datasource);
         }
     }
 }
