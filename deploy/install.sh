@@ -85,7 +85,7 @@ fi
 echo ""
 
 echo "Appsmith needs password and salt to encrypt sensitive information"
-encryptionEnv=./encryption.env
+encryptionEnv=./template/encryption.env
 if test -f "$encryptionEnv"; then
     echo "CAUTION : This isn't your first time installing appsmith. Encryption password and salt already exist. Do you want to override this? NOTE: Overwriting the existing salt and password would lead to you losing access to sensitive information encrypted using the same"
     echo "1) No. Conserve the older encryption password and salt and continue"
