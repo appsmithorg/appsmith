@@ -517,10 +517,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
     }
 
     @Override
-    public Mono<List<ActionViewDTO>> getActionsForViewMode(String applicationId) {
+    public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
         Sort sort = Sort.by(FieldName.NAME);
         if (applicationId == null || applicationId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
         return pageService
@@ -540,8 +540,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     actionViewDTO.setJsonPathKeys(new HashSet<>());
                     actionViewDTO.getJsonPathKeys().addAll(action.getJsonPathKeys());
                     return actionViewDTO;
-                })
-                .collectList();
+                });
     }
 
     @Override

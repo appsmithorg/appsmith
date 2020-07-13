@@ -32,6 +32,6 @@ public interface ActionService extends CrudService<Action, String> {
 
     Flux<Action> findByPageId(String pageId, AclPermission permission);
 
-    Mono<List<ActionViewDTO>> getActionsForViewMode(String applicationId);
+    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
 }

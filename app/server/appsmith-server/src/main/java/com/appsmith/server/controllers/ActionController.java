@@ -84,7 +84,7 @@ public class ActionController extends BaseController<ActionService, Action, Stri
 
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(@RequestParam String applicationId) {
-        return service.getActionsForViewMode(applicationId)
+        return service.getActionsForViewMode(applicationId).collectList()
                 .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 }

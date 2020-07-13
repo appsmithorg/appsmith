@@ -473,7 +473,7 @@ public class ActionServiceTest {
         action.setDatasource(datasource);
 
         Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
-                .then(actionService.getActionsForViewMode(testApp.getId()));
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
                 .create(actionsListMono)
