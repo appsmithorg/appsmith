@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Templates from "./Templates";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
+import { getPluginTemplates } from "selectors/entitiesSelector";
 
 const Container = styled.div`
   display: flex;
@@ -42,10 +44,14 @@ const Row = styled.div`
 
 interface TemplateMenuProps {
   createTemplate: (template: any) => void;
-  selectedPluginPackage: string;
+  pluginId: string;
 }
 
-type Props = TemplateMenuProps;
+type ReduxProps = {
+  pluginTemplates: Record<string, any>;
+};
+
+type Props = TemplateMenuProps & ReduxProps;
 
 class TemplateMenu extends React.Component<Props> {
   nameInput!: HTMLDivElement | null;
@@ -54,9 +60,9 @@ class TemplateMenu extends React.Component<Props> {
     this.nameInput?.focus();
   }
 
-  fetchTemplate = (queryType: React.ReactText) => {
-    const { selectedPluginPackage } = this.props;
-    const allTemplates = Templates[selectedPluginPackage];
+  fetchTemplate = (queryType: string) => {
+    const { pluginId, pluginTemplates } = this.props;
+    const allTemplates = pluginTemplates[pluginId];
 
     if (allTemplates) {
       return allTemplates[queryType];
@@ -88,7 +94,7 @@ class TemplateMenu extends React.Component<Props> {
         <div style={{ marginTop: "6px" }}>
           <Row
             onClick={e => {
-              const template = this.fetchTemplate("create");
+              const template = this.fetchTemplate("CREATE");
               createTemplate(template);
               e.stopPropagation();
             }}
@@ -98,7 +104,7 @@ class TemplateMenu extends React.Component<Props> {
           </Row>
           <Row
             onClick={e => {
-              const template = this.fetchTemplate("read");
+              const template = this.fetchTemplate("SELECT");
               createTemplate(template);
               e.stopPropagation();
             }}
@@ -108,7 +114,7 @@ class TemplateMenu extends React.Component<Props> {
           </Row>
           <Row
             onClick={e => {
-              const template = this.fetchTemplate("delete");
+              const template = this.fetchTemplate("DELETE");
               createTemplate(template);
               e.stopPropagation();
             }}
@@ -118,7 +124,7 @@ class TemplateMenu extends React.Component<Props> {
           </Row>
           <Row
             onClick={e => {
-              const template = this.fetchTemplate("update");
+              const template = this.fetchTemplate("UPDATE");
               createTemplate(template);
               e.stopPropagation();
             }}
@@ -132,4 +138,10 @@ class TemplateMenu extends React.Component<Props> {
   }
 }
 
-export default TemplateMenu;
+const mapStateToProps = (state: AppState) => {
+  return {
+    pluginTemplates: getPluginTemplates(state),
+  };
+};
+
+export default connect(mapStateToProps)(TemplateMenu);

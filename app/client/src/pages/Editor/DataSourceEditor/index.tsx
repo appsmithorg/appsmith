@@ -2,7 +2,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormValues, submit } from "redux-form";
 import { AppState } from "reducers";
-import { getPluginPackageFromId } from "selectors/entitiesSelector";
+import {
+  getPluginPackageFromId,
+  getPluginImages,
+} from "selectors/entitiesSelector";
 import {
   updateDatasource,
   testDatasource,
@@ -27,6 +30,7 @@ interface ReduxStateProps {
   loadingFormConfigs: boolean;
   isDeleting: boolean;
   newDatasource: string;
+  pluginImages: Record<string, string>;
 }
 
 type Props = ReduxStateProps &
@@ -60,12 +64,14 @@ class DataSourceEditor extends React.Component<Props> {
       isDeleting,
       deleteDatasource,
       newDatasource,
+      pluginImages,
     } = this.props;
 
     return (
       <React.Fragment>
         {datasourceId ? (
           <DataSourceEditorForm
+            pluginImage={pluginImages[formData?.pluginId]}
             applicationId={this.props.match.params.applicationId}
             pageId={this.props.match.params.pageId}
             isSaving={isSaving}
@@ -103,6 +109,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
 
   return {
+    pluginImages: getPluginImages(state),
     formData,
     selectedPluginPackage: getPluginPackageFromId(
       state,

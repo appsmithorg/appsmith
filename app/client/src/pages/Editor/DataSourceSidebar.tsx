@@ -10,8 +10,7 @@ import { Colors } from "constants/Colors";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import { getDataSources } from "selectors/editorSelectors";
-import { getPlugins } from "selectors/entitiesSelector";
-import { Plugin } from "api/PluginApi";
+import { getPluginImages } from "selectors/entitiesSelector";
 import {
   initDatasourcePane,
   storeDatastoreRefs,
@@ -23,15 +22,7 @@ import { theme } from "constants/DefaultTheme";
 import { selectPlugin } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
-import RestTemplateImage from "assets/images/RestAPI.png";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_POSTGRES,
-  PLUGIN_PACKAGE_MONGO,
-} from "constants/QueryEditorConstants";
 import { AppState } from "reducers";
 import { Datasource } from "api/DatasourcesApi";
 import Fuse from "fuse.js";
@@ -48,7 +39,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   dataSources: Datasource[];
-  plugins: Plugin[];
+  pluginImages: Record<string, string>;
   datastoreRefs: Record<string, any>;
   formConfigs: Record<string, []>;
   drafts: Record<string, Datasource>;
@@ -253,22 +244,6 @@ class DataSourceSidebar extends React.Component<Props, State> {
     return search ? fuse.search(search) : dataSources;
   };
 
-  getImageSource = (pluginId: string) => {
-    const { plugins } = this.props;
-    const plugin = plugins.find(plugin => plugin.id === pluginId);
-
-    switch (plugin?.packageName) {
-      case REST_PLUGIN_PACKAGE_NAME:
-        return RestTemplateImage;
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoDB;
-      case PLUGIN_PACKAGE_POSTGRES:
-        return Postgres;
-      default:
-        return ImageAlt;
-    }
-  };
-
   renderItem = () => {
     const {
       match: {
@@ -277,6 +252,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
       datastoreRefs,
       deleteDatasource,
       drafts,
+      pluginImages,
     } = this.props;
 
     const filteredList = this.getSearchFilteredList();
@@ -292,7 +268,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
         >
           <ActionItem>
             <StyledImage
-              src={this.getImageSource(datasource.pluginId)}
+              src={pluginImages[datasource.pluginId] || ImageAlt}
               className="pluginImage"
               alt="Plugin Image"
             />
@@ -365,7 +341,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
     formConfigs: state.entities.plugins.formConfigs,
     dataSources: getDataSources(state),
-    plugins: getPlugins(state),
+    pluginImages: getPluginImages(state),
     datastoreRefs: state.ui.datasourcePane.datasourceRefs,
     drafts,
   };

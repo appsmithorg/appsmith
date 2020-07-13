@@ -11,6 +11,13 @@ const OutputContainer = styled.div`
   padding: 6px;
 `;
 
+const ResponseContent = styled.div`
+  height: calc(
+    100vh - (100vh / 4) - 255px - ${props => props.theme.headerHeight}
+  );
+  overflow: auto;
+`;
+
 const Record = styled(Card)`
   margin: 5px;
 `;
@@ -41,24 +48,28 @@ class JSONOutput extends React.Component<Props> {
 
     if (!src.length) {
       return (
-        <OutputContainer>
-          <Record>
-            <ReactJson src={src} {...reactJsonProps} />
-          </Record>
-        </OutputContainer>
+        <ResponseContent>
+          <OutputContainer>
+            <Record>
+              <ReactJson src={src} {...reactJsonProps} />
+            </Record>
+          </OutputContainer>
+        </ResponseContent>
       );
     }
 
     return (
-      <OutputContainer>
-        {src.map((record, index) => {
-          return (
-            <Record key={index}>
-              <ReactJson src={record} {...reactJsonProps} />
-            </Record>
-          );
-        })}
-      </OutputContainer>
+      <ResponseContent>
+        <OutputContainer>
+          {src.map((record, index) => {
+            return (
+              <Record key={index}>
+                <ReactJson src={record} {...reactJsonProps} />
+              </Record>
+            );
+          })}
+        </OutputContainer>
+      </ResponseContent>
     );
   }
 }

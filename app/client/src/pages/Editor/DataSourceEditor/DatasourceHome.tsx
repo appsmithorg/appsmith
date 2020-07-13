@@ -3,18 +3,13 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { Card, Spinner } from "@blueprintjs/core";
-import { getDatasourcePlugins } from "selectors/entitiesSelector";
+import {
+  getDatasourcePlugins,
+  getPluginImages,
+} from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
-import RestTemplateImage from "assets/images/RestAPI.png";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_POSTGRES,
-  PLUGIN_PACKAGE_MONGO,
-} from "constants/QueryEditorConstants";
 import {
   selectPlugin,
   createDatasourceFromForm,
@@ -120,6 +115,7 @@ interface ReduxDispatchProps {
 interface ReduxStateProps {
   plugins: Plugin[];
   currentApplication: UserApplication;
+  pluginImages: Record<string, string>;
 }
 
 type Props = ReduxStateProps & DatasourceHomeScreenProps & ReduxDispatchProps;
@@ -138,21 +134,8 @@ class DatasourceHomeScreen extends React.Component<Props> {
     });
   };
 
-  getImageSrc = (packageName: string) => {
-    switch (packageName) {
-      case PLUGIN_PACKAGE_POSTGRES:
-        return Postgres;
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoDB;
-      case REST_PLUGIN_PACKAGE_NAME:
-        return RestTemplateImage;
-      default:
-        return ImageAlt;
-    }
-  };
-
   render() {
-    const { plugins, isSaving } = this.props;
+    const { plugins, isSaving, pluginImages } = this.props;
 
     return (
       <DatasourceHomePage>
@@ -175,7 +158,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     onClick={() => this.goToCreateDatasource(plugin.id)}
                   >
                     <img
-                      src={this.getImageSrc(plugin.packageName)}
+                      src={pluginImages[plugin.id] || ImageAlt}
                       className="dataSourceImage"
                       alt="Datasource"
                     />
@@ -193,6 +176,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => {
   return {
+    pluginImages: getPluginImages(state),
     plugins: getDatasourcePlugins(state),
     currentApplication: getCurrentApplication(state),
   };

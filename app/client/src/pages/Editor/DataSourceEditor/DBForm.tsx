@@ -2,11 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
-import {
-  PLUGIN_PACKAGE_MONGO,
-  PLUGIN_PACKAGE_POSTGRES,
-} from "constants/QueryEditorConstants";
 import { Spinner } from "@blueprintjs/core";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import Collapsible from "./Collapsible";
@@ -15,11 +10,9 @@ import FormLabel from "components/editorComponents/FormLabel";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
-import RestTemplateImage from "assets/images/RestAPI.png";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 
 import FormControlFactory from "utils/FormControlFactory";
 import Button from "components/editorComponents/Button";
@@ -42,6 +35,7 @@ interface DatasourceDBEditorProps {
   loadingFormConfigs: boolean;
   formConfig: [];
   isNewDatasource: boolean;
+  pluginImage: string;
 }
 
 interface DatasourceDBEditorState {
@@ -181,19 +175,6 @@ class DatasourceDBEditor extends React.Component<
     return !_.isEmpty(errors);
   };
 
-  getImageSrc = (pluginPackage: string) => {
-    switch (pluginPackage) {
-      case PLUGIN_PACKAGE_POSTGRES:
-        return Postgres;
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoDB;
-      case REST_PLUGIN_PACKAGE_NAME:
-        return RestTemplateImage;
-      default:
-        return ImageAlt;
-    }
-  };
-
   render() {
     const { loadingFormConfigs, formConfig } = this.props;
     const content = this.renderDataSourceConfigForm(formConfig);
@@ -287,7 +268,6 @@ class DatasourceDBEditor extends React.Component<
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      selectedPluginPackage,
       isSaving,
       applicationId,
       pageId,
@@ -322,7 +302,7 @@ class DatasourceDBEditor extends React.Component<
         <br />
         <FormTitleContainer>
           <PluginImage
-            src={this.getImageSrc(selectedPluginPackage)}
+            src={this.props.pluginImage || ImageAlt}
             alt="Datasource"
           />
           <Field
@@ -330,6 +310,10 @@ class DatasourceDBEditor extends React.Component<
             component={FormTitle}
             focusOnMount={this.props.isNewDatasource}
           />
+          <CollapsibleHelp>
+            You will need your db admin to whitelist the Appsmith IP address
+            xxx.xx.xx.xx
+          </CollapsibleHelp>
         </FormTitleContainer>
         {!_.isNil(sections)
           ? _.map(sections, this.renderMainSection)

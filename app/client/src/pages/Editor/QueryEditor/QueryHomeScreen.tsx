@@ -4,23 +4,16 @@ import { Icon, Card, Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import Postgres from "assets/images/Postgress.png";
-import MongoDB from "assets/images/MongoDB.png";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { Plugin } from "api/PluginApi";
 import {
-  getPlugins,
   getPluginIdsOfPackageNames,
+  getPluginImages,
 } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "api/DatasourcesApi";
 import history from "utils/history";
 import { createActionRequest } from "actions/actionActions";
-import {
-  PLUGIN_PACKAGE_MONGO,
-  PLUGIN_PACKAGE_POSTGRES,
-  PLUGIN_PACKAGE_DBS,
-} from "constants/QueryEditorConstants";
+import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { Page } from "constants/ReduxActionConstants";
 import {
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -131,8 +124,8 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
-  plugins: Plugin[];
   pages: Page[];
+  pluginImages: Record<string, string>;
 };
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
@@ -161,23 +154,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     }
   };
 
-  getImageSrc = (dataSource: Datasource) => {
-    const { plugins } = this.props;
-    const { pluginId } = dataSource;
-    const plugin = plugins.find(
-      (plugin: { id: string }) => plugin.id === pluginId,
-    );
-
-    switch (plugin?.packageName) {
-      case PLUGIN_PACKAGE_MONGO:
-        return MongoDB;
-      case PLUGIN_PACKAGE_POSTGRES:
-        return Postgres;
-      default:
-        return ImageAlt;
-    }
-  };
-
   render() {
     const {
       dataSources,
@@ -187,6 +163,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       history,
       location,
       isCreating,
+      pluginImages,
     } = this.props;
 
     const validDataSources: Array<Datasource> = [];
@@ -248,7 +225,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                   }
                 >
                   <img
-                    src={this.getImageSrc(dataSource)}
+                    src={pluginImages[dataSource.pluginId] || ImageAlt}
                     className="dataSourceImage"
                     alt="Datasource"
                   />
@@ -271,7 +248,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
 
 const mapStateToProps = (state: AppState) => ({
   pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-  plugins: getPlugins(state),
+  pluginImages: getPluginImages(state),
   actions: state.entities.actions,
   pages: state.entities.pageList.pages,
 });
