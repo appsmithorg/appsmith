@@ -84,24 +84,38 @@ elif [[ $mongo_option -eq 1 ]];then
 fi
 echo ""
 
-echo "Appsmith needs password and salt to encrypt sensitive information. NOTE : If this isn't the first time installing appsmith, to ensure that you dont lose access to some of your previous data, enter the last salt and password entered/generated the first time"
-echo "1) Automatically generate password and salt (recommended)"
-echo "2) Set up your own salt and password"
-read -p 'Enter option number [1]: ' encryption_option
-encryption_option=${encryption_option:-1}
+echo "Appsmith needs password and salt to encrypt sensitive information"
+encryptionEnv=./encryption.env
+if test -f "$encryptionEnv"; then
+    echo "CAUTION : This isn't your first time installing appsmith. Encryption password and salt already exist. Do you want to override this? NOTE: Overwriting the existing salt and password would lead to you losing access to sensitive information encrypted using the same"
+    echo "1) No. Conserve the older encryption password and salt and continue"
+    echo "2) Yes. Overwrite the existing encryption (NOT SUGGESTED)"
+    read -p 'Enter option number [1]: ' overwrite_encryption
+    overwrite_encryption=${overwrite_encryption:-1}
 
-if [[ $encryption_option -eq 2 ]];then
-    read -p 'Enter your encryption password: ' user_encryption_password
-    read -p 'Enter your encryption salt: ' user_encryption_salt
-elif [[ $encryption_option -eq 1 ]];then
-# Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
-    user_encryption_password=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
-    user_encryption_salt=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
-    output_password="Generated Password : ${user_encryption_password}"
-    output_salt="Generated Salt : ${user_encryption_salt}"
-    echo "Please note the following generated values in case you need to install again and protect losing access to sensitive data"
-    echo "${output_password}"
-    echo "${output_salt}"
+    if [[ $overwrite_encryption -eq 1 ]];then
+        setup_encryption="false"
+    elif [[ $overwrite_encryption -eq 2 ]];then
+        setup_encryption="true"    
+    fi
+else
+    setup_encryption="true"
+fi
+
+if [[ "$setup_encryption" = "true" ]];then
+    echo "1) Automatically generate password and salt (recommended)"
+    echo "2) Set up your own salt and password"
+    read -p 'Enter option number [1]: ' encryption_option
+    encryption_option=${encryption_option:-1}
+
+    if [[ $encryption_option -eq 2 ]];then
+        read -p 'Enter your encryption password: ' user_encryption_password
+        read -p 'Enter your encryption salt: ' user_encryption_salt
+    elif [[ $encryption_option -eq 1 ]];then
+    # Picked up the following method of generation from : https://gist.github.com/earthgecko/3089509
+        user_encryption_password=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+        user_encryption_salt=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 13 | head -n 1)
+    fi
 fi
 echo ""
 
@@ -124,6 +138,7 @@ curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/te
 curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
 curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
 curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 cd ..
 
 # Role - Docker
@@ -145,6 +160,9 @@ echo "Generating the configuration files from the templates"
 . ./template/mongo-init.js.sh
 . ./template/init-letsencrypt.sh.sh
 . ./template/docker.env.sh
+if [[ "$setup_encryption" = "true" ]];then
+   . ./template/encryption.env.sh
+fi 
 chmod 0755 init-letsencrypt.sh
 
 declare -A fileInfo
@@ -154,6 +172,7 @@ fileInfo[/docker-compose.yml]="docker-compose.yml"
 fileInfo[/data/mongo/init.js]="mongo-init.js"
 fileInfo[/init-letsencrypt.sh]="init-letsencrypt.sh"
 fileInfo[/docker.env]="docker.env"
+fileInfo[/encryption.env]="encryption.env"
 
 for f in ${!fileInfo[@]}
 do
