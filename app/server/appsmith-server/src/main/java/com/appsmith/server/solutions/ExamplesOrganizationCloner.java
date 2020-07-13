@@ -34,6 +34,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExamplesOrganizationCloner {
 
+    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
+
     private final OrganizationService organizationService;
     private final OrganizationRepository organizationRepository;
     private final DatasourceService datasourceService;
@@ -53,15 +55,23 @@ public class ExamplesOrganizationCloner {
                 .flatMap(this::cloneExamplesOrganization);
     }
 
+    /**
+     * Clones the template organization (as specified in config collection) for the given user. The given user will be
+     * the owner of the cloned organization.
+     * @param user User who will be the owner of the cloned organization.
+     * @return Empty Mono.
+     */
     public Mono<Void> cloneExamplesOrganization(User user) {
         if (user.getExamplesOrganizationId() != null) {
             // This user already has an examples organization, don't have to do anything.
             return Mono.empty();
         }
 
-        return configRepository.findByName("template-organization")
+        return configRepository.findByName(TEMPLATE_ORGANIZATION_CONFIG_NAME)
                 .doOnSuccess(config -> {
                     if (config == null) {
+                        // If the template organization could not be found, that's okay, the login should not fail. We
+                        // will try again the next time the user logs in.
                         log.error("Couldn't find config by name template-organization.");
                     }
                 })
@@ -72,6 +82,13 @@ public class ExamplesOrganizationCloner {
                 .then();
     }
 
+    /**
+     * Given an organization ID and a user, clone the organization and make the given user the owner of the cloned
+     * organization. This recursively clones all objects inside the organization.
+     * @param templateOrganizationId Organization ID of the organization to create a clone of.
+     * @param user The user who will own the new cloned organization.
+     * @return Empty Mono.
+     */
     public Mono<Void> cloneOrganizationForUser(String templateOrganizationId, User user) {
         return organizationRepository
                 .findById(templateOrganizationId)
@@ -97,7 +114,6 @@ public class ExamplesOrganizationCloner {
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
                     return Mono.when(
                             userService.update(user.getId(), userUpdate),
-                            // cloneDatasources(templateOrganizationId, newOrganization.getId())
                             cloneApplications(templateOrganizationId, newOrganization.getId())
                     );
                 })
@@ -105,6 +121,13 @@ public class ExamplesOrganizationCloner {
                 .then();
     }
 
+    /**
+     * Clone all applications (except deleted ones), including it's pages and actions from one organization into
+     * another. Also clones all datasources (not just the ones used by any applications) in the given organizations.
+     * @param fromOrganizationId ID of the organization that is the source to copy objects from.
+     * @param toOrganizationId ID of the organization that is the target to copy objects to.
+     * @return Empty Mono.
+     */
     private Mono<Void> cloneApplications(String fromOrganizationId, String toOrganizationId) {
         final Mono<Map<String, Datasource>> cloneDatasourcesMono = cloneDatasources(fromOrganizationId, toOrganizationId).cache();
         return applicationRepository
@@ -152,6 +175,14 @@ public class ExamplesOrganizationCloner {
                 .then();
     }
 
+    /**
+     * Clone all the datasources (except deleted ones) from one organization to another. Publishes a map where the keys
+     * are IDs of datasources that were copied (source IDs), and the values are the cloned datasource objects which
+     * contain the new ID.
+     * @param fromOrganizationId ID of the organization that is the source to copy datasources from.
+     * @param toOrganizationId ID of the organization that is the target to copy datasources to.
+     * @return Mono of a mapping with old datasource IDs as keys and new datasource objects as values.
+     */
     private Mono<Map<String, Datasource>> cloneDatasources(String fromOrganizationId, String toOrganizationId) {
         return datasourceRepository
                 .findAllByOrganizationId(fromOrganizationId)
