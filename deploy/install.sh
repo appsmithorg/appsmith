@@ -84,7 +84,8 @@ elif [[ $mongo_option -eq 1 ]];then
 fi
 echo ""
 read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
-if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
+setup_domain=${setup_domain:-Y}
+if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
     echo "Please update your DNS records with your domain registrar"
     echo "You can read more about this in our Documentation https://docs.appsmith.com/v/v1.1/quick-start#custom-domains"
     echo ""
