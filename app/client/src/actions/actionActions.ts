@@ -167,7 +167,7 @@ export const saveApiName = (payload: { id: string; name: string }) => ({
 export type SetActionPropertyPayload = {
   actionId: string;
   propertyName: string;
-  value: string;
+  value: any;
 };
 
 export const setActionProperty = (payload: SetActionPropertyPayload) => ({
