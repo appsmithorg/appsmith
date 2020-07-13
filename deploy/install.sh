@@ -52,6 +52,7 @@ declare -A osInfo;
 osInfo[/etc/debian_version]="apt-get"
 osInfo[/etc/centos-release]="yum"
 osInfo[/etc/redhat-release]="yum"
+osInfo[/System/Library/CoreServices/SystemVersion.plist]="brew"
 
 # Checking OS and assiging package manager
 desired_os=0
@@ -105,6 +106,8 @@ if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $
     echo "Would you like to provision an SSL certificate for your custom domain / subdomain?"
     read -p '(Your DNS records must be updated for us to provision SSL) [Y/n]: ' setup_ssl
     setup_ssl=${setup_ssl:-Y}
+else
+    setup_ssl="n"
 fi
 
 if [ $setup_ssl == "Y" -o $setup_ssl == "y" -o $setup_ssl == "yes" -o $setup_ssl == "Yes" ];then
@@ -127,11 +130,18 @@ cd ..
 
 # Role - Docker
 if ! is_command_present docker ;then
-    install_docker
+    if [ $package_manager == "apt-get" -o $package_manager == "yum" ];then
+        install_docker
+    else
+        echo "Please follow below link to Install Docker Desktop on Mac:"
+        echo "https://docs.docker.com/docker-for-mac/install/"
+    fi
 fi
 
 # Starting docker service
-start_docker
+if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
+    start_docker
+fi
 
 # Role - Folder
 for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
