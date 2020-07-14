@@ -225,7 +225,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
                   }
                 >
                   <img
-                    src={pluginImages[dataSource.pluginId] || ImageAlt}
+                    src={pluginImages[dataSource.pluginId]}
                     className="dataSourceImage"
                     alt="Datasource"
                   />

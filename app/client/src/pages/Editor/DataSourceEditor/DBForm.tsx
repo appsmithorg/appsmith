@@ -311,11 +311,11 @@ class DatasourceDBEditor extends React.Component<
             component={FormTitle}
             focusOnMount={this.props.isNewDatasource}
           />
-          <CollapsibleHelp>
-            You will need your db admin to whitelist the Appsmith IP address{" "}
-            {APPSMITH_IP_ADDRESS}
-          </CollapsibleHelp>
         </FormTitleContainer>
+        <CollapsibleHelp>
+          You will need your db admin to whitelist the Appsmith IP address{" "}
+          {APPSMITH_IP_ADDRESS}
+        </CollapsibleHelp>
         {!_.isNil(sections)
           ? _.map(sections, this.renderMainSection)
           : undefined}

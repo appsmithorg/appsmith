@@ -11,6 +11,10 @@ const OutputContainer = styled.div`
   padding: 6px;
 `;
 
+/*
+ * 255 = height of the rest of the items in the form (excluding editor height)
+ * 100vh /4 = height of the editor
+ */
 const ResponseContent = styled.div`
   height: calc(
     100vh - (100vh / 4) - 255px - ${props => props.theme.headerHeight}

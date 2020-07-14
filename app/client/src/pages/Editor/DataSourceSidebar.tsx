@@ -268,7 +268,7 @@ class DataSourceSidebar extends React.Component<Props, State> {
         >
           <ActionItem>
             <StyledImage
-              src={pluginImages[datasource.pluginId] || ImageAlt}
+              src={pluginImages[datasource.pluginId]}
               className="pluginImage"
               alt="Plugin Image"
             />

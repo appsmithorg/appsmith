@@ -132,7 +132,7 @@ class QuerySidebar extends React.Component<Props> {
     return (
       <ActionItem>
         <StyledImage
-          src={pluginImages[query.datasource?.pluginId ?? ""] || ImageAlt}
+          src={pluginImages[query.datasource?.pluginId ?? ""]}
           className="pluginImage"
           alt="Plugin Image"
         />

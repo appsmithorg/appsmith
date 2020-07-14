@@ -10,6 +10,10 @@ interface TableProps {
   data: Record<string, any>[];
 }
 
+/*
+ * 310 = height of the table header + rest of the items (excluding editor height)
+ * 100vh /4 = height of the editor
+ */
 const StyledTableWrapped = styled(TableWrapper)`
   width: 100%;
   height: auto;

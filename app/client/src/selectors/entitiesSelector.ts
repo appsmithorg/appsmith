@@ -9,6 +9,7 @@ import { createSelector } from "reselect";
 import { Datasource } from "api/DatasourcesApi";
 import { Action } from "entities/Action";
 import { find } from "lodash";
+import ImageAlt from "assets/images/placeholder-image.svg";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -149,7 +150,7 @@ export const getPluginImages = createSelector(getPlugins, plugins => {
   const pluginImages: Record<string, string> = {};
 
   plugins.forEach(plugin => {
-    pluginImages[plugin.id] = plugin?.iconLocation ?? "";
+    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
 
   return pluginImages;

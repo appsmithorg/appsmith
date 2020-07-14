@@ -158,7 +158,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                     onClick={() => this.goToCreateDatasource(plugin.id)}
                   >
                     <img
-                      src={pluginImages[plugin.id] || ImageAlt}
+                      src={pluginImages[plugin.id]}
                       className="dataSourceImage"
                       alt="Datasource"
                     />
