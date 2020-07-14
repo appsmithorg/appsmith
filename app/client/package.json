@@ -115,7 +115,7 @@
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com craco start",
+    "start": "REACT_APP_BASE_URL=https://release-api.appsmith.com REACT_APP_ENVIRONMENT=DEVELOPMENT HOST=dev.appsmith.com cross-env TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": " REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -153,6 +153,7 @@
     "babel-loader": "^8.0.6",
     "babel-plugin-styled-components": "^1.10.7",
     "craco-babel-loader": "^0.1.4",
+    "cross-env": "^7.0.2",
     "cypress": "^4.1.0",
     "cypress-multi-reporters": "^1.2.4",
     "cypress-xpath": "^1.4.0",
