@@ -55,23 +55,3 @@ export const createNewQueryAction = (pageId: string): ReduxAction<{}> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
   payload: { pageId },
 });
-
-export const setDatasourceFieldText = (
-  apiId: string,
-  value: string,
-): ReduxAction<{ apiId: string; value: string }> => {
-  return {
-    type: ReduxActionTypes.SET_DATASOURCE_FIELD_TEXT,
-    payload: { apiId, value },
-  };
-};
-
-export const setExtraFormData = (
-  apiId: string,
-  extraformData: {},
-): ReduxAction<{ apiId: string; extraformData: {} }> => {
-  return {
-    type: ReduxActionTypes.SET_EXTRA_FORMDATA,
-    payload: { apiId, extraformData },
-  };
-};
