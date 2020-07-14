@@ -3,7 +3,20 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { debounce } from "lodash";
-import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
+import {
+  getMenuOptions,
+  getAllTableColumnKeys,
+} from "components/designSystems/appsmith/TableUtilities";
+
+export enum ColumnTypes {
+  CURRENCY = "currency",
+  TIME = "time",
+  DATE = "date",
+  VIDEO = "video",
+  IMAGE = "image",
+  TEXT = "text",
+}
+
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
@@ -79,145 +92,12 @@ interface ReactTableComponentProps {
   handleResizeColumn: Function;
   handleReorderColumn: Function;
   searchTableData: (searchKey: any) => void;
+  columns: ReactTableColumnProps[];
 }
 
 const ReactTableComponent = (props: ReactTableComponentProps) => {
   let dragged = -1;
-  const getAllTableColumnKeys = () => {
-    const tableData: object[] = props.tableData;
-    const columnKeys: string[] = [];
-    for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
-      const row = tableData[i];
-      for (const key in row) {
-        if (!columnKeys.includes(key)) {
-          columnKeys.push(key);
-        }
-      }
-    }
-    return columnKeys;
-  };
 
-  const reorderColumns = (columns: ReactTableColumnProps[]) => {
-    const columnOrder = props.columnOrder || [];
-    const reorderedColumns = [];
-    const reorderedFlagMap: { [key: string]: boolean } = {};
-    for (let index = 0; index < columns.length; index++) {
-      const accessor = columnOrder[index];
-      if (accessor) {
-        const column = columns.filter((col: ReactTableColumnProps) => {
-          return col.accessor === accessor;
-        });
-        if (column.length && !reorderedFlagMap[column[0].accessor]) {
-          reorderedColumns.push(column[0]);
-          reorderedFlagMap[column[0].accessor] = true;
-        } else if (!reorderedFlagMap[columns[index].accessor]) {
-          reorderedColumns.push(columns[index]);
-          reorderedFlagMap[columns[index].accessor] = true;
-        }
-      } else if (!reorderedFlagMap[columns[index].accessor]) {
-        reorderedColumns.push(columns[index]);
-        reorderedFlagMap[columns[index].accessor] = true;
-      }
-    }
-    if (reorderedColumns.length < columns.length) {
-      for (let index = 0; index < columns.length; index++) {
-        if (!reorderedFlagMap[columns[index].accessor]) {
-          reorderedColumns.push(columns[index]);
-          reorderedFlagMap[columns[index].accessor] = true;
-        }
-      }
-    }
-    return reorderedColumns;
-  };
-  const getTableColumns = () => {
-    const tableData: object[] = props.tableData;
-    let columns: ReactTableColumnProps[] = [];
-    const hiddenColumns: ReactTableColumnProps[] = [];
-    if (tableData.length) {
-      const columnKeys: string[] = getAllTableColumnKeys();
-      for (let index = 0; index < columnKeys.length; index++) {
-        const i = columnKeys[index];
-        const columnName: string =
-          props.columnNameMap && props.columnNameMap[i]
-            ? props.columnNameMap[i]
-            : i;
-        const columnType: { type: string; format?: string } =
-          props.columnTypeMap && props.columnTypeMap[i]
-            ? props.columnTypeMap[i]
-            : { type: "text" };
-        const columnSize: number =
-          props.columnSizeMap && props.columnSizeMap[i]
-            ? props.columnSizeMap[i]
-            : 150;
-        const isHidden =
-          !!props.hiddenColumns && props.hiddenColumns.includes(i);
-        const columnData = {
-          Header: columnName,
-          accessor: i,
-          width: columnSize,
-          minWidth: 60,
-          draggable: true,
-          isHidden: false,
-          metaProperties: {
-            isHidden: isHidden,
-            type: columnType.type,
-            format: columnType.format,
-          },
-          Cell: (props: any) => {
-            return renderCell(
-              props.cell.value,
-              props.cell.row.index,
-              columnType.type,
-              isHidden,
-              props.widgetId,
-              columnType.format,
-            );
-          },
-        };
-        if (isHidden) {
-          columnData.isHidden = true;
-          hiddenColumns.push(columnData);
-        } else {
-          columns.push(columnData);
-        }
-      }
-      columns = reorderColumns(columns);
-      if (props.columnActions?.length) {
-        columns.push({
-          Header:
-            props.columnNameMap && props.columnNameMap["actions"]
-              ? props.columnNameMap["actions"]
-              : "Actions",
-          accessor: "actions",
-          width: 150,
-          minWidth: 60,
-          draggable: true,
-          Cell: () => {
-            return renderActions({
-              columnActions: props.columnActions,
-              onCommandClick: props.onCommandClick,
-            });
-          },
-        });
-      }
-      if (hiddenColumns.length && props.renderMode === RenderModes.CANVAS) {
-        columns = columns.concat(hiddenColumns);
-      }
-    }
-    return columns;
-  };
-
-  const tableColumns = React.useMemo(getTableColumns, [
-    JSON.stringify({
-      data: props.tableData,
-      columnNameMap: props.columnNameMap,
-      columnActions: props.columnActions,
-      hiddenColumns: props.hiddenColumns,
-      columnSizeMap: props.columnSizeMap,
-      columnTypeMap: props.columnTypeMap,
-      columnOrder: props.columnOrder,
-    }),
-  ]);
   useEffect(() => {
     const headers = Array.prototype.slice.call(
       document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
@@ -279,9 +159,9 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
           e.preventDefault();
           let columnOrder = props.columnOrder;
           if (columnOrder === undefined) {
-            columnOrder = getAllTableColumnKeys();
+            columnOrder = props.columns.map(item => item.accessor);
           }
-          const draggedColumn = tableColumns[dragged].accessor;
+          const draggedColumn = props.columns[dragged].accessor;
           columnOrder.splice(dragged, 1);
           columnOrder.splice(i, 0, draggedColumn);
           props.handleReorderColumn(columnOrder);
@@ -293,7 +173,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   });
 
   const getColumnMenu = (columnIndex: number) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnId = column.accessor;
     const columnType =
       props.columnTypeMap && props.columnTypeMap[columnId]
@@ -320,7 +200,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     let hiddenColumns = props.hiddenColumns || [];
     if (!isColumnHidden) {
       hiddenColumns.push(column.accessor);
@@ -338,7 +218,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const updateColumnType = (columnIndex: number, columnType: string) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: columnType,
@@ -348,7 +228,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const handleColumnNameUpdate = (columnIndex: number, columnName: string) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnNameMap = props.columnNameMap || {};
     columnNameMap[column.accessor] = columnName;
     props.updateColumnName(columnNameMap);
@@ -358,7 +238,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
     columnIndex: number,
     currencySymbol: string,
   ) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "currency",
@@ -368,7 +248,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "date",
@@ -378,7 +258,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
   };
 
   const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
-    const column = tableColumns[columnIndex];
+    const column = props.columns[columnIndex];
     const columnSizeMap = props.columnSizeMap || {};
     const width = Number(columnWidth.split("px")[0]);
     columnSizeMap[column.accessor] = width;
@@ -405,7 +285,7 @@ const ReactTableComponent = (props: ReactTableComponentProps) => {
       widgetId={props.widgetId}
       widgetName={props.widgetName}
       searchKey={props.searchKey}
-      columns={tableColumns}
+      columns={props.columns}
       hiddenColumns={props.hiddenColumns}
       updateHiddenColumns={props.updateHiddenColumns}
       data={props.tableData}

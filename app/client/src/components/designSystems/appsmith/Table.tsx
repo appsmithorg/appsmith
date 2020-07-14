@@ -59,6 +59,9 @@ export const Table = (props: TableProps) => {
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
+  const columns = React.useMemo(() => props.columns, [
+    JSON.stringify(props.columns),
+  ]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -68,7 +71,7 @@ export const Table = (props: TableProps) => {
     pageOptions,
   } = useTable(
     {
-      columns: props.columns,
+      columns: columns,
       data,
       defaultColumn,
       initialState: {

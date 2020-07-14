@@ -1,19 +1,11 @@
 import React from "react";
 import { IconWrapper } from "constants/IconConstants";
 import { Tooltip } from "@blueprintjs/core";
-import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-table.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
-import moment from "moment";
+import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
-const TableIconWrapper = styled.div`
-  width: 48px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 interface TableDataDownloadProps {
   data: object[];
   columns: ReactTableColumnProps[];
@@ -41,48 +33,7 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
         const column = props.columns[colIndex];
         const value = data[column.accessor];
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          const type = column.metaProperties.type;
-          const format = column.metaProperties.format;
-          switch (type) {
-            case "currency":
-              if (!isNaN(value)) {
-                csvDataRow.push(`${format}${value ? value : ""}`);
-              } else {
-                csvDataRow.push("Invalid Value");
-              }
-              break;
-            case "date":
-              let isValidDate = true;
-              if (isNaN(value)) {
-                const dateTime = Date.parse(value);
-                if (isNaN(dateTime)) {
-                  isValidDate = false;
-                }
-              }
-              if (isValidDate) {
-                csvDataRow.push(moment(value).format(format));
-              } else {
-                csvDataRow.push("Invalid Value");
-              }
-              break;
-            case "time":
-              let isValidTime = true;
-              if (isNaN(value)) {
-                const time = Date.parse(value);
-                if (isNaN(time)) {
-                  isValidTime = false;
-                }
-              }
-              if (isValidTime) {
-                csvDataRow.push(moment(value).format("HH:mm"));
-              } else {
-                csvDataRow.push("Invalid Value");
-              }
-              break;
-            default:
-              csvDataRow.push(value ? value : "");
-              break;
-          }
+          csvDataRow.push(value);
         }
       }
       csvData.push(csvDataRow);

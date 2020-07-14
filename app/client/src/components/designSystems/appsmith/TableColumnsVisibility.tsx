@@ -13,19 +13,7 @@ import { Colors } from "constants/Colors";
 import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import Button from "components/editorComponents/Button";
-
-const TableIconWrapper = styled.div<{ selected?: boolean; disabled?: boolean }>`
-  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
-  box-shadow: ${props =>
-    props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
-  width: 48px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: ${props => (props.disabled ? 0.6 : 1)};
-  cursor: ${props => !props.disabled && "pointer"};
-`;
+import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 const DropDownWrapper = styled.div`
   display: flex;
