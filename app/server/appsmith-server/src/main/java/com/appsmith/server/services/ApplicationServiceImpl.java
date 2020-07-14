@@ -102,8 +102,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId) {
-        return repository.findByIdAndOrganizationId(id, organizationId, READ_APPLICATIONS);
+    public Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission) {
+        return repository.findByIdAndOrganizationId(id, organizationId, permission);
     }
 
     @Override

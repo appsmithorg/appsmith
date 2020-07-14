@@ -12,7 +12,7 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> findById(String id, AclPermission aclPermission);
 
-    Mono<Application> findByIdAndOrganizationId(String id, String organizationId);
+    Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission);
 
     Mono<Application> findByName(String name, AclPermission permission);
 

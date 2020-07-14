@@ -11,7 +11,7 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
-    Mono<Datasource> findByName(String name);
+    Mono<Datasource> findByName(String name, AclPermission per);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 

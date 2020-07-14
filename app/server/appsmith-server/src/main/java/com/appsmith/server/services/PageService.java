@@ -11,13 +11,13 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Page> findById(String pageId, AclPermission aclPermission);
 
-    Flux<Page> findByApplicationId(String applicationId);
+    Flux<Page> findByApplicationId(String applicationId, AclPermission permission);
 
     Mono<Page> save(Page page);
 
     Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission);
 
-    Mono<Page> findByName(String name);
+    Mono<Page> findByName(String name, AclPermission permission);
 
     Mono<Void> deleteAll();
 

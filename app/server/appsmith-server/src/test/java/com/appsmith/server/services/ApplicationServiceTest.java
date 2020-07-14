@@ -116,7 +116,7 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<Page> pagesFlux = applicationPageService
                 .createApplication(testApplication, orgId)
-                .flatMapMany(application -> pageService.findByApplicationId(application.getId()));
+                .flatMapMany(application -> pageService.findByApplicationId(application.getId(), READ_PAGES));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
