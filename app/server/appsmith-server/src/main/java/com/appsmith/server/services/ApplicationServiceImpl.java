@@ -90,8 +90,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Flux<Application> findByOrganizationId(String organizationId) {
-        return repository.findByOrganizationId(organizationId, READ_APPLICATIONS);
+    public Flux<Application> findByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findByOrganizationId(organizationId, permission);
     }
 
     @Override

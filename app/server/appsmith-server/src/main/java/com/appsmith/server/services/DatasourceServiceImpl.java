@@ -263,15 +263,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID));
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
     }
 
     @Override
-    public Flux<Datasource> findAllByOrganizationId(String organizationId) {
-        return repository.findAllByOrganizationId(organizationId, AclPermission.READ_DATASOURCES);
+    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findAllByOrganizationId(organizationId, permission);
     }
 
     @Override

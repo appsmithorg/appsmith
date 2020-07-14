@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -74,9 +76,9 @@ public class ExamplesOrganizationClonerTests {
         final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
                 organizationMono,
                 organizationMono
-                        .flatMap(organization -> applicationService.findByOrganizationId(organization.getId()).collectList()),
+                        .flatMap(organization -> applicationService.findByOrganizationId(organization.getId(), READ_APPLICATIONS).collectList()),
                 organizationMono
-                        .flatMap(organization -> datasourceService.findAllByOrganizationId(organization.getId()).collectList())
+                        .flatMap(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES).collectList())
         );
 
         StepVerifier.create(resultMono)
