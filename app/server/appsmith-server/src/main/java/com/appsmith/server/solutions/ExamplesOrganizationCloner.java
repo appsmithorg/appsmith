@@ -74,7 +74,11 @@ public class ExamplesOrganizationCloner {
                     if (config == null) {
                         // If the template organization could not be found, that's okay, the login should not fail. We
                         // will try again the next time the user logs in.
-                        log.error("Couldn't find config by name template-organization.");
+                        log.error(
+                                "Couldn't find config by name {}. Skipping creating example organization for user {}.",
+                                TEMPLATE_ORGANIZATION_CONFIG_NAME,
+                                user.getEmail()
+                        );
                     }
                 })
                 .flatMap(config ->
