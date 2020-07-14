@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -22,6 +23,7 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -33,7 +35,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExamplesOrganizationCloner {
 
-    private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
+    public static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
 
     private final OrganizationService organizationService;
     private final OrganizationRepository organizationRepository;
@@ -48,7 +50,7 @@ public class ExamplesOrganizationCloner {
     private final UserService userService;
     private final ApplicationPageService applicationPageService;
 
-    public Mono<Void> cloneExamplesOrganization() {
+    public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
                 .getCurrentUser()
                 .flatMap(this::cloneExamplesOrganization);
@@ -56,11 +58,12 @@ public class ExamplesOrganizationCloner {
 
     /**
      * Clones the template organization (as specified in config collection) for the given user. The given user will be
-     * the owner of the cloned organization.
+     * the owner of the cloned organization. This method also assumes that the given user is the same as the user in
+     * the current Spring session.
      * @param user User who will be the owner of the cloned organization.
      * @return Empty Mono.
      */
-    public Mono<Void> cloneExamplesOrganization(User user) {
+    private Mono<Organization> cloneExamplesOrganization(User user) {
         if (user.getExamplesOrganizationId() != null) {
             // This user already has an examples organization, don't have to do anything.
             return Mono.empty();
@@ -74,21 +77,20 @@ public class ExamplesOrganizationCloner {
                         log.error("Couldn't find config by name template-organization.");
                     }
                 })
-                .flatMap(config -> cloneOrganizationForUser(
-                        config.getConfig().getAsString(FieldName.ORGANIZATION_ID),
-                        user
-                ))
-                .then();
+                .flatMap(config ->
+                        cloneOrganizationForUser(config.getConfig().getAsString(FieldName.ORGANIZATION_ID), user)
+                );
     }
 
     /**
      * Given an organization ID and a user, clone the organization and make the given user the owner of the cloned
-     * organization. This recursively clones all objects inside the organization.
+     * organization. This recursively clones all objects inside the organization. This method also assumes that the
+     * given user is the same as the user in the current Spring session.
      * @param templateOrganizationId Organization ID of the organization to create a clone of.
      * @param user The user who will own the new cloned organization.
-     * @return Empty Mono.
+     * @return Publishes the newly created organization.
      */
-    public Mono<Void> cloneOrganizationForUser(String templateOrganizationId, User user) {
+    private Mono<Organization> cloneOrganizationForUser(String templateOrganizationId, User user) {
         return organizationRepository
                 .findById(templateOrganizationId)
                 .doOnSuccess(organization -> {
@@ -101,7 +103,9 @@ public class ExamplesOrganizationCloner {
                 })
                 .flatMap(organization -> {
                     makePristine(organization);
-                    organization.getUserRoles().clear();
+                    if (!CollectionUtils.isEmpty(organization.getUserRoles())) {
+                        organization.getUserRoles().clear();
+                    }
                     organization.setName(user.computeFirstName() + "'s Examples");
                     organization.setSlug(null);
                     return organizationService.create(organization, user);
@@ -110,13 +114,14 @@ public class ExamplesOrganizationCloner {
                     User userUpdate = new User();
                     userUpdate.setExamplesOrganizationId(newOrganization.getId());
                     userUpdate.setPasswordResetInitiated(user.getPasswordResetInitiated());
-                    return Mono.when(
-                            userService.update(user.getId(), userUpdate),
-                            cloneApplications(templateOrganizationId, newOrganization.getId())
-                    );
+                    return Mono
+                            .when(
+                                    userService.update(user.getId(), userUpdate),
+                                    cloneApplications(templateOrganizationId, newOrganization.getId())
+                            )
+                            .thenReturn(newOrganization);
                 })
-                .doOnError(error -> log.error("Error cloning examples organization.", error))
-                .then();
+                .doOnError(error -> log.error("Error cloning examples organization.", error));
     }
 
     /**
