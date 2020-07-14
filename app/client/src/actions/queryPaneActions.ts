@@ -18,12 +18,9 @@ export const initQueryPane = (
   };
 };
 
-export const changeQuery = (
-  id: string,
-  pluginType: string,
-): ReduxAction<{ id: string; pluginType: string }> => {
+export const changeQuery = (id: string): ReduxAction<{ id: string }> => {
   return {
     type: ReduxActionTypes.QUERY_PANE_CHANGE,
-    payload: { id, pluginType },
+    payload: { id },
   };
 };

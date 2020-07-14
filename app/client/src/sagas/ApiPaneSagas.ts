@@ -22,7 +22,6 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
   getProviderTemplatesURL,
   QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   DATA_SOURCES_EDITOR_URL,
@@ -38,7 +37,7 @@ import {
 import { initialize, autofill, change } from "redux-form";
 import { AppState } from "reducers";
 import { Property } from "api/ActionAPI";
-import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
+import { changeApi } from "actions/apiPaneActions";
 import { createNewApiName, getNextEntityName } from "utils/AppsmithUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugins } from "selectors/entitiesSelector";
@@ -98,6 +97,7 @@ function* initApiPaneSaga(actionPayload: ReduxAction<{ id?: string }>) {
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
+  actionId: string,
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
@@ -116,6 +116,13 @@ function* syncApiParamsSaga(
           params,
         ),
       );
+      yield put(
+        setActionProperty({
+          actionId: actionId,
+          propertyName: "actionConfiguration.queryParameters",
+          value: params,
+        }),
+      );
     } else {
       yield put(
         autofill(
@@ -123,6 +130,13 @@ function* syncApiParamsSaga(
           "actionConfiguration.queryParameters",
           [],
         ),
+      );
+      yield put(
+        setActionProperty({
+          actionId: actionId,
+          propertyName: "actionConfiguration.queryParameters",
+          value: [],
+        }),
       );
     }
   } else if (field.includes("actionConfiguration.queryParameters")) {
@@ -146,28 +160,6 @@ function* syncApiParamsSaga(
         `${currentPath}${paramsString}`,
       ),
     );
-
-    if (
-      actionPayload.type === ReduxFormActionTypes.VALUE_CHANGE ||
-      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE
-    ) {
-      if (values.datasource && values.datasource.id) {
-        yield put(
-          setDatasourceFieldText(values.id, `${currentPath}${paramsString}`),
-        );
-      } else if (
-        values.datasource &&
-        values.datasource.datasourceConfiguration
-      ) {
-        yield put(
-          setDatasourceFieldText(
-            values.id,
-            values.datasource.datasourceConfiguration.url +
-              `${currentPath}${paramsString}`,
-          ),
-        );
-      }
-    }
   }
 }
 
@@ -224,13 +216,17 @@ function* changeApiSaga(
     action.actionConfiguration.queryParameters?.length
   ) {
     // Sync the api params my mocking a change action
-    yield call(syncApiParamsSaga, {
-      type: ReduxFormActionTypes.ARRAY_REMOVE,
-      payload: action.actionConfiguration.queryParameters,
-      meta: {
-        field: "actionConfiguration.queryParameters",
+    yield call(
+      syncApiParamsSaga,
+      {
+        type: ReduxFormActionTypes.ARRAY_REMOVE,
+        payload: action.actionConfiguration.queryParameters,
+        meta: {
+          field: "actionConfiguration.queryParameters",
+        },
       },
-    });
+      id,
+    );
   }
 }
 
@@ -313,11 +309,13 @@ function* formValueChangeSaga(
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
     const value = _.get(values, field);
-    setActionProperty({
-      actionId: values.id,
-      propertyName: field,
-      value,
-    });
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value,
+      }),
+    );
   } else {
     yield put(
       setActionProperty({
@@ -329,7 +327,7 @@ function* formValueChangeSaga(
   }
 
   yield all([
-    call(syncApiParamsSaga, actionPayload),
+    call(syncApiParamsSaga, actionPayload, values.id),
     call(updateFormFields, actionPayload),
   ]);
 }
@@ -348,24 +346,6 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<RestAction>) {
         new: "true",
       }),
     );
-  }
-}
-
-function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
-  const { id } = actionPayload.payload;
-  const action = yield select(getAction, id);
-  const pluginType = action?.pluginType ?? "";
-
-  if (pluginType === "API") {
-    const { values }: { values: RestAction } = yield select(
-      getFormData,
-      API_EDITOR_FORM_NAME,
-    );
-    if (values.id === id) {
-      yield put(initialize(API_EDITOR_FORM_NAME, _.omit(action, "name")));
-    } else {
-      yield put(changeApi(id));
-    }
   }
 }
 
@@ -459,8 +439,6 @@ export default function* root() {
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.MOVE_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeEvery(ReduxActionTypes.COPY_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionErrorTypes.SAVE_API_NAME_ERROR,

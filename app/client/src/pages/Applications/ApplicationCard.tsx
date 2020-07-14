@@ -12,7 +12,6 @@ import {
   theme,
   getBorderCSSShorthand,
   getColorWithOpacity,
-  Theme,
 } from "constants/DefaultTheme";
 import ContextDropdown, {
   ContextDropdownOption,

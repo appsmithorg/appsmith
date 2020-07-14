@@ -1,19 +1,17 @@
 import _ from "lodash";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { getAppsmithConfigs } from "configs";
 import {
   REQUEST_TIMEOUT_MS,
   API_REQUEST_HEADERS,
 } from "constants/ApiConstants";
 import { ActionApiResponse } from "./ActionAPI";
-import { AUTH_LOGIN_URL } from "constants/routes";
+import { AUTH_LOGIN_URL, PAGE_NOT_FOUND_URL } from "constants/routes";
 import { setRouteBeforeLogin } from "utils/storage";
 import history from "utils/history";
-const { apiUrl, baseUrl } = getAppsmithConfigs();
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
-  baseURL: baseUrl + apiUrl,
+  baseURL: "/api/",
   timeout: REQUEST_TIMEOUT_MS,
   headers: API_REQUEST_HEADERS,
   withCredentials: true,
@@ -67,6 +65,18 @@ axiosInstance.interceptors.response.use(
             show: false,
           });
         }
+      }
+      const errorData = error.response.data.responseMeta;
+      if (
+        errorData.status === 404 &&
+        errorData.error.code === 4028
+      ) {
+        history.push(PAGE_NOT_FOUND_URL);
+        return Promise.reject({
+          code: 404,
+          message: "Page Not Found",
+          show: false,
+        });
       }
       if (error.response.data.responseMeta) {
         return Promise.resolve(error.response.data);

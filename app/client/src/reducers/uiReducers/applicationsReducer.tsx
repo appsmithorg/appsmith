@@ -7,7 +7,6 @@ import {
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
-import { getApplicationPayload } from "mockComponentProps/ApplicationPayloads";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,

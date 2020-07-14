@@ -11,6 +11,8 @@ const initialState: ApiPaneReduxState = {
   lastUsed: "",
   isCreating: false,
   isFetching: false,
+  isMoving: false,
+  isCopying: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
@@ -19,20 +21,20 @@ const initialState: ApiPaneReduxState = {
   lastUsedEditorPage: "",
   lastSelectedPage: "",
   extraformData: {},
-  datasourceFieldText: {},
 };
 
 export interface ApiPaneReduxState {
   lastUsed: string;
   isCreating: boolean;
   isFetching: boolean;
+  isMoving: boolean;
+  isCopying: boolean;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   currentCategory: string;
   lastUsedEditorPage: string;
-  datasourceFieldText: Record<string, string>;
   lastSelectedPage: string;
   extraformData: Record<string, any>;
 }
@@ -175,6 +177,30 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.MOVE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: true,
+  }),
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionTypes.COPY_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: true,
+  }),
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
+  }),
+  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
+  }),
   [ReduxActionTypes.API_PANE_CHANGE_API]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
@@ -217,19 +243,6 @@ const apiPaneReducer = createReducer(initialState, {
       extraformData: {
         ...state.extraformData,
         [id]: values,
-      },
-    };
-  },
-  [ReduxActionTypes.SET_DATASOURCE_FIELD_TEXT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ apiId: string; value: string }>,
-  ) => {
-    const { apiId } = action.payload;
-    return {
-      ...state,
-      datasourceFieldText: {
-        ...state.datasourceFieldText,
-        [apiId]: action.payload.value,
       },
     };
   },

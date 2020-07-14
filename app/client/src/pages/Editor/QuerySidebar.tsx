@@ -62,7 +62,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   createAction: (data: Partial<RestAction>) => void;
-  onQueryChange: (id: string, pluginType: string) => void;
+  onQueryChange: (id: string) => void;
   initQueryPane: (pluginType: string, urlId?: string) => void;
   moveAction: (
     id: string,
@@ -96,7 +96,7 @@ class QuerySidebar extends React.Component<Props> {
   };
 
   handleQueryChange = (queryId: string) => {
-    this.props.onQueryChange(queryId, QUERY_CONSTANT);
+    this.props.onQueryChange(queryId);
   };
 
   handleMove = (itemId: string, destinationPageId: string) => {
@@ -131,7 +131,7 @@ class QuerySidebar extends React.Component<Props> {
     return (
       <ActionItem>
         <StyledImage
-          src={getPluginImage(this.props.plugins, query.pluginId)}
+          src={getPluginImage(this.props.plugins, query.datasource.pluginId)}
           className="pluginImage"
           alt="Plugin Image"
         />
@@ -178,8 +178,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   createAction: (data: Partial<RestAction>) =>
     dispatch(createActionRequest(data)),
-  onQueryChange: (queryId: string, pluginType: string) => {
-    dispatch(changeQuery(queryId, pluginType));
+  onQueryChange: (queryId: string) => {
+    dispatch(changeQuery(queryId));
   },
   initQueryPane: (pluginType: string, urlId?: string) =>
     dispatch(initQueryPane(pluginType, urlId)),

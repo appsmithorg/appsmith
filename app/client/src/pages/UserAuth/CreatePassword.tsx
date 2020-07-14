@@ -44,9 +44,8 @@ import {
   CREATE_PASSWORD_INVALID_TOKEN,
   CREATE_PASSWORD_RESET_SUCCESS,
   CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
-  PRIVACY_POLICY_LINK,
-  TERMS_AND_CONDITIONS_LINK,
 } from "constants/messages";
+import { TncPPLinks } from "./SignUp";
 
 const validate = (values: CreatePasswordFormValues) => {
   const errors: CreatePasswordFormValues = {};
@@ -176,8 +175,7 @@ export const CreatePassword = (props: CreatePasswordProps) => {
         {CREATE_PASSWORD_LOGIN_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
-        <Link to="#">{PRIVACY_POLICY_LINK}</Link>
-        <Link to="#">{TERMS_AND_CONDITIONS_LINK}</Link>
+        <TncPPLinks></TncPPLinks>
       </AuthCardFooter>
     </AuthCardContainer>
   );
