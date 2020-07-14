@@ -72,6 +72,27 @@ export function* createUserSaga(
   }
 }
 
+export function* getCurrentUserSaga() {
+  try {
+    const response: ApiResponse = yield call(UserApi.getCurrentUser);
+
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* forgotPasswordSaga(
   action: ReduxActionWithPromise<ForgotPasswordRequest>,
 ) {
@@ -326,6 +347,7 @@ export function* logoutSaga() {
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
+    takeLatest(ReduxActionTypes.FETCH_USER_INIT, getCurrentUserSaga),
     takeLatest(ReduxActionTypes.FORGOT_PASSWORD_INIT, forgotPasswordSaga),
     takeLatest(ReduxActionTypes.RESET_USER_PASSWORD_INIT, resetPasswordSaga),
     takeLatest(

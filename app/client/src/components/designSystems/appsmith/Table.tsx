@@ -11,7 +11,7 @@ import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
-import { RenderColumnHeader, renderEmptyRows } from "./TableUtilities";
+import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
@@ -118,6 +118,7 @@ export const Table = (props: TableProps) => {
         })}
         hiddenColumns={props.hiddenColumns}
         updateHiddenColumns={props.updateHiddenColumns}
+        displayColumnActions={props.displayColumnActions}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
@@ -130,7 +131,7 @@ export const Table = (props: TableProps) => {
               >
                 {headerGroup.headers.map((column: any, columnIndex: number) => {
                   return (
-                    <RenderColumnHeader
+                    <TableHeaderCell
                       key={columnIndex}
                       column={column}
                       columnName={

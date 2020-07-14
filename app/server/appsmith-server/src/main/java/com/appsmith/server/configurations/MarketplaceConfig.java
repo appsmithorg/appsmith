@@ -9,4 +9,10 @@ import org.springframework.context.annotation.Configuration;
 public class MarketplaceConfig {
     @Value("${marketplace.base-url}")
     String baseUrl;
+
+    @Value("${marketplace.username}")
+    private String username;
+
+    @Value("${marketplace.password}")
+    private String password;
 }

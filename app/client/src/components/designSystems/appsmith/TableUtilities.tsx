@@ -534,7 +534,7 @@ export const renderEmptyRows = (
   );
 };
 
-export const RenderColumnHeader = (props: {
+export const TableHeaderCell = (props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;

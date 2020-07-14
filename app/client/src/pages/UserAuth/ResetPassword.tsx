@@ -17,7 +17,6 @@ import Button from "components/editorComponents/Button";
 import FormGroup from "components/editorComponents/form/FormGroup";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
-
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import {
   AuthCardHeader,
@@ -43,9 +42,8 @@ import {
   RESET_PASSWORD_INVALID_TOKEN,
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
-  PRIVACY_POLICY_LINK,
-  TERMS_AND_CONDITIONS_LINK,
 } from "constants/messages";
+import { TncPPLinks } from "./SignUp";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -183,8 +181,7 @@ export const ResetPassword = (props: ResetPasswordProps) => {
         <Icon icon="arrow-right" intent="primary" />
       </AuthCardNavLink>
       <AuthCardFooter>
-        <Link to="#">{PRIVACY_POLICY_LINK}</Link>
-        <Link to="#">{TERMS_AND_CONDITIONS_LINK}</Link>
+        <TncPPLinks></TncPPLinks>
       </AuthCardFooter>
     </AuthCardContainer>
   );

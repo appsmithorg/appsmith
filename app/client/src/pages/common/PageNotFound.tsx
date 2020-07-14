@@ -1,45 +1,57 @@
 import React from "react";
-import styled from "styled-components";
-import { NonIdealState, Button, Card, Elevation } from "@blueprintjs/core";
 import { RouterProps } from "react-router";
+import styled from "styled-components";
+import Button from "components/editorComponents/Button";
+import PageUnavailableImage from "assets/images/404-image.png";
+import PageHeader from "pages/common/PageHeader";
+import { BASE_URL } from "constants/routes";
 
-const NotFoundPageWrapper = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-const Title = styled.div`
-  font-size: ${props => props.theme.fontSizes[10]}px;
+const Wrapper = styled.div`
   text-align: center;
+  margin-top: 5%;
+  .bold-text {
+    font-weight: ${props => props.theme.fontWeights[3]};
+    font-size: 24px;
+  }
+  .page-unavailable-img {
+    width: 35%;
+  }
+  .button-position {
+    margin: auto;
+  }
 `;
+
 class PageNotFound extends React.PureComponent<RouterProps> {
   public render() {
     return (
-      <NotFoundPageWrapper>
-        <Card elevation={Elevation.TWO}>
-          <Title>
-            <span role="img" aria-label="Page Not Found">
-              🙊
-            </span>
-          </Title>
-          <NonIdealState
-            description={
-              "We didn't mean for you to reach this page. Let's find your way back to building awesome applications."
-            }
-            action={
-              <Button
-                onClick={() => {
-                  this.props.history.push("/");
-                }}
-              >
-                {"Home"}
-              </Button>
-            }
-          />
-        </Card>
-      </NotFoundPageWrapper>
+      <>
+        <PageHeader />
+        <Wrapper>
+          <img
+            src={PageUnavailableImage}
+            alt="Page Unavailable"
+            className="page-unavailable-img"
+          ></img>
+          <div>
+            <p className="bold-text">Page not found</p>
+            <p>
+              Either this page doesn&apos;t exist, or you don&apos;t have access
+              to <br />
+              this page.
+            </p>
+            <Button
+              filled
+              text="Go back to homepage"
+              intent="primary"
+              icon="arrow-right"
+              iconAlignment="right"
+              size="small"
+              className="button-position"
+              onClick={() => this.props.history.push(BASE_URL)}
+            />
+          </div>
+        </Wrapper>
+      </>
     );
   }
 }
