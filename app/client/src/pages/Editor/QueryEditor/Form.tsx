@@ -233,7 +233,6 @@ type QueryFormProps = {
 
 type ReduxProps = {
   actionName: string;
-  pluginName: string;
   responseType: string | undefined;
   pluginId: string;
   documentationLink: string | undefined;
@@ -261,7 +260,6 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
     pluginId,
     responseType,
     documentationLink,
-    pluginName,
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
@@ -407,12 +405,21 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             <StyledOpenDocsIcon icon="document-open" />
           </a>
         </CollapsibleHelp>
+
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <p className="statementTextArea">Query Statement</p>
-          <a href={documentationLink} target="_blank" rel="noopener noreferrer">
-            {`${pluginName} docs`}
-          </a>
+
+          {documentationLink && (
+            <a
+              href={documentationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Docs
+            </a>
+          )}
         </div>
+
         {isNewQuery && showTemplateMenu && pluginId ? (
           <TemplateMenu
             createTemplate={templateString => {
@@ -496,10 +503,8 @@ const mapStateToProps = (state: AppState) => {
   const pluginId = valueSelector(state, "datasource.pluginId");
   const responseTypes = getPluginResponseTypes(state);
   const documentationLinks = getPluginDocumentationLinks(state);
-  const pluginName = getPluginNameFromId(state, pluginId);
 
   return {
-    pluginName,
     actionName,
     pluginId,
     responseType: responseTypes[pluginId],
