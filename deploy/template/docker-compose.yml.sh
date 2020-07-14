@@ -40,7 +40,9 @@ services:
 
   appsmith-internal-server:
     image: appsmith/appsmith-server:latest
-    env_file: ./docker.env
+    env_file:
+      - ./docker.env
+      - ./encryption.env
     ports:
       - "8080:8080"
     links:

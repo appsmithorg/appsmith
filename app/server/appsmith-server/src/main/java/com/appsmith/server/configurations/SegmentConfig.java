@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnExpression(value="!'${segment.writeKey:}'.isEmpty()")
+@ConditionalOnExpression(value = "!'${segment.writeKey:}'.isEmpty()")
 public class SegmentConfig {
 
     @Value("${segment.writeKey}")
