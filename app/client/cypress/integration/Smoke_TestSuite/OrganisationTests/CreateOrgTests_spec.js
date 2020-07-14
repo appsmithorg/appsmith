@@ -13,17 +13,15 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.log("orgid: ", orgid);
       cy.createOrg(orgid);
-      cy.inviteUserForOrg(orgid, "nandan@thinkify.io", homePage.viewerRole);
+      cy.inviteUserForOrg(orgid, Cypress.env("testuser1"), homePage.viewerRole);
       cy.CreateAppForOrg(orgid, appid);
     });
-    cy.log("Navigation to API Panel screen successful");
     cy.LogOut();
   });
 
   it("login as invited user and then validate viewer privilage", function() {
-    cy.LogintoApp("nandan@thinkify.io", "Test@123");
+    cy.LogintoApp(Cypress.env("testuser1"), Cypress.env("testuser1Password"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.contains(orgid);
@@ -34,7 +32,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to developer", function() {
-    cy.LoginFromAPI(loginData.username, loginData.password);
+    cy.LoginFromAPI(Cypress.env("username"), Cypress.env("password"));
     cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
@@ -43,17 +41,17 @@ describe("Create new org and share with a user", function() {
     );
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
-    cy.deleteUserFromOrg(orgid, "nandan@thinkify.io");
+    cy.deleteUserFromOrg(orgid, Cypress.env("testuser1"));
     cy.updateUserRoleForOrg(
       orgid,
-      "nandan@thinkify.io",
+      Cypress.env("testuser1"),
       homePage.developerRole,
     );
     cy.LogOut();
   });
 
   it("login as invited user and then validate developer privilage", function() {
-    cy.LogintoApp("nandan@thinkify.io", "Test@123");
+    cy.LogintoApp(Cypress.env("testuser1"), Cypress.env("testuser1Password"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.contains(orgid);
@@ -66,7 +64,7 @@ describe("Create new org and share with a user", function() {
   });
 
   it("login as Org owner and update the invited user role to administrator", function() {
-    cy.LoginFromAPI(loginData.username, loginData.password);
+    cy.LoginFromAPI(Cypress.env("username"), Cypress.env("password"));
     cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
@@ -75,27 +73,27 @@ describe("Create new org and share with a user", function() {
     );
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
-    cy.deleteUserFromOrg(orgid, "nandan@thinkify.io");
-    cy.updateUserRoleForOrg(orgid, "nandan@thinkify.io", homePage.adminRole);
+    cy.deleteUserFromOrg(orgid, Cypress.env("testuser1"));
+    cy.updateUserRoleForOrg(
+      orgid,
+      Cypress.env("testuser1"),
+      homePage.adminRole,
+    );
     cy.LogOut();
   });
 
   it("login as invited user and then validate administrator privilage", function() {
-    cy.LogintoApp("nandan@thinkify.io", "Test@123");
+    cy.LogintoApp(Cypress.env("testuser1"), Cypress.env("testuser1Password"));
     cy.get(homePage.searchInput).type(appid);
     cy.wait(2000);
     cy.contains(orgid);
-    cy.inviteUserForOrg(
-      orgid,
-      "testuserAppsmith@gmail.com",
-      homePage.viewerRole,
-    );
+    cy.inviteUserForOrg(orgid, Cypress.env("testuser2"), homePage.viewerRole);
     cy.navigateToOrgSettings(orgid);
     cy.get(homePage.emailList).then(function($lis) {
       expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain("testowner@appsmith.com");
-      expect($lis.eq(1)).to.contain("nandan@thinkify.io");
-      expect($lis.eq(2)).to.contain("testuserAppsmith@gmail.com");
+      expect($lis.eq(0)).to.contain(Cypress.env("username"));
+      expect($lis.eq(1)).to.contain(Cypress.env("testuser1"));
+      expect($lis.eq(2)).to.contain(Cypress.env("testuser2"));
     });
   });
 
@@ -112,9 +110,9 @@ describe("Create new org and share with a user", function() {
     cy.navigateToOrgSettings(orgid);
     cy.get(homePage.emailList).then(function($lis) {
       expect($lis).to.have.length(3);
-      expect($lis.eq(0)).to.contain("testowner@appsmith.com");
-      expect($lis.eq(1)).to.contain("nandan@thinkify.io");
-      expect($lis.eq(2)).to.contain("testuserAppsmith@gmail.com");
+      expect($lis.eq(0)).to.contain(Cypress.env("username"));
+      expect($lis.eq(1)).to.contain(Cypress.env("testuser1"));
+      expect($lis.eq(2)).to.contain(Cypress.env("testuser2"));
     });
   });
 });

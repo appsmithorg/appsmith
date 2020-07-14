@@ -25,11 +25,6 @@ Cypress.Commands.add("createOrg", orgName => {
     .should("be.visible")
     .type(orgName);
   cy.xpath(homePage.submitBtn).click();
-  cy.wait("@createOrg").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
   cy.wait("@applications").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -38,10 +33,10 @@ Cypress.Commands.add("createOrg", orgName => {
 });
 
 Cypress.Commands.add("navigateToOrgSettings", orgName => {
-  cy.get(".t--org-section:contains(".concat(orgName).concat(")"))
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-section .bp3-button")
+  cy.get(homePage.orgSectionBtn)
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
@@ -54,14 +49,10 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
 });
 
 Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
-  cy.get(".t--org-section:contains(".concat(orgName).concat(")"))
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(
-    ".t--org-section:contains("
-      .concat(orgName)
-      .concat(") .bp3-button-text:contains('Share')"),
-  )
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
     .first()
     .should("be.visible")
     .click();
@@ -84,10 +75,10 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
 });
 
 Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
-  cy.get(".t--org-section:contains(".concat(orgName).concat(")"))
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.xpath("//span[text()='".concat(orgName).concat("']/parent::button"))
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
@@ -109,10 +100,10 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
 });
 
 Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
-  cy.get(".t--org-section:contains(".concat(orgName).concat(")"))
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.xpath("//span[text()='".concat(orgName).concat("']/parent::button"))
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
@@ -165,11 +156,7 @@ Cypress.Commands.add("launchApp", appName => {
 });
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
-  cy.get(
-    ".t--org-section:contains("
-      .concat(orgName)
-      .concat(") .t--create-app-popup"),
-  )
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
     .scrollIntoView()
     .should("be.visible")
     .click();
@@ -1341,11 +1328,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  cy.route("POST", "/api/v1/users/switchOrganization/*").as("newOrg");
-  cy.route("POST", "v1/p").as("postOrg");
-  cy.route("POST", "v1/t").as("postOrgNew");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
-  cy.route("POST", "/api/v2/client/sites/*").as("postSite");
 });
 
 Cypress.Commands.add("alertValidate", text => {

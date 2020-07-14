@@ -32,5 +32,10 @@
     "launchBtn": "//span[text()='Launch']/parent::button",
     "appView": ".t--application-view-link",
     "appHome": "//a[@href='/applications']",
-    "emailList": "[data-colindex='0']"
+    "emailList": "[data-colindex='0']",
+    "orgList": ".t--org-section:contains(",
+    "orgSectionBtn": ".t--org-section .bp3-button",
+    "shareOrg": ") .bp3-button-text:contains('Share')",
+    "orgSection": ".bp3-button-text:contains(",
+    "createAppFrOrg": ") .t--create-app-popup"
 }
