@@ -3,7 +3,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
 import ReactTableComponent from "components/designSystems/appsmith/ReactTableComponent";
-
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import {
   WidgetPropertyValidationType,
@@ -78,7 +78,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const pageSize = Math.floor((componentHeight - 113) / 52);
+    const pageSize = Math.floor(
+      (componentHeight -
+        TABLE_SIZES.TABLE_HEADER_HEIGHT -
+        TABLE_SIZES.COLUMN_HEADER_HEIGHT) /
+        TABLE_SIZES.ROW_HEIGHT,
+    );
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);

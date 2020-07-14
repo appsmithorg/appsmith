@@ -15,6 +15,12 @@ import { RenderColumnHeader, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
+export enum TABLE_SIZES {
+  COLUMN_HEADER_HEIGHT = 52,
+  TABLE_HEADER_HEIGHT = 61,
+  ROW_HEIGHT = 52,
+}
+
 interface TableProps {
   width: number;
   height: number;
