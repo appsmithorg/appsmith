@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Icon, Card, Spinner } from "@blueprintjs/core";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import ImageAlt from "assets/images/placeholder-image.svg";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import {
   getPluginIdsOfPackageNames,

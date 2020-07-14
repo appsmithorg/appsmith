@@ -21,7 +21,6 @@ import { ControlIcons } from "icons/ControlIcons";
 import { theme } from "constants/DefaultTheme";
 import { selectPlugin } from "actions/datasourceActions";
 import { fetchPluginForm } from "actions/pluginActions";
-import ImageAlt from "assets/images/placeholder-image.svg";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { Datasource } from "api/DatasourcesApi";

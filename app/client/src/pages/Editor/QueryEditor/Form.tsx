@@ -10,6 +10,7 @@ import {
   OptionTypeBase,
   SingleValueProps,
 } from "react-select";
+import _ from "lodash";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_URL } from "constants/routes";
 import TemplateMenu from "./TemplateMenu";
@@ -36,7 +37,6 @@ import { HelpBaseURL, HelpMap } from "constants/HelpConstants";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
-  getPluginNameFromId,
 } from "selectors/entitiesSelector";
 
 const QueryFormContainer = styled.div`
@@ -221,7 +221,7 @@ type QueryFormProps = {
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
   executedQueryData: {
-    body: Record<string, any>[];
+    body: Record<string, any>[] | string;
   };
   applicationId: string;
   runErrorMessage: string | undefined;
@@ -263,6 +263,16 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
   } = props;
 
   const [showTemplateMenu, setMenuVisibility] = useState(true);
+  let error = runErrorMessage;
+  let output: Record<string, any>[] | null = null;
+
+  if (executedQueryData) {
+    if (_.isString(executedQueryData.body)) {
+      error = executedQueryData.body;
+    } else {
+      output = executedQueryData.body;
+    }
+  }
 
   const isSQL = responseType === "TABLE";
   const isNewQuery =
@@ -471,26 +481,20 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
         </NoDataSourceContainer>
       )}
 
-      {runErrorMessage && (
+      {error && (
         <>
           <p className="statementTextArea">Query error</p>
-          <ErrorMessage>{runErrorMessage}</ErrorMessage>
+          <ErrorMessage>{error}</ErrorMessage>
         </>
       )}
 
-      {executedQueryData && dataSources.length && (
+      {!error && output && dataSources.length && (
         <ResponseContainer>
           <p className="statementTextArea">
-            {executedQueryData.body && executedQueryData.body.length
-              ? "Query response"
-              : "No data records to display"}
+            {output.length ? "Query response" : "No data records to display"}
           </p>
 
-          {isSQL ? (
-            <Table data={executedQueryData.body} />
-          ) : (
-            <JSONViewer src={executedQueryData.body} />
-          )}
+          {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
         </ResponseContainer>
       )}
     </QueryFormContainer>
