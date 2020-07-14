@@ -112,8 +112,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     if (isFullPath) {
       const matches = value.match(urlGroupsRegexExp);
       if (matches && matches.length) {
-        datasourceUrl = `${matches[1]}`;
-        path = matches[2];
+        datasourceUrl = matches[1];
+        path = `${matches[2]}${matches[3]}`;
       }
     } else {
       datasourceUrl = value;
