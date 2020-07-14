@@ -471,7 +471,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       {executedQueryData && dataSources.length && (
         <ResponseContainer>
           <p className="statementTextArea">
-            {executedQueryData.body.length
+            {executedQueryData.body && executedQueryData.body.length
               ? "Query response"
               : "No data records to display"}
           </p>
