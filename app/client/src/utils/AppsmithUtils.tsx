@@ -30,19 +30,18 @@ export const appInitializer = () => {
   const appsmithConfigs = getAppsmithConfigs();
   FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
-  if (appsmithConfigs.sentry.enabled && appsmithConfigs.sentry.config) {
-    Sentry.init(appsmithConfigs.sentry.config);
+  if (appsmithConfigs.sentry.enabled) {
+    Sentry.init({ dsn: appsmithConfigs.sentry.apiKey });
   }
-  if (appsmithConfigs.hotjar.enabled && appsmithConfigs.hotjar.config) {
-    const { id, sv } = appsmithConfigs.hotjar.config;
+  if (appsmithConfigs.hotjar.enabled) {
+    const { id, sv } = appsmithConfigs.hotjar;
     AnalyticsUtil.initializeHotjar(id, sv);
   }
   if (appsmithConfigs.segment.enabled) {
-    AnalyticsUtil.initializeSegment(appsmithConfigs.segment.key);
+    AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
   }
 
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
-  // setConfigFeatureFlags(appsmithConfigs.featureFlags);
 
   const textFont = new FontFaceObserver("DM Sans");
   textFont

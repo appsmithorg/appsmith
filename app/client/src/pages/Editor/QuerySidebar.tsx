@@ -128,7 +128,6 @@ class QuerySidebar extends React.Component<Props> {
   };
 
   renderItem = (query: RestAction) => {
-    console.log({ query });
     return (
       <ActionItem>
         <StyledImage

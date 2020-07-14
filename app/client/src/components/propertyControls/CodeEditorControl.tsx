@@ -19,14 +19,15 @@ class CodeEditorControl extends BaseControl<ControlProps> {
       dataTreePath,
       evaluatedValue,
     } = this.props;
+    const props: Partial<ControlProps> = {};
+    if (dataTreePath) props.dataTreePath = dataTreePath;
+    if (evaluatedValue) props.evaluatedValue = evaluatedValue;
+    if (expected) props.expected = expected;
 
     return (
       <CodeEditor
         theme={EditorTheme.DARK}
         input={{ value: propertyValue, onChange: this.onChange }}
-        dataTreePath={dataTreePath}
-        expected={expected}
-        evaluatedValue={evaluatedValue}
         meta={{
           error: isValid ? "" : validationMessage,
           touched: true,
@@ -34,6 +35,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         size={EditorSize.EXTENDED}
         mode={EditorModes.TEXT_WITH_BINDING}
         tabBehaviour={TabBehaviour.INDENT}
+        {...props}
       />
     );
   }

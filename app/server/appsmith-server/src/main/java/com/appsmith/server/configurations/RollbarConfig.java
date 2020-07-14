@@ -11,7 +11,7 @@ import org.springframework.core.env.Environment;
 import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
 
 @Configuration
-@ConditionalOnExpression(value="!'${com.rollbar.access-token:}'.isEmpty()")
+@ConditionalOnExpression(value = "!'${com.rollbar.access-token:}'.isEmpty()")
 public class RollbarConfig {
 
     @Value("${com.rollbar.access-token}")

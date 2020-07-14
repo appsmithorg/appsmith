@@ -71,6 +71,7 @@ interface TableHeaderProps {
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
+  displayColumnActions: boolean;
 }
 
 const TableHeader = (props: TableHeaderProps) => {
@@ -82,16 +83,18 @@ const TableHeader = (props: TableHeaderProps) => {
         onSearch={props.searchTableData}
       />
       <CommonFunctionsMenuWrapper>
-        <TableColumnsVisibility
-          columns={props.columns}
-          hiddenColumns={props.hiddenColumns}
-          updateHiddenColumns={props.updateHiddenColumns}
-        />
         <TableDataDownload
           data={props.tableData}
           columns={props.tableColumns}
           widgetName={props.widgetName}
         />
+        {props.displayColumnActions && (
+          <TableColumnsVisibility
+            columns={props.columns}
+            hiddenColumns={props.hiddenColumns}
+            updateHiddenColumns={props.updateHiddenColumns}
+          />
+        )}
       </CommonFunctionsMenuWrapper>
       {props.serverSidePaginationEnabled && (
         <PaginationWrapper>

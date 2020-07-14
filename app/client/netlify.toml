@@ -1,7 +1,18 @@
-[[headers]]
-  for = "/static/*"
-  [header.values]
-    cache-control = "max-age=604800"
+[build]
+  [build.environment]
+#    REACT_APP_SENTRY_DSN=
+#    REACT_APP_HOTJAR_HJID=
+#    REACT_APP_HOTJAR_HJSV=
+#    REACT_APP_OAUTH2_GOOGLE_CLIENT_ID=
+#    REACT_APP_OAUTH2_GITHUB_CLIENT_ID=
+#    REACT_APP_SEGMENT_KEY=
+#    REACT_APP_MARKETPLACE_URL=
+#    REACT_APP_OPTIMIZELY_KEY=
+#    REACT_APP_ALGOLIA_API_ID=
+#    REACT_APP_ALGOLIA_API_KEY=
+#    REACT_APP_ALGOLIA_SEARCH_INDEX_NAME=
+    REACT_APP_CLIENT_LOG_LEVEL="debug"
+#    REACT_APP_GOOGLE_MAPS_API_KEY=
 
 [context.production]
   [context.production.environment]
@@ -15,29 +26,17 @@
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     APP_HOST = "release.app.appsmith.com"
 
-[context.develop]
-  [context.develop.environment]
-    REACT_APP_ENVIRONMENT = "DEVELOPMENT"
-    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
-    APP_HOST = "develop.app.appsmith.com"
-
-[context.a]
-  [context.a.environment]
-    REACT_APP_ENVIRONMENT = "STAGING"
-    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
-    APP_HOST = "a.app.appsmith.com"
-
-[context.b]
-  [context.b.environment]
-    REACT_APP_ENVIRONMENT = "STAGING"
-    REACT_APP_BASE_URL = "https://release-api.appsmith.com"
-    APP_HOST = "b.app.appsmith.com"
-
 [context.deploy-preview]
   [context.deploy-preview.environment]
     REACT_APP_ENVIRONMENT = "STAGING"
     REACT_APP_BASE_URL = "https://release-api.appsmith.com"
     # Not adding an APP_HOST here because the URL is dynamic in nature and cannot be determined.
+
+
+[[headers]]
+  for = "/static/*"
+  [header.values]
+    cache-control = "max-age=604800"
 
 [[redirects]]
   from = "/api/*"
