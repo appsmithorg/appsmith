@@ -28,7 +28,6 @@ describe("Table Widget Functionality", function() {
     //   expect(tabValue).to.be.equal("Action");
     //   cy.log("the value is" + tabValue);
     // });
-    cy.pageNo();
     /*
     cy.openPropertyPane("tablewidget");
       */
@@ -58,7 +57,6 @@ describe("Table Widget Functionality", function() {
     });
   });
   it("Table Widget Functionality To Verify The PageNo", function() {
-    cy.pageNo();
     cy.get(publish.backToEditor)
       .first()
       .click();

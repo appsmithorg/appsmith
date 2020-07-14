@@ -247,7 +247,7 @@ const mapStateToProps = (
   ownProps: { pluginId: string },
 ): ReduxStateProps => {
   return {
-    orgId: state.ui.orgs.currentOrgId,
+    orgId: state.ui.orgs.currentOrg.id,
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
       d => d.pluginId === ownProps.pluginId && d.isValid,
