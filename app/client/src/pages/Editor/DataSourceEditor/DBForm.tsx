@@ -19,6 +19,7 @@ import Button from "components/editorComponents/Button";
 import { Datasource } from "api/DatasourcesApi";
 import { reduxForm, InjectedFormProps, Field } from "redux-form";
 import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { APPSMITH_IP_ADDRESS } from "constants/DatasourceEditorConstants";
 
 interface DatasourceDBEditorProps {
   onSave: (formValues: Datasource) => void;
@@ -311,8 +312,8 @@ class DatasourceDBEditor extends React.Component<
             focusOnMount={this.props.isNewDatasource}
           />
           <CollapsibleHelp>
-            You will need your db admin to whitelist the Appsmith IP address
-            xxx.xx.xx.xx
+            You will need your db admin to whitelist the Appsmith IP address{" "}
+            {APPSMITH_IP_ADDRESS}
           </CollapsibleHelp>
         </FormTitleContainer>
         {!_.isNil(sections)

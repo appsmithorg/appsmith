@@ -410,7 +410,7 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             {isSQL ? "PostgreSQL docs" : "Mongo docs"}
           </a>
         </div>
-        {isNewQuery && showTemplateMenu ? (
+        {isNewQuery && showTemplateMenu && pluginId ? (
           <TemplateMenu
             createTemplate={templateString => {
               setMenuVisibility(false);

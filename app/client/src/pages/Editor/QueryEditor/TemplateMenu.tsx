@@ -48,7 +48,7 @@ interface TemplateMenuProps {
 }
 
 type ReduxProps = {
-  pluginTemplates: Record<string, any>;
+  allPluginTemplates: Record<string, any>;
 };
 
 type Props = TemplateMenuProps & ReduxProps;
@@ -61,16 +61,17 @@ class TemplateMenu extends React.Component<Props> {
   }
 
   fetchTemplate = (queryType: string) => {
-    const { pluginId, pluginTemplates } = this.props;
-    const allTemplates = pluginTemplates[pluginId];
+    const { pluginId, allPluginTemplates } = this.props;
+    const pluginTemplates = allPluginTemplates[pluginId];
 
-    if (allTemplates) {
-      return allTemplates[queryType];
+    if (pluginTemplates) {
+      return pluginTemplates[queryType];
     }
   };
 
   render() {
-    const { createTemplate } = this.props;
+    const { createTemplate, allPluginTemplates, pluginId } = this.props;
+    const pluginTemplates = allPluginTemplates[pluginId];
 
     return (
       <Container
@@ -92,46 +93,26 @@ class TemplateMenu extends React.Component<Props> {
           Press enter to start with a blank state or select a template.
         </div>
         <div style={{ marginTop: "6px" }}>
-          <Row
-            onClick={e => {
-              const template = this.fetchTemplate("CREATE");
-              createTemplate(template);
-              e.stopPropagation();
-            }}
-          >
-            <BulletPoint />
-            <Item>Create</Item>
-          </Row>
-          <Row
-            onClick={e => {
-              const template = this.fetchTemplate("SELECT");
-              createTemplate(template);
-              e.stopPropagation();
-            }}
-          >
-            <BulletPoint />
-            <Item>Read</Item>
-          </Row>
-          <Row
-            onClick={e => {
-              const template = this.fetchTemplate("DELETE");
-              createTemplate(template);
-              e.stopPropagation();
-            }}
-          >
-            <BulletPoint />
-            <Item>Delete</Item>
-          </Row>
-          <Row
-            onClick={e => {
-              const template = this.fetchTemplate("UPDATE");
-              createTemplate(template);
-              e.stopPropagation();
-            }}
-          >
-            <BulletPoint />
-            <Item>Update</Item>
-          </Row>
+          {Object.entries(pluginTemplates).map(template => {
+            const templateKey = template[0];
+
+            return (
+              <Row
+                key={templateKey}
+                onClick={e => {
+                  const template = this.fetchTemplate(templateKey);
+                  createTemplate(template);
+                  e.stopPropagation();
+                }}
+              >
+                <BulletPoint />
+                <Item>
+                  {templateKey.charAt(0).toUpperCase() +
+                    templateKey.slice(1).toLowerCase()}
+                </Item>
+              </Row>
+            );
+          })}
         </div>
       </Container>
     );
@@ -140,7 +121,7 @@ class TemplateMenu extends React.Component<Props> {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    pluginTemplates: getPluginTemplates(state),
+    allPluginTemplates: getPluginTemplates(state),
   };
 };
 

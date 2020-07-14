@@ -2,7 +2,6 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { getFormValues, change } from "redux-form";
-import _ from "lodash";
 import styled from "styled-components";
 import { QueryEditorRouteParams } from "constants/routes";
 import QueryEditorForm from "./Form";
@@ -16,7 +15,6 @@ import { Datasource } from "api/DatasourcesApi";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import {
   getPluginIdsOfPackageNames,
-  getPluginPackageFromDatasourceId,
   getPlugins,
   getPluginImages,
 } from "selectors/entitiesSelector";
