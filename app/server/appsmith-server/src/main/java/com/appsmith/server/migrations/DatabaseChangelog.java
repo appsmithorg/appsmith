@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -21,6 +22,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.Setting;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
+import com.appsmith.server.services.EncryptionService;
 import com.appsmith.server.services.OrganizationService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -476,4 +478,17 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "017", id = "encrypt-password", author = "")
+    public void encryptPassword(MongoTemplate mongoTemplate, EncryptionService encryptionService) {
+        final List<Datasource> datasources = mongoTemplate.find(
+                query(where("datasourceConfiguration.authentication.password").exists(true)),
+                Datasource.class
+        );
+
+        for (final Datasource datasource : datasources) {
+            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            mongoTemplate.save(datasource);
+        }
+    }
 }

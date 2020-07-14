@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import reactor.core.publisher.Mono;
@@ -17,4 +18,6 @@ public interface DatasourceContextService {
     Mono<DatasourceContext> getDatasourceContext(Datasource datasource);
 
     Mono<DatasourceContext> deleteDatasourceContext(String datasourceId);
+
+    AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authenticationDTO);
 }
