@@ -88,11 +88,15 @@ if [[ $mongo_option -eq 2 ]];then
     read -p 'Enter the mongo root user: ' mongo_root_user
     read -sp 'Enter the mongo password: ' mongo_root_password
     read -p 'Enter your mongo database name: ' mongo_database
+    # It is possible that this isn't the first installation. Do not auto generate encryption credentials.
+    setup_generate_encryption="false"
 elif [[ $mongo_option -eq 1 ]];then
     mongo_host="mongo"
     mongo_database="appsmith"
     read -p 'Set the mongo root user: ' mongo_root_user
     read -sp 'Set the mongo password: ' mongo_root_password
+    # Since the mongo was automatically setup, this must be the first time installation. Generate encryption credentials for this scenario
+    setup_generate_encryption="true"
 fi
 echo ""
 
