@@ -15,6 +15,12 @@ import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
+export enum TABLE_SIZES {
+  COLUMN_HEADER_HEIGHT = 52,
+  TABLE_HEADER_HEIGHT = 61,
+  ROW_HEIGHT = 52,
+}
+
 interface TableProps {
   width: number;
   height: number;
@@ -152,7 +158,13 @@ export const Table = (props: TableProps) => {
               </div>
             ))}
             {headerGroups.length === 0 &&
-              renderEmptyRows(1, props.columns, props.width)}
+              renderEmptyRows(
+                1,
+                props.columns,
+                props.width,
+                subPage,
+                prepareRow,
+              )}
           </div>
           <div {...getTableBodyProps()} className="tbody">
             {subPage.map((row, rowIndex) => {
@@ -175,8 +187,6 @@ export const Table = (props: TableProps) => {
                       <div
                         {...cell.getCellProps()}
                         className="td"
-                        data-rowindex={rowIndex}
-                        data-colindex={cellIndex}
                         key={cellIndex}
                       >
                         {cell.render("Cell")}
@@ -191,6 +201,8 @@ export const Table = (props: TableProps) => {
                 props.pageSize - subPage.length,
                 props.columns,
                 props.width,
+                subPage,
+                prepareRow,
               )}
           </div>
         </div>

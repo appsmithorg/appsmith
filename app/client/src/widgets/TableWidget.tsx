@@ -12,6 +12,7 @@ import {
   renderActions,
   reorderColumns,
 } from "components/designSystems/appsmith/TableUtilities";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import {
@@ -224,7 +225,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const pageSize = Math.floor((componentHeight - 104) / 52);
+    const pageSize = Math.floor(
+      (componentHeight -
+        TABLE_SIZES.TABLE_HEADER_HEIGHT -
+        TABLE_SIZES.COLUMN_HEADER_HEIGHT) /
+        TABLE_SIZES.ROW_HEIGHT,
+    );
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
