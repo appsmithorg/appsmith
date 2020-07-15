@@ -81,11 +81,6 @@ public class EmailSender {
             return;
         }
 
-//        if (MAIL_FROM == null) {
-//            log.error("MAIL_FROM is null, no From address object to send an email. Not sending email '{}'.", subject);
-//            return;
-//        }
-
         // Check if the email address is valid. It's possible for certain OAuth2 providers to not return the email ID
         if (to == null || !validateEmail(to)) {
             log.error("The email ID: {} is not valid. Not sending an email", to);
