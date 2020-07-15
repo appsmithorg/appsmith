@@ -461,7 +461,7 @@ public class DatasourceServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
-        datasource.setName("test datasource name for authenticated fields encryption test");
+        datasource.setName("test datasource name for authenticated fields encryption test null password.");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         AuthenticationDTO authenticationDTO = new AuthenticationDTO();
