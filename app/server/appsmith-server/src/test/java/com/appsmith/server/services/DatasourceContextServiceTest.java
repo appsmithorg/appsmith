@@ -56,7 +56,7 @@ public class DatasourceContextServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void checkDecryptionofAunthenticationDTOTest() {
+    public void checkDecryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -84,6 +84,36 @@ public class DatasourceContextServiceTest {
                     AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
                     AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
                     assertThat(decryptedAuthentication.getPassword()).isEqualTo(password);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkDecryptionOfAuthenticationDTONullPassword() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields decryption test");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(savedDatasource -> {
+                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    AuthenticationDTO decryptedAuthentication = datasourceContextService.decryptSensitiveFields(authentication);
+                    assertThat(decryptedAuthentication.getPassword()).isNull();
                 })
                 .verifyComplete();
     }
