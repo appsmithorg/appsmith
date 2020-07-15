@@ -1,5 +1,5 @@
-import React from "react";
-import { Icon } from "@blueprintjs/core";
+import React, { useState } from "react";
+import { Icon, InputGroup } from "@blueprintjs/core";
 import moment from "moment-timezone";
 import {
   MenuColumnWrapper,
@@ -10,7 +10,9 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { ColumnMenuOptionProps } from "./ReactTableComponent";
 import { isString } from "lodash";
 import VideoComponent from "components/designSystems/appsmith/VideoComponent";
+import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/AutoToolTipComponent";
+import TableColumnMenuPopup from "./TableColumnMenu";
 
 interface MenuOptionProps {
   columnAccessor?: string;
@@ -18,7 +20,6 @@ interface MenuOptionProps {
   columnType: string;
   format?: string;
   hideColumn: (columnIndex: number, isColumnHidden: boolean) => void;
-  updateAction: (columnIndex: number, action: string) => void;
   updateColumnType: (columnIndex: number, columnType: string) => void;
   handleUpdateCurrencySymbol: (
     columnIndex: number,
@@ -33,9 +34,7 @@ export const getMenuOptions = (props: MenuOptionProps) => {
       content: "Rename a Column",
       closeOnClick: true,
       id: "rename_column",
-      onClick: (columnIndex: number) => {
-        props.updateAction(columnIndex, "rename_column");
-      },
+      editColumnName: true,
     },
     {
       content: props.isColumnHidden ? "Show Column" : "Hide Column",
@@ -397,7 +396,7 @@ export const renderCell = (
 
 interface RenderActionProps {
   columnActions?: ColumnAction[];
-  onCommandClick: (dynamicTrigger: string) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
 export const renderActions = (props: RenderActionProps) => {
@@ -406,16 +405,167 @@ export const renderActions = (props: RenderActionProps) => {
     <CellWrapper isHidden={false}>
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
-          <ActionWrapper
+          <TableAction
             key={index}
-            onClick={() => {
-              props.onCommandClick(action.dynamicTrigger);
-            }}
-          >
-            {action.label}
-          </ActionWrapper>
+            action={action}
+            onCommandClick={props.onCommandClick}
+          />
         );
       })}
     </CellWrapper>
+  );
+};
+
+const TableAction = (props: {
+  action: ColumnAction;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  return (
+    <ActionWrapper
+      onClick={e => {
+        e.stopPropagation();
+      }}
+    >
+      <Button
+        loading={loading}
+        onClick={() => {
+          setLoading(true);
+          props.onCommandClick(props.action.dynamicTrigger, onComplete);
+        }}
+        text={props.action.label}
+        intent="primary"
+        filled
+        size="small"
+      />
+    </ActionWrapper>
+  );
+};
+
+const RenameColumn = (props: {
+  value: any;
+  columnIndex: number;
+  handleSave: (columnIndex: number, value: any) => void;
+}) => {
+  const [columnName, updateColumnName] = useState(props.value);
+  const onKeyPress = (key: string) => {
+    if (key === "Enter") {
+      props.handleSave(props.columnIndex, columnName);
+    }
+  };
+  const onColumnNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    updateColumnName(event.target.value);
+  };
+  const handleColumnNameUpdate = () => {
+    props.handleSave(props.columnIndex, columnName);
+  };
+  return (
+    <InputGroup
+      autoFocus
+      type="text"
+      className="input-group"
+      placeholder="Enter Column Name"
+      defaultValue={columnName}
+      onChange={onColumnNameChange}
+      onKeyPress={e => onKeyPress(e.key)}
+      onBlur={e => handleColumnNameUpdate()}
+    />
+  );
+};
+
+export const renderEmptyRows = (
+  rowCount: number,
+  columns: any,
+  tableWidth: number,
+) => {
+  const rows: string[] = new Array(rowCount).fill("");
+  const tableColumns = columns.length
+    ? columns
+    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+  return (
+    <React.Fragment>
+      {rows.map((row: string, index: number) => {
+        return (
+          <div
+            className="tr"
+            key={index}
+            style={{
+              display: "flex",
+              flex: "1 0 auto",
+            }}
+          >
+            {tableColumns.map((column: any, colIndex: number) => {
+              return (
+                <div
+                  key={colIndex}
+                  className="td"
+                  style={{
+                    width: column.width + "px",
+                    boxSizing: "border-box",
+                    flex: `${column.width} 0 auto`,
+                  }}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+    </React.Fragment>
+  );
+};
+
+export const TableHeaderCell = (props: {
+  columnName: string;
+  columnIndex: number;
+  isHidden: boolean;
+  displayColumnActions: boolean;
+  handleColumnNameUpdate: (columnIndex: number, name: string) => void;
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  handleResizeColumn: Function;
+  column: any;
+}) => {
+  const { column } = props;
+  const [renameColumn, toggleRenameColumn] = React.useState(false);
+  const handleSaveColumnName = (columnIndex: number, columName: string) => {
+    props.handleColumnNameUpdate(columnIndex, columName);
+    toggleRenameColumn(false);
+  };
+  if (column.isResizing) {
+    props.handleResizeColumn(
+      props.columnIndex,
+      column.getHeaderProps().style.width,
+    );
+  }
+  return (
+    <div {...column.getHeaderProps()} className="th header-reorder">
+      {renameColumn && (
+        <RenameColumn
+          value={props.columnName}
+          handleSave={handleSaveColumnName}
+          columnIndex={props.columnIndex}
+        />
+      )}
+      {!renameColumn && (
+        <div className={!props.isHidden ? "draggable-header" : "hidden-header"}>
+          {column.render("Header")}
+        </div>
+      )}
+      {props.displayColumnActions && (
+        <div className="column-menu">
+          <TableColumnMenuPopup
+            getColumnMenu={props.getColumnMenu}
+            columnIndex={props.columnIndex}
+            editColumnName={() => toggleRenameColumn(true)}
+          />
+        </div>
+      )}
+      <div
+        {...column.getResizerProps()}
+        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+      />
+    </div>
   );
 };

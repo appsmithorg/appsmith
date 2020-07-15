@@ -42,7 +42,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
-import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
+import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 function* fetchDatasourcesSaga() {
@@ -403,7 +403,6 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   ) {
     const { apiId } = actionRouteInfo;
 
-    yield put(setDatasourceFieldText(apiId, ""));
     yield put(changeApi(apiId));
   }
 

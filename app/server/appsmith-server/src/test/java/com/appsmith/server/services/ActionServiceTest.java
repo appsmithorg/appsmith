@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -43,8 +44,10 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -450,6 +453,36 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
                     assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkActionInViewMode() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String key = "bodyMustacheKey";
+        Action action = new Action();
+        action.setName("actionInViewMode");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setBody("{{"+key+"}}");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+
+        StepVerifier
+                .create(actionsListMono)
+                .assertNext(actionsList -> {
+                    assertThat(actionsList.size()).isGreaterThan(0);
+                    ActionViewDTO actionViewDTO = actionsList.stream().filter(action1 -> action1.getName().equals(action.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO).isNotNull();
+                    assertThat(actionViewDTO.getJsonPathKeys()).containsAll(Set.of(key));
                 })
                 .verifyComplete();
     }
