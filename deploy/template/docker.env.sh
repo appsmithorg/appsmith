@@ -14,11 +14,12 @@ cat > docker.env  << EOF
 # ***** Email **********
 APPSMITH_MAIL_ENABLED=false
 # APPSMITH_MAIL_HOST=
-# APPSMITH_MAIL_PASSWORD=
 # APPSMITH_MAIL_PORT=
-# APPSMITH_MAIL_SMTP_AUTH=
+# ***** Set to true if providing a TLS port ******
 # APPSMITH_MAIL_SMTP_TLS_ENABLED=
 # APPSMITH_MAIL_USERNAME=
+# APPSMITH_MAIL_PASSWORD=
+# APPSMITH_MAIL_SMTP_AUTH=true
 # ******************************
 
 # ******** Google OAuth ********
