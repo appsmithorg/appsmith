@@ -1,15 +1,8 @@
-FROM cypress/browsers:node10.16.3-chrome80-ff73
+# FROM cypress/browsers:node10.16.3-chrome80-ff73
+FROM nginx:1.17.9-alpine
 
 RUN apt update -y -q && \
-    apt install -y -q software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian buster stable" && \
-    apt-get update -y -q && \
-    # Install Docker & Nginx
-    apt-get install -y -q nginx gettext-base docker-ce docker-ce-cli containerd.io && \
-    # Install Docker Compose
-    curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
-    chmod +x /usr/local/bin/docker-compose && \
+    apt-get install -y -q nginx gettext-base && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     yarn global add serve

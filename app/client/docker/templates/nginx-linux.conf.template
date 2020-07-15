@@ -14,7 +14,6 @@ server {
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header Accept-Encoding "";
 
-    
     sub_filter_once off;
     location / {
         proxy_pass http://localhost:3000;

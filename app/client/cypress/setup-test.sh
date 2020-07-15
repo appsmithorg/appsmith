@@ -6,28 +6,28 @@
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
 echo "127.0.0.1	dev.appsmith.com" >> /etc/hosts
-serve -s build -p 3000 &
-mkdir -p /var/www/appsmith /etc/certificate
+serve -s build -p 3000
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
 cat ./docker/templates/nginx-linux.conf.template | envsubst ${vars_to_substitute} | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > ./docker/nginx.conf
-cp ./docker/nginx.conf /etc/nginx/conf.d/app.conf
 
 # Create the SSL files for Nginx. Required for service workers to work properly.
-touch /etc/certificate/dev.appsmith.com.pem /etc/certificate/dev.appsmith.com-key.pem
-echo "$APPSMITH_SSL_CERTIFICATE" > /etc/certificate/dev.appsmith.com.pem
-echo "$APPSMITH_SSL_KEY" > /etc/certificate/dev.appsmith.com-key.pem
+touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
+echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com.pem
+echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
+
 echo "Going to run the nginx server"
-nginx
+sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
+    -v ./docker/nginx.conf:/etc/nginx/conf.d/app.conf \
+    -v ./docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
+    -v ./docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
+    nginx:latest
+
 echo "Sleeping for 5 seconds to let the server start"
 sleep 5
+curl -v https://dev.appsmith.com
 
-DEBUG=cypress:* $(npm bin)/cypress version
-sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
-cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
-
-# Going to pull the appsmith-server docker container and bring up the containers on this server
-docker-compose -f ./cypress/cypress-docker-compose.yml up -d
-sleep 10
-curl -v http://localhost:8080
+# DEBUG=cypress:* $(npm bin)/cypress version
+# sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
+# cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml

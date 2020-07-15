@@ -75,7 +75,7 @@ jobs:
   ui-test:
     needs: build
     runs-on: ubuntu-latest
-    container: appsmith/cypress-nginx
+    # container: appsmith/cypress-nginx
     defaults:
       run:
         working-directory: app/client
@@ -83,6 +83,19 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6]
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports: 
+          - 27017:27017
 
     steps:
     # Checkout the code
@@ -111,14 +124,31 @@ jobs:
         name: build
         path: app/client/build
       
+    - name: Pull server docker container and start it locally
+      shell: bash
+      run: |
+        echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        docker run -d --net=host --name appsmith-internal-server -p 8080:8080 \
+        --env APPSMITH_MONGODB_URI=mongodb://localhost:27017/appsmith \
+        --env APPSMITH_REDIS_URL=redis://localhost:6379 \
+        --env APPSMITH_ENCRYPTION_PASSWORD=password \
+        --env APPSMITH_ENCRYPTION_SALT=salt \
+        appsmith/appsmith-server:latest
+
+    - name: Install yarn serve
+      shell: bash
+      run: |
+        yarn global add serve
+
     - name: Setting up the cypress tests
       shell: bash
       env:
         APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
         APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
         CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
-      run: ./cypress/setup-test.sh
-    
+      run: |
+        ./cypress/setup-test.sh
+        
     - name: Run the cypress test
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
