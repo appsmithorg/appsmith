@@ -69,6 +69,7 @@ import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -112,7 +113,11 @@ export const getActionTimeout = (
 ): number | undefined => {
   const action = _.find(state.entities.actions, a => a.config.id === actionId);
   if (action) {
-    const timeout = action.config.actionConfiguration.timeoutInMillisecond;
+    const timeout = _.get(
+      action,
+      "config.actionConfiguration.timeoutInMillisecond",
+      DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+    );
     if (timeout) {
       // Extra timeout padding to account for network calls
       return timeout + 5000;
