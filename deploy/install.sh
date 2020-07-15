@@ -44,30 +44,73 @@ start_docker() {
     fi
 }
 
+check_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        package_manager="brew"
+        desired_os=1
+        return
+    fi
+
+    os_name=`cat /etc/*-release | egrep "^NAME="`
+    os_name="${os_name#*=}"
+    echo $os_name
+    case "${os_name}" in
+        \"Ubuntu*\")
+            echo "In here"
+            desired_os=1
+            package_manager="apt-get"
+            ;;
+        \"Red\ Hat*\")
+            desired_os=1
+            package_manager="yum"
+            ;;
+        \"CentOS*\")
+            desired_os=1
+            package_manager="yum"
+            ;;
+        *)          desired_os=0
+    esac
+}
+
+overwrite_file() {
+    echo ""
+    file_location=$1
+    template_file=$2
+
+    if [ -f $install_dir/$file_location ]
+    then
+        read -p "File $file_location already exists. Would you like to replace it? [Y]: " value
+        value=${value:-Y}
+
+        if [ $value == "Y" -o $value == "y" -o $value == "yes" -o $value == "Yes" ]
+        then
+            mv -f  $template_file $install_dir/$file_location
+            echo "File $install_dir/$file_location replaced successfuly!"
+        else
+            echo "You chose not to replace existing file: $install_dir/$file_location"
+	        rm -rf $template_file
+	        echo "File $template_file removed from source directory."
+            echo ""
+        fi
+    else
+        mv -f $template_file $install_dir/$file_location
+    fi
+}
+
 echo -e "\U1F44B  Thank you for trying out Appsmith! "
 echo ""
 
-declare -A osInfo;
-
-osInfo[/etc/debian_version]="apt-get"
-osInfo[/etc/centos-release]="yum"
-osInfo[/etc/redhat-release]="yum"
-osInfo[/System/Library/CoreServices/SystemVersion.plist]="brew"
 
 # Checking OS and assiging package manager
 desired_os=0
 echo -e "\U1F575  Detecting your OS"
+check_os
+echo $desired_os
+echo $package_manager
 echo ""
-for f in ${!osInfo[@]}
-do
-    if [[ -f $f ]];then
-        package_manager=${osInfo[$f]}
-        desired_os=1
-    fi
-done
 
 if [[ $desired_os -eq 0 ]];then
-    echo "This script is currently meant to install Appsmith on Ubuntu | RHEL | CentOS machines."
+    echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
     echo "Please contact hello@appsmith.com with your OS details if you wish to extend this support"
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
@@ -82,6 +125,7 @@ echo "1) Automatically setup mongo db on this instance (recommended)"
 echo "2) Connect to an external mongo db"
 read -p 'Enter option number [1]: ' mongo_option
 mongo_option=${mongo_option:-1}
+echo ""
 
 if [[ $mongo_option -eq 2 ]];then
     read -p 'Enter your mongo db host: ' mongo_host
@@ -104,6 +148,7 @@ if test -f "$encryptionEnv"; then
     echo "2) Yes. Overwrite the existing encryption (NOT SUGGESTED)"
     read -p 'Enter option number [1]: ' overwrite_encryption
     overwrite_encryption=${overwrite_encryption:-1}
+    echo ""
 
     if [[ $overwrite_encryption -eq 1 ]];then
         setup_encryption="false"
@@ -119,7 +164,7 @@ if [[ "$setup_encryption" = "true" ]];then
     echo "2) Set up your own salt and password"
     read -p 'Enter option number [1]: ' encryption_option
     encryption_option=${encryption_option:-1}
-
+    echo ""
     if [[ $encryption_option -eq 2 ]];then
         read -p 'Enter your encryption password: ' user_encryption_password
         read -p 'Enter your encryption salt: ' user_encryption_salt
@@ -155,14 +200,14 @@ if [[ -z $custom_domain ]]; then
 fi
 
 mkdir -p template
-cd template
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
-curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
-cd ..
+( cd template
+cp ~/code/appsmith/appsmith-ce/deploy/template/docker-compose.yml.sh .
+cp ~/code/appsmith/appsmith-ce/deploy/template/init-letsencrypt.sh.sh .
+cp ~/code/appsmith/appsmith-ce/deploy/template/mongo-init.js.sh .
+cp ~/code/appsmith/appsmith-ce/deploy/template/docker.env.sh .
+cp ~/code/appsmith/appsmith-ce/deploy/template/nginx_app.conf.sh .
+cp ~/code/appsmith/appsmith-ce/deploy/template/encryption.env.sh .
+)
 
 # Role - Docker
 if ! is_command_present docker ;then
@@ -198,38 +243,12 @@ if [[ "$setup_encryption" = "true" ]];then
 fi 
 chmod 0755 init-letsencrypt.sh
 
-declare -A fileInfo
-
-fileInfo[/data/nginx/app.conf]="nginx_app.conf"
-fileInfo[/docker-compose.yml]="docker-compose.yml"
-fileInfo[/data/mongo/init.js]="mongo-init.js"
-fileInfo[/init-letsencrypt.sh]="init-letsencrypt.sh"
-fileInfo[/docker.env]="docker.env"
-fileInfo[/encryption.env]="encryption.env"
-
-for f in ${!fileInfo[@]}
-do
-
-    if [ -f $install_dir/$f ]
-    then
-        read -p "File $f already exist. Would you like to replace it? [Y]: " value
-
-        if [ $value == "Y" -o $value == "y" -o $value == "yes" -o $value == "Yes" ]
-        then
-            mv -f  ${fileInfo[$f]} $install_dir$f
-            echo "File $install_dir$f replaced succeffuly!"
-        else
-            echo "You choose not to replae existing file: $install_dir$f"
-	    rm -rf ${fileInfo[$f]}
-	    echo "File ${fileInfo[$f]} removed from source directory."
-        echo ""
-        fi
-    else
-        mv -f ${fileInfo[$f]} $install_dir$f
-    fi
-
-done
-
+overwrite_file "/data/nginx/app.conf" "nginx_app.conf"
+overwrite_file "/docker-compose.yml" "docker-compose.yml"
+overwrite_file "/data/mongo/init.js" "mongo-init.js"
+overwrite_file "/init-letsencrypt.sh" "init-letsencrypt.sh"
+overwrite_file "/docker.env" "docker.env"
+overwrite_file "/encryption.env" "encryption.env"
 
 echo ""
 

@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f docker-compose.yml ]
-  then
-    echo "file docker-compose.yml already exists"
-  else
+if [ ! -f docker-compose.yml ]; then
     touch docker-compose.yml
 fi
 

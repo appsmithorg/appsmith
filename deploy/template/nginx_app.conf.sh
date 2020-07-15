@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f nginx_app.conf ]
-  then
-    echo "file nginx_app.conf already exists"
-  else
+if [ ! -f nginx_app.conf ]; then
     touch nginx_app.conf
 fi
 
@@ -20,10 +17,6 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     root /var/www/appsmith;
     index index.html index.htm;
 
-    #location / {
-    #    return 301 https://\$host\$request_uri;
-    #}
-
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
@@ -33,6 +26,21 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     
     location / {
         try_files \$uri /index.html =404;
+
+        sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
+        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '${APPSMITH_HOTJAR_HJID}';
+        sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
+        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
+        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
+        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
+        sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
+        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
+        sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';
+        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
+        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY}';
+        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
+        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
+        sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
     }
 
     location /f {
@@ -66,6 +74,21 @@ $NGINX_SSL_CMNT    index index.html index.htm;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location / {
 $NGINX_SSL_CMNT        try_files \$uri /index.html =404;
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SENTRY_DSN__ '${APPSMITH_SENTRY_DSN}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '${APPSMITH_HOTJAR_HJID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_HOTJAR_HJSV__ '${APPSMITH_HOTJAR_HJSV}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_URL__ '${APPSMITH_MARKETPLACE_URL}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SEGMENT_KEY__ '${APPSMITH_SEGMENT_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '${APPSMITH_OPTIMIZELY_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_ID__ '${APPSMITH_ALGOLIA_API_ID}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '${APPSMITH_ALGOLIA_API_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_CLIENT_LOG_LEVEL__ '${APPSMITH_CLIENT_LOG_LEVEL}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_GOOGLE_MAPS_API_KEY__ '${APPSMITH_GOOGLE_MAPS_API_KEY}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_TNC_PP__ '${APPSMITH_TNC_PP}';
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /f {
