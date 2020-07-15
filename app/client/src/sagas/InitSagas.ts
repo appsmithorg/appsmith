@@ -9,7 +9,7 @@ import { fetchEditorConfigs } from "actions/configsActions";
 import { fetchPage, fetchPageList } from "actions/pageActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPlugins } from "actions/pluginActions";
-import { fetchActions } from "actions/actionActions";
+import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -63,13 +63,13 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId } = action.payload;
   yield all([
-    put(fetchActions(applicationId)),
+    put(fetchActionsForView(applicationId)),
     put(fetchPageList(applicationId)),
     put(fetchApplication(applicationId)),
   ]);
 
   yield all([
-    take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+    take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
     take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
   ]);
   if ("serviceWorker" in navigator) {
