@@ -143,15 +143,30 @@ export function* evaluateDynamicBoundValueSaga(path: string): any {
   return dynamicResult.result;
 }
 
-export function* getActionParams(jsonPathKeys: string[] | undefined) {
+export function* getActionParams(
+  jsonPathKeys: string[] | undefined,
+  executionParams?: Record<string, any>,
+) {
   if (_.isNil(jsonPathKeys)) return [];
+  let dataTreeKeys = jsonPathKeys;
+  const dynamicBindings: Record<string, string> = {};
+  if (executionParams && Object.keys(executionParams).length) {
+    const paramKeys = Object.keys(executionParams).map(
+      key => `this.params.${key}`,
+    );
+    const existingKeys = jsonPathKeys.filter(key => paramKeys.includes(key));
+    dataTreeKeys = jsonPathKeys.filter(key => !paramKeys.includes(key));
+    existingKeys.forEach(key => {
+      const paramName = key.substring(12);
+      dynamicBindings[key] = executionParams[paramName];
+    });
+  }
   const values: any = yield all(
-    jsonPathKeys.map((jsonPath: string) => {
+    dataTreeKeys.map((jsonPath: string) => {
       return call(evaluateDynamicBoundValueSaga, jsonPath);
     }),
   );
-  const dynamicBindings: Record<string, string> = {};
-  jsonPathKeys.forEach((key, i) => {
+  dataTreeKeys.forEach((key, i) => {
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
     dynamicBindings[key] = value;
@@ -175,11 +190,15 @@ export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onSuccess, onError } = apiAction;
+  const { actionId, onSuccess, onError, params } = apiAction;
   try {
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const api: RestAction = yield select(getAction, actionId);
-    const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
+    const actionParams: Property[] = yield call(
+      getActionParams,
+      api.jsonPathKeys,
+      params,
+    );
     const pagination =
       event.type === EventType.ON_NEXT_PAGE
         ? "NEXT"
@@ -188,7 +207,7 @@ export function* executeActionSaga(
         : undefined;
     const executeActionRequest: ExecuteActionRequest = {
       action: { id: actionId },
-      params,
+      params: actionParams,
       paginationField: pagination,
     };
     const timeout = yield select(getActionTimeout, actionId);
