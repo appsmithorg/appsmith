@@ -73,7 +73,6 @@ check_os() {
 }
 
 overwrite_file() {
-    echo ""
     file_location=$1
     template_file=$2
 
@@ -105,8 +104,6 @@ echo ""
 desired_os=0
 echo -e "\U1F575  Detecting your OS"
 check_os
-echo $desired_os
-echo $package_manager
 echo ""
 
 if [[ $desired_os -eq 0 ]];then
@@ -139,7 +136,7 @@ elif [[ $mongo_option -eq 1 ]];then
     read -sp 'Set the mongo password: ' mongo_root_password
 fi
 echo ""
-
+echo ""
 echo "Appsmith needs password and salt to encrypt sensitive information"
 encryptionEnv=./template/encryption.env
 if test -f "$encryptionEnv"; then
@@ -164,8 +161,8 @@ if [[ "$setup_encryption" = "true" ]];then
     echo "2) Set up your own salt and password"
     read -p 'Enter option number [1]: ' encryption_option
     encryption_option=${encryption_option:-1}
-    echo ""
     if [[ $encryption_option -eq 2 ]];then
+        echo ""
         read -p 'Enter your encryption password: ' user_encryption_password
         read -p 'Enter your encryption salt: ' user_encryption_salt
     elif [[ $encryption_option -eq 1 ]];then
@@ -201,12 +198,12 @@ fi
 
 mkdir -p template
 ( cd template
-cp ~/code/appsmith/appsmith-ce/deploy/template/docker-compose.yml.sh .
-cp ~/code/appsmith/appsmith-ce/deploy/template/init-letsencrypt.sh.sh .
-cp ~/code/appsmith/appsmith-ce/deploy/template/mongo-init.js.sh .
-cp ~/code/appsmith/appsmith-ce/deploy/template/docker.env.sh .
-cp ~/code/appsmith/appsmith-ce/deploy/template/nginx_app.conf.sh .
-cp ~/code/appsmith/appsmith-ce/deploy/template/encryption.env.sh .
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker-compose.yml.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/init-letsencrypt.sh.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/mongo-init.js.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/docker.env.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/nginx_app.conf.sh
+curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/template/encryption.env.sh
 )
 
 # Role - Docker
@@ -225,7 +222,7 @@ if [ $package_manager == "yum" -o $package_manager == "apt-get" ];then
 fi
 
 # Role - Folder
-for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
+for directory_name in nginx certbot mongo/db opa/config
 do
   if [[ ! -d "$install_dir/data/$directory_name" ]];then
     mkdir -p "$install_dir/data/$directory_name"
@@ -240,10 +237,10 @@ echo "Generating the configuration files from the templates"
 . ./template/docker.env.sh
 if [[ "$setup_encryption" = "true" ]];then
    . ./template/encryption.env.sh
-fi 
+fi
 chmod 0755 init-letsencrypt.sh
 
-overwrite_file "/data/nginx/app.conf" "nginx_app.conf"
+overwrite_file "/data/nginx/app.conf.template" "nginx_app.conf"
 overwrite_file "/docker-compose.yml" "docker-compose.yml"
 overwrite_file "/data/mongo/init.js" "mongo-init.js"
 overwrite_file "/init-letsencrypt.sh" "init-letsencrypt.sh"
@@ -252,7 +249,6 @@ overwrite_file "/encryption.env" "encryption.env"
 
 echo ""
 
-#echo "Running init-letsencrypt.sh...."
 cd $install_dir
 if [[ ! -z $custom_domain ]]; then
     echo "Running init-letsencrypt.sh...."

@@ -4,8 +4,6 @@ if [ ! -f docker-compose.yml ]; then
     touch docker-compose.yml
 fi
 
-
-
 cat > docker-compose.yml  << EOF
 version: "3.7"
 
@@ -17,10 +15,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/nginx/app.conf.template:/nginx.conf.template
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
-    command: "/bin/sh -c 'while :; do sleep 6h & wait \$\${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait \$\${!}; nginx -s reload; done & /start-nginx.sh'"
     depends_on:
       - appsmith-internal-server
     networks:
