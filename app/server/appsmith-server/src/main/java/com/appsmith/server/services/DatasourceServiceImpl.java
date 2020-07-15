@@ -264,6 +264,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
+    public Mono<Datasource> findById(String id) {
+        return repository.findById(id);
+    }
+
+    @Override
     public Set<String> extractKeysFromDatasource(Datasource datasource) {
         if (datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
