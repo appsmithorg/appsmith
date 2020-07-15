@@ -112,8 +112,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     if (isFullPath) {
       const matches = value.match(urlGroupsRegexExp);
       if (matches && matches.length) {
-        datasourceUrl = `${matches[1]}`;
-        path = matches[2];
+        datasourceUrl = matches[1];
+        path = `${matches[2]}${matches[3]}`;
       }
     } else {
       datasourceUrl = value;
@@ -247,7 +247,7 @@ const mapStateToProps = (
   ownProps: { pluginId: string },
 ): ReduxStateProps => {
   return {
-    orgId: state.ui.orgs.currentOrgId,
+    orgId: state.ui.orgs.currentOrg.id,
     datasource: apiFormValueSelector(state, "datasource"),
     datasourceList: state.entities.datasources.list.filter(
       d => d.pluginId === ownProps.pluginId && d.isValid,
