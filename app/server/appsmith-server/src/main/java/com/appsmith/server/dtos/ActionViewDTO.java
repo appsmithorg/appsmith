@@ -12,5 +12,6 @@ import java.util.Set;
 public class ActionViewDTO {
     String id;
     String name;
+    String pageId;
     Set<String> jsonPathKeys;
 }
