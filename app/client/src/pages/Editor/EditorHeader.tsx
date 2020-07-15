@@ -90,9 +90,11 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     page => page.pageId === props.currentPageId,
   )?.pageName;
 
+  const { fetchCurrentOrg, currentOrgId } = props;
+
   useEffect(() => {
-    props.fetchCurrentOrg(props.currentOrgId);
-  }, [props.fetchCurrentOrg]);
+    fetchCurrentOrg(currentOrgId);
+  }, [fetchCurrentOrg, currentOrgId]);
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [

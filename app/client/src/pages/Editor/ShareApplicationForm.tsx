@@ -42,29 +42,27 @@ export const ShareApplicationForm = (props: any) => {
 
   useEffect(() => {
     fetchApplication(applicationId);
-  }, [fetchApplication]);
+  }, [fetchApplication, applicationId]);
 
   return (
     <ShareWithPublicOption>
       Share the application with anyone
       <ShareToggle>
-        {isChangingViewAccess && <Spinner size={20} />}
-        {isFetchingApplication ? (
+        {(isChangingViewAccess || isFetchingApplication) && (
           <Spinner size={20} />
-        ) : (
-          currentApplicationDetails && (
-            <StyledSwitch
-              onChange={() => {
-                changeAppViewAccess(
-                  applicationId,
-                  !currentApplicationDetails.isPublic,
-                );
-              }}
-              disabled={isChangingViewAccess}
-              checked={currentApplicationDetails.isPublic}
-              large
-            />
-          )
+        )}
+        {currentApplicationDetails && (
+          <StyledSwitch
+            onChange={() => {
+              changeAppViewAccess(
+                applicationId,
+                !currentApplicationDetails.isPublic,
+              );
+            }}
+            disabled={isChangingViewAccess || isFetchingApplication}
+            checked={currentApplicationDetails.isPublic}
+            large
+          />
         )}
       </ShareToggle>
     </ShareWithPublicOption>
