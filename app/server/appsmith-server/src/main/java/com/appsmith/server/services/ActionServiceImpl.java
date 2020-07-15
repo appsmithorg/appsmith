@@ -544,6 +544,9 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         jsonPathKeys.addAll(action.getJsonPathKeys());
                         actionViewDTO.setJsonPathKeys(jsonPathKeys);
                     }
+                    if (action.getActionConfiguration() != null) {
+                        actionViewDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                    }
                     return actionViewDTO;
                 });
     }

@@ -34,6 +34,15 @@ export const fetchActions = (
   };
 };
 
+export const fetchActionsForView = (
+  applicationId: string,
+): ReduxAction<FetchActionsPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
+    payload: { applicationId },
+  };
+};
+
 export const fetchActionsForPage = (pageId: string) => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
