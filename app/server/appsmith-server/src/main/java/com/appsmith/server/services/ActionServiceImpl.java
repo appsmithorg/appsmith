@@ -58,7 +58,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -318,7 +317,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
+                        /** TODO
+                         * Add datasource.findById with execute permissions
+                         */
+                        return datasourceService.findById(action.getDatasource().getId())
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
                     }
                     //The data source in the action has not been persisted.
