@@ -10,6 +10,8 @@ import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
+  isFetchingApplication: false,
+  isChangingViewAccess: false,
   applicationList: [],
   creatingApplication: false,
   deletingApplication: false,
@@ -55,6 +57,22 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
   ) => {
     return { ...state, deletingApplication: false };
+  },
+  [ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, isChangingViewAccess: true }),
+  [ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ id: string; isPublic: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isChangingViewAccess: false,
+      currentApplication: {
+        ...state.currentApplication,
+        isPublic: action.payload.isPublic,
+      },
+    };
   },
   [ReduxActionTypes.FETCH_APPLICATION_LIST_INIT]: (
     state: ApplicationsReduxState,
@@ -127,6 +145,8 @@ export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
   isFetchingApplications: boolean;
+  isFetchingApplication: boolean;
+  isChangingViewAccess: boolean;
   creatingApplication: boolean;
   createApplicationError?: string;
   deletingApplication: boolean;

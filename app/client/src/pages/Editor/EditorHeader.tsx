@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { AppState } from "reducers";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  getCurrentOrg,
+  getCurrentOrgId,
+} from "selectors/organizationSelectors";
+import { Org } from "constants/orgConstants";
 import {
   BASE_URL,
   APPLICATIONS_URL,
@@ -22,6 +30,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Skin } from "constants/DefaultTheme";
 import { HelpModal } from "components/designSystems/appsmith/help/HelpModal";
+import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
+import ShareApplicationForm from "pages/Editor/ShareApplicationForm";
 
 const LoadingContainer = styled.div`
   display: flex;
@@ -48,13 +58,16 @@ const StretchedBreadCrumb = styled(Breadcrumbs)`
   }
 `;
 
-const InviteButton = styled.div`
+const ShareButton = styled.div`
   display: flex;
   flex-grow: 1;
   justify-content: flex-end;
 `;
 
 type EditorHeaderProps = {
+  currentOrg: Org;
+  currentOrgId: string;
+  fetchCurrentOrg: (orgId: string) => void;
   isSaving?: boolean;
   pageSaveError?: boolean;
   pageName?: string;
@@ -76,6 +89,12 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   const selectedPageName = props.pages?.find(
     page => page.pageId === props.currentPageId,
   )?.pageName;
+
+  const { fetchCurrentOrg, currentOrgId } = props;
+
+  useEffect(() => {
+    fetchCurrentOrg(currentOrgId);
+  }, [fetchCurrentOrg, currentOrgId]);
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [
@@ -146,9 +165,22 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     <StyledHeader>
       <StretchedBreadCrumb items={navigation} minVisibleItems={3} />
       <CustomizedDropdown {...pageSelectorData} />
-      <InviteButton>
-        {/* <Button text="Share" intent="primary" filled size="small" /> */}
-      </InviteButton>
+      <ShareButton>
+        <FormDialogComponent
+          trigger={
+            <Button
+              text="Share"
+              intent="primary"
+              outline
+              size="small"
+              className="t--application-publish-btn"
+            />
+          }
+          Form={ShareApplicationForm}
+          title={props.currentOrg.name}
+        />
+      </ShareButton>
+
       <LoadingContainer>{saveStatusMessage}</LoadingContainer>
       <PreviewPublishSection>
         <Button
@@ -166,4 +198,19 @@ export const EditorHeader = (props: EditorHeaderProps) => {
   );
 };
 
-export default EditorHeader;
+const mapStateToProps = (state: AppState) => ({
+  currentOrg: getCurrentOrg(state),
+  currentOrgId: getCurrentOrgId(state),
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  fetchCurrentOrg: (orgId: string) =>
+    dispatch({
+      type: ReduxActionTypes.FETCH_CURRENT_ORG,
+      payload: {
+        orgId,
+      },
+    }),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
