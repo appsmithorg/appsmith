@@ -101,6 +101,11 @@ jobs:
     # Checkout the code
     - uses: actions/checkout@v2
 
+    - name: Use Node.js 10.16.3
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10.16.3'
+
     # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
     - name: Cache npm dependencies
       uses: actions/cache@v2
