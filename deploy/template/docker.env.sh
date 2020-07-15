@@ -39,4 +39,13 @@ APPSMITH_MAIL_ENABLED=false
 APPSMITH_REDIS_URL=redis://redis:6379
 APPSMITH_MONGODB_URI=mongodb://$mongo_root_user:$mongo_root_password@$mongo_host/appsmith?retryWrites=true
 # *******************************
+
+# *** EE Specific Config ********
+# APPSMITH_MARKETPLACE_URL=
+# APPSMITH_RAPID_API_KEY_VALUE=
+# APPSMITH_ROLLBAR_ACCESS_TOKEN=
+# APPSMITH_ROLLBAR_ENV=
+# APPSMITH_SEGMENT_KEY=
+# *******************************
+
 EOF
