@@ -62,7 +62,6 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Slf4j
@@ -629,7 +628,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             if (datasource.getId() != null) {
                 // its a global datasource. Get the datasource from the collection
                 pluginIdUpdateMono = datasourceService
-                        .findById(datasource.getId(), READ_DATASOURCES)
+                        .findById(datasource.getId())
                         .map(datasource1 -> {
                             action.setPluginId(datasource1.getPluginId());
                             return action;
