@@ -9,6 +9,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
@@ -30,7 +31,9 @@ public class EmailSender {
 
     final EmailConfig emailConfig;
 
-    private static final InternetAddress MAIL_FROM = makeFromAddress();
+    private final InternetAddress MAIL_FROM;
+
+    private final InternetAddress REPLY_TO;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -38,6 +41,9 @@ public class EmailSender {
     public EmailSender(JavaMailSender javaMailSender, EmailConfig emailConfig) {
         this.javaMailSender = javaMailSender;
         this.emailConfig = emailConfig;
+
+        MAIL_FROM = makeFromAddress();
+        REPLY_TO = makeReplyTo();
     }
 
     private static boolean validateEmail(String emailStr) {
@@ -75,10 +81,10 @@ public class EmailSender {
             return;
         }
 
-        if (MAIL_FROM == null) {
-            log.error("MAIL_FROM is null, no From address object to send an email. Not sending email '{}'.", subject);
-            return;
-        }
+//        if (MAIL_FROM == null) {
+//            log.error("MAIL_FROM is null, no From address object to send an email. Not sending email '{}'.", subject);
+//            return;
+//        }
 
         // Check if the email address is valid. It's possible for certain OAuth2 providers to not return the email ID
         if (to == null || !validateEmail(to)) {
@@ -92,7 +98,12 @@ public class EmailSender {
 
         try {
             helper.setTo(to);
-            helper.setFrom(MAIL_FROM);
+            if (MAIL_FROM != null) {
+                helper.setFrom(MAIL_FROM);
+            }
+            if (REPLY_TO != null) {
+                helper.setReplyTo(REPLY_TO);
+            }
             helper.setSubject(subject);
             helper.setText(text, true);
             javaMailSender.send(mimeMessage);
@@ -120,11 +131,20 @@ public class EmailSender {
         return stringWriter.toString();
     }
 
-    private static InternetAddress makeFromAddress() {
+    private InternetAddress makeFromAddress() {
         try {
-            return new InternetAddress("hello@appsmith.com", "Appsmith");
+            return new InternetAddress(this.emailConfig.getMailFrom(), "Appsmith");
         } catch (UnsupportedEncodingException e) {
-            log.error("Encoding error creating Appsmith from address.", e);
+            log.error("Encoding error creating Appsmith mail from address.", e);
+            return null;
+        }
+    }
+
+    private InternetAddress makeReplyTo() {
+        try {
+            return new InternetAddress(this.emailConfig.getReplyTo(), "Appsmith");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Encoding error creating Appsmith reply to address.", e);
             return null;
         }
     }
