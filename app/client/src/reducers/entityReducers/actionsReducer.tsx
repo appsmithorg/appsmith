@@ -27,6 +27,14 @@ const actionsReducer = createReducer(initialState, {
       isLoading: false,
       config: a,
     })),
+  [ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS]: (
+    state: ActionDataState,
+    action: ReduxAction<RestAction[]>,
+  ): ActionDataState =>
+    action.payload.map(a => ({
+      isLoading: false,
+      config: a,
+    })),
   [ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<RestAction[]>,
@@ -47,6 +55,7 @@ const actionsReducer = createReducer(initialState, {
     return state;
   },
   [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: () => initialState,
+  [ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR]: () => initialState,
   [ReduxActionTypes.CREATE_ACTION_INIT]: (
     state: ActionDataState,
     action: ReduxAction<RestAction>,
