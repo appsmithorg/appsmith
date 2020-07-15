@@ -67,10 +67,7 @@ axiosInstance.interceptors.response.use(
         }
       }
       const errorData = error.response.data.responseMeta;
-      if (
-        errorData.status === 404 &&
-        errorData.error.code === 4028
-      ) {
+      if (errorData.status === 404 && errorData.error.code === 4028) {
         history.push(PAGE_NOT_FOUND_URL);
         return Promise.reject({
           code: 404,
