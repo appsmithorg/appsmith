@@ -130,7 +130,6 @@ if [[ "$setup_encryption" = "true" ]];then
     fi
 fi
 echo ""
-
 read -p 'Would you like to host appsmith on a custom domain / subdomain? [Y/n]: ' setup_domain
 setup_domain=${setup_domain:-Y}
 if [ $setup_domain == "Y" -o $setup_domain == "y" -o $setup_domain == "yes" -o $setup_domain == "Yes" ];then
