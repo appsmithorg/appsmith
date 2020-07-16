@@ -27,6 +27,7 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 
 before(function() {
   cy.startServerAndRoutes();
+  cy.task("log", Cypress.env());
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
