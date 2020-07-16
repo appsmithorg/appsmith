@@ -34,6 +34,7 @@ boot_script_path="/home/ubuntu"
 boot_file_name="boot.sh"
 cd $boot_script_path
 
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/configure-ssl.sh
 sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/boot.sh
 sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boot_script_path/$boot_file_name
 
