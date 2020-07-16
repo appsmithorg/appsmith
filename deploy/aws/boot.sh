@@ -61,7 +61,7 @@ cd ..
 echo $PWD
 
 # Role - Folder
-for directory_name in nginx certbot mongo/db opa/config appsmith-server/config
+for directory_name in nginx certbot mongo/db opa/config
 do
   if [[ ! -d "$install_dir/data/$directory_name" ]];then
     mkdir -p "$install_dir/data/$directory_name"
