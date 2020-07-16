@@ -44,14 +44,6 @@ before(function() {
     localStorage.setItem("AppName", appId);
   });
 
-  /*
-  cy.generateUUID().then(uid => {
-    pageid = uid;
-    cy.Createpage(pageid);
-    cy.NavigateToWidgets(pageid);
-    localStorage.setItem("PageName", pageid);
-  });
-*/
   cy.fixture("example").then(function(data) {
     this.data = data;
   });

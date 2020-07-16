@@ -1,3 +1,5 @@
+/// <reference types="Cypress" />
+
 const dsl = require("../../../fixtures/commondsl.json");
 const pages = require("../../../locators/Pages.json");
 const dynamicInputLocators = require("../../../locators/DynamicInput.json");
@@ -8,6 +10,7 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
+    cy.wait("@getPropertyPane");
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
@@ -55,6 +58,7 @@ describe("Dynamic input autocomplete", () => {
   });
   it("opens current value popup", () => {
     // Test on widgets pane
+    cy.wait("@getPropertyPane");
     cy.get(pages.widgetsEditor).click();
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)

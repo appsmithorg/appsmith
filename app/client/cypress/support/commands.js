@@ -14,7 +14,6 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
-const propertyPaneResponse = require("../fixtures/propertyPaneResponse.json");
 
 let pageidcopy = " ";
 
@@ -1128,8 +1127,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route({
     method: "GET",
-    url: "/api/v1/configs/name/propertyPane",
-    response: "fixture:fixtures/propertyPaneResponse.json",
+    url: "**/api/v1/configs/name/propertyPane",
+    status: 200,
+    response: "fixture:../fixtures/propertyPaneResponse.json",
     delay: 100,
   }).as("getPropertyPane");
 
