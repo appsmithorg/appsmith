@@ -62,4 +62,9 @@ const Sidebar = () => {
   );
 };
 
+Sidebar.whyDidYouRender = {
+  logOnDifferentValues: false,
+  customName: "MainSidebar",
+};
+
 export default Sidebar;

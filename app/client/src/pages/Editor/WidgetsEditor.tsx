@@ -1,4 +1,4 @@
-import React, { useEffect, ReactNode } from "react";
+import React, { useEffect, ReactNode, memo } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import Canvas from "./Canvas";
@@ -51,7 +51,8 @@ type EditorProps = {
   currentPageName?: string;
 };
 
-const WidgetsEditor = (props: EditorProps) => {
+/* eslint-disable react/display-name */
+const WidgetsEditor = memo((props: EditorProps) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
 
   useEffect(() => {
@@ -97,7 +98,7 @@ const WidgetsEditor = (props: EditorProps) => {
       </EditorWrapper>
     </EditorContextProvider>
   );
-};
+});
 
 const mapStateToProps = (state: AppState) => {
   return {
@@ -108,8 +109,4 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
-WidgetsEditor.whyDidYouRender = {
-  logOnDifferentValues: false,
-  name: "WidgetsEditor",
-};
 export default connect(mapStateToProps)(WidgetsEditor);

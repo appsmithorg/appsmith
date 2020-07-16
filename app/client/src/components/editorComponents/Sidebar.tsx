@@ -111,4 +111,8 @@ export const Sidebar = () => {
   );
 };
 
+Sidebar.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
+
 export default Sidebar;
