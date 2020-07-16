@@ -14,7 +14,7 @@ import {
 } from "components/designSystems/appsmith/TableUtilities";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,

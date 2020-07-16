@@ -22,7 +22,8 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     color: ${Colors.BLUE_BAYOUX};
     position: relative;
     overflow-y: auto;
-    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT}px;
+    /* Subtracting 9px to handling widget padding */
+    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT - 9}px;
     .thead,
     .tbody {
       overflow: hidden;
