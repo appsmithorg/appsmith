@@ -67,9 +67,7 @@ public class DatasourceServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
-
-    @Autowired EncryptionService encryptionService;
+    EncryptionService encryptionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -80,7 +78,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg == null ? null : testOrg.getId();
+        orgId = testOrg == null ? "" : testOrg.getId();
     }
 
     @Test
