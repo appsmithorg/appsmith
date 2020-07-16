@@ -162,13 +162,15 @@ jobs:
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
         CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-        BUILD_ID: ${GITHUB_SHA}
       with:
         browser: chrome
         headless: true
         record: true
         install: false
-        command: yarn run test:ci
+        parallel: true
+        group: 'Electrons on Github Action'
+        ci-build-id: '${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}'
+        spec: 'cypress/integration/Smoke_TestSuite/*/*'
         working-directory: app/client
 
     # Upload the screenshots as artifacts if there's a failure
