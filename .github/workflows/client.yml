@@ -159,7 +159,7 @@ jobs:
       env: 
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-        CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
+        CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
         CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
         CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
       with:
