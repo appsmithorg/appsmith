@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check if Lock File exists, if not create it and set trap on exit
+if { set -C; 2>/dev/null >/home/ubuntu/.appsmith.lock; }; then
+    trap "rm -f /home/ubuntu/.appsmith.lock" EXIT
+else
+    exit
+fi
+
 start_docker() {
     if [ `systemctl is-active docker.service` == "inactive" ];then
         echo "Starting docker"
