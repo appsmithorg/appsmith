@@ -140,6 +140,11 @@ jobs:
         --env APPSMITH_ENCRYPTION_SALT=salt \
         appsmith/appsmith-server:latest
 
+    - name: Installing Yarn serve
+      run: |
+        yarn global add serve
+        echo "::add-path::$(yarn global bin)"
+
     - name: Setting up the cypress tests
       shell: bash
       env:
@@ -172,8 +177,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    # if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release')
-    if: always()
+    if: always() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release')
 
     steps:
     
