@@ -28,3 +28,15 @@ install_package() {
 }
 
 install_package
+
+#Download boot.sh and schedule at boot time.
+boot_script_path="/home/ubuntu"
+boot_file_name="boot.sh"
+cd $boot_script_path
+
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/deploy-script/deploy/boot.sh
+sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boot_script_path/$boot_file_name
+
+USER="ubuntu"
+CRON_FILE="/var/spool/cron/crontabs/$USER"
+echo "@reboot /bin/bash $boot_script_path/$boot_file_name" >> $CRON_FILE

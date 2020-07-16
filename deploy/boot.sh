@@ -9,27 +9,24 @@ start_docker() {
 
 
 # generate random string
-generte_random_string() {
+generate_random_string() {
     value=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1`
     echo $value
 }
-#va=$( generte_random_string )
 
-install_dir="/root/appsmith"
+install_dir="/home/ubuntu/appsmith/"
 
 if [ ! -d $install_dir ];then
     mkdir -p $install_dir
 fi
-
-# Above code tested
-
+chown -R ubuntu:ubuntu $install_dir
 
 mongo_host="mongo"
 mongo_database="appsmith"
-mongo_root_user=$( generte_random_string )
-mongo_root_password=$( generte_random_string )
-user_encryption_password=$( generte_random_string )
-user_encryption_salt=$( generte_random_string )
+mongo_root_user=$( generate_random_string )
+mongo_root_password=$( generate_random_string )
+user_encryption_password=$( generate_random_string )
+user_encryption_salt=$( generate_random_string )
 
 custom_domain=""
 NGINX_SSL_CMNT=""
@@ -37,13 +34,13 @@ if [[ -z $custom_domain ]]; then
     NGINX_SSL_CMNT="#"
 fi
 
-script_dir="/root/script/"
-if [ ! -d $script_dir ];then
-    mkdir -p $script_dir
+script_dir="/script"
+if [ ! -d $install_dir$script_dir ];then
+    mkdir -p $install_dir$script_dir
 fi
+chown -R ubuntu:ubuntu $install_dir$script_dir
 
-cd $script_dir
-echo $PWD
+cd $install_dir$script_dir
 mkdir -p template
 cd template
 echo $PWD
