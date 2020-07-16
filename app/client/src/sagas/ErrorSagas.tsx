@@ -59,7 +59,7 @@ export function getResponseErrorMessage(response: ApiResponse) {
     : undefined;
 }
 
-type ErrorPayloadType = { code?: number; message?: string, show?:boolean };
+type ErrorPayloadType = { code?: number; message?: string; show?: boolean };
 let ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {};
@@ -92,7 +92,7 @@ export function* errorSaga(
   } = errorAction;
   const message =
     error && error.message ? error.message : ActionErrorDisplayMap[type](error);
-  
+
   if (show && error && error.show) {
     // error.code !== 401 IS A HACK!
     // TODO(abhinav): Figure out a generic way

@@ -13,8 +13,6 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 require("cypress-xpath");
-const loginData = require("../fixtures/user.json");
-const inputData = require("../fixtures/inputdata.json");
 let pageid;
 let appId;
 
@@ -28,10 +26,10 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 });
 
 before(function() {
-  console.log("**** Got Cypress base URL as: ", process.env.CYPRESS_BASE_URL);
   cy.startServerAndRoutes();
-  //cy.LogintoApp(loginData.username, loginData.password);
-  cy.LoginFromAPI(Cypress.env("username"), Cypress.env("password"));
+  const username = Cypress.env("USERNAME");
+  const password = Cypress.env("PASSWORD");
+  cy.LoginFromAPI(username, password);
   cy.visit("/applications");
   cy.wait("@applications").should(
     "have.nested.property",
@@ -45,14 +43,6 @@ before(function() {
     localStorage.setItem("AppName", appId);
   });
 
-  /*
-  cy.generateUUID().then(uid => {
-    pageid = uid;
-    cy.Createpage(pageid);
-    cy.NavigateToWidgets(pageid);
-    localStorage.setItem("PageName", pageid);
-  });
-*/
   cy.fixture("example").then(function(data) {
     this.data = data;
   });
@@ -64,9 +54,6 @@ beforeEach(function() {
 });
 
 after(function() {
-  // ---commenting Publish app and Delete page as of now--- //
-  //cy.Deletepage(pageid);
-  //cy.PublishtheApp();
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//
