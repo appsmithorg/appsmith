@@ -129,6 +129,10 @@ export function* deleteDatasourceSaga(
       history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     }
   } catch (error) {
+    AppToaster.show({
+      message: error.message,
+      type: ToastType.ERROR,
+    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id },

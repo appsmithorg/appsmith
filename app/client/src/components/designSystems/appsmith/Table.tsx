@@ -166,7 +166,12 @@ export const Table = (props: TableProps) => {
                 prepareRow,
               )}
           </div>
-          <div {...getTableBodyProps()} className="tbody">
+          <div
+            {...getTableBodyProps()}
+            className={`tbody ${
+              props.pageSize > subPage.length ? "no-scroll" : ""
+            }`}
+          >
             {subPage.map((row, rowIndex) => {
               prepareRow(row);
               return (

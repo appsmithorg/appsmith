@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f encryption.env ]
-  then
-    echo "file encryption.env already exists"
-  else
+if [ ! -f encryption.env ]; then
     touch encryption.env
 fi
 
