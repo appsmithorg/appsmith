@@ -83,6 +83,7 @@ public class MySqlPluginTest {
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
                     ActionExecutionResult result = (ActionExecutionResult) obj;
+                    System.out.println(result);
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
@@ -91,24 +92,30 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testValidateDataSource() {
-        Set<String> output = null;
-
-        dsConfig.getAuthentication().setDatabaseName("");
-        output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 1);
-        assertEquals(output.iterator().next(), "Having endpoints but missing DatabaseName");
-
-        dsConfig.setEndpoints(null);
-        output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 1);
-        assertEquals(output.iterator().next(), "Missing endpoint and url");
-
+    public void testValidateDatasourceNullCredentials() {
         dsConfig.setConnection(new com.appsmith.external.models.Connection());
         dsConfig.getAuthentication().setUsername(null);
         dsConfig.getAuthentication().setPassword(null);
-        output = pluginExecutor.validateDatasource(dsConfig);
-        assertEquals(output.size(), 4);
+        dsConfig.getAuthentication().setDatabaseName("someDbName");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains("Missing username for authentication."));
+        assertTrue(output.contains("Missing password for authentication."));
+    }
+
+    @Test
+    public void testValidateDatasourceMissingDBName() {
+        dsConfig.getAuthentication().setDatabaseName("");
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertTrue(output.contains("Missing database name"));
+    }
+
+    @Test
+    public void testValidateDatasourceNullEndpoint() {
+        dsConfig.setEndpoints(null);
+        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
+        assertEquals(output.size(), 1);
+        assertTrue(output.contains("Missing endpoint and url"));
     }
 
     /* checking that the connection is being closed after the datadourceDestroy method is being called

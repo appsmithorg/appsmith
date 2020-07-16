@@ -21,7 +21,7 @@ import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 public class MySqlPlugin extends BasePlugin {
 
-    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
 
     private static final String USER = "user";
     private static final String PASSWORD = "password";
@@ -141,19 +141,16 @@ public class MySqlPlugin extends BasePlugin {
                     }
                 }
                 url = urlBuilder.toString();
-
             }
+
             try {
                 Connection connection = DriverManager.getConnection(url, properties);
                 connection.setReadOnly(
                         configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                 return Mono.just(connection);
-
             } catch (SQLException e) {
                 return pluginErrorMono("Error connecting to MySql.", e);
-
             }
-
         }
 
         @Override
@@ -173,25 +170,18 @@ public class MySqlPlugin extends BasePlugin {
 
             Set<String> invalids = new HashSet<>();
 
-            Boolean databaseNameMissing = datasourceConfiguration.getAuthentication().getDatabaseName().isEmpty();
-
-            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
-                if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                    invalids.add("Missing endpoint and url");
-                } else if (databaseNameMissing) {
-                    invalids.add("Having endpoints but missing DatabaseName");
-                }
-
-            }
-
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
                 invalids.add("Missing Connection Mode.");
             }
 
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) &&
+                CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                    invalids.add("Missing endpoint and url");
+            }
+
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add("Missing authentication details.");
-
             } else {
                 if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getUsername())) {
                     invalids.add("Missing username for authentication.");
@@ -201,6 +191,9 @@ public class MySqlPlugin extends BasePlugin {
                     invalids.add("Missing password for authentication.");
                 }
 
+                if (StringUtils.isEmpty(datasourceConfiguration.getAuthentication().getDatabaseName())) {
+                    invalids.add("Missing database name");
+                }
             }
 
             return invalids;
