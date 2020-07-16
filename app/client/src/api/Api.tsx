@@ -66,10 +66,8 @@ axiosInstance.interceptors.response.use(
           });
         }
       }
-      if (
-        error.resonse.status === 404 &&
-        error.response.app_error_code === 4028
-      ) {
+      const errorData = error.response.data.responseMeta;
+      if (errorData.status === 404 && errorData.error.code === 4028) {
         history.push(PAGE_NOT_FOUND_URL);
         return Promise.reject({
           code: 404,

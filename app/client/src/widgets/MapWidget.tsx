@@ -36,8 +36,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
-      // onMarkerClick: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onCreateMarker: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 
@@ -114,25 +112,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   };
 
-  // componentDidMount() {
-  //   super.componentDidMount();
-  //   if (this.props.mapCenter) {
-  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
-  //   }
-  // }
-  //
-  // componentDidUpdate(prevProps: MapWidgetProps) {
-  //   super.componentDidUpdate(prevProps);
-  //   if (
-  //     this.props.mapCenter &&
-  //     prevProps.mapCenter &&
-  //     (this.props.mapCenter.lat !== prevProps.mapCenter.lat ||
-  //       this.props.mapCenter.lng !== prevProps.mapCenter.lng)
-  //   ) {
-  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
-  //   }
-  // }
-
   getPageView() {
     return (
       <>
@@ -154,6 +133,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         )}
         {google.enabled && (
           <MapComponent
+            apiKey={google.apiKey}
             widgetId={this.props.widgetId}
             isVisible={this.props.isVisible}
             zoomLevel={this.props.zoomLevel}
