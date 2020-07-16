@@ -131,7 +131,7 @@ if [[ $mongo_option -eq 2 ]];then
     read -p 'Enter your mongo database name: ' mongo_database
     # It is possible that this isn't the first installation. 
     echo ""
-    read -p 'Do you have any existing data in the database?[y/n]: ' existing_encrypted_data
+    read -p 'Do you have any existing data in the database?[Y/n]: ' existing_encrypted_data
     existing_encrypted_data=${existing_encrypted_data:-Y}
     # In this case be more cautious of auto generating the encryption keys. Err on the side of not generating the encryption keys
     if [ $existing_encrypted_data == "N" -o $existing_encrypted_data == "n" -o $existing_encrypted_data == "no" -o $existing_encrypted_data == "No" ];then
@@ -173,7 +173,7 @@ fi
 
 if [[ "$setup_encryption" = "true" ]];then
     if [[ "$auto_generate_encryption" = "false" ]];then
-        echo "Appsmith needs password and salt to encrypt sensitive information. CAUTION : If using existing database, please use the same encryption password and salt as with which the database was created"
+        echo "Please enter the salt and password found in the encyption.env file of your previous appsmith installation "
         read -p 'Enter your encryption password: ' user_encryption_password
         read -p 'Enter your encryption salt: ' user_encryption_salt 
     elif [[ "$auto_generate_encryption" = "true" ]];then
