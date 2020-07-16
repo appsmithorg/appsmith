@@ -14,6 +14,10 @@ import Postgres from "assets/images/Postgress.png";
 import MongoDB from "assets/images/MongoDB.png";
 import RestTemplateImage from "assets/images/RestAPI.png";
 import styled from "styled-components";
+import {
+  HTTP_METHODS,
+  HTTP_METHOD_COLOR_MAP,
+} from "constants/ApiEditorConstants";
 
 const ENTITY_ICON_SIZE = 14;
 
@@ -76,4 +80,23 @@ export const getPluginIcon = (plugin?: Plugin) => {
     default:
       return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
   }
+};
+
+const StyledTag = styled.div<{ color: string }>`
+  font-size: 8px;
+  width: 40px;
+  font-weight: 700;
+  color: #fff;
+  background: ${props => props.color};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const MethodTag = (props: { type: typeof HTTP_METHODS[number] }) => {
+  return (
+    <StyledTag color={HTTP_METHOD_COLOR_MAP[props.type]}>
+      {props.type}
+    </StyledTag>
+  );
 };

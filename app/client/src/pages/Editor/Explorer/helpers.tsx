@@ -10,6 +10,7 @@ import {
   widgetIcon,
   queryIcon,
   getPluginIcon,
+  MethodTag,
 } from "./ExplorerIcons";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import DataSourceContextMenu from "./DataSourceContextMenu";
@@ -33,8 +34,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
-import Divider from "components/editorComponents/Divider";
-import { MethodTag } from "./ExplorerStyledComponents";
+
 type GroupConfig = {
   groupName: string;
   type: PluginType;
@@ -48,7 +48,7 @@ type GroupConfig = {
     pageId: string,
     selectedPageId: string,
   ) => string;
-  getNameNode: (name: string, method?: string) => ReactNode;
+  getIcon: (method?: string) => ReactNode;
 };
 
 export type ExplorerURLParams = {
@@ -68,7 +68,7 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
   switch (type) {
     case PluginType.API:
       return {
-        groupName: "Apis",
+        groupName: "APIs",
         type,
         icon: apiIcon,
         key: generateReactKey(),
@@ -78,13 +78,9 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.apiId;
         },
-        getNameNode: (name: string, method?: string) => {
-          return (
-            <React.Fragment>
-              {method && <MethodTag type={method} />}
-              <span>{name}</span>
-            </React.Fragment>
-          );
+        getIcon: (method?: string) => {
+          if (!method) return apiIcon;
+          return <MethodTag type={method} />;
         },
         dispatchableCreateAction: createNewApiAction,
         generateCreatePageURL: API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -100,8 +96,8 @@ export const ACTION_PLUGIN_MAP: Array<GroupConfig | undefined> = Object.keys(
         isExpanded: (params: ExplorerURLParams) => {
           return !!params.queryId;
         },
-        getNameNode: (name: string, method?: string) => {
-          return <span>{name}</span>;
+        getIcon: (method?: string) => {
+          return queryIcon;
         },
         dispatchableCreateAction: createNewQueryAction,
         generateCreatePageURL: QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
@@ -219,7 +215,7 @@ const getWidgetEntity = (entity: any) => {
 // Agnostic of the type of action.
 const getActionEntity = (
   entity: any,
-  name: ReactNode,
+  name: string,
   isCurrentAction: boolean,
   entityURL?: string,
   icon?: ReactNode,
@@ -252,7 +248,6 @@ const getActionGroups = (
   page: { name: string; id: string },
   group: { type: ENTITY_TYPE; entries: any },
   params: ExplorerURLParams,
-  dispatch: any,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: GroupConfig) => {
     const entries = group.entries.filter(
@@ -278,14 +273,13 @@ const getActionGroups = (
         {entries.map((action: { config: RestAction }) =>
           getActionEntity(
             action,
-            config?.getNameNode(
-              action.config.name,
-              action.config.actionConfiguration.httpMethod || undefined,
-            ),
+            action.config.name,
             params?.apiId === action.config.id ||
               params?.queryId === action.config.id,
             config?.getURL(params.applicationId, page.id, action.config.id),
-            config?.icon,
+            config?.getIcon(
+              action.config.actionConfiguration.httpMethod || undefined,
+            ),
           ),
         )}
       </Entity>
@@ -332,9 +326,10 @@ const getPageEntity = (
         history.push(EXPLORER_URL(params.applicationId, page.id))
       }
       active={isCurrentPage}
+      disabled={!isCurrentPage}
       isDefaultExpanded={isCurrentPage}
     >
-      {isCurrentPage && groups}
+      {groups}
     </Entity>
   );
 };
@@ -345,12 +340,11 @@ export const getPageEntityGroups = (
   entityGroups: Array<{ type: ENTITY_TYPE; entries: any }>,
   isCurrentPage: boolean,
   params: ExplorerURLParams,
-  dispatch: any,
 ) => {
   const groups = entityGroups.map(group => {
     switch (group.type) {
       case ENTITY_TYPE.ACTION:
-        return getActionGroups(page, group, params, dispatch);
+        return getActionGroups(page, group, params);
       case ENTITY_TYPE.WIDGET:
         return getWidgetsGroup(page, group);
       default:
@@ -387,8 +381,8 @@ export const getDatasourceEntities = (
           return (
             <Entity
               key={datasource.id}
-              icon={pluginIcon}
-              name={<span>{datasource.name}</span>}
+              icon={queryIcon}
+              name={datasource.name}
               active={params?.datasourceId === datasource.id}
               action={() =>
                 history.push(

@@ -2,25 +2,17 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
-import { ControlIcons } from "icons/ControlIcons";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
+
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import ContextMenuTrigger from "./Entity/ContextMenuTrigger";
+
 import {
   moveActionRequest,
   copyActionRequest,
   deleteAction,
 } from "actions/actionActions";
 import { noop } from "lodash";
-import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
-
-//TODO(ABHINAV): show only on hover
-// modal should open on close
-// I should delay single click for a few ms, to make sure
-// both dblclick and single click don't register
-// Pages will be grouped, current page will always be expanded
-// On edit entity, the rest of the tree should be
 
 const useNewAPIName = () => {
   // This takes into consideration only the current page widgets
@@ -35,7 +27,6 @@ const useNewAPIName = () => {
 };
 
 type EntityContextMenuProps = {
-  theme: Theme;
   id: string;
   name: string;
   className?: string;
@@ -119,16 +110,9 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
           intent: "danger",
         },
       ]}
-      toggle={
-        <EntityTogglesWrapper>
-          <ControlIcons.MORE_VERTICAL_CONTROL
-            width={props.theme.fontSizes[3]}
-            height={props.theme.fontSizes[3]}
-          />
-        </EntityTogglesWrapper>
-      }
+      toggle={<ContextMenuTrigger />}
     />
   );
 };
 
-export default withTheme(ActionEntityContextMenu);
+export default ActionEntityContextMenu;
