@@ -117,6 +117,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Mono<Application> create(Application object) {
+        throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
+    }
+
+    @Override
+    public Mono<Application> createDefault(Application object) {
+        return super.create(object);
+    }
+
+    @Override
     public Mono<Application> update(String id, Application resource) {
         return repository.updateById(id, resource, AclPermission.MANAGE_APPLICATIONS)
                 .flatMap(updatedObj -> analyticsService.sendEvent(AnalyticsEvents.UPDATE + "_" + updatedObj.getClass().getSimpleName().toUpperCase(), updatedObj));

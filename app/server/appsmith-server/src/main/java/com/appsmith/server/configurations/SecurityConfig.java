@@ -133,9 +133,11 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"))
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")
+                )
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()

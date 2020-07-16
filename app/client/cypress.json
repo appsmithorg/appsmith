@@ -12,9 +12,5 @@
     "json": false
   },
   "viewportHeight": 900,
-  "viewportWidth": 1400,
-  "env": {
-    "username": "",
-    "password": ""
-  }
+  "viewportWidth": 1400
 }

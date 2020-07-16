@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f init-letsencrypt.sh ]
-  then
-    echo "file init-letsencrypt.sh already exists"
-  else
+if [ ! -f init-letsencrypt.sh ]; then
     touch init-letsencrypt.sh
 fi
 

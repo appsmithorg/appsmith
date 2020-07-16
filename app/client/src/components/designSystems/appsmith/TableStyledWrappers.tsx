@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 
 export const TableWrapper = styled.div<{ width: number; height: number }>`
   width: 100%;
@@ -21,7 +22,7 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     color: ${Colors.BLUE_BAYOUX};
     position: relative;
     overflow-y: auto;
-    height: ${props => props.height - 52}px;
+    height: ${props => props.height - TABLE_SIZES.TABLE_HEADER_HEIGHT}px;
     .thead,
     .tbody {
       overflow: hidden;
