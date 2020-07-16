@@ -27,6 +27,18 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
 echo "Sleeping for 5 seconds to let the server start"
 sleep 5
 
+# Create the test user 
+curl --request POST -v 'https://dev.appsmith.com/api/v1/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"name" : "'"$CYPRESS_USERNAME"'",
+	"email" : "'"$CYPRESS_USERNAME"'",
+	"source" : "FORM",
+	"state" : "ACTIVATED",
+	"isEnabled" : "true",
+	"password": "'"$CYPRESS_PASSWORD"'"
+}'
+
 # DEBUG=cypress:* $(npm bin)/cypress version
 # sed -i -e "s|api_url:.*$|api_url: $CYPRESS_URL|g" /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
 # cat /github/home/.cache/Cypress/4.1.0/Cypress/resources/app/packages/server/config/app.yml
