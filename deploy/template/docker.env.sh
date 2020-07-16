@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f docker-compose.yml ]
-  then
-    echo "file docker-compose.yml already exists"
-  else
+if [ ! -f docker-compose.yml ]; then
     touch docker-compose.yml
 fi
 
@@ -13,6 +10,8 @@ cat > docker.env  << EOF
 
 # ***** Email **********
 APPSMITH_MAIL_ENABLED=false
+# APPSMITH_MAIL_FROM=
+# APPSMITH_REPLY_TO=
 # APPSMITH_MAIL_HOST=
 # APPSMITH_MAIL_PASSWORD=
 # APPSMITH_MAIL_PORT=

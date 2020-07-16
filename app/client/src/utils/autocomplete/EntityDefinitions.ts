@@ -28,10 +28,6 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/quick-start#connect-your-apis",
       isLoading: "bool",
       data,
-      config: {
-        "!type": "?",
-        "!doc": "The action config object",
-      },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
     };
   },
