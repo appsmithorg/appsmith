@@ -5,31 +5,36 @@ import {
   ReduxAction,
 } from "constants/ReduxActionConstants";
 import { RestAction } from "entities/Action";
+import { UpdateActionPropertyActionPayload } from "actions/actionActions";
 
 const initialState: ApiPaneReduxState = {
   lastUsed: "",
   isCreating: false,
   isFetching: false,
+  isMoving: false,
+  isCopying: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
+  isDirty: {},
   currentCategory: "",
   lastUsedEditorPage: "",
   lastSelectedPage: "",
   extraformData: {},
-  datasourceFieldText: {},
 };
 
 export interface ApiPaneReduxState {
   lastUsed: string;
   isCreating: boolean;
   isFetching: boolean;
+  isMoving: boolean;
+  isCopying: boolean;
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
+  isDirty: Record<string, boolean>;
   currentCategory: string;
   lastUsedEditorPage: string;
-  datasourceFieldText: Record<string, string>;
   lastSelectedPage: string;
   extraformData: Record<string, any>;
 }
@@ -65,7 +70,7 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isCreating: false,
   }),
-  [ReduxActionTypes.RUN_API_REQUEST]: (
+  [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -75,7 +80,7 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: true,
     },
   }),
-  [ReduxActionTypes.RUN_API_SUCCESS]: (
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
@@ -88,7 +93,7 @@ const apiPaneReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionErrorTypes.RUN_API_ERROR]: (
+  [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -98,14 +103,24 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<UpdateActionPropertyActionPayload>,
+  ) => ({
+    ...state,
+    isDirty: {
+      ...state.isDirty,
+      [action.payload.id]: true,
+    },
+  }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ data: RestAction }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.data.id]: true,
+      [action.payload.id]: true,
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
@@ -115,6 +130,10 @@ const apiPaneReducer = createReducer(initialState, {
     ...state,
     isSaving: {
       ...state.isSaving,
+      [action.payload.data.id]: false,
+    },
+    isDirty: {
+      ...state.isDirty,
       [action.payload.data.id]: false,
     },
   }),
@@ -158,6 +177,30 @@ const apiPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.MOVE_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: true,
+  }),
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isMoving: false,
+  }),
+  [ReduxActionTypes.COPY_ACTION_INIT]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: true,
+  }),
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
+  }),
+  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (state: ApiPaneReduxState) => ({
+    ...state,
+    isCopying: false,
+  }),
   [ReduxActionTypes.API_PANE_CHANGE_API]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string }>,
@@ -200,19 +243,6 @@ const apiPaneReducer = createReducer(initialState, {
       extraformData: {
         ...state.extraformData,
         [id]: values,
-      },
-    };
-  },
-  [ReduxActionTypes.SET_DATASOURCE_FIELD_TEXT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ apiId: string; value: string }>,
-  ) => {
-    const { apiId } = action.payload;
-    return {
-      ...state,
-      datasourceFieldText: {
-        ...state.datasourceFieldText,
-        [apiId]: action.payload.value,
       },
     };
   },

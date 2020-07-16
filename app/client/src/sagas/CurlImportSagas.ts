@@ -54,7 +54,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         payload: response.data,
       });
 
-      yield put(changeApi(data.id));
+      yield put(changeApi(data.id, true));
     }
   } catch (error) {
     yield put({

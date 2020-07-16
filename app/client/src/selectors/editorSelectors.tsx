@@ -13,7 +13,7 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { evaluateDataTree } from "selectors/dataTreeSelectors";
+import { evaluateDataTreeWithoutFunctions } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -104,12 +104,13 @@ export const getWidgetCards = createSelector(
 
 export const getCanvasWidgetDsl = createSelector(
   getEntities,
-  evaluateDataTree(false),
+  evaluateDataTreeWithoutFunctions,
   (
     entities: AppState["entities"],
     evaluatedDataTree,
   ): ContainerWidgetProps<WidgetProps> => {
     log.debug("Evaluating data tree to get canvas widgets");
+    log.debug({ evaluatedDataTree });
     const widgets = { ...entities.canvasWidgets };
     Object.keys(widgets).forEach(widgetKey => {
       const evaluatedWidget = _.find(evaluatedDataTree, {

@@ -16,6 +16,8 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ExecuteActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -43,7 +45,9 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
+import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,11 +87,12 @@ public class ActionServiceTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    @Autowired
+    LayoutActionService layoutActionService;
+
     Application testApp = null;
 
     Page testPage = null;
-
-    int i = 0;
 
     Datasource datasource;
 
@@ -102,8 +107,7 @@ public class ActionServiceTest {
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
-            application.setName("ActionServiceTest-App-" + String.valueOf(i));
-            i++;
+            application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
             testPage = pageService.getById(testApp.getPages().get(0).getId()).block();
         }
@@ -158,8 +162,51 @@ public class ActionServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMoveAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        @Test
+        Page newPage = new Page();
+        newPage.setName("Destination Page");
+        newPage.setApplicationId(testApp.getId());
+        Page destinationPage = applicationPageService.createPage(newPage).block();
+        
+        Action action = new Action();
+        action.setName("validAction");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<Action> createActionMono = actionService.create(action).cache();
+
+        Mono<Action> movedActionMono = createActionMono
+                .flatMap(savedAction -> {
+                    ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
+                    actionMoveDTO.setAction(savedAction);
+                    actionMoveDTO.setDestinationPageId(destinationPage.getId());
+                    return layoutActionService.moveAction(actionMoveDTO);
+                });
+
+        StepVerifier
+                .create(Mono.zip(createActionMono, movedActionMono))
+                .assertNext(tuple -> {
+                    Action originalAction = tuple.getT1();
+                    Action movedAction = tuple.getT2();
+
+                    assertThat(movedAction.getId()).isEqualTo(originalAction.getId());
+                    assertThat(movedAction.getName()).isEqualTo(originalAction.getName());
+                    assertThat(movedAction.getPolicies()).containsAll(originalAction.getPolicies());
+                    assertThat(movedAction.getPageId()).isEqualTo(destinationPage.getId());
+                })
+                .verifyComplete();
+
+    }
+
+
+    @Test
     @WithUserDetails(value = "api_user")
     public void createValidActionWithJustName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -376,72 +423,6 @@ public class ActionServiceTest {
         executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult);
     }
 
-//    @Test
-//    @WithUserDetails(value = "api_user")
-//    public void testActionExecuteDuplicateRequestHeader() {
-//        ActionExecutionResult mockResult = new ActionExecutionResult();
-//        mockResult.setIsExecutionSuccess(true);
-//        mockResult.setBody("response-body");
-//
-//        Action action = new Action();
-//        ActionConfiguration actionConfiguration = new ActionConfiguration();
-//        actionConfiguration.setHeaders(List.of(
-//                new Property("random-header-key", "random-header-value"),
-//                new Property("dup-key", "dup-value1"),
-//                new Property("DUP-key", "dup-value2")
-//        ));
-//        action.setActionConfiguration(actionConfiguration);
-//
-//        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-//        executeActionDTO.setAction(action);
-//
-//        Mono<ActionExecutionResult> executionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
-//        StepVerifier.create(executionResultMono)
-//                .assertNext(result -> {
-//                    // Assert that the fxn should pick up the latest key based on the case-insensitive values
-//                    ActionExecutionRequest request = result.getRequest();
-//                    assertThat(request.getRequestHeaders().size()).isEqualTo(2);
-//                    MultiValueMap<String, String> resultHeader = CollectionUtils.toMultiValueMap(Map.of(
-//                            "random-header-key", Arrays.asList("random-header-value"),
-//                            "DUP-key", Arrays.asList("dup-value2")));
-//                    assertThat(request.getRequestHeaders()).isEqualTo(objectMapper.valueToTree(resultHeader));
-//                })
-//                .verifyComplete();
-//    }
-
-
-//    @Test
-//    @WithUserDetails(value = "api_user")
-//    public void testActionExecuteEmptyRequestHeader() {
-//        ActionExecutionResult mockResult = new ActionExecutionResult();
-//        mockResult.setIsExecutionSuccess(true);
-//        mockResult.setBody("response-body");
-//
-//        Action action = new Action();
-//        ActionConfiguration actionConfiguration = new ActionConfiguration();
-//        actionConfiguration.setHeaders(List.of(
-//                new Property("random-header-key", "random-header-value"),
-//                new Property("", "")
-//        ));
-//        action.setActionConfiguration(actionConfiguration);
-//
-//        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-//        executeActionDTO.setAction(action);
-//
-//        Mono<ActionExecutionResult> executionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
-//        StepVerifier.create(executionResultMono)
-//                .assertNext(result -> {
-//                    // The fxn should have ignored all duplicate headers
-//                    ActionExecutionRequest request = result.getRequest();
-//                    assertThat(request.getRequestHeaders().size()).isEqualTo(1);
-//                    MultiValueMap<String, String> resultHeader = CollectionUtils.toMultiValueMap(Map.of(
-//                            "random-header-key", Arrays.asList("random-header-value")));
-//
-//                    assertThat(request.getRequestHeaders()).isEqualTo(objectMapper.valueToTree(resultHeader));
-//                })
-//                .verifyComplete();
-//    }
-
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionExecuteErrorResponse() {
@@ -475,6 +456,67 @@ public class ActionServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkActionInViewMode() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String key = "bodyMustacheKey";
+        Action action = new Action();
+        action.setName("actionInViewMode");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setBody("{{"+key+"}}");
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Action action1 = new Action();
+        action1.setName("actionInViewModeWithoutMustacheKey");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        actionConfiguration1.setTimeoutInMillisecond(20000);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        Action action2 = new Action();
+        action2.setName("actionInViewModeWithoutActionConfiguration");
+        action2.setPageId(testPage.getId());
+        action2.setDatasource(datasource);
+
+        Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
+                .then(actionService.create(action1))
+                .then(actionService.create(action2))
+                .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
+
+        StepVerifier
+                .create(actionsListMono)
+                .assertNext(actionsList -> {
+                    assertThat(actionsList.size()).isGreaterThan(0);
+                    ActionViewDTO actionViewDTO = actionsList.stream().filter(dto -> dto.getName().equals(action.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO).isNotNull();
+                    assertThat(actionViewDTO.getJsonPathKeys()).containsAll(Set.of(key));
+                    assertThat(actionViewDTO.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+
+                    ActionViewDTO actionViewDTO1 = actionsList.stream().filter(dto -> dto.getName().equals(action1.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO1).isNotNull();
+                    assertThat(actionViewDTO1.getJsonPathKeys()).isNullOrEmpty();
+                    assertThat(actionViewDTO1.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO1.getTimeoutInMillisecond()).isEqualTo(20000);
+
+                    ActionViewDTO actionViewDTO2 = actionsList.stream().filter(dto -> dto.getName().equals(action2.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO2).isNotNull();
+                    assertThat(actionViewDTO2.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO2.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+                })
+                .verifyComplete();
+    }
+
     private void executeAndAssertAction(ExecuteActionDTO executeActionDTO, ActionConfiguration actionConfiguration, ActionExecutionResult mockResult) {
 
         Mono<ActionExecutionResult> actionExecutionResultMono = executeAction(executeActionDTO, actionConfiguration, mockResult);
@@ -483,14 +525,6 @@ public class ActionServiceTest {
                 .assertNext(result -> {
                     assertThat(result).isNotNull();
                     assertThat(result.getBody()).isEqualTo(mockResult.getBody());
-
-//                    ActionExecutionRequest request = result.getRequest();
-//                    if (actionConfiguration.getHeaders() != null) {
-//                        assertThat(request.getRequestHeaders().size()).isEqualTo(actionConfiguration.getHeaders().size());
-//                    }
-//
-//                    assertThat(request.getRequestBody() == actionConfiguration.getBody()).isTrue();
-//                    assertThat(result.getHeaders()).isEqualTo(mockResult.getHeaders());
                 })
                 .verifyComplete();
     }

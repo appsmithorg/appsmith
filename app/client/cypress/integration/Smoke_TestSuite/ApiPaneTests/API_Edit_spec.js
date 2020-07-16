@@ -23,10 +23,6 @@ describe("API Panel Test Functionality", function() {
     cy.EditApiName("SecondAPI");
     cy.ClearSearch();
     cy.SearchAPIandClick("SecondAPI");
-    //invalid api end point check
-    cy.EditSourceDetail(testdata.baseUrl, testdata.invalidPath);
-    cy.RunAPI();
-    cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.DeleteAPI();
   });
 });

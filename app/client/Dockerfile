@@ -1,7 +1,8 @@
 FROM nginx:1.17.9-alpine
 
 COPY ./build /var/www/appsmith
-RUN ls -al /var/www/appsmith
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY ./docker/templates/nginx-linux.conf.template /nginx.conf.template
+COPY ./docker/start-nginx.sh /start-nginx.sh
+CMD ["/start-nginx.sh"]

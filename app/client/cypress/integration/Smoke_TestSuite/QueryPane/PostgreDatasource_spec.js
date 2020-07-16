@@ -28,7 +28,8 @@ describe("Create a query with a postgres datasource, run, save and then delete t
       .focus()
       .type("select * from users");
 
-    cy.runSaveDeleteQuery();
+    cy.EvaluateCurrentValue("select * from users");
+    cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();
     cy.get("@createDatasource").then(httpResponse => {

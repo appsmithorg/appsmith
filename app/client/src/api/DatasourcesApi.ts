@@ -21,8 +21,8 @@ export interface Datasource {
     headers?: Record<string, string>;
     databaseName?: string;
   };
-  invalids: string[];
-  isValid: boolean;
+  invalids?: string[];
+  isValid?: boolean;
 }
 
 export interface CreateDatasourceConfig {

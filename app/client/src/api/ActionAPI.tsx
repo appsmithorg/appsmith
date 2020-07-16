@@ -125,6 +125,12 @@ class ActionAPI extends API {
     return API.get(ActionAPI.url, { applicationId });
   }
 
+  static fetchActionsForViewMode(
+    applicationId: string,
+  ): AxiosPromise<GenericApiResponse<RestAction[]>> {
+    return API.get(`${ActionAPI.url}/view`, { applicationId });
+  }
+
   static fetchActionsByPageId(
     pageId: string,
   ): AxiosPromise<GenericApiResponse<RestAction[]>> {
@@ -167,7 +173,9 @@ class ActionAPI extends API {
   }
 
   static moveAction(moveRequest: MoveActionRequest) {
-    return API.put(ActionAPI.url + "/move", moveRequest);
+    return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
+      timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+    });
   }
 
   static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {

@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -40,10 +42,6 @@ public class MarketplaceServiceImpl implements MarketplaceService {
 
     private static String USE_PROVIDER_API = PROVIDER_PATH + "/use";
 
-    private static String MARKETPLACE_USERNAME = "appsmith-server";
-
-    private static String MARKETPLACE_PASSWORD = "g:bj{64<$[k>hHBV";
-
     private final ObjectMapper objectMapper;
 
     private final Long timeoutInMillis = Long.valueOf(10000);
@@ -53,8 +51,9 @@ public class MarketplaceServiceImpl implements MarketplaceService {
                                   MarketplaceConfig marketplaceConfig, ObjectMapper objectMapper) {
         this.marketplaceConfig = marketplaceConfig;
         this.webClient = webClientBuilder
-                .defaultHeaders(header -> header.setBasicAuth(MARKETPLACE_USERNAME, MARKETPLACE_PASSWORD))
-                .baseUrl(marketplaceConfig.getBase_url())
+                .defaultHeaders(header -> header.setBasicAuth(marketplaceConfig.getUsername(),
+                        marketplaceConfig.getPassword()))
+                .baseUrl(marketplaceConfig.getBaseUrl())
                 .build();
         this.objectMapper = objectMapper;
     }
@@ -62,6 +61,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     @Override
     public Mono<ProviderPaginatedDTO> getProviders(MultiValueMap<String, String> params) {
         URI uri = buildFullURI(params, PROVIDER_PATH);
+
+        if (uri == null) {
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
+        }
 
         return webClient
                 .get()
@@ -85,6 +88,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     public Mono<List<ApiTemplate>> getTemplates(MultiValueMap<String, String> params) {
         URI uri = buildFullURI(params, TEMPLATE_PATH);
 
+        if (uri == null) {
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
+        }
+
         return webClient
                 .get()
                 .uri(uri)
@@ -106,6 +113,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     @Override
     public Mono<List<String>> getCategories() {
         URI uri = buildFullURI(null, CATEGORIES_PATH);
+
+        if (uri == null) {
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
+        }
 
         return webClient
                 .get()
@@ -132,8 +143,7 @@ public class MarketplaceServiceImpl implements MarketplaceService {
         URI uri = buildFullURI(params, USE_PROVIDER_API);
 
         if (uri == null) {
-            // Throw an internal server error because the URL is hard coded and must be correct
-            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
         }
 
         return webClient
@@ -146,6 +156,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     @Override
     public Mono<Provider> getProviderById(String id) {
         URI uri = buildFullURI(null, PROVIDER_PATH + "/" + id);
+
+        if (uri == null) {
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
+        }
 
         return webClient
                 .get()
@@ -174,6 +188,10 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     public Mono<List<Provider>> searchProviderByName(String name) {
         URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + URLEncoder.encode(name, StandardCharsets.UTF_8));
 
+        if (uri == null) {
+            return Mono.error(new AppsmithException(AppsmithError.MARKETPLACE_NOT_CONFIGURED));
+        }
+
         return webClient
                 .get()
                 .uri(uri)
@@ -193,9 +211,14 @@ public class MarketplaceServiceImpl implements MarketplaceService {
     }
 
     private URI buildFullURI(MultiValueMap<String, String> params, String path) {
+        final String baseUrl = marketplaceConfig.getBaseUrl();
+        if (!StringUtils.hasText(baseUrl)) {
+            return null;
+        }
+
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
         try {
-            uriBuilder.uri(new URI(marketplaceConfig.getBase_url() + path));
+            uriBuilder.uri(new URI(baseUrl + path));
         } catch (URISyntaxException e) {
             log.error(e.getMessage());
             return null;

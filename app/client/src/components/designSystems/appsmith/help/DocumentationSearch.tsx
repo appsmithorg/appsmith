@@ -4,16 +4,12 @@ import {
   InstantSearch,
   Hits,
   SearchBox,
-  // Pagination,
   Highlight,
-  // ClearRefinements,
-  // RefinementList,
   Configure,
+  PoweredBy,
 } from "react-instantsearch-dom";
 
-// import "instantsearch.css/themes/reset.css";
 import "instantsearch.css/themes/algolia.css";
-// import "./search.css";
 
 import PropTypes from "prop-types";
 import { Icon } from "@blueprintjs/core";
@@ -26,35 +22,10 @@ import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
-
-const searchClient = algoliasearch(
-  "AZ2Z9CJSJ0",
-  "d113611dccb80ac14aaa72a6e3ac6d10",
-);
-
-// const StyledBack = styled(Button)`
-//   position: absolute;
-//   top: 36px;
-//   left: 5px;
-//   z-index: 26;
-// `;
-
-// const StyledAnchor = styled.a`
-//   position: absolute;
-//   right: 24px;
-//   top: 40px;
-//   z-index: 26;
-// `;
-
-// const headerHeight = 91;
-
-// const OpenIcon = styled(Icon)`
-//   position: absolute;
-//   right: 0;
-//   top: 3px;
-//   color: #888;
-// `;
-
+import { getAppsmithConfigs } from "configs";
+const { algolia } = getAppsmithConfigs();
+const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+console.log({ algolia });
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -62,7 +33,6 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)`
   position: absolute;
   right: 14px;
   top: 1px;
-  // color: #888;
   width: 12px;
   height: 12px;
   display: none;
@@ -79,8 +49,6 @@ const StyledDocumentIcon = styled(DocumentIcon)`
   position: absolute;
 `;
 function Hit(props: any) {
-  // const dispatch = useDispatch();
-
   return (
     <div
       className="t--docHit"
@@ -89,15 +57,6 @@ function Hit(props: any) {
           (props.hit.path as string).replace("master", HelpBaseURL),
           "_blank",
         );
-        // console.log(props);
-        // dispatch(
-        //   setHelpUrl(
-        //     (props.hit.path as string).replace(
-        //       "master",
-        //       HelpBaseURL,
-        //     ),
-        //   ),
-        // );
       }}
     >
       <div className="hit-name t--docHitTitle">
@@ -112,11 +71,6 @@ function Hit(props: any) {
           color={"#181F24"}
         ></StyledOpenLinkIcon>
       </div>
-
-      {/* <div className="hit-description t--docHitDesc">
-        <Highlight attribute="description" hit={props.hit} />
-        <Highlight attribute="document" hit={props.hit} />
-      </div> */}
     </div>
   );
 }
@@ -128,8 +82,6 @@ Hit.propTypes = {
 const Header = styled.div`
   position: absolute;
   width: 100%;
-  // background: #363e44;
-  // padding-bottom: 20px;
   border-top-right-radius: 3px;
   border-top-left-radius: 3px;
 `;
@@ -147,6 +99,8 @@ const SearchContainer = styled.div`
 
   .ais-SearchBox-form {
     height: 100%;
+    background-color: #fff;
+    border-radius: 2px;
   }
 
   [class^="ais-"] {
@@ -157,12 +111,12 @@ const SearchContainer = styled.div`
     margin-top: 86px;
     height: calc(100% - 86px);
     overflow: auto;
-    // border: 1px solid #d0d7dd;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
   }
   .ais-SearchBox-input {
     height: 100%;
+    width: 188px;
     padding: 4px 27px;
     padding-right: 14px;
     border-radius: 2px;
@@ -189,8 +143,6 @@ const SearchContainer = styled.div`
     padding: 5px;
     border: 0;
     cursor: pointer;
-    // border-bottom: 1px solid #d0d7dd;
-    // box-sizing: border-box;
     box-shadow: none;
   }
 
@@ -202,14 +154,15 @@ const SearchContainer = styled.div`
   }
 
   .hit-name {
-    // margin-bottom: 0.5em;
-    // font-weight: 500;
     font-size: 14px;
     line-height: 16px;
     color: #e7e9e9;
     position: relative;
   }
 
+  .ais-SearchBox-reset {
+    right: 51px;
+  }
   .ais-SearchBox-resetIcon {
     width: 10px;
     height: 10px;
@@ -253,10 +206,22 @@ const SearchContainer = styled.div`
   }
 `;
 
+const StyledPoweredBy = styled(PoweredBy)`
+  position: absolute;
+  right: 21px;
+  bottom: 23px;
+  z-index: 1;
+
+  .ais-PoweredBy-text {
+    display: none;
+  }
+`;
+
 export default function DocumentationSearch(props: { hitsPerPage: number }) {
   const dispatch = useDispatch();
   const defaultRefinement = useSelector(getDefaultRefinement);
-
+  console.log({ algolia });
+  if (!algolia.enabled) return null;
   return (
     <SearchContainer className="ais-InstantSearch t--docSearchModal">
       <Icon
@@ -283,7 +248,10 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
           overflow: "auto",
         }}
       >
-        <InstantSearch indexName="test_appsmith" searchClient={searchClient}>
+        <InstantSearch
+          indexName={algolia.indexName}
+          searchClient={searchClient}
+        >
           <Configure hitsPerPage={props.hitsPerPage} />
           <Header>
             <h3
@@ -298,7 +266,6 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
                 style={{
                   textAlign: "center",
                   color: "white",
-                  // zIndex: 55,
                   position: "relative",
                   fontWeight: 500,
                   fontSize: "14px",
@@ -311,51 +278,13 @@ export default function DocumentationSearch(props: { hitsPerPage: number }) {
                 Documentation
               </span>
             </h3>
-
-            <SearchBox defaultRefinement={defaultRefinement} />
+            <StyledPoweredBy></StyledPoweredBy>
+            <SearchBox defaultRefinement={defaultRefinement}></SearchBox>
           </Header>
 
           <Hits hitComponent={Hit as any} />
         </InstantSearch>
       </div>
-      {/* <div
-        style={{
-          display: url ? "block" : "none",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            height: `${headerHeight}px`,
-            backgroundColor: "white",
-            width: "100%",
-            top: "0",
-          }}
-        >
-          <StyledBack
-            // text="back"
-            intent={"primary"}
-            iconAlignment={Position.LEFT}
-            // icon="chevron-left"
-            icon="arrow-left"
-            onClick={() => {
-              dispatch(setHelpUrl(""));
-            }}
-          />
-          <StyledAnchor href={url} target="_blank">
-            Open in docs
-            <Icon icon="document-open"></Icon>
-          </StyledAnchor>
-        </div>
-        <iframe
-          src={url}
-          width={"100%"}
-          height={`${531 - headerHeight}px`}
-          style={{
-            border: "0",
-          }}
-        ></iframe>
-      </div> */}
     </SearchContainer>
   );
 }

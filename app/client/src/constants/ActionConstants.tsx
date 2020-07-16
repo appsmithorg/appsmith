@@ -21,6 +21,7 @@ export enum EventType {
   ON_ERROR = "ON_ERROR",
   ON_SUCCESS = "ON_SUCCESS",
   ON_ROW_SELECTED = "ON_ROW_SELECTED",
+  ON_SEARCH = "ON_SEARCH",
   ON_CLICK = "ON_CLICK",
   ON_FILES_SELECTED = "ON_FILES_SELECTED",
   ON_HOVER = "ON_HOVER",
@@ -60,3 +61,8 @@ export interface ExecuteErrorPayload {
   actionId: string;
   error: any;
 }
+
+// Group 1 = datasource (https://www.domain.com)
+// Group 2 = path (/nested/path)
+// Group 3 = params (?param=123&param2=12)
+export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/\S*?)(\?\S*)?$/;

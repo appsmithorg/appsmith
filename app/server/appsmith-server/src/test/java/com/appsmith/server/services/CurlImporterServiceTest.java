@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -130,7 +131,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void urlInSingleQuotes() {
+    public void urlInSingleQuotes() throws AppsmithException {
         String command = "curl --location --request POST 'http://localhost:8080/scrap/api?slugifiedName=Freshdesk&ownerName=volodimir.kudriachenko'";
         Action action = curlImporterService.curlToAction(command);
 
@@ -148,7 +149,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void missingMethod() {
+    public void missingMethod() throws AppsmithException {
         String command = "curl http://localhost:8080/scrap/api";
         Action action = curlImporterService.curlToAction(command);
 
@@ -166,7 +167,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void multilineCommand() {
+    public void multilineCommand() throws AppsmithException {
         String command = "curl -d '{\"message\": \"The force is strong with this one...\"}' \\\n" +
                 "  -H \"Content-Type: application/json\" \\\n" +
                 "  \"http://piper.net\"";
@@ -187,7 +188,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void testUrlEncodedData() {
+    public void testUrlEncodedData() throws AppsmithException {
         Action action = curlImporterService.curlToAction(
                 "curl --data-urlencode '=all of this exactly, but url encoded ' http://loc"
         );
@@ -211,7 +212,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void chromeCurlCommands1() {
+    public void chromeCurlCommands1() throws AppsmithException {
         Action action = curlImporterService.curlToAction(
                 "curl 'http://localhost:3000/applications/5ea054c531cc0f7a61af0cbe/pages/5ea054c531cc0f7a61af0cc0/edit/api' \\\n" +
                         "  -H 'Connection: keep-alive' \\\n" +
@@ -276,7 +277,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void firefoxCurlCommands1() {
+    public void firefoxCurlCommands1() throws AppsmithException {
         final Action action = curlImporterService.curlToAction("curl 'http://localhost:8080/api/v1/actions?applicationId=5ea054c531cc0f7a61af0cbe' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:75.0) Gecko/20100101 Firefox/75.0' -H 'Accept: application/json, text/plain, */*' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Origin: http://localhost:3000' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: http://localhost:3000/' -H 'Cookie: SESSION=69b4b392-03b6-4e0a-a889-49ca4b8e267e'");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://localhost:8080");
@@ -295,7 +296,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void postmanExportCommands1() {
+    public void postmanExportCommands1() throws AppsmithException {
         final Action action = curlImporterService.curlToAction(
                 "curl --location --request PUT 'https://release-api.appsmith.com/api/v1/users/5d81feb218e1c8217d20e13f' \\\n" +
                         "--header 'Content-Type: application/json' \\\n" +
@@ -319,7 +320,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void postmanCreateDatasource() {
+    public void postmanCreateDatasource() throws AppsmithException {
         final Action action = curlImporterService.curlToAction(
                 "curl --location --request POST 'https://release-api.appsmith.com/api/v1/datasources' \\\n" +
                         "--header 'Content-Type: application/json' \\\n" +
@@ -361,7 +362,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void postmanCreateProvider() {
+    public void postmanCreateProvider() throws AppsmithException {
         final Action action = curlImporterService.curlToAction(
                 "curl --location --request POST 'https://release-api.appsmith.com/api/v1/providers' \\\n" +
                         "--header 'Cookie: SESSION=61ee9df5-3cab-400c-831b-9533218d8f9f' \\\n" +
@@ -429,7 +430,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseCurlJsTestsPart1() {
+    public void parseCurlJsTestsPart1() throws AppsmithException {
         // Tests adapted from <https://github.com/tj/parse-curl.js/blob/master/test.js>.
 
         Action action = curlImporterService.curlToAction("curl http://api.sloths.com");
@@ -470,7 +471,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseCurlJsTestsPart2() {
+    public void parseCurlJsTestsPart2() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl -d \"foo=bar\" https://api.sloths.com");
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
@@ -538,7 +539,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseWithoutProtocol() {
+    public void parseWithoutProtocol() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl api.sloths.com");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://api.sloths.com");
@@ -548,7 +549,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseWithDashedUrlArgument() {
+    public void parseWithDashedUrlArgument() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl --url http://api.sloths.com");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://api.sloths.com");
@@ -558,7 +559,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseWithDashedUrlArgument2() {
+    public void parseWithDashedUrlArgument2() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl -X POST -d '{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}' --url http://dummy.restapiexample.com/api/v1/create");
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
@@ -568,7 +569,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseWithSpacedHeader() {
+    public void parseWithSpacedHeader() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl -H \"Accept:application/json\" http://httpbin.org/get");
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
@@ -578,7 +579,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    public void parseCurlCommand1() {
+    public void parseCurlCommand1() throws AppsmithException {
         Action action = curlImporterService.curlToAction("curl -i -H \"Accept: application/json\" -H \"Content-Type: application/json\" -X POST -d '{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}' --url http://dummy.restapiexample.com/api/v1/create");
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");

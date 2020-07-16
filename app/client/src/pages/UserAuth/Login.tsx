@@ -7,7 +7,6 @@ import {
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "constants/forms";
-import { getAppsmithConfigs } from "configs";
 import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
 import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import {
@@ -25,8 +24,6 @@ import {
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
-  PRIVACY_POLICY_LINK,
-  TERMS_AND_CONDITIONS_LINK,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   FORM_VALIDATION_PASSWORD_RULE,
 } from "constants/messages";
@@ -49,6 +46,9 @@ import {
   AuthCardBody,
 } from "./StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "configs";
+import { TncPPLinks } from "./SignUp";
+const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -73,6 +73,10 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
   { emailValue: string }
 >;
 
+const SocialLoginList: string[] = [];
+if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
+
 export const Login = (props: LoginFormProps) => {
   const { error, valid } = props;
   const location = useLocation();
@@ -87,8 +91,6 @@ export const Login = (props: LoginFormProps) => {
   if (props.emailValue && !isEmptyString(props.emailValue)) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
-
-  const { baseUrl, apiUrl } = getAppsmithConfigs();
 
   return (
     <AuthCardContainer>
@@ -110,10 +112,7 @@ export const Login = (props: LoginFormProps) => {
         <h5>{LOGIN_PAGE_SUBTITLE}</h5>
       </AuthCardHeader>
       <AuthCardBody>
-        <SpacedSubmitForm
-          method="POST"
-          action={baseUrl + apiUrl + "v1/" + LOGIN_SUBMIT_PATH}
-        >
+        <SpacedSubmitForm method="POST" action={"/api/v1/" + LOGIN_SUBMIT_PATH}>
           <FormGroup
             intent={error ? "danger" : "none"}
             label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
@@ -152,18 +151,14 @@ export const Login = (props: LoginFormProps) => {
             />
           </FormActions>
         </SpacedSubmitForm>
-        <Divider />
-        <ThirdPartyAuth
-          type={"SIGNIN"}
-          logins={[SocialLoginTypes.GOOGLE, SocialLoginTypes.GITHUB]}
-        />
+        {SocialLoginList.length > 0 && <Divider />}
+        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
       </AuthCardBody>
       <AuthCardNavLink to={SIGN_UP_URL}>
         {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
       </AuthCardNavLink>
       <AuthCardFooter>
-        <Link to="#">{PRIVACY_POLICY_LINK}</Link>
-        <Link to="#">{TERMS_AND_CONDITIONS_LINK}</Link>
+        <TncPPLinks></TncPPLinks>
       </AuthCardFooter>
     </AuthCardContainer>
   );

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -67,6 +68,8 @@ public class DatasourceServiceTest {
 
     @Autowired
     PageService pageService;
+
+    @Autowired EncryptionService encryptionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -415,5 +418,70 @@ public class DatasourceServiceTest {
         StepVerifier
                 .create(datasourceMono)
                 .verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1"));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkEncryptionOfAuthenticationDTOTest() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields encryption test");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        String username = "username";
+        String password = "password";
+        authenticationDTO.setUsername(username);
+        authenticationDTO.setPassword(password);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(savedDatasource -> {
+                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(authentication.getUsername()).isEqualTo(username);
+                    assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkEncryptionOfAuthenticationDTONullPassword() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields encryption test null password.");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        authenticationDTO.setDatabaseName("admin");
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(savedDatasource -> {
+                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(authentication.getUsername()).isNull();
+                    assertThat(authentication.getPassword()).isNull();
+                })
+                .verifyComplete();
     }
 }

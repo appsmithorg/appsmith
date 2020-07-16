@@ -29,6 +29,7 @@ export const CreateApplicationForm = (
       <FormFooter
         onCancel={props.onCancel}
         divider
+        data-cy="t--create-org-submit"
         submitOnEnter
         submitText="Submit"
         onSubmit={handleSubmit(createOrganizationSubmitHandler)}

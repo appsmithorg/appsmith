@@ -15,19 +15,15 @@ import {
   createActionRequest,
   moveActionRequest,
   copyActionRequest,
+  deleteAction,
 } from "actions/actionActions";
-import {
-  deleteQuery,
-  changeQuery,
-  initQueryPane,
-} from "actions/queryPaneActions";
+import { changeQuery, initQueryPane } from "actions/queryPaneActions";
 import { getQueryActions, getPlugins } from "selectors/entitiesSelector";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getDataSources } from "selectors/editorSelectors";
 import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
 import { RestAction } from "entities/Action";
 import { Colors } from "constants/Colors";
-import { ActionDraftsState } from "reducers/entityReducers/actionDraftsReducer";
 
 const ActionItem = styled.div`
   flex: 1;
@@ -60,14 +56,13 @@ interface ReduxStateProps {
   plugins: Plugin[];
   queries: ActionDataState;
   apiPane: ApiPaneReduxState;
-  actionDrafts: ActionDraftsState;
   actions: ActionDataState;
   dataSources: Datasource[];
 }
 
 interface ReduxDispatchProps {
   createAction: (data: Partial<RestAction>) => void;
-  onQueryChange: (id: string, pluginType: string) => void;
+  onQueryChange: (id: string) => void;
   initQueryPane: (pluginType: string, urlId?: string) => void;
   moveAction: (
     id: string,
@@ -76,7 +71,7 @@ interface ReduxDispatchProps {
     originalPageId: string,
   ) => void;
   copyAction: (id: string, pageId: string, name: string) => void;
-  deleteAction: (id: string) => void;
+  deleteAction: (id: string, name: string) => void;
 }
 
 type Props = ReduxStateProps &
@@ -87,41 +82,6 @@ class QuerySidebar extends React.Component<Props> {
   componentDidMount(): void {
     this.props.initQueryPane(QUERY_CONSTANT, this.props.match.params.queryId);
   }
-
-  shouldComponentUpdate(nextProps: Readonly<Props>): boolean {
-    if (
-      Object.keys(nextProps.actionDrafts) !==
-      Object.keys(this.props.actionDrafts)
-    ) {
-      return true;
-    }
-    return nextProps.actions !== this.props.actions;
-  }
-
-  handleCreateNew = () => {
-    const { actions } = this.props;
-    const { pageId } = this.props.match.params;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newName = getNextEntityName("Query", pageApiNames);
-    this.props.createAction({ name: newName, pageId });
-  };
-
-  handleCreateNewQuery = (dataSourceId: string, pageId: string) => {
-    const { actions } = this.props;
-    const pageApiNames = actions
-      .filter(a => a.config.pageId === pageId)
-      .map(a => a.config.name);
-    const newQueryName = getNextEntityName("Query", pageApiNames);
-    this.props.createAction({
-      name: newQueryName,
-      pageId,
-      datasource: {
-        id: dataSourceId,
-      },
-    });
-  };
 
   handleCreateNewQueryClick = (selectedPageId: string) => {
     const { history } = this.props;
@@ -136,7 +96,7 @@ class QuerySidebar extends React.Component<Props> {
   };
 
   handleQueryChange = (queryId: string) => {
-    this.props.onQueryChange(queryId, QUERY_CONSTANT);
+    this.props.onQueryChange(queryId);
   };
 
   handleMove = (itemId: string, destinationPageId: string) => {
@@ -163,15 +123,15 @@ class QuerySidebar extends React.Component<Props> {
     this.props.copyAction(itemId, destinationPageId, name);
   };
 
-  handleDelete = (itemId: string) => {
-    this.props.deleteAction(itemId);
+  handleDelete = (itemId: string, itemName: string) => {
+    this.props.deleteAction(itemId, itemName);
   };
 
   renderItem = (query: RestAction) => {
     return (
       <ActionItem>
         <StyledImage
-          src={getPluginImage(this.props.plugins, query.pluginId)}
+          src={getPluginImage(this.props.plugins, query.datasource.pluginId)}
           className="pluginImage"
           alt="Plugin Image"
         />
@@ -182,7 +142,6 @@ class QuerySidebar extends React.Component<Props> {
 
   render() {
     const {
-      actionDrafts,
       apiPane: { isFetching },
       match: {
         params: { queryId },
@@ -196,7 +155,6 @@ class QuerySidebar extends React.Component<Props> {
         isLoading={isFetching}
         list={data}
         selectedItemId={queryId}
-        draftIds={Object.keys(actionDrafts)}
         itemRender={this.renderItem}
         onItemCreateClick={this.handleCreateNewQueryClick}
         onItemSelected={this.handleQueryChange}
@@ -212,7 +170,6 @@ class QuerySidebar extends React.Component<Props> {
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   plugins: getPlugins(state),
   queries: getQueryActions(state),
-  actionDrafts: state.entities.actionDrafts,
   apiPane: state.ui.apiPane,
   actions: state.entities.actions,
   dataSources: getDataSources(state),
@@ -221,8 +178,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
   createAction: (data: Partial<RestAction>) =>
     dispatch(createActionRequest(data)),
-  onQueryChange: (queryId: string, pluginType: string) => {
-    dispatch(changeQuery(queryId, pluginType));
+  onQueryChange: (queryId: string) => {
+    dispatch(changeQuery(queryId));
   },
   initQueryPane: (pluginType: string, urlId?: string) =>
     dispatch(initQueryPane(pluginType, urlId)),
@@ -237,7 +194,8 @@ const mapDispatchToProps = (dispatch: Function): ReduxDispatchProps => ({
     ),
   copyAction: (id: string, destinationPageId: string, name: string) =>
     dispatch(copyActionRequest({ id, destinationPageId, name })),
-  deleteAction: (id: string) => dispatch(deleteQuery({ id })),
+  deleteAction: (id: string, name: string) =>
+    dispatch(deleteAction({ id, name })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuerySidebar);

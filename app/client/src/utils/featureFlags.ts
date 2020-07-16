@@ -4,29 +4,31 @@ const optimizelySDK = require("@optimizely/optimizely-sdk");
 class FeatureFlag {
   static isInitialized = false;
   static remote = undefined;
-  static initialize(featureFlagConfig: FeatureFlagConfig) {
-    Object.keys(featureFlagConfig.default).forEach((flag: any) => {
-      // This is required because otherwise it will reset the values
-      // every time the application is loaded. We need the application to load
-      // remote values the second time.
-      if (localStorage.getItem(flag) === null) {
-        localStorage.setItem(
-          flag,
-          featureFlagConfig.default[flag as FeatureFlagsEnum].toString(),
-        );
-      }
-    });
-
-    if (featureFlagConfig.remoteConfig) {
-      FeatureFlag.remote = optimizelySDK.createInstance({
-        sdkKey: featureFlagConfig.remoteConfig.optimizely,
-        datafileOptions: {
-          autoUpdate: true,
-          updateInterval: 600000, // 10 minutes in milliseconds
-          urlTemplate: window.location.origin + "/f/datafiles/%s.json",
-        },
+  static initialize(featureFlagConfig?: FeatureFlagConfig) {
+    if (featureFlagConfig) {
+      Object.keys(featureFlagConfig.default).forEach((flag: any) => {
+        // This is required because otherwise it will reset the values
+        // every time the application is loaded. We need the application to load
+        // remote values the second time.
+        if (localStorage.getItem(flag) === null) {
+          localStorage.setItem(
+            flag,
+            featureFlagConfig.default[flag as FeatureFlagsEnum].toString(),
+          );
+        }
       });
-      (FeatureFlag.remote as any).onReady().then(onInit);
+
+      if (featureFlagConfig.remoteConfig) {
+        FeatureFlag.remote = optimizelySDK.createInstance({
+          sdkKey: featureFlagConfig.remoteConfig.optimizely,
+          datafileOptions: {
+            autoUpdate: true,
+            updateInterval: 600000, // 10 minutes in milliseconds
+            urlTemplate: window.location.origin + "/f/datafiles/%s.json",
+          },
+        });
+        (FeatureFlag.remote as any).onReady().then(onInit);
+      }
     }
   }
 

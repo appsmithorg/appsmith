@@ -1,17 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import Table from "./Table";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
-import _ from "lodash";
+import { debounce } from "lodash";
 import { getMenuOptions, renderActions, renderCell } from "./TableUtilities";
-
-interface ReactTableComponentState {
-  trigger: number;
-  columnIndex: number;
-  pageSize: number;
-  action: string;
-  columnName: string;
-}
 
 export interface ReactTableColumnProps {
   Header: string;
@@ -27,6 +19,7 @@ export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
   closeOnClick?: boolean;
   isSelected?: boolean;
+  editColumnName?: boolean;
   columnAccessor?: string;
   id?: string;
   category?: boolean;
@@ -43,8 +36,10 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps {
   widgetId: string;
+  searchKey: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  isLoading: boolean;
   renderMode: RenderMode;
   width: number;
   height: number;
@@ -53,9 +48,9 @@ interface ReactTableComponentProps {
   columnOrder?: string[];
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: object, rowIndex: number) => void;
-  onCommandClick: (dynamicTrigger: string) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   updatePageNo: Function;
-  updateHiddenColumns: Function;
+  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   resetSelectedRowIndex: Function;
   nextPageClick: Function;
   prevPageClick: Function;
@@ -76,117 +71,13 @@ interface ReactTableComponentProps {
   updateColumnName: Function;
   handleResizeColumn: Function;
   handleReorderColumn: Function;
+  searchTableData: (searchKey: any) => void;
 }
 
-export class ReactTableComponent extends React.Component<
-  ReactTableComponentProps,
-  ReactTableComponentState
-> {
-  private dragged = -1;
-  constructor(props: ReactTableComponentProps) {
-    super(props);
-    this.state = {
-      trigger: 0,
-      columnIndex: -1,
-      action: "",
-      columnName: "",
-      pageSize: props.pageSize,
-    };
-  }
-
-  componentDidMount() {
-    this.mountEvents();
-  }
-
-  componentDidUpdate(prevProps: ReactTableComponentProps) {
-    if (this.props.pageSize !== prevProps.pageSize) {
-      this.setState({ pageSize: this.props.pageSize });
-    }
-    this.mountEvents();
-  }
-
-  mountEvents() {
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(
-        `#table${this.props.widgetId} .draggable-header`,
-      ),
-    );
-    const columns = this.getTableColumns();
-    headers.forEach((header, i) => {
-      header.setAttribute("draggable", true);
-
-      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style =
-          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
-        e.stopPropagation();
-        this.dragged = i;
-      };
-
-      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-      };
-
-      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        e.stopPropagation();
-        setTimeout(() => (this.dragged = -1), 1000);
-      };
-
-      // the dropped header
-      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== this.dragged && this.dragged !== -1) {
-          if (this.dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (this.dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== this.dragged && this.dragged !== -1) {
-          if (this.dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (this.dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
-        header.parentElement.className = "th header-reorder";
-        e.preventDefault();
-      };
-
-      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        header.parentElement.className = "th header-reorder";
-        if (i !== this.dragged && this.dragged !== -1) {
-          e.preventDefault();
-          let columnOrder = this.props.columnOrder;
-          if (columnOrder === undefined) {
-            columnOrder = this.props.tableData.length
-              ? Object.keys(this.props.tableData[0])
-              : [];
-          }
-          const draggedColumn = columns[this.dragged].accessor;
-          columnOrder.splice(this.dragged, 1);
-          columnOrder.splice(i, 0, draggedColumn);
-          this.props.handleReorderColumn(columnOrder);
-          this.setState({ trigger: Math.random() });
-        } else {
-          this.dragged = -1;
-        }
-      };
-    });
-  }
-
-  getAllTableColumnKeys = () => {
-    const tableData: object[] = this.props.tableData;
+const ReactTableComponent = (props: ReactTableComponentProps) => {
+  let dragged = -1;
+  const getAllTableColumnKeys = () => {
+    const tableData: object[] = props.tableData;
     const columnKeys: string[] = [];
     for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
       const row = tableData[i];
@@ -199,84 +90,8 @@ export class ReactTableComponent extends React.Component<
     return columnKeys;
   };
 
-  getTableColumns = () => {
-    const tableData: object[] = this.props.tableData;
-    let columns: ReactTableColumnProps[] = [];
-    const hiddenColumns: ReactTableColumnProps[] = [];
-    if (tableData.length) {
-      const columnKeys: string[] = this.getAllTableColumnKeys();
-      for (let index = 0, length = columnKeys.length; index < length; index++) {
-        const i = columnKeys[index];
-        const columnName: string =
-          this.props.columnNameMap && this.props.columnNameMap[i]
-            ? this.props.columnNameMap[i]
-            : i;
-        const columnType: { type: string; format?: string } =
-          this.props.columnTypeMap && this.props.columnTypeMap[i]
-            ? this.props.columnTypeMap[i]
-            : { type: "text" };
-        const columnSize: number =
-          this.props.columnSizeMap && this.props.columnSizeMap[i]
-            ? this.props.columnSizeMap[i]
-            : 150;
-        const isHidden =
-          !!this.props.hiddenColumns && this.props.hiddenColumns.includes(i);
-        const columnData = {
-          Header: columnName,
-          accessor: i,
-          width: columnSize,
-          minWidth: 60,
-          draggable: true,
-          isHidden: false,
-          Cell: (props: any) => {
-            return renderCell(
-              props.cell.value,
-              props.cell.row.index,
-              columnType.type,
-              isHidden,
-              this.props.widgetId,
-              columnType.format,
-            );
-          },
-        };
-        if (isHidden) {
-          columnData.isHidden = true;
-          hiddenColumns.push(columnData);
-        } else {
-          columns.push(columnData);
-        }
-      }
-      columns = this.reorderColumns(columns);
-      if (this.props.columnActions?.length) {
-        columns.push({
-          Header:
-            this.props.columnNameMap && this.props.columnNameMap["actions"]
-              ? this.props.columnNameMap["actions"]
-              : "Actions",
-          accessor: "actions",
-          width: 150,
-          minWidth: 60,
-          draggable: true,
-          Cell: () => {
-            return renderActions({
-              columnActions: this.props.columnActions,
-              onCommandClick: this.props.onCommandClick,
-            });
-          },
-        });
-      }
-      if (
-        hiddenColumns.length &&
-        this.props.renderMode === RenderModes.CANVAS
-      ) {
-        columns = columns.concat(hiddenColumns);
-      }
-    }
-    return columns;
-  };
-
-  reorderColumns = (columns: ReactTableColumnProps[]) => {
-    const columnOrder = this.props.columnOrder || [];
+  const reorderColumns = (columns: ReactTableColumnProps[]) => {
+    const columnOrder = props.columnOrder || [];
     const reorderedColumns = [];
     const reorderedFlagMap: { [key: string]: boolean } = {};
     for (let index = 0; index < columns.length; index++) {
@@ -307,196 +122,305 @@ export class ReactTableComponent extends React.Component<
     }
     return reorderedColumns;
   };
-
-  getColumnMenu = () => {
-    const { columnIndex } = this.state;
-    let columnType = "";
-    let columnId = "";
-    let format = "";
-    if (columnIndex !== -1) {
-      const columns = this.getTableColumns();
-      const column = columns[columnIndex];
-      columnId = column.accessor;
-      columnType =
-        this.props.columnTypeMap && this.props.columnTypeMap[columnId]
-          ? this.props.columnTypeMap[columnId].type
-          : "";
-      format =
-        this.props.columnTypeMap && this.props.columnTypeMap[columnId]
-          ? this.props.columnTypeMap[columnId].format
-          : "";
+  const getTableColumns = () => {
+    const tableData: object[] = props.tableData;
+    let columns: ReactTableColumnProps[] = [];
+    const hiddenColumns: ReactTableColumnProps[] = [];
+    if (tableData.length) {
+      const columnKeys: string[] = getAllTableColumnKeys();
+      for (let index = 0; index < columnKeys.length; index++) {
+        const i = columnKeys[index];
+        const columnName: string =
+          props.columnNameMap && props.columnNameMap[i]
+            ? props.columnNameMap[i]
+            : i;
+        const columnType: { type: string; format?: string } =
+          props.columnTypeMap && props.columnTypeMap[i]
+            ? props.columnTypeMap[i]
+            : { type: "text" };
+        const columnSize: number =
+          props.columnSizeMap && props.columnSizeMap[i]
+            ? props.columnSizeMap[i]
+            : 150;
+        const isHidden =
+          !!props.hiddenColumns && props.hiddenColumns.includes(i);
+        const columnData = {
+          Header: columnName,
+          accessor: i,
+          width: columnSize,
+          minWidth: 60,
+          draggable: true,
+          isHidden: false,
+          Cell: (props: any) => {
+            return renderCell(
+              props.cell.value,
+              props.cell.row.index,
+              columnType.type,
+              isHidden,
+              props.widgetId,
+              columnType.format,
+            );
+          },
+        };
+        if (isHidden) {
+          columnData.isHidden = true;
+          hiddenColumns.push(columnData);
+        } else {
+          columns.push(columnData);
+        }
+      }
+      columns = reorderColumns(columns);
+      if (props.columnActions?.length) {
+        columns.push({
+          Header:
+            props.columnNameMap && props.columnNameMap["actions"]
+              ? props.columnNameMap["actions"]
+              : "Actions",
+          accessor: "actions",
+          width: 150,
+          minWidth: 60,
+          draggable: true,
+          Cell: () => {
+            return renderActions({
+              columnActions: props.columnActions,
+              onCommandClick: props.onCommandClick,
+            });
+          },
+        });
+      }
+      if (hiddenColumns.length && props.renderMode === RenderModes.CANVAS) {
+        columns = columns.concat(hiddenColumns);
+      }
     }
+    return columns;
+  };
+
+  const tableColumns = React.useMemo(getTableColumns, [
+    JSON.stringify({
+      data: props.tableData,
+      columnNameMap: props.columnNameMap,
+      columnActions: props.columnActions,
+      hiddenColumns: props.hiddenColumns,
+      columnSizeMap: props.columnSizeMap,
+      columnTypeMap: props.columnTypeMap,
+      columnOrder: props.columnOrder,
+    }),
+  ]);
+  useEffect(() => {
+    const headers = Array.prototype.slice.call(
+      document.querySelectorAll(`#table${props.widgetId} .draggable-header`),
+    );
+    headers.forEach((header, i) => {
+      header.setAttribute("draggable", true);
+
+      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
+        header.style =
+          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
+        e.stopPropagation();
+        dragged = i;
+      };
+
+      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
+        e.stopPropagation();
+      };
+
+      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
+        header.style = "";
+        e.stopPropagation();
+        setTimeout(() => (dragged = -1), 1000);
+      };
+
+      // the dropped header
+      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
+        if (i !== dragged && dragged !== -1) {
+          if (dragged > i) {
+            header.parentElement.className = "th header-reorder highlight-left";
+          } else if (dragged < i) {
+            header.parentElement.className =
+              "th header-reorder highlight-right";
+          }
+        }
+        e.preventDefault();
+      };
+
+      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
+        if (i !== dragged && dragged !== -1) {
+          if (dragged > i) {
+            header.parentElement.className = "th header-reorder highlight-left";
+          } else if (dragged < i) {
+            header.parentElement.className =
+              "th header-reorder highlight-right";
+          }
+        }
+        e.preventDefault();
+      };
+
+      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
+        header.parentElement.className = "th header-reorder";
+        e.preventDefault();
+      };
+
+      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
+        header.style = "";
+        header.parentElement.className = "th header-reorder";
+        if (i !== dragged && dragged !== -1) {
+          e.preventDefault();
+          let columnOrder = props.columnOrder;
+          if (columnOrder === undefined) {
+            columnOrder = getAllTableColumnKeys();
+          }
+          const draggedColumn = tableColumns[dragged].accessor;
+          columnOrder.splice(dragged, 1);
+          columnOrder.splice(i, 0, draggedColumn);
+          props.handleReorderColumn(columnOrder);
+        } else {
+          dragged = -1;
+        }
+      };
+    });
+  });
+
+  const getColumnMenu = (columnIndex: number) => {
+    const column = tableColumns[columnIndex];
+    const columnId = column.accessor;
+    const columnType =
+      props.columnTypeMap && props.columnTypeMap[columnId]
+        ? props.columnTypeMap[columnId].type
+        : "";
+    const format =
+      props.columnTypeMap && props.columnTypeMap[columnId]
+        ? props.columnTypeMap[columnId].format
+        : "";
     const isColumnHidden = !!(
-      this.props.hiddenColumns && this.props.hiddenColumns.includes(columnId)
+      props.hiddenColumns && props.hiddenColumns.includes(columnId)
     );
     const columnMenuOptions: ColumnMenuOptionProps[] = getMenuOptions({
       columnAccessor: columnId,
       isColumnHidden,
       columnType,
       format,
-      hideColumn: this.hideColumn,
-      updateColumnType: this.updateColumnType,
-      handleUpdateCurrencySymbol: this.handleUpdateCurrencySymbol,
-      handleDateFormatUpdate: this.handleDateFormatUpdate,
-      updateAction: (columnIndex: number, action: string) =>
-        this.setState({ action: action }),
+      hideColumn: hideColumn,
+      updateColumnType: updateColumnType,
+      handleUpdateCurrencySymbol: handleUpdateCurrencySymbol,
+      handleDateFormatUpdate: handleDateFormatUpdate,
     });
     return columnMenuOptions;
   };
 
-  showMenu = (columnIndex: number) => {
-    this.setState({ columnIndex: columnIndex, action: "" });
-  };
-
-  hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
-    const columns = this.getTableColumns();
-    const column = columns[columnIndex];
-    let hiddenColumns = this.props.hiddenColumns || [];
+  const hideColumn = (columnIndex: number, isColumnHidden: boolean) => {
+    const column = tableColumns[columnIndex];
+    let hiddenColumns = props.hiddenColumns || [];
     if (!isColumnHidden) {
       hiddenColumns.push(column.accessor);
-      const columnOrder = this.props.columnOrder || [];
+      const columnOrder = props.columnOrder || [];
       if (columnOrder.includes(column.accessor)) {
         columnOrder.splice(columnOrder.indexOf(column.accessor), 1);
-        this.props.handleReorderColumn(columnOrder);
+        props.handleReorderColumn(columnOrder);
       }
     } else {
       hiddenColumns = hiddenColumns.filter(item => {
         return item !== column.accessor;
       });
     }
-    this.props.updateHiddenColumns(hiddenColumns);
-    this.setState({ columnIndex: -1 });
+    props.updateHiddenColumns(hiddenColumns);
   };
 
-  updateColumnType = (columnIndex: number, columnType: string) => {
-    const columns = this.getTableColumns();
-    const column = columns[columnIndex];
-    const columnTypeMap = this.props.columnTypeMap || {};
+  const updateColumnType = (columnIndex: number, columnType: string) => {
+    const column = tableColumns[columnIndex];
+    const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: columnType,
       format: "",
     };
-    this.props.updateColumnType(columnTypeMap);
-    this.setState({ action: "", columnIndex: -1 });
+    props.updateColumnType(columnTypeMap);
   };
 
-  onColumnNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ columnName: event.target.value });
-  };
-
-  onKeyPress = (columnIndex: number, key: string) => {
-    if (key === "Enter") {
-      this.handleColumnNameUpdate(columnIndex);
-    }
-  };
-
-  handleColumnNameUpdate = (columnIndex: number) => {
-    const columns = this.getTableColumns();
-    const columnName = this.state.columnName;
-    const column = columns[columnIndex];
-    const columnNameMap = this.props.columnNameMap || {};
+  const handleColumnNameUpdate = (columnIndex: number, columnName: string) => {
+    const column = tableColumns[columnIndex];
+    const columnNameMap = props.columnNameMap || {};
     columnNameMap[column.accessor] = columnName;
-    this.props.updateColumnName(columnNameMap);
-    this.setState({
-      columnIndex: -1,
-      columnName: "",
-      action: "",
-    });
+    props.updateColumnName(columnNameMap);
   };
 
-  handleUpdateCurrencySymbol = (
+  const handleUpdateCurrencySymbol = (
     columnIndex: number,
     currencySymbol: string,
   ) => {
-    const columns = this.getTableColumns();
-    const column = columns[columnIndex];
-    const columnTypeMap = this.props.columnTypeMap || {};
+    const column = tableColumns[columnIndex];
+    const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "currency",
       format: currencySymbol,
     };
-    this.props.updateColumnType(columnTypeMap);
-    this.setState({
-      columnIndex: -1,
-      action: "",
-    });
+    props.updateColumnType(columnTypeMap);
   };
 
-  handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
-    const columns = this.getTableColumns();
-    const column = columns[columnIndex];
-    const columnTypeMap = this.props.columnTypeMap || {};
+  const handleDateFormatUpdate = (columnIndex: number, dateFormat: string) => {
+    const column = tableColumns[columnIndex];
+    const columnTypeMap = props.columnTypeMap || {};
     columnTypeMap[column.accessor] = {
       type: "date",
       format: dateFormat,
     };
-    this.props.updateColumnType(columnTypeMap);
-    this.setState({
-      columnIndex: -1,
-      action: "",
-    });
+    props.updateColumnType(columnTypeMap);
   };
 
-  handleResizeColumn = (columnIndex: number, columnWidth: string) => {
-    const columns = this.getTableColumns();
-    const column = columns[columnIndex];
-    const columnSizeMap = this.props.columnSizeMap || {};
+  const handleResizeColumn = (columnIndex: number, columnWidth: string) => {
+    const column = tableColumns[columnIndex];
+    const columnSizeMap = props.columnSizeMap || {};
     const width = Number(columnWidth.split("px")[0]);
     columnSizeMap[column.accessor] = width;
-    this.props.handleResizeColumn(columnSizeMap);
+    props.handleResizeColumn(columnSizeMap);
   };
 
-  selectTableRow = (
+  const selectTableRow = (
     row: { original: object; index: number },
     isSelected: boolean,
   ) => {
     if (!isSelected) {
-      this.props.onRowClick(row.original, row.index);
+      props.onRowClick(row.original, row.index);
     } else {
-      this.props.resetSelectedRowIndex();
+      props.resetSelectedRowIndex();
     }
   };
 
-  render() {
-    const columns = this.getTableColumns();
-    return (
-      <Table
-        width={this.props.width}
-        height={this.props.height}
-        pageSize={this.state.pageSize || 1}
-        widgetId={this.props.widgetId}
-        columns={columns}
-        data={this.props.tableData}
-        showMenu={this.showMenu}
-        displayColumnActions={this.props.renderMode === RenderModes.CANVAS}
-        columnNameMap={this.props.columnNameMap}
-        columnMenuOptions={this.getColumnMenu()}
-        columnIndex={this.state.columnIndex}
-        columnAction={this.state.action}
-        onColumnNameChange={this.onColumnNameChange}
-        handleColumnNameUpdate={this.handleColumnNameUpdate}
-        handleResizeColumn={_.debounce(this.handleResizeColumn, 300)}
-        selectTableRow={this.selectTableRow}
-        pageNo={this.props.pageNo - 1}
-        updatePageNo={this.props.updatePageNo}
-        nextPageClick={() => {
-          this.props.nextPageClick();
-        }}
-        prevPageClick={() => {
-          this.props.prevPageClick();
-        }}
-        onKeyPress={this.onKeyPress}
-        serverSidePaginationEnabled={this.props.serverSidePaginationEnabled}
-        selectedRowIndex={this.props.selectedRowIndex}
-        disableDrag={() => {
-          this.props.disableDrag(true);
-        }}
-        enableDrag={() => {
-          this.props.disableDrag(false);
-        }}
-      />
-    );
-  }
-}
+  return (
+    <Table
+      isLoading={props.isLoading}
+      width={props.width}
+      height={props.height}
+      pageSize={props.pageSize || 1}
+      widgetId={props.widgetId}
+      searchKey={props.searchKey}
+      columns={tableColumns}
+      hiddenColumns={props.hiddenColumns}
+      updateHiddenColumns={props.updateHiddenColumns}
+      data={props.tableData}
+      displayColumnActions={props.renderMode === RenderModes.CANVAS}
+      columnNameMap={props.columnNameMap}
+      getColumnMenu={getColumnMenu}
+      handleColumnNameUpdate={handleColumnNameUpdate}
+      handleResizeColumn={debounce(handleResizeColumn, 300)}
+      selectTableRow={selectTableRow}
+      pageNo={props.pageNo - 1}
+      updatePageNo={props.updatePageNo}
+      nextPageClick={() => {
+        props.nextPageClick();
+      }}
+      prevPageClick={() => {
+        props.prevPageClick();
+      }}
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      selectedRowIndex={props.selectedRowIndex}
+      disableDrag={() => {
+        props.disableDrag(true);
+      }}
+      enableDrag={() => {
+        props.disableDrag(false);
+      }}
+      searchTableData={debounce(props.searchTableData, 500)}
+    />
+  );
+};
 
 export default ReactTableComponent;

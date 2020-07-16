@@ -2,6 +2,7 @@ import { all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
+import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import configsSagas from "./ConfigsSagas";
@@ -25,6 +26,7 @@ export function* rootSaga() {
     spawn(pageSagas),
     spawn(fetchWidgetCardsSaga),
     spawn(watchActionSagas),
+    spawn(watchActionExecutionSagas),
     spawn(widgetOperationSagas),
     spawn(errorSagas),
     spawn(configsSagas),

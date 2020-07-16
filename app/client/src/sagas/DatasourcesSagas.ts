@@ -42,7 +42,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppToaster } from "components/editorComponents/ToastComponent";
 import { ToastType } from "react-toastify";
 import { getFormData } from "selectors/formSelectors";
-import { changeApi, setDatasourceFieldText } from "actions/apiPaneActions";
+import { changeApi } from "actions/apiPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 function* fetchDatasourcesSaga() {
@@ -129,6 +129,10 @@ export function* deleteDatasourceSaga(
       history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
     }
   } catch (error) {
+    AppToaster.show({
+      message: error.message,
+      type: ToastType.ERROR,
+    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
       payload: { error, id: actionPayload.payload.id },
@@ -190,7 +194,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     if (isValidResponse) {
       const responseData = response.data;
 
-      if (responseData.invalids.length) {
+      if (responseData.invalids && responseData.invalids.length) {
         AppToaster.show({
           message: responseData.invalids[0],
           type: ToastType.ERROR,
@@ -403,7 +407,6 @@ function* updateDatasourceSuccessSaga(action: ReduxAction<Datasource>) {
   ) {
     const { apiId } = actionRouteInfo;
 
-    yield put(setDatasourceFieldText(apiId, ""));
     yield put(changeApi(apiId));
   }
 

@@ -1,8 +1,10 @@
 package com.appsmith.server.configurations;
 
 
+import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.services.UserService;
@@ -31,6 +33,9 @@ import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import static com.appsmith.server.constants.Url.ACTION_URL;
+import static com.appsmith.server.constants.Url.APPLICATION_URL;
+import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
 
 @EnableWebFluxSecurity
@@ -54,6 +59,9 @@ public class SecurityConfig {
 
     @Autowired
     private ReactiveClientRegistrationRepository reactiveClientRegistrationRepository;
+
+    @Autowired
+    private AccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -110,7 +118,9 @@ public class SecurityConfig {
                 .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
+                .exceptionHandling()
+                    .authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
@@ -121,11 +131,17 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/verifyPasswordResetToken"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/resetPassword"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"))
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")
+                )
                 .permitAll()
                 .pathMatchers("/public/**").permitAll()
                 .anyExchange()
-                .permitAll()
+                .authenticated()
                 .and().formLogin()
                 .loginPage(Url.LOGIN_URL)
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -148,8 +164,8 @@ public class SecurityConfig {
 
     private User createAnonymousUser() {
         User user = new User();
-        user.setName("anonymousUser");
-        user.setEmail("anonymousUser");
+        user.setName(FieldName.ANONYMOUS_USER);
+        user.setEmail(FieldName.ANONYMOUS_USER);
         user.setCurrentOrganizationId("");
         user.setOrganizationIds(new HashSet<>());
         user.setIsAnonymous(true);

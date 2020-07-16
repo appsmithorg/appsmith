@@ -11,18 +11,18 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Test_Add users api and execute api", function() {
-    cy.NavigateToApiEditor();
-    cy.testCreateApiButton();
-    cy.createApi(this.data.userApi, "users");
+    cy.createAndFillApi(this.data.userApi, "/users");
     cy.RunAPI();
     cy.get(apiPage.responseBody)
       .contains("name")
       .siblings("span")
       .invoke("text")
       .then(text => {
-        cy.log(text);
-        apiData = text;
-        cy.log("val1:" + apiData);
+        const value = text.match(/"(.*)"/)[0];
+        cy.log(value);
+
+        apiData = value;
+        cy.log("val1:" + value);
       });
   });
 

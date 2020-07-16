@@ -1,14 +1,14 @@
 import { AppState } from "reducers";
 import {
-  ActionDataState,
   ActionData,
+  ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
 import { ActionResponse } from "api/ActionAPI";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { API_CONSTANT } from "constants/ApiEditorConstants";
 import { createSelector } from "reselect";
-import { Page } from "constants/ReduxActionConstants";
 import { Datasource } from "api/DatasourcesApi";
+import { Action } from "entities/Action";
+import { find } from "lodash";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -124,26 +124,12 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
-export const getApiActions = (state: AppState): ActionDataState => {
-  return state.entities.actions.filter((action: ActionData) => {
-    return action.config.pluginType === API_CONSTANT;
-  });
-};
-
 export const getQueryName = (state: AppState, actionId: string): string => {
   const action = state.entities.actions.find((action: ActionData) => {
     return action.config.id === actionId;
   });
 
   return action?.config.name ?? "";
-};
-
-export const getPageName = (state: AppState, pageId: string): string => {
-  const page = state.entities.pageList.pages.find((page: Page) => {
-    return page.pageId === pageId;
-  });
-
-  return page?.pageName ?? "";
 };
 
 export const getQueryActions = (state: AppState): ActionDataState => {
@@ -167,8 +153,6 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
-export const getActionDrafts = (state: AppState) => state.entities.actionDrafts;
-
 export const getActionResponses = createSelector(getActions, actions => {
   const responses: Record<string, ActionResponse | undefined> = {};
 
@@ -178,3 +162,48 @@ export const getActionResponses = createSelector(getActions, actions => {
 
   return responses;
 });
+export const getAction = (
+  state: AppState,
+  actionId: string,
+): Action | undefined => {
+  const action = find(state.entities.actions, a => a.config.id === actionId);
+  return action ? action.config : undefined;
+};
+
+export function getCurrentPageNameByActionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.actions.find(action => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getPageNameByPageId(state: AppState, pageId: string): string {
+  const page = state.entities.pageList.pages.find(
+    page => page.pageId === pageId,
+  );
+  return page ? page.pageName : "";
+}
+
+const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
+const getApiPaneSavingMap = (state: AppState) => state.ui.apiPane.isSaving;
+const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
+
+export const isActionSaving = (id: string) =>
+  createSelector(
+    [getQueryPaneSavingMap, getApiPaneSavingMap],
+    (querySavingMap, apiSavingsMap) => {
+      return (
+        (id in querySavingMap && querySavingMap[id]) ||
+        (id in apiSavingsMap && apiSavingsMap[id])
+      );
+    },
+  );
+
+export const isActionDirty = (id: string) =>
+  createSelector([getActionDirtyState], actionDirtyMap => {
+    return id in actionDirtyMap && actionDirtyMap[id];
+  });
