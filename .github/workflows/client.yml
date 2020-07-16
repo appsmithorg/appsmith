@@ -140,11 +140,6 @@ jobs:
         --env APPSMITH_ENCRYPTION_SALT=salt \
         appsmith/appsmith-server:latest
 
-    - name: Install yarn serve
-      shell: bash
-      run: |
-        yarn global add serve
-
     - name: Setting up the cypress tests
       shell: bash
       env:
