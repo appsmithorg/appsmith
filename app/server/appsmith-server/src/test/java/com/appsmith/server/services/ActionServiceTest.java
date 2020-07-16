@@ -44,11 +44,10 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -472,17 +471,48 @@ public class ActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
+        Action action1 = new Action();
+        action1.setName("actionInViewModeWithoutMustacheKey");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        actionConfiguration1.setTimeoutInMillisecond(20000);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        Action action2 = new Action();
+        action2.setName("actionInViewModeWithoutActionConfiguration");
+        action2.setPageId(testPage.getId());
+        action2.setDatasource(datasource);
+
         Mono<List<ActionViewDTO>> actionsListMono = actionService.create(action)
+                .then(actionService.create(action1))
+                .then(actionService.create(action2))
                 .then(actionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
                 .create(actionsListMono)
                 .assertNext(actionsList -> {
                     assertThat(actionsList.size()).isGreaterThan(0);
-                    ActionViewDTO actionViewDTO = actionsList.stream().filter(action1 -> action1.getName().equals(action.getName())).findFirst().get();
+                    ActionViewDTO actionViewDTO = actionsList.stream().filter(dto -> dto.getName().equals(action.getName())).findFirst().get();
 
                     assertThat(actionViewDTO).isNotNull();
                     assertThat(actionViewDTO.getJsonPathKeys()).containsAll(Set.of(key));
+                    assertThat(actionViewDTO.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+
+                    ActionViewDTO actionViewDTO1 = actionsList.stream().filter(dto -> dto.getName().equals(action1.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO1).isNotNull();
+                    assertThat(actionViewDTO1.getJsonPathKeys()).isNullOrEmpty();
+                    assertThat(actionViewDTO1.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO1.getTimeoutInMillisecond()).isEqualTo(20000);
+
+                    ActionViewDTO actionViewDTO2 = actionsList.stream().filter(dto -> dto.getName().equals(action2.getName())).findFirst().get();
+
+                    assertThat(actionViewDTO2).isNotNull();
+                    assertThat(actionViewDTO2.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionViewDTO2.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
                 })
                 .verifyComplete();
     }
