@@ -37,7 +37,7 @@ export const CreateApplicationForm = (props: Props) => {
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}
         divider
         submitOnEnter
-        data-cy = "t--create-app-submit"
+        data-cy="t--create-app-submit"
         submitText="Submit"
         size="small"
         submitting={submitting && !error}

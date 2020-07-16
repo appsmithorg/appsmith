@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 
 export const TableWrapper = styled.div<{ width: number; height: number }>`
   width: ${props => props.width - 5}px;
@@ -26,7 +27,18 @@ export const TableWrapper = styled.div<{ width: number; height: number }>`
     }
     .tbody {
       overflow: scroll;
-      height: ${props => props.height - 5 - 102}px;
+      /* 
+      Here 5px is subtracted to compensate padding from widget resizers and
+      113px to compensate table column header and table header heights
+      */
+      height: ${props =>
+        props.height -
+        5 -
+        TABLE_SIZES.TABLE_HEADER_HEIGHT -
+        TABLE_SIZES.COLUMN_HEADER_HEIGHT}px;
+      &.no-scroll {
+        overflow: hidden;
+      }
     }
     .tr {
       :nth-child(even) {
