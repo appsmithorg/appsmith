@@ -198,6 +198,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
+    if (!tableData || !tableData.length) {
+      return [];
+    }
     const searchKey =
       this.props.searchKeyword !== undefined
         ? this.props.searchKeyword.toString().toUpperCase()
