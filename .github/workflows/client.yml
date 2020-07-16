@@ -162,12 +162,13 @@ jobs:
         CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_RECORD_KEY }}
         CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
         CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+        BUILD_ID: ${GITHUB_SHA}
       with:
         browser: chrome
         headless: true
         record: true
         install: false
-        command: BUILD_ID=${GITHUB_SHA} yarn run test:ci
+        command: yarn run test:ci
         working-directory: app/client
 
     # Upload the screenshots as artifacts if there's a failure
