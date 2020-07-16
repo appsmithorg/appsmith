@@ -163,7 +163,7 @@ if test -f "$encryptionEnv"; then
     elif [[ $overwrite_encryption -eq 2 ]];then
         setup_encryption="true"
         auto_generate_encryption="true" 
-    elif [[ $overwrite_encryption -eq 2 ]];then
+    elif [[ $overwrite_encryption -eq 3 ]];then
         setup_encryption="true"
         auto_generate_encryption="false"
     fi
