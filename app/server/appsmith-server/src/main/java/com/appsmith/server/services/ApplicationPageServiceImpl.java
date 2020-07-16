@@ -85,7 +85,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
 
         return pageMono
-                .flatMap(pageService::create)
+                .flatMap(pageService::createDefault)
                 //After the page has been saved, update the application (save the page id inside the application)
                 .flatMap(savedPage ->
                         addPageToApplication(applicationMono, savedPage, false)
@@ -222,7 +222,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
 
         return applicationWithPoliciesMono
-                .flatMap(applicationService::create)
+                .flatMap(applicationService::createDefault)
                 .zipWith(userMono)
                 .flatMap(tuple -> {
                     Application savedApplication = tuple.getT1();
@@ -239,7 +239,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     generateAndSetPagePolicies(savedApplication, user, page);
 
                     return pageService
-                            .create(page)
+                            .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(Mono.just(savedApplication), savedPage, true));
                 });
     }

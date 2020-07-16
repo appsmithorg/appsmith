@@ -207,7 +207,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
             AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
             // Encrypt password before saving
-            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            if (authentication.getPassword() != null) {
+                authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            }
             datasource.getDatasourceConfiguration().setAuthentication(authentication);
         }
 
@@ -259,6 +261,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
+    }
+
+    @Override
+    public Mono<Datasource> findById(String id) {
+        return repository.findById(id);
     }
 
     @Override

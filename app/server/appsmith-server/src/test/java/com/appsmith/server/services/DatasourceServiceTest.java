@@ -64,12 +64,10 @@ public class DatasourceServiceTest {
     ActionService actionService;
 
     @Autowired
-    ApplicationService applicationService;
+    ApplicationPageService applicationPageService;
 
     @Autowired
-    PageService pageService;
-
-    @Autowired EncryptionService encryptionService;
+    EncryptionService encryptionService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -80,7 +78,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        orgId = testOrg == null ? "" : testOrg.getId();
     }
 
     @Test
@@ -383,7 +381,7 @@ public class DatasourceServiceTest {
                             Mono.just(organization),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationService.create(application)
+                            applicationPageService.createApplication(application, organization.getId())
                                     .flatMap(application1 -> {
                                         final Page page = new Page();
                                         page.setName("test page 1");
@@ -393,7 +391,7 @@ public class DatasourceServiceTest {
                                                 .users(Set.of("api_user"))
                                                 .build()
                                         ));
-                                        return pageService.create(page);
+                                        return applicationPageService.createPage(page);
                                     })
                     );
                 })
@@ -422,7 +420,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void checkEncryptionofAunthenticationDTOTest() {
+    public void checkEncryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
@@ -450,6 +448,37 @@ public class DatasourceServiceTest {
                     AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
                     assertThat(authentication.getPassword()).isEqualTo(encryptionService.encryptString(password));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkEncryptionOfAuthenticationDTONullPassword() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        Datasource datasource = new Datasource();
+        datasource.setName("test datasource name for authenticated fields encryption test null password.");
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        AuthenticationDTO authenticationDTO = new AuthenticationDTO();
+        authenticationDTO.setDatabaseName("admin");
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
+            datasource.setPluginId(plugin.getId());
+            return datasource;
+        }).flatMap(datasourceService::create);
+
+        StepVerifier
+                .create(datasourceMono)
+                .assertNext(savedDatasource -> {
+                    AuthenticationDTO authentication = savedDatasource.getDatasourceConfiguration().getAuthentication();
+                    assertThat(authentication.getUsername()).isNull();
+                    assertThat(authentication.getPassword()).isNull();
                 })
                 .verifyComplete();
     }

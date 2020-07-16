@@ -1,9 +1,6 @@
 #!/bin/sh
 
-if [ -f mongo-init.js ]
-  then
-    echo "file docker-compose.yml already exists"
-  else
+if [ ! -f mongo-init.js ]; then
     touch mongo-init.js
 fi
 

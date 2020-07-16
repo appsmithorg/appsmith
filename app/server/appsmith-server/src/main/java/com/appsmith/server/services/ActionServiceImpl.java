@@ -58,11 +58,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Slf4j
@@ -319,7 +317,10 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
+                        /** TODO
+                         * Add datasource.findById with execute permissions
+                         */
+                        return datasourceService.findById(action.getDatasource().getId())
                                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "datasource")));
                     }
                     //The data source in the action has not been persisted.
@@ -537,8 +538,16 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
                     actionViewDTO.setId(action.getId());
                     actionViewDTO.setName(action.getName());
-                    actionViewDTO.setJsonPathKeys(new HashSet<>());
-                    actionViewDTO.getJsonPathKeys().addAll(action.getJsonPathKeys());
+                    actionViewDTO.setPageId(action.getPageId());
+                    if (action.getJsonPathKeys() != null && !action.getJsonPathKeys().isEmpty()) {
+                        Set<String> jsonPathKeys;
+                        jsonPathKeys = new HashSet<>();
+                        jsonPathKeys.addAll(action.getJsonPathKeys());
+                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
+                    }
+                    if (action.getActionConfiguration() != null) {
+                        actionViewDTO.setTimeoutInMillisecond(action.getActionConfiguration().getTimeoutInMillisecond());
+                    }
                     return actionViewDTO;
                 });
     }
@@ -621,7 +630,7 @@ public class ActionServiceImpl extends BaseService<ActionRepository, Action, Str
             if (datasource.getId() != null) {
                 // its a global datasource. Get the datasource from the collection
                 pluginIdUpdateMono = datasourceService
-                        .findById(datasource.getId(), READ_DATASOURCES)
+                        .findById(datasource.getId())
                         .map(datasource1 -> {
                             action.setPluginId(datasource1.getPluginId());
                             return action;
