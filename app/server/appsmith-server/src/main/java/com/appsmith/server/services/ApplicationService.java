@@ -20,7 +20,7 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> save(Application application);
 
-    Mono<Application> createPlain(Application object);
+    Mono<Application> createDefault(Application object);
 
     Mono<Application> archive(Application application);
 

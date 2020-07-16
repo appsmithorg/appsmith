@@ -122,7 +122,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> createPlain(Application object) {
+    public Mono<Application> createDefault(Application object) {
         return super.create(object);
     }
 

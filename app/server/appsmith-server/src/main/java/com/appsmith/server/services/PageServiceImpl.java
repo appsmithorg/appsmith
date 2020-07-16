@@ -73,7 +73,7 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> createPlain(Page object) {
+    public Mono<Page> createDefault(Page object) {
         return super.create(object);
     }
 

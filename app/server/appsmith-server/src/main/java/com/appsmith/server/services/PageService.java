@@ -15,7 +15,7 @@ public interface PageService extends CrudService<Page, String> {
 
     Mono<Page> save(Page page);
 
-    Mono<Page> createPlain(Page object);
+    Mono<Page> createDefault(Page object);
 
     Mono<Page> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission);
 
