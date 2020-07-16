@@ -18,17 +18,19 @@ echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
 echo "Going to run the nginx server"
+sudo docker pull nginx:latest
+
 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
     -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
     nginx:latest &
 
-echo "Sleeping for 5 seconds to let the server start"
-sleep 5
+echo "Sleeping for 10 seconds to let the server start"
+sleep 10
 
 # Create the test user 
-curl --request POST -v 'https://dev.appsmith.com/api/v1/users' \
+curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 --header 'Content-Type: application/json' \
 --data-raw '{
 	"name" : "'"$CYPRESS_USERNAME"'",
