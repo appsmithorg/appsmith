@@ -56,7 +56,6 @@ check_os() {
     echo $os_name
     case "${os_name}" in
         \"Ubuntu*\")
-            echo "In here"
             desired_os=1
             package_manager="apt-get"
             ;;
