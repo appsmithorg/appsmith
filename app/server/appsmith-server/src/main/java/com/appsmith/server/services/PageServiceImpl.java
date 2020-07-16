@@ -68,8 +68,13 @@ public class PageServiceImpl extends BaseService<PageRepository, Page, String> i
     }
 
     @Override
-    public Mono<Page> create(Page page) {
+    public Mono<Page> create(Page object) {
         throw new UnsupportedOperationException("Please use `ApplicationPageService.createPage` to create a page.");
+    }
+
+    @Override
+    public Mono<Page> createPlain(Page object) {
+        return super.create(object);
     }
 
     @Override

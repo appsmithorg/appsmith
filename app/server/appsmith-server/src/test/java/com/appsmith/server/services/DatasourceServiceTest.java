@@ -64,7 +64,7 @@ public class DatasourceServiceTest {
     ActionService actionService;
 
     @Autowired
-    ApplicationService applicationService;
+    ApplicationPageService applicationPageService;
 
     @Autowired
     PageService pageService;
@@ -80,7 +80,7 @@ public class DatasourceServiceTest {
     @WithUserDetails(value = "api_user")
     public void setup() {
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        orgId = testOrg.getId();
+        orgId = testOrg == null ? null : testOrg.getId();
     }
 
     @Test
@@ -383,7 +383,7 @@ public class DatasourceServiceTest {
                             Mono.just(organization),
                             Mono.just(plugin),
                             datasourceService.create(datasource),
-                            applicationService.create(application)
+                            applicationPageService.createApplication(application, organization.getId())
                                     .flatMap(application1 -> {
                                         final Page page = new Page();
                                         page.setName("test page 1");
@@ -393,7 +393,7 @@ public class DatasourceServiceTest {
                                                 .users(Set.of("api_user"))
                                                 .build()
                                         ));
-                                        return pageService.create(page);
+                                        return applicationPageService.createPage(page);
                                     })
                     );
                 })
