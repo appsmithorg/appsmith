@@ -6,7 +6,7 @@
 # Serve the react bundle on a specific port. Nginx will proxy to this port
 echo "Starting the setup the test framework"
 sudo echo "127.0.0.1	dev.appsmith.com" | sudo tee -a /etc/hosts
-serve -s build -p 3000
+serve -s build -p 3000 &
 
 # Substitute all the env variables in nginx
 vars_to_substitute=$(printf '\$%s,' $(env | grep -o "^APPSMITH_[A-Z0-9_]\+" | xargs))
@@ -22,7 +22,7 @@ sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
     -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
     -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
     -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
-    nginx:latest
+    nginx:latest &
 
 echo "Sleeping for 5 seconds to let the server start"
 sleep 5
