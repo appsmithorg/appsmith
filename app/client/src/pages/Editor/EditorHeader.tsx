@@ -173,7 +173,7 @@ export const EditorHeader = (props: EditorHeaderProps) => {
               intent="primary"
               outline
               size="small"
-              className="t--application-publish-btn"
+              className="t--application-share-btn"
             />
           }
           Form={ShareApplicationForm}
