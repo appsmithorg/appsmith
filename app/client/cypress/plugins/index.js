@@ -26,4 +26,16 @@ module.exports = (on, config) => {
 
     return launchOptions;
   });
+
+  /**
+   * This task logs the message on the CLI terminal. Use with care because it can log sensitive details
+   * Example usage: cy.task('log', 'This is the message printed to the terminal')
+   */
+
+  on("task", {
+    log(message) {
+      console.log(message);
+      return null;
+    },
+  });
 };
