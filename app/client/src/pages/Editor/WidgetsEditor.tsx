@@ -108,4 +108,8 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 
+WidgetsEditor.whyDidYouRender = {
+  logOnDifferentValues: false,
+  name: "WidgetsEditor",
+};
 export default connect(mapStateToProps)(WidgetsEditor);

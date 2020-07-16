@@ -37,7 +37,7 @@ const AppRoute = ({
       });
     }
   }, [rest.name, rest.logDisable, rest.location.pathname]);
-
+  console.log("Rendering", rest.name);
   return (
     <Route
       {...rest}
@@ -54,4 +54,10 @@ const AppRoute = ({
   );
 };
 
+AppRoute.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
+WrappedComponent.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 export default AppRoute;

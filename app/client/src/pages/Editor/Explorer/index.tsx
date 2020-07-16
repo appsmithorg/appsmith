@@ -84,4 +84,8 @@ const EntityExplorer = () => {
   );
 };
 
+EntityExplorer.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
+
 export default EntityExplorer;

@@ -78,7 +78,7 @@ export const DropTargetComponent = (props: DropTargetComponentProps) => {
   const { updateWidget, occupiedSpaces } = useContext(EditorContext);
 
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,

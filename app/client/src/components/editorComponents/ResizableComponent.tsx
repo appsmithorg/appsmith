@@ -56,10 +56,10 @@ export const ResizableComponent = (props: ResizableComponentProps) => {
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
-    (state: AppState) => state.ui.editor.selectedWidget,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
   );
   const focusedWidget = useSelector(
-    (state: AppState) => state.ui.editor.focusedWidget,
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
 
   const isDragging = useSelector(
