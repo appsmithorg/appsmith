@@ -14,6 +14,8 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
+const propertyPaneResponse = require("../fixtures/propertyPaneResponse.json");
+
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -1124,7 +1126,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/configs/name/propertyPane").as("getPropertyPane");
+  cy.route({
+    method: "GET",
+    url: "/api/v1/configs/name/propertyPane",
+    response: "fixture:fixtures/propertyPaneResponse.json",
+    delay: 100,
+  }).as("getPropertyPane");
+
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
