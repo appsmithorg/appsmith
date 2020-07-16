@@ -166,7 +166,9 @@ jobs:
         browser: chrome
         headless: true
         record: true
+        install: false
         command: BUILD_ID=${GITHUB_SHA} yarn run test:ci
+        working-directory: app/client
 
     # Upload the screenshots as artifacts if there's a failure
     - uses: actions/upload-artifact@v1
