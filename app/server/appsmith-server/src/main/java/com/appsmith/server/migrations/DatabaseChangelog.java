@@ -476,4 +476,34 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "017", id = "install-mysql-plugins", author = "")
+    public void mysqlPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin1 = new Plugin();
+        plugin1.setName("Mysql");
+        plugin1.setType(PluginType.DB);
+        plugin1.setPackageName("mysql-plugin");
+        plugin1.setUiComponent("DbEditorForm");
+        plugin1.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin1);
+        } catch (DuplicateKeyException e) {
+            log.warn("mysql-plugin already present in database.");
+        }
+
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                organization.setPlugins(new ArrayList<>());
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (!installedPlugins.contains(plugin1.getId())) {
+                organization.getPlugins()
+                        .add(new OrganizationPlugin(plugin1.getId(), OrganizationPluginStatus.FREE));
+            }
+            mongoTemplate.save(organization);
+        }
+    }
+
 }
