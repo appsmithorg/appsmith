@@ -2,7 +2,7 @@
 set -o errexit
 
 install_package() {
-
+    sudo apt-get -y update --quiet 
     apt-get install -y ntp bc python3-pip --quiet
     pip3 install boto3
     apt-get install -y apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools --quiet
