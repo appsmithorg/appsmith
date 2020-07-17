@@ -6,6 +6,11 @@ export interface PublishApplicationRequest {
   applicationId: string;
 }
 
+export interface ChangeAppViewAccessRequest {
+  applicationId: string;
+  publicAccess: boolean;
+}
+
 export interface PublishApplicationResponse extends ApiResponse {
   data: {};
 }
@@ -79,6 +84,8 @@ class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
   static createApplicationPath = (orgId: string) => `?orgId=${orgId}`;
+  static changeAppViewAccessPath = (applicationId: string) =>
+    `${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
     `${ApplicationApi.baseURL}${request.applicationId}/page/${request.pageId}/makeDefault`;
   static publishApplication(
@@ -120,6 +127,17 @@ class ApplicationApi extends Api {
   ): AxiosPromise<ApiResponse> {
     return Api.put(ApplicationApi.setDefaultPagePath(request));
   }
+
+  static changeAppViewAccess(
+    request: ChangeAppViewAccessRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(
+      ApplicationApi.baseURL +
+        ApplicationApi.changeAppViewAccessPath(request.applicationId),
+      { publicAccess: request.publicAccess },
+    );
+  }
+
   static deleteApplication(
     request: DeleteApplicationRequest,
   ): AxiosPromise<ApiResponse> {

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Policy;
@@ -54,6 +55,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final ActionRepository actionRepository;
+    private final EncryptionService encryptionService;
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -69,7 +71,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 ActionRepository actionRepository) {
+                                 ActionRepository actionRepository,
+                                 EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.organizationService = organizationService;
@@ -80,6 +83,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.actionRepository = actionRepository;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -198,6 +202,17 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null &&
+                datasource.getDatasourceConfiguration().getAuthentication() != null) {
+            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
+            // Encrypt password before saving
+            if (authentication.getPassword() != null) {
+                authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+            }
+            datasource.getDatasourceConfiguration().setAuthentication(authentication);
+        }
+
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
                 .zipWith(currentUserMono)
@@ -246,6 +261,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
+    }
+
+    @Override
+    public Mono<Datasource> findById(String id) {
+        return repository.findById(id);
     }
 
     @Override

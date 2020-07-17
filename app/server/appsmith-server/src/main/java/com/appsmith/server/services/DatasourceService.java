@@ -15,6 +15,8 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
+    Mono<Datasource> findById(String id);
+
     Set<String> extractKeysFromDatasource(Datasource datasource);
 
     Mono<Datasource> validateDatasource(Datasource datasource);

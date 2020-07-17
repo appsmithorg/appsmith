@@ -13,4 +13,9 @@ public class EmailConfig {
     @Value("${mail.enabled}")
     private boolean emailEnabled = true;
 
+    @Value("${mail.from}")
+    private String mailFrom;
+
+    @Value("${reply.to}")
+    private String replyTo;
 }
