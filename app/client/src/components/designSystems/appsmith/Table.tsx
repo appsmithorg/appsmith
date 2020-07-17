@@ -6,36 +6,38 @@ import {
   useResizeColumns,
   useRowSelect,
 } from "react-table";
-import { InputGroup } from "@blueprintjs/core";
 import { TableWrapper } from "./TableStyledWrappers";
 import {
   ReactTableColumnProps,
   ColumnMenuOptionProps,
 } from "./ReactTableComponent";
-import { TableColumnMenuPopup } from "./TableColumnMenu";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
+import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
+
+export enum TABLE_SIZES {
+  COLUMN_HEADER_HEIGHT = 52,
+  TABLE_HEADER_HEIGHT = 61,
+  ROW_HEIGHT = 52,
+}
 
 interface TableProps {
   width: number;
   height: number;
   pageSize: number;
   widgetId: string;
+  widgetName: string;
   searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
   data: object[];
-  showMenu: (columnIndex: number) => void;
   displayColumnActions: boolean;
   columnNameMap?: { [key: string]: string };
-  columnMenuOptions: ColumnMenuOptionProps[];
-  columnIndex: number;
-  columnAction: string;
-  onColumnNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleColumnNameUpdate: (columnIndex: number) => void;
+  getColumnMenu: (columnIndex: number) => ColumnMenuOptionProps[];
+  handleColumnNameUpdate: (columnIndex: number, columnName: string) => void;
   handleResizeColumn: Function;
   selectTableRow: (
     row: { original: object; index: number },
@@ -45,7 +47,6 @@ interface TableProps {
   updatePageNo: Function;
   nextPageClick: () => void;
   prevPageClick: () => void;
-  onKeyPress: (columnIndex: number, key: string) => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
   disableDrag: () => void;
@@ -67,7 +68,15 @@ function compare(a: any, b: any, operator: string) {
 }
 
 export const Table = (props: TableProps) => {
-  const { columns } = props;
+  const defaultColumn = React.useMemo(
+    () => ({
+      minWidth: 30,
+      width: 150,
+      maxWidth: 400,
+    }),
+    [],
+  );
+
   const data = React.useMemo(() => {
     return props.data.filter((item: { [key: string]: any }) => {
       return (
@@ -79,21 +88,12 @@ export const Table = (props: TableProps) => {
         )
       );
     });
-  }, [props.data]);
-  const defaultColumn = React.useMemo(
-    () => ({
-      minWidth: 30,
-      width: 150,
-      maxWidth: 400,
-    }),
-    [],
-  );
-
+  }, [JSON.stringify(props.data)]);
+  const columns = React.useMemo(() => props.columns, [
+    JSON.stringify(props.columns),
+  ]);
   const pageCount = Math.ceil(data.length / props.pageSize) || 1;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  // const filteredColumns = columns.filter((column: ReactTableColumnProps) => {
-  //   return !column.isHidden;
-  // });
   const {
     getTableProps,
     getTableBodyProps,
@@ -103,7 +103,7 @@ export const Table = (props: TableProps) => {
     pageOptions,
   } = useTable(
     {
-      columns,
+      columns: columns,
       data,
       defaultColumn,
       initialState: {
@@ -122,7 +122,7 @@ export const Table = (props: TableProps) => {
   let endIndex = startIndex + props.pageSize;
   if (props.serverSidePaginationEnabled) {
     startIndex = 0;
-    endIndex = data.length;
+    endIndex = props.data.length;
   }
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
@@ -133,6 +133,8 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        tableData={props.data}
+        tableColumns={props.columns}
         searchTableData={props.searchTableData}
         searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}
@@ -142,6 +144,7 @@ export const Table = (props: TableProps) => {
         pageCount={pageCount}
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
+        widgetName={props.widgetName}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";
@@ -150,92 +153,57 @@ export const Table = (props: TableProps) => {
         updateHiddenColumns={props.updateHiddenColumns}
         filter={props.filter}
         applyFilter={props.applyFilter}
+        displayColumnActions={props.displayColumnActions}
       />
       <div className={props.isLoading ? Classes.SKELETON : "tableWrap"}>
         <div {...getTableProps()} className="table">
           <div onMouseOver={props.disableDrag} onMouseLeave={props.enableDrag}>
             {headerGroups.map((headerGroup: any, index: number) => (
               <div
-                key={index}
                 {...headerGroup.getHeaderGroupProps()}
                 className="tr"
+                key={index}
               >
                 {headerGroup.headers.map((column: any, columnIndex: number) => {
-                  if (column.isResizing) {
-                    props.handleResizeColumn(
-                      columnIndex,
-                      column.getHeaderProps().style.width,
-                    );
-                  }
                   return (
-                    <div
+                    <TableHeaderCell
                       key={columnIndex}
-                      {...column.getHeaderProps()}
-                      className="th header-reorder"
-                    >
-                      {props.columnIndex === columnIndex &&
-                        props.columnAction === "rename_column" && (
-                          <InputGroup
-                            placeholder="Enter Column Name"
-                            onChange={props.onColumnNameChange}
-                            onKeyPress={event =>
-                              props.onKeyPress(columnIndex, event.key)
-                            }
-                            type="text"
-                            defaultValue={
-                              props.columnNameMap &&
-                              props.columnNameMap[column.id]
-                                ? props.columnNameMap[column.id]
-                                : column.id
-                            }
-                            className="input-group"
-                            onBlur={() =>
-                              props.handleColumnNameUpdate(columnIndex)
-                            }
-                          />
-                        )}
-                      {(props.columnIndex !== columnIndex ||
-                        (props.columnIndex === columnIndex &&
-                          "rename_column" !== props.columnAction)) && (
-                        <div
-                          className={
-                            !column.isHidden
-                              ? "draggable-header"
-                              : "hidden-header"
-                          }
-                        >
-                          {column.render("Header")}
-                        </div>
-                      )}
-                      {props.displayColumnActions && (
-                        <div className="column-menu">
-                          <TableColumnMenuPopup
-                            showMenu={props.showMenu}
-                            columnMenuOptions={props.columnMenuOptions}
-                            columnIndex={columnIndex}
-                          />
-                        </div>
-                      )}
-                      <div
-                        {...column.getResizerProps()}
-                        className={`resizer ${
-                          column.isResizing ? "isResizing" : ""
-                        }`}
-                      />
-                    </div>
+                      column={column}
+                      columnName={
+                        props.columnNameMap && props.columnNameMap[column.id]
+                          ? props.columnNameMap[column.id]
+                          : column.id
+                      }
+                      columnIndex={columnIndex}
+                      isHidden={column.isHidden}
+                      displayColumnActions={props.displayColumnActions}
+                      handleColumnNameUpdate={props.handleColumnNameUpdate}
+                      getColumnMenu={props.getColumnMenu}
+                      handleResizeColumn={props.handleResizeColumn}
+                    />
                   );
                 })}
               </div>
             ))}
             {headerGroups.length === 0 &&
-              renderEmptyRows(1, props.columns, props.width)}
+              renderEmptyRows(
+                1,
+                props.columns,
+                props.width,
+                subPage,
+                prepareRow,
+              )}
           </div>
-          <div {...getTableBodyProps()} className="tbody">
-            {subPage.map((row, index) => {
+          <div
+            {...getTableBodyProps()}
+            className={`tbody ${
+              props.pageSize > subPage.length ? "no-scroll" : ""
+            }`}
+          >
+            {subPage.map((row, rowIndex) => {
               prepareRow(row);
               return (
                 <div
-                  key={index}
                   {...row.getRowProps()}
                   className={
                     "tr" +
@@ -245,15 +213,14 @@ export const Table = (props: TableProps) => {
                     row.toggleRowSelected();
                     props.selectTableRow(row, row.index === selectedRowIndex);
                   }}
+                  key={rowIndex}
                 >
                   {row.cells.map((cell, cellIndex) => {
                     return (
                       <div
-                        key={cellIndex}
                         {...cell.getCellProps()}
                         className="td"
-                        data-rowindex={index}
-                        data-colindex={cellIndex}
+                        key={cellIndex}
                       >
                         {cell.render("Cell")}
                       </div>
@@ -267,6 +234,8 @@ export const Table = (props: TableProps) => {
                 props.pageSize - subPage.length,
                 props.columns,
                 props.width,
+                subPage,
+                prepareRow,
               )}
           </div>
         </div>
@@ -276,44 +245,3 @@ export const Table = (props: TableProps) => {
 };
 
 export default Table;
-
-const renderEmptyRows = (
-  rowCount: number,
-  columns: any,
-  tableWidth: number,
-) => {
-  const rows: string[] = new Array(rowCount).fill("");
-  const tableColumns = columns.length
-    ? columns
-    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
-  return (
-    <React.Fragment>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  key={colIndex}
-                  className="td"
-                  style={{
-                    width: column.width + "px",
-                    boxSizing: "border-box",
-                    flex: `${column.width} 0 auto`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </React.Fragment>
-  );
-};

@@ -9,7 +9,6 @@ import MongoDB from "assets/images/MongoDB.png";
 
 export const getPluginImage = (plugins: Plugin[], pluginId?: string) => {
   const plugin = plugins.find(plugin => plugin.id === pluginId);
-  console.log({ plugins, pluginId, plugin });
   switch (plugin?.packageName) {
     case PLUGIN_PACKAGE_MONGO:
       return MongoDB;

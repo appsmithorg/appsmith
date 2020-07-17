@@ -9,9 +9,7 @@
 - `yarn` Install packages and run setup scripts
 - `yarn start` Deploy locally
 
-
 > For more details on how to run this locally, please visit: [Notion Doc](https://www.notion.so/appsmith/How-to-run-the-code-e031545454874419b9f72cd51feb90ff)
-
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -81,3 +79,5 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+

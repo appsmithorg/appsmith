@@ -14,6 +14,7 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const ApiEditor = require("../locators/ApiEditor.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
+
 let pageidcopy = " ";
 
 Cypress.Commands.add("CreateApp", appname => {
@@ -178,8 +179,7 @@ Cypress.Commands.add("CreateAPI", apiname => {
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.EditApiName).should("be.visible");
-  cy.get(apiwidget.EditApiName).click();
+  cy.get(apiwidget.apiTxt).click();
   cy.get(apiwidget.apiTxt)
     .clear()
     .type(apiname)
@@ -538,9 +538,23 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.get(innercss).should("have.text", text);
 });
 
+Cypress.Commands.add("EvaluateDataType", dataType => {
+  cy.get(commonlocators.evaluatedType)
+    .should("be.visible")
+    .contains(dataType);
+});
+
+Cypress.Commands.add("EvaluateCurrentValue", currentValue => {
+  cy.get(commonlocators.evaluatedCurrentValue)
+    .should("be.visible")
+    .contains(currentValue);
+});
+
 Cypress.Commands.add("PublishtheApp", () => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
+  // Wait before publish
+  cy.wait(2000);
   cy.xpath(homePage.homePageID).contains("All changes saved");
   cy.get(homePage.publishButton).click();
   cy.wait("@publishApp");
@@ -607,6 +621,7 @@ Cypress.Commands.add("testJsontext", (endp, value) => {
         parseSpecialCharSequences: false,
       });
   });
+  cy.wait(200);
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
@@ -1030,7 +1045,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
       });
   });
 
-  cy.get(ApiEditor.dataSourceField).click();
+  cy.get(ApiEditor.dataSourceField)
+    .click({ force: true })
+    .type(url, { parseSpecialCharSequences: false }, { force: true });
   cy.contains(url).click({
     force: true,
   });
@@ -1107,7 +1124,14 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/configs/name/propertyPane").as("getPropertyPane");
+  cy.route({
+    method: "GET",
+    url: "**/api/v1/configs/name/propertyPane",
+    status: 200,
+    response: "fixture:../fixtures/propertyPaneResponse.json",
+    delay: 100,
+  }).as("getPropertyPane");
+
   cy.route("GET", "/api/v1/datasources").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForApp");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
@@ -1239,7 +1263,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", runTestCss => {
     .siblings("span")
     .invoke("text")
     .then(tabData => {
-      const respBody = tabData;
+      const respBody = tabData.match(/"(.*)"/)[0];
       localStorage.setItem("respBody", respBody);
       cy.log(respBody);
       cy.get(pages.pagesIcon).click({ force: true });

@@ -12,9 +12,12 @@ const initialState: OrgReduxState = {
     isFetchAllRoles: false,
     isFetchAllUsers: false,
   },
-  currentOrgId: "",
   orgUsers: [],
   orgRoles: [],
+  currentOrg: {
+    id: "",
+    name: "",
+  },
 };
 
 const orgReducer = createReducer(initialState, {
@@ -104,7 +107,7 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      if (user.username == action.payload.username) {
+      if (user.username === action.payload.username) {
         return {
           ...user,
           isChangingRole: true,
@@ -119,7 +122,7 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ username: string }>,
   ) => {
     const _orgUsers = state.orgUsers.map((user: OrgUser) => {
-      if (user.username == action.payload.username) {
+      if (user.username === action.payload.username) {
         return {
           ...user,
           isDeleting: true,
@@ -160,15 +163,17 @@ const orgReducer = createReducer(initialState, {
     action: ReduxAction<{ orgId: string }>,
   ) => ({
     ...state,
-    currentOrgId: action.payload.orgId,
+    currentOrg: {
+      ...state.currentOrg,
+      id: action.payload.orgId,
+    },
   }),
-
-  [ReduxActionTypes.FETCH_ORGS_SUCCESS]: (
+  [ReduxActionTypes.FETCH_ORG_SUCCESS]: (
     state: OrgReduxState,
-    action: ReduxAction<Org[]>,
+    action: ReduxAction<Org>,
   ) => ({
     ...state,
-    list: action.payload,
+    currentOrg: action.payload,
   }),
 });
 
@@ -182,7 +187,7 @@ export interface OrgReduxState {
   };
   orgUsers: OrgUser[];
   orgRoles: any;
-  currentOrgId: string;
+  currentOrg: Org;
 }
 
 export default orgReducer;

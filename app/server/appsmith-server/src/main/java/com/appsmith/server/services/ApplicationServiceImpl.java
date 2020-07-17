@@ -1,17 +1,22 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +39,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 
@@ -48,6 +54,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final SessionUserService sessionUserService;
     private final OrganizationService organizationService;
     private final UserService userService;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -59,12 +66,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PageRepository pageRepository,
                                   SessionUserService sessionUserService,
                                   OrganizationService organizationService,
-                                  UserService userService) {
+                                  UserService userService,
+                                  PolicyUtils policyUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pageRepository = pageRepository;
         this.sessionUserService = sessionUserService;
         this.organizationService = organizationService;
         this.userService = userService;
+        this.policyUtils = policyUtils;
     }
 
     @Override
@@ -105,6 +114,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> save(Application application) {
         return repository.save(application);
+    }
+
+    @Override
+    public Mono<Application> create(Application object) {
+        throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
+    }
+
+    @Override
+    public Mono<Application> createDefault(Application object) {
+        return super.create(object);
     }
 
     @Override
@@ -230,5 +249,60 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                 return userHomepageDTO;
                             });
                 });
+    }
+
+    @Override
+    public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
+        return repository
+                .findById(id, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, id)))
+                .flatMap(application -> {
+
+                    if (application.getIsPublic().equals(applicationAccessDTO.getPublicAccess())) {
+                        // No change. The required public access is the same as current public access. Do nothing
+                        return Mono.just(application);
+                    }
+
+                    if (application.getIsPublic() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+
+                    application.setIsPublic(applicationAccessDTO.getPublicAccess());
+                    return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
+                });
+    }
+
+    private Mono<Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
+        AclPermission permission = READ_APPLICATIONS;
+
+        User user = new User();
+        user.setName(FieldName.ANONYMOUS_USER);
+        user.setEmail(FieldName.ANONYMOUS_USER);
+        user.setIsAnonymous(true);
+
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(permission), user);
+        Map<String, Policy> pagePolicyMap = policyUtils.generatePagePoliciesFromApplicationPolicies(applicationPolicyMap, user);
+        Map<String, Policy> actionPolicyMap = policyUtils.generateActionPoliciesFromPagePolicies(pagePolicyMap, user);
+
+        Flux<Page> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+
+        Flux<Action> updatedActionsFlux = updatedPagesFlux
+                .flatMap(page -> policyUtils.updateWithPagePermissionsToAllItsActions(page.getId(), actionPolicyMap, isPublic));
+
+        return updatedActionsFlux
+                .collectList()
+                .thenReturn(application)
+                .flatMap(app -> {
+                    Application updatedApplication;
+
+                    if (isPublic) {
+                        updatedApplication = (Application) policyUtils.addPoliciesToExistingObject(applicationPolicyMap, (Application) application);
+                    } else {
+                        updatedApplication = (Application) policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, (Application) application);
+                    }
+
+                    return repository.save(updatedApplication);
+                });
+
     }
 }

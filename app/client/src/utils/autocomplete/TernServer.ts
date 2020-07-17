@@ -6,6 +6,10 @@ import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
+import {
+  getDynamicStringSegments,
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
 
 const DEFS = [ecma, lodash];
 const bigDoc = 250;
@@ -70,6 +74,79 @@ class TernServer {
     this.server.addDefs(def, true);
   }
 
+  requestCallback(
+    error: any,
+    data: any,
+    cm: CodeMirror.Editor,
+    resolve: Function,
+  ) {
+    if (error) return this.showError(cm, error);
+    if (data.completions.length === 0) {
+      return this.showError(cm, "No suggestions");
+    }
+    const doc = this.findDoc(cm.getDoc());
+    const cursor = cm.getCursor();
+    const lineValue = this.lineValue(doc);
+    const focusedValue = this.getFocusedDynamicValue(doc);
+    const index = lineValue.indexOf(focusedValue);
+    let completions: Completion[] = [];
+    let after = "";
+    const { start, end } = data;
+    const from = {
+      ...start,
+      ch: start.ch + index,
+      line: cursor.line,
+    };
+    const to = {
+      ...end,
+      ch: end.ch + index,
+      line: cursor.line,
+    };
+    if (
+      cm.getRange(Pos(from.line, from.ch - 2), from) === '["' &&
+      cm.getRange(to, Pos(to.line, to.ch + 2)) !== '"]'
+    ) {
+      after = '"]';
+    }
+    for (let i = 0; i < data.completions.length; ++i) {
+      const completion = data.completions[i];
+      let className = this.typeToIcon(completion.type);
+      if (data.guess) className += " " + cls + "guess";
+      completions.push({
+        text: completion.name + after,
+        displayText: completion.displayName || completion.name,
+        className: className,
+        data: completion,
+        origin: completion.origin,
+      });
+    }
+    completions = this.sortCompletions(completions);
+
+    const obj = { from: from, to: to, list: completions };
+    let tooltip: HTMLElement | undefined = undefined;
+    CodeMirror.on(obj, "close", () => this.remove(tooltip));
+    CodeMirror.on(obj, "update", () => this.remove(tooltip));
+    CodeMirror.on(
+      obj,
+      "select",
+      (cur: { data: { doc: string } }, node: any) => {
+        this.remove(tooltip);
+        const content = cur.data.doc;
+        if (content) {
+          tooltip = this.makeTooltip(
+            node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+            node.getBoundingClientRect().top + window.pageYOffset,
+            content,
+          );
+          tooltip.className += " " + cls + "hint-doc";
+        }
+      },
+    );
+    resolve(obj);
+
+    return obj;
+  }
+
   getHint(cm: CodeMirror.Editor) {
     return new Promise(resolve => {
       this.request(
@@ -82,58 +159,7 @@ class TernServer {
           origins: true,
           caseInsensitive: true,
         },
-        (error, data) => {
-          if (error) return this.showError(cm, error);
-          if (data.completions.length === 0) {
-            return this.showError(cm, "No suggestions");
-          }
-          let completions: Completion[] = [];
-          let after = "";
-          const from = data.start;
-          const to = data.end;
-          if (
-            cm.getRange(Pos(from.line, from.ch - 2), from) === '["' &&
-            cm.getRange(to, Pos(to.line, to.ch + 2)) !== '"]'
-          ) {
-            after = '"]';
-          }
-          for (let i = 0; i < data.completions.length; ++i) {
-            const completion = data.completions[i];
-            let className = this.typeToIcon(completion.type);
-            if (data.guess) className += " " + cls + "guess";
-            completions.push({
-              text: completion.name + after,
-              displayText: completion.displayName || completion.name,
-              className: className,
-              data: completion,
-              origin: completion.origin,
-            });
-          }
-          completions = this.sortCompletions(completions);
-
-          const obj = { from: from, to: to, list: completions };
-          let tooltip: HTMLElement | undefined = undefined;
-          CodeMirror.on(obj, "close", () => this.remove(tooltip));
-          CodeMirror.on(obj, "update", () => this.remove(tooltip));
-          CodeMirror.on(
-            obj,
-            "select",
-            (cur: { data: { doc: string } }, node: any) => {
-              this.remove(tooltip);
-              const content = cur.data.doc;
-              if (content) {
-                tooltip = this.makeTooltip(
-                  node.parentNode.getBoundingClientRect().right +
-                    window.pageXOffset,
-                  node.getBoundingClientRect().top + window.pageYOffset,
-                  content,
-                );
-                tooltip.className += " " + cls + "hint-doc";
-              }
-            },
-          );
-          resolve(obj);
-        },
+        (error, data) => this.requestCallback(error, data, cm, resolve),
       );
     });
   }
@@ -231,7 +257,7 @@ class TernServer {
 
   addDoc(name: string, doc: CodeMirror.Doc) {
     const data = { doc: doc, name: name, changed: null };
-    this.server.addFile(name, this.docValue(data));
+    this.server.addFile(name, this.getFocusedDynamicValue(data));
     CodeMirror.on(doc, "change", this.trackChange.bind(this));
     return (this.docs[name] = data);
   }
@@ -258,7 +284,19 @@ class TernServer {
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     if (!query.end) {
-      query.end = pos || doc.doc.getCursor("end");
+      const lineValue = this.lineValue(doc);
+      const focusedValue = this.getFocusedDynamicValue(doc);
+      const index = lineValue.indexOf(focusedValue);
+
+      const positions = pos || doc.doc.getCursor("end");
+      const queryChPosition = positions.ch - index;
+
+      query.end = {
+        ...positions,
+        line: 0,
+        ch: queryChPosition,
+      };
+
       if (doc.doc.somethingSelected()) {
         query.start = doc.doc.getCursor("start");
       }
@@ -283,7 +321,7 @@ class TernServer {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.docValue(doc),
+          text: this.getFocusedDynamicValue(doc),
         });
         query.file = doc.name;
         doc.changed = null;
@@ -297,11 +335,12 @@ class TernServer {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.docValue(cur),
+          text: this.getFocusedDynamicValue(cur),
         });
         cur.changed = null;
       }
     }
+
     return { query: query, files: files };
   }
 
@@ -341,8 +380,17 @@ class TernServer {
 
   sendDoc(doc: TernDoc) {
     this.server.request(
-      // @ts-ignore
-      { files: [{ type: "full", name: doc.name, text: this.docValue(doc) }] },
+      {
+        // @ts-ignore
+        files: [
+          // @ts-ignore
+          {
+            type: "full",
+            name: doc.name,
+            text: this.getFocusedDynamicValue(doc),
+          },
+        ],
+      },
       function(error: Error) {
         if (error) window.console.error(error);
         else doc.changed = null;
@@ -350,8 +398,33 @@ class TernServer {
     );
   }
 
+  lineValue(doc: TernDoc) {
+    const cursor = doc.doc.getCursor();
+
+    return doc.doc.getLine(cursor.line);
+  }
+
   docValue(doc: TernDoc) {
     return doc.doc.getValue();
+  }
+
+  getFocusedDynamicValue(doc: TernDoc) {
+    const cursor = doc.doc.getCursor();
+    const value = this.lineValue(doc);
+    const stringSegments = getDynamicStringSegments(value);
+    const dynamicStrings = stringSegments.filter(segment => {
+      if (isDynamicValue(segment)) {
+        const index = value.indexOf(segment);
+
+        if (cursor.ch >= index && cursor.ch <= index + segment.length) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    return dynamicStrings.length ? dynamicStrings[0] : value;
   }
 
   getFragmentAround(

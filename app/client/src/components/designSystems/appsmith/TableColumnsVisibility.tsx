@@ -5,24 +5,15 @@ import {
   PopoverInteractionKind,
   Position,
   Icon,
+  Tooltip,
 } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ReactComponent as VisibilityIcon } from "assets/icons/control/columns-visibility.svg";
+import { ReactComponent as VisibleIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactTableColumnProps } from "components/designSystems/appsmith/ReactTableComponent";
 import Button from "components/editorComponents/Button";
-
-const TableIconWrapper = styled.div<{ selected: boolean }>`
-  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
-  box-shadow: ${props =>
-    props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
-  width: 48px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 const DropDownWrapper = styled.div`
   display: flex;
@@ -74,8 +65,30 @@ interface TableColumnsVisibilityProps {
   updateHiddenColumns: (hiddenColumns?: string[]) => void;
 }
 
+const VisibilityIcon = (props: { visible?: boolean }) => {
+  return props.visible ? (
+    <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+  ) : (
+    <VisibleIcon />
+  );
+};
+
 const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
   const [selected, selectMenu] = React.useState(false);
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <VisibilityIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
+  const columns = props.columns.sort(
+    (a: ReactTableColumnProps, b: ReactTableColumnProps) => {
+      return a.accessor > b.accessor ? 1 : b.accessor > a.accessor ? -1 : 0;
+    },
+  );
   return (
     <Popover
       minimal
@@ -89,20 +102,27 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
     >
       <TableIconWrapper
         selected={selected}
-        onClick={() => {
+        onClick={e => {
           selectMenu(true);
         }}
       >
-        <IconWrapper
-          width={20}
-          height={20}
-          color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+        <Tooltip
+          autoFocus={false}
+          hoverOpenDelay={1000}
+          content="Hidden Fields"
+          position="top"
         >
-          <VisibilityIcon />
-        </IconWrapper>
+          <IconWrapper
+            width={20}
+            height={20}
+            color={selected ? Colors.OXFORD_BLUE : Colors.CADET_BLUE}
+          >
+            <VisibilityIcon />
+          </IconWrapper>
+        </Tooltip>
       </TableIconWrapper>
       <DropDownWrapper>
-        {props.columns.map((option: ReactTableColumnProps, index: number) => (
+        {columns.map((option: ReactTableColumnProps, index: number) => (
           <OptionWrapper
             selected={!option.isHidden}
             key={index}
@@ -110,12 +130,14 @@ const TableColumnsVisibility = (props: TableColumnsVisibilityProps) => {
               const hiddenColumns = props.hiddenColumns || [];
               if (!option.isHidden) {
                 hiddenColumns.push(option.accessor);
+              } else {
+                hiddenColumns.splice(hiddenColumns.indexOf(option.accessor), 1);
               }
               props.updateHiddenColumns(hiddenColumns);
             }}
           >
             <div className="option-title">{option.Header}</div>
-            <Icon icon="eye-open" iconSize={20} color={Colors.OXFORD_BLUE} />
+            <VisibilityIcon visible={!option.isHidden} />
           </OptionWrapper>
         ))}
         <ButtonWrapper className={Classes.POPOVER_DISMISS}>

@@ -3,6 +3,7 @@
     "searchInput": "input[type='text']",
     "appEditIcon": ".t--application-edit-link",
     "publishButton":".t--application-publish-btn",
+    "shareButton":".t--application-share-btn",
     "publishCrossButton":"span[icon='small-cross']",
     "homePageID":"//div[@id='root']",
     "appMoreIcon":".bp3-popover-wrapper.more .bp3-popover-target",
