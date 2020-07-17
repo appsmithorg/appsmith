@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit
 
 install_package() {
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit
 
 read -p 'Enter your domain / subdomain name (example.com / app.example.com): ' custom_domain
 

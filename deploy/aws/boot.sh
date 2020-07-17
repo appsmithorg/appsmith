@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -o errexit
 # Check if Lock File exists, if not create it and set trap on exit
 if { set -C; 2>/dev/null >/home/ubuntu/.appsmith.lock; }; then
     trap "rm -f /home/ubuntu/.appsmith.lock" EXIT
@@ -8,12 +9,11 @@ else
 fi
 
 start_docker() {
-    if [ `systemctl is-active docker.service` == "inactive" ];then
+    if [ `sudo systemctl is-active docker.service` == "inactive" ];then
         echo "Starting docker"
-        `systemctl start docker.service`
+        sudo systemctl start docker.service
     fi
 }
-
 
 # generate random string
 generate_random_string() {
@@ -21,7 +21,9 @@ generate_random_string() {
     echo $value
 }
 
-install_dir="/home/ubuntu/appsmith/"
+start_docker
+
+install_dir="/home/ubuntu/appsmith"
 
 if [ ! -d $install_dir ];then
     mkdir -p $install_dir
@@ -42,12 +44,10 @@ if [[ -z $custom_domain ]]; then
 fi
 
 script_dir="/script"
-if [ ! -d $install_dir$script_dir ];then
-    mkdir -p $install_dir$script_dir
-fi
-chown -R ubuntu:ubuntu $install_dir$script_dir
+mkdir -p "$install_dir/$script_dir"
+chown -R ubuntu:ubuntu "$install_dir/$script_dir"
 
-cd $install_dir$script_dir
+cd $install_dir/$script_dir
 mkdir -p template
 cd template
 echo $PWD
@@ -85,7 +85,7 @@ fileInfo[/encryption.env]="encryption.env"
 
 for f in ${!fileInfo[@]}
 do
-    mv -f  ${fileInfo[$f]} $install_dir$f
+    mv -f  ${fileInfo[$f]} $install_dir/$f
 done
 
 cd $install_dir
