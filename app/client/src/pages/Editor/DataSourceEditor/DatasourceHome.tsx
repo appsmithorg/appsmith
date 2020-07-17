@@ -9,7 +9,6 @@ import {
 } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import ImageAlt from "assets/images/placeholder-image.svg";
 import {
   selectPlugin,
   createDatasourceFromForm,

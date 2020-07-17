@@ -9,7 +9,6 @@ import EditorSidebar from "pages/Editor/EditorSidebar";
 import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
 import { QueryEditorRouteParams } from "constants/routes";
 import { Datasource } from "api/DatasourcesApi";
-import ImageAlt from "assets/images/placeholder-image.svg";
 import {
   createActionRequest,
   moveActionRequest,

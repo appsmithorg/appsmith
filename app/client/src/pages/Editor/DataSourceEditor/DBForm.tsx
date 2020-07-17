@@ -9,7 +9,6 @@ import history from "utils/history";
 import FormLabel from "components/editorComponents/FormLabel";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import ImageAlt from "assets/images/placeholder-image.svg";
 import { ControlProps } from "components/formControls/BaseControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
@@ -302,10 +301,7 @@ class DatasourceDBEditor extends React.Component<
         </span>
         <br />
         <FormTitleContainer>
-          <PluginImage
-            src={this.props.pluginImage || ImageAlt}
-            alt="Datasource"
-          />
+          <PluginImage src={this.props.pluginImage} alt="Datasource" />
           <Field
             name="name"
             component={FormTitle}
