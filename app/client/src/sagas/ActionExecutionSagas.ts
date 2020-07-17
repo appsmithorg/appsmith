@@ -143,35 +143,68 @@ export function* evaluateDynamicBoundValueSaga(path: string): any {
   return dynamicResult.result;
 }
 
+const EXECUTION_PARAM_PATH = "this.params";
+const getExecutionParamPath = (key: string) => `${EXECUTION_PARAM_PATH}.${key}`;
+
 export function* getActionParams(
-  jsonPathKeys: string[] | undefined,
+  bindings: string[] | undefined,
   executionParams?: Record<string, any>,
 ) {
-  if (_.isNil(jsonPathKeys)) return [];
-  let dataTreeKeys = jsonPathKeys;
-  const dynamicBindings: Record<string, string> = {};
+  if (_.isNil(bindings)) return [];
+  let dataTreeBindings = bindings;
+
   if (executionParams && Object.keys(executionParams).length) {
-    const paramKeys = Object.keys(executionParams).map(
-      key => `this.params.${key}`,
+    // List of params in the path format
+    const executionParamsPathList = Object.keys(executionParams).map(
+      getExecutionParamPath,
     );
-    const existingKeys = jsonPathKeys.filter(key => paramKeys.includes(key));
-    dataTreeKeys = jsonPathKeys.filter(key => !paramKeys.includes(key));
-    existingKeys.forEach(key => {
-      const paramName = key.substring(12);
-      dynamicBindings[key] = executionParams[paramName];
+    const paramSearchRegex = new RegExp(executionParamsPathList.join("|"), "g");
+    // Bindings with references to execution params
+    const executionBindings = bindings.filter(binding =>
+      paramSearchRegex.test(binding),
+    );
+
+    // Replace references with values
+    const replacedBindings = executionBindings.map(binding => {
+      let replaced = binding;
+      const matches = binding.match(paramSearchRegex);
+      if (matches && matches.length) {
+        matches.forEach(match => {
+          // we add one for substring index to account for '.'
+          const paramKey = match.substring(EXECUTION_PARAM_PATH.length + 1);
+          let paramValue = executionParams[paramKey];
+          if (paramValue) {
+            if (typeof paramValue === "object") {
+              paramValue = JSON.stringify(paramValue);
+            }
+            replaced = replaced.replace(match, paramValue);
+          }
+        });
+      }
+      return replaced;
+    });
+    // Replace binding with replaced bindings for evaluation
+    dataTreeBindings = dataTreeBindings.map(key => {
+      if (executionBindings.includes(key)) {
+        return replacedBindings[executionBindings.indexOf(key)];
+      }
+      return key;
     });
   }
+  // Evaluate all values
   const values: any = yield all(
-    dataTreeKeys.map((jsonPath: string) => {
-      return call(evaluateDynamicBoundValueSaga, jsonPath);
+    dataTreeBindings.map((binding: string) => {
+      return call(evaluateDynamicBoundValueSaga, binding);
     }),
   );
-  dataTreeKeys.forEach((key, i) => {
+  // convert to object and transform non string values
+  const actionParams: Record<string, string> = {};
+  bindings.forEach((key, i) => {
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
-    dynamicBindings[key] = value;
+    actionParams[key] = value;
   });
-  return mapToPropList(dynamicBindings);
+  return mapToPropList(actionParams);
 }
 
 export function extractBindingsFromAction(action: Action) {
