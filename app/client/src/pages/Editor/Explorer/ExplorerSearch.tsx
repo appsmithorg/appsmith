@@ -28,7 +28,7 @@ export const ExplorerSearch = forwardRef(
   (props: {}, ref: Ref<HTMLInputElement>) => {
     return (
       <ExplorerSearchWrapper>
-        <Icon icon="search" iconSize={16} />
+        <Icon icon="search" iconSize={12} />
         <input type="text" placeholder="Filter entities..." ref={ref} />
       </ExplorerSearchWrapper>
     );
