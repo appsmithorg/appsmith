@@ -42,6 +42,8 @@ import {
 const QueryFormContainer = styled.div`
   padding: 20px 32px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - ${props => props.theme.headerHeight});
   a {
     font-size: 14px;
@@ -439,21 +441,25 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
             pluginId={pluginId}
           />
         ) : isSQL ? (
-          <DynamicTextField
-            size={EditorSize.EXTENDED}
-            name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.body`}
-            className="textAreaStyles"
-            mode={EditorModes.SQL_WITH_BINDING}
-          />
+          <div>
+            <DynamicTextField
+              size={EditorSize.EXTENDED}
+              name="actionConfiguration.body"
+              dataTreePath={`${props.actionName}.config.body`}
+              className="textAreaStyles"
+              mode={EditorModes.SQL_WITH_BINDING}
+            />
+          </div>
         ) : (
-          <DynamicTextField
-            size={EditorSize.EXTENDED}
-            name="actionConfiguration.body"
-            dataTreePath={`${props.actionName}.config.body`}
-            className="textAreaStyles"
-            mode={EditorModes.JSON_WITH_BINDING}
-          />
+          <div>
+            <DynamicTextField
+              size={EditorSize.EXTENDED}
+              name="actionConfiguration.body"
+              dataTreePath={`${props.actionName}.config.body`}
+              className="textAreaStyles"
+              mode={EditorModes.JSON_WITH_BINDING}
+            />
+          </div>
         )}
         <StyledCheckbox
           intent="primary"
@@ -489,13 +495,12 @@ const QueryEditorForm: React.FC<Props> = (props: Props) => {
       )}
 
       {!error && output && dataSources.length && (
-        <ResponseContainer>
+        <>
           <p className="statementTextArea">
             {output.length ? "Query response" : "No data records to display"}
           </p>
-
           {isSQL ? <Table data={output} /> : <JSONViewer src={output} />}
-        </ResponseContainer>
+        </>
       )}
     </QueryFormContainer>
   );
