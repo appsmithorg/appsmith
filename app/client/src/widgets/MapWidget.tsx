@@ -118,17 +118,18 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         {!google.enabled && (
           <DisabledContainer>
             <h1>{"Map Widget disabled"}</h1>
+            <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
-              {"Map widget requires a Google Maps "}
+              {"See our"}
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+                href="https://docs.appsmith.com/third-party-services/google-maps"
               >
-                API Key
+                {"documentation"}
               </a>
+              {"to configure API Keys"}
             </p>
-            <p>{"Refer our Docs to configure API Keys"}</p>
           </DisabledContainer>
         )}
         {google.enabled && (
