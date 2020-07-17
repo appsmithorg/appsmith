@@ -8,6 +8,8 @@ import {
   getDatasourceEntities,
   ExplorerURLParams,
 } from "./helpers";
+import { getColorWithOpacity } from "constants/DefaultTheme";
+
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { ExplorerTitle } from "./ExplorerTitle";
 import Entity from "./Entity";
@@ -25,6 +27,23 @@ const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
   height: 100%;
   overflow-y: auto;
+  scrollbar-color: ${props => props.theme.colors.paneCard}
+    ${props => props.theme.colors.paneBG};
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px
+      ${props => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.colors.paneCard};
+    outline: 1px solid ${props => props.theme.paneText};
+    border-radius: ${props => props.theme.radii[1]}px;
+  }
 `;
 
 const EntityExplorer = () => {
@@ -62,7 +81,7 @@ const EntityExplorer = () => {
       pages.map(page => page.pageName),
     );
     dispatch(createPage(params.applicationId, name));
-  }, [dispatch]);
+  }, [dispatch, pages, params.applicationId]);
 
   return (
     <Wrapper>

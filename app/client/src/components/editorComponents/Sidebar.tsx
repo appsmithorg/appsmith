@@ -15,7 +15,6 @@ import {
   EXPLORER_URL,
   getProviderTemplatesURL,
 } from "constants/routes";
-
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import PageListSidebar from "pages/Editor/PageListSidebar";
 import ExplorerSidebar from "pages/Editor/Explorer";
