@@ -68,9 +68,6 @@ const StyledTableWrapped = styled(TableWrapper)`
     .tbody {
       overflow: auto;
       height: auto;
-      max-height: calc(
-        100vh - (100vh / 3) - ${props => props.theme.headerHeight}
-      );
     }
   }
 `;

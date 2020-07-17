@@ -1,14 +1,11 @@
 import React, { useEffect } from "react";
+import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import { Breadcrumbs, IBreadcrumbProps } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  getCurrentOrg,
-  getCurrentOrgId,
-} from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
+import { fetchApplication } from "actions/applicationActions";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 import {
   BASE_URL,
   APPLICATIONS_URL,
@@ -64,10 +61,9 @@ const ShareButton = styled.div`
   justify-content: flex-end;
 `;
 
-type EditorHeaderProps = {
-  currentOrg: Org;
-  currentOrgId: string;
-  fetchCurrentOrg: (orgId: string) => void;
+type EditorHeaderProps = RouteComponentProps<{ applicationId: string }> & {
+  fetchApplication: (applicationId: string) => void;
+  currentApplicationDetails?: ApplicationPayload;
   isSaving?: boolean;
   pageSaveError?: boolean;
   pageName?: string;
@@ -90,11 +86,17 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     page => page.pageId === props.currentPageId,
   )?.pageName;
 
-  const { fetchCurrentOrg, currentOrgId } = props;
+  const {
+    match: {
+      params: { applicationId },
+    },
+    currentApplicationDetails,
+    fetchApplication,
+  } = props;
 
   useEffect(() => {
-    fetchCurrentOrg(currentOrgId);
-  }, [fetchCurrentOrg, currentOrgId]);
+    fetchApplication(applicationId);
+  }, [fetchApplication, applicationId]);
 
   const pageSelectorData: CustomizedDropdownProps = {
     sections: [
@@ -177,7 +179,11 @@ export const EditorHeader = (props: EditorHeaderProps) => {
             />
           }
           Form={ShareApplicationForm}
-          title={props.currentOrg.name}
+          title={
+            currentApplicationDetails
+              ? currentApplicationDetails.name
+              : "Share Application"
+          }
         />
       </ShareButton>
 
@@ -199,18 +205,15 @@ export const EditorHeader = (props: EditorHeaderProps) => {
 };
 
 const mapStateToProps = (state: AppState) => ({
-  currentOrg: getCurrentOrg(state),
-  currentOrgId: getCurrentOrgId(state),
+  currentApplicationDetails: state.ui.applications.currentApplication,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  fetchCurrentOrg: (orgId: string) =>
-    dispatch({
-      type: ReduxActionTypes.FETCH_CURRENT_ORG,
-      payload: {
-        orgId,
-      },
-    }),
+  fetchApplication: (applicationId: string) => {
+    return dispatch(fetchApplication(applicationId));
+  },
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(EditorHeader),
+);
