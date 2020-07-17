@@ -77,7 +77,7 @@ echo "Generating the configuration files from the templates"
 
 declare -A fileInfo
 
-fileInfo[/data/nginx/app.conf]="nginx_app.conf"
+fileInfo[/data/nginx/app.conf.template]="nginx_app.conf"
 fileInfo[/docker-compose.yml]="docker-compose.yml"
 fileInfo[/data/mongo/init.js]="mongo-init.js"
 fileInfo[/docker.env]="docker.env"
