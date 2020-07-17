@@ -10,8 +10,8 @@ cat > docker.env  << EOF
 
 # ***** Email **********
 APPSMITH_MAIL_ENABLED=false
-# APPSMITH_MAIL_FROM=hello@appsmith.com
-# APPSMITH_REPLY_TO=hello@appsmith.com
+# APPSMITH_MAIL_FROM=YOUR_VERIFIED_EMAIL_ID
+# APPSMITH_REPLY_TO=YOUR_VERIFIED_EMAIL_ID
 # APPSMITH_MAIL_HOST=
 # APPSMITH_MAIL_PORT=
 # ***** Set to true if providing a TLS port ******
