@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit
+#set -o errexit
 # Check if Lock File exists, if not create it and set trap on exit
 if { set -C; 2>/dev/null >/home/ubuntu/.appsmith.lock; }; then
     trap "rm -f /home/ubuntu/.appsmith.lock" EXIT
