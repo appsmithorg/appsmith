@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -o errexit
+set -o errexit
 
 install_package() {
     sudo apt-get -y update --quiet 
