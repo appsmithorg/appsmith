@@ -1,4 +1,5 @@
-import React, { useRef, MutableRefObject } from "react";
+import React, { useRef, MutableRefObject, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { noop } from "lodash";
@@ -17,6 +18,8 @@ import Divider from "components/editorComponents/Divider";
 import { GenericAction } from "entities/Action";
 import { useFilteredEntities } from "./hooks";
 import Search from "./ExplorerSearch";
+import { createPage } from "actions/pageActions";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const Wrapper = styled.div`
   padding: ${props => props.theme.spaces[3]}px;
@@ -52,6 +55,15 @@ const EntityExplorer = () => {
     },
   ];
 
+  const dispatch = useDispatch();
+  const createPageCallback = useCallback(() => {
+    const name = getNextEntityName(
+      "Page",
+      pages.map(page => page.pageName),
+    );
+    dispatch(createPage(params.applicationId, name));
+  }, [dispatch]);
+
   return (
     <Wrapper>
       <ExplorerTitle isCollapsed onCollapseToggle={noop} />
@@ -63,6 +75,7 @@ const EntityExplorer = () => {
         action={noop}
         entityId="Pages"
         step={0}
+        createFn={createPageCallback}
       >
         {pages.map(page =>
           getPageEntityGroups(

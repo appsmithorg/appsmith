@@ -10,6 +10,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const fetchPageList = (
   applicationId: string,
@@ -87,6 +88,19 @@ export const updateAndSaveLayout = (widgets: FlattenedWidgetProps) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets },
+  };
+};
+
+export const createPage = (applicationId: string, pageName: string) => {
+  AnalyticsUtil.logEvent("CREATE_PAGE", {
+    pageName,
+  });
+  return {
+    type: ReduxActionTypes.CREATE_PAGE_INIT,
+    payload: {
+      applicationId,
+      name: pageName,
+    },
   };
 };
 

@@ -39,6 +39,8 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
+import PageContextMenu from "./PageContextMenu";
+import EntityPlaceholder from "./Entity/Placeholder";
 
 type GroupConfig = {
   groupName: string;
@@ -273,12 +275,35 @@ const getActionGroups = (
     const entries = group.entries.filter(
       (entry: { config: Action }) => entry.config.pluginType === config?.type,
     );
+
+    let childNode = entries.map((action: { config: RestAction }) =>
+      getActionEntity(
+        action,
+        action.config.name,
+        params?.apiId === action.config.id ||
+          params?.queryId === action.config.id,
+        config?.getURL(params.applicationId, page.id, action.config.id),
+        config?.getIcon(
+          action.config.actionConfiguration.httpMethod || undefined,
+        ),
+        step + 1,
+      ),
+    );
+
+    if (!childNode || !entries.length) {
+      childNode = (
+        <EntityPlaceholder step={step + 1}>
+          No {config?.groupName || "Actions"} yet. Please click the{" "}
+          <strong>+</strong> icon on
+          <strong> {config?.groupName || "Actions"}</strong> to create.
+        </EntityPlaceholder>
+      );
+    }
     return (
       <Entity
         key={page.id + "_" + config?.type}
         icon={config?.icon}
         name={config?.groupName || "Actions"}
-        disabled={!entries.length}
         action={noop}
         entityId={page.id + "_" + config?.type}
         step={step}
@@ -293,19 +318,7 @@ const getActionGroups = (
         isDefaultExpanded={config?.isGroupActive(params)}
         active={config?.isGroupActive(params)}
       >
-        {entries.map((action: { config: RestAction }) =>
-          getActionEntity(
-            action,
-            action.config.name,
-            params?.apiId === action.config.id ||
-              params?.queryId === action.config.id,
-            config?.getURL(params.applicationId, page.id, action.config.id),
-            config?.getIcon(
-              action.config.actionConfiguration.httpMethod || undefined,
-            ),
-            step + 1,
-          ),
-        )}
+        {childNode}
       </Entity>
     );
   });
@@ -319,6 +332,15 @@ const getWidgetsGroup = (
   group: { entries: any },
   step: number,
 ) => {
+  let childNode = getWidgetEntity(group.entries, step);
+  if (!childNode) {
+    childNode = (
+      <EntityPlaceholder step={step + 1}>
+        No widgets yet. Please click the <strong>Widgets</strong> navigation
+        menu icon on the left to drag and drop widgets
+      </EntityPlaceholder>
+    );
+  }
   return (
     <Entity
       key={page.id + "_widgets"}
@@ -329,7 +351,7 @@ const getWidgetsGroup = (
       action={noop}
       entityId={page.id + "_widgets"}
     >
-      {getWidgetEntity(group.entries, step)}
+      {childNode}
     </Entity>
   );
 };
@@ -358,6 +380,14 @@ const getPageEntity = (
       active={isCurrentPage}
       disabled={!isCurrentPage}
       isDefaultExpanded={isCurrentPage}
+      contextMenu={
+        <PageContextMenu
+          applicationId={params.applicationId}
+          pageId={page.id}
+          name={page.name}
+          className={EntityClassNames.ACTION_CONTEXT_MENU}
+        />
+      }
     >
       {groups}
     </Entity>

@@ -323,7 +323,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
     const applicationId = yield select(
       (state: AppState) => state.entities.pageList.applicationId,
     );
-    if (defaultPageId === request.pageId) {
+    if (defaultPageId === request.id) {
       throw Error("Cannot delete the home page.");
     } else {
       const response: ApiResponse = yield call(PageApi.deletePage, request);

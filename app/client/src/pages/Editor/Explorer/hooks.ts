@@ -14,10 +14,17 @@ const usePages = () => {
   const pageList: Page[] = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
+  const defaultPageId = useSelector(
+    (state: AppState) => state.entities.pageList.defaultPageId,
+  );
 
   const pages: Array<Page & { ENTITY_TYPE: ENTITY_TYPE }> = pageList.map(
     (page: Page) => {
-      return { ...page, ENTITY_TYPE: ENTITY_TYPE.PAGE };
+      return {
+        ...page,
+        ENTITY_TYPE: ENTITY_TYPE.PAGE,
+        isDefault: page.pageId === defaultPageId,
+      };
     },
   );
   return pages;

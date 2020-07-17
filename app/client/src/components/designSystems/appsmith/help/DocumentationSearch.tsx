@@ -219,7 +219,6 @@ const StyledPoweredBy = styled(PoweredBy)`
 export default function DocumentationSearch(props: { hitsPerPage: number }) {
   const dispatch = useDispatch();
   const defaultRefinement = useSelector(getDefaultRefinement);
-  console.log({ algolia });
   if (!algolia.enabled) return null;
   return (
     <SearchContainer className="ais-InstantSearch t--docSearchModal">

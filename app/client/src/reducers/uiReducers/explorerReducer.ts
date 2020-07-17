@@ -62,6 +62,10 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_WIDGET_NAME_INIT]: setUpdatingEntity,
   [ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.SAVE_API_NAME]: setUpdatingEntity,
+  [ReduxActionErrorTypes.SAVE_API_NAME_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.SAVE_API_NAME_SUCCESS]: setEntityUpdateSuccess,
 });
 
 export default explorerReducer;

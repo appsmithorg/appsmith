@@ -37,7 +37,6 @@ const AppRoute = ({
       });
     }
   }, [rest.name, rest.logDisable, rest.location.pathname]);
-  console.log("Rendering", rest.name);
   return (
     <Route
       {...rest}

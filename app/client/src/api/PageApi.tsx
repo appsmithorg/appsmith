@@ -75,7 +75,7 @@ export interface FetchPageListResponse extends ApiResponse {
 }
 
 export interface DeletePageRequest {
-  pageId: string;
+  id: string;
 }
 
 export interface UpdateWidgetNameRequest {
@@ -147,7 +147,7 @@ class PageApi extends Api {
   }
 
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {
-    return Api.delete(PageApi.url + "/" + request.pageId);
+    return Api.delete(PageApi.url + "/" + request.id);
   }
 
   static updateWidgetName(
