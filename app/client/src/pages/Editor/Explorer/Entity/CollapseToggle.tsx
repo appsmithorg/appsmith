@@ -17,7 +17,7 @@ export const CollapseToggle = (props: {
     ? IconNames.CARET_DOWN
     : IconNames.CARET_RIGHT;
 
-  if (!props.isVisible) return <span style={{ width: "8px" }} />;
+  if (!props.isVisible) return <span></span>;
   return (
     <Icon
       icon={icon}

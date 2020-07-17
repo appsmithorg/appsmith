@@ -12,8 +12,8 @@ const CollapsedContainer = styled.div<{ step: number }>`
     width: ${TRACK_WIDTH}px;
     background: ${Colors.TROUT};
     bottom: ${props => props.theme.spaces[2]}px;
-    left: ${props => (props.step + 1) * props.theme.spaces[2]}px;
-    top: ${props => props.theme.spaces[2]}px;
+    left: ${props => (props.step + 1) * props.theme.spaces[2] + TRACK_WIDTH}px;
+    top: ${props => -props.theme.spaces[2]}px;
     position: absolute;
   }
 `;

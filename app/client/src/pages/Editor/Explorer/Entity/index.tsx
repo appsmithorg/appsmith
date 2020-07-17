@@ -16,14 +16,19 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${props => props.theme.lineHeights[2]}px;
 `;
 
-const EntityItem = styled.div<{ active: boolean; step: number }>`
+const EntityItem = styled.div<{
+  active: boolean;
+  step: number;
+  spaced: boolean;
+}>`
   position: relative;
   padding-left: ${props => props.step * props.theme.spaces[2]}px;
   background: ${props => (props.active ? Colors.SHARK : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: 20px auto 1fr 20px;
+  grid-template-columns: ${props =>
+    props.spaced ? "20px auto 1fr 20px" : "8px auto 1fr 20px"};
   border-radius: 0;
   color: ${Colors.WHITE};
   cursor: pointer;
@@ -73,6 +78,7 @@ export const Entity = (props: EntityProps) => {
         active={!!props.active}
         onClick={props.action}
         step={props.step}
+        spaced={!!props.children}
       >
         <CollapseToggle
           isOpen={isOpen}

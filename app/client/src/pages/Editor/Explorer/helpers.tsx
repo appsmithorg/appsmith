@@ -188,7 +188,7 @@ const getEntityChildren = (entity: any, step: number) => {
   if (childEntities) return childEntities;
 
   // Gets the properties (ReactNodes) for the entity
-  return getEntityProperties(entity, step);
+  return getEntityProperties(entity, step + 1);
   // return getEntityProperties(entity);
 };
 
