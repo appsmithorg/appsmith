@@ -24,6 +24,12 @@ const HeaderWrapper = styled(StyledHeader)`
 const StyledHomeButton = styled.div<{
   open: boolean;
 }>`
+  && a {
+    :hover{
+      text-decoration: none;
+    }
+    color: ${props => props.theme.colors.textDefault};
+  }
   display: flex;
   justify-content: flex-start;
   padding-left: ${props =>
@@ -39,9 +45,6 @@ const StyledButton = styled(Button)`
 const StyledApplicationName = styled.span`
   font-size: 15px;
   padding-left: 8px;
-  &&:hover {
-    text-decoration: none;
-  }
 `;
 type AppViewerHeaderProps = RouteComponentProps<{ applicationId: string }> & {
   url?: string;
