@@ -135,3 +135,9 @@ export const useFilteredEntities = (
     pages,
   };
 };
+
+export const useEntityUpdateState = (entityId: string) => {
+  return useSelector(
+    (state: AppState) => state.ui.explorer.updatingEntity === entityId,
+  );
+};

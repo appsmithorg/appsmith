@@ -1,4 +1,4 @@
-import React, { useState, memo, useEffect } from "react";
+import React, { useState, memo, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
@@ -30,19 +30,22 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const widgets = useSelector(getExistingWidgetNames);
 
   const [name, setName] = useState(props.title);
-  const updateTitle = (value: string) => {
-    if (
-      value &&
-      value.trim().length > 0 &&
-      value.trim() !== props.title.trim() &&
-      props.widgetId
-    ) {
-      if (widgets.indexOf(value.trim()) > -1) {
-        setName(props.title);
+  const updateTitle = useCallback(
+    (value: string) => {
+      if (
+        value &&
+        value.trim().length > 0 &&
+        value.trim() !== props.title.trim() &&
+        props.widgetId
+      ) {
+        if (widgets.indexOf(value.trim()) > -1) {
+          setName(props.title);
+        }
+        dispatch(updateWidgetName(props.widgetId, value.trim()));
       }
-      dispatch(updateWidgetName(props.widgetId, value.trim()));
-    }
-  };
+    },
+    [dispatch, widgets, setName, props.widgetId, props.title],
+  );
   useEffect(() => {
     if (updateError) {
       setName(props.title);

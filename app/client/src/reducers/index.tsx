@@ -29,6 +29,7 @@ import { MetaState } from "./entityReducers/metaReducer";
 import { ImportReduxState } from "reducers/uiReducers/importReducer";
 import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
+import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -58,6 +59,7 @@ export interface AppState {
     datasourcePane: DatasourcePaneReduxState;
     help: HelpReduxState;
     apiName: ApiNameReduxState;
+    explorer: ExplorerReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

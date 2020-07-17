@@ -2,7 +2,7 @@ import React from "react";
 import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-
+import Tooltip from "components/editorComponents/Tooltip";
 const Wrapper = styled(EntityTogglesWrapper)`
   &&& {
     border: 1px solid ${Colors.SLATE_GRAY};
@@ -22,9 +22,11 @@ export const EntityAddButton = (props: { onClick?: () => void }) => {
   if (!props.onClick) return null;
   else {
     return (
-      <Wrapper onClick={handleClick}>
-        <span>+</span>
-      </Wrapper>
+      <Tooltip content="Create" hoverOpenDelay={200}>
+        <Wrapper onClick={handleClick}>
+          <span>+</span>
+        </Wrapper>
+      </Tooltip>
     );
   }
 };

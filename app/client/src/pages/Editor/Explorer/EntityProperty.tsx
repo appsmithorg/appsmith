@@ -8,6 +8,7 @@ import { CurrentValueViewer } from "components/editorComponents/CodeEditor/Evalu
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
+import Tooltip from "components/editorComponents/Tooltip";
 
 const StyledValue = styled.pre`
   & {
@@ -17,10 +18,12 @@ const StyledValue = styled.pre`
   }
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ step: number }>`
   &&&& {
     cursor: pointer;
-    margin: 10px 0 10px 8px;
+    margin: ${props => props.theme.spaces[2]}px 0;
+    padding-left: ${props =>
+      props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
     position: relative;
     code {
       border: none;
@@ -85,6 +88,7 @@ export type EntityPropertyProps = {
   propertyName: string;
   entityName: string;
   value: string;
+  step: number;
 };
 
 const transformedValue = (value: any) => {
@@ -156,11 +160,17 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   }
 
   return (
-    <Wrapper ref={propertyRef} onClick={copyBindingToClipboard}>
-      <HighlightedCode
-        codeText={codeText}
-        language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
-      />
+    <Wrapper
+      ref={propertyRef}
+      onClick={copyBindingToClipboard}
+      step={props.step}
+    >
+      <Tooltip content="Click to copy">
+        <HighlightedCode
+          codeText={codeText}
+          language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+        />
+      </Tooltip>
       {propertyValue}
     </Wrapper>
   );

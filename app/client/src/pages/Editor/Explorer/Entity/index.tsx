@@ -5,6 +5,8 @@ import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
+import { useEntityUpdateState } from "../hooks";
+import Loader from "./Loader";
 
 export enum EntityClassNames {
   ACTION_CONTEXT_MENU = "action-entity",
@@ -14,7 +16,9 @@ const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${props => props.theme.lineHeights[2]}px;
 `;
 
-const EntityItem = styled.div<{ active: boolean }>`
+const EntityItem = styled.div<{ active: boolean; step: number }>`
+  position: relative;
+  padding-left: ${props => props.step * props.theme.spaces[2]}px;
   background: ${props => (props.active ? Colors.SHARK : "none")};
   height: 30px;
   width: 100%;
@@ -27,17 +31,10 @@ const EntityItem = styled.div<{ active: boolean }>`
   &:hover {
     background: ${Colors.MAKO};
   }
-  // &::before {
-  //   content: "";
-  //   left: 0;
-  //   right: 0;
-  //   height: 30px;
-  //   position: absolute;
-  //   background: red;
-  // }
 `;
 
 export type EntityProps = {
+  entityId: string;
   name: string;
   children?: ReactNode;
   icon: ReactNode;
@@ -47,10 +44,13 @@ export type EntityProps = {
   isDefaultExpanded?: boolean;
   createFn?: () => void;
   contextMenu?: ReactNode;
+  step: number;
 };
 
 export const Entity = (props: EntityProps) => {
   const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
+
+  const isUpdating = useEntityUpdateState(props.entityId);
 
   useEffect(() => {
     // If the default state must be expanded, expand to show children
@@ -69,7 +69,11 @@ export const Entity = (props: EntityProps) => {
 
   return (
     <Wrapper active={!!props.active}>
-      <EntityItem active={!!props.active} onClick={props.action}>
+      <EntityItem
+        active={!!props.active}
+        onClick={props.action}
+        step={props.step}
+      >
         <CollapseToggle
           isOpen={isOpen}
           isVisible={!!props.children}
@@ -80,8 +84,11 @@ export const Entity = (props: EntityProps) => {
         <EntityName name={props.name} />
         <AddButton onClick={props.createFn} />
         {props.contextMenu}
+        <Loader isVisible={isUpdating} />
       </EntityItem>
-      <Collapse isOpen={isOpen}>{props.children}</Collapse>
+      <Collapse step={props.step} isOpen={isOpen}>
+        {props.children}
+      </Collapse>
     </Wrapper>
   );
 };

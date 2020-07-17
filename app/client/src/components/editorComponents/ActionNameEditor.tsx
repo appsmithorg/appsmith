@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { useParams } from "react-router-dom";
@@ -67,34 +67,43 @@ export const ActionNameEditor = () => {
     };
   });
 
-  const hasActionNameConflict = (name: string) =>
-    !(
-      existingPageNames.indexOf(name) === -1 &&
-      actions.findIndex(action => action.name === name) === -1 &&
-      existingWidgetNames.indexOf(name) === -1
-    );
+  const hasActionNameConflict = useCallback(
+    (name: string) =>
+      !(
+        existingPageNames.indexOf(name) === -1 &&
+        actions.findIndex(action => action.name === name) === -1 &&
+        existingWidgetNames.indexOf(name) === -1
+      ),
+    [existingPageNames, actions, existingWidgetNames],
+  );
 
-  const isInvalidActionName = (name: string): string | boolean => {
-    if (!name || name.trim().length === 0) {
-      return "Please enter a valid name";
-    } else if (
-      name !== currentActionConfig?.name &&
-      hasActionNameConflict(name)
-    ) {
-      return `${name} is already being used.`;
-    }
-    return false;
-  };
+  const isInvalidActionName = useCallback(
+    (name: string): string | boolean => {
+      if (!name || name.trim().length === 0) {
+        return "Please enter a valid name";
+      } else if (
+        name !== currentActionConfig?.name &&
+        hasActionNameConflict(name)
+      ) {
+        return `${name} is already being used.`;
+      }
+      return false;
+    },
+    [currentActionConfig, hasActionNameConflict],
+  );
 
-  const handleAPINameChange = (name: string) => {
-    if (
-      currentActionConfig &&
-      name !== currentActionConfig?.name &&
-      !isInvalidActionName(name)
-    ) {
-      dispatch(saveApiName({ id: currentActionConfig.id, name }));
-    }
-  };
+  const handleAPINameChange = useCallback(
+    (name: string) => {
+      if (
+        currentActionConfig &&
+        name !== currentActionConfig?.name &&
+        !isInvalidActionName(name)
+      ) {
+        dispatch(saveApiName({ id: currentActionConfig.id, name }));
+      }
+    },
+    [dispatch, isInvalidActionName, currentActionConfig],
+  );
 
   useEffect(() => {
     if (saveStatus.isSaving === false && saveStatus.error === true) {

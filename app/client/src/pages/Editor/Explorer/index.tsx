@@ -56,18 +56,28 @@ const EntityExplorer = () => {
     <Wrapper>
       <ExplorerTitle isCollapsed onCollapseToggle={noop} />
       <Search ref={searchInputRef} />
-      <Entity name="Pages" icon={pageIcon} isDefaultExpanded action={noop}>
+      <Entity
+        name="Pages"
+        icon={pageIcon}
+        isDefaultExpanded
+        action={noop}
+        entityId="Pages"
+        step={0}
+      >
         {pages.map(page =>
           getPageEntityGroups(
             { id: page.pageId, name: page.pageName },
             getPageEntities(page),
             page.pageId === currentPageId,
             params,
+            1,
           ),
         )}
       </Entity>
       <Divider />
       <Entity
+        entityId="DataSources"
+        step={0}
         name="DataSources"
         icon={datasourceIcon}
         action={noop}
@@ -78,7 +88,7 @@ const EntityExplorer = () => {
           );
         }}
       >
-        {getDatasourceEntities(dataSources || [], plugins, params)}
+        {getDatasourceEntities(dataSources || [], plugins, params, 1)}
       </Entity>
     </Wrapper>
   );

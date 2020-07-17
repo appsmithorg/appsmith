@@ -17,6 +17,7 @@ import importReducer from "./importReducer";
 import queryPaneReducer from "./queryPaneReducer";
 import helpReducer from "./helpReducer";
 import apiNameReducer from "./apiNameReducer";
+import explorerReducer from "./explorerReducer";
 
 const uiReducer = combineReducers({
   widgetSidebar: widgetSidebarReducer,
@@ -37,5 +38,6 @@ const uiReducer = combineReducers({
   datasourcePane: datasourcePaneReducer,
   help: helpReducer,
   apiName: apiNameReducer,
+  explorer: explorerReducer,
 });
 export default uiReducer;

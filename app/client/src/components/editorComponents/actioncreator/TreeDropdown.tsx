@@ -99,15 +99,12 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         key={option.value}
         icon={option.id === "create" ? "plus" : undefined}
         onClick={
-          option.children ? noop : () => handleSelect(option)
-          // (e: any) => {
-          // if (option.children) {
-          //   handleSelect(option);
-          // } else {
-          //   option.onSelect && option.onSelect(option);
-          //   e.stopPropagation();
-          // }
-          // }
+          option.children
+            ? noop
+            : (e: any) => {
+                handleSelect(option);
+                e.stopPropagation();
+              }
         }
         text={option.label}
         intent={option.intent}

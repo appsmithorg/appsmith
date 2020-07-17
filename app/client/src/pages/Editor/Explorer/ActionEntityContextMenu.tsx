@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
@@ -36,33 +36,34 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
   const nextEntityName = useNewAPIName();
 
   const dispatch = useDispatch();
-  const copyActionToPage = (
-    actionId: string,
-    actionName: string,
-    pageId: string,
-  ) =>
-    dispatch(
-      copyActionRequest({
-        id: actionId,
-        destinationPageId: pageId,
-        name: nextEntityName(`${actionName}Copy`),
-      }),
-    );
-  const moveActionToPage = (
-    actionId: string,
-    actionName: string,
-    destinationPageId: string,
-  ) =>
-    dispatch(
-      moveActionRequest({
-        id: actionId,
-        destinationPageId,
-        originalPageId: pageId,
-        name: nextEntityName(actionName),
-      }),
-    );
-  const deleteActionFromPage = (actionId: string, actionName: string) =>
-    dispatch(deleteAction({ id: actionId, name: actionName }));
+  const copyActionToPage = useCallback(
+    (actionId: string, actionName: string, pageId: string) =>
+      dispatch(
+        copyActionRequest({
+          id: actionId,
+          destinationPageId: pageId,
+          name: nextEntityName(`${actionName}Copy`),
+        }),
+      ),
+    [dispatch, nextEntityName],
+  );
+  const moveActionToPage = useCallback(
+    (actionId: string, actionName: string, destinationPageId: string) =>
+      dispatch(
+        moveActionRequest({
+          id: actionId,
+          destinationPageId,
+          originalPageId: pageId,
+          name: nextEntityName(actionName),
+        }),
+      ),
+    [dispatch, nextEntityName, pageId],
+  );
+  const deleteActionFromPage = useCallback(
+    (actionId: string, actionName: string) =>
+      dispatch(deleteAction({ id: actionId, name: actionName })),
+    [dispatch],
+  );
 
   const menuPages = useSelector((state: AppState) => {
     return state.entities.pageList.pages.map(page => ({

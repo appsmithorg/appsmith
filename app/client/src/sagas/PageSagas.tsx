@@ -344,10 +344,10 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
 }
 
 export function* updateWidgetNameSaga(
-  action: ReduxAction<{ widgetId: string; newName: string }>,
+  action: ReduxAction<{ id: string; newName: string }>,
 ) {
   try {
-    const { widgetName } = yield select(getWidgetName, action.payload.widgetId);
+    const { widgetName } = yield select(getWidgetName, action.payload.id);
     const layoutId = yield select(getCurrentLayoutId);
     const pageId = yield select(getCurrentPageId);
     const existingWidgetNames = yield select(getExistingWidgetNames);

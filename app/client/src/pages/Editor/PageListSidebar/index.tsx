@@ -108,7 +108,7 @@ const PageListSidebar = () => {
     dispatch({
       type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
       payload: {
-        pageId,
+        id: pageId,
         applicationId,
       },
     });
