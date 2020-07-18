@@ -41,7 +41,7 @@ Cypress.Commands.add("navigateToOrgSettings", orgName => {
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
-  cy.wait("@applications").should(
+  cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -83,8 +83,7 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
-  cy.wait(5000);
-  cy.wait("@applications").should(
+  cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -108,8 +107,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
     .first()
     .click({ force: true });
   cy.xpath(homePage.OrgSettings).click({ force: true });
-  cy.wait(5000);
-  cy.wait("@applications").should(
+  cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -144,11 +142,6 @@ Cypress.Commands.add("launchApp", appName => {
     .first()
     .click();
   cy.get("#loading").should("not.exist");
-  cy.wait("@getActions").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
   cy.wait("@getPagesForApp").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1336,6 +1329,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
   cy.route("POST", "/api/v1/users/invite").as("postInvite");
+  cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
 });
 
 Cypress.Commands.add("alertValidate", text => {
