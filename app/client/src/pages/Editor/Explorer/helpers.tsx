@@ -43,6 +43,7 @@ import { Plugin } from "api/PluginApi";
 import PageContextMenu from "./ContextMenus/PageContextMenu";
 import EntityPlaceholder from "./Entity/Placeholder";
 import { updatePage } from "actions/pageActions";
+import { showModal, forceOpenPropertyPane } from "actions/widgetActions";
 
 type GroupConfig = {
   groupName: string;
@@ -221,13 +222,27 @@ const getWidgetEntity = (entity: any, step: number) => {
     });
 
     if (el) flashElement(el);
+
+    return forceOpenPropertyPane(entity.widgetId);
   };
+
+  // Modal is special because we have to open the modal using
+  // the redux store
+  // TODO(abhinav): Should there be a separate WidgetEntity component?
+  const openModal = () => {
+    return showModal(entity.widgetId);
+  };
+
+  let entityAction: any = navigateToWidget;
+  if (entity.type === WidgetTypes.MODAL_WIDGET) entityAction = openModal;
+
   return (
     <Entity
       key={entity.widgetId}
       icon={getWidgetIcon(entity.type)}
       name={entity.widgetName}
-      action={navigateToWidget}
+      action={entityAction}
+      dispatchableAction
       entityId={entity.widgetId}
       step={step}
     >
