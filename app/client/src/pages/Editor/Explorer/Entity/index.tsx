@@ -5,7 +5,7 @@ import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
-import { useEntityUpdateState } from "../hooks";
+import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 
 export enum EntityClassNames {
@@ -50,12 +50,14 @@ export type EntityProps = {
   createFn?: () => void;
   contextMenu?: ReactNode;
   step: number;
+  updateEntityName?: (id: string, name: string) => any;
 };
 
 export const Entity = (props: EntityProps) => {
   const [isOpen, open] = useState(!props.disabled && !!props.isDefaultExpanded);
 
   const isUpdating = useEntityUpdateState(props.entityId);
+  const isEditing = useEntityEditState(props.entityId);
 
   useEffect(() => {
     // If the default state must be expanded, expand to show children
@@ -70,6 +72,12 @@ export const Entity = (props: EntityProps) => {
   const toggleChildren = () => {
     // Make sure this entity is enabled before toggling the collpse of children.
     !props.disabled && open(!isOpen);
+  };
+
+  const updateNameCallback = (name: string) => {
+    return (
+      props.updateEntityName && props.updateEntityName(props.entityId, name)
+    );
   };
 
   return (
@@ -87,7 +95,11 @@ export const Entity = (props: EntityProps) => {
           disabled={!!props.disabled}
         />
         {props.icon}
-        <EntityName name={props.name} />
+        <EntityName
+          name={props.name}
+          isEditing={!!props.updateEntityName && isEditing}
+          updateEntityName={updateNameCallback}
+        />
         <AddButton onClick={props.createFn} />
         {props.contextMenu}
         <Loader isVisible={isUpdating} />

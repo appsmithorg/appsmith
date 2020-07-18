@@ -7,6 +7,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "./ErrorTooltip";
+import { Colors } from "constants/Colors";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -26,6 +27,7 @@ type EditableTextProps = {
   isInvalid?: (value: string) => string | boolean;
   editInteractionKind: EditInteractionKind;
   hideEditIcon?: boolean;
+  minimal?: boolean;
 };
 
 const EditPen = styled.img`
@@ -35,19 +37,26 @@ const EditPen = styled.img`
   }
 `;
 
-const EditableTextWrapper = styled.div<{ isEditing: boolean }>`
+const EditableTextWrapper = styled.div<{
+  isEditing: boolean;
+  minimal: boolean;
+}>`
   && {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     & .${Classes.EDITABLE_TEXT} {
-      border: ${props => (props.isEditing ? "1px solid #ccc" : "none")};
+      border: ${props =>
+        props.isEditing && !props.minimal
+          ? `1px solid ${Colors.HIT_GRAY}`
+          : "none"};
       cursor: pointer;
-      padding: 5px 5px;
+      padding: ${props => (!props.minimal ? "5px 5px" : "0px")};
       text-transform: none;
       flex: 1 0 100%;
       max-width: 100%;
+      overflow: hidden;
       display: flex;
       &:before,
       &:after {
@@ -61,11 +70,16 @@ const EditableTextWrapper = styled.div<{ isEditing: boolean }>`
   }
 `;
 
-const TextContainer = styled.div<{ isValid: boolean }>`
+const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
   display: flex;
   &&&& .bp3-editable-text {
-    border-radius: 3px;
-    border-color: ${props => (props.isValid ? "hsl(0,0%,80%)" : "red")};
+    ${props => (!props.minimal ? "border-radius: 3px;" : "")}
+    ${props =>
+      !props.minimal
+        ? `border-color: ${props.isValid ? Colors.HIT_GRAY : "red"}`
+        : ""};
+    ${props =>
+      props.minimal ? `border-bottom: 1px solid ${Colors.HIT_GRAY}` : ""}
   }
 `;
 
@@ -115,9 +129,10 @@ export const EditableText = (props: EditableTextProps) => {
       onClick={
         props.editInteractionKind === EditInteractionKind.SINGLE ? edit : _.noop
       }
+      minimal={!!props.minimal}
     >
       <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
-        <TextContainer isValid={!error}>
+        <TextContainer isValid={!error} minimal={!!props.minimal}>
           <BlueprintEditableText
             disabled={!isEditing}
             isEditing={isEditing}
@@ -128,9 +143,10 @@ export const EditableText = (props: EditableTextProps) => {
             placeholder={props.placeholder}
             className={props.className}
           />
-          {!props.hideEditIcon && !props.updating && !isEditing && (
-            <EditPen src={Edit} alt="Edit pen" />
-          )}
+          {!props.minimal &&
+            !props.hideEditIcon &&
+            !props.updating &&
+            !isEditing && <EditPen src={Edit} alt="Edit pen" />}
         </TextContainer>
       </ErrorTooltip>
     </EditableTextWrapper>

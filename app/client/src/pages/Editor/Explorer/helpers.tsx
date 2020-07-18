@@ -35,12 +35,14 @@ import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
+import { saveActionName } from "actions/actionActions";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
 import PageContextMenu from "./PageContextMenu";
 import EntityPlaceholder from "./Entity/Placeholder";
+import { updatePage } from "actions/pageActions";
 
 type GroupConfig = {
   groupName: string;
@@ -64,6 +66,10 @@ export type ExplorerURLParams = {
   apiId?: string;
   queryId?: string;
   datasourceId?: string;
+};
+
+const getUpdateActionNameReduxAction = (id: string, name: string) => {
+  return saveActionName({ id, name });
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -249,6 +255,7 @@ const getActionEntity = (
       active={isCurrentAction}
       entityId={entity.config.id}
       step={step || 0}
+      updateEntityName={getUpdateActionNameReduxAction}
       contextMenu={
         <ActionEntityContextMenu
           id={entity.config.id}
@@ -380,6 +387,7 @@ const getPageEntity = (
       active={isCurrentPage}
       disabled={!isCurrentPage}
       isDefaultExpanded={isCurrentPage}
+      updateEntityName={updatePage}
       contextMenu={
         <PageContextMenu
           applicationId={params.applicationId}

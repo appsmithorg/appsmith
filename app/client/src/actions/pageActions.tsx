@@ -104,6 +104,16 @@ export const createPage = (applicationId: string, pageName: string) => {
   };
 };
 
+export const updatePage = (id: string, name: string) => {
+  return {
+    type: ReduxActionTypes.UPDATE_PAGE_INIT,
+    payload: {
+      id,
+      name,
+    },
+  };
+};
+
 export type WidgetAddChild = {
   widgetId: string;
   widgetName?: string;

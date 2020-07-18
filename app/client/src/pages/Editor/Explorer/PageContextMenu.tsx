@@ -5,6 +5,8 @@ import { noop } from "lodash";
 import ContextMenuTrigger from "./Entity/ContextMenuTrigger";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ContextMenuPopoverModifiers } from "./ContextMenuHelpers";
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
 export const PageContextMenu = (props: {
   pageId: string;
@@ -41,13 +43,24 @@ export const PageContextMenu = (props: {
     },
     [dispatch],
   );
+
+  const editPageName = useCallback(
+    () => dispatch(initExplorerEntityNameEdit(props.pageId)),
+    [dispatch, props.pageId],
+  );
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       selectedValue=""
       optionTree={[
+        {
+          value: "rename",
+          onSelect: editPageName,
+          label: "Edit Name",
+        },
         {
           value: "setdefault",
           onSelect: () => setPageAsDefault(props.pageId, props.applicationId),

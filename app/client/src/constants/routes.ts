@@ -184,13 +184,6 @@ export const EDITOR_ROUTES = [
     className: "t--nav-link-widgets-editor",
     exact: true,
   },
-  {
-    icon: MenuIcons.PAGES_ICON,
-    path: PAGE_LIST_EDITOR_URL,
-    className: "t--nav-link-manage-pages",
-    title: "Pages",
-    exact: true,
-  },
 ];
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;

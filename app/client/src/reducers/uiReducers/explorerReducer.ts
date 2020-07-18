@@ -8,6 +8,7 @@ import {
 export interface ExplorerReduxState {
   updatingEntity?: string;
   updateEntityError?: string;
+  editingEntityName?: string;
 }
 const initialState: ExplorerReduxState = {};
 
@@ -63,9 +64,16 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR]: setEntityUpdateError,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: setEntityUpdateSuccess,
 
-  [ReduxActionTypes.SAVE_API_NAME]: setUpdatingEntity,
-  [ReduxActionErrorTypes.SAVE_API_NAME_ERROR]: setEntityUpdateError,
-  [ReduxActionTypes.SAVE_API_NAME_SUCCESS]: setEntityUpdateSuccess,
+  [ReduxActionTypes.SAVE_ACTION_NAME_INIT]: setUpdatingEntity,
+  [ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR]: setEntityUpdateError,
+  [ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS]: setEntityUpdateSuccess,
+
+  [ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    return { editingEntityName: action.payload.id };
+  },
 });
 
 export default explorerReducer;

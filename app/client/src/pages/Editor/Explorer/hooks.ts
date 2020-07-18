@@ -148,3 +148,9 @@ export const useEntityUpdateState = (entityId: string) => {
     (state: AppState) => state.ui.explorer.updatingEntity === entityId,
   );
 };
+
+export const useEntityEditState = (entityId: string) => {
+  return useSelector(
+    (state: AppState) => state.ui.explorer.editingEntityName === entityId,
+  );
+};

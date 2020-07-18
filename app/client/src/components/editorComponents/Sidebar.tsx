@@ -5,7 +5,6 @@ import {
   API_EDITOR_URL,
   BUILDER_URL,
   API_EDITOR_ID_URL,
-  PAGE_LIST_EDITOR_URL,
   DATA_SOURCES_EDITOR_URL,
   DATA_SOURCES_EDITOR_ID_URL,
   QUERIES_EDITOR_URL,
@@ -16,7 +15,6 @@ import {
   getProviderTemplatesURL,
 } from "constants/routes";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
-import PageListSidebar from "pages/Editor/PageListSidebar";
 import ExplorerSidebar from "pages/Editor/Explorer";
 import AppRoute from "pages/common/AppRoute";
 
@@ -48,12 +46,6 @@ export const Sidebar = () => {
           path={API_EDITOR_ID_URL()}
           component={ExplorerSidebar}
           name={"ExplorerSidebar"}
-        />
-        <AppRoute
-          exact
-          path={PAGE_LIST_EDITOR_URL()}
-          component={PageListSidebar}
-          name={"PageListSidebar"}
         />
         <AppRoute
           exact

@@ -11,6 +11,7 @@ import {
   Button as BlueprintButton,
   PopoverInteractionKind,
   PopoverPosition,
+  IPopoverSharedProps,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 
@@ -34,6 +35,7 @@ type TreeDropdownProps = {
   displayValue?: string;
   toggle?: React.ReactNode;
   className?: string;
+  modifiers?: IPopoverSharedProps["modifiers"];
 };
 
 function getSelectedOption(
@@ -144,7 +146,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       content={menuItems}
       position={PopoverPosition.AUTO_END}
       className={props.className}
-      targetProps={{ onClick: (e: any) => e.stopPropagation() }}
+      modifiers={props.modifiers}
+      // targetProps={{ onClick: (e: any) => e.stopPropagation() }}
     >
       {toggle ? toggle : defaultToggle}
     </StyledPopover>

@@ -159,8 +159,8 @@ export const executeApiActionSuccess = (payload: {
   payload: payload,
 });
 
-export const saveApiName = (payload: { id: string; name: string }) => ({
-  type: ReduxActionTypes.SAVE_API_NAME,
+export const saveActionName = (payload: { id: string; name: string }) => ({
+  type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
   payload: payload,
 });
 

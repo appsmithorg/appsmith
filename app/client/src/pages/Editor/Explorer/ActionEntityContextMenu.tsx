@@ -12,6 +12,9 @@ import {
   copyActionRequest,
   deleteAction,
 } from "actions/actionActions";
+
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
+import { ContextMenuPopoverModifiers } from "./ContextMenuHelpers";
 import { noop } from "lodash";
 
 const useNewAPIName = () => {
@@ -73,13 +76,24 @@ export const ActionEntityContextMenu = (props: EntityContextMenuProps) => {
     }));
   });
 
+  const editActionName = useCallback(
+    () => dispatch(initExplorerEntityNameEdit(props.id)),
+    [dispatch, props.id],
+  );
+
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       selectedValue=""
       optionTree={[
+        {
+          value: "rename",
+          onSelect: editActionName,
+          label: "Edit Name",
+        },
         {
           value: "copy",
           onSelect: noop,

@@ -11,11 +11,12 @@ import { AppState } from "reducers";
 import { RestAction } from "entities/Action";
 import { Page } from "constants/ReduxActionConstants";
 
-import { saveApiName } from "actions/actionActions";
+import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
 
 const ApiNameWrapper = styled.div`
-  min-width: 50%;
+  max-width: 50%;
+  flex-grow: 1;
   margin-right: 10px;
   display: flex;
   justify-content: flex-start;
@@ -99,7 +100,7 @@ export const ActionNameEditor = () => {
         name !== currentActionConfig?.name &&
         !isInvalidActionName(name)
       ) {
-        dispatch(saveApiName({ id: currentActionConfig.id, name }));
+        dispatch(saveActionName({ id: currentActionConfig.id, name }));
       }
     },
     [dispatch, isInvalidActionName, currentActionConfig],
