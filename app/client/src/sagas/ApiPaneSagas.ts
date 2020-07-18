@@ -438,7 +438,7 @@ export default function* root() {
     takeEvery(ReduxActionTypes.INIT_API_PANE, initApiPaneSaga),
     takeEvery(ReduxActionTypes.API_PANE_CHANGE_API, changeApiSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
-    takeEvery(ReduxActionTypes.SAVE_API_NAME, handleApiNameChangeSaga),
+    takeEvery(ReduxActionTypes.SAVE_ACTION_NAME_INIT, handleApiNameChangeSaga),
     takeEvery(
       ReduxActionErrorTypes.SAVE_API_NAME_ERROR,
       handleApiNameChangeFailureSaga,
