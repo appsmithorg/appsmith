@@ -58,11 +58,13 @@ const EntityExplorer = () => {
     currentPageId,
     pages,
     plugins,
+    isFiltered,
+    clearSearch,
   } = useFilteredEntities(searchInputRef);
   const getPageEntities = (page: { pageId: string }) => [
     {
       type: ENTITY_TYPE.WIDGET,
-      entries: widgets && widgets.pageId === page.pageId ? widgets : [],
+      entries: widgets && widgets.pageId === page.pageId ? widgets : undefined,
     },
     {
       type: ENTITY_TYPE.ACTION,
@@ -86,7 +88,7 @@ const EntityExplorer = () => {
   return (
     <Wrapper>
       <ExplorerTitle isCollapsed onCollapseToggle={noop} />
-      <Search ref={searchInputRef} />
+      <Search ref={searchInputRef} clear={clearSearch} />
       <Entity
         name="Pages"
         icon={pageIcon}
@@ -103,6 +105,7 @@ const EntityExplorer = () => {
             page.pageId === currentPageId,
             params,
             1,
+            isFiltered,
           ),
         )}
       </Entity>

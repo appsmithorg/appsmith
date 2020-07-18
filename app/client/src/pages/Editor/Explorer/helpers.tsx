@@ -200,6 +200,7 @@ const getEntityChildren = (entity: any, step: number) => {
 
 // A single widget entity entry in the entity explorer
 const getWidgetEntity = (entity: any, step: number) => {
+  if (!entity) return <React.Fragment />;
   // If this is a canvas widget, simply render
   // child widget entries.
   // This prevents the Canvas widget from showing up
@@ -277,6 +278,7 @@ const getActionGroups = (
   group: { type: ENTITY_TYPE; entries: any },
   params: ExplorerURLParams,
   step: number,
+  isFiltered: boolean,
 ) => {
   return ACTION_PLUGIN_MAP?.map((config?: GroupConfig) => {
     const entries = group.entries.filter(
@@ -297,7 +299,7 @@ const getActionGroups = (
       ),
     );
 
-    if (!childNode || !entries.length) {
+    if (!isFiltered && (!childNode || !entries.length)) {
       childNode = (
         <EntityPlaceholder step={step + 1}>
           No {config?.groupName || "Actions"} yet. Please click the{" "}
@@ -314,6 +316,7 @@ const getActionGroups = (
         action={noop}
         entityId={page.id + "_" + config?.type}
         step={step}
+        disabled={isFiltered && (!childNode || !entries.length)}
         createFn={() => {
           const path = config?.generateCreatePageURL(
             params?.applicationId,
@@ -338,9 +341,10 @@ const getWidgetsGroup = (
   page: { name: string; id: string },
   group: { entries: any },
   step: number,
+  isFiltered: boolean,
 ) => {
   let childNode = getWidgetEntity(group.entries, step);
-  if (!childNode) {
+  if (!childNode && !isFiltered) {
     childNode = (
       <EntityPlaceholder step={step + 1}>
         No widgets yet. Please click the <strong>Widgets</strong> navigation
@@ -354,8 +358,8 @@ const getWidgetsGroup = (
       icon={widgetIcon}
       step={step}
       name="Widgets"
-      disabled={false}
       action={noop}
+      disabled={!group.entries && isFiltered}
       entityId={page.id + "_widgets"}
     >
       {childNode}
@@ -409,13 +413,14 @@ export const getPageEntityGroups = (
   isCurrentPage: boolean,
   params: ExplorerURLParams,
   step: number,
+  isFiltered: boolean,
 ) => {
   const groups = entityGroups.map(group => {
     switch (group.type) {
       case ENTITY_TYPE.ACTION:
-        return getActionGroups(page, group, params, step + 1);
+        return getActionGroups(page, group, params, step + 1, isFiltered);
       case ENTITY_TYPE.WIDGET:
-        return getWidgetsGroup(page, group, step + 1);
+        return getWidgetsGroup(page, group, step + 1, isFiltered);
       default:
         return null;
     }

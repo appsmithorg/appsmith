@@ -1,4 +1,10 @@
-import { useEffect, MutableRefObject, useState, useMemo } from "react";
+import {
+  useEffect,
+  MutableRefObject,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
@@ -126,13 +132,31 @@ export const useFilteredEntities = (
     }
   }, 300);
 
+  const event = new Event("cleared");
   useEffect(() => {
     const el: HTMLInputElement | null = ref.current;
+
     el?.addEventListener("keydown", search);
+    el?.addEventListener("cleared", search);
     return () => {
       el?.removeEventListener("keydown", search);
+      el?.removeEventListener("cleared", search);
     };
   }, [ref, search]);
+
+  const isFiltered = useMemo(
+    () => !!searchKeyword && searchKeyword.length > 0,
+    [searchKeyword],
+  );
+
+  const clearSearch = useCallback(() => {
+    const el: HTMLInputElement | null = ref.current;
+    if (el && el.value.trim().length > 0) {
+      el.value = "";
+      el?.dispatchEvent(event);
+    }
+  }, [ref, event]);
+
   return {
     widgets: widgetEntities,
     actions: actionEntities,
@@ -140,6 +164,8 @@ export const useFilteredEntities = (
     currentPageId,
     plugins,
     pages,
+    isFiltered,
+    clearSearch,
   };
 };
 

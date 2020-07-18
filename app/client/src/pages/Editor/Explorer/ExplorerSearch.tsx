@@ -4,13 +4,18 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
 const ExplorerSearchWrapper = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 12px 1fr 19px;
   margin: 10px 0;
   justify-content: flex-start;
   align-items: center;
   & {
     .${Classes.ICON} {
       color: ${Colors.SLATE_GRAY};
+      cursor: pointer;
+      &:last-of-type:hover {
+        color: ${Colors.WHITE};
+      }
     }
     input {
       border: none;
@@ -25,11 +30,12 @@ const ExplorerSearchWrapper = styled.div`
 `;
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
-  (props: {}, ref: Ref<HTMLInputElement>) => {
+  (props: { clear: () => void }, ref: Ref<HTMLInputElement>) => {
     return (
       <ExplorerSearchWrapper>
         <Icon icon="search" iconSize={12} />
         <input type="text" placeholder="Filter entities..." ref={ref} />
+        <Icon icon="cross" iconSize={12} onClick={props.clear} />
       </ExplorerSearchWrapper>
     );
   },
