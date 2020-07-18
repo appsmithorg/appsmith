@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import Button from "components/editorComponents/Button";
-import { BACK_TO_EDITOR } from "constants/messages";
+import { EDIT_APP } from "constants/messages";
 import { isPermitted } from "pages/Applications/permissionHelpers";
 const HeaderWrapper = styled(StyledHeader)`
   position: fixed;
@@ -37,7 +37,7 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
           intent="primary"
           icon="chevron-left"
           iconAlignment="left"
-          text={BACK_TO_EDITOR}
+          text={EDIT_APP}
           filled
         />
       )}

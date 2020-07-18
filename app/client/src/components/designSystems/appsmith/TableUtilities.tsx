@@ -480,8 +480,25 @@ export const renderEmptyRows = (
   rowCount: number,
   columns: any,
   tableWidth: number,
+  page: any,
+  prepareRow: any,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
+  if (page.length) {
+    const row = page[0];
+    return rows.map((item: string, index: number) => {
+      prepareRow(row);
+      return (
+        <div {...row.getRowProps()} className="tr" key={index}>
+          {row.cells.map((cell: any, cellIndex: number) => {
+            return (
+              <div {...cell.getCellProps()} className="td" key={cellIndex} />
+            );
+          })}
+        </div>
+      );
+    });
+  }
   const tableColumns = columns.length
     ? columns
     : new Array(3).fill({ width: tableWidth / 3, isHidden: false });

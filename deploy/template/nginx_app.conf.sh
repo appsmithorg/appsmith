@@ -57,6 +57,10 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
+    
+    location /login {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
 }
 
 $NGINX_SSL_CMNT server {
@@ -103,6 +107,10 @@ $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /oauth2 {
+$NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location /login {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT

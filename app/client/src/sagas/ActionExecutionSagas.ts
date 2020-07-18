@@ -69,6 +69,7 @@ import { mapToPropList } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { ToastType } from "react-toastify";
 import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 
 function* navigateActionSaga(
   action: { pageNameOrUrl: string; params: Record<string, string> },
@@ -112,7 +113,11 @@ export const getActionTimeout = (
 ): number | undefined => {
   const action = _.find(state.entities.actions, a => a.config.id === actionId);
   if (action) {
-    const timeout = action.config.actionConfiguration.timeoutInMillisecond;
+    const timeout = _.get(
+      action,
+      "config.actionConfiguration.timeoutInMillisecond",
+      DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+    );
     if (timeout) {
       // Extra timeout padding to account for network calls
       return timeout + 5000;
@@ -138,20 +143,68 @@ export function* evaluateDynamicBoundValueSaga(path: string): any {
   return dynamicResult.result;
 }
 
-export function* getActionParams(jsonPathKeys: string[] | undefined) {
-  if (_.isNil(jsonPathKeys)) return [];
+const EXECUTION_PARAM_PATH = "this.params";
+const getExecutionParamPath = (key: string) => `${EXECUTION_PARAM_PATH}.${key}`;
+
+export function* getActionParams(
+  bindings: string[] | undefined,
+  executionParams?: Record<string, any>,
+) {
+  if (_.isNil(bindings)) return [];
+  let dataTreeBindings = bindings;
+
+  if (executionParams && Object.keys(executionParams).length) {
+    // List of params in the path format
+    const executionParamsPathList = Object.keys(executionParams).map(
+      getExecutionParamPath,
+    );
+    const paramSearchRegex = new RegExp(executionParamsPathList.join("|"), "g");
+    // Bindings with references to execution params
+    const executionBindings = bindings.filter(binding =>
+      paramSearchRegex.test(binding),
+    );
+
+    // Replace references with values
+    const replacedBindings = executionBindings.map(binding => {
+      let replaced = binding;
+      const matches = binding.match(paramSearchRegex);
+      if (matches && matches.length) {
+        matches.forEach(match => {
+          // we add one for substring index to account for '.'
+          const paramKey = match.substring(EXECUTION_PARAM_PATH.length + 1);
+          let paramValue = executionParams[paramKey];
+          if (paramValue) {
+            if (typeof paramValue === "object") {
+              paramValue = JSON.stringify(paramValue);
+            }
+            replaced = replaced.replace(match, paramValue);
+          }
+        });
+      }
+      return replaced;
+    });
+    // Replace binding with replaced bindings for evaluation
+    dataTreeBindings = dataTreeBindings.map(key => {
+      if (executionBindings.includes(key)) {
+        return replacedBindings[executionBindings.indexOf(key)];
+      }
+      return key;
+    });
+  }
+  // Evaluate all values
   const values: any = yield all(
-    jsonPathKeys.map((jsonPath: string) => {
-      return call(evaluateDynamicBoundValueSaga, jsonPath);
+    dataTreeBindings.map((binding: string) => {
+      return call(evaluateDynamicBoundValueSaga, binding);
     }),
   );
-  const dynamicBindings: Record<string, string> = {};
-  jsonPathKeys.forEach((key, i) => {
+  // convert to object and transform non string values
+  const actionParams: Record<string, string> = {};
+  bindings.forEach((key, i) => {
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
-    dynamicBindings[key] = value;
+    actionParams[key] = value;
   });
-  return mapToPropList(dynamicBindings);
+  return mapToPropList(actionParams);
 }
 
 export function extractBindingsFromAction(action: Action) {
@@ -170,11 +223,15 @@ export function* executeActionSaga(
   apiAction: RunActionPayload,
   event: ExecuteActionPayloadEvent,
 ) {
-  const { actionId, onSuccess, onError } = apiAction;
+  const { actionId, onSuccess, onError, params } = apiAction;
   try {
     yield put(executeApiActionRequest({ id: apiAction.actionId }));
     const api: RestAction = yield select(getAction, actionId);
-    const params: Property[] = yield call(getActionParams, api.jsonPathKeys);
+    const actionParams: Property[] = yield call(
+      getActionParams,
+      api.jsonPathKeys,
+      params,
+    );
     const pagination =
       event.type === EventType.ON_NEXT_PAGE
         ? "NEXT"
@@ -183,7 +240,7 @@ export function* executeActionSaga(
         : undefined;
     const executeActionRequest: ExecuteActionRequest = {
       action: { id: actionId },
-      params,
+      params: actionParams,
       paginationField: pagination,
     };
     const timeout = yield select(getActionTimeout, actionId);
