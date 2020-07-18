@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "widgets/DropdownWidget";
 import {
@@ -81,6 +81,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     optionTree,
   );
 
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
@@ -105,6 +107,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             ? noop
             : (e: any) => {
                 handleSelect(option);
+                setIsOpen(false);
                 e.stopPropagation();
               }
         }
@@ -141,13 +144,18 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
   return (
     <StyledPopover
-      usePortal={true}
-      minimal={true}
+      isOpen={isOpen}
+      minimal
       content={menuItems}
       position={PopoverPosition.AUTO_END}
       className={props.className}
       modifiers={props.modifiers}
-      // targetProps={{ onClick: (e: any) => e.stopPropagation() }}
+      targetProps={{
+        onClick: (e: any) => {
+          setIsOpen(true);
+          e.stopPropagation();
+        },
+      }}
     >
       {toggle ? toggle : defaultToggle}
     </StyledPopover>

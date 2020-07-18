@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
-import ContextMenuTrigger from "./Entity/ContextMenuTrigger";
+import ContextMenuTrigger from "./ContextMenuTrigger";
 import { noop } from "lodash";
 
 export const DataSourceContextMenu = (props: {

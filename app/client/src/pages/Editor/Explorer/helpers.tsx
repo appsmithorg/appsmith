@@ -12,8 +12,8 @@ import {
   getPluginIcon,
   MethodTag,
 } from "./ExplorerIcons";
-import ActionEntityContextMenu from "./ActionEntityContextMenu";
-import DataSourceContextMenu from "./DataSourceContextMenu";
+import ActionEntityContextMenu from "./ContextMenus/ActionEntityContextMenu";
+import DataSourceContextMenu from "./ContextMenus/DataSourceContextMenu";
 import { PluginType, Action, RestAction } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 import { noop, groupBy } from "lodash";
@@ -40,7 +40,7 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { flashElement } from "utils/helpers";
 import { Datasource } from "api/DatasourcesApi";
 import { Plugin } from "api/PluginApi";
-import PageContextMenu from "./PageContextMenu";
+import PageContextMenu from "./ContextMenus/PageContextMenu";
 import EntityPlaceholder from "./Entity/Placeholder";
 import { updatePage } from "actions/pageActions";
 

@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown";
 import { noop } from "lodash";
-import ContextMenuTrigger from "./Entity/ContextMenuTrigger";
+import ContextMenuTrigger from "./ContextMenuTrigger";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ContextMenuPopoverModifiers } from "./ContextMenuHelpers";

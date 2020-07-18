@@ -5,7 +5,7 @@ import TreeDropdown from "components/editorComponents/actioncreator/TreeDropdown
 
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import ContextMenuTrigger from "./Entity/ContextMenuTrigger";
+import ContextMenuTrigger from "./ContextMenuTrigger";
 
 import {
   moveActionRequest,
