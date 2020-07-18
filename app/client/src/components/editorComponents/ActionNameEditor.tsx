@@ -15,8 +15,7 @@ import { saveActionName } from "actions/actionActions";
 import { Spinner } from "@blueprintjs/core";
 
 const ApiNameWrapper = styled.div`
-  max-width: 50%;
-  flex-grow: 1;
+  min-width: 50%;
   margin-right: 10px;
   display: flex;
   justify-content: flex-start;
