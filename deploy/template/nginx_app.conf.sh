@@ -115,7 +115,7 @@ $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
-' > nginx_app.conf
+' >| nginx_app.conf
 
 sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
 sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
