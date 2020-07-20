@@ -54,4 +54,5 @@ sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boo
 
 USER="ubuntu"
 CRON_FILE="/var/spool/cron/crontabs/$USER"
+chmod 0600 $CRON_FILE
 echo "@reboot /bin/bash $boot_script_path/$boot_file_name" >> $CRON_FILE
