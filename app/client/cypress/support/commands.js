@@ -331,7 +331,7 @@ Cypress.Commands.add("CreateAPI", apiname => {
     .type(apiname)
     .should("have.value", apiname)
     .blur();
-  //cy.WaitAutoSave();
+  cy.WaitAutoSave();
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
   cy.wait(2000);
@@ -363,13 +363,17 @@ Cypress.Commands.add("EditApiName", apiname => {
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
   cy.wait(200);
-  cy.wait("@saveQuery");
+  cy.wait("@saveAction");
   //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
-  cy.wait("@postExecute");
+  cy.wait("@postExecute").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {
@@ -1184,6 +1188,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");
     cy.expect(response.response.body.responseMeta.success).to.eq(true);
     cy.get(ApiEditor.ApiNameField)
+      .click()
       .invoke("text")
       .then(text => {
         const someText = text;
