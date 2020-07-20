@@ -95,6 +95,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() != null) {
+            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
+        }
+
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         if (StringUtils.isEmpty(datasource.getName())) {
@@ -136,6 +141,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        // If Authentication Details are present in the datasource, encrypt the details before saving
+        if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() != null) {
+            datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
+        }
+
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
@@ -148,6 +158,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository);
+    }
+
+    private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
+        // Encrypt password in AuthenticationDTO
+        if (authentication.getPassword() != null) {
+            authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
+        }
+        return authentication;
     }
 
     @Override
@@ -201,17 +219,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
-
-        // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null &&
-                datasource.getDatasourceConfiguration().getAuthentication() != null) {
-            AuthenticationDTO authentication = datasource.getDatasourceConfiguration().getAuthentication();
-            // Encrypt password before saving
-            if (authentication.getPassword() != null) {
-                authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
-            }
-            datasource.getDatasourceConfiguration().setAuthentication(authentication);
-        }
 
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
