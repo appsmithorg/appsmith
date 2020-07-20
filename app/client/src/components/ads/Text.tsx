@@ -6,6 +6,7 @@ type TextProps = CommonComponentProps & {
   hasError: boolean;
   disabled: boolean;
   cypressSelector?: string;
+  onChange: Function;
 };
 
 export default function Text(props: TextProps) {

@@ -5,6 +5,6 @@ type ToggleProps = CommonComponentProps & {
   value: boolean;
 };
 
-export default function Toggle(props: ToggleProps) {
+export default function Switch(props: ToggleProps) {
   return "";
 }
