@@ -96,7 +96,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() != null) {
+        if (datasource.getDatasourceConfiguration() != null) {
             datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
         }
 
@@ -142,7 +142,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
 
         // If Authentication Details are present in the datasource, encrypt the details before saving
-        if (datasource.getDatasourceConfiguration() != null && datasource.getDatasourceConfiguration().getAuthentication() != null) {
+        if (datasource.getDatasourceConfiguration() != null) {
             datasource.getDatasourceConfiguration().setAuthentication(encryptAuthenticationFields(datasource.getDatasourceConfiguration().getAuthentication()));
         }
 
@@ -162,7 +162,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     private AuthenticationDTO encryptAuthenticationFields(AuthenticationDTO authentication) {
         // Encrypt password in AuthenticationDTO
-        if (authentication.getPassword() != null) {
+        if (authentication != null && authentication.getPassword() != null) {
             authentication.setPassword(encryptionService.encryptString(authentication.getPassword()));
         }
         return authentication;
