@@ -1,23 +1,33 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.OrganizationApplicationsDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.MockPluginExecutor;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,9 +40,15 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,6 +75,18 @@ public class ApplicationServiceTest {
 
     @Autowired
     PageRepository pageRepository;
+
+    @Autowired
+    DatasourceService datasourceService;
+
+    @Autowired
+    PluginService pluginService;
+
+    @Autowired
+    ActionService actionService;
+
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
 
     String orgId;
 
@@ -431,6 +459,91 @@ public class ApplicationServiceTest {
 
                     // Check the child page's policies
                     assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validMakeApplicationPublicWithActions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application application = new Application();
+        application.setName("validMakeApplicationPublic-ExplicitDatasource-Test");
+
+        Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
+                .build();
+
+        Application createdApplication = applicationPageService.createApplication(application, orgId).block();
+
+        String pageId = createdApplication.getPages().get(0).getId();
+
+        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Datasource datasource = new Datasource();
+        datasource.setName("Public App Test");
+        datasource.setPluginId(plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+        datasource.setOrganizationId(orgId);
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+//        Datasource actionDatasource = new Datasource();
+//        actionDatasource.setId(savedDatasource.getId());
+
+        Action action = new Action();
+        action.setName("Public App Test action");
+        action.setPageId(pageId);
+        action.setDatasource(savedDatasource);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+
+        Action savedAction = actionService.create(action).block();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Mono<Application> publicAppMono = applicationService
+                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .cache();
+
+        Mono<Datasource> datasourceMono = publicAppMono
+                .then(datasourceService.findById(savedDatasource.getId()));
+
+        Mono<Action> actionMono = publicAppMono
+                .then(actionService.findById(savedAction.getId()));
+
+        StepVerifier
+                .create(Mono.zip(datasourceMono, actionMono))
+                .assertNext(tuple -> {
+                    Datasource datasource1 = tuple.getT1();
+                    Action action1 = tuple.getT2();
+
+                    // Check that the datasource used in the app contains public execute permission
+                    assertThat(datasource1.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+
+                    // Check that the action used in the app contains public execute permission
+                    assertThat(action1.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+
                 })
                 .verifyComplete();
     }

@@ -198,6 +198,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    @Override
+    public Mono<Datasource> save(Datasource datasource) {
+        return repository.save(datasource);
+    }
+
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();

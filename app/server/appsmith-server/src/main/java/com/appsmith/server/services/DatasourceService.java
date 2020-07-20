@@ -21,4 +21,6 @@ public interface DatasourceService extends CrudService<Datasource, String> {
 
     Mono<Datasource> validateDatasource(Datasource datasource);
 
+    Mono<Datasource> save(Datasource datasource);
+
 }
