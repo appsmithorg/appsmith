@@ -56,7 +56,6 @@ check_os() {
     echo $os_name
     case "${os_name}" in
         \"Ubuntu*\")
-            echo "In here"
             desired_os=1
             package_manager="apt-get"
             ;;
@@ -108,7 +107,7 @@ echo ""
 
 if [[ $desired_os -eq 0 ]];then
     echo "This script is currently meant to install Appsmith on Mac OS X | Ubuntu | RHEL | CentOS machines."
-    echo "Please contact hello@appsmith.com with your OS details if you wish to extend this support"
+    echo "Please contact support@appsmith.com with your OS details if you wish to extend this support"
     echo -e "Exiting for now. Bye! \U1F44B"
     exit
 fi

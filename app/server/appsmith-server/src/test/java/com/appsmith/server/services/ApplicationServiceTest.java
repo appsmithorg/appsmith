@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.solutions.ApplicationFetcher;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,6 +89,8 @@ public class ApplicationServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    private ApplicationFetcher applicationFetcher;
+
     String orgId;
 
     @Before
@@ -144,7 +147,7 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
         Flux<Page> pagesFlux = applicationPageService
                 .createApplication(testApplication, orgId)
-                .flatMapMany(application -> pageService.findByApplicationId(application.getId()));
+                .flatMapMany(application -> pageService.findByApplicationId(application.getId(), READ_PAGES));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
@@ -309,7 +312,7 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllApplicationsForHome() {
-        Mono<UserHomepageDTO> allApplications = applicationService.getAllApplications();
+        Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
 
         StepVerifier
                 .create(allApplications)
@@ -339,7 +342,7 @@ public class ApplicationServiceTest {
         Mono<Organization> organizationMono = organizationService.create(organization);
 
         Mono<UserHomepageDTO> allApplications = organizationMono
-                .then(applicationService.getAllApplications());
+                .then(applicationFetcher.getAllApplications());
 
         StepVerifier
                 .create(allApplications)
