@@ -9,9 +9,9 @@ fi
 
 install_package() {
     sudo apt-get -y update --quiet 
-    apt-get install -y ntp bc python3-pip --quiet
+    sudo apt-get install -y ntp bc python3-pip --quiet
     pip3 install boto3
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools --quiet
+    sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common virtualenv python3-setuptools --quiet
 
     # Installing docker
     sudo apt-get  -y --quiet install gnupg-agent
@@ -54,5 +54,5 @@ sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boo
 
 USER="ubuntu"
 CRON_FILE="/var/spool/cron/crontabs/$USER"
-chmod 0600 $CRON_FILE
 echo "@reboot /bin/bash $boot_script_path/$boot_file_name" >> $CRON_FILE
+sudo chmod 0600 $CRON_FILE
