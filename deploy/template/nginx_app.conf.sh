@@ -24,11 +24,11 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         root /var/www/certbot;
     }
 
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-Host \$host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
     
     location / {
-        try_files \$uri /index.html =404;
+        try_files $uri /index.html =404;
 
         sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
         sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '\''${APPSMITH_HOTJAR_HJID}'\'';
@@ -57,6 +57,10 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
+    
+    location /login {
+        proxy_pass http://appsmith-internal-server:8080;
+    }
 }
 
 $NGINX_SSL_CMNT server {
@@ -69,14 +73,14 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    include /etc/letsencrypt/options-ssl-nginx.conf;
 $NGINX_SSL_CMNT    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto $scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host $host;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    root /var/www/appsmith;
 $NGINX_SSL_CMNT    index index.html index.htm;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location / {
-$NGINX_SSL_CMNT        try_files \$uri /index.html =404;
+$NGINX_SSL_CMNT        try_files $uri /index.html =404;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_SENTRY_DSN__ '\''${APPSMITH_SENTRY_DSN}'\'';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_APPSMITH_HOTJAR_HJID__ '\''${APPSMITH_HOTJAR_HJID}'\'';
@@ -106,8 +110,12 @@ $NGINX_SSL_CMNT    location /oauth2 {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
+$NGINX_SSL_CMNT    location /login {
+$NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
+$NGINX_SSL_CMNT    }
+$NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
 ' > nginx_app.conf
 
-sed -in "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
-sed -in "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
+sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
