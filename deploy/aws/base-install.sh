@@ -1,5 +1,11 @@
 #!/bin/bash
+
 set -o errexit
+
+if [[ $EUID > 0 ]]; then
+    echo "Please run with sudo." >&2
+    exit 1
+fi
 
 install_package() {
     sudo apt-get -y update --quiet 
