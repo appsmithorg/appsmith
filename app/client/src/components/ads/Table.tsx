@@ -1,3 +1,3 @@
-export default function Checkbox(props: any) {
+export default function Table(props: any) {
   return "";
 }

@@ -1,11 +1,13 @@
 import { CommonComponentProps } from "./common";
+import { IconName } from "./Icons";
 
 type TextProps = CommonComponentProps & {
   placeholder?: string;
   value: string;
   hasError: boolean;
   disabled: boolean;
-  cypressSelector?: string;
+  password?: boolean;
+  leftIcon?: IconName;
   onChange: Function;
 };
 
