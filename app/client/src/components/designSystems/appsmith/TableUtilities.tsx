@@ -610,3 +610,14 @@ export const reorderColumns = (
   }
   return reorderedColumns;
 };
+
+export function compare(a: any, b: any, operator: string) {
+  switch (operator) {
+    case "is":
+      return a == b;
+    case "is_not":
+      return a != b;
+    default:
+      return true;
+  }
+}

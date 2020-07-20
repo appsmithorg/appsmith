@@ -8,6 +8,7 @@ import {
   getAllTableColumnKeys,
 } from "components/designSystems/appsmith/TableUtilities";
 import { ReactTableFilter } from "components/designSystems/appsmith/TableFilters";
+
 export enum ColumnTypes {
   CURRENCY = "currency",
   TIME = "time",

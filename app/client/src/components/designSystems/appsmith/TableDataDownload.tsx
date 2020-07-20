@@ -67,6 +67,15 @@ const TableDataDownload = (props: TableDataDownloadProps) => {
     toggleButtonClick(false);
   };
 
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <DownloadIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
   return (
     <TableIconWrapper
       onClick={() => {

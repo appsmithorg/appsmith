@@ -18,17 +18,7 @@ import CustomizedDropdown, {
 } from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Theme, Skin } from "constants/DefaultTheme";
-
-const TableIconWrapper = styled.div<{ selected: boolean }>`
-  background: ${props => (props.selected ? Colors.ATHENS_GRAY : "transparent")};
-  box-shadow: ${props =>
-    props.selected ? `inset 0px 4px 0px ${Colors.GREEN}` : "none"};
-  width: 48px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+import { TableIconWrapper } from "components/designSystems/appsmith/TableStyledWrappers";
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -251,6 +241,15 @@ const TableFilters = (props: TableFilterProps) => {
     filter.value = value;
     updateFilter(filter);
   };
+  if (props.columns.length === 0) {
+    return (
+      <TableIconWrapper disabled>
+        <IconWrapper width={20} height={20} color={Colors.CADET_BLUE}>
+          <FilterIcon />
+        </IconWrapper>
+      </TableIconWrapper>
+    );
+  }
   return (
     <Popover
       minimal

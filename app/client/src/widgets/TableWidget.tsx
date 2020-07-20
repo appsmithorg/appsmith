@@ -11,6 +11,7 @@ import {
   renderCell,
   renderActions,
   reorderColumns,
+  compare,
 } from "components/designSystems/appsmith/TableUtilities";
 import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
@@ -199,16 +200,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   searchTableData = (tableData: object[]) => {
+    const { filter } = this.props;
     const searchKey =
       this.props.searchKey !== undefined
         ? this.props.searchKey.toString().toUpperCase()
         : "";
-    return tableData.filter((item: object) => {
-      return Object.values(item)
-        .join(", ")
-        .toUpperCase()
-        .includes(searchKey);
-    });
+    return tableData
+      .filter((item: object) => {
+        return Object.values(item)
+          .join(", ")
+          .toUpperCase()
+          .includes(searchKey);
+      })
+      .filter((item: { [key: string]: any }) => {
+        return (
+          !filter || compare(item[filter.column], filter.value, filter.operator)
+        );
+      });
   };
 
   getPageView() {

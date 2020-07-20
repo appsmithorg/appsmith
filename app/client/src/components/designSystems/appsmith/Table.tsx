@@ -56,17 +56,6 @@ interface TableProps {
   applyFilter: (filter: ReactTableFilter) => void;
 }
 
-function compare(a: any, b: any, operator: string) {
-  switch (operator) {
-    case "is":
-      return a == b;
-    case "is_not":
-      return a != b;
-    default:
-      return true;
-  }
-}
-
 export const Table = (props: TableProps) => {
   const defaultColumn = React.useMemo(
     () => ({
@@ -77,18 +66,7 @@ export const Table = (props: TableProps) => {
     [],
   );
 
-  const data = React.useMemo(() => {
-    return props.data.filter((item: { [key: string]: any }) => {
-      return (
-        !props.filter ||
-        compare(
-          item[props.filter.column],
-          props.filter.value,
-          props.filter.operator,
-        )
-      );
-    });
-  }, [JSON.stringify(props.data)]);
+  const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
   const columns = React.useMemo(() => props.columns, [
     JSON.stringify(props.columns),
   ]);
