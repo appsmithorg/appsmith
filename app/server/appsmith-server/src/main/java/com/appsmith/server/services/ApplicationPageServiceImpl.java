@@ -267,7 +267,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return pageService.findByApplicationId(id)
+                    return pageService.findByApplicationId(id, READ_PAGES)
                             .flatMap(page -> pageService.delete(page.getId()))
                             .collectList()
                             .thenReturn(application);

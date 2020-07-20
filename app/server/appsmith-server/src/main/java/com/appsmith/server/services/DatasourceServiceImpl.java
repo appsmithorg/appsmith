@@ -254,8 +254,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name) {
-        return repository.findByName(name, AclPermission.READ_DATASOURCES);
+    public Mono<Datasource> findByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
     }
 
     @Override
