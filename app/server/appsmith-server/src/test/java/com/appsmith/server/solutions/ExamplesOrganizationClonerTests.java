@@ -90,12 +90,11 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(organization.getPolicies()).isNotEmpty();
 
                     final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(3);
+                    assertThat(applications).hasSize(2);
                     assertThat(applications.stream().map(Application::getName).collect(Collectors.toSet()))
                             .containsExactlyInAnyOrder(
                                     "LayoutServiceTest TestApplications",
-                                    "TestApplications",
-                                    "Another TestApplications"
+                                    "TestApplications"
                             );
 
                     final List<Datasource> datasources = tuple.getT3();
