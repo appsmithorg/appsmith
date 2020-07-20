@@ -9,7 +9,7 @@ fi
 # Hence we wish to prevent environment substitution here.
 # Relevant variables will be replaced at the end of this file via sed command
 
-echo '
+content='
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
@@ -115,12 +115,8 @@ $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
-' > nginx_app.conf
+'
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
-    sed -i '' "s/\$custom_domain/$custom_domain/g" nginx_app.conf
-else 
-    sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
-    sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
-fi
+echo "$content" \
+    | sed -e "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" -e "s/\$custom_domain/$custom_domain/g" \
+    > nginx_app.conf
