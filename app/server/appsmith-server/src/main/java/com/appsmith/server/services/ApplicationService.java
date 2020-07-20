@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationService extends CrudService<Application, String> {
@@ -14,6 +14,8 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> findByIdAndOrganizationId(String id, String organizationId, AclPermission permission);
 
+    Flux<Application> findByOrganizationId(String organizationId, AclPermission permission);
+
     Mono<Application> findByName(String name, AclPermission permission);
 
     Mono<Boolean> publish(String applicationId);
@@ -23,8 +25,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> createDefault(Application object);
 
     Mono<Application> archive(Application application);
-
-    Mono<UserHomepageDTO> getAllApplications();
 
     Mono<Application> changeViewAccess (String id, ApplicationAccessDTO applicationAccessDTO);
 }
