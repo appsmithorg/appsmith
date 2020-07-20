@@ -37,7 +37,7 @@ Appsmith provides a better way of building internal tools by visualising them as
 
 ## Features
 
-* **Build custom UI**: Drag & drop, resize and style widgets **without HTLM / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
+* **Build custom UI**: Drag & drop, resize and style widgets **without HTML / CSS**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui)
 * **Query data**: Query & update your database directly from the UI. Supports **postgres, mongo, REST & GraphQL APIs**. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/displaying-api-data)
 * **JS Logic**: Write snippets of business logic using JS to transform data, manipuate UI or trigger workflows
 * **Data Workflows**: Simple configuration to create flows when users interact with the UI. [Read more](https://docs.appsmith.com/core-concepts/building-the-ui/calling-apis-from-widgets)
