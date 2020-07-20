@@ -254,8 +254,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name) {
-        return repository.findByName(name, AclPermission.READ_DATASOURCES);
+    public Mono<Datasource> findByName(String name, AclPermission permission) {
+        return repository.findByName(name, permission);
     }
 
     @Override
@@ -283,10 +283,15 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
-            return repository.findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
+            return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+    }
+
+    @Override
+    public Flux<Datasource> findAllByOrganizationId(String organizationId, AclPermission permission) {
+        return repository.findAllByOrganizationId(organizationId, permission);
     }
 
     @Override
