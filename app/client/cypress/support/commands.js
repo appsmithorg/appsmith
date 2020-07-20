@@ -17,6 +17,152 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 
 let pageidcopy = " ";
 
+Cypress.Commands.add("createOrg", orgName => {
+  cy.get(homePage.createOrg)
+    .should("be.visible")
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.inputOrgName)
+    .should("be.visible")
+    .type(orgName);
+  cy.xpath(homePage.submitBtn).click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("navigateToOrgSettings", orgName => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSectionBtn)
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.inviteUser).should("be.visible");
+});
+
+Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.shareOrg))
+    .first()
+    .should("be.visible")
+    .click();
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.manageUsers).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+});
+
+Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.DeleteBtn).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .scrollIntoView()
+    .should("be.visible");
+  cy.get(homePage.orgSection.concat(orgName).concat(")"))
+    .first()
+    .click({ force: true });
+  cy.xpath(homePage.OrgSettings).click({ force: true });
+  cy.wait("@getRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.xpath(homePage.inviteUser).click({ force: true });
+  cy.xpath(homePage.email)
+    .click({ force: true })
+    .type(email);
+  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(role).click({ force: true });
+  cy.xpath(homePage.inviteBtn).click({ force: true });
+  cy.wait("@postInvite").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.contains(email);
+  cy.get(homePage.manageUsers).click({ force: true });
+  cy.xpath(homePage.appHome)
+    .should("be.visible")
+    .click();
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("launchApp", appName => {
+  cy.get(homePage.appView)
+    .should("be.visible")
+    .first()
+    .click();
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPagesForApp").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
+  cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
+    .scrollIntoView()
+    .should("be.visible")
+    .click();
+  cy.get(homePage.inputAppName).type(appname);
+  cy.get(homePage.CreateApp)
+    .contains("Submit")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  cy.wait("@getPropertyPane");
+  cy.get("@getPropertyPane").should("have.property", "status", 200);
+});
+
 Cypress.Commands.add("CreateApp", appname => {
   cy.get(homePage.createNew)
     .first()
@@ -1180,6 +1326,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
 
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
+
+  cy.route("POST", "/api/v1/organizations").as("createOrg");
+  cy.route("POST", "/api/v1/users/invite").as("postInvite");
+  cy.route("GET", "/api/v1/organizations/roles").as("getRoles");
 });
 
 Cypress.Commands.add("alertValidate", text => {
