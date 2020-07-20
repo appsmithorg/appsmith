@@ -22,3 +22,12 @@ This will
 $ cd ./dist
 $ java -jar -Dspring.profiles.active=$env server-1.0-SNAPSHOT.jar
 ```
+
+### How to test
+In order to test the code, you can run the following command
+
+```
+mvn clean package
+```
+
+Please make sure that you have a local Redis instance running for the test cases. The MongoDB is run in-memory during tests so that shouldn't be a problem.

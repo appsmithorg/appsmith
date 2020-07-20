@@ -112,6 +112,29 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
   }
 }
 
+export function* fetchActionsForViewModeSaga(
+  action: ReduxAction<FetchActionsPayload>,
+) {
+  try {
+    const { applicationId } = action.payload;
+    const response: GenericApiResponse<RestAction[]> = yield ActionAPI.fetchActionsForViewMode(
+      applicationId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* fetchActionsForPageSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
@@ -453,6 +476,10 @@ export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
     takeEvery(ReduxActionTypes.FETCH_ACTIONS_INIT, fetchActionsSaga),
+    takeEvery(
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
+      fetchActionsForViewModeSaga,
+    ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     debounce(500, ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),

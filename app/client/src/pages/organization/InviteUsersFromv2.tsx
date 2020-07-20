@@ -155,6 +155,7 @@ const InviteUsersForm = (props: any) => {
             type="email"
             label="Emails"
             intent="success"
+            data-cy="t--invite-email-input"
           />
           <SelectField
             name="role"
@@ -162,10 +163,11 @@ const InviteUsersForm = (props: any) => {
             options={props.roles}
             size="large"
             outline={false}
+            data-cy="t--invite-role-input"
           />
         </div>
         <StyledButton
-          className="invite"
+          className="t--invite-user-btn"
           disabled={!valid}
           text="Invite"
           filled

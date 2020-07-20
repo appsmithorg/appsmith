@@ -67,11 +67,16 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                         .and("permission").is(permission.getValue())
                 );
 
+        Criteria anonymousUserCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(Criteria.where("users").all(FieldName.ANONYMOUS_USER)
+                        .and("permission").is(permission.getValue())
+                );
+
         Criteria groupCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
                 .elemMatch(Criteria.where("groups").all(user.getGroupIds())
                         .and("permission").is(permission.getValue()));
 
-        return new Criteria().orOperator(userCriteria, groupCriteria);
+        return new Criteria().orOperator(userCriteria, groupCriteria, anonymousUserCriteria);
     }
 
     protected Criteria getIdCriteria(Object id) {
@@ -187,7 +192,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
             Set<String> policyGroups = policy.getGroups();
 
 
-            if (policyUsers != null && policyUsers.contains(user.getUsername())) {
+            if (policyUsers != null &&
+                    (policyUsers.contains(user.getUsername()) || policyUsers.contains(FieldName.ANONYMOUS_USER))) {
                 permissions.add(policy.getPermission());
             }
 

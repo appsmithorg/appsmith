@@ -36,8 +36,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       enablePickLocation: VALIDATION_TYPES.BOOLEAN,
       allowZoom: VALIDATION_TYPES.BOOLEAN,
       zoomLevel: VALIDATION_TYPES.NUMBER,
-      // onMarkerClick: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onCreateMarker: VALIDATION_TYPES.ACTION_SELECTOR,
     };
   }
 
@@ -114,46 +112,29 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     }
   };
 
-  // componentDidMount() {
-  //   super.componentDidMount();
-  //   if (this.props.mapCenter) {
-  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
-  //   }
-  // }
-  //
-  // componentDidUpdate(prevProps: MapWidgetProps) {
-  //   super.componentDidUpdate(prevProps);
-  //   if (
-  //     this.props.mapCenter &&
-  //     prevProps.mapCenter &&
-  //     (this.props.mapCenter.lat !== prevProps.mapCenter.lat ||
-  //       this.props.mapCenter.lng !== prevProps.mapCenter.lng)
-  //   ) {
-  //     this.updateWidgetMetaProperty("center", this.props.mapCenter);
-  //   }
-  // }
-
   getPageView() {
     return (
       <>
         {!google.enabled && (
           <DisabledContainer>
             <h1>{"Map Widget disabled"}</h1>
+            <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
-              {"Map widget requires a Google Maps "}
+              {"See our"}
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+                href="https://docs.appsmith.com/third-party-services/google-maps"
               >
-                API Key
+                {"documentation"}
               </a>
+              {"to configure API Keys"}
             </p>
-            <p>{"Refer our Docs to configure API Keys"}</p>
           </DisabledContainer>
         )}
         {google.enabled && (
           <MapComponent
+            apiKey={google.apiKey}
             widgetId={this.props.widgetId}
             isVisible={this.props.isVisible}
             zoomLevel={this.props.zoomLevel}

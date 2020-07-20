@@ -11,6 +11,7 @@ import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 
 interface MapComponentProps {
+  apiKey: string;
   widgetId: string;
   isDisabled?: boolean;
   isVisible?: boolean;
@@ -159,7 +160,7 @@ class MapComponent extends React.Component<MapComponentProps> {
     return (
       <MapWrapper onMouseLeave={this.props.disableDrag}>
         <MyMapComponent
-          googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2H_twoNbEKMm9Q0nYAh7715Dplg2asCI&v=3.exp&libraries=geometry,drawing,places"
+          googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${this.props.apiKey}&v=3.exp&libraries=geometry,drawing,places`}
           loadingElement={<MapContainerWrapper />}
           containerElement={<MapContainerWrapper />}
           mapElement={<MapContainerWrapper />}

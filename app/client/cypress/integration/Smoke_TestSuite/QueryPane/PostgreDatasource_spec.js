@@ -28,6 +28,7 @@ describe("Create a query with a postgres datasource, run, save and then delete t
       .focus()
       .type("select * from users");
 
+    cy.EvaluateCurrentValue("select * from users");
     cy.runAndDeleteQuery();
 
     cy.NavigateToDatasourceEditor();

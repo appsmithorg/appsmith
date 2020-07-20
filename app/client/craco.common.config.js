@@ -1,13 +1,18 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const path = require("path");
+const CracoAlias = require("craco-alias");
 
 module.exports = {
-  webpack: {
-    resolve: {
-      modules: [path.resolve(__dirname, "src"), "node_modules"],
-    },
-  },
   plugins: [
+    {
+      plugin: CracoAlias,
+      options: {
+        source: "tsconfig",
+        // baseUrl SHOULD be specified
+        // plugin does not take it from tsconfig
+        baseUrl: "./src",
+        // tsConfigPath should point to the file where "baseUrl" and "paths" are specified
+        tsConfigPath: "./tsconfig.path.json",
+      },
+    },
     {
       plugin: "prismjs",
       options: {

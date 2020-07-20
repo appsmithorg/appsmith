@@ -17,6 +17,7 @@ import ApplicationApi, {
   FetchUsersApplicationsOrgsResponse,
   OrganizationApplicationObject,
   ApplicationObject,
+  ChangeAppViewAccessRequest,
 } from "api/ApplicationApi";
 import { getDefaultPageId } from "./SagaUtils";
 import { call, put, takeLatest, all, select } from "redux-saga/effects";
@@ -29,6 +30,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { setDefaultApplicationPageSuccess } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+
 export function* publishApplicationSaga(
   requestAction: ReduxAction<PublishApplicationRequest>,
 ) {
@@ -82,10 +84,6 @@ export function* getAllApplicationSaga() {
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
         payload: organizationApplication,
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: response.data.user,
       });
     }
   } catch (error) {
@@ -215,6 +213,35 @@ export function* deleteApplicationSaga(
   }
 }
 
+export function* changeAppViewAccessSaga(
+  requestAction: ReduxAction<ChangeAppViewAccessRequest>,
+) {
+  try {
+    const request = requestAction.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.changeAppViewAccess,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
+        payload: {
+          id: response.data.id,
+          isPublic: response.data.isPublic,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CHANGE_APPVIEW_ACCESS_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
@@ -299,6 +326,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_APPLICATION_LIST_INIT,
       fetchApplicationListSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CHANGE_APPVIEW_ACCESS_INIT,
+      changeAppViewAccessSaga,
     ),
     takeLatest(
       ReduxActionTypes.GET_ALL_APPLICATION_INIT,

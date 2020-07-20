@@ -34,6 +34,15 @@ export const fetchActions = (
   };
 };
 
+export const fetchActionsForView = (
+  applicationId: string,
+): ReduxAction<FetchActionsPayload> => {
+  return {
+    type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
+    payload: { applicationId },
+  };
+};
+
 export const fetchActionsForPage = (pageId: string) => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
@@ -167,7 +176,7 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
 export type SetActionPropertyPayload = {
   actionId: string;
   propertyName: string;
-  value: string;
+  value: any;
 };
 
 export const setActionProperty = (payload: SetActionPropertyPayload) => ({
