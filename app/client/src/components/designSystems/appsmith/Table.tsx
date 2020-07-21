@@ -26,6 +26,7 @@ interface TableProps {
   height: number;
   pageSize: number;
   widgetId: string;
+  widgetName: string;
   searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
@@ -64,6 +65,9 @@ export const Table = (props: TableProps) => {
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
+  const columns = React.useMemo(() => props.columns, [
+    JSON.stringify(props.columns),
+  ]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -73,7 +77,7 @@ export const Table = (props: TableProps) => {
     pageOptions,
   } = useTable(
     {
-      columns: props.columns,
+      columns: columns,
       data,
       defaultColumn,
       initialState: {
@@ -103,6 +107,8 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        tableData={props.data}
+        tableColumns={props.columns}
         searchTableData={props.searchTableData}
         searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}
@@ -112,6 +118,7 @@ export const Table = (props: TableProps) => {
         pageCount={pageCount}
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
+        widgetName={props.widgetName}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";

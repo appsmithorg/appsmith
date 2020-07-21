@@ -117,5 +117,10 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
 ' >| nginx_app.conf
 
-sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
-sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
+    sed -i '' "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+else 
+    sed -i "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
+    sed -i "s/\$custom_domain/$custom_domain/g" nginx_app.conf
+fi

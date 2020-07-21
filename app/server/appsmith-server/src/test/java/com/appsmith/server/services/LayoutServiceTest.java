@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -167,7 +168,7 @@ public class LayoutServiceTest {
 
     private Mono<Page> createPage(Application app, Page page) {
         Mono<Page> pageMono = pageService
-                .findByName(page.getName())
+                .findByName(page.getName(), AclPermission.READ_PAGES)
                 .switchIfEmpty(applicationPageService.createApplication(app, orgId)
                         .map(application -> {
                             page.setApplicationId(application.getId());
@@ -255,7 +256,7 @@ public class LayoutServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Layout> testMono = pageService
-                .findByName("validPageName")
+                .findByName("validPageName", AclPermission.READ_PAGES)
                 .flatMap(page1 -> {
                     List<Mono<Action>> monos = new ArrayList<>();
 
