@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
@@ -8,8 +7,10 @@ import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -56,14 +57,47 @@ public class ExamplesOrganizationClonerTests {
     @Autowired
     private DatasourceService datasourceService;
 
+    @Autowired
+    private OrganizationService organizationService;
+
+    @Autowired
+    private ApplicationPageService applicationPageService;
+
     @Test
     @WithUserDetails(value = "api_user")
-    public void createNewUserValid() {
-        final Mono<Organization> organizationMono = organizationRepository
-                .findByName("Spring Test Organization", AclPermission.READ_ORGANIZATIONS)
+    public void cloneOrganizationWithItsContents() {
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+        final Mono<Organization> requiredDataMono = organizationService.create(newOrganization)
+            .flatMap(organization -> {
+                Application app1 = new Application();
+                app1.setName("1 - public app");
+                app1.setOrganizationId(organization.getId());
+                app1.setIsPublic(true);
+
+                Application app2 = new Application();
+                app2.setOrganizationId(organization.getId());
+                app2.setName("2 - private app");
+
+                return Mono.zip(
+                        Mono.just(newOrganization),
+                        applicationPageService.createApplication(app1),
+                        applicationPageService.createApplication(app2)
+                );
+            })
+            .map(tuple -> {
+                final Organization organization = tuple.getT1();
+                final Application app1 = tuple.getT2();
+                final Application app2 = tuple.getT3();
+                return organization;
+            })
+            .cache();
+
+        final Mono<Organization> organizationMono = requiredDataMono
                 .flatMap(organization -> {
                     if (organization.getId() == null) {
-                        log.error("Cannot find Spring Test Organization");
+                        log.error("Cannot create organization for cloning");
                     }
                     Config config = new Config();
                     config.setName(ExamplesOrganizationCloner.TEMPLATE_ORGANIZATION_CONFIG_NAME);
@@ -81,7 +115,7 @@ public class ExamplesOrganizationClonerTests {
                         .flatMap(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES).collectList())
         );
 
-        StepVerifier.create(resultMono)
+        StepVerifier.create(requiredDataMono.then(resultMono))
                 .assertNext(tuple -> {
                     Organization organization = tuple.getT1();
                     assertThat(organization).isNotNull();
@@ -90,11 +124,10 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(organization.getPolicies()).isNotEmpty();
 
                     final List<Application> applications = tuple.getT2();
-                    assertThat(applications).hasSize(2);
+                    assertThat(applications).hasSize(1);
                     assertThat(applications.stream().map(Application::getName).collect(Collectors.toSet()))
                             .containsExactlyInAnyOrder(
-                                    "LayoutServiceTest TestApplications",
-                                    "TestApplications"
+                                    "1 - public app"
                             );
 
                     final List<Datasource> datasources = tuple.getT3();

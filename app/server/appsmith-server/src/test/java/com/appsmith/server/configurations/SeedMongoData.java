@@ -112,9 +112,9 @@ public class SeedMongoData {
         };
 
         Object[][] appData = {
-                {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy), true},
-                {"TestApplications", Set.of(manageAppPolicy, readAppPolicy), true},
-                {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy), false}
+                {"LayoutServiceTest TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+                {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
+                {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
         Object[][] pageData = {
                 {"validPageName", Set.of(managePagePolicy, readPagePolicy)}
@@ -224,7 +224,6 @@ public class SeedMongoData {
                                             .map(array -> {
                                                 Application app = new Application();
                                                 app.setName((String) array[0]);
-                                                app.setIsPublic((boolean) array[2]);
                                                 app.setOrganizationId(orgId);
                                                 app.setPolicies((Set<Policy>) array[1]);
                                                 return app;
