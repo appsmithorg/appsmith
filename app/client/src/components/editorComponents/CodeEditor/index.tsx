@@ -79,7 +79,7 @@ type State = {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker],
+    marking: [],
     hinting: [bindingHint],
   };
 
