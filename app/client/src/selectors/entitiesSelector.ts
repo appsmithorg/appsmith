@@ -125,6 +125,23 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
 
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
+export const getDBPlugins = createSelector(getPlugins, plugins =>
+  plugins.filter(plugin => plugin.type === QUERY_CONSTANT),
+);
+
+export const getDBDatasources = createSelector(
+  getDBPlugins,
+  getEntities,
+  (dbPlugins, entities) => {
+    const datasources = entities.datasources.list;
+    const dbPluginIds = dbPlugins.map(plugin => plugin.id);
+
+    return datasources.filter(datasource =>
+      dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
 export const getQueryName = (state: AppState, actionId: string): string => {
   const action = state.entities.actions.find((action: ActionData) => {
     return action.config.id === actionId;
