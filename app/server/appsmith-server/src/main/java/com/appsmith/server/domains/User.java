@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,6 +50,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private String currentOrganizationId;
 
     private Set<String> organizationIds;
+
+    private String examplesOrganizationId;
 
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.
@@ -117,5 +120,17 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Override
     public OidcIdToken getIdToken() {
         return null;
+    }
+
+    @Transient
+    @JsonIgnore
+    public boolean isAnonymous() {
+        return Boolean.TRUE.equals(isAnonymous);
+    }
+
+    @Transient
+    @JsonIgnore
+    public String computeFirstName() {
+        return StringUtils.isEmpty(name) ? "" : name.split("[\\s@]+", 2)[0];
     }
 }

@@ -2,9 +2,19 @@ import React, { Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/ActionConstants";
-import ReactTableComponent from "components/designSystems/appsmith/ReactTableComponent";
-
+import ReactTableComponent, {
+  ReactTableColumnProps,
+  ColumnTypes,
+} from "components/designSystems/appsmith/ReactTableComponent";
+import {
+  getAllTableColumnKeys,
+  renderCell,
+  renderActions,
+  reorderColumns,
+} from "components/designSystems/appsmith/TableUtilities";
+import { TABLE_SIZES } from "components/designSystems/appsmith/Table";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import {
   WidgetPropertyValidationType,
   BASE_WIDGET_VALIDATION,
@@ -12,6 +22,7 @@ import {
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
+import moment from "moment";
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap(): WidgetPropertyValidationType {
@@ -51,6 +62,141 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  getTableColumns = (tableData: object[]) => {
+    let columns: ReactTableColumnProps[] = [];
+    const hiddenColumns: ReactTableColumnProps[] = [];
+    const {
+      columnNameMap,
+      columnSizeMap,
+      columnTypeMap,
+      widgetId,
+      columnActions,
+    } = this.props;
+    if (tableData.length) {
+      const columnKeys: string[] = getAllTableColumnKeys(tableData);
+      for (let index = 0; index < columnKeys.length; index++) {
+        const i = columnKeys[index];
+        const columnName: string =
+          columnNameMap && columnNameMap[i] ? columnNameMap[i] : i;
+        const columnType: { type: string; format?: string } =
+          columnTypeMap && columnTypeMap[i]
+            ? columnTypeMap[i]
+            : { type: ColumnTypes.TEXT };
+        const columnSize: number =
+          columnSizeMap && columnSizeMap[i] ? columnSizeMap[i] : 150;
+        const isHidden =
+          !!this.props.hiddenColumns && this.props.hiddenColumns.includes(i);
+        const columnData = {
+          Header: columnName,
+          accessor: i,
+          width: columnSize,
+          minWidth: 60,
+          draggable: true,
+          isHidden: false,
+          metaProperties: {
+            isHidden: isHidden,
+            type: columnType.type,
+            format: columnType.format,
+          },
+          Cell: (props: any) => {
+            return renderCell(props.cell.value, columnType.type, isHidden);
+          },
+        };
+        if (isHidden) {
+          columnData.isHidden = true;
+          hiddenColumns.push(columnData);
+        } else {
+          columns.push(columnData);
+        }
+      }
+      columns = reorderColumns(columns, this.props.columnOrder || []);
+      if (columnActions?.length) {
+        columns.push({
+          Header:
+            columnNameMap && columnNameMap["actions"]
+              ? columnNameMap["actions"]
+              : "Actions",
+          accessor: "actions",
+          width: 150,
+          minWidth: 60,
+          draggable: true,
+          Cell: () => {
+            return renderActions({
+              columnActions: columnActions,
+              onCommandClick: this.onCommandClick,
+            });
+          },
+        });
+      }
+      if (
+        hiddenColumns.length &&
+        this.props.renderMode === RenderModes.CANVAS
+      ) {
+        columns = columns.concat(hiddenColumns);
+      }
+    }
+    return columns;
+  };
+
+  transformData = (tableData: object[], columns: ReactTableColumnProps[]) => {
+    const updatedTableData = [];
+    for (let row = 0; row < tableData.length; row++) {
+      const data: { [key: string]: any } = tableData[row];
+      const tableRow: { [key: string]: any } = {};
+      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+        const column = columns[colIndex];
+        const { accessor } = column;
+        const value = data[accessor];
+        if (column.metaProperties) {
+          const type = column.metaProperties.type;
+          const format = column.metaProperties.format;
+          switch (type) {
+            case ColumnTypes.CURRENCY:
+              if (!isNaN(value)) {
+                tableRow[accessor] = `${format}${value ? value : ""}`;
+              } else {
+                tableRow[accessor] = "Invalid Value";
+              }
+              break;
+            case ColumnTypes.DATE:
+              let isValidDate = true;
+              if (isNaN(value)) {
+                const dateTime = Date.parse(value);
+                if (isNaN(dateTime)) {
+                  isValidDate = false;
+                }
+              }
+              if (isValidDate) {
+                tableRow[accessor] = moment(value).format(format);
+              } else {
+                tableRow[accessor] = "Invalid Value";
+              }
+              break;
+            case ColumnTypes.TIME:
+              let isValidTime = true;
+              if (isNaN(value)) {
+                const time = Date.parse(value);
+                if (isNaN(time)) {
+                  isValidTime = false;
+                }
+              }
+              if (isValidTime) {
+                tableRow[accessor] = moment(value).format("HH:mm");
+              } else {
+                tableRow[accessor] = "Invalid Value";
+              }
+              break;
+            default:
+              tableRow[accessor] = value;
+              break;
+          }
+        }
+      }
+      updatedTableData.push(tableRow);
+    }
+    return updatedTableData;
+  };
+
   searchTableData = (tableData: object[]) => {
     const searchKey =
       this.props.searchKey !== undefined
@@ -66,8 +212,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const { tableData, hiddenColumns } = this.props;
+    const tableColumns = this.getTableColumns(tableData);
     const filteredTableData = this.searchTableData(tableData);
-
+    const transformedData = this.transformData(filteredTableData, tableColumns);
     const serverSidePaginationEnabled = (this.props
       .serverSidePaginationEnabled &&
       this.props.serverSidePaginationEnabled) as boolean;
@@ -78,7 +225,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateWidgetMetaProperty("pageNo", pageNo);
     }
     const { componentWidth, componentHeight } = this.getComponentDimensions();
-    const pageSize = Math.floor((componentHeight - 104) / 52);
+    const pageSize = Math.floor(
+      (componentHeight -
+        TABLE_SIZES.TABLE_HEADER_HEIGHT -
+        TABLE_SIZES.COLUMN_HEADER_HEIGHT) /
+        TABLE_SIZES.ROW_HEIGHT,
+    );
 
     if (pageSize !== this.props.pageSize) {
       super.updateWidgetMetaProperty("pageSize", pageSize);
@@ -89,9 +241,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         <ReactTableComponent
           height={componentHeight}
           width={componentWidth}
-          tableData={filteredTableData}
+          tableData={transformedData}
+          columns={tableColumns}
           isLoading={this.props.isLoading}
           widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
           searchKey={this.props.searchKey}
           renderMode={this.props.renderMode}
           hiddenColumns={hiddenColumns}
