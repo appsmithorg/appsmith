@@ -15,11 +15,18 @@ import { TableHeaderCell, renderEmptyRows } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 
+export enum TABLE_SIZES {
+  COLUMN_HEADER_HEIGHT = 52,
+  TABLE_HEADER_HEIGHT = 61,
+  ROW_HEIGHT = 52,
+}
+
 interface TableProps {
   width: number;
   height: number;
   pageSize: number;
   widgetId: string;
+  widgetName: string;
   searchKey: string;
   isLoading: boolean;
   columns: ReactTableColumnProps[];
@@ -58,6 +65,9 @@ export const Table = (props: TableProps) => {
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const data = React.useMemo(() => props.data, [JSON.stringify(props.data)]);
+  const columns = React.useMemo(() => props.columns, [
+    JSON.stringify(props.columns),
+  ]);
   const {
     getTableProps,
     getTableBodyProps,
@@ -67,7 +77,7 @@ export const Table = (props: TableProps) => {
     pageOptions,
   } = useTable(
     {
-      columns: props.columns,
+      columns: columns,
       data,
       defaultColumn,
       initialState: {
@@ -97,6 +107,8 @@ export const Table = (props: TableProps) => {
       id={`table${props.widgetId}`}
     >
       <TableHeader
+        tableData={props.data}
+        tableColumns={props.columns}
         searchTableData={props.searchTableData}
         searchKey={props.searchKey}
         updatePageNo={props.updatePageNo}
@@ -106,6 +118,7 @@ export const Table = (props: TableProps) => {
         pageCount={pageCount}
         currentPageIndex={currentPageIndex}
         pageOptions={pageOptions}
+        widgetName={props.widgetName}
         serverSidePaginationEnabled={props.serverSidePaginationEnabled}
         columns={props.columns.filter((column: ReactTableColumnProps) => {
           return column.accessor !== "actions";
@@ -145,9 +158,20 @@ export const Table = (props: TableProps) => {
               </div>
             ))}
             {headerGroups.length === 0 &&
-              renderEmptyRows(1, props.columns, props.width)}
+              renderEmptyRows(
+                1,
+                props.columns,
+                props.width,
+                subPage,
+                prepareRow,
+              )}
           </div>
-          <div {...getTableBodyProps()} className="tbody">
+          <div
+            {...getTableBodyProps()}
+            className={`tbody ${
+              props.pageSize > subPage.length ? "no-scroll" : ""
+            }`}
+          >
             {subPage.map((row, rowIndex) => {
               prepareRow(row);
               return (
@@ -168,8 +192,6 @@ export const Table = (props: TableProps) => {
                       <div
                         {...cell.getCellProps()}
                         className="td"
-                        data-rowindex={rowIndex}
-                        data-colindex={cellIndex}
                         key={cellIndex}
                       >
                         {cell.render("Cell")}
@@ -184,6 +206,8 @@ export const Table = (props: TableProps) => {
                 props.pageSize - subPage.length,
                 props.columns,
                 props.width,
+                subPage,
+                prepareRow,
               )}
           </div>
         </div>

@@ -35,7 +35,8 @@ class PageNotFound extends React.PureComponent<RouterProps> {
           <div>
             <p className="bold-text">Page not found</p>
             <p>
-              Either this page doesn't exist, or you don't have access to <br />
+              Either this page doesn&apos;t exist, or you don&apos;t have access
+              to <br />
               this page.
             </p>
             <Button

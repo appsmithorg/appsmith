@@ -57,8 +57,8 @@ const ApplicationCardsWrapper = styled.div`
   font-size: ${props => props.theme.fontSizes[4]}px;
 `;
 
-const OrgSection = styled.div``
- 
+const OrgSection = styled.div``;
+
 const OrgName = styled.div`
   display: flex;
   font-size: ${props => props.theme.fontSizes[3]}px;
@@ -213,11 +213,11 @@ class Applications extends Component<
         <PageSectionDivider />
         {this.props.userOrgs &&
           this.props.userOrgs.length !== 0 &&
-          this.props.userOrgs.map((organizationObject: any) => {
+          this.props.userOrgs.map((organizationObject: any, index: number) => {
             const { organization, applications } = organizationObject;
 
             return (
-              <OrgSection className="t--org-section">
+              <OrgSection className="t--org-section" key={index}>
                 {!isPermitted(
                   organization.userPermissions,
                   PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -260,7 +260,12 @@ class Applications extends Component<
                     </StyledDialog>
                     <FormDialogComponent
                       trigger={
-                        <Button text="Share" intent={"primary"} className="t--org-share-btn" filled />
+                        <Button
+                          text="Share"
+                          intent={"primary"}
+                          className="t--org-share-btn"
+                          filled
+                        />
                       }
                       Form={InviteUsersFormv2}
                       orgId={organization.id}
