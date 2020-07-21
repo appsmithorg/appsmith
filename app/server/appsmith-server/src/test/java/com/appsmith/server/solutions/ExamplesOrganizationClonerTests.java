@@ -65,8 +65,12 @@ public class ExamplesOrganizationClonerTests {
 
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization");
-        final Mono<Organization> requiredDataMono = organizationService.create(newOrganization)
+        final Mono<Organization> organizationMono = organizationService.create(newOrganization)
             .flatMap(organization -> {
+                if (organization.getId() == null) {
+                    return Mono.error(new RuntimeException("Created templates organization doesn't have an ID."));
+                }
+
                 Application app1 = new Application();
                 app1.setName("1 - public app");
                 app1.setOrganizationId(organization.getId());
@@ -76,25 +80,18 @@ public class ExamplesOrganizationClonerTests {
                 app2.setOrganizationId(organization.getId());
                 app2.setName("2 - private app");
 
+                Config config = new Config();
+                config.setName(ExamplesOrganizationCloner.TEMPLATE_ORGANIZATION_CONFIG_NAME);
+                config.setConfig(new JSONObject(Map.of(FieldName.ORGANIZATION_ID, organization.getId())));
+
                 return Mono.when(
                         applicationPageService.createApplication(app1),
-                        applicationPageService.createApplication(app2)
+                        applicationPageService.createApplication(app2),
+                        configRepository.save(config).thenReturn(organization)
                 ).thenReturn(organization);
             })
+            .flatMap(organization -> examplesOrganizationCloner.cloneExamplesOrganization())
             .cache();
-
-        final Mono<Organization> organizationMono = requiredDataMono
-                .flatMap(organization -> {
-                    if (organization.getId() == null) {
-                        log.error("Cannot create organization for cloning");
-                    }
-                    Config config = new Config();
-                    config.setName(ExamplesOrganizationCloner.TEMPLATE_ORGANIZATION_CONFIG_NAME);
-                    config.setConfig(new JSONObject(Map.of(FieldName.ORGANIZATION_ID, organization.getId())));
-                    return configRepository.save(config).thenReturn(organization);
-                })
-                .flatMap(organization -> examplesOrganizationCloner.cloneExamplesOrganization())
-                .cache();
 
         final Mono<Tuple3<Organization, List<Application>, List<Datasource>>> resultMono = Mono.zip(
                 organizationMono,
