@@ -17,6 +17,7 @@ import {
   getPluginIdsOfPackageNames,
   getPlugins,
   getPluginImages,
+  getDBDatasources,
 } from "selectors/entitiesSelector";
 import {
   PLUGIN_PACKAGE_DBS,
@@ -105,14 +106,7 @@ class QueryEditor extends React.Component<Props> {
     }
     const { isRunning, isDeleting } = queryPane;
 
-    const validDataSources: Array<Datasource> = [];
-    dataSources.forEach(dataSource => {
-      if (pluginIds?.includes(dataSource.pluginId)) {
-        validDataSources.push(dataSource);
-      }
-    });
-
-    const DATASOURCES_OPTIONS = validDataSources.map(dataSource => ({
+    const DATASOURCES_OPTIONS = dataSources.map(dataSource => ({
       label: dataSource.name,
       value: dataSource.id,
       image: pluginImages[dataSource.pluginId],
@@ -159,7 +153,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => {
     plugins: getPlugins(state),
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDataSources(state),
+    dataSources: getDBDatasources(state),
     executedQueryData: state.ui.queryPane.runQuerySuccessData,
     queryPane: state.ui.queryPane,
     formData,

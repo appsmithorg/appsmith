@@ -165,13 +165,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       pluginImages,
     } = this.props;
 
-    const validDataSources: Array<Datasource> = [];
-    dataSources.forEach(dataSource => {
-      if (pluginIds?.includes(dataSource.pluginId)) {
-        validDataSources.push(dataSource);
-      }
-    });
-
     const queryParams: string = location.search;
     const destinationPageId = new URLSearchParams(location.search).get(
       "importTo",
@@ -200,11 +193,8 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
               interactive={false}
               className="eachDatasourceCard"
               onClick={() => {
-                if (validDataSources.length) {
-                  this.handleCreateNewQuery(
-                    validDataSources[0].id,
-                    queryParams,
-                  );
+                if (dataSources.length) {
+                  this.handleCreateNewQuery(dataSources[0].id, queryParams);
                 } else {
                   history.push(DATA_SOURCES_EDITOR_URL(applicationId, pageId));
                 }
@@ -213,7 +203,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
               <Icon icon="plus" iconSize={25} className="addIcon" />
               <p className="createText">Blank Query</p>
             </Card>
-            {validDataSources.map(dataSource => {
+            {dataSources.map(dataSource => {
               return (
                 <Card
                   interactive={false}
