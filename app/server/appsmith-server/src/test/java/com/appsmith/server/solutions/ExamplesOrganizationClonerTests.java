@@ -6,7 +6,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
@@ -46,9 +45,6 @@ public class ExamplesOrganizationClonerTests {
     private ExamplesOrganizationCloner examplesOrganizationCloner;
 
     @Autowired
-    private OrganizationRepository organizationRepository;
-
-    @Autowired
     private ConfigRepository configRepository;
 
     @Autowired
@@ -80,17 +76,10 @@ public class ExamplesOrganizationClonerTests {
                 app2.setOrganizationId(organization.getId());
                 app2.setName("2 - private app");
 
-                return Mono.zip(
-                        Mono.just(newOrganization),
+                return Mono.when(
                         applicationPageService.createApplication(app1),
                         applicationPageService.createApplication(app2)
-                );
-            })
-            .map(tuple -> {
-                final Organization organization = tuple.getT1();
-                final Application app1 = tuple.getT2();
-                final Application app2 = tuple.getT3();
-                return organization;
+                ).thenReturn(organization);
             })
             .cache();
 
