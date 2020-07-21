@@ -5,7 +5,7 @@ if [ ! -f nginx_app.conf ]; then
 fi
 
 # This template file is different from the others because of the sub_filter commands in the Nginx configuration
-# Those variables are substituted inside the Docker container for appsmith-editor during bootup. 
+# Those variables are substituted inside the Docker container for appsmith-editor during bootup.
 # Hence we wish to prevent environment substitution here.
 # Relevant variables will be replaced at the end of this file via sed command
 
@@ -26,7 +26,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
 
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Host $host;
-    
+
     location / {
         try_files $uri /index.html =404;
 
@@ -49,7 +49,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
     location /f {
        proxy_pass https://cdn.optimizely.com/;
     }
-    
+
     location /api {
         proxy_pass http://appsmith-internal-server:8080;
     }
@@ -101,7 +101,7 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /f {
 $NGINX_SSL_CMNT       proxy_pass https://cdn.optimizely.com/;
 $NGINX_SSL_CMNT    }
-$NGINX_SSL_CMNT    
+$NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /api {
 $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
@@ -115,7 +115,7 @@ $NGINX_SSL_CMNT        proxy_pass http://appsmith-internal-server:8080;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT }
-' > nginx_app.conf
+' >| nginx_app.conf
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     sed -i '' "s/\$NGINX_SSL_CMNT/$NGINX_SSL_CMNT/g" nginx_app.conf
