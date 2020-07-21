@@ -49,7 +49,7 @@ cd $boot_script_path
 sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/configure-ssl.sh
 sudo chown ubuntu:ubuntu $boot_script_path/$config_ssl_file_name && sudo chmod +x $boot_script_path/$config_ssl_file_name
 
-sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/feature/deploy-script/deploy/aws/boot.sh
+sudo curl -O https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/aws/boot.sh
 sudo chown ubuntu:ubuntu $boot_script_path/$boot_file_name && sudo chmod +x $boot_script_path/$boot_file_name
 
 USER="ubuntu"
