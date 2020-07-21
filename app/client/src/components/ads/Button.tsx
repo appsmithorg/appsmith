@@ -1,8 +1,11 @@
+import React from "react";
 import { IconName } from "./Icons";
 import { CommonComponentProps } from "./common";
+import styled from "styled-components";
+import { variant, typography } from "styled-system";
 
 type ButtonProps = CommonComponentProps & {
-  onClick: Function;
+  onClick: (event: React.MouseEvent<HTMLElement>) => void;
   category?: "primary" | "secondary" | "tertiary"; //default primary
   variant?: "success" | "info" | "warning" | "danger" | "link"; //default info
   icon?: IconName; //default undefined.
@@ -10,6 +13,28 @@ type ButtonProps = CommonComponentProps & {
 };
 // https://design.gitlab.com/components/button
 
-export default function Button(props: ButtonProps) {
-  return "";
+const StyledButton = styled("button")(
+  typography,
+  variant({
+    prop: "size",
+    scale: "buttonSizes",
+    variants: {
+      medium: {},
+    },
+  }),
+  variant({
+    prop: "variant",
+    scale: "buttonVariant",
+    variants: {
+      successPrimary: {},
+    },
+  }),
+);
+
+function AdsButton(props: ButtonProps) {
+  return (
+    <StyledButton {...props} onClick={e => props.onClick(e)}></StyledButton>
+  );
 }
+
+export default AdsButton;
