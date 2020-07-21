@@ -104,7 +104,7 @@ public class ExamplesOrganizationClonerTests {
                         .flatMap(organization -> datasourceService.findAllByOrganizationId(organization.getId(), READ_DATASOURCES).collectList())
         );
 
-        StepVerifier.create(requiredDataMono.then(resultMono))
+        StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
                     Organization organization = tuple.getT1();
                     assertThat(organization).isNotNull();
