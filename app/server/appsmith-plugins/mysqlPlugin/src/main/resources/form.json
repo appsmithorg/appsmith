@@ -147,62 +147,6 @@
           ]
         }
       ]
-    },
-    {
-      "sectionName": "SSH (optional)",
-      "id": 4,
-      "children": [
-        {
-          "label": "Enable SSH",
-          "configProperty": "enableSSH",
-          "controlType": "SWITCH"
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Tunnel Host",
-              "configProperty": "datasourceConfiguration.sshProxy.host",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "0.0.0.0"
-            },
-            {
-              "label": "Tunnel Port",
-              "configProperty": "datasourceConfiguration.sshProxy.port",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "8080"
-            }
-          ]
-        },
-        {
-          "label": "Username",
-          "configProperty": "datasourceConfiguration.sshProxy.username",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "SSH Proxy username"
-        },
-        {
-          "label": "Password",
-          "configProperty": "datasourceConfiguration.sshProxy.password",
-          "dataType": "PASSWORD",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "SSH Proxy password"
-        },
-        {
-          "label": "Authentication Type",
-          "configProperty": "datasourceConfiguration.sshProxy.authType",
-          "controlType": "DROP_DOWN",
-          "options": [
-            {
-              "label": "Password",
-              "value": "PASSWORD"
-            },
-            {
-              "label": "Identity File",
-              "value": "IDENTITY_FILE"
-            }
-          ]
-        }
-      ]
     }
   ]
 }
